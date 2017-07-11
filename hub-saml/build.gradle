@@ -1,0 +1,14 @@
+dependencies {
+    compile configurations.common,
+            'javax.inject:javax.inject:1',
+            'io.dropwizard:dropwizard-util:1.0.5',
+            'org.slf4j:log4j-over-slf4j:1.7.12',
+            'org.apache.santuario:xmlsec:1.5.7'
+
+    testCompile configurations.test_deps,
+            project(':hub-saml-test-utils'),
+            'com.google.code.findbugs:jsr305:3.0.1',
+            'commons-codec:commons-codec:1.10',
+            "uk.gov.ida:saml-metadata-bindings-test:$opensaml_version-36",
+            "uk.gov.verify:saml-test-utils:$opensaml_version-19"
+}

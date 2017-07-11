@@ -1,0 +1,28 @@
+configure(subprojects.findAll {it.name != 'buildSrc'}) {
+    apply plugin: 'maven-publish'
+    apply plugin: 'java'
+
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allJava
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                artifact sourceJar {
+                    classifier "sources"
+                }
+            }
+          }
+        }
+
+      publishing {
+            repositories {
+                maven {
+                    url "/srv/maven" // change to point to your repo, e.g. http://my.org/repo
+                }
+            }
+        }
+}
