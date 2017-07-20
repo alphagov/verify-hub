@@ -56,7 +56,7 @@ public class IdpMetadataPublicKeyStoreTest {
             EntityDescriptorFactory descriptorFactory = new EntityDescriptorFactory();
             String metadata = new MetadataFactory().metadata(asList(
                     descriptorFactory.hubEntityDescriptor(),
-                    idpEntityDescriptor(TestEntityIds.HEADLESS_IDP, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT)
+                    idpEntityDescriptor(TestEntityIds.STUB_IDP_ONE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT)
             ));
             InitializationService.initialize();
             StringBackedMetadataResolver stringBackedMetadataResolver = new StringBackedMetadataResolver(metadata);
@@ -109,7 +109,7 @@ public class IdpMetadataPublicKeyStoreTest {
         IdpMetadataPublicKeyStore idpMetadataPublicKeyStore = new IdpMetadataPublicKeyStore(metadataResolver);
 
         PublicKey expectedPublicKey = getX509Key(TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT);
-        assertThat(idpMetadataPublicKeyStore.getVerifyingKeysForEntity(TestEntityIds.HEADLESS_IDP)).containsExactly(expectedPublicKey);
+        assertThat(idpMetadataPublicKeyStore.getVerifyingKeysForEntity(TestEntityIds.STUB_IDP_ONE)).containsExactly(expectedPublicKey);
     }
 
     @Test(expected = NoKeyConfiguredForEntityException.class)

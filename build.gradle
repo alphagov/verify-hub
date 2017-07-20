@@ -38,7 +38,7 @@ subprojects {
                 'com.google.inject:guice:4.0',
                 'joda-time:joda-time:2.9',
                 'org.slf4j:slf4j-api:1.7.12',
-                'uk.gov.ida:ida-dev-pki:1.1.0-14',
+                'uk.gov.ida:ida-dev-pki:1.1.0-19',
                 'commons-lang:commons-lang:2.6'
 
         test_deps 'junit:junit:4.11',
