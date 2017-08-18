@@ -33,7 +33,7 @@ subprojects {
     dependencies {
         common "uk.gov.ida:dropwizard-saml:$opensaml_version-361",
                 "org.opensaml:opensaml-core:$opensaml_version",
-                "uk.gov.verify:saml-utils:$opensaml_version-37",
+                "uk.gov.verify:saml-utils:$opensaml_version-38",
                 'com.google.guava:guava:18.0',
                 'com.google.inject:guice:4.0',
                 'joda-time:joda-time:2.9',
