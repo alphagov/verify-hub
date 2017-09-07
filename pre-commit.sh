@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. ../ida-build-scripts/check_for_library_updates.sh
+. ../verify-build-scripts/check_for_library_updates.sh
 ./gradlew --daemon --parallel clean build test
 
 check_for_library_updates ida-saml-extensions saml-serializers dropwizard-saml common-utils
