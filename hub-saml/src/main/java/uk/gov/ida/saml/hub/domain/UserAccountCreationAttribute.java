@@ -18,7 +18,6 @@ public enum UserAccountCreationAttribute implements Serializable {
     CURRENT_ADDRESS("currentaddress"),
     CURRENT_ADDRESS_VERIFIED("currentaddress_verified"),
     ADDRESS_HISTORY("addresshistory"),
-    ADDRESS_HISTORY_VERIFIED("addresshistory_verified"),
     CYCLE_3("cycle_3");
 
     private String attributeName;
