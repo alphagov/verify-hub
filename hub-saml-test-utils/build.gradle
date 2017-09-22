@@ -1,6 +1,6 @@
 dependencies {
     compile configurations.common,
             configurations.test_deps,
-            "uk.gov.verify:saml-test-utils:$opensaml_version-25",
+            "uk.gov.verify:saml-test-utils:$opensaml_version-27",
             'commons-codec:commons-codec:1.10'
 }
