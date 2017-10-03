@@ -1,5 +1,4 @@
-Hub SAML
-========
+# Verify Hub SAML
 
 Responsible for SAML behaviours which are specific to the domain of the hub. At a high level:
 
@@ -20,12 +19,20 @@ At a lower level this includes:
 * Generating Cycle 3 Dataset Assertions
 * Hashing PIDs
 
-Common tasks (e.g. validating signatures) are handled by dependencies such as saml-security and saml-serialisers.
+Common tasks (e.g. validating signatures) are handled by dependencies such as [saml-security](https://github.com/alphagov/verify-saml-security) and [saml-serializers](https://github.com/alphagov/verify-saml-serializers).
 
-Hub SAML Test Utils
--------------------
+# Hub SAML Test Utils
 
 `hub-saml-test-utils` is provided for services which require hub-like behaviour to set up state for their tests.
 For example: in order to test stub-idp we need to generate an example AuthnRequest. `hub-saml-test-utils` provides
 helpful builders for situations like this.
 
+### Building the project
+
+`./gradlew clean build`
+
+## Licence
+
+[MIT Licence](LICENCE)
+
+This code is provided for informational purposes only and is not yet intended for use outside GOV.UK Verify
