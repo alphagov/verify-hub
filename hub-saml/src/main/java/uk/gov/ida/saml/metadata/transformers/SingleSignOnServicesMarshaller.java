@@ -6,6 +6,8 @@ import com.google.common.collect.Lists;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 import uk.gov.ida.saml.metadata.domain.SamlEndpointDto;
 
+import static java.util.stream.Collectors.toList;
+
 public class SingleSignOnServicesMarshaller {
 
     private EndpointMarshaller endpointMarshaller;
@@ -15,6 +17,8 @@ public class SingleSignOnServicesMarshaller {
     }
 
     public List<SamlEndpointDto> toDto(List<SingleSignOnService> singleSignOnServices) {
-        return Lists.transform(singleSignOnServices, input -> endpointMarshaller.toDto(input));
+        return singleSignOnServices.stream()
+            .map(item -> endpointMarshaller.toDto(item))
+            .collect(toList());
     }
 }
