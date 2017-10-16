@@ -8,7 +8,9 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.security.credential.Credential;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.w3c.dom.Element;
@@ -38,11 +40,20 @@ import uk.gov.ida.saml.deserializers.ElementToOpenSamlXMLObjectTransformer;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
-import uk.gov.ida.saml.hub.domain.*;
+import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
+import uk.gov.ida.saml.hub.domain.Endpoints;
+import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
+import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
+import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
+import uk.gov.ida.saml.hub.domain.InboundHealthCheckResponseFromMatchingService;
+import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
+import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
+import uk.gov.ida.saml.hub.domain.MatchingServiceHealthCheckRequest;
+import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
 import uk.gov.ida.saml.hub.factories.AttributeFactory_1_1;
 import uk.gov.ida.saml.hub.factories.AttributeQueryAttributeFactory;
-import uk.gov.ida.saml.hub.transformers.inbound.AuthnRequestFromTransactionUnmarshaller;
-import uk.gov.ida.saml.hub.transformers.inbound.AuthnRequestToIdaRequestFromTransactionTransformer;
+import uk.gov.ida.saml.hub.transformers.inbound.AuthnRequestFromRelyingPartyUnmarshaller;
+import uk.gov.ida.saml.hub.transformers.inbound.AuthnRequestToIdaRequestFromRelyingPartyTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.IdaResponseFromIdpUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundHealthCheckResponseFromMatchingServiceUnmarshaller;
@@ -121,6 +132,7 @@ import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValida
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
@@ -239,17 +251,24 @@ public class HubTransformersFactory {
         return getAuthnRequestToStringTransformer(true, keyStore, signatureAlgorithm, digestAlgorithm).compose(getEidasAuthnRequestFromHubToAuthnRequestTransformer());
     }
 
-    public Function<String, AuthnRequestFromTransaction> getStringToIdaAuthnRequestTransformer(
+    public Function<String, AuthnRequestFromRelyingParty> getStringToIdaAuthnRequestTransformer(
             SamlConfiguration samlConfiguration,
             SigningKeyStore signingKeyStore,
+            IdaKeyStore decryptionKeyStore,
             ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
             SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration,
             SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration
     ) {
         Function<String, AuthnRequest> stringToAuthnRequestTransformer = getStringToAuthnRequestTransformer();
-        Function<AuthnRequest, AuthnRequestFromTransaction> authnRequestToIdaRequestFromTransactionTransformer =
-                getAuthnRequestToAuthnRequestFromTransactionTransformer(samlConfiguration, signingKeyStore, duplicateIds, samlDuplicateRequestValidationConfiguration,
-                        samlAuthnRequestValidityDurationConfiguration);
+        Function<AuthnRequest, AuthnRequestFromRelyingParty> authnRequestToIdaRequestFromTransactionTransformer =
+            getAuthnRequestToAuthnRequestFromTransactionTransformer(
+                samlConfiguration,
+                signingKeyStore,
+                decryptionKeyStore,
+                duplicateIds,
+                samlDuplicateRequestValidationConfiguration,
+                samlAuthnRequestValidityDurationConfiguration
+            );
 
         return authnRequestToIdaRequestFromTransactionTransformer.compose(stringToAuthnRequestTransformer);
     }
@@ -401,19 +420,26 @@ public class HubTransformersFactory {
         );
     }
 
-    public AuthnRequestToIdaRequestFromTransactionTransformer getAuthnRequestToAuthnRequestFromTransactionTransformer(final SamlConfiguration samlConfiguration,
-                                                                                                                      final SigningKeyStore signingKeyStore, final ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
-                                                                                                                      final SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration,
-                                                                                                                      final SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration) {
-        return new AuthnRequestToIdaRequestFromTransactionTransformer(
-                new AuthnRequestFromTransactionUnmarshaller(),
-                coreTransformersFactory.<AuthnRequest>getSamlRequestSignatureValidator(signingKeyStore),
-                new ValidateSamlAuthnRequestFromTransactionDestination(new DestinationValidator(samlConfiguration.getExpectedDestinationHost()), Endpoints.SSO_REQUEST_ENDPOINT),
-                new AuthnRequestFromTransactionValidator(
-                        new IssuerValidator(),
-                        new DuplicateAuthnRequestValidator(duplicateIds, samlDuplicateRequestValidationConfiguration),
-                        new AuthnRequestIssueInstantValidator(samlAuthnRequestValidityDurationConfiguration)
-                )
+    public AuthnRequestToIdaRequestFromRelyingPartyTransformer getAuthnRequestToAuthnRequestFromTransactionTransformer(
+        final SamlConfiguration samlConfiguration,
+        final SigningKeyStore signingKeyStore,
+        final IdaKeyStore decryptionKeyStore,
+        final ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
+        final SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration,
+        final SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration
+    ) {
+        List<Credential> credential = new IdaKeyStoreCredentialRetriever(decryptionKeyStore).getDecryptingCredentials();
+        Decrypter decrypter = new DecrypterFactory().createDecrypter(credential);
+
+        return new AuthnRequestToIdaRequestFromRelyingPartyTransformer(
+            new AuthnRequestFromRelyingPartyUnmarshaller(decrypter),
+            coreTransformersFactory.<AuthnRequest>getSamlRequestSignatureValidator(signingKeyStore),
+            new ValidateSamlAuthnRequestFromTransactionDestination(new DestinationValidator(samlConfiguration.getExpectedDestinationHost()), Endpoints.SSO_REQUEST_ENDPOINT),
+            new AuthnRequestFromTransactionValidator(
+                new IssuerValidator(),
+                new DuplicateAuthnRequestValidator(duplicateIds, samlDuplicateRequestValidationConfiguration),
+                new AuthnRequestIssueInstantValidator(samlAuthnRequestValidityDurationConfiguration)
+            )
         );
     }
 
