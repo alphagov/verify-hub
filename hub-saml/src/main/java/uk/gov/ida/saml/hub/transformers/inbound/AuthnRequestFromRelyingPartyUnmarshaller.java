@@ -6,6 +6,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml.saml2.core.Extensions;
 import org.opensaml.saml.saml2.encryption.Decrypter;
+import org.opensaml.xmlsec.encryption.support.DecryptionException;
 import org.opensaml.xmlsec.signature.Signature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class AuthnRequestFromRelyingPartyUnmarshaller {
         final Optional<String> assertionConsumerServiceURL = Optional.ofNullable(authnRequest.getAssertionConsumerServiceURL());
         final Integer assertionConsumerServiceIndex = authnRequest.getAssertionConsumerServiceIndex();
         final Signature signature = authnRequest.getSignature();
-        final Optional<String> verifyServiceProviderVersion = extractVerifyServiceProviderVersion(authnRequest.getExtensions());
+        final Optional<String> verifyServiceProviderVersion = extractVerifyServiceProviderVersion(authnRequest.getExtensions(), issuerId);
 
         return new AuthnRequestFromRelyingParty(
             id,
@@ -50,17 +51,36 @@ public class AuthnRequestFromRelyingPartyUnmarshaller {
         );
     }
 
-    private Optional<String> extractVerifyServiceProviderVersion(Extensions extensions) {
+    private Optional<String> extractVerifyServiceProviderVersion(Extensions extensions, String issuerId) {
         return Optional.ofNullable(extensions).flatMap(item -> {
-            EncryptedAttribute encryptedAttribute = (EncryptedAttribute) extensions.getUnknownXMLObjects().get(0);
             try {
-                Attribute attribute = decrypter.decrypt(encryptedAttribute);
-                Version version = (Version) attribute.getAttributeValues().get(0);
-                return Optional.of(version.getApplicationVersion().getValue());
+                return extensions.getUnknownXMLObjects().stream()
+                    .filter(EncryptedAttribute.class::isInstance)
+                    .findFirst()
+                    .map(EncryptedAttribute.class::cast)
+                    .map(this::decrypt)
+                    .map(this::extractVersion);
             } catch (Exception e) {
-                LOG.error("Error while decrypting VSP version", e);
+                LOG.error("Error while processing the VSP version for issuer " + issuerId, e);
                 return Optional.empty();
             }
         });
+    }
+
+    private String extractVersion(Attribute attribute) {
+        return attribute.getAttributeValues().stream()
+            .filter(Version.class::isInstance)
+            .findFirst()
+            .map(Version.class::cast)
+            .map(version -> version.getApplicationVersion().getValue())
+            .orElseThrow(() -> new RuntimeException("Attribute does not contain VSP Version"));
+    }
+
+    private Attribute decrypt(EncryptedAttribute encryptedAttribute) {
+        try {
+            return decrypter.decrypt(encryptedAttribute);
+        } catch (DecryptionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
