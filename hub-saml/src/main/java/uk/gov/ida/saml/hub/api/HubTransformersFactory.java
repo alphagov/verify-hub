@@ -40,16 +40,17 @@ import uk.gov.ida.saml.deserializers.ElementToOpenSamlXMLObjectTransformer;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
+import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
 import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.Endpoints;
 import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
+import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.domain.InboundHealthCheckResponseFromMatchingService;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.hub.domain.MatchingServiceHealthCheckRequest;
-import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
 import uk.gov.ida.saml.hub.factories.AttributeFactory_1_1;
 import uk.gov.ida.saml.hub.factories.AttributeQueryAttributeFactory;
 import uk.gov.ida.saml.hub.transformers.inbound.AuthnRequestFromRelyingPartyUnmarshaller;
@@ -74,6 +75,7 @@ import uk.gov.ida.saml.hub.transformers.outbound.EidasAuthnRequestFromHubToAuthn
 import uk.gov.ida.saml.hub.transformers.outbound.EncryptedAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.HubAssertionMarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.HubAttributeQueryRequestToSamlAttributeQueryTransformer;
+import uk.gov.ida.saml.hub.transformers.outbound.HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.IdaAuthnRequestFromHubToAuthnRequestTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.MatchingServiceHealthCheckRequestToSamlAttributeQueryTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundResponseFromHubToSamlResponseTransformer;
@@ -320,6 +322,20 @@ public class HubTransformersFactory {
         return t2.compose(t1);
     }
 
+    public Function<HubEidasAttributeQueryRequest, Element> getEidasMatchingServiceRequestToElementTransformer(
+        IdaKeyStore keyStore,
+        EncryptionKeyStore encryptionKeyStore,
+        EntityToEncryptForLocator entity,
+        SignatureAlgorithm signatureAlgorithm,
+        DigestAlgorithm digestAlgorithm,
+        String hubEntityId) {
+
+        Function<HubEidasAttributeQueryRequest, AttributeQuery> t1 = getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer();
+        Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.fromNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
+
+        return t2.compose(t1);
+    }
+
     public Function<MatchingServiceHealthCheckRequest, Element> getMatchingServiceHealthCheckRequestToElementTransformer(
             IdaKeyStore keyStore,
             EncryptionKeyStore encryptionKeyStore,
@@ -480,6 +496,20 @@ public class HubTransformersFactory {
 
     private HubAttributeQueryRequestToSamlAttributeQueryTransformer getHubAttributeQueryRequestToSamlAttributeQueryTransformer() {
         return new HubAttributeQueryRequestToSamlAttributeQueryTransformer(
+                new OpenSamlXmlObjectFactory(),
+                new HubAssertionMarshaller(
+                        new OpenSamlXmlObjectFactory(),
+                        new AttributeFactory_1_1(new OpenSamlXmlObjectFactory()),
+                        new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory())),
+                new AssertionFromIdpToAssertionTransformer(
+                        getStringToAssertionTransformer()
+                ),
+                new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory()),
+                new EncryptedAssertionUnmarshaller(getStringToEncryptedAssertionTransformer()));
+    }
+
+    private HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer() {
+        return new HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
                 new OpenSamlXmlObjectFactory(),
                 new HubAssertionMarshaller(
                         new OpenSamlXmlObjectFactory(),

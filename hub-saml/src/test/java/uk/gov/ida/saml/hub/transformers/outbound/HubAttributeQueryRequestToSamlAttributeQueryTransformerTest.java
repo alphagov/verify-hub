@@ -22,7 +22,6 @@ import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
 import uk.gov.ida.saml.hub.factories.AttributeFactory_1_1;
 import uk.gov.ida.saml.hub.factories.AttributeQueryAttributeFactory;
-import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
 import java.net.URI;
 import java.util.List;
@@ -93,7 +92,6 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformerTest {
         assertThat(transformedQuery.getSubject().getNameID().getValue()).isEqualTo(persistentId.getNameId());
         assertThat(transformedQuery.getIssuer().getValue()).isEqualTo(originalQuery.getIssuer());
         assertThat(transformedQuery.getVersion()).isEqualTo(SAMLVersion.VERSION_20);
-        new XmlObjectToBase64EncodedStringTransformer<>().apply(transformedQuery);
     }
 
     @Test
