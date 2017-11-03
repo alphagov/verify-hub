@@ -4,7 +4,7 @@ import uk.gov.ida.saml.core.domain.AuthnContext;
 
 import java.util.Arrays;
 
-public enum LevelOfAssurance {
+public enum LevelOfAssurance implements Comparable<LevelOfAssurance> {
 
     LOW("http://eidas.europa.eu/LoA/low"),
 
@@ -27,10 +27,13 @@ public enum LevelOfAssurance {
 
     public AuthnContext toVerifyLevelOfAssurance() {
         switch (this) {
-            case LOW            :   return AuthnContext.LEVEL_1;
-            case SUBSTANTIAL    :   return AuthnContext.LEVEL_2;
-            case HIGH           :   return AuthnContext.LEVEL_2; // Verify doesn't support LoA 3 yet, so return LoA 2
-            default             :
+            case LOW:
+                return AuthnContext.LEVEL_1;
+            case SUBSTANTIAL:
+                return AuthnContext.LEVEL_2;
+            case HIGH:
+                return AuthnContext.LEVEL_2; // Verify doesn't support LoA 3 yet, so return LoA 2
+            default:
                 throw new IllegalStateException("Unknown level of assurance from requested AuthnContext : " + this.value);
         }
     }
