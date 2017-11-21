@@ -347,4 +347,8 @@ public final class SamlTransformationErrorFactory {
     public static SamlValidationSpecificationWarning invalidAttributeNameFormat(final String nameFormat) {
         return new InvalidAttributeNameFormat(nameFormat);
     }
+
+    public static SamlValidationSpecificationFailure mismatchedPersistentIdentifiers() {
+        return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.MISMATCHED_PIDS);
+    }
 }
