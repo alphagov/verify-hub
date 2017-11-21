@@ -10,6 +10,9 @@ import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;import uk.gov.
 import uk.gov.ida.saml.core.validators.subjectconfirmation.AssertionSubjectConfirmationValidator;
 import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class IdentityProviderAssertionValidator extends AssertionValidator {
 
     private final AssertionSubjectConfirmationValidator subjectConfirmationValidator;
@@ -23,6 +26,21 @@ public class IdentityProviderAssertionValidator extends AssertionValidator {
         super(issuerValidator, subjectValidator, assertionAttributeStatementValidator, subjectConfirmationValidator);
 
         this.subjectConfirmationValidator = subjectConfirmationValidator;
+    }
+
+    public void validateConsistency(Assertion authnStatementAssertion, Assertion matchingDatasetAssertion) {
+        validateConsistency(Arrays.asList(authnStatementAssertion, matchingDatasetAssertion));
+    }
+
+    public void validateConsistency(List<Assertion> assertions) {
+        if (assertions.size() == 0) return;
+
+        String pid = assertions.get(0).getSubject().getNameID().getValue();
+        boolean pidsAreConsistent = assertions.stream().allMatch(assertion -> assertion.getSubject().getNameID().getValue().equals(pid));
+        if (!pidsAreConsistent) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.mismatchedPersistentIdentifiers();
+            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        }
     }
 
     @Override

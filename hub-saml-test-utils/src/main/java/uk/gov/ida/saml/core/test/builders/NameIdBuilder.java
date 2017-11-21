@@ -10,7 +10,7 @@ import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 public class NameIdBuilder {
 
     private OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
-    private String value;
+    private String value = "default-pid";
     private Optional<String> format = Optional.fromNullable(NameIDType.PERSISTENT);
     private Optional<String> nameQualifier = Optional.absent();
     private Optional<String> spNameQualifier = Optional.absent();

@@ -12,6 +12,7 @@ import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 public class ResponseAssertionsFromIdpValidator extends ResponseAssertionsValidator {
 
+    private final IdentityProviderAssertionValidator identityProviderAssertionValidator;
     private final MatchingDatasetAssertionValidator matchingDatasetAssertionValidator;
     private final AuthnStatementAssertionValidator authnStatementAssertionValidator;
     private final IPAddressValidator ipAddressValidator;
@@ -25,6 +26,7 @@ public class ResponseAssertionsFromIdpValidator extends ResponseAssertionsValida
 
         super(assertionValidator, hubEntityId);
 
+        this.identityProviderAssertionValidator = assertionValidator;
         this.matchingDatasetAssertionValidator = matchingDatasetAssertionValidator;
         this.authnStatementAssertionValidator = authnStatementAssertionValidator;
         this.ipAddressValidator = ipAddressValidator;
@@ -46,6 +48,7 @@ public class ResponseAssertionsFromIdpValidator extends ResponseAssertionsValida
 
             matchingDatasetAssertionValidator.validate(matchingDatasetAssertion, validatedResponse.getIssuer().getValue());
             authnStatementAssertionValidator.validate(authnStatementAssertion);
+            identityProviderAssertionValidator.validateConsistency(authnStatementAssertion, matchingDatasetAssertion);
             ipAddressValidator.validate(authnStatementAssertion);
         }
     }
