@@ -33,11 +33,12 @@ public class IdentityProviderAssertionValidator extends AssertionValidator {
     }
 
     public void validateConsistency(List<Assertion> assertions) {
-        if (assertions.size() == 0) return;
+        boolean pidsDoNotMatch = assertions.stream()
+            .map(assertion -> assertion.getSubject().getNameID().getValue())
+            .distinct()
+            .count() > 1;
 
-        String pid = assertions.get(0).getSubject().getNameID().getValue();
-        boolean pidsAreConsistent = assertions.stream().allMatch(assertion -> assertion.getSubject().getNameID().getValue().equals(pid));
-        if (!pidsAreConsistent) {
+        if (pidsDoNotMatch) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.mismatchedPersistentIdentifiers();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
