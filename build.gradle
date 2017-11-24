@@ -33,7 +33,7 @@ subprojects {
     dependencies {
         common "uk.gov.ida:dropwizard-saml:$opensaml_version-365",
                 "org.opensaml:opensaml-core:$opensaml_version",
-                "uk.gov.verify:saml-utils:$opensaml_version-50",
+                "uk.gov.verify:saml-utils:$opensaml_version-51",
                 'com.google.guava:guava:18.0',
                 'com.google.inject:guice:4.0',
                 'joda-time:joda-time:2.9',
@@ -41,7 +41,7 @@ subprojects {
                 'uk.gov.ida:ida-dev-pki:1.1.0-20',
                 'commons-lang:commons-lang:2.6'
 
-        common ("uk.gov.ida:ida-saml-extensions:$opensaml_version-1.2a-36") { force = true }
+        common ("uk.gov.ida:ida-saml-extensions:$opensaml_version-1.2a-37") { force = true }
 
         test_deps 'junit:junit:4.11',
                 'org.assertj:assertj-core:1.6.0'
