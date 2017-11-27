@@ -351,4 +351,8 @@ public final class SamlTransformationErrorFactory {
     public static SamlValidationSpecificationFailure mismatchedPersistentIdentifiers() {
         return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.MISMATCHED_PIDS);
     }
+
+    public static SamlValidationSpecificationFailure mismatchedIssuers() {
+        return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.MISMATCHED_ISSUERS);
+    }
 }
