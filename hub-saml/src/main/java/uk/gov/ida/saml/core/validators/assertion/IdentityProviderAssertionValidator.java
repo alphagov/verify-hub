@@ -33,6 +33,12 @@ public class IdentityProviderAssertionValidator extends AssertionValidator {
     }
 
     public void validateConsistency(List<Assertion> assertions) {
+        ensurePidsMatch(assertions);
+
+        ensureIssuersMatch(assertions);
+    }
+
+    private void ensurePidsMatch(List<Assertion> assertions) {
         boolean pidsDoNotMatch = assertions.stream()
             .map(assertion -> assertion.getSubject().getNameID().getValue())
             .distinct()
@@ -40,6 +46,18 @@ public class IdentityProviderAssertionValidator extends AssertionValidator {
 
         if (pidsDoNotMatch) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.mismatchedPersistentIdentifiers();
+            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        }
+    }
+
+    private void ensureIssuersMatch(List<Assertion> assertions) {
+        boolean issuerValuesDoNotMatch = assertions.stream()
+            .map(assertion -> assertion.getIssuer().getValue())
+            .distinct()
+            .count() > 1;
+
+        if (issuerValuesDoNotMatch) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.mismatchedIssuers();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
     }

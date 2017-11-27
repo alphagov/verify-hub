@@ -41,7 +41,7 @@ subprojects {
                 'uk.gov.ida:ida-dev-pki:1.1.0-20',
                 'commons-lang:commons-lang:2.6'
 
-        common ("uk.gov.ida:ida-saml-extensions:$opensaml_version-1.2a-38") { force = true }
+        common ("uk.gov.ida:ida-saml-extensions:$opensaml_version-1.2a-39") { force = true }
 
         test_deps 'junit:junit:4.11',
                 'org.assertj:assertj-core:1.6.0'
