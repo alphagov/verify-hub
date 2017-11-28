@@ -46,7 +46,7 @@ public class IdpIdaStatusMarshallerTest {
         Status transformedStatus = marshaller.toSamlStatus(IdpIdaStatus.authenticationPending());
         StatusValue actual = (StatusValue) transformedStatus.getStatusDetail().getOrderedChildren().get(0);
 
-        assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.RESPONDER);
         assertThat(transformedStatus.getStatusCode().getStatusCode().getValue()).isEqualTo(StatusCode.NO_AUTHN_CONTEXT);
         assertThat(actual.getValue()).isEqualTo(StatusValue.PENDING);
     }

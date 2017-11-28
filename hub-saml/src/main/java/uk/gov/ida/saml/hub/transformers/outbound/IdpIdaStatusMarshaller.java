@@ -22,7 +22,7 @@ public class IdpIdaStatusMarshaller extends IdaStatusMarshaller<IdpIdaStatus> {
                     .put(IdpIdaStatus.authenticationFailed(), DetailedStatusCode.AuthenticationFailed)
                     .put(IdpIdaStatus.requesterError(), DetailedStatusCode.RequesterErrorFromIdp)
                     .put(IdpIdaStatus.authenticationCancelled(), DetailedStatusCode.NoAuthenticationContext)
-                    .put(IdpIdaStatus.authenticationPending(), DetailedStatusCode.SuccessNoAuthenticationContext)
+                    .put(IdpIdaStatus.authenticationPending(), DetailedStatusCode.NoAuthenticationContext)
                     .put(IdpIdaStatus.upliftFailed(), DetailedStatusCode.NoAuthenticationContext)
                     .build();
 

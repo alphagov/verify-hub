@@ -13,8 +13,8 @@ public class SamlStatusToIdpIdaStatusMappingsFactory {
     enum SamlStatusDefinitions {
         Success(DetailedStatusCode.Success, Optional.empty()),
         AuthenticationCancelled(DetailedStatusCode.NoAuthenticationContext, Optional.of(StatusValue.CANCEL)),
+        AuthenticationPending(DetailedStatusCode.NoAuthenticationContext, Optional.of(StatusValue.PENDING)),
         NoAuthenticationContext(DetailedStatusCode.NoAuthenticationContext, Optional.empty()),
-        AuthenticationPending(DetailedStatusCode.SuccessNoAuthenticationContext, Optional.of(StatusValue.PENDING)),
         AuthenticationFailed(DetailedStatusCode.AuthenticationFailed, Optional.empty()),
         RequesterErrorFromIdp(DetailedStatusCode.RequesterErrorFromIdp, Optional.empty()),
         RequesterErrorRequestDeniedFromIdp(DetailedStatusCode.RequesterErrorRequestDeniedFromIdp, Optional.empty()),
@@ -41,9 +41,9 @@ public class SamlStatusToIdpIdaStatusMappingsFactory {
         return ImmutableMap.<SamlStatusDefinitions, IdpIdaStatus.Status>builder()
                 .put(SamlStatusDefinitions.Success, IdpIdaStatus.Status.Success)
                 .put(SamlStatusDefinitions.AuthenticationCancelled, IdpIdaStatus.Status.AuthenticationCancelled)
+                .put(SamlStatusDefinitions.AuthenticationPending, IdpIdaStatus.Status.AuthenticationPending)
                 .put(SamlStatusDefinitions.UpliftFailed, IdpIdaStatus.Status.UpliftFailed)
                 .put(SamlStatusDefinitions.NoAuthenticationContext, IdpIdaStatus.Status.NoAuthenticationContext)
-                .put(SamlStatusDefinitions.AuthenticationPending, IdpIdaStatus.Status.AuthenticationPending)
                 .put(SamlStatusDefinitions.AuthenticationFailed, IdpIdaStatus.Status.AuthenticationFailed)
                 .put(SamlStatusDefinitions.RequesterErrorFromIdp, IdpIdaStatus.Status.RequesterError)
                 .put(SamlStatusDefinitions.RequesterErrorRequestDeniedFromIdp, IdpIdaStatus.Status.RequesterError)
