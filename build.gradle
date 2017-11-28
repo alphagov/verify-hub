@@ -31,7 +31,7 @@ subprojects {
     }
 
     dependencies {
-        common "uk.gov.ida:dropwizard-saml:$opensaml_version-365",
+        common "uk.gov.ida:dropwizard-saml:$opensaml_version-368",
                 "org.opensaml:opensaml-core:$opensaml_version",
                 "uk.gov.verify:saml-utils:$opensaml_version-52",
                 'com.google.guava:guava:18.0',
