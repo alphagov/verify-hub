@@ -1,0 +1,8 @@
+/var/log/ida/saml-proxy.console-log {
+  compress
+  copytruncate
+  daily
+  missingok
+  notifempty
+  rotate 7
+}

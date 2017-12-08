@@ -1,0 +1,160 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 50120
+    - type: https
+      port: 50123
+      keyStorePath: deploy/keys/service_ssl.ks
+      keyStorePassword: puppet
+      validatePeers: false
+      validateCerts: false
+      # TLSv1.1 included as curl seems to get unset with 1.2 for some
+      # as-yet-uninvestigated reason.
+      supportedProtocols: ["TLSv1.1","TLSv1.2"]
+      supportedCipherSuites:
+        - TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 # for TLS 1.2
+        - TLS_DHE_RSA_WITH_AES_128_CBC_SHA # for TLS 1.1
+  adminConnectors:
+    - type: http
+      port: 50121
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: apps-home/saml-engine.log
+        archivedLogFilenamePattern: apps-home/saml-engine.log.%d.gz
+        logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+      - type: logstash-file
+        currentLogFilename: apps-home/logstash/saml-engine.log
+        archivedLogFilenamePattern: apps-home/logstash/saml-engine.log.%d.gz
+        archivedFileCount: 7
+      - type: console
+
+metrics:
+  reporters:
+    - type: graphite
+      host: localhost
+      port: 2003
+      prefix: local-saml-engine
+      frequency: 10s
+
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: apps-home/saml-engine.log
+      archivedLogFilenamePattern: apps-home/saml-engine.log.%d.gz
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
+    - type: logstash-file
+      currentLogFilename: apps-home/logstash/saml-engine.log
+      archivedLogFilenamePattern: apps-home/logstash/saml-engine.log.%d.gz
+      archivedFileCount: 7
+    - type: console
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
+
+saml:
+  entityId: https://local.signin.service.gov.uk
+  expectedDestination: http://localhost
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  keepAlive: 60s
+  gzipEnabled: false
+  gzipEnabledForRequests: false
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  tls:
+    protocol: TLSv1.2
+    verifyHostname: false
+    trustStorePath: deploy/keys/service_ssl.ks
+    trustStorePassword: puppet
+
+infinispan:
+  bindAddress:
+  initialHosts:
+  clusterName:
+  type: standalone
+  expiration: 8h
+  persistenceToFileEnabled: false
+
+configUri: https://localhost:50243
+
+serviceInfo:
+  name: saml-engine
+
+readKeysFromFileDescriptors: false
+
+privateSigningKeyConfiguration:
+  keyFile: deploy/keys/hub_signing_20170818075825.pk8
+
+publicSigningCert:
+  certFile: deploy/keys/hub_signing_20170818075825.crt
+  name: someId
+
+primaryPrivateEncryptionKeyConfiguration:
+  keyFile: deploy/keys/hub_encryption_20170818075834.pk8
+
+secondaryPrivateEncryptionKeyConfiguration:
+  keyFile: deploy/keys/hub_encryption_20170818075834.pk8
+
+clientTrustStoreConfiguration:
+  path: ../ida-hub/deploy/keys/ida_truststore.ts
+  password: puppet
+
+rpTrustStoreConfiguration:
+  path: ../ida-hub/deploy/keys/ida_rp_truststore.ts
+  password: puppet
+
+authnRequestIdExpirationDuration: 60m
+
+authnRequestValidityDuration: 5m
+
+metadata:
+  uri: http://localhost:55000/local/metadata.xml
+  trustStorePath: deploy/keys/ida_truststore.ts
+  trustStorePassword: puppet
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: https://local.signin.service.gov.uk
+  jerseyClientName: verify-metadata-client
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true
+
+country:
+  saml:
+    entityId: http://localhost:55000/local-connector/metadata.xml
+    expectedDestination: http://localhost:50300/SAML2/SSO/Response/POST
+  metadata:
+    uri: http://localhost:56002/ServiceMetadata
+    trustStorePath: deploy/keys/country_metadata_truststore.ts
+    trustStorePassword: Password
+    minRefreshDelay: 60000
+    maxRefreshDelay: 600000
+    expectedEntityId: http://localhost:56002/ServiceMetadata
+    jerseyClientName: country-metadata-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true

@@ -1,0 +1,97 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${SAML_SOAP_PROXY_PORT:-50160}
+  adminConnectors:
+    - type: http
+      port: ${SAML_SOAP_PROXY_ADMIN_PORT:-50161}
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: apps-home/saml-soap-proxy.log
+        archivedLogFilenamePattern: apps-home/saml-soap-proxy.log.%d.gz
+        logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+      - type: logstash-file
+        currentLogFilename: apps-home/logstash/saml-soap-proxy.log
+        archivedLogFilenamePattern: apps-home/logstash/saml-soap-proxy.log.%d.gz
+        archivedFileCount: 7
+      - type: console
+
+logging:
+  level: DEBUG
+  appenders:
+    - type: file
+      currentLogFilename: apps-home/saml-soap-proxy.log
+      archivedLogFilenamePattern: apps-home/saml-soap-proxy.log.%d.gz
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+    - type: logstash-file
+      currentLogFilename: apps-home/logstash/saml-soap-proxy.log
+      archivedLogFilenamePattern: apps-home/logstash/saml-soap-proxy.log.%d.gz
+      archivedFileCount: 7
+    - type: console
+
+saml:
+  entityId: ${SAML_ENTITY_ID}
+  eidasEntityId: ${SAML_ENTITY_ID}
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  retries: 3
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+enableRetryTimeOutConnections: true
+
+soapHttpClient:
+  timeout: 10s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 2s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+healthCheckSoapHttpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 2s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+samlEngineUri: https://localhost:50123
+
+configUri: https://localhost:50243
+
+eventSinkUri: https://localhost:51103
+
+policyUri: https://localhost:50113
+
+serviceInfo:
+  name: saml-soap-proxy
+
+matchingServiceExecutorConfiguration:
+  corePoolSize: 5
+  maxPoolSize: 10
+  keepAliveDuration: 10s
+
+clientTrustStoreConfiguration:
+  path: ${IDP_TRUSTSTORE_PATH}
+  password: ${IDP_TRUSTSTORE_PASSWORD}
+
+rpTrustStoreConfiguration:
+  path: ${RP_TRUSTSTORE_PATH}
+  password: ${RP_TRUSTSTORE_PASSWORD}
+
+metadata:
+  uri: ${METADATA_URI}
+  trustStorePath: ${METADATA_TRUSTSTORE_PATH}
+  trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD}
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: ${SAML_ENTITY_ID}

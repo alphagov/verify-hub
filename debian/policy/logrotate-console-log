@@ -1,0 +1,8 @@
+/var/log/ida/policy.console-log {
+  compress
+  copytruncate
+  daily
+  missingok
+  notifempty
+  rotate 7
+}

@@ -1,0 +1,58 @@
+# Ubuntu upstart file
+# IF YOU CHANGE THIS FILE IS IT NOT ENOUGH TO 'RESTART' THE UPSTART JOB
+# YOU MUST STOP IT AND THEN START IT FOR CHANGES TO THIS FILE TO BE NOTICED
+
+description "Upstart for Dropwizard Service"
+
+start on runlevel [2345]
+stop on starting rc RUNLEVEL=[06]
+
+
+kill signal TERM
+kill timeout 30
+
+setuid deployer
+
+env CLASSPATH=/ida/config/lib
+
+pre-stop script
+  if [ -r /etc/default/verify ]; then
+    . /etc/default/verify
+  fi
+  if [ -r /etc/default/config ]; then
+    . /etc/default/config
+  fi
+
+  #Take out of service from haproxy
+  curl -X POST http://localhost:50241/tasks/set-service-unavailable
+  sleep ${HAPROXY_SLEEP_TIME:-6}
+end script
+
+script
+  if [ -r /etc/default/verify ]; then
+    . /etc/default/verify
+  fi
+  if [ -r /etc/default/config ]; then
+    . /etc/default/config
+  fi
+  if [ -x ${JAVA_HOME}/bin/java ]; then
+    JAVA=${JAVA_HOME}/bin/java
+  else
+    JAVA=/usr/bin/java
+  fi
+  exec ${JAVA} \
+    -Dservice.name=config \
+    -XX:HeapDumpPath=/var/log/ida/debug \
+    -XX:+HeapDumpOnOutOfMemoryError \
+    -Xms256m -Xmx256m \
+    -Dhttp.proxyHost=${PROXY_HOST:-} \
+    -Dhttp.proxyPort=${PROXY_PORT:-} \
+    -Dhttps.proxyHost=${PROXY_HOST:-} \
+    -Dhttps.proxyPort=${PROXY_PORT:-} \
+    -Dhttp.nonProxyHosts="${NON_PROXY_HOSTS:-}" \
+    -Dnetworkaddress.cache.ttl=5 \
+    -Dnetworkaddress.cache.negative.ttl=5 \
+    -jar /ida/config/config.jar \
+    server /ida/config/config.yml \
+    1>> /var/log/ida/config.console-log 2>&1
+end script

@@ -1,0 +1,33 @@
+package uk.gov.ida.hub.config.validators;
+
+import org.junit.Test;
+import uk.gov.ida.hub.config.ConfigEntityData;
+import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+
+public class DuplicateEntityIdConfigValidatorTest {
+
+    private DuplicateEntityIdConfigValidator validator = new DuplicateEntityIdConfigValidator();
+
+    @Test
+    public void validate_shouldThrowExceptionIfTwoEntitiesHaveSameEntityId() throws Exception {
+        String entityId = "transaction-entity-id";
+        Collection<ConfigEntityData> configEntityDataCollection = new ArrayList<>();
+        configEntityDataCollection.add(aTransactionConfigData().withEntityId(entityId).build());
+        configEntityDataCollection.add(anIdentityProviderConfigData().withEntityId(entityId).build());
+
+        try {
+            this.validator.validate(configEntityDataCollection);
+            fail("fail");
+        } catch (ConfigValidationException e) {
+            assertThat(e.getMessage()).isEqualTo(ConfigValidationException.createDuplicateEntityIdException(entityId).getMessage());
+        }
+    }
+}

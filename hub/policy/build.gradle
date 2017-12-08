@@ -1,0 +1,28 @@
+dependencies {
+    testCompile configurations.test_deps_compile,
+            configurations.pact_test,
+            configurations.stub_saml_test,
+            configurations.ida_test_utils,
+            configurations.saml,
+            'org.infinispan:infinispan-core:7.1.1.Final:tests',
+            'nl.jqno.equalsverifier:equalsverifier:2.4'
+
+    compile configurations.ida_utils,
+            configurations.rest_utils,
+            configurations.common,
+            configurations.dropwizard,
+            configurations.dropwizard_infinispan
+}
+
+ext.mainclass = 'uk.gov.ida.hub.policy.PolicyApplication'
+
+task copyToLib(dependsOn: jar, type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
+
+task zip(dependsOn: copyToLib, type: Zip) {
+    from "$buildDir/output"
+}
+
+apply from: "${rootDir}/inttest.gradle"

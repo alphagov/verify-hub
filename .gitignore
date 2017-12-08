@@ -1,0 +1,24 @@
+.ruby-version
+*.class
+build
+.DS_Store
+.gradle
+.idea
+*.iml
+*.ipr
+.sass-cache
+*.iws
+out/**
+out/
+# Package Files #
+*.log
+apps-home
+apps-local-data
+hub/frontend/src/main/resources/assets/stylesheets
+hub/frontend/.jruby/gems
+*.swp
+*~
+*#
+artefacts
+/vendor
+target

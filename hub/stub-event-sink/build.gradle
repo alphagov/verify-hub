@@ -1,0 +1,19 @@
+dependencies {
+    testCompile configurations.test_deps_compile
+
+    compile configurations.ida_utils,
+            configurations.rest_utils,
+            configurations.common,
+            configurations.dropwizard
+}
+
+ext.mainclass = 'uk.gov.ida.stub.event.sink.StubEventSinkApplication'
+
+task copyToLib(dependsOn: jar, type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
+
+task zip(dependsOn: copyToLib, type: Zip) {
+    from "$buildDir/output"
+}

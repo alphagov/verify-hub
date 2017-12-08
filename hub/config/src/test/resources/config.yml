@@ -1,0 +1,45 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${CONFIG_PORT:-50240}
+  adminConnectors:
+    - type: http
+      port: ${CONFIG_ADMIN_PORT:-50241}
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: apps-home/config.log
+        archivedLogFilenamePattern: apps-home/config.log.%d.gz
+        logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+      - type: logstash-file
+        currentLogFilename: apps-home/logstash/config.log
+        archivedLogFilenamePattern: apps-home/logstash/config.log.%d.gz
+        archivedFileCount: 7
+      - type: console
+
+
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: apps-home/config.log
+      archivedLogFilenamePattern: apps-home/config.log.%d.gz
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+    - type: logstash-file
+      currentLogFilename: apps-home/logstash/config.log
+      archivedLogFilenamePattern: apps-home/logstash/config.log.%d.gz
+      archivedFileCount: 7
+    - type: console
+
+serviceInfo:
+  name: config
+
+rootDataDirectory: configuration/config-service-data/local
+
+clientTrustStoreConfiguration:
+  path: ${IDP_TRUSTSTORE_PATH}
+  password: ${IDP_TRUSTSTORE_PASSWORD}
+
+rpTrustStoreConfiguration:
+  path: ${RP_TRUSTSTORE_PATH}
+  password: ${RP_TRUSTSTORE_PASSWORD}

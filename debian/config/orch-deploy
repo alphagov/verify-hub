@@ -1,0 +1,29 @@
+#!/bin/bash -eu
+
+if [ $# -ne 1 ]; then
+  echo "Usage: ./deploy VERSION_MANIFEST_JSON_STRING"
+  exit 1
+fi
+
+config_version=$(jq -r '.ida_hub_version' <<< "$1")
+if [[ "$config_version" == "null" ]]; then
+  echo "No ida_hub_version entry in ${1}"
+  exit 1
+fi
+verify_config_app_config_version=$(jq -r '.verify_config_app_config_version' <<< "$1")
+if [[ "$verify_config_app_config_version" == "null" ]]; then
+  echo "No verify_config_app_config_version entry in ${1}"
+  exit 1
+fi
+
+/usr/bin/apt-get -qq update
+
+for PACKAGE in verify-config-app-config config; do
+  VERSION_VAR=${PACKAGE//-/_}_version
+  VERSION_SPECIFIED=${!VERSION_VAR}
+
+  /usr/bin/apt-get install \
+    -qfy --reinstall --force-yes \
+    -o DPkg::Options::=--force-confnew \
+    $PACKAGE="$VERSION_SPECIFIED"
+done

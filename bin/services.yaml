@@ -1,0 +1,11 @@
+---
+config:
+  path: hub/config
+policy:
+  path: hub/policy
+saml-engine:
+  path: hub/saml-engine
+saml-soap-proxy:
+  path: hub/saml-soap-proxy
+saml-proxy:
+  path: hub/saml-proxy

@@ -1,0 +1,114 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${SAML_PROXY_PORT:-50220}
+  adminConnectors:
+    - type: http
+      port: ${SAML_PROXY_ADMIN_PORT:-50221}
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: apps-home/saml-proxy.log
+        archivedLogFilenamePattern: apps-home/saml-proxy.log.%d.gz
+        logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+      - type: logstash-file
+        currentLogFilename: apps-home/logstash/saml-proxy.log
+        archivedLogFilenamePattern: apps-home/logstash/saml-proxy.log.%d.gz
+        archivedFileCount: 7
+      - type: console
+
+logging:
+  level: DEBUG
+  appenders:
+    - type: file
+      currentLogFilename: apps-home/saml-proxy.log
+      archivedLogFilenamePattern: apps-home/saml-proxy.log.%d.gz
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+    - type: logstash-file
+      currentLogFilename: apps-home/logstash/saml-proxy.log
+      archivedLogFilenamePattern: apps-home/logstash/saml-proxy.log.%d.gz
+      archivedFileCount: 7
+    - type: console
+
+
+saml:
+  entityId: ${SAML_ENTITY_ID:-http://dev-hub.local}
+  expectedDestination: ${SAML_DESTINATION:-http://localhost}
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  retries: 3
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+enableRetryTimeOutConnections: true
+
+frontendExternalUri: ${FRONTEND_URI:-http://localhost:50300}
+
+configUri: ${CONFIG_URI:-http://localhost:50240}
+
+eventSinkUri: ${EVENTSINK_URI:-http://localhost:51100}
+
+policyUri: ${POLICY_URI:-http://localhost:50110}
+
+serviceInfo:
+  name: saml-proxy
+
+clientTrustStoreConfiguration:
+  path: ${IDP_TRUSTSTORE_PATH}
+  password: ${IDP_TRUSTSTORE_PASSWORD:-marshmallow}
+
+rpTrustStoreConfiguration:
+  path: ${RP_TRUSTSTORE_PATH}
+  password: ${RP_TRUSTSTORE_PASSWORD:-marshmallow}
+
+metadataValidDuration: 1h
+
+metadata:
+  uri: ${METADATA_URI:-http://localhost:55000/metadata.xml}
+  trustStorePath: ${METADATA_TRUSTSTORE_PATH}
+  trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD:-marshmallow}
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: ${SAML_ENTITY_ID:-http://dev-hub.local}
+  jerseyClientName: verify-metadata-client
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true
+
+eidas: true
+countryMetadata:
+  uri: ${METADATA_URI:-http://localhost:55000/metadata.xml}
+  trustStorePath: ${METADATA_TRUSTSTORE_PATH:-pki/metadata.ts}
+  trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD:-marshmallow}
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: ${SAML_ENTITY_ID:-http://dev-hub.local}
+  jerseyClientName: country-metadata-client
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true

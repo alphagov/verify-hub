@@ -1,0 +1,29 @@
+dependencies {
+    testCompile configurations.test_deps_compile,
+            configurations.pact_test,
+            configurations.stub_saml_test,
+            configurations.saml_test,
+            configurations.ida_test_utils,
+            'org.infinispan:infinispan-core:7.1.1.Final:tests'
+
+    compile configurations.rest_utils,
+            configurations.dropwizard,
+            configurations.dropwizard_infinispan,
+            configurations.saml,
+            configurations.soap,
+            configurations.common,
+            configurations.ida_utils
+}
+
+ext.mainclass = 'uk.gov.ida.hub.samlengine.SamlEngineApplication'
+
+task copyToLib(dependsOn: jar, type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
+
+task zip(dependsOn: copyToLib, type: Zip) {
+    from "$buildDir/output"
+}
+
+apply from: "${rootDir}/inttest.gradle"

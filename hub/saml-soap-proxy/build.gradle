@@ -1,0 +1,25 @@
+dependencies {
+    testCompile configurations.test_deps_compile,
+            configurations.stub_saml_test,
+            configurations.saml_test,
+            configurations.ida_test_utils
+
+    compile configurations.rest_utils,
+            configurations.dropwizard,
+            configurations.saml,
+            configurations.common,
+            configurations.soap
+}
+
+ext.mainclass = 'uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyApplication'
+
+task copyToLib(dependsOn: jar, type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
+
+task zip(dependsOn: copyToLib, type: Zip) {
+    from "$buildDir/output"
+}
+
+apply from: "${rootDir}/inttest.gradle"

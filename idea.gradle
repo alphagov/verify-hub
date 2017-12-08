@@ -1,0 +1,89 @@
+buildscript {
+    repositories {
+        maven {
+            url 'https://build.ida.digital.cabinet-office.gov.uk/maven/'
+        }
+    }
+    dependencies {
+        classpath 'uk.gov.ida:ida-gradle:1.0.0-4'
+    }
+}
+
+import uk.gov.ida.RunConfig
+
+apply plugin: "idea"
+
+subprojects {
+    apply plugin: "idea"
+}
+
+idea {
+    project {
+        jdkName = '1.8'
+        languageLevel = '1.8'
+    }
+
+    workspace {
+        iws {
+            withXml { provider ->
+
+                def runconfig = new RunConfig(provider)
+
+                runconfig.ensureApplicationConfigurationExists(
+                        'Config',
+                        'uk.gov.ida.hub.config.*',
+                        'uk.gov.ida.hub.config.ConfigApplication',
+                        'config',
+                        'server configuration/local/config.yml')
+                runconfig.ensureApplicationConfigurationExists(
+                        'Policy',
+                        'uk.gov.ida.hub.policy.*',
+                        'uk.gov.ida.hub.policy.PolicyApplication',
+                        'policy',
+                        'server configuration/local/policy.yml')
+                runconfig.ensureApplicationConfigurationExists(
+                        'SamlEngine',
+                        'uk.gov.ida.hub.samlengine.*',
+                        'uk.gov.ida.hub.samlengine.SamlEngineApplication',
+                        'saml-engine',
+                        'server configuration/local/saml-engine.yml')
+                runconfig.ensureApplicationConfigurationExists(
+                        'SamlProxy',
+                        'uk.gov.ida.hub.samlproxy.*',
+                        'uk.gov.ida.hub.samlproxy.SamlProxyApplication',
+                        'saml-proxy',
+                        'server configuration/local/saml-proxy.yml')
+                runconfig.ensureApplicationConfigurationExists(
+                        'SamlSoapProxy',
+                        'uk.gov.ida.hub.samlsoapproxy.*',
+                        'uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyApplication',
+                        'saml-soap-proxy',
+                        'server configuration/local/saml-soap-proxy.yml')
+                runconfig.ensureApplicationConfigurationExists(
+                        'StubEventSink',
+                        'uk.gov.ida.stub.event.sink.*',
+                        'uk.gov.ida.stub.event.sink.StubEventSinkApplication',
+                        'stub-event-sink',
+                        'server configuration/local/stub-event-sink.yml')
+                [
+                        50242:'Remote Config',
+                        50112:'Remote Policy',
+                        50122:'Remote SamlEngine',
+                        50222:'Remote SamlProxy',
+                        50162:'Remote SamlSoapProxy',
+                        50102:'Remote StubEventSink'
+                ].each { port, service ->
+                    runconfig.ensureDebugConfigurationExists(service, port.toString())
+                }
+            }
+        }
+    }
+
+    module {
+        //if you love browsing Javadoc
+        downloadJavadoc = true
+
+        //and love reading sources :)
+        downloadSources = true
+    }
+}

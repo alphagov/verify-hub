@@ -1,0 +1,51 @@
+idea {
+    module {
+        // add the integration tests to the idea test sources for convenience
+        // this makes idea different to command line config as on the command line
+        // where there are entirely separate source sets for unit and integration tests
+        testSourceDirs += file('src/integration-test/java')
+        testSourceDirs += file('src/integration-test/resources')
+    }
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            srcDir 'src/integration-test/java'
+        }
+        resources {
+            srcDir 'src/integration-test/resources'
+        }
+        compileClasspath += sourceSets.main.runtimeClasspath
+        compileClasspath += sourceSets.test.runtimeClasspath
+        runtimeClasspath += configurations.test_deps_runtime
+    }
+}
+
+task intTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath += sourceSets.integrationTest.runtimeClasspath
+    reports.junitXml.destination = "${project.buildDir}/int-test-results"
+    reports.html.destination = "${project.buildDir}/int-test-reports"
+    workingDir = rootDir
+    include 'uk/gov/ida/integrationtest/**'
+}
+
+task consumerContractTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath += sourceSets.integrationTest.runtimeClasspath
+    reports.junitXml.destination = "${project.buildDir}/consumer-contract-test-results"
+    reports.html.destination = "${project.buildDir}/consumer-contract-test-reports"
+    workingDir = rootDir
+    include 'uk/gov/ida/contracttest/consumer/**'
+}
+
+
+task providerContractTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath += sourceSets.integrationTest.runtimeClasspath
+    reports.junitXml.destination = "${project.buildDir}/provider-contract-test-results"
+    reports.html.destination = "${project.buildDir}/provider-contract-test-reports"
+    workingDir = rootDir
+    include 'uk/gov/ida/contracttest/provider/**'
+}

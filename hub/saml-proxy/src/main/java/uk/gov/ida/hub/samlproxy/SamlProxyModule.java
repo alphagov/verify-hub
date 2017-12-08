@@ -1,0 +1,386 @@
+package uk.gov.ida.hub.samlproxy;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Scopes;
+import com.google.inject.TypeLiteral;
+import io.dropwizard.setup.Environment;
+import org.opensaml.saml.metadata.resolver.MetadataResolver;
+import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.w3c.dom.Element;
+import uk.gov.ida.common.IpFromXForwardedForHeader;
+import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.common.shared.security.PublicKeyFileInputStreamFactory;
+import uk.gov.ida.common.shared.security.PublicKeyInputStreamFactory;
+import uk.gov.ida.common.shared.security.X509CertificateFactory;
+import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
+import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
+import uk.gov.ida.eventsink.EventSink;
+import uk.gov.ida.eventsink.EventSinkHttpProxy;
+import uk.gov.ida.eventsink.EventSinkMessageSender;
+import uk.gov.ida.eventsink.EventSinkProxy;
+import uk.gov.ida.hub.samlproxy.annotations.Config;
+import uk.gov.ida.hub.samlproxy.annotations.Policy;
+import uk.gov.ida.hub.samlproxy.config.CertificatesConfigProxy;
+import uk.gov.ida.hub.samlproxy.config.ConfigServiceKeyStore;
+import uk.gov.ida.hub.samlproxy.config.TrustStoreForCertificateProvider;
+import uk.gov.ida.hub.samlproxy.controllogic.SamlMessageSenderHandler;
+import uk.gov.ida.hub.samlproxy.exceptions.ExceptionAuditor;
+import uk.gov.ida.hub.samlproxy.exceptions.NoKeyConfiguredForEntityExceptionMapper;
+import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
+import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyExceptionMapper;
+import uk.gov.ida.hub.samlproxy.exceptions.SamlProxySamlTransformationErrorExceptionMapper;
+import uk.gov.ida.hub.samlproxy.handlers.HubAsIdpMetadataHandler;
+import uk.gov.ida.hub.samlproxy.handlers.HubAsSpMetadataHandler;
+import uk.gov.ida.hub.samlproxy.logging.ExternalCommunicationEventLogger;
+import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogFormatter;
+import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
+import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
+import uk.gov.ida.hub.samlproxy.security.AuthnRequestKeyStore;
+import uk.gov.ida.hub.samlproxy.security.AuthnResponseKeyStore;
+import uk.gov.ida.hub.samlproxy.security.HubSigningKeyStore;
+import uk.gov.ida.jerseyclient.DefaultClientProvider;
+import uk.gov.ida.jerseyclient.ErrorHandlingClient;
+import uk.gov.ida.jerseyclient.JsonClient;
+import uk.gov.ida.jerseyclient.JsonResponseProcessor;
+import uk.gov.ida.restclient.ClientProvider;
+import uk.gov.ida.restclient.RestfulClientConfiguration;
+import uk.gov.ida.saml.configuration.SamlConfiguration;
+import uk.gov.ida.saml.core.InternalPublicKeyStore;
+import uk.gov.ida.saml.core.api.CoreTransformersFactory;
+import uk.gov.ida.saml.core.security.RelayStateValidator;
+import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
+import uk.gov.ida.saml.dropwizard.metadata.MetadataHealthCheck;
+import uk.gov.ida.saml.hub.api.HubTransformersFactory;
+import uk.gov.ida.saml.hub.transformers.inbound.decorators.ResponseMaxSizeValidator;
+import uk.gov.ida.saml.hub.validators.StringSizeValidator;
+import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
+import uk.gov.ida.saml.metadata.HubMetadataPublicKeyStore;
+import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
+import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
+import uk.gov.ida.saml.metadata.domain.HubServiceProviderMetadataDto;
+import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
+import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
+import uk.gov.ida.saml.security.PublicKeyFactory;
+import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
+import uk.gov.ida.saml.security.SigningCredentialFactory;
+import uk.gov.ida.saml.security.SigningKeyStore;
+import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
+import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
+import uk.gov.ida.shared.utils.IpAddressResolver;
+import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
+import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
+import uk.gov.ida.truststore.KeyStoreCache;
+import uk.gov.ida.truststore.KeyStoreLoader;
+import uk.gov.ida.truststore.KeyStoreProvider;
+import uk.gov.ida.truststore.TrustStoreConfiguration;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.ws.rs.client.Client;
+import java.net.URI;
+import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.util.Optional;
+import java.util.function.Function;
+
+public class SamlProxyModule extends AbstractModule {
+
+    public static final String VERIFY_METADATA_HEALTH_CHECK = "VerifyMetadataHealthCheck";
+    public static final String COUNTRY_METADATA_HEALTH_CHECK = "CountryMetadataHealthCheck";
+
+    @Override
+    protected void configure() {
+        bind(TrustStoreConfiguration.class).to(SamlProxyConfiguration.class);
+        bind(RestfulClientConfiguration.class).to(SamlProxyConfiguration.class);
+        bind(PublicKeyInputStreamFactory.class).toInstance(new PublicKeyFileInputStreamFactory());
+        bind(SigningKeyStore.class).to(AuthnRequestKeyStore.class);
+        bind(Client.class).toProvider(DefaultClientProvider.class).in(Scopes.SINGLETON);
+        bind(EventSinkProxy.class).to(EventSinkHttpProxy.class);
+        bind(KeyStore.class).toProvider(KeyStoreProvider.class).in(Scopes.SINGLETON);
+        bind(ConfigServiceKeyStore.class).asEagerSingleton();
+        bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
+        bind(ResponseMaxSizeValidator.class);
+        bind(ExpiredCertificateMetadataFilter.class).toInstance(new ExpiredCertificateMetadataFilter());
+        bind(X509CertificateFactory.class).toInstance(new X509CertificateFactory());
+        bind(CertificateChainValidator.class);
+        bind(CertificatesConfigProxy.class);
+        bind(TrustStoreForCertificateProvider.class);
+        bind(StringSizeValidator.class).toInstance(new StringSizeValidator());
+        bind(JsonResponseProcessor.class);
+        bind(ObjectMapper.class).toInstance(new ObjectMapper());
+        bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
+        bind(RelayStateValidator.class).toInstance(new RelayStateValidator());
+        bind(ProtectiveMonitoringLogFormatter.class).toInstance(new ProtectiveMonitoringLogFormatter());
+        bind(KeyStoreCache.class);
+        bind(EventSinkMessageSender.class);
+        bind(ExceptionAuditor.class);
+        bind(ProtectiveMonitoringLogger.class);
+        bind(SessionProxy.class);
+        bind(new TypeLiteral<LevelLoggerFactory<SamlProxySamlTransformationErrorExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
+        bind(new TypeLiteral<LevelLoggerFactory<NoKeyConfiguredForEntityExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
+        bind(new TypeLiteral<LevelLoggerFactory<SamlProxyApplicationExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
+        bind(new TypeLiteral<LevelLoggerFactory<SamlProxyExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
+        bind(SamlMessageSenderHandler.class);
+        bind(ExternalCommunicationEventLogger.class);
+        bind(IpAddressResolver.class).toInstance(new IpAddressResolver());
+    }
+
+    @Provides
+    @Singleton
+    @Named("VerifyMetadataResolver")
+    public MetadataResolver getVerifyMetadataResolver(Environment environment, SamlProxyConfiguration configuration) {
+        return new DropwizardMetadataResolverFactory().createMetadataResolver(environment, configuration.getMetadataConfiguration());
+    }
+
+    @Provides
+    @Singleton
+    @Named(VERIFY_METADATA_HEALTH_CHECK)
+    public MetadataHealthCheck getVerifyMetadataHealthCheck(
+        @Named("VerifyMetadataResolver") MetadataResolver metadataResolver,
+        Environment environment,
+        SamlProxyConfiguration configuration) {
+        MetadataHealthCheck metadataHealthCheck = new MetadataHealthCheck(metadataResolver, configuration.getMetadataConfiguration().getExpectedEntityId());
+        environment.healthChecks().register(VERIFY_METADATA_HEALTH_CHECK, metadataHealthCheck);
+        return metadataHealthCheck;
+    }
+
+    @Provides
+    @Singleton
+    public InternalPublicKeyStore getHubMetadataPublicKeyStore(
+            @Named("VerifyMetadataResolver") MetadataResolver metadataResolver,
+            PublicKeyFactory publicKeyFactory,
+            @Named("HubEntityId") String hubEntityId) {
+        return new HubMetadataPublicKeyStore(metadataResolver, publicKeyFactory, hubEntityId);
+    }
+
+    @Provides
+    @Singleton
+    public HubAsIdpMetadataHandler getHubAsIdpMetadataHandler(
+            @Named("VerifyMetadataResolver") MetadataResolver metadataResolver,
+            SamlProxyConfiguration configuration,
+            @Named("HubEntityId") String hubEntityId,
+            @Named("HubFederationId") String hubFederationId) {
+        return new HubAsIdpMetadataHandler(metadataResolver, configuration, hubEntityId, hubFederationId);
+    }
+
+    @Provides
+    @Singleton
+    public HubAsSpMetadataHandler getHubAsIdpMetadataHandler(
+            @Named("VerifyMetadataResolver") MetadataResolver metadataResolver,
+            SamlProxyConfiguration configuration,
+            XmlObjectToBase64EncodedStringTransformer<EntityDescriptor> entityDescriptorElementTransformer,
+            StringToOpenSamlObjectTransformer<EntityDescriptor> elementEntityDescriptorTransformer,
+            @Named("HubEntityId") String hubEntityId) {
+        return new HubAsSpMetadataHandler(
+                metadataResolver,
+                configuration,
+                entityDescriptorElementTransformer,
+                elementEntityDescriptorTransformer,
+                hubEntityId);
+    }
+
+    @Provides
+    @Singleton
+    @Named("CountryMetadataResolver")
+    public Optional<MetadataResolver> getCountryMetadataResolver(Environment environment, SamlProxyConfiguration configuration) {
+        return configuration.getCountryConfiguration().map(config -> new DropwizardMetadataResolverFactory().createMetadataResolver(environment, config.getMetadataConfiguration()));
+    }
+
+    @Provides
+    @Singleton
+    @Named(COUNTRY_METADATA_HEALTH_CHECK)
+    public Optional<MetadataHealthCheck> getCountryMetadataHealthCheck(
+        @Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver,
+        Environment environment,
+        SamlProxyConfiguration configuration) {
+        return metadataResolver.map(resolver -> {
+            MetadataHealthCheck metadataHealthCheck = new MetadataHealthCheck(metadataResolver.get(), configuration.getCountryConfiguration().get().getMetadataConfiguration().getExpectedEntityId());
+            environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, metadataHealthCheck);
+            return metadataHealthCheck;
+        });
+    }
+
+    @Provides
+    @Singleton
+    @Named("HubEntityId")
+    public String getHubEntityId(SamlProxyConfiguration configuration) {
+        return configuration.getSamlConfiguration().getEntityId();
+    }
+
+    @Provides
+    @Singleton
+    @Named("HubFederationId")
+    public String getHubFederationId(SamlProxyConfiguration configuration) {
+        return "VERIFY-FEDERATION";
+    }
+
+    @Provides
+    @Singleton
+    public IpFromXForwardedForHeader ipFromXForwardedForHeader() {
+        return new IpFromXForwardedForHeader();
+    }
+
+    @Provides
+    public PublicKeyFactory publicKeyFactory() throws CertificateException {
+        return new PublicKeyFactory();
+    }
+
+    @Provides
+    @Singleton
+    public JsonClient jsonClient(JsonResponseProcessor jsonResponseProcessor, Environment environment, SamlProxyConfiguration configuration) {
+        Client client = new ClientProvider(
+                environment,
+                configuration.getJerseyClientConfiguration(),
+                configuration.getEnableRetryTimeOutConnections(),
+                "samlProxyClient").get();
+        ErrorHandlingClient errorHandlingClient = new ErrorHandlingClient(client);
+        return new JsonClient(errorHandlingClient, jsonResponseProcessor);
+    }
+
+    @Provides
+    @Singleton
+    private StringToOpenSamlObjectTransformer<Response> getStringToResponseTransformer(ResponseMaxSizeValidator responseMaxSizeValidator) {
+        return new HubTransformersFactory().getStringToResponseTransformer(responseMaxSizeValidator);
+    }
+
+    @Provides
+    @Singleton
+    private StringToOpenSamlObjectTransformer<AuthnRequest> getStringToAuthnRequestTransformer() {
+        return new HubTransformersFactory().getStringToAuthnRequestTransformer();
+    }
+
+    @Provides
+    @SuppressWarnings("unused")
+    public Function<HubIdentityProviderMetadataDto, Element> getHubIdentityProviderMetadataDtoToElementTransformer() {
+        return new HubTransformersFactory().getHubIdentityProviderMetadataDtoToElementTransformer();
+    }
+
+    @Provides
+    @SuppressWarnings("unused")
+    public Function<HubServiceProviderMetadataDto, Element> getHubServiceProviderMetadataDtoToElementTransformer() {
+        return new CoreTransformersFactory().getHubServiceProviderMetadataDtoToEntityDescriptorTransformer()
+                .andThen(new XmlObjectToElementTransformer<>());
+    }
+
+    @Provides
+    @Singleton
+    public XmlObjectToBase64EncodedStringTransformer<EntityDescriptor> entityDescriptorStringTransformer() {
+        return new XmlObjectToBase64EncodedStringTransformer<>();
+    }
+
+    @Provides
+    @Singleton
+    public XmlObjectToElementTransformer<EntityDescriptor> entityDescriptorElementTransformer() {
+        return new CoreTransformersFactory().<EntityDescriptor>getXmlObjectToElementTransformer();
+    }
+
+    @Provides
+    @Singleton
+    public StringToOpenSamlObjectTransformer<EntityDescriptor> elementEntityDescriptorTransformer() {
+        return new CoreTransformersFactory().getStringtoOpenSamlObjectTransformer(input -> { });
+    }
+
+    @Provides
+    @Named("authnRequestPublicCredentialFactory")
+    public SigningCredentialFactory getFactoryForAuthnRequests(ConfigServiceKeyStore configServiceKeyStore) {
+        return new SigningCredentialFactory(new AuthnRequestKeyStore(configServiceKeyStore));
+    }
+
+    @Provides
+    @Singleton
+    @Named("VerifyIdpMetadataPublicKeyStore")
+    public IdpMetadataPublicKeyStore getVerifyIdpMetadataPublicKeyStore(@Named("VerifyMetadataResolver") MetadataResolver metadataResolver) {
+        return new IdpMetadataPublicKeyStore(metadataResolver);
+    }
+
+    @Provides
+    @Singleton
+    @Named("CountryMetadataPublicKeyStore")
+    public Optional<IdpMetadataPublicKeyStore> getCountryMetadataPublicKeyStore(@Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver) {
+        return metadataResolver.map(IdpMetadataPublicKeyStore::new);
+    }
+
+    @Provides
+    @Singleton
+    @Named("authnResponsePublicCredentialFactory")
+    public SigningCredentialFactory getFactoryForAuthnResponses(@Named("VerifyIdpMetadataPublicKeyStore") IdpMetadataPublicKeyStore idpMetadataPublicKeyStore) {
+        return new SigningCredentialFactory(new AuthnResponseKeyStore(idpMetadataPublicKeyStore));
+    }
+
+    @Provides
+    @Singleton
+    @Named("eidasAuthnResponsePublicCredentialFactory")
+    public Optional<SigningCredentialFactory> getFactoryForEidasAuthnResponses(@Named("CountryMetadataPublicKeyStore") Optional<IdpMetadataPublicKeyStore> idpMetadataPublicKeyStore) {
+        return idpMetadataPublicKeyStore.map(keystore -> new SigningCredentialFactory(new AuthnResponseKeyStore(keystore)));
+    }
+
+    @Provides
+    @Named("hubSigningCredentialFactory")
+    public SigningCredentialFactory getFactoryForHubSigning(InternalPublicKeyStore internalPublicKeyStore) {
+        return new SigningCredentialFactory(new HubSigningKeyStore(internalPublicKeyStore));
+    }
+
+    @Provides
+    public SamlMessageSignatureValidator getSamlMessageSignatureValidator(@Named("hubSigningCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
+        return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
+    }
+
+    @Named("authnRequestSignatureValidator")
+    @Provides
+    @Singleton
+    public SamlMessageSignatureValidator getAuthnRequestSignatureValidator(@Named("authnRequestPublicCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
+        return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
+    }
+
+    @Named("authnResponseSignatureValidator")
+    @Provides
+    @Singleton
+    public SamlMessageSignatureValidator getAuthnResponseSignatureValidator(@Named("authnResponsePublicCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
+        return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
+    }
+
+    @Named("eidasAuthnResponseSignatureValidator")
+    @Provides
+    @Singleton
+    public Optional<SamlMessageSignatureValidator> getEidasAuthnResponseSignatureValidator(@Named("eidasAuthnResponsePublicCredentialFactory") Optional<SigningCredentialFactory> signingCredentialFactory) {
+        return signingCredentialFactory.map(signingCredentialFactory1 -> new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory1)));
+    }
+
+    @Provides
+    @Config
+    public URI configUri(SamlProxyConfiguration policyConfiguration) {
+        return policyConfiguration.getConfigUri();
+    }
+
+    @Provides
+    @EventSink
+    public URI eventSinkUri(SamlProxyConfiguration policyConfiguration) {
+        return policyConfiguration.getEventSinkUri();
+    }
+
+    @Provides
+    @Policy
+    public URI policyUri(SamlProxyConfiguration samlProxyConfiguration) {
+        return samlProxyConfiguration.getPolicyUri();
+    }
+
+    @Provides
+    @Singleton
+    ClientTrustStoreConfiguration clientTrustStoreConfiguration(SamlProxyConfiguration configuration) {
+        return configuration.getClientTrustStoreConfiguration();
+    }
+
+    @Provides
+    public SamlConfiguration samlConfiguration(SamlProxyConfiguration samlProxyConfiguration) {
+        return samlProxyConfiguration.getSamlConfiguration();
+    }
+
+    @Provides
+    public ServiceInfoConfiguration serviceInfoConfiguration(SamlProxyConfiguration samlProxyConfiguration) {
+        return samlProxyConfiguration.getServiceInfo();
+    }
+}

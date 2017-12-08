@@ -1,0 +1,29 @@
+#!/bin/bash -eu
+
+if [ $# -ne 1 ]; then
+  echo "Usage: ./deploy VERSION_MANIFEST_JSON_STRING"
+  exit 1
+fi
+
+saml_engine_version=$(jq -r '.ida_hub_version' <<< "$1")
+if [[ "$saml_engine_version" == "null" ]]; then
+  echo "No ida_hub_version entry in ${1}"
+  exit 1
+fi
+verify_saml_engine_app_config_version=$(jq -r '.verify_saml_engine_app_config_version' <<< "$1")
+if [[ "$verify_saml_engine_app_config_version" == "null" ]]; then
+  echo "No verify_saml_engine_app_config_version entry in ${1}"
+  exit 1
+fi
+
+/usr/bin/apt-get -qq update
+
+for PACKAGE in verify-saml-engine-app-config saml-engine; do
+  VERSION_VAR=${PACKAGE//-/_}_version
+  VERSION_SPECIFIED=${!VERSION_VAR}
+
+  /usr/bin/apt-get install \
+    -qfy --reinstall --force-yes \
+    -o DPkg::Options::=--force-confnew \
+    $PACKAGE="$VERSION_SPECIFIED"
+done

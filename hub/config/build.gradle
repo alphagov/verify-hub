@@ -1,0 +1,37 @@
+dependencies {
+    testCompile configurations.test_deps_compile,
+            configurations.ida_test_utils,
+            configurations.dev_pki
+
+    compile configurations.ida_utils,
+            configurations.rest_utils,
+            configurations.config,
+            configurations.dropwizard,
+            configurations.common
+}
+
+ext.mainclass = 'uk.gov.ida.hub.config.ConfigApplication'
+
+task copyToLib(dependsOn: jar, type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
+
+task zip(dependsOn: copyToLib, type: Zip) {
+    from "$buildDir/output"
+}
+
+task jarTest (type: Jar) {
+    from sourceSets.test.output
+    classifier = 'test'
+}
+
+configurations {
+    configTest
+}
+
+artifacts {
+    configTest jarTest
+}
+
+apply from: "${rootDir}/inttest.gradle"

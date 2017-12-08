@@ -1,0 +1,119 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${SAML_ENGINE_PORT:-50120}
+  adminConnectors:
+    - type: http
+      port: ${SAML_ENGINE_ADMIN_PORT:-50121}
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: apps-home/saml-engine.log
+        archivedLogFilenamePattern: apps-home/saml-engine.log.%d.gz
+        logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+      - type: logstash-file
+        currentLogFilename: apps-home/logstash/saml-engine.log
+        archivedLogFilenamePattern: apps-home/logstash/saml-engine.log.%d.gz
+        archivedFileCount: 7
+      - type: console
+
+metrics:
+  reporters:
+    - type: graphite
+      host: localhost
+      port: 2003
+      prefix: test-saml-engine
+      frequency: 10s
+
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: apps-home/saml-engine.log
+      archivedLogFilenamePattern: apps-home/saml-engine.log.%d.gz
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
+    - type: logstash-file
+      currentLogFilename: apps-home/logstash/saml-engine.log
+      archivedLogFilenamePattern: apps-home/logstash/saml-engine.log.%d.gz
+      archivedFileCount: 7
+    - type: console
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
+
+saml:
+  entityId: ${SAML_ENTITY_ID}
+  expectedDestination: ${SAML_DESTINATION}
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  keepAlive: 60s
+  gzipEnabled: false
+  gzipEnabledForRequests: false
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+infinispan:
+  bindAddress:
+  initialHosts: 
+  clusterName: 
+  type: standalone
+  expiration: 8h
+  persistenceToFileEnabled: false
+
+configUri: ${CONFIG_URI:-http://localhost:50240}
+
+serviceInfo:
+  name: saml-engine
+
+readKeysFromFileDescriptors: false
+
+privateSigningKeyConfiguration:
+  type: base64
+  key: ${HUB_SIGNING_KEY}
+
+publicSigningCert:
+  type: x509
+  x509: ${HUB_SIGNING_CERT}
+  name: ${HUB_SIGNING_CERT_NAME}
+
+primaryPrivateEncryptionKeyConfiguration:
+  type: base64
+  key: ${HUB_PRIMARY_ENC_KEY}
+secondaryPrivateEncryptionKeyConfiguration:
+  type: base64
+  key: ${HUB_SECONDARY_ENC_KEY:}
+clientTrustStoreConfiguration:
+  path: ${IDP_TRUSTSTORE_PATH}
+  password: ${IDP_TRUSTSTORE_PASSWORD}
+
+rpTrustStoreConfiguration:
+  path: ${RP_TRUSTSTORE_PATH}
+  password: ${RP_TRUSTSTORE_PASSWORD}
+
+authnRequestIdExpirationDuration: 60m
+
+authnRequestValidityDuration: 5m
+
+metadata:
+  uri: ${METADATA_URI}
+  trustStorePath: ${METADATA_TRUSTSTORE_PATH}
+  trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD}
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: ${SAML_ENTITY_ID}
+  jerseyClientName: verify-metadata-client
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true

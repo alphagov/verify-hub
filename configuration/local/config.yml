@@ -1,0 +1,57 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 50240
+    - type: https
+      port: 50243
+      keyStorePath: deploy/keys/service_ssl.ks
+      keyStorePassword: puppet
+      validatePeers: false
+      validateCerts: false
+      # TLSv1.1 included as curl seems to get unset with 1.2 for some
+      # as-yet-uninvestigated reason.
+      supportedProtocols: ["TLSv1.1","TLSv1.2"]
+      supportedCipherSuites:
+        - TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 # for TLS 1.2
+        - TLS_DHE_RSA_WITH_AES_128_CBC_SHA # for TLS 1.1
+  adminConnectors:
+    - type: http
+      port: 50241
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: apps-home/config.log
+        archivedLogFilenamePattern: apps-home/config.log.%d.gz
+        logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+      - type: logstash-file
+        currentLogFilename: apps-home/logstash/config.log
+        archivedLogFilenamePattern: apps-home/logstash/config.log.%d.gz
+        archivedFileCount: 7
+      - type: console
+
+
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: apps-home/config.log
+      archivedLogFilenamePattern: apps-home/config.log.%d.gz
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+    - type: logstash-file
+      currentLogFilename: apps-home/logstash/config.log
+      archivedLogFilenamePattern: apps-home/logstash/config.log.%d.gz
+      archivedFileCount: 7
+    - type: console
+
+serviceInfo:
+  name: config
+
+rootDataDirectory: configuration/config-service-data/local
+
+clientTrustStoreConfiguration:
+  path: ../ida-hub/deploy/keys/ida_truststore.ts
+  password: puppet
+
+rpTrustStoreConfiguration:
+  path: ../ida-hub/deploy/keys/ida_rp_truststore.ts
+  password: puppet
