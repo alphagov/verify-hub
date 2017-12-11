@@ -69,18 +69,13 @@ public class AuthnResponseFromCountryService {
         String matchingServiceEntityId = stateController.getMatchingServiceEntityId();
         stateController.validateCountryIsIn(countriesService.getCountries(sessionId));
 
-        // TODO: Bug in CEF Reference 1.1. Remove this try..catch when EID-177 CEF Reference 1.3 is deployed.
-        try {
-            SamlAuthnResponseTranslatorDto responseToTranslate = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(responseFromCountry, matchingServiceEntityId);
-            InboundResponseFromCountry translatedResponse = samlEngineProxy.translateAuthnResponseFromCountry(responseToTranslate);
-            validateTranslatedResponse(stateController, translatedResponse);
-            EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = getEidasAttributeQueryRequestDto(stateController, translatedResponse);
-            stateController.transitionToEidasCycle0And1MatchRequestSentState(eidasAttributeQueryRequestDto, responseFromCountry.getPrincipalIPAddressAsSeenByHub(), translatedResponse.getIssuer());
-            AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(eidasAttributeQueryRequestDto);
-            samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr));
-        } catch (RuntimeException e) {
-            LOG.info("Exception when translating country response", e);
-        }
+        SamlAuthnResponseTranslatorDto responseToTranslate = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(responseFromCountry, matchingServiceEntityId);
+        InboundResponseFromCountry translatedResponse = samlEngineProxy.translateAuthnResponseFromCountry(responseToTranslate);
+        validateTranslatedResponse(stateController, translatedResponse);
+        EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = getEidasAttributeQueryRequestDto(stateController, translatedResponse);
+        stateController.transitionToEidasCycle0And1MatchRequestSentState(eidasAttributeQueryRequestDto, responseFromCountry.getPrincipalIPAddressAsSeenByHub(), translatedResponse.getIssuer());
+        AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(eidasAttributeQueryRequestDto);
+        samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr));
 
         return ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2);
     }
