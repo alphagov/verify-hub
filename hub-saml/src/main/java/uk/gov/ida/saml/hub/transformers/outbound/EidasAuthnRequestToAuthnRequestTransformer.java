@@ -62,7 +62,7 @@ public abstract class EidasAuthnRequestToAuthnRequestTransformer implements Func
 
     private NameIDPolicy getNameIDPolicy() {
         NameIDPolicy nameIdPolicy = samlObjectFactory.createNameIdPolicy();
-        nameIdPolicy.setFormat(NameIDType.UNSPECIFIED);
+        nameIdPolicy.setFormat(NameIDType.PERSISTENT);
         nameIdPolicy.setAllowCreate(true);
         return nameIdPolicy;
     }

@@ -231,7 +231,7 @@ public class IdaAuthnRequestFromHubToAuthnRequestTransformerTest {
 
         NameIDPolicy nameIDPolicy = transformedRequest.getNameIDPolicy();
         Assert.assertEquals(true, nameIDPolicy.getAllowCreate());
-        Assert.assertEquals(NameIDType.UNSPECIFIED, nameIDPolicy.getFormat());
+        Assert.assertEquals(NameIDType.PERSISTENT, nameIDPolicy.getFormat());
 
         RequestedAuthnContext requestedAuthnContext = transformedRequest.getRequestedAuthnContext();
         Assert.assertEquals(AuthnContextComparisonTypeEnumeration.MINIMUM, requestedAuthnContext.getComparison());
