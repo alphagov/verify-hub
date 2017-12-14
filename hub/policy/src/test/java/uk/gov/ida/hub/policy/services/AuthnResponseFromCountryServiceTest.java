@@ -7,7 +7,6 @@ import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -211,8 +210,6 @@ public class AuthnResponseFromCountryServiceTest {
         service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
     }
 
-    // TODO: Bug in CEF Reference 1.1. Re-enable the test when EID-177 CEF Reference 1.3 is deployed.
-    @Ignore
     @Test
     public void shouldThrowIfLevelOfAssuranceNotWhatExpected() {
         exception.expect(StateProcessingValidationException.class);
@@ -223,8 +220,6 @@ public class AuthnResponseFromCountryServiceTest {
         service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
     }
 
-    // TODO: Bug in CEF Reference 1.1. Re-enable the test when EID-177 CEF Reference 1.3 is deployed.
-    @Ignore
     @Test
     public void shouldThrowIfTranslationResponseFromSamlEngineNotSuccess() {
         exception.expect(StateProcessingValidationException.class);
@@ -235,8 +230,6 @@ public class AuthnResponseFromCountryServiceTest {
         service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
     }
 
-    // TODO: Bug in CEF Reference 1.1. Re-enable the test when EID-177 CEF Reference 1.3 is deployed.
-    @Ignore
     @Test
     public void shouldThrowIfPidNotPresentInTranslatedResponse() {
         exception.expect(StateProcessingValidationException.class);
@@ -247,8 +240,6 @@ public class AuthnResponseFromCountryServiceTest {
         service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
     }
 
-    // TODO: Bug in CEF Reference 1.1. Re-enable the test when EID-177 CEF Reference 1.3 is deployed.
-    @Ignore
     @Test
     public void shouldThrowIfIdentityBlobNotPresentInTranslatedResponse() {
         exception.expect(StateProcessingValidationException.class);
@@ -259,8 +250,6 @@ public class AuthnResponseFromCountryServiceTest {
         service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
     }
 
-    // TODO: Bug in CEF Reference 1.1. Re-enable the test when EID-177 CEF Reference 1.3 is deployed.
-    @Ignore
     @Test
     public void shouldThrowIfLOANotPresentInTranslatedResponse() {
         exception.expect(StateProcessingValidationException.class);
