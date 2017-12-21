@@ -27,12 +27,13 @@ public class IdpPredicateFactory {
         return predicates;
     }
 
-    public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForTransactionEntity(String transactionEntity,
-                                                                                                 LevelOfAssurance levelOfAssurance) {
-        return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntity, levelOfAssurance));
+    public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForTransactionEntityAndLoa(String transactionEntity,
+                                                                                                       LevelOfAssurance levelOfAssurance) {
+        return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntity, levelOfAssurance),
+                new SupportedLoaIdpPredicate(levelOfAssurance));
     }
 
     public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForSignIn(String transactionEntityId) {
-        return createPredicatesForTransactionEntity(transactionEntityId, null);
+        return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null));
     }
 }

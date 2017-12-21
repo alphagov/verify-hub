@@ -162,7 +162,7 @@ public class IdentityProviderResource {
     private Set<IdentityProviderConfigEntityData> getIdentityProviderConfigEntityData(String transactionEntityId,
                                                                                       LevelOfAssurance levelOfAssurance) {
         Set<Predicate<IdentityProviderConfigEntityData>> predicatesForTransactionEntity =
-                idpPredicateFactory.createPredicatesForTransactionEntity(transactionEntityId, levelOfAssurance);
+                idpPredicateFactory.createPredicatesForTransactionEntityAndLoa(transactionEntityId, levelOfAssurance);
         return idpsFilteredBy(predicatesForTransactionEntity);
     }
 
