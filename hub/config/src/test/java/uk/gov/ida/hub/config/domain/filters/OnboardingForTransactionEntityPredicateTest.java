@@ -13,7 +13,7 @@ import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBu
 public class OnboardingForTransactionEntityPredicateTest {
 
     @Test
-    public void shouldBeTrueForNonOnboarding() throws Exception {
+    public void shouldBeTrueForNonOnboarding() {
         String transactionEntity = "transactionEntity";
         Predicate<IdentityProviderConfigEntityData> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);
 
@@ -24,7 +24,7 @@ public class OnboardingForTransactionEntityPredicateTest {
     }
 
     @Test
-    public void shouldBeTrueForOnboardingForSameTransactionEntity() throws Exception {
+    public void shouldBeTrueForOnboardingForSameTransactionEntity() {
         String transactionEntity = "transactionEntity";
         Predicate<IdentityProviderConfigEntityData> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);
 
@@ -36,7 +36,7 @@ public class OnboardingForTransactionEntityPredicateTest {
     }
 
     @Test
-    public void shouldBeFalseForOnboardingDifferentTransactionEntity() throws Exception {
+    public void shouldBeFalseForOnboardingDifferentTransactionEntity() {
         String transactionEntity = "transactionEntity";
         List<String>  differentTransactionEntity = ImmutableList.of("differentTransactionEntity");
         Predicate<IdentityProviderConfigEntityData> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);

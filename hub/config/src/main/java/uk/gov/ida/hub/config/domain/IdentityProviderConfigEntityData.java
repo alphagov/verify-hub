@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections.ListUtils;
-import org.apache.commons.io.FileUtils;
 import uk.gov.ida.hub.config.ConfigEntityData;
 
 import javax.validation.Valid;
@@ -66,6 +65,11 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
         return entityId;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s | %s", this.getEntityId(), this.getSimpleId());
+    }
+
     public List<LevelOfAssurance> getSupportedLevelsOfAssurance() {
         return supportedLevelsOfAssurance;
     }
@@ -86,11 +90,15 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
         return ListUtils.union(onboardingTransactionEntityIdsTemp, onboardingTransactionEntityIds);
     }
 
-    public boolean isOnboardingAtAllLevels() {
-        return supportedLevelsOfAssurance.stream().allMatch(loa -> isOnboarding(loa));
+    public boolean isOnboardingForTransactionEntity(String transactionEntity) {
+        return this.getOnboardingTransactionEntityIdsTemp().contains(transactionEntity);
     }
 
-    public boolean isOnboarding(LevelOfAssurance levelOfAssurance) {
+    public boolean isOnboardingAtAllLevels() {
+        return supportedLevelsOfAssurance.stream().allMatch(this::isOnboardingAtLoa);
+    }
+
+    public boolean isOnboardingAtLoa(LevelOfAssurance levelOfAssurance) {
         return onboardingLevelsOfAssurance.contains(levelOfAssurance);
     }
 

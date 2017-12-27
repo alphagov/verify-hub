@@ -16,9 +16,10 @@ public class OnboardingIdpPredicate implements Predicate<IdentityProviderConfigE
     @Override
     public boolean apply(IdentityProviderConfigEntityData identityProviderConfigEntityData) {
         boolean isOnboarding = levelOfAssurance != null ?
-                identityProviderConfigEntityData.isOnboarding(levelOfAssurance) :
+                identityProviderConfigEntityData.isOnboardingAtLoa(levelOfAssurance) :
                 identityProviderConfigEntityData.isOnboardingAtAllLevels();
 
         return !isOnboarding || identityProviderConfigEntityData.getOnboardingTransactionEntityIdsTemp().contains(transactionEntity);
     }
+
 }

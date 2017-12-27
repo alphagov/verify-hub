@@ -25,14 +25,16 @@ public class IdpPredicateFactoryTest {
 
     @Test
     public void createPredicatesForTransactionEntityAndLoA_shouldNotIncludeExtraPredicate() throws Exception {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(TRANSACTION_ENTITY, LEVEL_OF_ASSURANCE);
+        Set<Predicate<IdentityProviderConfigEntityData>> predicates = idpPredicateFactory.createPredicatesForTransactionEntityAndLoa(TRANSACTION_ENTITY, LEVEL_OF_ASSURANCE);
 
         Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
         Predicate<Predicate> findOnboarding = input -> input instanceof OnboardingIdpPredicate;
+        Predicate<Predicate> supportedLoa = input -> input instanceof SupportedLoaIdpPredicate;
 
-        assertThat(predicates).hasSize(2);
+        assertThat(predicates).hasSize(3);
         assertThat(Collections2.filter(predicates, findEnabled)).hasSize(1);
         assertThat(Collections2.filter(predicates, findOnboarding)).hasSize(1);
+        assertThat(Collections2.filter(predicates, supportedLoa)).hasSize(1);
     }
 
     @Test
