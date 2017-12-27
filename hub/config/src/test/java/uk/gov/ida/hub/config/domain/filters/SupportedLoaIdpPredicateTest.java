@@ -20,7 +20,6 @@ public class SupportedLoaIdpPredicateTest {
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa1IdpOtherOnboardingEntity,
                 onboardingLoa2IdpOtherOnboardingEntity, onboardingAllLevelsIdpOtherOnboardingEntity};
 
-        assertThat(filteredIdps).hasSameSizeAs(expectedFilteredIdps);
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
 }

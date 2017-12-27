@@ -19,7 +19,6 @@ public class OnboardingIdpPredicateTest {
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
                 nonOnboardingAllLevelsIdp, onboardingLoa2Idp, onboardingLoa2IdpOtherOnboardingEntity};
 
-        assertThat(filteredIdps).hasSameSizeAs(expectedFilteredIdps);
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
 
@@ -31,7 +30,6 @@ public class OnboardingIdpPredicateTest {
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa2IdpOtherOnboardingEntity};
 
-        assertThat(filteredIdps).hasSameSizeAs(expectedFilteredIdps);
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
 
@@ -44,7 +42,6 @@ public class OnboardingIdpPredicateTest {
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity};
 
-        assertThat(filteredIdps).hasSameSizeAs(expectedFilteredIdps);
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
 
@@ -58,7 +55,6 @@ public class OnboardingIdpPredicateTest {
                 nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp,
                 onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity};
 
-        assertThat(filteredIdps).hasSameSizeAs(expectedFilteredIdps);
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
 
