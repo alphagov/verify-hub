@@ -8,15 +8,15 @@ _none_
 
 ## Microservices that use config
 
-**frontend-api**: 
+**frontend**:
 
-**saml-proxy**: 
+**saml-proxy**:
 
-**saml-soap-proxy**: 
+**saml-soap-proxy**:
 
-**policy**: 
+**policy**:
 
-**saml-engine**: 
+**saml-engine**:
 
 **sensu**: initiates OCSP checks for certificates served by config
 
@@ -34,6 +34,6 @@ _none_
 
 ## History
 
-The config service used to contain all display strings for the now old frontend (frontend-api).  Changes to this text was painful as it required a deply from a protected laptop via a usb stick.  All that text was first moved into the old frontend, and included by default in the new verify-frontend.
+The config service used to contain all display strings for the old frontend.  Changes to this text was painful as it required a deploy from a protected laptop via a usb stick.  All that text was first moved into the old frontend, and included by default in the new verify-frontend.
 
 The config service also used to determine which IDPs are appropriate for users to be shown.  Identity evidence selections by the user were sent to the config service and a list of suitable IDPs was returned.  That has since been removed and similar but more complex functionality has been implemented in the verify-frontend.
