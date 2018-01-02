@@ -102,7 +102,6 @@ public class IdentityProviderResource {
         );
     }
 
-
     @GET
     @Path(Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PATH)
     @Timed
@@ -118,7 +117,7 @@ public class IdentityProviderResource {
     @Timed
     @Deprecated
     public Collection<String> getEnabledIdentityProviderEntityIdsPathParam(
-            @PathParam(Urls.ConfigUrls.ENTITY_ID_PATH_PARAM) final Optional<String> transactionEntityId) {
+            @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
 
         Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityData(transactionEntityId);
 
