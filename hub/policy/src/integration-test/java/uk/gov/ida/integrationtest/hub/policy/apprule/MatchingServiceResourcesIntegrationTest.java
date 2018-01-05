@@ -101,6 +101,7 @@ public class MatchingServiceResourcesIntegrationTest {
     private SamlResponseWithAuthnRequestInformationDto translatedAuthnRequest;
     private SamlAuthnRequestContainerDto rpSamlRequest;
     private boolean registering = true;
+    private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_2;
 
     @BeforeClass
     public static void beforeClass() {
@@ -574,7 +575,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
-        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", registering));
+        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", registering, requestedLoa));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {

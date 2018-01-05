@@ -41,7 +41,7 @@ public class IdpSelectorTest {
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         when(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId())).thenReturn(state.getMatchingServiceEntityId());
 
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, transactionsConfigProxy, identityProvidersConfigProxy);
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, LevelOfAssurance.LEVEL_2, transactionsConfigProxy, identityProvidersConfigProxy);
 
         assertThat(idpSelectedState).isEqualToComparingFieldByField(state);
     }
@@ -54,7 +54,7 @@ public class IdpSelectorTest {
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         when(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId())).thenReturn(state.getMatchingServiceEntityId());
 
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, "idp-b", true, transactionsConfigProxy, identityProvidersConfigProxy);
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, "idp-b", true, LevelOfAssurance.LEVEL_2, transactionsConfigProxy, identityProvidersConfigProxy);
 
         assertThat(idpSelectedState).isEqualToComparingFieldByField(state);
     }
@@ -65,7 +65,7 @@ public class IdpSelectorTest {
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         when(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId())).thenReturn("matching-service-id");
 
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, transactionsConfigProxy, identityProvidersConfigProxy);
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, LevelOfAssurance.LEVEL_2, transactionsConfigProxy, identityProvidersConfigProxy);
 
         assertThat(idpSelectedState.getRelayState()).isEqualTo(state.getRelayState());
         assertThat(idpSelectedState.getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
@@ -81,7 +81,7 @@ public class IdpSelectorTest {
          public void shouldRaiseAnExceptionWhenSelectedIDPDoesNotExist() {
         IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().withIdpEntityId(IDP_ENTITY_ID).withAvailableIdentityProviders(ImmutableList.of(IDP_ENTITY_ID)).build();
 
-        IdpSelector.buildIdpSelectedState(state, "another-idp-entity-id", true, transactionsConfigProxy, identityProvidersConfigProxy);
+        IdpSelector.buildIdpSelectedState(state, "another-idp-entity-id", true, LevelOfAssurance.LEVEL_2, transactionsConfigProxy, identityProvidersConfigProxy);
     }
 
     @Test(expected= StateProcessingValidationException.class)
@@ -90,7 +90,16 @@ public class IdpSelectorTest {
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(new IdpConfigDto(IDP_ENTITY_ID, true, ImmutableList.of()));
 
-        IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, transactionsConfigProxy, identityProvidersConfigProxy);
+        IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, LevelOfAssurance.LEVEL_2, transactionsConfigProxy, identityProvidersConfigProxy);
+    }
+
+    @Test(expected= StateProcessingValidationException.class)
+    public void shouldRaiseAnExceptionWhenSelectedIDPDoesNotHaveRequestedLevelOfAssurance() {
+        IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().withIdpEntityId(IDP_ENTITY_ID).withAvailableIdentityProviders(ImmutableList.of(IDP_ENTITY_ID)).build();
+        when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
+        when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(new IdpConfigDto(IDP_ENTITY_ID, true, ImmutableList.of(LevelOfAssurance.LEVEL_2)));
+
+        IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, LevelOfAssurance.LEVEL_1, transactionsConfigProxy, identityProvidersConfigProxy);
     }
 
 }

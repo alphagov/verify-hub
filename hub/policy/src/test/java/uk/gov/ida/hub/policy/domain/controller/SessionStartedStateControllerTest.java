@@ -71,7 +71,7 @@ public class SessionStartedStateControllerTest {
 
     @Test
     public void handleIdpSelect_shouldTransitionStateAndLogEvent() {
-        controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", false);
+        controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", false, LevelOfAssurance.LEVEL_2);
         ArgumentCaptor<IdpSelectedState> capturedState = ArgumentCaptor.forClass(IdpSelectedState.class);
 
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
@@ -84,7 +84,7 @@ public class SessionStartedStateControllerTest {
     @Test
     public void idpSelect_shouldThrowWhenIdentityProviderInvalid() {
         try {
-            controller.handleIdpSelected("notExist", "some-ip-address", false);
+            controller.handleIdpSelected("notExist", "some-ip-address", false, LevelOfAssurance.LEVEL_2);
             fail("Should throw StateProcessingValidationException");
         }
         catch(StateProcessingValidationException e) {

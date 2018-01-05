@@ -17,6 +17,7 @@ import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.IdpSelected;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -45,6 +46,7 @@ public class SessionTimeoutIntegrationTests {
     public static final String THE_TX_ID = "the-tx-id";
     private static Client client;
     private static final boolean REGISTERING = true;
+    private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
 
     @ClassRule
     public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
@@ -100,7 +102,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING),
+        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA),
                 SESSION_TIMEOUT);
     }
 
@@ -113,7 +115,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING), ExceptionType
+        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA), ExceptionType
                 .SESSION_NOT_FOUND);
     }
 

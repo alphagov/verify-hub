@@ -90,6 +90,7 @@ public class TestSessionResource {
                         testSessionDto.getRelayState(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.isRegistering(),
+                        testSessionDto.getRequestedLoa(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getAvailableIdentityProviders(),
                         testSessionDto.getTransactionSupportsEidas())

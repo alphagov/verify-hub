@@ -22,11 +22,7 @@ import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.domain.IdpConfigDtoBuilder;
 import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
-import uk.gov.ida.hub.policy.domain.AuthnRequestSignInDetailsDto;
-import uk.gov.ida.hub.policy.domain.IdpConfigDto;
-import uk.gov.ida.hub.policy.domain.IdpSelected;
-import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
-import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
@@ -55,6 +51,7 @@ import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionR
 public class AuthnRequestFromTransactionResourceIntegrationTest {
     private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
     private static final Boolean REGISTERING = TRUE;
+    private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
     private static Client client;
 
     @ClassRule
@@ -112,7 +109,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     @Test
     public void badEntityResponseThrown_WhenMandatoryFieldsAreMissing() throws Exception {
         sessionId = aSessionIsCreated();
-        Response response = postIdpSelected(new IdpSelected(null, null, null));
+        Response response = postIdpSelected(new IdpSelected(null, null, null, null));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
 
@@ -121,12 +118,13 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         assertThat(msg.getErrors()).contains("selectedIdpEntityId may not be empty");
         assertThat(msg.getErrors()).contains("principalIpAddress may not be empty");
         assertThat(msg.getErrors()).contains("registration may not be null");
+        assertThat(msg.getErrors()).contains("requestedLoa may not be null");
     }
 
     @Test
     public void selectIdp_shouldReturnSuccessResponseAndAudit() throws JsonProcessingException {
         sessionId = aSessionIsCreated();
-        Response response = postIdpSelected(new IdpSelected(idpEntityId, principalIpAddress, REGISTERING));
+        Response response = postIdpSelected(new IdpSelected(idpEntityId, principalIpAddress, REGISTERING, REQUESTED_LOA));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(eventSinkStub.getRecordedRequest()).hasSize(2); // one session started event, one idp selected event
@@ -142,7 +140,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void idpSelected_shouldThrowIfIdpIsNotAvailable() throws JsonProcessingException {
         sessionId = aSessionIsCreated();
 
-        IdpSelected idpSelected = new IdpSelected("does-not-exist", principalIpAddress, REGISTERING);
+        IdpSelected idpSelected = new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, REQUESTED_LOA);
         Response response = postIdpSelected(idpSelected);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -155,7 +153,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         sessionId = SessionId.createNewSessionId();
         TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, idpEntityId, client, buildUriForTestSession(SUCCESSFUL_MATCH_STATE, sessionId));
 
-        Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING));
+        Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, REQUESTED_LOA));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto error = response.readEntity(ErrorStatusDto.class);

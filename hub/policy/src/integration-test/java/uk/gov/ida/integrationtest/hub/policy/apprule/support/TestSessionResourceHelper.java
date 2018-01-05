@@ -52,6 +52,7 @@ public class TestSessionResourceHelper {
                 idpSelectedState.getLevelsOfAssurance(),
                 idpSelectedState.getUseExactComparisonType(),
                 idpSelectedState.registering(),
+                idpSelectedState.getRequestedLoa(),
                 idpSelectedState.getForceAuthentication(),
                 idpSelectedState.getAvailableIdentityProviderEntityIds(),
                 idpSelectedState.getTransactionSupportsEidas());

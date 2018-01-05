@@ -57,6 +57,7 @@ public class SessionResourceIntegrationTest {
     public static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
     private static final boolean REGISTERING = true;
     private static final boolean SIGNING_IN = !REGISTERING;
+    private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
 
     private static Client client;
 
@@ -297,7 +298,7 @@ public class SessionResourceIntegrationTest {
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
-        post(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING));
+        post(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA));
     }
 
 
@@ -307,7 +308,7 @@ public class SessionResourceIntegrationTest {
 
         client.target(policyUri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(new IdpSelected(idpEntityId, "this-is-an-ip-address", SIGNING_IN)));
+                .post(Entity.json(new IdpSelected(idpEntityId, "this-is-an-ip-address", SIGNING_IN, REQUESTED_LOA)));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {
