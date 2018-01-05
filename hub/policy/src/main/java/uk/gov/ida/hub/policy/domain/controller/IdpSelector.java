@@ -18,6 +18,7 @@ public class IdpSelector {
     public static IdpSelectedState buildIdpSelectedState(IdpSelectingState state,
                                                          String idpEntityId,
                                                          boolean registering,
+                                                         LevelOfAssurance requestedLoa,
                                                          TransactionsConfigProxy transactionsConfigProxy,
                                                          IdentityProvidersConfigProxy identityProvidersConfigProxy) {
         checkValidIdentityProvider(idpEntityId, state);
@@ -27,7 +28,7 @@ public class IdpSelector {
         final List<LevelOfAssurance> idpLevelsOfAssurance = idpConfig.getSupportedLevelsOfAssurance();
         List<LevelOfAssurance> levelsOfAssuranceForTransactionSupportedByIdp = levelsOfAssuranceForTransaction.stream().filter(idpLevelsOfAssurance::contains).collect(Collectors.toList());
 
-        if (levelsOfAssuranceForTransactionSupportedByIdp.isEmpty()) {
+        if (levelsOfAssuranceForTransactionSupportedByIdp.isEmpty() || !levelsOfAssuranceForTransactionSupportedByIdp.contains(requestedLoa)) {
             throw StateProcessingValidationException.transactionLevelsOfAssuranceUnsupportedByIDP(state.getRequestIssuerEntityId(), levelsOfAssuranceForTransaction, idpEntityId, idpLevelsOfAssurance);
         }
 
@@ -44,10 +45,12 @@ public class IdpSelector {
                 state.getRelayState(),
                 state.getSessionExpiryTimestamp(),
                 registering,
+                requestedLoa,
                 state.getSessionId(),
                 state.getAvailableIdentityProviderEntityIds(),
                 state.getTransactionSupportsEidas()
         );
+
         return idpSelectedState;
     }
 

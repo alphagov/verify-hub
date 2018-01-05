@@ -315,8 +315,8 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     }
 
     @Override
-    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, transactionsConfigProxy, identityProvidersConfigProxy);
+    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
         eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }
