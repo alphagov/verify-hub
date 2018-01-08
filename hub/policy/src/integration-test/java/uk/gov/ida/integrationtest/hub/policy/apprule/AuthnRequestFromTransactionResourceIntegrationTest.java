@@ -180,21 +180,11 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         TestSessionResourceHelper.createSessionInIdpSelectedState(session, samlResponse.getIssuer(), idpEntityId, client,
                 buildUriForTestSession(IDP_SELECTED_STATE, session));
 
-        List<IdpConfigDto> expectedIdpConfigDtos = Arrays.asList(
-                IdpConfigDtoBuilder.anIdpConfigDto().build(),
-                IdpConfigDtoBuilder.anIdpConfigDto().build(),
-                IdpConfigDtoBuilder.anIdpConfigDto().build()
-        );
-
-        List<String> expectedEntityIds = IdpSelectedStateBuilder.anIdpSelectedState().build().getAvailableIdentityProviderEntityIds();
-
         Response response = getAuthRequestSignInProcess(session);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         AuthnRequestSignInDetailsDto entity = response.readEntity(AuthnRequestSignInDetailsDto.class);
         assertThat(entity.getRequestIssuerId()).isEqualTo(samlResponse.getIssuer());
-        assertThat(entity.getAvailableIdentityProviderEntityIds()).isEqualTo(expectedEntityIds);
-        assertThat(entity.getAvailableIdentityProviders()).usingFieldByFieldElementComparator().containsAll(expectedIdpConfigDtos);
     }
 
     @Test

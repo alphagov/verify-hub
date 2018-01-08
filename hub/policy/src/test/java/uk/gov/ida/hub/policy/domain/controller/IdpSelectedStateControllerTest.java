@@ -137,7 +137,6 @@ public class IdpSelectedStateControllerTest {
     public void getSignInProcessDetails_shouldReturnFieldsFromTheState() throws Exception {
         AuthnRequestSignInProcess signInProcessDetails = controller.getSignInProcessDetails();
         assertThat(signInProcessDetails.getTransactionSupportsEidas()).isEqualTo(true);
-        assertThat(signInProcessDetails.getAvailableIdentityProviderEntityIds()).containsSequence("idp-a", "idp-b", "idp-c");
         assertThat(signInProcessDetails.getRequestIssuerId()).isEqualTo("transaction-entity-id");
     }
 

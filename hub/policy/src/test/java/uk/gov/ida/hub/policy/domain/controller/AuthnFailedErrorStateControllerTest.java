@@ -99,7 +99,6 @@ public class AuthnFailedErrorStateControllerTest {
     public void getSignInProcessDetails_shouldReturnFieldsFromTheState() throws Exception {
         AuthnRequestSignInProcess signInProcessDetails = controller.getSignInProcessDetails();
         assertThat(signInProcessDetails.getTransactionSupportsEidas()).isEqualTo(true);
-        assertThat(signInProcessDetails.getAvailableIdentityProviderEntityIds()).containsSequence("anIdp");
         assertThat(signInProcessDetails.getRequestIssuerId()).isEqualTo("requestIssuerId");
     }
 

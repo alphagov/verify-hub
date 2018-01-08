@@ -329,7 +329,6 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
         return new AuthnRequestSignInProcess(
-                state.getAvailableIdentityProviderEntityIds(),
                 state.getRequestIssuerEntityId(),
                 state.getTransactionSupportsEidas());
     }

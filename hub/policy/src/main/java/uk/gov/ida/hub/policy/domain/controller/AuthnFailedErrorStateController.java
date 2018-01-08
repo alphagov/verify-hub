@@ -93,7 +93,6 @@ public class AuthnFailedErrorStateController implements IdpSelectingStateControl
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
         return new AuthnRequestSignInProcess(
-                state.getAvailableIdentityProviderEntityIds(),
                 state.getRequestIssuerEntityId(),
                 state.getTransactionSupportsEidas());
     }
