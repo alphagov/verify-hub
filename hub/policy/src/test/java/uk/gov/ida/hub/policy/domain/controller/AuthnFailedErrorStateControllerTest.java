@@ -54,7 +54,6 @@ public class AuthnFailedErrorStateControllerTest {
     @Before
     public void setup() {
         authnFailedErrorState = anAuthnFailedErrorState()
-            .withAvailableIdpEntityIds(asList(IDP_ENTITY_ID))
             .withTransactionSupportsEidas(true)
             .build();
         when(transactionsConfigProxy.getLevelsOfAssurance(authnFailedErrorState.getRequestIssuerEntityId()))

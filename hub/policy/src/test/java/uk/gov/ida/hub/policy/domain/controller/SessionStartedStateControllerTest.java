@@ -52,7 +52,6 @@ public class SessionStartedStateControllerTest {
     @Before
     public void setup() {
         sessionStartedState = aSessionStartedState()
-            .withAvailableIdpEntityIds(asList(IDP_ENTITY_ID))
             .withTransactionSupportsEidas(true)
             .build();
         when(transactionsConfigProxy.getLevelsOfAssurance(sessionStartedState.getRequestIssuerEntityId()))
@@ -67,7 +66,6 @@ public class SessionStartedStateControllerTest {
                 responseFromHubFactory,
                 identityProvidersConfigProxy);
     }
-
 
     @Test
     public void handleIdpSelect_shouldTransitionStateAndLogEvent() {

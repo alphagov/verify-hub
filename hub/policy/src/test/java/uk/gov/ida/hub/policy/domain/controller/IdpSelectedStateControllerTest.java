@@ -91,15 +91,13 @@ public class IdpSelectedStateControllerTest {
     private IdpSelectedStateController controller;
     @Mock
     private MatchingServiceConfigProxy matchingServiceConfigProxy;
-    @Mock
-    private SamlEngineProxy samlEngineProxy;
 
     private SessionStartedStateFactory sessionStartedStateFactory;
     private IdpSelectedState idpSelectedState;
 
     @Before
     public void setup() {
-        sessionStartedStateFactory = new SessionStartedStateFactory(identityProvidersConfigProxy);
+        sessionStartedStateFactory = new SessionStartedStateFactory();
         controller = idpSelectedStateBuilder(false);
     }
 

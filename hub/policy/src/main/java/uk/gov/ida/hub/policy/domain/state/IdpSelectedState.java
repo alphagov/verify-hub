@@ -66,7 +66,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         return relayState;
     }
 
-    @Override
     public List<String> getAvailableIdentityProviderEntityIds() {
         return availableIdentityProviders;
     }

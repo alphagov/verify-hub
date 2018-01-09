@@ -196,7 +196,6 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getRelayState(),
                 state.getSessionId(),
                 state.getForceAuthentication(),
-                state.getAvailableIdentityProviderEntityIds(),
                 state.getTransactionSupportsEidas());
     }
 
@@ -209,7 +208,6 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getRelayState(),
                 state.getSessionId(),
                 state.getIdpEntityId(),
-                state.getAvailableIdentityProviderEntityIds(),
                 state.getForceAuthentication(),
                 state.getTransactionSupportsEidas());
     }
@@ -235,7 +233,6 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getRelayState(),
                 state.getSessionId(),
                 state.getIdpEntityId(),
-                state.getAvailableIdentityProviderEntityIds(),
                 state.getForceAuthentication(),
                 state.getTransactionSupportsEidas());
     }
