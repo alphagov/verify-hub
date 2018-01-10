@@ -107,10 +107,6 @@ subprojects {
              "uk.gov.ida:saml-metadata-bindings:$dependencyVersions.saml_metadata_bindings",
              "uk.gov.ida:hub-saml:$dependencyVersions.hub_saml"
 
-        stub_saml_test("uk.gov.ida:stub-idp-saml:$dependencyVersions.stub_idp_saml") {
-            changing = true
-            exclude group: "uk.gov.ida"
-        }
         stub_saml_test("uk.gov.ida:stub-idp-saml-test:$dependencyVersions.stub_idp_saml") {
             changing = true
             exclude group: "uk.gov.ida"
