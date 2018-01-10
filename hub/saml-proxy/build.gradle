@@ -10,7 +10,9 @@ dependencies {
             configurations.common
 }
 
+apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.hub.samlproxy.SamlProxyApplication'
+mainClassName = ext.mainclass
 
 task copyToLib(dependsOn: jar, type: Copy) {
     into "$buildDir/output/lib"

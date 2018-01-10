@@ -15,7 +15,9 @@ dependencies {
             configurations.ida_utils
 }
 
+apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.hub.samlengine.SamlEngineApplication'
+mainClassName = ext.mainclass
 
 task copyToLib(dependsOn: jar, type: Copy) {
     into "$buildDir/output/lib"
