@@ -18,7 +18,6 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.domain.AuthnContext;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.TestCertificateStrings;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
@@ -26,7 +25,6 @@ import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.test.builders.EidasAuthnRequestBuilder;
 import uk.gov.ida.saml.hub.test.builders.IdaAuthnRequestBuilder;
 import uk.gov.ida.saml.security.IdaKeyStore;
-import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -35,8 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-
-import static org.junit.Assert.*;
 
 public class HubTransformersFactoryTest {
     private StringToOpenSamlObjectTransformer<AuthnRequest> stringtoOpenSamlObjectTransformer;
