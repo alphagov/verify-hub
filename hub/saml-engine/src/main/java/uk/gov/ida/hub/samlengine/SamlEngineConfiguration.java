@@ -9,9 +9,8 @@ import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
 import uk.gov.ida.common.shared.configuration.PrivateKeyConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
+import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfigurationImpl;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
@@ -34,7 +33,7 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Valid
     @NotNull
     @JsonProperty
-    protected SamlConfigurationImpl saml;
+    protected SamlConfiguration saml;
 
     @Valid
     @JsonProperty

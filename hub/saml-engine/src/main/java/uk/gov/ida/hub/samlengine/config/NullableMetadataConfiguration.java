@@ -50,7 +50,7 @@ public class NullableMetadataConfiguration implements MetadataResolverConfigurat
 
     /*
     * What entityId can be expected to reliably appear in the SAML metadata?
-    * Used to provide a healthcheck {@link uk.gov.ida.saml.dropwizard.metadata.MetadataHealthCheck}
+    * Used to provide a healthcheck {@link uk.gov.ida.saml.metadata.MetadataHealthCheck}
     */
     @Valid
     @JsonProperty

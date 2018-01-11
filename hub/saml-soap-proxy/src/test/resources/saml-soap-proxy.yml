@@ -32,7 +32,6 @@ logging:
 
 saml:
   entityId: ${SAML_ENTITY_ID}
-  eidasEntityId: ${SAML_ENTITY_ID}
 
 httpClient:
   timeout: 2s

@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.security;
 
-import uk.gov.ida.saml.configuration.SamlConfiguration;
+import uk.gov.ida.hub.samlsoapproxy.config.SamlConfiguration;
 import uk.gov.ida.saml.core.InternalPublicKeyStore;
 import uk.gov.ida.saml.metadata.exceptions.NoKeyConfiguredForEntityException;
 import uk.gov.ida.saml.security.SigningKeyStore;

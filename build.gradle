@@ -29,8 +29,8 @@ def dependencyVersions = [
             opensaml:"$opensaml_version3",
             dev_pki: '1.1.0-21',
             saml_extensions:"$opensaml_version3-1.2a-39",
-            saml_metadata_bindings:"$opensaml_version3-61",
-            hub_saml:"$opensaml_version3-101"
+            saml_metadata_bindings:"$opensaml_version3-65",
+            hub_saml:"$opensaml_version3-102"
         ]
 
 subprojects {
