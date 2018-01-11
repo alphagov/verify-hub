@@ -15,7 +15,6 @@ import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.shared.security.IdGenerator;
-import uk.gov.ida.saml.configuration.SamlConfiguration;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
@@ -134,6 +133,7 @@ import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValida
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
 
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -254,7 +254,7 @@ public class HubTransformersFactory {
     }
 
     public Function<String, AuthnRequestFromRelyingParty> getStringToIdaAuthnRequestTransformer(
-            SamlConfiguration samlConfiguration,
+            URI expectedDestinationHost,
             SigningKeyStore signingKeyStore,
             IdaKeyStore decryptionKeyStore,
             ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
@@ -264,7 +264,7 @@ public class HubTransformersFactory {
         Function<String, AuthnRequest> stringToAuthnRequestTransformer = getStringToAuthnRequestTransformer();
         Function<AuthnRequest, AuthnRequestFromRelyingParty> authnRequestToIdaRequestFromTransactionTransformer =
             getAuthnRequestToAuthnRequestFromTransactionTransformer(
-                samlConfiguration,
+                expectedDestinationHost,
                 signingKeyStore,
                 decryptionKeyStore,
                 duplicateIds,
@@ -396,7 +396,7 @@ public class HubTransformersFactory {
     public Function<String, InboundResponseFromIdp> getStringToIdaResponseIssuedByIdpTransformer(
             SigningKeyStore signingKeyStore,
             IdaKeyStore keyStore,
-            SamlConfiguration samlConfiguration,
+            URI expectedDestinationHost,
             String expectedEndpoint,
             ConcurrentMap<String, DateTime> assertionIdCache,
             String hubEntityId) {
@@ -405,7 +405,7 @@ public class HubTransformersFactory {
         Function<Response, InboundResponseFromIdp> t2 = getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
                 signingKeyStore,
                 keyStore,
-                samlConfiguration,
+                expectedDestinationHost,
                 expectedEndpoint,
                 assertionIdCache,
                 hubEntityId);
@@ -415,7 +415,7 @@ public class HubTransformersFactory {
     public DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
             SigningKeyStore signingKeyStore,
             IdaKeyStore keyStore,
-            SamlConfiguration samlConfiguration,
+            URI expectedDestinationHost,
             String expectedEndpoint,
             ConcurrentMap<String, DateTime> assertionIdCache,
             String hubEntityId) {
@@ -430,14 +430,14 @@ public class HubTransformersFactory {
                 new SamlAssertionsSignatureValidator(new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory))),
                 new EncryptedResponseFromIdpValidator(new SamlStatusToIdpIdaStatusMappingsFactory()),
                 new ValidateSamlResponseIssuedByIdpDestination(
-                        new DestinationValidator(samlConfiguration.getExpectedDestinationHost()),
+                        new DestinationValidator(expectedDestinationHost),
                         expectedEndpoint),
                 getResponseAssertionsFromIdpValidator(assertionIdCache, hubEntityId)
         );
     }
 
     public AuthnRequestToIdaRequestFromRelyingPartyTransformer getAuthnRequestToAuthnRequestFromTransactionTransformer(
-        final SamlConfiguration samlConfiguration,
+        final URI expectedDestinationHost,
         final SigningKeyStore signingKeyStore,
         final IdaKeyStore decryptionKeyStore,
         final ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
@@ -450,7 +450,7 @@ public class HubTransformersFactory {
         return new AuthnRequestToIdaRequestFromRelyingPartyTransformer(
             new AuthnRequestFromRelyingPartyUnmarshaller(decrypter),
             coreTransformersFactory.<AuthnRequest>getSamlRequestSignatureValidator(signingKeyStore),
-            new ValidateSamlAuthnRequestFromTransactionDestination(new DestinationValidator(samlConfiguration.getExpectedDestinationHost()), Endpoints.SSO_REQUEST_ENDPOINT),
+            new ValidateSamlAuthnRequestFromTransactionDestination(new DestinationValidator(expectedDestinationHost), Endpoints.SSO_REQUEST_ENDPOINT),
             new AuthnRequestFromTransactionValidator(
                 new IssuerValidator(),
                 new DuplicateAuthnRequestValidator(duplicateIds, samlDuplicateRequestValidationConfiguration),

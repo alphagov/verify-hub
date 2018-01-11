@@ -15,11 +15,10 @@ import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.MatchingServiceAuthnStatement;
 import uk.gov.ida.saml.core.transformers.outbound.OutboundAssertionToSubjectTransformer;
 import uk.gov.ida.saml.msa.test.domain.MatchingServiceAssertion;
-import uk.gov.ida.saml.transformers.Transformer;
 
 import java.util.List;
 
-public class MatchingServiceAssertionToAssertionTransformer implements Transformer<MatchingServiceAssertion,Assertion> {
+public class MatchingServiceAssertionToAssertionTransformer {
 
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
     private final MatchingServiceAuthnStatementToAuthnStatementTransformer matchingServiceAuthnStatementToAuthnStatementTransformer;
