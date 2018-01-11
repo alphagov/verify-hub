@@ -3,8 +3,7 @@ package uk.gov.ida.hub.samlengine;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.hub.samlengine.config.NullableMetadataConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfigurationImpl;
+import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -13,7 +12,7 @@ public class CountryConfiguration {
     @Valid
     @NotNull
     @JsonProperty
-    protected SamlConfigurationImpl saml;
+    protected SamlConfiguration saml;
 
     @Valid
     @NotNull
@@ -23,7 +22,7 @@ public class CountryConfiguration {
     public CountryConfiguration() {
     }
 
-    public CountryConfiguration(SamlConfigurationImpl samlConfiguration, NullableMetadataConfiguration metadataConfiguration) {
+    public CountryConfiguration(SamlConfiguration samlConfiguration, NullableMetadataConfiguration metadataConfiguration) {
         this.saml = samlConfiguration;
         this.metadata = metadataConfiguration;
     }
