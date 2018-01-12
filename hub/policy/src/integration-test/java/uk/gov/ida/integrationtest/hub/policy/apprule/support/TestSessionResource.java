@@ -57,6 +57,7 @@ public class TestSessionResource {
                         testSessionDto.getAssertionConsumerServiceUri(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getLevelsOfAssurance().get(testSessionDto.getLevelsOfAssurance().size()-1),
+                        testSessionDto.isRegistering(),
                         testSessionDto.getTransactionSupportsEidas())
                         );
         return Response.ok().build();
@@ -120,6 +121,7 @@ public class TestSessionResource {
                         dto.getSessionId(),
                         dto.getPersistentId(),
                         dto.getLevelOfAssurance(),
+                        dto.isRegistering(),
                         dto.getTransactionSupportsEidas()));
 
 

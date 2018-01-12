@@ -85,7 +85,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getIdpEntityId(),
                 state.getForceAuthentication(),
                 state.getSessionExpiryTimestamp(),
-                state.registering(),
+                state.isRegistering(),
                 null);
 
         eventSinkHubEventLogger.logRequestFromHub(state.getSessionId(), state.getRequestIssuerEntityId());
@@ -260,6 +260,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),
             state.getTransactionSupportsEidas(),
+            state.isRegistering(),
             successFromIdp.getIssuer(),
             state.getRelayState(),
             successFromIdp.getLevelOfAssurance(),
@@ -302,7 +303,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     }
 
     public boolean isRegistrationContext() {
-        return state.registering();
+        return state.isRegistering();
     }
 
     public String getMatchingServiceEntityId() {

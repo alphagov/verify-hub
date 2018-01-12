@@ -14,19 +14,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
-import uk.gov.ida.hub.policy.domain.EidasCountryDto;
-import uk.gov.ida.hub.policy.domain.IdpIdaStatus;
-import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.ResponseAction;
-import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResourceHelper;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -36,7 +26,6 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_SELECTED_STATE;
@@ -66,7 +55,6 @@ public class EidasSessionResourceIntegrationTest {
 
     private static Client client;
 
-    private static final String IDP_ENTITY_ID = "idpEntityId";
     private static final String RP_ENTITY_ID = "rpEntityId";
     private static final String MS_ENTITY_ID = "Matching-service-entity-id";
     private static final EidasCountryDto NETHERLANDS = new EidasCountryDto("http://netherlandsEnitity.nl", "NL", true);
@@ -87,13 +75,12 @@ public class EidasSessionResourceIntegrationTest {
         stubSamlEngineGenerationOfAQR();
         configStub.reset();
         configStub.setUpStubForMatchingServiceRequest(RP_ENTITY_ID, MS_ENTITY_ID, true);
-        configStub.setupStubForEnabledIdps(asList(IDP_ENTITY_ID));
         configStub.setUpStubForLevelsOfAssurance(RP_ENTITY_ID);
         configStub.setupStubForEidasEnabledForTransaction(RP_ENTITY_ID, false);
-        enableCountriesForRp(RP_ENTITY_ID, NETHERLANDS, SPAIN);
         configStub.setupStubForEidasCountries(EIDAS_COUNTRIES);
         eventSinkStub.reset();
         eventSinkStub.setupStubForLogging();
+        enableCountriesForRp(RP_ENTITY_ID, NETHERLANDS, SPAIN);
     }
 
     @Test

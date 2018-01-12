@@ -70,7 +70,7 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         return availableIdentityProviders;
     }
 
-    public boolean registering() {
+    public boolean isRegistering() {
         return registering;
     }
 
