@@ -14,7 +14,9 @@ dependencies {
             configurations.dropwizard_infinispan
 }
 
+apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.hub.policy.PolicyApplication'
+mainClassName = ext.mainclass
 
 task copyToLib(dependsOn: jar, type: Copy) {
     into "$buildDir/output/lib"

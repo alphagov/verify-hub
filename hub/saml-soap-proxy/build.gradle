@@ -12,7 +12,9 @@ dependencies {
             configurations.soap
 }
 
+apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyApplication'
+mainClassName = ext.mainclass
 
 task copyToLib(dependsOn: jar, type: Copy) {
     into "$buildDir/output/lib"
