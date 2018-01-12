@@ -98,7 +98,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         samlResponse = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(THE_TRANSACTION_ID).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
-        configStub.setupStubForEnabledIdps(ImmutableList.of(idpEntityId, "differentIdp"));
+        configStub.setupStubForEnabledIdps(THE_TRANSACTION_ID, REGISTERING, REQUESTED_LOA, ImmutableList.of(idpEntityId, "differentIdp"));
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         configStub.setupStubForEidasEnabledForTransaction(THE_TRANSACTION_ID, false);
         eventSinkStub.setupStubForLogging();
@@ -186,7 +186,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
     }
 
     @Test
-    public void responePost_shouldReturnBadRequestWhenIdpIsDifferentThanSelectedIdp() throws JsonProcessingException {
+    public void responsePost_shouldReturnBadRequestWhenIdpIsDifferentThanSelectedIdp() throws JsonProcessingException {
         samlEngineStub.setupStubForIdpAuthnResponseTranslate(InboundResponseFromIdpDtoBuilder.successResponse("differentIdp", LevelOfAssurance.LEVEL_2));
         Response response = postIdpResponse(sessionId, samlResponseDto);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());

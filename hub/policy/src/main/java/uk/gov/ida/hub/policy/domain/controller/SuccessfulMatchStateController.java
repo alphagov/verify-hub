@@ -1,17 +1,11 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import uk.gov.ida.hub.policy.domain.ResponseFromHub;
-import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
-import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
-import uk.gov.ida.hub.policy.domain.StateController;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
 import java.util.Collection;
-
-import static com.google.common.base.Optional.fromNullable;
 
 public class SuccessfulMatchStateController implements StateController, ResponseProcessingStateController, ResponsePreparedStateController, ErrorResponsePreparedStateController {
 
@@ -41,7 +35,7 @@ public class SuccessfulMatchStateController implements StateController, Response
     @Override
     public ResponseFromHub getPreparedResponse() {
         Collection<String> enabledIdentityProviders = identityProvidersConfigProxy.getEnabledIdentityProviders(
-                fromNullable(state.getRequestIssuerEntityId()));
+                state.getRequestIssuerEntityId(), state.isRegistering(), state.getLevelOfAssurance());
 
         if (!enabledIdentityProviders.contains(state.getIdentityProviderEntityId())) {
             throw new IdpDisabledException(state.getIdentityProviderEntityId());

@@ -6,11 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
-import uk.gov.ida.hub.policy.domain.IdpConfigDto;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.StateTransitionAction;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
@@ -20,19 +16,19 @@ import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthnFailedErrorStateControllerTest {
 
     private static final String IDP_ENTITY_ID = "anIdp";
+    private static final boolean REGISTERING = false;
 
     private AuthnFailedErrorState authnFailedErrorState;
 
@@ -60,6 +56,8 @@ public class AuthnFailedErrorStateControllerTest {
                 .thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         IdpConfigDto idpConfigDto = new IdpConfigDto(IDP_ENTITY_ID, true, asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(idpConfigDto);
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(authnFailedErrorState.getRequestIssuerEntityId(), REGISTERING, LevelOfAssurance.LEVEL_2))
+                .thenReturn(singletonList(IDP_ENTITY_ID));
         controller = new AuthnFailedErrorStateController(
                 authnFailedErrorState,
                 responseFromHubFactory,
@@ -84,7 +82,7 @@ public class AuthnFailedErrorStateControllerTest {
     @Test
     public void idpSelect_shouldThrowWhenIdentityProviderInvalid() {
         try {
-            controller.handleIdpSelected("notExist", "some-ip-address", false, LevelOfAssurance.LEVEL_2);
+            controller.handleIdpSelected("notExist", "some-ip-address", REGISTERING, LevelOfAssurance.LEVEL_2);
             fail("Should throw StateProcessingValidationException");
         }
         catch(StateProcessingValidationException e) {
