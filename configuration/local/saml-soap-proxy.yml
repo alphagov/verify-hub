@@ -1,49 +1,21 @@
 server:
   applicationConnectors:
     - type: http
-      port: 50160
-    - type: https
-      port: 50163
-      keyStorePath: deploy/keys/service_ssl.ks
-      keyStorePassword: puppet
-      validatePeers: false
-      validateCerts: false
-      # TLSv1.1 included as curl seems to get unset with 1.2 for some
-      # as-yet-uninvestigated reason.
-      supportedProtocols: ["TLSv1.1","TLSv1.2"]
-      supportedCipherSuites:
-        - TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 # for TLS 1.2
-        - TLS_DHE_RSA_WITH_AES_128_CBC_SHA # for TLS 1.1
+      port: 80
   adminConnectors:
     - type: http
-      port: 50161
+      port: 81
   requestLog:
     appenders:
-      - type: file
-        currentLogFilename: apps-home/saml-soap-proxy.log
-        archivedLogFilenamePattern: apps-home/saml-soap-proxy.log.%d.gz
-        logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
-      - type: logstash-file
-        currentLogFilename: apps-home/logstash/saml-soap-proxy.log
-        archivedLogFilenamePattern: apps-home/logstash/saml-soap-proxy.log.%d.gz
-        archivedFileCount: 7
       - type: console
 
 logging:
   level: INFO
   appenders:
-    - type: file
-      currentLogFilename: apps-home/saml-soap-proxy.log
-      archivedLogFilenamePattern: apps-home/saml-soap-proxy.log.%d.gz
-      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
-    - type: logstash-file
-      currentLogFilename: apps-home/logstash/saml-soap-proxy.log
-      archivedLogFilenamePattern: apps-home/logstash/saml-soap-proxy.log.%d.gz
-      archivedFileCount: 7
     - type: console
 
 saml:
-  entityId: https://local.signin.service.gov.uk
+  entityId: https://dev-hub.local
 
 httpClient:
   timeout: 2s
@@ -54,11 +26,6 @@ httpClient:
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
-  tls:
-    protocol: TLSv1.2
-    verifyHostname: false
-    trustStorePath: deploy/keys/service_ssl.ks
-    trustStorePassword: puppet
 
 enableRetryTimeOutConnections: true
 
@@ -70,11 +37,6 @@ soapHttpClient:
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
-  tls:
-    protocol: TLSv1.2
-    verifyHostname: true
-    trustStorePath: ../ida-hub/deploy/keys/ida_rp_truststore.ts
-    trustStorePassword: puppet
 
 healthCheckSoapHttpClient:
   timeout: 2s
@@ -84,19 +46,14 @@ healthCheckSoapHttpClient:
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
-  tls:
-    protocol: TLSv1.2
-    verifyHostname: true
-    trustStorePath: ../ida-hub/deploy/keys/ida_rp_truststore.ts
-    trustStorePassword: puppet
 
-samlEngineUri: https://localhost:50123
+samlEngineUri: ${SAML_ENGINE_URL}
 
-configUri: https://localhost:50243
+configUri: ${CONFIG_URL}
 
-eventSinkUri: https://localhost:51103
+eventSinkUri: ${EVENT_SINK_URL}
 
-policyUri: https://localhost:50113
+policyUri: ${POLICY_URL}
 
 serviceInfo:
   name: saml-soap-proxy
@@ -107,20 +64,20 @@ matchingServiceExecutorConfiguration:
   keepAliveDuration: 10s
 
 clientTrustStoreConfiguration:
-  path: ../ida-hub/deploy/keys/ida_truststore.ts
-  password: puppet
+  path: data/pki/hub.ts
+  password: marshmallow
 
 rpTrustStoreConfiguration:
-  path: ../ida-hub/deploy/keys/ida_rp_truststore.ts
-  password: puppet
+  path: data/pki/relying_parties.ts
+  password: marshmallow
 
 metadata:
-  uri: http://localhost:55000/local/metadata.xml
-  trustStorePath: deploy/keys/ida_truststore.ts
-  trustStorePassword: puppet
+  uri: ${METADATA_URL}
+  trustStorePath: data/pki/metadata.ts
+  trustStorePassword: marshmallow
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
-  expectedEntityId: https://local.signin.service.gov.uk
+  expectedEntityId: https://dev-hub.local
   client:
     timeout: 2s
     timeToLive: 10m
@@ -130,7 +87,3 @@ metadata:
     keepAlive: 60s
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
-    tls:
-      protocol: TLSv1.2
-      verifyHostname: false
-      trustSelfSignedCertificates: true
