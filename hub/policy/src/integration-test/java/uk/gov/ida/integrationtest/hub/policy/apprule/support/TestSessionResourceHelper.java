@@ -51,7 +51,8 @@ public class TestSessionResourceHelper {
                 idpSelectedState.getAssertionConsumerServiceUri(),
                 idpSelectedState.getLevelsOfAssurance(),
                 idpSelectedState.getUseExactComparisonType(),
-                idpSelectedState.registering(),
+                idpSelectedState.isRegistering(),
+                idpSelectedState.getRequestedLoa(),
                 idpSelectedState.getForceAuthentication(),
                 idpSelectedState.getAvailableIdentityProviderEntityIds(),
                 idpSelectedState.getTransactionSupportsEidas());
@@ -62,15 +63,18 @@ public class TestSessionResourceHelper {
                 .post(Entity.json(testSessionDto));
     }
 
-    public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String idpEntityId, Client client, URI uri) {
-        SuccessfulMatchState successfulMatchState = aSuccessfulMatchState().withSessionId(sessionId).withIdentityProviderEntityId(idpEntityId).build();
+    public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String requestIssuerEntityId, String idpEntityId, Client client, URI uri) {
+        SuccessfulMatchState successfulMatchState = aSuccessfulMatchState().withSessionId(sessionId)
+                .withIdentityProviderEntityId(idpEntityId)
+                .withRequestIssuerEntityId(requestIssuerEntityId)
+                .build();
         TestSessionDto testSessionDto = new TestSessionDto(sessionId,
                 successfulMatchState.getRequestId(),
                 successfulMatchState.getSessionExpiryTimestamp(),
                 successfulMatchState.getIdentityProviderEntityId(),
                 successfulMatchState.getMatchingServiceAssertion(),
                 successfulMatchState.getRelayState(),
-                successfulMatchState.getIdentityProviderEntityId(),
+                successfulMatchState.getRequestIssuerEntityId(),
                 null,
                 successfulMatchState.getAssertionConsumerServiceUri(),
                 Arrays.asList(successfulMatchState.getLevelOfAssurance()),

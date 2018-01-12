@@ -12,6 +12,8 @@ public class IdpSelected {
     private String principalIpAddress;
     @NotNull
     private Boolean registration;
+    @NotNull
+    private LevelOfAssurance requestedLoa;
 
     // Required for JAXB
     @SuppressWarnings("unused")
@@ -23,10 +25,11 @@ public class IdpSelected {
         this.principalIpAddress = principalIpAddress;
     }
 
-    public IdpSelected(String selectedIdpEntityId, String principalIpAddress, Boolean registration) {
+    public IdpSelected(String selectedIdpEntityId, String principalIpAddress, Boolean registration, LevelOfAssurance requestedLoa) {
         this.selectedIdpEntityId = selectedIdpEntityId;
         this.principalIpAddress = principalIpAddress;
         this.registration = registration;
+        this.requestedLoa = requestedLoa;
     }
 
     public String getSelectedIdpEntityId() {
@@ -38,4 +41,6 @@ public class IdpSelected {
     }
 
     public Boolean isRegistration() { return registration; }
+
+    public LevelOfAssurance getRequestedLoa() { return requestedLoa; }
 }

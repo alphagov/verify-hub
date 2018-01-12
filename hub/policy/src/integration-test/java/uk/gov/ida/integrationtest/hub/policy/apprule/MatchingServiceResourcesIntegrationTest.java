@@ -8,46 +8,17 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
-import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
-import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseContainerDto;
-import uk.gov.ida.hub.policy.contracts.SamlRequestDto;
-import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
-import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
-import uk.gov.ida.hub.policy.domain.Cycle3AttributeRequestData;
-import uk.gov.ida.hub.policy.domain.Cycle3UserInput;
-import uk.gov.ida.hub.policy.domain.IdpSelected;
-import uk.gov.ida.hub.policy.domain.InboundResponseFromIdpDto;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
-import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
-import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
-import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
-import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.contracts.*;
+import uk.gov.ida.hub.policy.domain.*;
+import uk.gov.ida.hub.policy.domain.state.*;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.*;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
@@ -61,7 +32,7 @@ import java.util.UUID;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static java.text.MessageFormat.format;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
 
@@ -101,6 +72,7 @@ public class MatchingServiceResourcesIntegrationTest {
     private SamlResponseWithAuthnRequestInformationDto translatedAuthnRequest;
     private SamlAuthnRequestContainerDto rpSamlRequest;
     private boolean registering = true;
+    private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_2;
 
     @BeforeClass
     public static void beforeClass() {
@@ -118,7 +90,7 @@ public class MatchingServiceResourcesIntegrationTest {
         idpSsoUri = UriBuilder.fromPath("idpSsoUri").build();
         
         configStub.reset();
-        configStub.setupStubForEnabledIdps(asList(idpEntityId));
+        configStub.setupStubForEnabledIdps(rpEntityId, registering, requestedLoa, singletonList(idpEntityId));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
         configStub.setUpStubForMatchingServiceEntityId(rpEntityId, msaEntityId);
         configStub.setupStubForEidasEnabledForTransaction(rpEntityId, false);
@@ -574,7 +546,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
-        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", registering));
+        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", registering, requestedLoa));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {

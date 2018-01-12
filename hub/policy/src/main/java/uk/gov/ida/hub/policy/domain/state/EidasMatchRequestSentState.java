@@ -7,11 +7,9 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 
-public abstract class MatchRequestSentState extends MatchRequestSentStateBase {
+public abstract class EidasMatchRequestSentState extends MatchRequestSentStateBase {
 
-    private final boolean registering;
-
-    protected MatchRequestSentState(
+    protected EidasMatchRequestSentState(
             final String requestId,
             final String requestIssuerEntityId,
             final DateTime sessionExpiryTimestamp,
@@ -21,7 +19,6 @@ public abstract class MatchRequestSentState extends MatchRequestSentStateBase {
             final String identityProviderEntityId,
             final Optional<String> relayState,
             final LevelOfAssurance idpLevelOfAssurance,
-            final boolean registering,
             final String matchingServiceAdapterEntityId) {
 
         super(
@@ -36,11 +33,5 @@ public abstract class MatchRequestSentState extends MatchRequestSentStateBase {
                 idpLevelOfAssurance,
                 matchingServiceAdapterEntityId
         );
-
-        this.registering = registering;
-    }
-
-    public boolean isRegistering() {
-        return registering;
     }
 }

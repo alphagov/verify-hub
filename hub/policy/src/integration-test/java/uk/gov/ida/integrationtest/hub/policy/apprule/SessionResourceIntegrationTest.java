@@ -20,21 +20,11 @@ import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
-import uk.gov.ida.hub.policy.domain.AuthnRequestFromHubContainerDto;
-import uk.gov.ida.hub.policy.domain.IdpSelected;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.ResponseAction;
-import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
-import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResourceHelper;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.*;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
 
 import javax.ws.rs.client.Client;
@@ -44,20 +34,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.IDP_SELECTED_STATE;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.SUCCESSFUL_MATCH_STATE;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.*;
 import static uk.gov.ida.integrationtest.hub.policy.builders.AuthnRequestFromHubContainerDtoBuilder.anAuthnRequestFromHubContainerDto;
 import static uk.gov.ida.integrationtest.hub.policy.builders.AuthnResponseFromHubContainerDtoBuilder.anAuthnResponseFromHubContainerDto;
 import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
 
 public class SessionResourceIntegrationTest {
-    public static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
     private static final boolean REGISTERING = true;
     private static final boolean SIGNING_IN = !REGISTERING;
+    private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
 
+    private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
     private static Client client;
 
     @ClassRule
@@ -101,7 +90,7 @@ public class SessionResourceIntegrationTest {
         idpSsoUri = UriBuilder.fromPath("idpSsoUri").build();
 
         configStub.reset();
-        configStub.setupStubForEnabledIdps(asList(idpEntityId));
+        configStub.setupStubForEnabledIdps(rpEntityId, REGISTERING, REQUESTED_LOA, singletonList(idpEntityId));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
         configStub.setUpStubForMatchingServiceEntityId(rpEntityId, msEntityId);
         configStub.setupStubForEidasEnabledForTransaction(rpEntityId, false);
@@ -156,13 +145,15 @@ public class SessionResourceIntegrationTest {
     @Test
     public void shouldReturnOkWhenGeneratingIdpAuthnRequestFromHubIsSuccessfulOnSignIn() throws Exception {
         // Given
+        final SamlRequestDto samlRequestDto = new SamlRequestDto("coffee-pasta", idpSsoUri);
+
+        samlEngineStub.setupStubForIdpAuthnRequestGenerate(samlRequestDto);
+        configStub.setupStubForEnabledIdps(rpEntityId, false, REQUESTED_LOA, singletonList(idpEntityId));
+
         SessionId sessionId = aSessionIsCreated();
         anIdpIsSelectedForSignIn(sessionId, idpEntityId);
 
-        final SamlRequestDto samlRequestDto = new SamlRequestDto("coffee-pasta", idpSsoUri);
         final AuthnRequestFromHubContainerDto expectedResult = anAuthnRequestFromHubContainerDtoWithRegistering(samlRequestDto, false);
-
-        samlEngineStub.setupStubForIdpAuthnRequestGenerate(samlRequestDto);
 
         // When
         AuthnRequestFromHubContainerDto result = getEntity(UriBuilder.fromPath(Urls.PolicyUrls
@@ -228,7 +219,8 @@ public class SessionResourceIntegrationTest {
     public void shouldGetRpResponseGivenASessionExistsInPolicy() throws JsonProcessingException {
         // Given
         SessionId sessionId = SessionId.createNewSessionId();
-        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, idpEntityId, client, policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + SUCCESSFUL_MATCH_STATE).build().toASCIIString()));
+        configStub.setupStubForEnabledIdps(rpEntityId, SIGNING_IN, REQUESTED_LOA, singletonList(idpEntityId));
+        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, rpEntityId, idpEntityId, client, policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + SUCCESSFUL_MATCH_STATE).build().toASCIIString()));
         assertThat(sessionCreatedResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         AuthnResponseFromHubContainerDto expectedAuthnResponseFromHub = anAuthnResponseFromHubContainerDto().build();
@@ -297,17 +289,15 @@ public class SessionResourceIntegrationTest {
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
-        post(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING));
+        post(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA));
     }
-
-
 
     private void anIdpIsSelectedForSignIn(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
 
         client.target(policyUri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(new IdpSelected(idpEntityId, "this-is-an-ip-address", SIGNING_IN)));
+                .post(Entity.json(new IdpSelected(idpEntityId, "this-is-an-ip-address", SIGNING_IN, REQUESTED_LOA)));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {

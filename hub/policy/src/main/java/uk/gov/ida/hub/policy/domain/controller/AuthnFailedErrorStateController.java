@@ -1,12 +1,7 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import com.google.common.base.Optional;
-import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
-import uk.gov.ida.hub.policy.domain.FailureResponseDetails;
-import uk.gov.ida.hub.policy.domain.ResponseFromHub;
-import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.StateController;
-import uk.gov.ida.hub.policy.domain.StateTransitionAction;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
@@ -84,8 +79,8 @@ public class AuthnFailedErrorStateController implements IdpSelectingStateControl
     }
 
     @Override
-    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, transactionsConfigProxy, identityProvidersConfigProxy);
+    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
         eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }
@@ -98,7 +93,6 @@ public class AuthnFailedErrorStateController implements IdpSelectingStateControl
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
         return new AuthnRequestSignInProcess(
-                state.getAvailableIdentityProviderEntityIds(),
                 state.getRequestIssuerEntityId(),
                 state.getTransactionSupportsEidas());
     }

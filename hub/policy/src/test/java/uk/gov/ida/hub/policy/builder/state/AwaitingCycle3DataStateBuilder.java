@@ -22,6 +22,7 @@ public class AwaitingCycle3DataStateBuilder {
     private String transactionEntityId = "transaction entity id";
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
     private boolean transactionSupportsEidas = false;
+    private boolean registering = false;
 
     public static AwaitingCycle3DataStateBuilder anAwaitingCycle3DataState() {
         return new AwaitingCycle3DataStateBuilder();
@@ -41,6 +42,7 @@ public class AwaitingCycle3DataStateBuilder {
                 sessionId,
                 aPersistentId().build(),
                 LevelOfAssurance.LEVEL_1,
+                registering,
                 transactionSupportsEidas);
     }
 
@@ -62,6 +64,11 @@ public class AwaitingCycle3DataStateBuilder {
 
     public AwaitingCycle3DataStateBuilder withSessionId(SessionId sessionId) {
         this.sessionId = sessionId;
+        return this;
+    }
+
+    public AwaitingCycle3DataStateBuilder withRegistering(boolean registering) {
+        this.registering = registering;
         return this;
     }
 }

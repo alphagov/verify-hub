@@ -19,6 +19,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -28,7 +29,7 @@ import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityD
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 
 public class IdentityProviderResourceIntegrationTest {
-    public static Client client;
+    private static Client client;
     private static final String ENABLED_ALL_RP_IDP = "enabled-all-rp-idp";
     private static final String ENABLED_FOR_ONBOARDING_RP_IDP = "enabled-for-onboarding-rp-idp";
     private static final String DISABLED_IDP = "disabled-idp";
@@ -63,7 +64,7 @@ public class IdentityProviderResourceIntegrationTest {
                 .build())
         .addIdp(anIdentityProviderConfigData()
                 .withEntityId(ENABLED_FOR_ONBOARDING_RP_IDP)
-                .withOnboarding(asList(ONBOARDING_RP))
+                .withOnboarding(Collections.singletonList(ONBOARDING_RP))
                 .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
                 .withOnboardingLevels(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
                 .build())
@@ -77,14 +78,14 @@ public class IdentityProviderResourceIntegrationTest {
         .addIdp(anIdentityProviderConfigData()
                 .withEntityId(ONBOARDING_TO_LOA_1_IDP)
                 .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
-                .withOnboardingLevels(asList(LevelOfAssurance.LEVEL_1))
-                .withOnboarding(asList(LOA_1_TEST_RP))
+                .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
+                .withOnboarding(Collections.singletonList(LOA_1_TEST_RP))
                 .build())
         .addIdp(anIdentityProviderConfigData()
                 .withEntityId(ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST)
                 .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
-                .withOnboardingLevels(asList(LevelOfAssurance.LEVEL_1))
-                .withOnboardingTemp(asList(LOA_1_TEST_RP))
+                .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
+                .withOnboardingTemp(Collections.singletonList(LOA_1_TEST_RP))
                 .build())
         .addIdp(anIdentityProviderConfigData()
                 .withEntityId(DISABLED_IDP)
@@ -187,7 +188,7 @@ public class IdentityProviderResourceIntegrationTest {
     }
 
     @Test
-    public void deprecated_getEnabledIdentityProviderEntityIds_returnsOkAndIdps(){
+    public void deprecated_getEnabledIdentityProviderEntityIds_returnsOkAndIdps() {
         String transactionId = ONBOARDING_RP;
         URI uri = configAppRule.getUri(Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_RESOURCE).queryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM, transactionId).build();
         Response response = client.target(uri).request().get();
@@ -196,7 +197,16 @@ public class IdentityProviderResourceIntegrationTest {
     }
 
     @Test
-    public void getEnabledIdentityProviderEntityIdsForLoa_returnsOkAndIdps(){
+    public void deprecated_getEnabledIdentityProviderEntityIdsPathParam_returnOkAndIdps() {
+        String entityId = ONBOARDING_RP;
+        Response response = getIdpList(entityId, Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PARAM_PATH_RESOURCE);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.readEntity(Collection.class)).contains(ENABLED_FOR_ONBOARDING_RP_IDP);
+    }
+
+    @Test
+    public void getEnabledIdentityProviderEntityIdsForLoa_returnsOkAndIdps() {
         String entityId = "not-test-rp";
         Response response = getIdpListForLoA(entityId, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_LOA_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
