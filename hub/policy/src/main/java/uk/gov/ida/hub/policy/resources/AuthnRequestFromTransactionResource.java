@@ -7,7 +7,6 @@ import uk.gov.ida.hub.policy.domain.AuthnRequestSignInDetailsDto;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
 import uk.gov.ida.hub.policy.domain.IdpSelected;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -21,14 +20,11 @@ import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM;
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthnRequestFromTransactionResource {
     private final AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler;
-    private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
     @Inject
     public AuthnRequestFromTransactionResource(
-            AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler,
-            IdentityProvidersConfigProxy identityProvidersConfigProxy) {
+            AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler) {
         this.authnRequestFromTransactionHandler = authnRequestFromTransactionHandler;
-        this.identityProvidersConfigProxy = identityProvidersConfigProxy;
     }
 
     @POST

@@ -21,19 +21,24 @@ public class IdpSelector {
                                                          LevelOfAssurance requestedLoa,
                                                          TransactionsConfigProxy transactionsConfigProxy,
                                                          IdentityProvidersConfigProxy identityProvidersConfigProxy) {
-        checkValidIdentityProvider(idpEntityId, state);
 
         List<LevelOfAssurance> levelsOfAssuranceForTransaction = transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId());
+        if (!levelsOfAssuranceForTransaction.contains(requestedLoa)) {
+            throw StateProcessingValidationException.requestedLevelOfAssuranceUnsupportedByTransactionEntity(state.getRequestIssuerEntityId(), levelsOfAssuranceForTransaction, requestedLoa);
+        }
+
+        List<String> availableIdentityProviderEntityIdsForLoa = identityProvidersConfigProxy.getEnabledIdentityProviders(
+                state.getRequestIssuerEntityId(), registering, requestedLoa);
+
+        checkValidIdentityProvider(idpEntityId, availableIdentityProviderEntityIdsForLoa, state);
+
         IdpConfigDto idpConfig = identityProvidersConfigProxy.getIdpConfig(idpEntityId);
         final List<LevelOfAssurance> idpLevelsOfAssurance = idpConfig.getSupportedLevelsOfAssurance();
         List<LevelOfAssurance> levelsOfAssuranceForTransactionSupportedByIdp = levelsOfAssuranceForTransaction.stream().filter(idpLevelsOfAssurance::contains).collect(Collectors.toList());
 
-        if (levelsOfAssuranceForTransactionSupportedByIdp.isEmpty() || !levelsOfAssuranceForTransactionSupportedByIdp.contains(requestedLoa)) {
-            throw StateProcessingValidationException.transactionLevelsOfAssuranceUnsupportedByIDP(state.getRequestIssuerEntityId(), levelsOfAssuranceForTransaction, idpEntityId, idpLevelsOfAssurance);
-        }
-
         String matchingServiceEntityId = transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId());
-        IdpSelectedState idpSelectedState = new IdpSelectedState(
+
+        return new IdpSelectedState(
                 state.getRequestId(),
                 idpEntityId,
                 matchingServiceEntityId,
@@ -47,17 +52,15 @@ public class IdpSelector {
                 registering,
                 requestedLoa,
                 state.getSessionId(),
-                state.getAvailableIdentityProviderEntityIds(),
+                availableIdentityProviderEntityIdsForLoa,
                 state.getTransactionSupportsEidas()
         );
-
-        return idpSelectedState;
     }
 
-    private static void checkValidIdentityProvider(final String idpEntityId, IdpSelectingState state) {
+    private static void checkValidIdentityProvider(final String idpEntityId, List<String> availableIdentityProviderEntityIdsForLoa, IdpSelectingState state) {
         boolean found = false;
 
-        for (String entityId : state.getAvailableIdentityProviderEntityIds()) {
+        for (String entityId : availableIdentityProviderEntityIdsForLoa) {
             if (entityId.equals(idpEntityId)) {
                 found = true;
                 break;

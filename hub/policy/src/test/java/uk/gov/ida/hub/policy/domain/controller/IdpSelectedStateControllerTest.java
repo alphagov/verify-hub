@@ -9,44 +9,24 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
-import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
-import uk.gov.ida.hub.policy.domain.AuthenticationErrorResponse;
-import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
-import uk.gov.ida.hub.policy.domain.FraudDetectedDetails;
-import uk.gov.ida.hub.policy.domain.FraudFromIdp;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.PersistentId;
-import uk.gov.ida.hub.policy.domain.RequesterErrorResponse;
-import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.State;
-import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
+import uk.gov.ida.hub.policy.domain.state.*;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
-import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static com.google.common.base.Optional.fromNullable;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto;
@@ -67,7 +47,7 @@ public class IdpSelectedStateControllerTest {
     private static final SessionId NEW_SESSION_ID = aSessionId().build();
     private static final List<LevelOfAssurance> levelsOfAssurance = asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
     private static final LevelOfAssurance providedLevelOfAssurance = LevelOfAssurance.LEVEL_2;
-    private static final Optional<String> principalIpAddressAsSeenByIdp = Optional.fromNullable("principal-ip-address-from-idp");
+    private static final Optional<String> principalIpAddressAsSeenByIdp = Optional.of("principal-ip-address-from-idp");
     private static final String principalIpAddressAsSeenByHub = "principal-ip-address-from-hub";
     private static final DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(15);
     public static final String REQUEST_ID = UUID.randomUUID().toString();
@@ -140,8 +120,8 @@ public class IdpSelectedStateControllerTest {
 
     @Test
     public void handleResponseFromIdp_shouldTransitionToAuthnFailedStateWhenFraudHasOccurred() throws Exception {
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
         FraudFromIdp fraudFromIdp = aFraudFromIdp()
                 .withIssuerId(idpEntityId)
                 .withFraudDetectedDetails(new FraudDetectedDetails("id", "IT01"))
@@ -156,8 +136,8 @@ public class IdpSelectedStateControllerTest {
 
     @Test
     public void handleResponseFromIfp_whenFraudHasOccurred_shouldSendFraudHubEvent() {
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
         FraudDetectedDetails idpFraudDetectedDetails = new FraudDetectedDetails("id", "IT01");
         FraudFromIdp fraudFromIdp = aFraudFromIdp()
                 .withIssuerId(idpEntityId)
@@ -173,8 +153,8 @@ public class IdpSelectedStateControllerTest {
 
     @Test
     public void handleResponseFromIdp_shouldTransitionToAuthnFailedStateWhenAGenericAuthenticationFailureHasOccurred() throws Exception {
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
         AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse()
                 .withIssuerId(idpEntityId)
                 .build();
@@ -188,10 +168,10 @@ public class IdpSelectedStateControllerTest {
 
     @Test
     public void handleResponseFromIdp_shouldTransitionToAuthnPendingStateWhenSaveAndContinue() throws Exception {
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
 
-        controller.handlePausedRegistrationResponseFromIdp(idpEntityId, principalIpAddressAsSeenByHub);
+        controller.handlePausedRegistrationResponseFromIdp(idpEntityId, principalIpAddressAsSeenByHub, java.util.Optional.of(providedLevelOfAssurance));
 
         ArgumentCaptor<State> stateArgumentCaptor = ArgumentCaptor.forClass(State.class);
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
@@ -201,8 +181,8 @@ public class IdpSelectedStateControllerTest {
     @Test(expected = IdpDisabledException.class)
     public void handleSuccessResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() throws Exception {
         SuccessFromIdp successFromIdp = aSuccessFromIdp().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(Arrays.<String>asList());
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(emptyList());
         controller.handleSuccessResponseFromIdp(successFromIdp);
     }
 
@@ -216,8 +196,8 @@ public class IdpSelectedStateControllerTest {
                 .withPrincipalIpAddressAsSeenByHub(principalIpAddressAsSeenByHub)
                 .withLevelOfAssurance(LevelOfAssurance.LEVEL_3)
                 .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(idpEntityId)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(levelsOfAssurance).build());
 
@@ -227,8 +207,8 @@ public class IdpSelectedStateControllerTest {
     @Test(expected = IdpDisabledException.class)
     public void handleAuthenticationFailedResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() throws Exception {
         AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(Arrays.<String>asList());
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(emptyList());
         controller.handleAuthenticationFailedResponseFromIdp(authenticationErrorResponse);
     }
 
@@ -237,8 +217,8 @@ public class IdpSelectedStateControllerTest {
         controller = idpSelectedStateBuilder(true);
 
         AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse().withIssuerId(idpEntityId).build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(any(Optional.class)))
-                .thenReturn(asList(authenticationErrorResponse.getIssuer()));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(any(String.class), eq(controller.isRegistrationContext()), eq(providedLevelOfAssurance)))
+                .thenReturn(singletonList(authenticationErrorResponse.getIssuer()));
         controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
         verify(stateTransitionAction).transitionTo(isA(AuthnFailedErrorState.class));
     }
@@ -246,8 +226,8 @@ public class IdpSelectedStateControllerTest {
     @Test
     public void handleNoAuthenticationContextResponseFromIdp_shouldTransitionToSessionCreatedStateWhenSigninCancelled() {
         AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse().withIssuerId(idpEntityId).build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(any(Optional.class)))
-                .thenReturn(asList(authenticationErrorResponse.getIssuer()));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(any(String.class), eq(controller.isRegistrationContext()), eq(providedLevelOfAssurance)))
+                .thenReturn(singletonList(authenticationErrorResponse.getIssuer()));
         controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
         verify(stateTransitionAction).transitionTo(isA(SessionStartedState.class));
     }
@@ -255,32 +235,32 @@ public class IdpSelectedStateControllerTest {
     @Test(expected = IdpDisabledException.class)
     public void handleNoAuthenticationContextResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() throws Exception {
         AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(Arrays.<String>asList());
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(emptyList());
         controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
     }
 
     @Test(expected = IdpDisabledException.class)
     public void handleFraudResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() throws Exception {
         FraudFromIdp fraudFromIdp = aFraudFromIdp().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(Arrays.<String>asList());
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(emptyList());
         controller.handleFraudResponseFromIdp(fraudFromIdp);
     }
 
     @Test(expected = IdpDisabledException.class)
     public void handleRequesterErrorResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() throws Exception {
         RequesterErrorResponse requesterErrorResponse = aRequesterErrorResponse().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(Arrays.<String>asList());
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(emptyList());
         controller.handleRequesterErrorResponseFromIdp(requesterErrorResponse);
     }
 
     @Test(expected = IdpDisabledException.class)
     public void handleRequesterPendingResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() throws Exception {
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(Arrays.<String>asList());
-        controller.handlePausedRegistrationResponseFromIdp(idpEntityId, principalIpAddressAsSeenByHub);
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(emptyList());
+        controller.handlePausedRegistrationResponseFromIdp(idpEntityId, principalIpAddressAsSeenByHub, java.util.Optional.of(providedLevelOfAssurance));
     }
 
     @Test
@@ -296,8 +276,8 @@ public class IdpSelectedStateControllerTest {
                 .withLevelOfAssurance(providedLevelOfAssurance)
                 .withEncryptedMatchingDatasetAssertion(encryptedMatchingDatasetAssertion)
                 .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(idpEntityId)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(levelsOfAssurance).build());
 
@@ -318,8 +298,8 @@ public class IdpSelectedStateControllerTest {
                 .withPrincipalIpAddressAsSeenByHub(principalIpAddressAsSeenByHub)
                 .withLevelOfAssurance(providedLevelOfAssurance)
                 .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(idpEntityId)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(levelsOfAssurance).build());
         controller.handleSuccessResponseFromIdp(successFromIdp);
@@ -339,10 +319,10 @@ public class IdpSelectedStateControllerTest {
 
     @Test
     public void handleRequesterPendingResponseFromIdp_shouldLogEvent() throws Exception {
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
 
-        controller.handlePausedRegistrationResponseFromIdp(idpEntityId, principalIpAddressAsSeenByHub);
+        controller.handlePausedRegistrationResponseFromIdp(idpEntityId, principalIpAddressAsSeenByHub, java.util.Optional.of(providedLevelOfAssurance));
 
         verify(eventSinkHubEventLogger).logPausedRegistrationEvent(
                 NEW_SESSION_ID,
@@ -360,8 +340,8 @@ public class IdpSelectedStateControllerTest {
                 .withErrorMessage(errorMessage)
                 .withPrincipalIpAddressAsSeenByHub(principalIpAddressAsSeenByHub)
                 .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
 
         controller.handleRequesterErrorResponseFromIdp(requesterErrorResponse);
 
@@ -380,8 +360,8 @@ public class IdpSelectedStateControllerTest {
                 .withIssuerId(idpEntityId)
                 .withPrincipalIpAddressAsSeenByHub(principalIpAddressAsSeenByHub)
                 .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
 
         controller.handleAuthenticationFailedResponseFromIdp(authenticationErrorResponse);
 
@@ -399,8 +379,8 @@ public class IdpSelectedStateControllerTest {
                 .withIssuerId(idpEntityId)
                 .withPrincipalIpAddressAsSeenByHub(principalIpAddressAsSeenByHub)
                 .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
-                .thenReturn(asList(idpEntityId));
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
+                .thenReturn(singletonList(idpEntityId));
 
         controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
 
@@ -428,7 +408,7 @@ public class IdpSelectedStateControllerTest {
                 .withPrincipalIpAddressAsSeenByHub(principalIpAddressAsSeenByHub)
                 .withLevelOfAssurance(providedLevelOfAssurance)
                 .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(fromNullable(transactionEntityId)))
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(transactionEntityId, controller.isRegistrationContext(), providedLevelOfAssurance))
                 .thenReturn(asList(idpEntityId, "differentIDP"));
 
         controller.handleSuccessResponseFromIdp(successFromIdp);
