@@ -12,6 +12,8 @@ public class IdpSelected {
     private String principalIpAddress;
     @NotNull
     private Boolean registration;
+    // TODO: Make NotNull after the corresponding hub release
+    private LevelOfAssurance requestedLoa;
 
     // Required for JAXB
     @SuppressWarnings("unused")
@@ -23,10 +25,19 @@ public class IdpSelected {
         this.principalIpAddress = principalIpAddress;
     }
 
+    // TODO: Remove this construtor after the corresponding hub release
     public IdpSelected(String selectedIdpEntityId, String principalIpAddress, Boolean registration) {
         this.selectedIdpEntityId = selectedIdpEntityId;
         this.principalIpAddress = principalIpAddress;
         this.registration = registration;
+        this.requestedLoa = null;
+    }
+
+    public IdpSelected(String selectedIdpEntityId, String principalIpAddress, Boolean registration, LevelOfAssurance requestedLoa) {
+        this.selectedIdpEntityId = selectedIdpEntityId;
+        this.principalIpAddress = principalIpAddress;
+        this.registration = registration;
+        this.requestedLoa = requestedLoa;
     }
 
     public String getSelectedIdpEntityId() {
@@ -38,4 +49,8 @@ public class IdpSelected {
     }
 
     public Boolean isRegistration() { return registration; }
+
+    public LevelOfAssurance getRequestedLoa() {
+        return requestedLoa;
+    }
 }
