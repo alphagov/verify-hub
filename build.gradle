@@ -5,7 +5,7 @@ buildscript {
     dependencies {
         classpath 'com.github.spullara.mustache.java:compiler:0.8.10',
                 'org.yaml:snakeyaml:1.10',
-                'uk.gov.ida:ida-gradle:1.1.0-15',
+                'uk.gov.ida:ida-gradle:1.1.0-20',
                 'com.google.guava:guava:14.0.1',
                 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
     }
@@ -144,7 +144,7 @@ subprojects {
     }
 }
 
-task(outputDependencies) << {
+task(outputDependencies) doLast {
     println "hub_saml="+dependencyVersions.hub_saml
     println "saml_extensions="+dependencyVersions.saml_extensions
     println "saml_metadata="+dependencyVersions.saml_metadata
@@ -155,7 +155,7 @@ task(outputDependencies) << {
 }
 
 import javax.crypto.Cipher
-task(checkJceInstalled) << {
+task(checkJceInstalled) doLast {
   if (Cipher.getMaxAllowedKeyLength('AES') <= 128) {
     throw new GradleException("""ERROR: You need to have the unlimited strength JCE installed.
 
