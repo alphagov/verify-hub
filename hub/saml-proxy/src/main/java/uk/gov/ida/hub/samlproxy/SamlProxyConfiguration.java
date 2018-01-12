@@ -9,10 +9,8 @@ import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
 import uk.gov.ida.hub.samlproxy.config.CountryConfiguration;
+import uk.gov.ida.hub.samlproxy.config.SamlConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfigurationImpl;
-import uk.gov.ida.saml.metadata.MetadataConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.TrustStorePathMetadataConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
@@ -31,7 +29,7 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @Valid
     @NotNull
     @JsonProperty
-    protected SamlConfigurationImpl saml;
+    protected SamlConfiguration saml;
 
     @Valid
     @NotNull

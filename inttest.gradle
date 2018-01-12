@@ -23,29 +23,29 @@ sourceSets {
 }
 
 task intTest(type: Test) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath += sourceSets.integrationTest.runtimeClasspath
-    reports.junitXml.destination = "${project.buildDir}/int-test-results"
-    reports.html.destination = "${project.buildDir}/int-test-reports"
+    reports.junitXml.destination = file("${project.buildDir}/int-test-results")
+    reports.html.destination = file("${project.buildDir}/int-test-reports")
     workingDir = rootDir
     include 'uk/gov/ida/integrationtest/**'
 }
 
 task consumerContractTest(type: Test) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath += sourceSets.integrationTest.runtimeClasspath
-    reports.junitXml.destination = "${project.buildDir}/consumer-contract-test-results"
-    reports.html.destination = "${project.buildDir}/consumer-contract-test-reports"
+    reports.junitXml.destination = file("${project.buildDir}/consumer-contract-test-results")
+    reports.html.destination = file("${project.buildDir}/consumer-contract-test-reports")
     workingDir = rootDir
     include 'uk/gov/ida/contracttest/consumer/**'
 }
 
 
 task providerContractTest(type: Test) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath += sourceSets.integrationTest.runtimeClasspath
-    reports.junitXml.destination = "${project.buildDir}/provider-contract-test-results"
-    reports.html.destination = "${project.buildDir}/provider-contract-test-reports"
+    reports.junitXml.destination = file("${project.buildDir}/provider-contract-test-results")
+    reports.html.destination = file("${project.buildDir}/provider-contract-test-reports")
     workingDir = rootDir
     include 'uk/gov/ida/contracttest/provider/**'
 }

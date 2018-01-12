@@ -2,7 +2,7 @@ package uk.gov.ida.hub.samlsoapproxy.health;
 
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
-import uk.gov.ida.saml.dropwizard.metadata.MetadataHealthCheck;
+import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 
 import javax.inject.Inject;
 

@@ -6,9 +6,8 @@ import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
+import uk.gov.ida.hub.samlsoapproxy.config.SamlConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfigurationImpl;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.TrustStorePathMetadataConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
@@ -27,7 +26,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Valid
     @NotNull
     @JsonProperty
-    protected SamlConfigurationImpl saml;
+    protected SamlConfiguration saml;
 
     @Valid
     @JsonProperty

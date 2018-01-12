@@ -25,6 +25,7 @@ import uk.gov.ida.hub.samlengine.attributequery.AttributeQueryGenerator;
 import uk.gov.ida.hub.samlengine.attributequery.HubAttributeQueryRequestBuilder;
 import uk.gov.ida.hub.samlengine.attributequery.HubEidasAttributeQueryRequestBuilder;
 import uk.gov.ida.hub.samlengine.config.ConfigServiceKeyStore;
+import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
 import uk.gov.ida.hub.samlengine.exceptions.InvalidConfigurationException;
 import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
 import uk.gov.ida.hub.samlengine.factories.OutboundResponseFromHubToResponseTransformerFactory;
@@ -35,7 +36,6 @@ import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.samlengine.security.AuthnResponseKeyStore;
 import uk.gov.ida.hub.samlengine.security.Crypto;
-import uk.gov.ida.hub.samlengine.security.HubEncryptionKeyStore;
 import uk.gov.ida.hub.samlengine.security.PrivateKeyFileDescriptors;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnRequestGeneratorService;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnResponseTranslatorService;
@@ -61,7 +61,6 @@ import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.jerseyclient.JsonResponseProcessor;
 import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
-import uk.gov.ida.saml.configuration.SamlConfiguration;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
@@ -77,7 +76,6 @@ import uk.gov.ida.saml.core.validators.subject.AssertionSubjectValidator;
 import uk.gov.ida.saml.core.validators.subjectconfirmation.AssertionSubjectConfirmationValidator;
 import uk.gov.ida.saml.deserializers.ElementToOpenSamlXMLObjectTransformer;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
-import uk.gov.ida.saml.dropwizard.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.hub.api.HubTransformersFactory;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
@@ -106,6 +104,7 @@ import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutbound
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
+import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
@@ -528,7 +527,7 @@ public class SamlEngineModule extends AbstractModule {
             SamlAuthnRequestValidityDurationConfiguration authnRequestValidityDurationConfiguration
     ) {
         return hubTransformersFactory.getAuthnRequestToAuthnRequestFromTransactionTransformer(
-                samlConfiguration,
+                samlConfiguration.getExpectedDestinationHost(),
                 signingKeyStore,
                 decryptionKeyStore,
                 duplicateIds,
@@ -567,7 +566,7 @@ public class SamlEngineModule extends AbstractModule {
             @Named("HubEntityId") String hubEntityId) {
 
         return hubTransformersFactory.getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
-                authnResponseKeyStore, keyStore, samlConfiguration,
+                authnResponseKeyStore, keyStore, samlConfiguration.getExpectedDestinationHost(),
                 Urls.FrontendUrls.SAML2_SSO_RESPONSE_ENDPOINT, assertionIdCache,
                 hubEntityId);
     }
