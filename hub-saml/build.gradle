@@ -9,5 +9,5 @@ dependencies {
             project(':hub-saml-test-utils'),
             'com.google.code.findbugs:jsr305:3.0.1',
             'commons-codec:commons-codec:1.10',
-            "uk.gov.ida:saml-metadata-bindings-test:$opensaml_version-65"
+            "uk.gov.ida:saml-metadata-bindings-test:$opensaml_version-66"
 }

@@ -58,10 +58,12 @@ public class KeyDescriptorMarshallerTest {
                             .withUse(keyUse)
                             .withKeyInfo(aKeyInfo()
                                     .withKeyName(entityId)
-                            .withX509Datas(Arrays.asList(aX509Data()
-                                    .withX509Certificate(aX509Certificate().withCert(certificateValue).build())
-                                    .build()
-                    )).build());
+                                    .withX509Data(aX509Data()
+                                        .withX509Certificate(
+                                            aX509Certificate().withCert(certificateValue).build())
+                                        .build()
+                                    ).build()
+                            );
                     marshaller.toCertificate(keyDescriptorBuilder.build());
                 },
                 SamlTransformationErrorFactory.unsupportedKey(keyUse));
