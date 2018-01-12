@@ -9,7 +9,11 @@ import io.dropwizard.jersey.validation.ValidationErrorMessage;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.util.Duration;
 import org.apache.http.HttpStatus;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
@@ -17,9 +21,17 @@ import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.domain.IdpConfigDtoBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
-import uk.gov.ida.hub.policy.domain.*;
+import uk.gov.ida.hub.policy.domain.AuthnRequestSignInDetailsDto;
+import uk.gov.ida.hub.policy.domain.IdpSelected;
+import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
+import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.*;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResourceHelper;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -30,13 +42,16 @@ import java.net.URI;
 
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.*;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.AUTHN_FAILED_STATE;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.IDP_SELECTED_STATE;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.SUCCESSFUL_MATCH_STATE;
 
 public class AuthnRequestFromTransactionResourceIntegrationTest {
     private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
     private static final Boolean REGISTERING = TRUE;
-    private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
     private static Client client;
 
     @ClassRule
@@ -73,7 +88,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void setUp() throws Exception {
         samlResponse = aSamlResponseWithAuthnRequestInformationDto().withIssuer(transactionEntityId).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
-        configStub.setupStubForEnabledIdps(transactionEntityId, REGISTERING, REQUESTED_LOA, ImmutableList.of(idpEntityId, "differentIdp"));
+        configStub.setupStubForEnabledIdps(transactionEntityId, REGISTERING, LEVEL_2, ImmutableList.of(idpEntityId, "differentIdp"));
         configStub.setupStubForEidasEnabledForTransaction(transactionEntityId, false);
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         eventSinkStub.setupStubForLogging();
@@ -109,7 +124,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     @Test
     public void selectIdp_shouldReturnSuccessResponseAndAudit() throws JsonProcessingException {
         sessionId = aSessionIsCreated();
-        Response response = postIdpSelected(new IdpSelected(idpEntityId, principalIpAddress, REGISTERING, REQUESTED_LOA));
+        Response response = postIdpSelected(new IdpSelected(idpEntityId, principalIpAddress, REGISTERING, LEVEL_2));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(eventSinkStub.getRecordedRequest()).hasSize(2); // one session started event, one idp selected event
@@ -125,7 +140,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void idpSelected_shouldThrowIfIdpIsNotAvailable() throws JsonProcessingException {
         sessionId = aSessionIsCreated();
 
-        IdpSelected idpSelected = new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, REQUESTED_LOA);
+        IdpSelected idpSelected = new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, LEVEL_2);
         Response response = postIdpSelected(idpSelected);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -138,7 +153,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         sessionId = SessionId.createNewSessionId();
         TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, transactionEntityId, idpEntityId, client, buildUriForTestSession(SUCCESSFUL_MATCH_STATE, sessionId));
 
-        Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, REQUESTED_LOA));
+        Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, LEVEL_2));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto error = response.readEntity(ErrorStatusDto.class);

@@ -1,7 +1,13 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import com.google.common.base.Optional;
-import uk.gov.ida.hub.policy.domain.*;
+import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
+import uk.gov.ida.hub.policy.domain.FailureResponseDetails;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
+import uk.gov.ida.hub.policy.domain.ResponseFromHub;
+import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
+import uk.gov.ida.hub.policy.domain.StateController;
+import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;

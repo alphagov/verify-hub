@@ -1,6 +1,10 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import uk.gov.ida.hub.policy.domain.*;
+import uk.gov.ida.hub.policy.domain.ResponseFromHub;
+import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
+import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
+import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
+import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
