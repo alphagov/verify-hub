@@ -1,6 +1,6 @@
 # 3. Simple SAML Profile
 
-Date: 10/03/2017 (but covering previous work)
+Date: 2017-10-03 (but covering previous work)
 
 ## Status
 
