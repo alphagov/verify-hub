@@ -8,13 +8,8 @@ import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.TimeoutState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
+import uk.gov.ida.hub.policy.domain.state.*;
+import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.exception.SessionTimeoutException;
 
@@ -83,8 +78,8 @@ public class SessionRepository {
         if(currentState instanceof Cycle0And1MatchRequestSentState){ // initial match request - no response received
             return Optional.of(((Cycle0And1MatchRequestSentState) currentState).getIdpLevelOfAssurance());
         }
-        if(currentState instanceof SuccessfulMatchState){ // when no cycle 3 and no user account creation
-            return Optional.of(((SuccessfulMatchState) currentState).getLevelOfAssurance());
+        if(currentState instanceof AbstractSuccessfulMatchState){ // when no cycle 3 and no user account creation
+            return Optional.of(((AbstractSuccessfulMatchState) currentState).getLevelOfAssurance());
         }
         if(currentState instanceof AwaitingCycle3DataState){ // when cycle3 on and user account creation on or off
             return Optional.of(((AwaitingCycle3DataState) currentState).getLevelOfAssurance());

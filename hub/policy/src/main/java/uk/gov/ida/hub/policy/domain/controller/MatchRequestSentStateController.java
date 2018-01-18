@@ -15,11 +15,7 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
-import uk.gov.ida.hub.policy.domain.state.MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
-import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.*;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
@@ -76,6 +72,24 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
         validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
         String requestIssuerId = state.getRequestIssuerEntityId();
         return new SuccessfulMatchState(
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp(),
+                state.getIdentityProviderEntityId(),
+                matchingServiceAssertion,
+                state.getRelayState(),
+                requestIssuerId,
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getIdpLevelOfAssurance(),
+                state.getTransactionSupportsEidas()
+        );
+    }
+
+    protected EidasSuccessfulMatchState getEidasSuccessfulMatchState(MatchFromMatchingService responseFromMatchingService) {
+        String matchingServiceAssertion = responseFromMatchingService.getMatchingServiceAssertion();
+        validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
+        String requestIssuerId = state.getRequestIssuerEntityId();
+        return new EidasSuccessfulMatchState(
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp(),
                 state.getIdentityProviderEntityId(),

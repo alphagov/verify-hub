@@ -33,7 +33,7 @@ import uk.gov.ida.hub.policy.domain.controller.NoMatchStateController;
 import uk.gov.ida.hub.policy.domain.controller.RequesterErrorStateController;
 import uk.gov.ida.hub.policy.domain.controller.SessionStartedStateController;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
-import uk.gov.ida.hub.policy.domain.controller.SuccessfulMatchStateController;
+import uk.gov.ida.hub.policy.domain.controller.AbstractSuccessfulMatchStateController;
 import uk.gov.ida.hub.policy.domain.controller.TimeoutStateController;
 import uk.gov.ida.hub.policy.domain.controller.UserAccountCreatedStateController;
 import uk.gov.ida.hub.policy.domain.controller.UserAccountCreationFailedStateController;
@@ -143,7 +143,7 @@ public class StateControllerFactoryTest {
     public void build_shouldCreateASuccessfulMatchController() throws Exception {
         StateController controller = factory.build(aSuccessfulMatchState().build(), stateTransitionAction);
 
-        assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
+        assertThat(controller).isInstanceOf(AbstractSuccessfulMatchStateController.class);
     }
 
     @Test

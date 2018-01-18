@@ -4,12 +4,8 @@ import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.*;
+import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.integrationtest.hub.policy.rest.Cycle3DTO;
 import uk.gov.ida.integrationtest.hub.policy.rest.EidasCycle3DTO;
 
@@ -60,7 +56,7 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createStateInSuccessfulMatchState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new SuccessfulMatchState(testSessionDto.getRequestId(),
+                new AbstractSuccessfulMatchState(testSessionDto.getRequestId(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getIdentityProviderEntityId(),
                         testSessionDto.getMatchingServiceAssertion(),

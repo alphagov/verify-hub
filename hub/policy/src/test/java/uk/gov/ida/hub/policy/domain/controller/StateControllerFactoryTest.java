@@ -115,7 +115,7 @@ public class StateControllerFactoryTest {
     public void shouldCreateASuccessfulMatchStateController() {
         StateController controller = stateControllerFactory.build(aSuccessfulMatchState().build(), stateTransitionAction);
 
-        assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
+        assertThat(controller).isInstanceOf(AbstractSuccessfulMatchStateController.class);
     }
 
     @Test

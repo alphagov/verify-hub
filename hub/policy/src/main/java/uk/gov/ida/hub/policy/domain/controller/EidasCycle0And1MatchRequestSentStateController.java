@@ -58,7 +58,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends MatchRequest
             state.getRequestIssuerEntityId(),
             state.getRequestId(),
             state.getSessionExpiryTimestamp());
-        return getSuccessfulMatchState(responseFromMatchingService);
+        return getEidasSuccessfulMatchState(responseFromMatchingService);
     }
 
     @Override

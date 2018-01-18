@@ -8,8 +8,8 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.net.URI;
 import java.util.Objects;
 
-public final class SuccessfulMatchState extends AbstractSuccessfulMatchState {
-    public SuccessfulMatchState(String requestId, DateTime sessionExpiryTimestamp, String identityProviderEntityId, String matchingServiceAssertion, Optional<String> relayState, String requestIssuerId, URI assertionConsumerServiceUri, SessionId sessionId, LevelOfAssurance levelOfAssurance, boolean transactionSupportsEidas) {
+public final class EidasSuccessfulMatchState extends AbstractSuccessfulMatchState{
+    public EidasSuccessfulMatchState(String requestId, DateTime sessionExpiryTimestamp, String identityProviderEntityId, String matchingServiceAssertion, Optional<String> relayState, String requestIssuerId, URI assertionConsumerServiceUri, SessionId sessionId, LevelOfAssurance levelOfAssurance, boolean transactionSupportsEidas) {
         super(requestId, sessionExpiryTimestamp, identityProviderEntityId, matchingServiceAssertion, relayState, requestIssuerId, assertionConsumerServiceUri, sessionId, levelOfAssurance, transactionSupportsEidas);
     }
 
@@ -23,7 +23,7 @@ public final class SuccessfulMatchState extends AbstractSuccessfulMatchState {
             return false;
         }
 
-        SuccessfulMatchState that = (SuccessfulMatchState) o;
+        EidasSuccessfulMatchState that = (EidasSuccessfulMatchState) o;
 
         return Objects.equals(identityProviderEntityId, that.identityProviderEntityId) &&
                 Objects.equals(matchingServiceAssertion, that.matchingServiceAssertion) &&
@@ -51,4 +51,5 @@ public final class SuccessfulMatchState extends AbstractSuccessfulMatchState {
                 getAssertionConsumerServiceUri(),
                 getSessionId());
     }
+
 }

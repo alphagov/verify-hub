@@ -1,60 +1,63 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.builder.domain.ResponseFromHubBuilder;
+import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
+import uk.gov.ida.hub.policy.services.CountriesService;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.hub.policy.builder.state.SuccessfulMatchStateBuilder.aSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SuccessfulMatchStateControllerTest {
+public class EidasSuccessfulMatchStateControllerTest {
 
     @Mock
     private IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
-    private SuccessfulMatchStateController controller;
+    private EidasSuccessfulMatchStateController controller;
 
-    private SuccessfulMatchState state;
+    private EidasSuccessfulMatchState state;
 
     @Mock
     private ResponseFromHubFactory responseFromHubFactory;
 
+    @Mock
+    CountriesService countriesService;
+
 
     @Before
     public void setUp(){
-        state = aSuccessfulMatchState().build();
-        controller = new SuccessfulMatchStateController(state, responseFromHubFactory, identityProvidersConfigProxy);
+        state = anEidasSuccessfulMatchState().withIdentityProviderEntityId("country-entity-id").build();
+        controller = new EidasSuccessfulMatchStateController(state, responseFromHubFactory, identityProvidersConfigProxy, countriesService);
     }
 
     @Test(expected = IdpDisabledException.class)
-    public void getPreparedResponse_shouldThrowWhenIdpIsDisabled() {
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(Matchers.<Optional<String>>any()))
-                .thenReturn(Arrays.<String>asList());
+    public void getPreparedResponse_shouldThrowWhenCountryIsDisabled() {
+        when(countriesService.getCountries(state.getSessionId()))
+                .thenReturn(Arrays.asList());
 
         controller.getPreparedResponse();
     }
 
     @Test
     public void getPreparedResponse_shouldReturnResponse(){
-        List<String> enabledIdentityProviders = Arrays.asList(state.getIdentityProviderEntityId());
+        List<EidasCountryDto> enabledIdentityProviders = Arrays.asList(new EidasCountryDto("country-entity-id", null, true, null));
         ResponseFromHub expectedResponseFromHub = ResponseFromHubBuilder.aResponseFromHubDto().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(any()))
+        when(countriesService.getCountries(state.getSessionId()))
                 .thenReturn(enabledIdentityProviders);
         when(responseFromHubFactory.createSuccessResponseFromHub(any(), any(), any(), any(), any()))
                 .thenReturn(expectedResponseFromHub);

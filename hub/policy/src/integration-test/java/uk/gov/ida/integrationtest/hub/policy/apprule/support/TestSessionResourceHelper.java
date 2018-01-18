@@ -4,10 +4,10 @@ import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -63,7 +63,7 @@ public class TestSessionResourceHelper {
     }
 
     public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String idpEntityId, Client client, URI uri) {
-        SuccessfulMatchState successfulMatchState = aSuccessfulMatchState().withSessionId(sessionId).withIdentityProviderEntityId(idpEntityId).build();
+        AbstractSuccessfulMatchState successfulMatchState = aSuccessfulMatchState().withSessionId(sessionId).withIdentityProviderEntityId(idpEntityId).build();
         TestSessionDto testSessionDto = new TestSessionDto(sessionId,
                 successfulMatchState.getRequestId(),
                 successfulMatchState.getSessionExpiryTimestamp(),

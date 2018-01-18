@@ -38,7 +38,7 @@ import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
@@ -150,7 +150,7 @@ public class MatchingServiceResourcesIntegrationTest {
         Response response = postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(getSessionStateName(sessionId)).isEqualTo(SuccessfulMatchState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(AbstractSuccessfulMatchState.class.getName());
     }
 
     @Test
