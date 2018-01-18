@@ -1,6 +1,6 @@
 # 2. Accept eIDAS Assertions In Verify
 
-Date: 03/10/2017
+Date: 2017-10-03
 
 ## Status
 
