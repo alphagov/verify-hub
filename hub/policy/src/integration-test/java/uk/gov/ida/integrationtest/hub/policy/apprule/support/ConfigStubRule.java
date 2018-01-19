@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
@@ -35,6 +36,15 @@ public class ConfigStubRule extends HttpStubRule {
         for(String idpEntityId:enabledIdps) {
             register(UriBuilder.fromPath(Urls.ConfigUrls.IDENTITY_PROVIDER_CONFIG_DATA_RESOURCE).build(idpEntityId).getPath(), OK, IdpConfigDtoBuilder.anIdpConfigDto().withLevelsOfAssurance(LevelOfAssurance.LEVEL_2).build());
         }
+    }
+
+    public void setUpStubForEnabledCountries(String rpEntityId, Collection<EidasCountryDto> enabledCountries) throws JsonProcessingException {
+        register(Urls.ConfigUrls.COUNTRIES_ROOT, OK, enabledCountries);
+
+        List<String> countryEntityIds = enabledCountries.stream().map(country -> country.getEntityId()).collect(Collectors.toList());
+        UriBuilder countriesForTransactionUriBuilder = UriBuilder.fromPath(Urls.ConfigUrls.EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE);
+        String countriesForTransactionPath = countriesForTransactionUriBuilder.buildFromEncoded(StringEncoding.urlEncode(rpEntityId).replace("+", "%20")).getPath();
+        register(countriesForTransactionPath, OK, countryEntityIds);
     }
 
     public void setupStubForEidasEnabledForTransaction(String transactionEntityId, boolean eidasEnabledForTransaction) throws JsonProcessingException {

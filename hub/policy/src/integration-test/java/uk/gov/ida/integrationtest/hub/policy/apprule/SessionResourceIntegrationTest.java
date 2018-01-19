@@ -6,6 +6,7 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.util.Duration;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -14,18 +15,12 @@ import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.hub.policy.Urls;
-import uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
-import uk.gov.ida.hub.policy.domain.AuthnRequestFromHubContainerDto;
-import uk.gov.ida.hub.policy.domain.IdpSelected;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.ResponseAction;
-import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
-import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -46,9 +41,8 @@ import java.net.URI;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.IDP_SELECTED_STATE;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.SUCCESSFUL_MATCH_STATE;
+import static uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.*;
 import static uk.gov.ida.integrationtest.hub.policy.builders.AuthnRequestFromHubContainerDtoBuilder.anAuthnRequestFromHubContainerDto;
 import static uk.gov.ida.integrationtest.hub.policy.builders.AuthnResponseFromHubContainerDtoBuilder.anAuthnResponseFromHubContainerDto;
 import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
@@ -79,9 +73,10 @@ public class SessionResourceIntegrationTest {
             ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()));
 
-    private String idpEntityId;
-    private String rpEntityId;
-    private URI idpSsoUri;
+    private final String countryEntityId = "countryEntityId";
+    private final String idpEntityId = "idpEntityId";
+    private final String rpEntityId = "rpEntityId";
+    private final URI idpSsoUri = UriBuilder.fromPath("idpSsoUri").build();
     private SamlResponseWithAuthnRequestInformationDto translatedAuthnRequest;
     private SamlAuthnRequestContainerDto rpSamlRequest;
     private String msEntityId = "Matching-service-entity-id";
@@ -94,18 +89,22 @@ public class SessionResourceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        idpEntityId = "idpEntityId";
-        rpEntityId = "rpEntityId";
         translatedAuthnRequest = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(rpEntityId).build();
         rpSamlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
-        idpSsoUri = UriBuilder.fromPath("idpSsoUri").build();
 
-        configStub.reset();
         configStub.setupStubForEnabledIdps(asList(idpEntityId));
+        configStub.setUpStubForEnabledCountries(rpEntityId, asList(new EidasCountryDto(countryEntityId, "simple-id", true)));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
         configStub.setUpStubForMatchingServiceEntityId(rpEntityId, msEntityId);
-        configStub.setupStubForEidasEnabledForTransaction(rpEntityId, false);
+        configStub.setupStubForEidasEnabledForTransaction(rpEntityId, true);
         eventSinkStub.setupStubForLogging();
+    }
+
+    @After
+    public void tearDown() {
+        configStub.reset();
+        eventSinkStub.reset();
+        samlEngineStub.reset();
     }
 
     @Test
@@ -129,9 +128,9 @@ public class SessionResourceIntegrationTest {
 
     @Test
     public void shouldReturnBadRequestWhenAssertionConsumerIndexIsInvalid() throws Exception {
-        rpEntityId = "other-entity-id";
-        configStub.setUpStubToReturn404ForAssertionConsumerServiceUri(rpEntityId);
-        translatedAuthnRequest = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(rpEntityId).build();
+        String missingRpEntityId = "other-entity-id";
+        configStub.setUpStubToReturn404ForAssertionConsumerServiceUri(missingRpEntityId);
+        translatedAuthnRequest = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(missingRpEntityId).build();
         samlEngineStub.setupStubForAuthnRequestTranslate(translatedAuthnRequest);
 
         checkException(createASession(rpSamlRequest), ExceptionType.INVALID_ASSERTION_CONSUMER_INDEX);
@@ -247,6 +246,25 @@ public class SessionResourceIntegrationTest {
     }
 
     @Test
+    public void shouldGetRpResponseGivenASessionInEidasSuccessfulMatchStateExists() throws JsonProcessingException {
+        SessionId sessionId = SessionId.createNewSessionId();
+        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInEidasSuccessfulMatchState(sessionId, rpEntityId, countryEntityId, client, policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + EIDAS_SUCCESSFUL_MATCH_STATE).build().toASCIIString()));
+        assertThat(sessionCreatedResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        AuthnResponseFromHubContainerDto expectedAuthnResponseFromHub = anAuthnResponseFromHubContainerDto().build();
+        samlEngineStub.setUpStubForAuthnResponseGenerate(expectedAuthnResponseFromHub);
+
+        URI rpAuthResponseUri = UriBuilder.fromPath(Urls.PolicyUrls.RP_AUTHN_RESPONSE_RESOURCE).build(sessionId);
+        Response responseForRp = client
+                .target(policy.uri(rpAuthResponseUri.toASCIIString())).request().get();
+
+        assertThat(responseForRp.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        AuthnResponseFromHubContainerDto authnResponseFromHub = responseForRp.readEntity
+                (AuthnResponseFromHubContainerDto.class);
+        assertThat(authnResponseFromHub).isEqualToComparingFieldByField(expectedAuthnResponseFromHub);
+    }
+
+    @Test
     public void shouldUpdateSessionStateAndSendAnAttributeQueryRequestWhenASuccessResponseIsReceivedFromIdp() throws JsonProcessingException {
         // Given
         SessionId sessionId = SessionId.createNewSessionId();
@@ -256,7 +274,7 @@ public class SessionResourceIntegrationTest {
 
         LevelOfAssurance loaAchieved = LevelOfAssurance.LEVEL_2;
         samlEngineStub.setupStubForIdpAuthnResponseTranslate(InboundResponseFromIdpDtoBuilder.successResponse(idpEntityId, loaAchieved));
-        samlEngineStub.setupStubForAttributeQueryRequest(AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto().build());
+        samlEngineStub.setupStubForAttributeQueryRequest(anAttributeQueryContainerDto().build());
 
         configStub.setUpStubForMatchingServiceRequest(idpEntityId, IdpSelectedStateBuilder.anIdpSelectedState().build().getMatchingServiceEntityId());
 

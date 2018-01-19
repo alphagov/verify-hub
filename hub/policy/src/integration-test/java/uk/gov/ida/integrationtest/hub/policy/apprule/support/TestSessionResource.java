@@ -5,7 +5,6 @@ import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.state.*;
-import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.integrationtest.hub.policy.rest.Cycle3DTO;
 import uk.gov.ida.integrationtest.hub.policy.rest.EidasCycle3DTO;
 
@@ -36,6 +35,7 @@ import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM_PATH;
 public class TestSessionResource {
 
     public static final String SUCCESSFUL_MATCH_STATE = "/successful-match-state";
+    public static final String EIDAS_SUCCESSFUL_MATCH_STATE = "/eidas-successful-match-state";
     public static final String IDP_SELECTED_STATE = "/idp-selected-state";
     public static final String COUNTRY_SELECTED_STATE = "/country-selected-state";
     public static final String AWAITING_CYCLE_3_DATA_STATE = "/awaiting-cycle-3-data-state";
@@ -54,7 +54,7 @@ public class TestSessionResource {
     @Path(SUCCESSFUL_MATCH_STATE)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createStateInSuccessfulMatchState(TestSessionDto testSessionDto) {
+    public Response createSessionInSuccessfulMatchState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
                 new SuccessfulMatchState(testSessionDto.getRequestId(),
                         testSessionDto.getSessionExpiryTimestamp(),
@@ -70,10 +70,29 @@ public class TestSessionResource {
         return Response.ok().build();
     }
 
+    @Path(EIDAS_SUCCESSFUL_MATCH_STATE)
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createSessionInEidasSuccessfulMatchState(TestSessionDto testSessionDto){
+        testSessionRepository.createSession(testSessionDto.getSessionId(),
+                new EidasSuccessfulMatchState(testSessionDto.getRequestId(),
+                        testSessionDto.getSessionExpiryTimestamp(),
+                        testSessionDto.getIdentityProviderEntityId(),
+                        testSessionDto.getMatchingServiceAssertion(),
+                        testSessionDto.getRelayState(),
+                        testSessionDto.getRequestIssuerId(),
+                        testSessionDto.getAssertionConsumerServiceUri(),
+                        testSessionDto.getSessionId(),
+                        testSessionDto.getLevelsOfAssurance().get(testSessionDto.getLevelsOfAssurance().size()-1),
+                        testSessionDto.getTransactionSupportsEidas()));
+        return Response.ok().build();
+
+    }
+
     @Path(IDP_SELECTED_STATE)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createStateInIdpSelectedState(TestSessionDto testSessionDto) {
+    public Response createSessionInIdpSelectedState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
                 new IdpSelectedState(testSessionDto.getRequestId(),
                         testSessionDto.getIdentityProviderEntityId(),
@@ -96,7 +115,7 @@ public class TestSessionResource {
     @Path(COUNTRY_SELECTED_STATE)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createStateInCountrySelectingState(TestSessionDto testSessionDto) {
+    public Response createSessionInCountrySelectingState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
                 new SessionStartedState(testSessionDto.getRequestId(),
                         testSessionDto.getRelayState(),
@@ -113,7 +132,7 @@ public class TestSessionResource {
     @Path(AWAITING_CYCLE_3_DATA_STATE)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createInAwaitingCycle3DataState(Cycle3DTO dto) {
+    public Response createSessionInAwaitingCycle3DataState(Cycle3DTO dto) {
         testSessionRepository.createSession(
                 dto.getSessionId(),
                 new AwaitingCycle3DataState(dto.getRequestId(),
@@ -137,7 +156,7 @@ public class TestSessionResource {
     @Path(EIDAS_AWAITING_CYCLE_3_DATA_STATE)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createInEidasAwaitingCycle3DataState(EidasCycle3DTO dto) {
+    public Response createSessionInEidasAwaitingCycle3DataState(EidasCycle3DTO dto) {
         testSessionRepository.createSession(
             dto.getSessionId(),
             new EidasAwaitingCycle3DataState(
@@ -162,7 +181,7 @@ public class TestSessionResource {
     @Path(AUTHN_FAILED_STATE)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createStateInAuthnFailedState(TestSessionDto testSessionDto) {
+    public Response createSessionInAuthnFailedState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
                 new AuthnFailedErrorState(testSessionDto.getRequestId(),
                         testSessionDto.getRequestIssuerId(),

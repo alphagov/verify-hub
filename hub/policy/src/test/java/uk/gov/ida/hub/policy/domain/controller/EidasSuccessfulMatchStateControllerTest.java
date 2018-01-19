@@ -49,7 +49,7 @@ public class EidasSuccessfulMatchStateControllerTest {
 
     @Test
     public void getPreparedResponse_shouldReturnResponse(){
-        List<EidasCountryDto> enabledIdentityProviders = Arrays.asList(new EidasCountryDto("country-entity-id", null, true, null));
+        List<EidasCountryDto> enabledIdentityProviders = Arrays.asList(new EidasCountryDto("country-entity-id", "simple-id", true));
         ResponseFromHub expectedResponseFromHub = ResponseFromHubBuilder.aResponseFromHubDto().build();
         when(countriesService.getCountries(state.getSessionId()))
                 .thenReturn(enabledIdentityProviders);

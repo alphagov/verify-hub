@@ -21,7 +21,7 @@ public class EidasSuccessfulMatchStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId getSessionId = SessionIdBuilder.aSessionId().build();
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
-    private boolean transactionSupportsEidas = false;
+    private boolean transactionSupportsEidas = true;
 
     public static EidasSuccessfulMatchStateBuilder aEidasSuccessfulMatchState() {
         return new EidasSuccessfulMatchStateBuilder();
@@ -48,6 +48,11 @@ public class EidasSuccessfulMatchStateBuilder {
 
     public EidasSuccessfulMatchStateBuilder withIdentityProviderEntityId(String identityProviderEntityId) {
         this.identityProviderEntityId = identityProviderEntityId;
+        return this;
+    }
+
+    public EidasSuccessfulMatchStateBuilder withRequestIssuerId(String requestIssuerId) {
+        this.requestIssuerId = requestIssuerId;
         return this;
     }
 }
