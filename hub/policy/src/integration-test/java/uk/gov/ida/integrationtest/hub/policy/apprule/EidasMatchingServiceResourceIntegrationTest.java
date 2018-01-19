@@ -27,6 +27,7 @@ import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -112,7 +113,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToSuccessfulMatchStateWhenMatchIsReceivedForEidasCycle0And1() throws Exception {
+    public void shouldTransitionToEidasSuccessfulMatchStateWhenMatchIsReceivedForEidasCycle0And1() throws Exception {
         final SessionId sessionId = aSessionIsCreated();
         selectACountry(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
@@ -129,7 +130,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
         final Response response = postAttributeQueryResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(getSessionStateName(sessionId)).isEqualTo(AbstractSuccessfulMatchState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(EidasSuccessfulMatchState.class.getName());
     }
 
     @Test

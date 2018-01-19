@@ -11,8 +11,12 @@ import java.util.Collection;
 import static com.google.common.base.Optional.fromNullable;
 
 public class SuccessfulMatchStateController extends AbstractSuccessfulMatchStateController {
+
+    private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
+
     public SuccessfulMatchStateController(AbstractSuccessfulMatchState state, ResponseFromHubFactory responseFromHubFactory, IdentityProvidersConfigProxy identityProvidersConfigProxy) {
-        super(state, responseFromHubFactory, identityProvidersConfigProxy);
+        super(state, responseFromHubFactory);
+        this.identityProvidersConfigProxy = identityProvidersConfigProxy;
     }
 
     @Override

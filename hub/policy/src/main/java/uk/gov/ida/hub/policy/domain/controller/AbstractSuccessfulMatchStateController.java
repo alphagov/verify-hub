@@ -6,27 +6,18 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
-import uk.gov.ida.hub.policy.exception.IdpDisabledException;
-import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
-
-import java.util.Collection;
-
-import static com.google.common.base.Optional.fromNullable;
 
 public abstract class AbstractSuccessfulMatchStateController implements StateController, ResponseProcessingStateController, ResponsePreparedStateController, ErrorResponsePreparedStateController {
 
     protected final AbstractSuccessfulMatchState state;
     protected final ResponseFromHubFactory responseFromHubFactory;
-    protected final IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
     public AbstractSuccessfulMatchStateController(
             final AbstractSuccessfulMatchState state,
-            final ResponseFromHubFactory responseFromHubFactory,
-            final IdentityProvidersConfigProxy identityProvidersConfigProxy) {
+            final ResponseFromHubFactory responseFromHubFactory) {
 
         this.state = state;
         this.responseFromHubFactory = responseFromHubFactory;
-        this.identityProvidersConfigProxy = identityProvidersConfigProxy;
     }
 
     @Override

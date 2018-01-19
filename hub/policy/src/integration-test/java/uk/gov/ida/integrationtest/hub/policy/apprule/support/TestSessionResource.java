@@ -56,7 +56,7 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createStateInSuccessfulMatchState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new AbstractSuccessfulMatchState(testSessionDto.getRequestId(),
+                new SuccessfulMatchState(testSessionDto.getRequestId(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getIdentityProviderEntityId(),
                         testSessionDto.getMatchingServiceAssertion(),

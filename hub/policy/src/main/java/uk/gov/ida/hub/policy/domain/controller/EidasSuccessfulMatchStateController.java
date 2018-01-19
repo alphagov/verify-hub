@@ -5,19 +5,16 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
-import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.services.CountriesService;
 
 import java.util.List;
-
-
 
 public class EidasSuccessfulMatchStateController extends AbstractSuccessfulMatchStateController{
 
     private CountriesService countriesService;
 
-    public EidasSuccessfulMatchStateController(AbstractSuccessfulMatchState state, ResponseFromHubFactory responseFromHubFactory, IdentityProvidersConfigProxy identityProvidersConfigProxy, CountriesService countriesService) {
-        super(state, responseFromHubFactory, identityProvidersConfigProxy);
+    public EidasSuccessfulMatchStateController(AbstractSuccessfulMatchState state, ResponseFromHubFactory responseFromHubFactory, CountriesService countriesService) {
+        super(state, responseFromHubFactory);
         this.countriesService = countriesService;
     }
 

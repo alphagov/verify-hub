@@ -23,7 +23,7 @@ public class EidasSuccessfulMatchStateBuilder {
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
     private boolean transactionSupportsEidas = false;
 
-    public static EidasSuccessfulMatchStateBuilder anEidasSuccessfulMatchState() {
+    public static EidasSuccessfulMatchStateBuilder aEidasSuccessfulMatchState() {
         return new EidasSuccessfulMatchStateBuilder();
     }
 

@@ -96,7 +96,6 @@ public class StateControllerFactory {
                 return new EidasSuccessfulMatchStateController(
                     (EidasSuccessfulMatchState) state,
                     injector.getInstance(ResponseFromHubFactory.class),
-                    injector.getInstance(IdentityProvidersConfigProxy.class),
                     injector.getInstance(CountriesService.class)
                 );
             case NO_MATCH:

@@ -34,14 +34,7 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
-import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.*;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
@@ -150,7 +143,7 @@ public class MatchingServiceResourcesIntegrationTest {
         Response response = postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(getSessionStateName(sessionId)).isEqualTo(AbstractSuccessfulMatchState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(SuccessfulMatchState.class.getName());
     }
 
     @Test
