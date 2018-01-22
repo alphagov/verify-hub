@@ -18,7 +18,7 @@
 
 ## Microservices that use saml-proxy
 
-**frontend-api**: passes saml messages from/to the frontend via frontend-api.
+**frontend**: passes saml messages from/to the frontend.
 
 ## Resources
 
@@ -36,7 +36,7 @@ On the app's admin port metadata can be force refreshed with an empty POST to `/
 ### Hub Metadata
 
 This resource hosts the hub’s now deprecated metadata, which should be served externally with the content type `application/samlmetadata+xml`.
- 
+
  There are two types of SAML Metadata hosted within this resource:
 
 1. Metadata for RPs lives at `/SAML/metadata/sp` on the frontend and provides metadata for both the matching service and the digital transactions.

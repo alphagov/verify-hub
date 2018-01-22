@@ -12,7 +12,7 @@ The Policy service is the heart of the Verify hub. It contains the control logic
 
 ## Microservices that use policy
 
-**frontend-api**: to get/set information about a user session
+**frontend**: to get/set information about a user session
 
 **saml-proxy**: validates incoming/outgoing SAML messages to/from policy
 
