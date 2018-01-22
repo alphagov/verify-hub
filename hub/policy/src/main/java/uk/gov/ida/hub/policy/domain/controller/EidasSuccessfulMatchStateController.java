@@ -20,7 +20,6 @@ public class EidasSuccessfulMatchStateController extends AbstractSuccessfulMatch
 
     @Override
     public ResponseFromHub getPreparedResponse() {
-
         List<EidasCountryDto> enabledCountries = countriesService.getCountries(state.getSessionId());
 
         if (enabledCountries.stream().noneMatch(country -> country.getEntityId().equals(state.getIdentityProviderEntityId()))) {

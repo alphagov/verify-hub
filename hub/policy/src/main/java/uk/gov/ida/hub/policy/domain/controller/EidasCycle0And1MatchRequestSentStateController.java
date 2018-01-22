@@ -9,6 +9,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
@@ -49,6 +50,24 @@ public class EidasCycle0And1MatchRequestSentStateController extends MatchRequest
     @Override
     protected State getNextStateForUserAccountCreationFailed() {
         return null;
+    }
+
+    protected EidasSuccessfulMatchState getEidasSuccessfulMatchState(MatchFromMatchingService responseFromMatchingService) {
+        String matchingServiceAssertion = responseFromMatchingService.getMatchingServiceAssertion();
+        validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
+        String requestIssuerId = state.getRequestIssuerEntityId();
+        return new EidasSuccessfulMatchState(
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp(),
+                state.getIdentityProviderEntityId(),
+                matchingServiceAssertion,
+                state.getRelayState(),
+                requestIssuerId,
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getIdpLevelOfAssurance(),
+                state.getTransactionSupportsEidas()
+        );
     }
 
     @Override

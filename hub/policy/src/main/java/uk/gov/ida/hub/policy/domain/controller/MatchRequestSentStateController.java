@@ -26,13 +26,13 @@ import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationEx
 public abstract class MatchRequestSentStateController<T extends MatchRequestSentState> implements ResponseProcessingStateController, WaitingForMatchingServiceResponseStateController, ErrorResponsePreparedStateController {
 
     private final StateTransitionAction stateTransitionAction;
-    private final LevelOfAssuranceValidator validator;
     private final ResponseFromHubFactory responseFromHubFactory;
     private static final Logger LOG = LoggerFactory.getLogger(MatchRequestSentStateController.class);
 
     protected final T state;
     protected final EventSinkHubEventLogger eventSinkHubEventLogger;
     protected PolicyConfiguration policyConfiguration;
+    protected final LevelOfAssuranceValidator validator;
     private AttributeQueryService attributeQueryService;
 
     public MatchRequestSentStateController(
@@ -72,24 +72,6 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
         validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
         String requestIssuerId = state.getRequestIssuerEntityId();
         return new SuccessfulMatchState(
-                state.getRequestId(),
-                state.getSessionExpiryTimestamp(),
-                state.getIdentityProviderEntityId(),
-                matchingServiceAssertion,
-                state.getRelayState(),
-                requestIssuerId,
-                state.getAssertionConsumerServiceUri(),
-                state.getSessionId(),
-                state.getIdpLevelOfAssurance(),
-                state.getTransactionSupportsEidas()
-        );
-    }
-
-    protected EidasSuccessfulMatchState getEidasSuccessfulMatchState(MatchFromMatchingService responseFromMatchingService) {
-        String matchingServiceAssertion = responseFromMatchingService.getMatchingServiceAssertion();
-        validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
-        String requestIssuerId = state.getRequestIssuerEntityId();
-        return new EidasSuccessfulMatchState(
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp(),
                 state.getIdentityProviderEntityId(),

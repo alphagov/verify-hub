@@ -37,6 +37,7 @@ import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateB
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBuilder.anEidasAwaitingCycle3DataState;
 import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
+import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.aEidasSuccessfulMatchState;
 import static uk.gov.ida.hub.policy.builder.state.FraudEventDetectedStateBuilder.aFraudEventDetectedState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.MatchingServiceRequestErrorStateBuilder.aMatchingServiceRequestErrorState;
@@ -115,7 +116,14 @@ public class StateControllerFactoryTest {
     public void shouldCreateASuccessfulMatchStateController() {
         StateController controller = stateControllerFactory.build(aSuccessfulMatchState().build(), stateTransitionAction);
 
-        assertThat(controller).isInstanceOf(AbstractSuccessfulMatchStateController.class);
+        assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
+    }
+
+    @Test
+    public void shouldCreateAEidasSuccessfulMatchStateController() {
+        StateController controller = stateControllerFactory.build(aEidasSuccessfulMatchState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);
     }
 
     @Test

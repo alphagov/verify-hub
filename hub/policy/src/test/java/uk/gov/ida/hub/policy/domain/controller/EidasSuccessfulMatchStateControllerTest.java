@@ -64,6 +64,5 @@ public class EidasSuccessfulMatchStateControllerTest {
         ResponseFromHub result = controller.getPreparedResponse();
 
         Assert.assertEquals(result, expectedResponseFromHub);
-
     }
 }

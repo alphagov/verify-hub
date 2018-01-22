@@ -27,12 +27,11 @@ public class SuccessfulMatchStateControllerTest {
     @Mock
     private IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
-    private SuccessfulMatchStateController controller;
-
-    private SuccessfulMatchState state;
-
     @Mock
     private ResponseFromHubFactory responseFromHubFactory;
+
+    private SuccessfulMatchStateController controller;
+    private SuccessfulMatchState state;
 
 
     @Before
@@ -66,6 +65,5 @@ public class SuccessfulMatchStateControllerTest {
         ResponseFromHub result = controller.getPreparedResponse();
 
         Assert.assertEquals(result, expectedResponseFromHub);
-
     }
 }
