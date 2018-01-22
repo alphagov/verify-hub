@@ -109,7 +109,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToSuccessfulMatchStateWhenMatchIsReceivedForEidasCycle0And1() throws Exception {
+    public void shouldTransitionToEidasSuccessfulMatchStateWhenMatchIsReceivedForEidasCycle0And1() throws Exception {
         final SessionId sessionId = aSessionIsCreated();
         selectACountry(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);

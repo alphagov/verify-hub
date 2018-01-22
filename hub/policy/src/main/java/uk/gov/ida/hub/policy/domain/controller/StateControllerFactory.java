@@ -16,6 +16,7 @@ import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
@@ -33,6 +34,7 @@ import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
+import uk.gov.ida.hub.policy.services.CountriesService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import javax.inject.Inject;
@@ -109,6 +111,12 @@ public class StateControllerFactory {
                     (SuccessfulMatchState) state,
                     injector.getInstance(ResponseFromHubFactory.class),
                     injector.getInstance(IdentityProvidersConfigProxy.class)
+                );
+            case EIDAS_SUCCESSFUL_MATCH:
+                return new EidasSuccessfulMatchStateController(
+                    (EidasSuccessfulMatchState) state,
+                    injector.getInstance(ResponseFromHubFactory.class),
+                    injector.getInstance(CountriesService.class)
                 );
             case NO_MATCH:
                 return new NoMatchStateController(

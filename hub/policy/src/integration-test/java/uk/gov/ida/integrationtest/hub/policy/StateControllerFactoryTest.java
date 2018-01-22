@@ -26,6 +26,7 @@ import uk.gov.ida.hub.policy.domain.controller.Cycle3DataInputCancelledStateCont
 import uk.gov.ida.hub.policy.domain.controller.Cycle3MatchRequestSentStateController;
 import uk.gov.ida.hub.policy.domain.controller.EidasAwaitingCycle3DataStateController;
 import uk.gov.ida.hub.policy.domain.controller.EidasCycle0And1MatchRequestSentStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasSuccessfulMatchStateController;
 import uk.gov.ida.hub.policy.domain.controller.FraudEventDetectedStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
 import uk.gov.ida.hub.policy.domain.controller.MatchingServiceRequestErrorStateController;
@@ -58,6 +59,7 @@ import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateB
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBuilder.anEidasAwaitingCycle3DataState;
 import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
+import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.aEidasSuccessfulMatchState;
 import static uk.gov.ida.hub.policy.builder.state.FraudEventDetectedStateBuilder.aFraudEventDetectedState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.MatchingServiceRequestErrorStateBuilder.aMatchingServiceRequestErrorState;
@@ -105,7 +107,7 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateASessionStartedStateController() throws Exception {
+    public void build_shouldCreateASessionStartedStateController() {
         StateController controller = factory.build(aSessionStartedState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(SessionStartedStateController.class);
@@ -119,14 +121,14 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateAnIdpSelectedController() throws Exception {
+    public void build_shouldCreateAnIdpSelectedController() {
         StateController controller = factory.build(anIdpSelectedState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(IdpSelectedStateController.class);
     }
 
     @Test
-    public void build_shouldCreateAnCycle01MatchRequestSentController() throws Exception {
+    public void build_shouldCreateAnCycle01MatchRequestSentController() {
         StateController controller = factory.build(aCycle0And1MatchRequestSentState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(Cycle0And1MatchRequestSentStateController.class);
@@ -140,14 +142,21 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateASuccessfulMatchController() throws Exception {
+    public void build_shouldCreateASuccessfulMatchController() {
         StateController controller = factory.build(aSuccessfulMatchState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
     }
 
     @Test
-    public void build_shouldCreateANoMatchController() throws Exception {
+    public void build_shouldCreateAnEidasSuccessfulMatchController() {
+        StateController controller = factory.build(aEidasSuccessfulMatchState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);
+    }
+
+    @Test
+    public void build_shouldCreateANoMatchController() {
     StateController controller = factory.build(aNoMatchState().build(), stateTransitionAction);
 
     assertThat(controller).isInstanceOf(NoMatchStateController.class);
@@ -155,7 +164,7 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateAnAwaitingCycle3DataController() throws Exception {
+    public void build_shouldCreateAnAwaitingCycle3DataController() {
         StateController controller = factory.build(anAwaitingCycle3DataState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(AwaitingCycle3DataStateController.class);
@@ -169,28 +178,28 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateAUserAccountCreatedController() throws Exception {
+    public void build_shouldCreateAUserAccountCreatedController() {
         StateController controller = factory.build(aUserAccountCreatedState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(UserAccountCreatedStateController.class);
     }
 
     @Test
-    public void build_shouldCreateACycle3MatchRequestDataSentController() throws Exception {
+    public void build_shouldCreateACycle3MatchRequestDataSentController() {
         StateController controller = factory.build(aCycle3MatchRequestSentState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(Cycle3MatchRequestSentStateController.class);
     }
 
     @Test
-    public void build_shouldCreateTimeoutStateController() throws Exception {
+    public void build_shouldCreateTimeoutStateController() {
         StateController controller = factory.build(aTimeoutState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(TimeoutStateController.class);
     }
 
     @Test
-    public void build_shouldCreateMatchingServiceRequestErrorController() throws Exception {
+    public void build_shouldCreateMatchingServiceRequestErrorController() {
         StateController controller = factory.build(aMatchingServiceRequestErrorState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(MatchingServiceRequestErrorStateController.class);
@@ -204,7 +213,7 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateAuthnFailedErrorController() throws Exception {
+    public void build_shouldCreateAuthnFailedErrorController() {
         StateController controller = factory.build(anAuthnFailedErrorState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(AuthnFailedErrorStateController.class);
@@ -225,14 +234,14 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateCycle3DataInputCancelledController() throws Exception {
+    public void build_shouldCreateCycle3DataInputCancelledController() {
         StateController controller = factory.build(aCycle3DataInputCancelledState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(Cycle3DataInputCancelledStateController.class);
     }
 
     @Test(expected = RuntimeException.class)
-    public void build_shouldThrowRuntimeExceptionIfControllerNotFound() throws Exception {
+    public void build_shouldThrowRuntimeExceptionIfControllerNotFound() {
         factory.build(
                 new AbstractState("requestId", "requestIssuerId", DateTime.now(), URI.create("/some-ac-service-uri"), aSessionId().build(), false) {
                     @Override
@@ -245,7 +254,7 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateUserAccountCreationFailedStateController() throws Exception {
+    public void build_shouldCreateUserAccountCreationFailedStateController() {
         StateController controller = factory.build(aUserAccountCreationFailedState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(UserAccountCreationFailedStateController.class);

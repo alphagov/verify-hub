@@ -8,7 +8,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 
-public abstract class MatchRequestSentStateBase extends AbstractState implements ResponseProcessingState, WaitingForMatchingServiceResponseState {
+public abstract class AbstractMatchRequestSentState extends AbstractState implements ResponseProcessingState, WaitingForMatchingServiceResponseState {
 
     private final String identityProviderEntityId;
     private final Optional<String> relayState;
@@ -16,7 +16,7 @@ public abstract class MatchRequestSentStateBase extends AbstractState implements
     private final String matchingServiceAdapterEntityId;
     private final DateTime requestSentTime;
 
-    protected MatchRequestSentStateBase(
+    protected AbstractMatchRequestSentState(
             final String requestId,
             final String requestIssuerEntityId,
             final DateTime sessionExpiryTimestamp,

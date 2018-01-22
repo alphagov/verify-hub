@@ -9,7 +9,7 @@ import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
-public abstract class EidasMatchRequestSentStateController<T extends EidasMatchRequestSentState> extends MatchRequestSentStateControllerBase<T, EidasSuccessfulMatchState> {
+public abstract class EidasMatchRequestSentStateController<T extends EidasMatchRequestSentState> extends AbstractMatchRequestSentStateController<T, EidasSuccessfulMatchState> {
 
     public EidasMatchRequestSentStateController(
             final T state,

@@ -7,7 +7,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 
-public abstract class MatchRequestSentState extends MatchRequestSentStateBase {
+public abstract class MatchRequestSentState extends AbstractMatchRequestSentState {
 
     private final boolean registering;
 

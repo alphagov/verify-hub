@@ -8,7 +8,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.net.URI;
 import java.util.Objects;
 
-public final class SuccessfulMatchState extends SuccessfulMatchStateBase {
+public final class SuccessfulMatchState extends AbstractSuccessfulMatchState {
 
     private final boolean isRegistering;
 

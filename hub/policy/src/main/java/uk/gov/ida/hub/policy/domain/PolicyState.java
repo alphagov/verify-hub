@@ -9,6 +9,7 @@ import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
@@ -32,6 +33,7 @@ public enum PolicyState {
     CYCLE_0_AND_1_MATCH_REQUEST_SENT(Cycle0And1MatchRequestSentState.class),
     EIDAS_CYCLE_0_AND_1_MATCH_REQUEST_SENT(EidasCycle0And1MatchRequestSentState.class),
     SUCCESSFUL_MATCH(SuccessfulMatchState.class),
+    EIDAS_SUCCESSFUL_MATCH(EidasSuccessfulMatchState.class),
     NO_MATCH(NoMatchState.class),
     USER_ACCOUNT_CREATED(UserAccountCreatedState.class),
     AWAITING_CYCLE3_DATA(AwaitingCycle3DataState.class),

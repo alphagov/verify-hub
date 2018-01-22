@@ -12,7 +12,7 @@ import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
-public abstract class MatchRequestSentStateController<T extends MatchRequestSentState> extends MatchRequestSentStateControllerBase<T, SuccessfulMatchState> {
+public abstract class MatchRequestSentStateController<T extends MatchRequestSentState> extends AbstractMatchRequestSentStateController<T, SuccessfulMatchState> {
 
     public MatchRequestSentStateController(
             final T state,

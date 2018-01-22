@@ -7,7 +7,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 
-public abstract class EidasMatchRequestSentState extends MatchRequestSentStateBase {
+public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSentState {
 
     protected EidasMatchRequestSentState(
             final String requestId,

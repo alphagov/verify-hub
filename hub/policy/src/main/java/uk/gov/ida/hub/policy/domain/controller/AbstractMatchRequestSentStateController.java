@@ -14,10 +14,10 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
-import uk.gov.ida.hub.policy.domain.state.MatchRequestSentStateBase;
+import uk.gov.ida.hub.policy.domain.state.AbstractMatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateBase;
+import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
@@ -25,9 +25,9 @@ import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.wrongInResponseTo;
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.wrongResponseIssuer;
 
-public abstract class MatchRequestSentStateControllerBase<T extends MatchRequestSentStateBase, U extends SuccessfulMatchStateBase> implements ResponseProcessingStateController, WaitingForMatchingServiceResponseStateController, ErrorResponsePreparedStateController {
+public abstract class AbstractMatchRequestSentStateController<T extends AbstractMatchRequestSentState, U extends AbstractSuccessfulMatchState> implements ResponseProcessingStateController, WaitingForMatchingServiceResponseStateController, ErrorResponsePreparedStateController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MatchRequestSentStateControllerBase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractMatchRequestSentStateController.class);
 
     private final StateTransitionAction stateTransitionAction;
     private final LevelOfAssuranceValidator validator;
@@ -38,7 +38,7 @@ public abstract class MatchRequestSentStateControllerBase<T extends MatchRequest
     protected PolicyConfiguration policyConfiguration;
     protected AttributeQueryService attributeQueryService;
 
-    public MatchRequestSentStateControllerBase(
+    public AbstractMatchRequestSentStateController(
             final T state,
             final StateTransitionAction stateTransitionAction,
             final EventSinkHubEventLogger eventSinkHubEventLogger,

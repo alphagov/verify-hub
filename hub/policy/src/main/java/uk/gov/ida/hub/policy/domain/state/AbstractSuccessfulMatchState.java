@@ -12,13 +12,13 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Objects;
 
-public abstract class SuccessfulMatchStateBase extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
+public abstract class AbstractSuccessfulMatchState extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
     private final String identityProviderEntityId;
     private final String matchingServiceAssertion;
     private final Optional<String> relayState;
     private final LevelOfAssurance levelOfAssurance;
 
-    public SuccessfulMatchStateBase(
+    public AbstractSuccessfulMatchState(
             String requestId,
             DateTime sessionExpiryTimestamp,
             String identityProviderEntityId,
@@ -71,7 +71,7 @@ public abstract class SuccessfulMatchStateBase extends AbstractState implements 
             return false;
         }
 
-        SuccessfulMatchStateBase that = (SuccessfulMatchStateBase) o;
+        AbstractSuccessfulMatchState that = (AbstractSuccessfulMatchState) o;
 
         return Objects.equals(identityProviderEntityId, that.identityProviderEntityId) &&
             Objects.equals(matchingServiceAssertion, that.matchingServiceAssertion) &&

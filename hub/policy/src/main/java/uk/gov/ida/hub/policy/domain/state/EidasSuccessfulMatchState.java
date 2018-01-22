@@ -7,7 +7,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 
-public class EidasSuccessfulMatchState extends SuccessfulMatchStateBase {
+public class EidasSuccessfulMatchState extends AbstractSuccessfulMatchState {
 
     public EidasSuccessfulMatchState(
             String requestId,
