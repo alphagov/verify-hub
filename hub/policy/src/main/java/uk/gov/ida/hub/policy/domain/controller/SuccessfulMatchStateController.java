@@ -13,9 +13,9 @@ public class SuccessfulMatchStateController extends AbstractSuccessfulMatchState
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
     public SuccessfulMatchStateController(
-            SuccessfulMatchState state,
-            ResponseFromHubFactory responseFromHubFactory,
-            IdentityProvidersConfigProxy identityProvidersConfigProxy) {
+            final SuccessfulMatchState state,
+            final ResponseFromHubFactory responseFromHubFactory,
+            final IdentityProvidersConfigProxy identityProvidersConfigProxy) {
 
         super(state, responseFromHubFactory);
 
