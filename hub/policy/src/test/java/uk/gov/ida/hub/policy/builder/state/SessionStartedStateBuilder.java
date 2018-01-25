@@ -6,9 +6,13 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SessionStartedStateBuilder {
 
     private String requestId = "requestId";
+    private List<String> availableIdpEntityIds = new ArrayList<>();
     private DateTime sessionExpiryTimestamp = DateTime.now().plusDays(5);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private boolean transactionSupportsEidas = false;
@@ -24,6 +28,7 @@ public class SessionStartedStateBuilder {
                 null,
                 null,
                 null,
+                availableIdpEntityIds,
                 sessionExpiryTimestamp,
                 sessionId,
                 transactionSupportsEidas);
@@ -31,6 +36,11 @@ public class SessionStartedStateBuilder {
 
     public SessionStartedStateBuilder withRequestId(String requestId) {
         this.requestId = requestId;
+        return this;
+    }
+
+    public SessionStartedStateBuilder withAvailableIdpEntityIds(List<String> availableIdpEntityIds) {
+        this.availableIdpEntityIds = availableIdpEntityIds;
         return this;
     }
 

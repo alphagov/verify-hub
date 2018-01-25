@@ -21,7 +21,6 @@ public class Cycle0And1MatchRequestSentState extends MatchRequestSentState {
         final URI assertionConsumerServiceUri,
         final SessionId sessionId,
         final boolean transactionSupportsEidas,
-        final boolean registering,
         final String identityProviderEntityId,
         final Optional<String> relayState,
         final LevelOfAssurance idpLevelOfAssurance,
@@ -40,7 +39,6 @@ public class Cycle0And1MatchRequestSentState extends MatchRequestSentState {
             identityProviderEntityId,
             relayState,
             idpLevelOfAssurance,
-            registering,
             matchingServiceAdapterEntityId
         );
 

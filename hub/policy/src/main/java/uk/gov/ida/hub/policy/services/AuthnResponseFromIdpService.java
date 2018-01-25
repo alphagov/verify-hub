@@ -166,7 +166,7 @@ public class AuthnResponseFromIdpService {
     }
 
     private ResponseAction handlePendingResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIpAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {
-        idpSelectedStateController.handlePausedRegistrationResponseFromIdp(inboundResponseFromIdpDto.getIssuer(), principalIpAddressAsSeenByHub, inboundResponseFromIdpDto.getLevelOfAssurance().toJavaUtil());
+        idpSelectedStateController.handlePausedRegistrationResponseFromIdp(inboundResponseFromIdpDto.getIssuer(), principalIpAddressAsSeenByHub);
         return pending(sessionId);
     }
 }

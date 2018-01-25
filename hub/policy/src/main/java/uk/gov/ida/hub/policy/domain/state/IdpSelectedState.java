@@ -21,7 +21,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     private final Optional<Boolean> forceAuthentication;
     private final Optional<String> relayState;
     private final boolean registering;
-    private final LevelOfAssurance requestedLoa;
     private final List<String> availableIdentityProviders;
 
     public IdpSelectedState(
@@ -36,7 +35,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             Optional<String> relayState,
             DateTime sessionExpiryTimestamp,
             boolean registering,
-            LevelOfAssurance requestedLoa,
             SessionId sessionId,
             List<String> availableIdentityProviders,
             boolean transactionSupportsEidas) {
@@ -50,7 +48,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         this.forceAuthentication = forceAuthentication;
         this.relayState = relayState;
         this.registering = registering;
-        this.requestedLoa = requestedLoa;
         this.availableIdentityProviders = availableIdentityProviders;
     }
 
@@ -66,16 +63,13 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         return relayState;
     }
 
+    @Override
     public List<String> getAvailableIdentityProviderEntityIds() {
         return availableIdentityProviders;
     }
 
-    public boolean isRegistering() {
+    public boolean registering() {
         return registering;
-    }
-
-    public LevelOfAssurance getRequestedLoa() {
-        return requestedLoa;
     }
 
     public String getMatchingServiceEntityId() {

@@ -17,7 +17,6 @@ import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.IdpSelected;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -33,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Collections;
 
 import static java.text.MessageFormat.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +45,6 @@ public class SessionTimeoutIntegrationTests {
     public static final String THE_TX_ID = "the-tx-id";
     private static Client client;
     private static final boolean REGISTERING = true;
-    private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
 
     @ClassRule
     public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
@@ -77,6 +76,7 @@ public class SessionTimeoutIntegrationTests {
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
         samlEngineStub.setupStubForAuthnRequestTranslate(samlResponse);
+        configStub.setupStubForEnabledIdps(Collections.singletonList("Idp"));
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         eventSinkStub.setupStubForLogging();
         configStub.setUpStubForAssertionConsumerServiceUri(samlResponse.getIssuer());
@@ -100,7 +100,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA),
+        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING),
                 SESSION_TIMEOUT);
     }
 
@@ -113,7 +113,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA), ExceptionType
+        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING), ExceptionType
                 .SESSION_NOT_FOUND);
     }
 

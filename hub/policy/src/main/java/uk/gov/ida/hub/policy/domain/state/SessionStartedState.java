@@ -7,9 +7,11 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.List;
 
 public class SessionStartedState extends AbstractState implements IdpSelectingState, CountrySelectingState, ResponseProcessingState, Serializable {
 
+    private final List<String> availableIdentityProviders;
     private final Optional<String> relayState;
     private final Optional<Boolean> forceAuthentication;
 
@@ -19,6 +21,7 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
             String requestIssuerId,
             URI assertionConsumerServiceUri,
             Optional<Boolean> forceAuthentication,
+            List<String> availableIdentityProviders,
             DateTime sessionExpiryTimestamp,
             SessionId sessionId,
             boolean transactionSupportsEidas) {
@@ -27,6 +30,11 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
 
         this.relayState = relayState;
         this.forceAuthentication = forceAuthentication;
+        this.availableIdentityProviders = availableIdentityProviders;
+    }
+
+    public List<String> getAvailableIdentityProviderEntityIds() {
+        return availableIdentityProviders;
     }
 
     public Optional<String> getRelayState() {

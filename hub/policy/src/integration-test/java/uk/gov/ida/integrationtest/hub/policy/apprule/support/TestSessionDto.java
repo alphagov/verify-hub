@@ -27,7 +27,6 @@ public class TestSessionDto {
     private boolean registering;
     private List<String> availableIdentityProviders;
     private boolean transactionSupportsEidas;
-    private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_2;
 
     @SuppressWarnings("unused") //Needed for JAXB
     private TestSessionDto() {
@@ -69,7 +68,6 @@ public class TestSessionDto {
                           List<LevelOfAssurance> levelsOfAssurance,
                           Boolean useExactComparisonType,
                           Boolean registering,
-                          LevelOfAssurance requestedLoa,
                           Optional<Boolean> forceAuthentication,
                           List<String> availableIdentityProviders,
                           boolean transactionSupportsEidas) {
@@ -84,7 +82,6 @@ public class TestSessionDto {
         this.levelsOfAssurance = levelsOfAssurance;
         this.useExactComparisonType = useExactComparisonType;
         this.registering = registering;
-        this.requestedLoa = requestedLoa;
         this.forceAuthentication = forceAuthentication;
         this.availableIdentityProviders = availableIdentityProviders;
         this.transactionSupportsEidas = transactionSupportsEidas;
@@ -128,10 +125,6 @@ public class TestSessionDto {
 
     public boolean isRegistering() {
         return registering;
-    }
-
-    public LevelOfAssurance getRequestedLoa() {
-        return requestedLoa;
     }
 
     public String getMatchingServiceEntityId() {
