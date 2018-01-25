@@ -31,15 +31,11 @@ public class ConfigStubRule extends HttpStubRule {
 
     private final int OK = Response.Status.OK.getStatusCode();
 
-    public void setupStubForEnabledIdps(String transactionEntityId, boolean registering, LevelOfAssurance supportedLoa, Collection<String> enabledIdps) throws JsonProcessingException {
-        if (registering) {
-            setupStubForEnabledIdpsForLoa(transactionEntityId, supportedLoa, enabledIdps);
+    public void setupStubForEnabledIdps(Collection<String> enabledIdps) throws JsonProcessingException {
+        register(Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_RESOURCE, OK, enabledIdps);
+        for(String idpEntityId:enabledIdps) {
+            register(UriBuilder.fromPath(Urls.ConfigUrls.IDENTITY_PROVIDER_CONFIG_DATA_RESOURCE).build(idpEntityId).getPath(), OK, IdpConfigDtoBuilder.anIdpConfigDto().withLevelsOfAssurance(LevelOfAssurance.LEVEL_2).build());
         }
-        else {
-            setupStubForEnabledIdpsForSignIn(transactionEntityId, enabledIdps);
-        }
-
-        setupStubForIdpConfig(enabledIdps, supportedLoa);
     }
 
     public void setUpStubForEnabledCountries(String rpEntityId, Collection<EidasCountryDto> enabledCountries) throws JsonProcessingException {
@@ -82,7 +78,7 @@ public class ConfigStubRule extends HttpStubRule {
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.LEVELS_OF_ASSURANCE_RESOURCE)
             .build(StringEncoding.urlEncode(entityId).replace("+", "%20"))
             .getPath();
-        register(uri, OK, asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
+        register(uri, OK, asList(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_2));
     }
 
     public void setUpStubForMatchingServiceRequest(String rpEntityId, String matchingServiceEntityId) throws JsonProcessingException {
@@ -155,19 +151,5 @@ public class ConfigStubRule extends HttpStubRule {
             .build(StringEncoding.urlEncode(rpEntityId).replace("+", "%20"))
             .getPath();
         register(uri, OK, countryEntityIds);
-    }
-
-    private void setupStubForEnabledIdpsForLoa(String transactionEntityId, LevelOfAssurance supportedLoa, Collection<String> enabledIdps) throws JsonProcessingException {
-        register(UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_LOA_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(transactionEntityId), supportedLoa).getPath(), OK, enabledIdps);
-    }
-
-    private void setupStubForEnabledIdpsForSignIn(String transactionEntityId, Collection<String> enabledIdps) throws JsonProcessingException {
-        register(UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_SIGN_IN_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(transactionEntityId)).getPath(), OK, enabledIdps);
-    }
-
-    private void setupStubForIdpConfig(Collection<String> enabledIdps, LevelOfAssurance supportedLoa) throws JsonProcessingException {
-        for(String idpEntityId:enabledIdps) {
-            register(UriBuilder.fromPath(Urls.ConfigUrls.IDENTITY_PROVIDER_CONFIG_DATA_RESOURCE).build(idpEntityId).getPath(), OK, IdpConfigDtoBuilder.anIdpConfigDto().withLevelsOfAssurance(supportedLoa).build());
-        }
     }
 }

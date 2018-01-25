@@ -23,26 +23,9 @@ public class UserAccountCreationRequestSentStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private boolean transactionSupportsEidas = false;
-    private boolean registering = false;
 
     public static UserAccountCreationRequestSentStateBuilder aUserAccountCreationRequestSentState() {
         return new UserAccountCreationRequestSentStateBuilder();
-    }
-
-    public UserAccountCreationRequestSentState build() {
-        return new UserAccountCreationRequestSentState(
-                requestId,
-                requestIssuerId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceUri,
-                sessionId,
-                transactionSupportsEidas,
-                identityProviderEntityId,
-                relayState,
-                levelOfAssurance,
-                registering,
-                "matchingServiceEntityId"
-        );
     }
 
     public UserAccountCreationRequestSentStateBuilder withRelayState(Optional<String> relayState) {
@@ -50,8 +33,18 @@ public class UserAccountCreationRequestSentStateBuilder {
         return this;
     }
 
-    public UserAccountCreationRequestSentStateBuilder withRegistering(boolean registering) {
-        this.registering = registering;
-        return this;
+    public UserAccountCreationRequestSentState build() {
+        return new UserAccountCreationRequestSentState(
+            requestId,
+            requestIssuerId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            identityProviderEntityId,
+            relayState,
+            levelOfAssurance,
+            "matchingServiceEntityId"
+        );
     }
 }

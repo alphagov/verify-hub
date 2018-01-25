@@ -23,7 +23,6 @@ public class UserAccountCreatedStateBuilder {
     private Optional<String> relayState = absent();
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
     private boolean transactionSupportsEidas = false;
-    private boolean registering = false;
 
     public static UserAccountCreatedStateBuilder aUserAccountCreatedState() {
         return new UserAccountCreatedStateBuilder();
@@ -40,7 +39,6 @@ public class UserAccountCreatedStateBuilder {
                 matchingServiceAssertion,
                 relayState,
                 levelOfAssurance,
-                registering,
                 transactionSupportsEidas);
     }
 
@@ -51,11 +49,6 @@ public class UserAccountCreatedStateBuilder {
 
     public UserAccountCreatedStateBuilder withRelayState(Optional<String> relayState) {
         this.relayState = relayState;
-        return this;
-    }
-
-    public UserAccountCreatedStateBuilder withRegistering(boolean registering) {
-        this.registering = registering;
         return this;
     }
 }

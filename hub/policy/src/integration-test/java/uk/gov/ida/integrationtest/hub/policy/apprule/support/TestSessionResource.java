@@ -4,13 +4,7 @@ import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.*;
 import uk.gov.ida.integrationtest.hub.policy.rest.Cycle3DTO;
 import uk.gov.ida.integrationtest.hub.policy.rest.EidasCycle3DTO;
 
@@ -23,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 
 import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM;
 import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM_PATH;
@@ -46,6 +41,7 @@ public class TestSessionResource {
     public static final String AWAITING_CYCLE_3_DATA_STATE = "/awaiting-cycle-3-data-state";
     public static final String EIDAS_AWAITING_CYCLE_3_DATA_STATE = "/eidas-awaiting-cycle-3-data-state";
     public static final String GET_SESSION_STATE_NAME = "/session-state-name" + SESSION_ID_PARAM_PATH;
+    public static final String GET_SESSION_STATE = "/session-state" + SESSION_ID_PARAM_PATH;
     public static final String AUTHN_FAILED_STATE = "/session-authn-failed-state";
 
     private TestSessionRepository testSessionRepository;
@@ -69,7 +65,6 @@ public class TestSessionResource {
                         testSessionDto.getAssertionConsumerServiceUri(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getLevelsOfAssurance().get(testSessionDto.getLevelsOfAssurance().size()-1),
-                        testSessionDto.isRegistering(),
                         testSessionDto.getTransactionSupportsEidas())
                         );
         return Response.ok().build();
@@ -110,7 +105,6 @@ public class TestSessionResource {
                         testSessionDto.getRelayState(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.isRegistering(),
-                        testSessionDto.getRequestedLoa(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getAvailableIdentityProviders(),
                         testSessionDto.getTransactionSupportsEidas())
@@ -127,7 +121,8 @@ public class TestSessionResource {
                         testSessionDto.getRelayState(),
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getAssertionConsumerServiceUri(),
-                        Optional.absent(),
+                        Optional.<Boolean>absent(),
+                        Collections.<String>emptyList(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getTransactionSupportsEidas()));
@@ -152,7 +147,6 @@ public class TestSessionResource {
                         dto.getSessionId(),
                         dto.getPersistentId(),
                         dto.getLevelOfAssurance(),
-                        dto.isRegistering(),
                         dto.getTransactionSupportsEidas()));
 
 
@@ -196,6 +190,7 @@ public class TestSessionResource {
                         testSessionDto.getRelayState(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getIdentityProviderEntityId(),
+                        testSessionDto.getAvailableIdentityProviders(),
                         testSessionDto.getForceAuthentication(),
                         testSessionDto.getTransactionSupportsEidas())
         );

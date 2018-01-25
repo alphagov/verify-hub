@@ -18,27 +18,7 @@ import uk.gov.ida.hub.policy.PolicyModule;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.controller.AuthnFailedErrorStateController;
-import uk.gov.ida.hub.policy.domain.controller.AwaitingCycle3DataStateController;
-import uk.gov.ida.hub.policy.domain.controller.CountrySelectedStateController;
-import uk.gov.ida.hub.policy.domain.controller.Cycle0And1MatchRequestSentStateController;
-import uk.gov.ida.hub.policy.domain.controller.Cycle3DataInputCancelledStateController;
-import uk.gov.ida.hub.policy.domain.controller.Cycle3MatchRequestSentStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasAwaitingCycle3DataStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasCycle0And1MatchRequestSentStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasSuccessfulMatchStateController;
-import uk.gov.ida.hub.policy.domain.controller.FraudEventDetectedStateController;
-import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
-import uk.gov.ida.hub.policy.domain.controller.MatchingServiceRequestErrorStateController;
-import uk.gov.ida.hub.policy.domain.controller.NoMatchStateController;
-import uk.gov.ida.hub.policy.domain.controller.RequesterErrorStateController;
-import uk.gov.ida.hub.policy.domain.controller.SessionStartedStateController;
-import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
-import uk.gov.ida.hub.policy.domain.controller.SuccessfulMatchStateController;
-import uk.gov.ida.hub.policy.domain.controller.TimeoutStateController;
-import uk.gov.ida.hub.policy.domain.controller.UserAccountCreatedStateController;
-import uk.gov.ida.hub.policy.domain.controller.UserAccountCreationFailedStateController;
-import uk.gov.ida.hub.policy.domain.controller.UserAccountCreationRequestSentStateController;
+import uk.gov.ida.hub.policy.domain.controller.*;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.jerseyclient.JsonClient;
@@ -149,7 +129,7 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateAnEidasSuccessfulMatchController() {
+    public void build_shouldCreateAEidasSuccessfulMatchController() {
         StateController controller = factory.build(aEidasSuccessfulMatchState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);

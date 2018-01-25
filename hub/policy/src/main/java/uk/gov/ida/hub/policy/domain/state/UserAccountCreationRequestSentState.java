@@ -20,7 +20,6 @@ public class UserAccountCreationRequestSentState extends MatchRequestSentState i
         final String identityProviderEntityId,
         final Optional<String> relayState,
         final LevelOfAssurance idpLevelOfAssurance,
-        final boolean registering,
         final String matchingServiceAdapterEntityId) {
 
         super(
@@ -33,7 +32,6 @@ public class UserAccountCreationRequestSentState extends MatchRequestSentState i
             identityProviderEntityId,
             relayState,
             idpLevelOfAssurance,
-            registering,
             matchingServiceAdapterEntityId
         );
     }

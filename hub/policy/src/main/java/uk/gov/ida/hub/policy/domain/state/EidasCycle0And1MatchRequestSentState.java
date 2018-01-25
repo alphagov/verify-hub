@@ -9,7 +9,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.net.URI;
 import java.util.Objects;
 
-public final class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentState {
+public final class EidasCycle0And1MatchRequestSentState extends MatchRequestSentState {
 
     private final String encryptedIdentityAssertion;
     private final PersistentId persistentId;

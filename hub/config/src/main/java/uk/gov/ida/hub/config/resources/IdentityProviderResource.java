@@ -102,6 +102,7 @@ public class IdentityProviderResource {
         );
     }
 
+
     @GET
     @Path(Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PATH)
     @Timed
@@ -117,7 +118,7 @@ public class IdentityProviderResource {
     @Timed
     @Deprecated
     public Collection<String> getEnabledIdentityProviderEntityIdsPathParam(
-            @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
+            @PathParam(Urls.ConfigUrls.ENTITY_ID_PATH_PARAM) final Optional<String> transactionEntityId) {
 
         Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityData(transactionEntityId);
 
@@ -128,8 +129,8 @@ public class IdentityProviderResource {
     @Path(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_SIGN_IN_PATH)
     @Timed
     public Collection<String> getEnabledIdentityProviderEntityIdsForSignIn(
-            @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final String transactionEntityId) {
-        return getIdpListForSignIn(transactionEntityId).stream().map(IdpDto::getEntityId).collect(Collectors.toList());
+            @PathParam(Urls.ConfigUrls.ENTITY_ID_PATH_PARAM) final String transactionEntityId) {
+        return getIdpListForSignIn(transactionEntityId).stream().map(idp -> idp.getEntityId()).collect(Collectors.toList());
     }
 
     @GET
@@ -138,7 +139,7 @@ public class IdentityProviderResource {
     public Collection<String> getEnabledIdentityProviderEntityIdsForLoa(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final String transactionEntityId,
             @PathParam(Urls.SharedUrls.LEVEL_OF_ASSURANCE_PARAM) final LevelOfAssurance levelOfAssurance) {
-        return getIdpList(transactionEntityId, levelOfAssurance).stream().map(IdpDto::getEntityId).collect(Collectors.toList());
+        return getIdpList(transactionEntityId, levelOfAssurance).stream().map(idp -> idp.getEntityId()).collect(Collectors.toList());
     }
 
     private IdentityProviderConfigEntityData getIdentityProviderConfigData(String identityProviderEntityId) {

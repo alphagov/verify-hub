@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.text.MessageFormat.format;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
@@ -90,14 +91,13 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     private Cycle0And1MatchRequestSentState state;
 
     @Captor
-    private
     ArgumentCaptor<AttributeQueryRequestDto> attributeQueryRequestCaptor = null;
 
     @Mock
     private StateTransitionAction stateTransitionAction;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         state = aCycle0And1MatchRequestSentState()
                 .withMatchingServiceEntityId(MATCHING_SERVICE_ENTITY_ID)
                 .withRequestIssuerEntityId(TRANSACTION_ENTITY_ID)
@@ -118,7 +118,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
+    public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() throws Exception {
         final String responseIssuerId = "wrong issuer";
         MatchFromMatchingService matchFromMatchingService =
                 aMatchFromMatchingService()
@@ -134,13 +134,13 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextState_shouldReturnNoMatchStateWhenTransactionDoesNotSupportCycle3AndMatchingServiceReturnsNoMatchAndUserAccountCreationIsDisabled() {
+    public void getNextState_shouldReturnNoMatchStateWhenTransactionDoesNotSupportCycle3AndMatchingServiceReturnsNoMatchAndUserAccountCreationIsDisabled() throws Exception {
         //Given
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID))
-                .thenReturn(new MatchingProcess(Optional.absent()));
+                .thenReturn(new MatchingProcess(Optional.<String>absent()));
 
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID))
-                .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.<UserAccountCreationAttribute>emptyList());
 
         //When
         final State nextState = controller.getNextStateForNoMatch();
@@ -150,13 +150,13 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextState_shouldReturnUserAccountCreationRequestSentStateWhenTransactionDoesNotSupportCycle3AndSupportsUserAccountCreation() {
+    public void getNextState_shouldReturnUserAccountCreationRequestSentStateWhenTransactionDoesNotSupportCycle3AndSupportsUserAccountCreation() throws Exception {
         //Given
         URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
-        List<UserAccountCreationAttribute> userAccountCreationAttributes = Collections.singletonList(UserAccountCreationAttribute.DATE_OF_BIRTH);
+        List<UserAccountCreationAttribute> userAccountCreationAttributes = asList(UserAccountCreationAttribute.DATE_OF_BIRTH);
 
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID))
-                .thenReturn(new MatchingProcess(Optional.absent()));
+                .thenReturn(new MatchingProcess(Optional.<String>absent()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID))
                 .thenReturn(userAccountCreationAttributes);
         when(matchingServiceConfigProxy.getMatchingService(anyString()))
@@ -172,13 +172,13 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
 
         AttributeQueryRequestDto actualAttributeQueryRequestDto = attributeQueryRequestCaptor.getValue();
         assertThat(actualAttributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(userAccountCreationUri);
-        assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.of(userAccountCreationAttributes));
+        assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.fromNullable(userAccountCreationAttributes));
 
         assertThat(nextState).isInstanceOf(UserAccountCreationRequestSentState.class);
     }
 
     @Test
-    public void getNextState_shouldGetAwaitingCycle3DataStateWhenTransactionSupportsCycle3() {
+    public void getNextState_shouldGetAwaitingCycle3DataStateWhenTransactionSupportsCycle3() throws Exception {
         //Given
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(matchingProcess);
         when(matchingProcess.getAttributeName()).thenReturn(Optional.of("somestring"));
@@ -193,9 +193,9 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle0And1NoMatchResponseFromMatchingService_shouldLogRelevantEvents() {
+    public void cycle0And1NoMatchResponseFromMatchingService_shouldLogRelevantEvents() throws Exception {
         // Given
-        when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.absent()));
+        when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.<String>absent()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID)).thenReturn(Collections.emptyList());
         NoMatchFromMatchingService noMatchFromMatchingService = new NoMatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID);
 
@@ -208,11 +208,11 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle0And1SuccessfulMatchResponseFromMatchingService_shouldLogRelevantEvents() {
+    public void cycle0And1SuccessfulMatchResponseFromMatchingService_shouldLogRelevantEvents() throws Exception {
         List<UserAccountCreationAttribute> userAccountCreationAttributes = Collections.singletonList(UserAccountCreationAttribute.DATE_OF_BIRTH);
 
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID))
-                .thenReturn(new MatchingProcess(Optional.absent()));
+                .thenReturn(new MatchingProcess(Optional.<String>absent()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID))
                 .thenReturn(userAccountCreationAttributes);
 
@@ -224,7 +224,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle0And1NoMatchResponseFromMatchingServiceWhenC3Enabled_shouldLogRelevantEvents() {
+    public void cycle0And1NoMatchResponseFromMatchingServiceWhenC3Enabled_shouldLogRelevantEvents() throws Exception {
         MatchingProcess matchingProcess = mock(MatchingProcess.class);
         when(matchingProcess.getAttributeName()).thenReturn(Optional.of("BLOCKBUSTER_CARD"));
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(matchingProcess);
@@ -238,8 +238,8 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle0And1NoMatchResponseFromMatchingServiceWhenC3NotEnabled_shouldNotLogWaitingForCycle3AttributesEventToEventSink() {
-        when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.absent()));
+    public void cycle0And1NoMatchResponseFromMatchingServiceWhenC3NotEnabled_shouldNotLogWaitingForCycle3AttributesEventToEventSink() throws Exception {
+        when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.<String>absent()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID)).thenReturn(Collections.emptyList());
 
         NoMatchFromMatchingService noMatchFromMatchingService = new NoMatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID);
@@ -249,20 +249,20 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void shouldReturnErrorResponseWhenAskedAndInCycle0And1MatchRequestSentState() {
+    public void shouldReturnErrorResponseWhenAskedAndInCycle0And1MatchRequestSentState() throws Exception {
         final ResponseFromHub responseFromHub = controller.getErrorResponse();
         assertThat(responseFromHub.getStatus()).isEqualTo(TransactionIdaStatus.NoAuthenticationContext);
     }
 
     @Test
-    public void shouldReturnWaitResponseWhenAskedAndInCycle0And1MatchRequestSentState() {
+    public void shouldReturnWaitResponseWhenAskedAndInCycle0And1MatchRequestSentState() throws Exception {
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));
         final ResponseProcessingDetails responseProcessingDetails = controller.getResponseProcessingDetails();
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.WAIT);
     }
 
     @Test
-    public void responseProcessingDetails_shouldReturnCompleteStatus_successResponseSentFromMatchingService() {
+    public void responseProcessingDetails_shouldReturnCompleteStatus_successResponseSentFromMatchingService() throws Exception {
         ArgumentCaptor<SuccessfulMatchState> argumentCaptor = ArgumentCaptor.forClass(SuccessfulMatchState.class);
         MatchFromMatchingService matchFromMatchingService = new MatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID, "assertionBlob", Optional.of(LevelOfAssurance.LEVEL_1));
 
@@ -279,10 +279,10 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void responseProcessingDetails_shouldReturnNoMatchStatus_noMatchResponseSentFromMatchingService() {
+    public void responseProcessingDetails_shouldReturnNoMatchStatus_noMatchResponseSentFromMatchingService() throws Exception {
         ArgumentCaptor<NoMatchState> argumentCaptor = ArgumentCaptor.forClass(NoMatchState.class);
         NoMatchFromMatchingService noMatchFromMatchingService = new NoMatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID);
-        when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.absent()));
+        when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.<String>absent()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID)).thenReturn(Collections.emptyList());
 
         controller.handleNoMatchResponseFromMatchingService(noMatchFromMatchingService);
@@ -294,4 +294,5 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.SEND_NO_MATCH_RESPONSE_TO_TRANSACTION);
         assertThat(responseProcessingDetails.getSessionId()).isEqualTo(state.getSessionId());
     }
+
 }

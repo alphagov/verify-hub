@@ -43,11 +43,6 @@ public class StateProcessingValidationException extends RuntimeException {
                 requestIssuerEntityId, levelsOfAssuranceForTransaction, idpEntityId, idpLevelsOfAssurance), Level.ERROR);
     }
 
-    public static StateProcessingValidationException requestedLevelOfAssuranceUnsupportedByTransactionEntity(String requestIssuerEntityId, List<LevelOfAssurance> levelsOfAssuranceForTransaction, LevelOfAssurance requestedLoa) {
-        return new StateProcessingValidationException(format("Requested Level Of Assurance unsupported by Transaction Entity. Transaction Entity: {0}, transaction LOAs {1}, requested LOA: {2}",
-                requestIssuerEntityId, levelsOfAssuranceForTransaction, requestedLoa), Level.ERROR);
-    }
-
     public static StateProcessingValidationException idpReturnedUnsupportedLevelOfAssurance(LevelOfAssurance levelOfAssurance, String requestId, String issuer) {
         return new StateProcessingValidationException(format("Response to request ID [{0}] contains LOA {1} we do not accept from IDP [{2}]", requestId, levelOfAssurance, issuer), Level.ERROR);
     }

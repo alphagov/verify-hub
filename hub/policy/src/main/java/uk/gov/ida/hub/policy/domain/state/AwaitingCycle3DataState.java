@@ -12,7 +12,6 @@ import java.net.URI;
 public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState implements ResponseProcessingState, Serializable {
     private final String encryptedMatchingDatasetAssertion;
     private final String authnStatementAssertion;
-    private final boolean registering;
 
     public AwaitingCycle3DataState(
             String requestId,
@@ -27,7 +26,6 @@ public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState imp
             SessionId sessionId,
             PersistentId persistentId,
             LevelOfAssurance levelOfAssurance,
-            boolean registering,
             boolean transactionSupportsEidas) {
 
         super(
@@ -45,7 +43,6 @@ public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState imp
 
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
         this.authnStatementAssertion = authnStatementAssertion;
-        this.registering = registering;
     }
     public String getAuthnStatementAssertion() {
         return authnStatementAssertion;
@@ -53,9 +50,5 @@ public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState imp
 
     public String getEncryptedMatchingDatasetAssertion() {
         return encryptedMatchingDatasetAssertion;
-    }
-
-    public boolean isRegistering() {
-        return registering;
     }
 }

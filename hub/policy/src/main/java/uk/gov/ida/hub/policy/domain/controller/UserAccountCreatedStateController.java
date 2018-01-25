@@ -11,6 +11,8 @@ import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
 import java.util.Collection;
 
+import static com.google.common.base.Optional.fromNullable;
+
 public class UserAccountCreatedStateController implements StateController, ResponseProcessingStateController, ResponsePreparedStateController, ErrorResponsePreparedStateController {
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
     private final UserAccountCreatedState state;
@@ -36,7 +38,7 @@ public class UserAccountCreatedStateController implements StateController, Respo
     @Override
     public ResponseFromHub getPreparedResponse() {
         Collection<String> enabledIdentityProviders = identityProvidersConfigProxy.getEnabledIdentityProviders(
-                state.getRequestIssuerEntityId(), state.isRegistering(), state.getLevelOfAssurance());
+                fromNullable(state.getRequestIssuerEntityId()));
 
         if (!enabledIdentityProviders.contains(state.getIdentityProviderEntityId())) {
             throw new IdpDisabledException(state.getIdentityProviderEntityId());

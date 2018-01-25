@@ -84,7 +84,6 @@ public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3Dat
             getState().getIdentityProviderEntityId(),
             getState().getRelayState(),
             getState().getLevelOfAssurance(),
-            getState().isRegistering(),
             getState().getMatchingServiceEntityId(),
             getState().getEncryptedMatchingDatasetAssertion(),
             getState().getAuthnStatementAssertion(),
