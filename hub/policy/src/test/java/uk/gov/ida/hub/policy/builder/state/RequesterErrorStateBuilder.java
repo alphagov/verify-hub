@@ -6,8 +6,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 
 public class RequesterErrorStateBuilder {
 
@@ -18,7 +16,6 @@ public class RequesterErrorStateBuilder {
     private Optional<String> relayState = Optional.of("relayState");
     private SessionId sessionId = SessionId.createNewSessionId();
     private Optional<Boolean> forceAuthentication = Optional.of(false);
-    private List<String> availableIdentityProviderEntityIds = Collections.emptyList();
     private boolean transactionSupportsEidas = false;
 
     public static RequesterErrorStateBuilder aRequesterErrorState() {
@@ -34,7 +31,6 @@ public class RequesterErrorStateBuilder {
             relayState,
             sessionId,
             forceAuthentication,
-            availableIdentityProviderEntityIds,
             transactionSupportsEidas);
     }
 

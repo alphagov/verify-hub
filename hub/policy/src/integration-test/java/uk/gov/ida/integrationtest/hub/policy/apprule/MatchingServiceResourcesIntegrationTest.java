@@ -61,13 +61,15 @@ import java.util.UUID;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static java.text.MessageFormat.format;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
 
 public class MatchingServiceResourcesIntegrationTest {
 
-    public static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
+    private static final String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
+    private static final boolean REGISTERING = true;
 
     private static Client client;
 
@@ -100,7 +102,6 @@ public class MatchingServiceResourcesIntegrationTest {
     private URI idpSsoUri;
     private SamlResponseWithAuthnRequestInformationDto translatedAuthnRequest;
     private SamlAuthnRequestContainerDto rpSamlRequest;
-    private boolean registering = true;
 
     @BeforeClass
     public static void beforeClass() {
@@ -118,7 +119,7 @@ public class MatchingServiceResourcesIntegrationTest {
         idpSsoUri = UriBuilder.fromPath("idpSsoUri").build();
         
         configStub.reset();
-        configStub.setupStubForEnabledIdps(asList(idpEntityId));
+        configStub.setupStubForEnabledIdps(rpEntityId, REGISTERING, LEVEL_2, singletonList(idpEntityId));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
         configStub.setUpStubForMatchingServiceEntityId(rpEntityId, msaEntityId);
         configStub.setupStubForEidasEnabledForTransaction(rpEntityId, false);
@@ -143,7 +144,7 @@ public class MatchingServiceResourcesIntegrationTest {
                         translatedAuthnRequest.getId(),
                         msaEntityId,
                         Optional.of("assertionBlob"),
-                        Optional.of(LevelOfAssurance.LEVEL_2));
+                        Optional.of(LEVEL_2));
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
@@ -189,7 +190,7 @@ public class MatchingServiceResourcesIntegrationTest {
                         "a-different-request-id",
                         msaEntityId,
                         Optional.of("assertionBlob"),
-                        Optional.of(LevelOfAssurance.LEVEL_2));
+                        Optional.of(LEVEL_2));
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
@@ -216,7 +217,7 @@ public class MatchingServiceResourcesIntegrationTest {
                         "a-thoroughly-different-request-id",
                         msaEntityId,
                         Optional.of("assertionBlob"),
-                        Optional.of(LevelOfAssurance.LEVEL_2));
+                        Optional.of(LEVEL_2));
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
@@ -476,7 +477,7 @@ public class MatchingServiceResourcesIntegrationTest {
                         translatedAuthnRequest.getId(),
                         msaEntityId,
                         Optional.of("assertionBlob"),
-                        Optional.of(LevelOfAssurance.LEVEL_2));
+                        Optional.of(LEVEL_2));
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
@@ -563,7 +564,7 @@ public class MatchingServiceResourcesIntegrationTest {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath());
 
         SamlAuthnResponseContainerDto samlAuthnResponseContainerDto = new SamlAuthnResponseContainerDto("saml-response", new SessionId(sessionId.getSessionId()), "principal-ip-address");
-        InboundResponseFromIdpDto inboundResponseFromIdpDto = InboundResponseFromIdpDtoBuilder.successResponse(idpEntityId, LevelOfAssurance.LEVEL_2);
+        InboundResponseFromIdpDto inboundResponseFromIdpDto = InboundResponseFromIdpDtoBuilder.successResponse(idpEntityId, LEVEL_2);
         configStub.setUpStubForMatchingServiceRequest(rpEntityId, msaEntityId);
         samlEngineStub.setupStubForAttributeQueryRequest(AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto().build());
         samlEngineStub.setupStubForIdpAuthnResponseTranslate(inboundResponseFromIdpDto);
@@ -574,7 +575,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
-        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", registering));
+        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, LEVEL_2));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {

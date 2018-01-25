@@ -20,6 +20,7 @@ public class SuccessfulMatchStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId getSessionId = SessionIdBuilder.aSessionId().build();
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
+    private boolean isRegistering = false;
     private boolean transactionSupportsEidas = false;
 
     public static SuccessfulMatchStateBuilder aSuccessfulMatchState() {
@@ -37,6 +38,7 @@ public class SuccessfulMatchStateBuilder {
                 assertionConsumerServiceUri,
                 getSessionId,
                 levelOfAssurance,
+                isRegistering,
                 transactionSupportsEidas);
     }
 
@@ -47,6 +49,16 @@ public class SuccessfulMatchStateBuilder {
 
     public SuccessfulMatchStateBuilder withIdentityProviderEntityId(String identityProviderEntityId) {
         this.identityProviderEntityId = identityProviderEntityId;
+        return this;
+    }
+
+    public SuccessfulMatchStateBuilder withRequestIssuerEntityId(String requestIssuerEntityId) {
+        this.requestIssuerId = requestIssuerEntityId;
+        return this;
+    }
+
+    public SuccessfulMatchStateBuilder withRegistering(boolean isRegistering) {
+        this.isRegistering = isRegistering;
         return this;
     }
 }

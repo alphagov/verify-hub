@@ -120,7 +120,7 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateAEidasSuccessfulMatchStateController() {
+    public void shouldCreateASuccessfulEidasMatchStateController() {
         StateController controller = stateControllerFactory.build(aEidasSuccessfulMatchState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);

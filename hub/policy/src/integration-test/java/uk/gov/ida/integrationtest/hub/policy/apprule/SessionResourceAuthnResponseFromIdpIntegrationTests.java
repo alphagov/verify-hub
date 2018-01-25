@@ -49,6 +49,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
 
     public static final String THE_TRANSACTION_ID = "the-transaction-id";
     private static final boolean REGISTERING = true;
+    private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
     private static Client client;
 
     @ClassRule
@@ -97,7 +98,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         samlResponse = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(THE_TRANSACTION_ID).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
-        configStub.setupStubForEnabledIdps(ImmutableList.of(idpEntityId, "differentIdp"));
+        configStub.setupStubForEnabledIdps(THE_TRANSACTION_ID, REGISTERING, REQUESTED_LOA, ImmutableList.of(idpEntityId, "differentIdp"));
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         configStub.setupStubForEidasEnabledForTransaction(THE_TRANSACTION_ID, false);
         eventSinkStub.setupStubForLogging();
@@ -185,7 +186,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
     }
 
     @Test
-    public void responePost_shouldReturnBadRequestWhenIdpIsDifferentThanSelectedIdp() throws JsonProcessingException {
+    public void responsePost_shouldReturnBadRequestWhenIdpIsDifferentThanSelectedIdp() throws JsonProcessingException {
         samlEngineStub.setupStubForIdpAuthnResponseTranslate(InboundResponseFromIdpDtoBuilder.successResponse("differentIdp", LevelOfAssurance.LEVEL_2));
         Response response = postIdpResponse(sessionId, samlResponseDto);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -230,7 +231,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
 
         client.target(policyUri).request()
-                .post(Entity.entity(new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING), MediaType
+                .post(Entity.entity(new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA), MediaType
                         .APPLICATION_JSON_TYPE));
     }
 

@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
@@ -44,6 +45,23 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
     }
 
     @Override
+    protected SuccessfulMatchState createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId) {
+        return new SuccessfulMatchState(
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp(),
+                state.getIdentityProviderEntityId(),
+                matchingServiceAssertion,
+                state.getRelayState(),
+                requestIssuerId,
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getIdpLevelOfAssurance(),
+                state.isRegistering(),
+                state.getTransactionSupportsEidas()
+        );
+    }
+
+    @Override
     protected State getNextStateForUserAccountCreated(UserAccountCreatedFromMatchingService responseFromMatchingService) {
         eventSinkHubEventLogger.logUserAccountCreatedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
 
@@ -58,6 +76,7 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
                 responseFromMatchingService.getMatchingServiceAssertion(),
                 state.getRelayState(),
                 state.getIdpLevelOfAssurance(),
+                state.isRegistering(),
                 state.getTransactionSupportsEidas());
     }
 

@@ -15,7 +15,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
-public class EidasCycle0And1MatchRequestSentStateController extends MatchRequestSentStateController<EidasCycle0And1MatchRequestSentState> {
+public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRequestSentStateController<EidasCycle0And1MatchRequestSentState> {
     private final TransactionsConfigProxy transactionsConfigProxy;
 
     public EidasCycle0And1MatchRequestSentStateController(
@@ -52,24 +52,6 @@ public class EidasCycle0And1MatchRequestSentStateController extends MatchRequest
         return null;
     }
 
-    protected EidasSuccessfulMatchState getEidasSuccessfulMatchState(MatchFromMatchingService responseFromMatchingService) {
-        String matchingServiceAssertion = responseFromMatchingService.getMatchingServiceAssertion();
-        validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
-        String requestIssuerId = state.getRequestIssuerEntityId();
-        return new EidasSuccessfulMatchState(
-                state.getRequestId(),
-                state.getSessionExpiryTimestamp(),
-                state.getIdentityProviderEntityId(),
-                matchingServiceAssertion,
-                state.getRelayState(),
-                requestIssuerId,
-                state.getAssertionConsumerServiceUri(),
-                state.getSessionId(),
-                state.getIdpLevelOfAssurance(),
-                state.getTransactionSupportsEidas()
-        );
-    }
-
     @Override
     protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
         eventSinkHubEventLogger.logCycle01SuccessfulMatchEvent(
@@ -77,7 +59,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends MatchRequest
             state.getRequestIssuerEntityId(),
             state.getRequestId(),
             state.getSessionExpiryTimestamp());
-        return getEidasSuccessfulMatchState(responseFromMatchingService);
+        return getSuccessfulMatchState(responseFromMatchingService);
     }
 
     @Override
@@ -98,6 +80,22 @@ public class EidasCycle0And1MatchRequestSentStateController extends MatchRequest
             state.getRequestId(),
             state.getSessionExpiryTimestamp());
         return getNoMatchState();
+    }
+
+    @Override
+    protected EidasSuccessfulMatchState createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId) {
+        return new EidasSuccessfulMatchState(
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp(),
+                state.getIdentityProviderEntityId(),
+                matchingServiceAssertion,
+                state.getRelayState(),
+                requestIssuerId,
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getIdpLevelOfAssurance(),
+                state.getTransactionSupportsEidas()
+        );
     }
 
     private EidasAwaitingCycle3DataState getAwaitingCycle3DataState() {
