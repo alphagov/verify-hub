@@ -38,6 +38,7 @@ public class CertificateValidityCheckerTest {
     public void setUp() throws Exception {
         certificateDetails = new CertificateDetails("entityId", new SignatureVerificationCertificateBuilder().build(), FederationEntityType.HUB);
         certificateValidityChecker = createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertProvider, certificateChainValidator);
+        when(trustStoreForCertProvider.getTrustStoreFor(certificateDetails.getFederationEntityType())).thenReturn(trustStore);
     }
 
     @Test
@@ -45,7 +46,6 @@ public class CertificateValidityCheckerTest {
         String description = "Certificate invalid";
         CertPathValidatorException certPathValidatorException = new CertPathValidatorException(description);
 
-        when(trustStoreForCertProvider.getTrustStoreFor(certificateDetails.getFederationEntityType())).thenReturn(trustStore);
         when(certificateChainValidator.validate(certificateDetails.getX509(), trustStore)).thenReturn(CertificateValidity.invalid(certPathValidatorException));
 
         ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificateDetails));
@@ -57,7 +57,6 @@ public class CertificateValidityCheckerTest {
 
     @Test
     public void getsEmptyListWhenAllCertificatesAreValid() throws Exception {
-        when(trustStoreForCertProvider.getTrustStoreFor(certificateDetails.getFederationEntityType())).thenReturn(trustStore);
         when(certificateChainValidator.validate(certificateDetails.getX509(), trustStore)).thenReturn(CertificateValidity.valid());
 
         ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificateDetails));
@@ -65,4 +64,21 @@ public class CertificateValidityCheckerTest {
         assertThat(invalidCertificates).isEmpty();
     }
 
+    @Test
+    public void determinesWhenSingleCertificateIsValid() throws Exception {
+        when(certificateChainValidator.validate(certificateDetails.getX509(), trustStore)).thenReturn(CertificateValidity.valid());
+
+        Boolean isCertificateValid = certificateValidityChecker.isValid(certificateDetails);
+
+        assertThat(isCertificateValid).isTrue();
+    }
+
+    @Test
+    public void determinesWhenCertificateIsInValid() throws Exception {
+        when(certificateChainValidator.validate(certificateDetails.getX509(), trustStore)).thenReturn(CertificateValidity.invalid(new CertPathValidatorException()));
+
+        Boolean isCertificateValid = certificateValidityChecker.isValid(certificateDetails);
+
+        assertThat(isCertificateValid).isFalse();
+    }
 }

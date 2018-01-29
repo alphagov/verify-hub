@@ -45,6 +45,14 @@ public class CertificateValidityChecker {
         return copyOf(invalidCertificates);
     }
 
+    public boolean isValid(CertificateDetails certificate) {
+        CertificateValidity certificateValidity = certificateChainValidator.validate(
+                certificate.getX509(),
+                trustStoreForCertificateProvider.getTrustStoreFor(certificate.getFederationEntityType()));
+
+        return certificateValidity.isValid();
+    }
+
     private Function<Map<CertificateDetails, CertificateValidity>, InvalidCertificateDto> toInvalidCertificates() {
         return input -> {
             CertificateDetails certificateDetail = getOnlyElement(input.keySet());
@@ -72,5 +80,4 @@ public class CertificateValidityChecker {
             return ImmutableMap.of(input, certificateValidity);
         };
     }
-
 }

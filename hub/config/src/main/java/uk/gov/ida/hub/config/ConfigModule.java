@@ -6,11 +6,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import io.dropwizard.configuration.ConfigurationFactoryFactory;
 import io.dropwizard.configuration.DefaultConfigurationFactoryFactory;
+import uk.gov.ida.common.shared.security.Certificate;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPPKIXParametersProvider;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
+import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
 import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
@@ -74,5 +76,6 @@ public class ConfigModule extends AbstractModule {
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
         bind(OCSPPKIXParametersProvider.class).toInstance(new OCSPPKIXParametersProvider());
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
+        bind(CertificateService.class);
     }
 }
