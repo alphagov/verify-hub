@@ -3,8 +3,8 @@ package uk.gov.ida.hub.policy.domain.controller;
 import uk.gov.ida.hub.policy.domain.IdpConfigDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectingStateTransitional;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -15,12 +15,12 @@ public class IdpSelector {
 
     private IdpSelector() {}
 
-    public static IdpSelectedState buildIdpSelectedState(IdpSelectingState state,
-                                                         String idpEntityId,
-                                                         boolean registering,
-                                                         LevelOfAssurance requestedLoa,
-                                                         TransactionsConfigProxy transactionsConfigProxy,
-                                                         IdentityProvidersConfigProxy identityProvidersConfigProxy) {
+    public static IdpSelectedStateTransitional buildIdpSelectedState(IdpSelectingStateTransitional state,
+                                                                     String idpEntityId,
+                                                                     boolean registering,
+                                                                     LevelOfAssurance requestedLoa,
+                                                                     TransactionsConfigProxy transactionsConfigProxy,
+                                                                     IdentityProvidersConfigProxy identityProvidersConfigProxy) {
 
         List<LevelOfAssurance> levelsOfAssuranceForTransaction = transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId());
         if (!levelsOfAssuranceForTransaction.contains(requestedLoa)) {
@@ -38,7 +38,7 @@ public class IdpSelector {
 
         String matchingServiceEntityId = transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId());
 
-        return new IdpSelectedState(
+        return new IdpSelectedStateTransitional(
                 state.getRequestId(),
                 idpEntityId,
                 matchingServiceEntityId,
@@ -57,7 +57,7 @@ public class IdpSelector {
         );
     }
 
-    private static void checkValidIdentityProvider(final String idpEntityId, List<String> availableIdentityProviderEntityIdsForLoa, IdpSelectingState state) {
+    private static void checkValidIdentityProvider(final String idpEntityId, List<String> availableIdentityProviderEntityIdsForLoa, IdpSelectingStateTransitional state) {
         boolean found = false;
 
         for (String entityId : availableIdentityProviderEntityIdsForLoa) {

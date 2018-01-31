@@ -2,18 +2,18 @@ package uk.gov.ida.hub.policy.domain.controller;
 
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
 import java.util.Collection;
 
-public class SuccessfulMatchStateController extends AbstractSuccessfulMatchStateController<SuccessfulMatchState> {
+public class SuccessfulMatchStateController extends AbstractSuccessfulMatchStateController<SuccessfulMatchStateTransitional> {
 
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
     public SuccessfulMatchStateController(
-            final SuccessfulMatchState state,
+            final SuccessfulMatchStateTransitional state,
             final ResponseFromHubFactory responseFromHubFactory,
             final IdentityProvidersConfigProxy identityProvidersConfigProxy) {
 

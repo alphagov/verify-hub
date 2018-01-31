@@ -8,13 +8,30 @@ import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
+import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
+import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
+import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.exception.SessionTimeoutException;
 
@@ -42,7 +59,7 @@ public class SessionRepository {
         this.controllerFactory = controllerFactory;
     }
 
-    public SessionId createSession(SessionStartedState startedState) {
+    public SessionId createSession(SessionStartedStateTransitional startedState) {
         SessionId sessionId = startedState.getSessionId();
 
         dataStore.put(sessionId, startedState);
@@ -80,17 +97,17 @@ public class SessionRepository {
     public Optional<LevelOfAssurance> getLevelOfAssuranceFromIdp(SessionId sessionId){
 
         State currentState = getCurrentState(sessionId);
-        if(currentState instanceof Cycle0And1MatchRequestSentState){ // initial match request - no response received
-            return Optional.of(((Cycle0And1MatchRequestSentState) currentState).getIdpLevelOfAssurance());
+        if(currentState instanceof Cycle0And1MatchRequestSentStateTransitional){ // initial match request - no response received
+            return Optional.of(((Cycle0And1MatchRequestSentStateTransitional) currentState).getIdpLevelOfAssurance());
         }
-        if(currentState instanceof SuccessfulMatchState){ // when no cycle 3 and no user account creation
-            return Optional.of(((SuccessfulMatchState) currentState).getLevelOfAssurance());
+        if(currentState instanceof SuccessfulMatchStateTransitional){ // when no cycle 3 and no user account creation
+            return Optional.of(((SuccessfulMatchStateTransitional) currentState).getLevelOfAssurance());
         }
-        if(currentState instanceof AwaitingCycle3DataState){ // when cycle3 on and user account creation on or off
-            return Optional.of(((AwaitingCycle3DataState) currentState).getLevelOfAssurance());
+        if(currentState instanceof AwaitingCycle3DataStateTransitional){ // when cycle3 on and user account creation on or off
+            return Optional.of(((AwaitingCycle3DataStateTransitional) currentState).getLevelOfAssurance());
         }
-        if(currentState instanceof UserAccountCreatedState){ // when no cycle3 and user account creation
-            return Optional.of(((UserAccountCreatedState) currentState).getLevelOfAssurance());
+        if(currentState instanceof UserAccountCreatedStateTransitional){ // when no cycle3 and user account creation
+            return Optional.of(((UserAccountCreatedStateTransitional) currentState).getLevelOfAssurance());
         }
         return Optional.absent();
     }
@@ -99,7 +116,60 @@ public class SessionRepository {
             final Class<T> expectedStateClass,
             final Class<? extends State> currentStateClass) {
 
-        return currentStateClass.equals(expectedStateClass) || expectedStateClass.isAssignableFrom(currentStateClass);
+        return currentStateClass.equals(expectedStateClass) || expectedStateClass.isAssignableFrom(currentStateClass)
+                || isATransitionalKindOf(expectedStateClass, currentStateClass);
+    }
+
+    @Deprecated
+    private <T extends State> boolean isATransitionalKindOf(
+            final Class<T> expectedStateClass,
+            final Class<? extends State> currentStateClass) {
+
+        if (expectedStateClass.equals(IdpSelectedStateTransitional.class) && currentStateClass.equals(IdpSelectedState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(SessionStartedStateTransitional.class) && currentStateClass.equals(SessionStartedState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(AuthnFailedErrorStateTransitional.class) && currentStateClass.equals(AuthnFailedErrorState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(FraudEventDetectedStateTransitional.class) && currentStateClass.equals(FraudEventDetectedState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(RequesterErrorStateTransitional.class) && currentStateClass.equals(RequesterErrorState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(AwaitingCycle3DataStateTransitional.class) && currentStateClass.equals(AwaitingCycle3DataState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(Cycle0And1MatchRequestSentStateTransitional.class) && currentStateClass.equals(Cycle0And1MatchRequestSentState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(Cycle3MatchRequestSentStateTransitional.class) && currentStateClass.equals(Cycle3MatchRequestSentState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(SuccessfulMatchStateTransitional.class) && currentStateClass.equals(SuccessfulMatchState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(UserAccountCreatedStateTransitional.class) && currentStateClass.equals(UserAccountCreatedState.class)) {
+            return true;
+        }
+
+        if (expectedStateClass.equals(UserAccountCreationRequestSentStateTransitional.class) && currentStateClass.equals(UserAccountCreationRequestSentState.class)) {
+            return true;
+        }
+
+        return false;
     }
 
     public boolean getTransactionSupportsEidas(SessionId sessionId) {

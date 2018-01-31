@@ -8,8 +8,8 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -18,7 +18,7 @@ import java.util.Collections;
 
 public class SessionStartedStateController implements IdpSelectingStateController, CountrySelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
-    private final SessionStartedState state;
+    private final SessionStartedStateTransitional state;
     private final EventSinkHubEventLogger eventSinkHubEventLogger;
     private final StateTransitionAction stateTransitionAction;
     private final TransactionsConfigProxy transactionsConfigProxy;
@@ -26,7 +26,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
     public SessionStartedStateController(
-            final SessionStartedState state,
+            final SessionStartedStateTransitional state,
             final EventSinkHubEventLogger eventSinkHubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final TransactionsConfigProxy transactionsConfigProxy,
@@ -55,7 +55,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
 
     @Override
     public void handleIdpSelected(final String idpEntityId, final String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
+        IdpSelectedStateTransitional idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
         eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }

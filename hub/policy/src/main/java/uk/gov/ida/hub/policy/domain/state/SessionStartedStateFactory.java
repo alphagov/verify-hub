@@ -12,7 +12,7 @@ public class SessionStartedStateFactory {
     @Inject
     public SessionStartedStateFactory() {}
 
-    public SessionStartedState build(
+    public SessionStartedStateTransitional build(
             String authnRequestId,
             URI assertionConsumerServiceUri,
             String requestIssuerId,
@@ -22,7 +22,7 @@ public class SessionStartedStateFactory {
             SessionId sessionId,
             boolean transactionSupportsEidas) {
 
-        return new SessionStartedState(
+        return new SessionStartedStateTransitional(
                 authnRequestId,
                 relayState,
                 requestIssuerId,

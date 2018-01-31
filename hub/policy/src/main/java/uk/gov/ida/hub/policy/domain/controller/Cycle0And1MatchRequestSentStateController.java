@@ -13,9 +13,9 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -24,14 +24,14 @@ import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import java.util.List;
 
-public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentStateController<Cycle0And1MatchRequestSentState> {
+public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentStateController<Cycle0And1MatchRequestSentStateTransitional> {
 
     private TransactionsConfigProxy transactionsConfigProxy;
     private final AssertionRestrictionsFactory assertionRestrictionFactory;
     private final MatchingServiceConfigProxy matchingServiceConfigProxy;
 
     public Cycle0And1MatchRequestSentStateController(
-            final Cycle0And1MatchRequestSentState state,
+            final Cycle0And1MatchRequestSentStateTransitional state,
             final EventSinkHubEventLogger eventSinkHubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final PolicyConfiguration policyConfiguration,
@@ -91,8 +91,8 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
     }
 
     @Override
-    protected SuccessfulMatchState createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId) {
-        return new SuccessfulMatchState(
+    protected SuccessfulMatchStateTransitional createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId) {
+        return new SuccessfulMatchStateTransitional(
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp(),
                 state.getIdentityProviderEntityId(),
@@ -117,8 +117,8 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
         return null;
     }
 
-    private AwaitingCycle3DataState getAwaitingCycle3DataState() {
-        return new AwaitingCycle3DataState(
+    private AwaitingCycle3DataStateTransitional getAwaitingCycle3DataState() {
+        return new AwaitingCycle3DataStateTransitional(
                 state.getRequestId(),
                 state.getIdentityProviderEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -142,7 +142,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 state.getRequestId(),
                 state.getEncryptedMatchingDatasetAssertion(),
                 state.getAuthnStatementAssertion(),
-                Optional.<Cycle3Dataset>absent(),
+                Optional.absent(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
                 state.getMatchingServiceAdapterEntityId(),

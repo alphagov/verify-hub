@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 
 import java.net.URI;
 
@@ -27,8 +28,8 @@ public class SuccessfulMatchStateBuilder {
         return new SuccessfulMatchStateBuilder();
     }
 
-    public SuccessfulMatchState build() {
-        return new SuccessfulMatchState(
+    public SuccessfulMatchStateTransitional build() {
+        return new SuccessfulMatchStateTransitional(
                 requestId,
                 sessionExpiryTimestamp,
                 identityProviderEntityId,
@@ -39,6 +40,21 @@ public class SuccessfulMatchStateBuilder {
                 getSessionId,
                 levelOfAssurance,
                 isRegistering,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
+    public SuccessfulMatchState buildOld() {
+        return new SuccessfulMatchState(
+                requestId,
+                sessionExpiryTimestamp,
+                identityProviderEntityId,
+                matchingServiceAssertion,
+                relayState,
+                requestIssuerId,
+                assertionConsumerServiceUri,
+                getSessionId,
+                levelOfAssurance,
                 transactionSupportsEidas);
     }
 

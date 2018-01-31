@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 
 public class SessionStartedStateBuilder {
 
@@ -17,16 +18,31 @@ public class SessionStartedStateBuilder {
         return new SessionStartedStateBuilder();
     }
 
-    public SessionStartedState build() {
-        return new SessionStartedState(
+    public SessionStartedStateTransitional build() {
+        return new SessionStartedStateTransitional(
                 requestId,
-                Optional.<String>absent(),
+                Optional.absent(),
                 null,
                 null,
                 null,
                 sessionExpiryTimestamp,
                 sessionId,
                 transactionSupportsEidas);
+    }
+
+    @Deprecated
+    public SessionStartedState buildOld() {
+        return new SessionStartedState(
+                requestId,
+                Optional.absent(),
+                null,
+                null,
+                null,
+                null,
+                sessionExpiryTimestamp,
+                sessionId,
+                transactionSupportsEidas
+        );
     }
 
     public SessionStartedStateBuilder withRequestId(String requestId) {

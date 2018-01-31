@@ -10,18 +10,18 @@ import uk.gov.ida.hub.policy.domain.Cycle3Dataset;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
 
-public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3DataStateController<AttributeQueryRequestDto, AwaitingCycle3DataState> implements StateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
+public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3DataStateController<AttributeQueryRequestDto, AwaitingCycle3DataStateTransitional> implements StateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
     public AwaitingCycle3DataStateController(
-        final AwaitingCycle3DataState state,
+        final AwaitingCycle3DataStateTransitional state,
         final EventSinkHubEventLogger eventSinkHubEventLogger,
         final StateTransitionAction stateTransitionAction,
         final TransactionsConfigProxy transactionsConfigProxy,
@@ -74,7 +74,7 @@ public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3Dat
             principalIpAddressAsSeenByHub
         );
 
-        Cycle3MatchRequestSentState cycle3MatchRequestSentState = new Cycle3MatchRequestSentState(
+        Cycle3MatchRequestSentStateTransitional cycle3MatchRequestSentState = new Cycle3MatchRequestSentStateTransitional(
             getState().getRequestId(),
             getState().getRequestIssuerEntityId(),
             getState().getSessionExpiryTimestamp(),

@@ -5,11 +5,10 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.List;
 
-public class FraudEventDetectedState extends AuthnFailedErrorState {
+public class FraudEventDetectedStateTransitional extends AuthnFailedErrorStateTransitional {
 
-    public FraudEventDetectedState(
+    public FraudEventDetectedStateTransitional(
             String requestId,
             String requestIssuerId,
             DateTime sessionExpiryTimestamp,
@@ -17,10 +16,18 @@ public class FraudEventDetectedState extends AuthnFailedErrorState {
             Optional<String> relayState,
             SessionId sessionId,
             String idpEntityId,
-            List<String> availableIdpEntityIds,
             Optional<Boolean> forceAuthentication,
             boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, idpEntityId, availableIdpEntityIds, forceAuthentication, transactionSupportsEidas);
+        super(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                relayState,
+                sessionId,
+                idpEntityId,
+                forceAuthentication,
+                transactionSupportsEidas);
     }
 }

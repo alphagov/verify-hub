@@ -7,6 +7,7 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -34,8 +35,8 @@ public class IdpSelectedStateBuilder {
         return new IdpSelectedStateBuilder();
     }
 
-    public IdpSelectedState build() {
-        return new IdpSelectedState(
+    public IdpSelectedStateTransitional build() {
+        return new IdpSelectedStateTransitional(
                 requestId,
                 idpEntityId,
                 matchingServiceEntityId,
@@ -48,6 +49,25 @@ public class IdpSelectedStateBuilder {
                 sessionExpiryTimestamp,
                 isRegistration,
                 requestedLoa,
+                sessionId,
+                availableIdentityProviders,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
+    public IdpSelectedState buildOld() {
+        return new IdpSelectedState(
+                requestId,
+                idpEntityId,
+                matchingServiceEntityId,
+                levelsOfAssurance,
+                useExactComparisonType,
+                forceAuthentication,
+                assertionConsumerServiceUri,
+                requestIssuerId,
+                relayState,
+                sessionExpiryTimestamp,
+                isRegistration,
                 sessionId,
                 availableIdentityProviders,
                 transactionSupportsEidas);
