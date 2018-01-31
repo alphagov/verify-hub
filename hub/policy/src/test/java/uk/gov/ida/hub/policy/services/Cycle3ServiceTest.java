@@ -21,7 +21,7 @@ import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.AwaitingCycle3DataStateController;
 import uk.gov.ida.hub.policy.domain.controller.EidasAwaitingCycle3DataStateController;
 import uk.gov.ida.hub.policy.domain.state.AbstractAwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
@@ -57,7 +57,7 @@ public class Cycle3ServiceTest {
         sessionId = SessionIdBuilder.aSessionId().build();
         cycle3UserInput = new Cycle3UserInput("test-value", "principal-ip-address-as-seen-by-hub");
         service = new Cycle3Service(sessionRepository, attributeQueryService);
-        when(sessionRepository.getStateController(sessionId, AwaitingCycle3DataState.class)).thenReturn(awaitingCycle3DataStateController);
+        when(sessionRepository.getStateController(sessionId, AwaitingCycle3DataStateTransitional.class)).thenReturn(awaitingCycle3DataStateController);
         when(sessionRepository.getStateController(sessionId, AbstractAwaitingCycle3DataState.class)).thenReturn(awaitingCycle3DataStateController);
 
     }

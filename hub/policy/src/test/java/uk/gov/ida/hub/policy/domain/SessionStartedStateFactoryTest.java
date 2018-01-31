@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +26,7 @@ public class SessionStartedStateFactoryTest {
     public void build_shouldBuildState() throws Exception {
         ReceivedAuthnRequest authnRequest = aReceivedAuthnRequest().build();
 
-        SessionStartedState sessionStartedState = systemUnderTest.build(
+        SessionStartedStateTransitional sessionStartedState = systemUnderTest.build(
                 authnRequest.getId(),
                 authnRequest.getAssertionConsumerServiceUri(),
                 authnRequest.getIssuer(),

@@ -32,24 +32,24 @@ import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
-import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -100,7 +100,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInSessionStartedState() {
-        SessionStartedState state = SessionStartedStateBuilder.aSessionStartedState().build();
+        SessionStartedStateTransitional state = SessionStartedStateBuilder.aSessionStartedState().build();
         StateController stateController = new SessionStartedStateController(state, eventSinkHubEventLogger, stateTransitionAction, transactionsConfigProxy, responseFromHubFactory, identityProvidersConfigProxy);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -111,7 +111,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInAuthnFailedErrorState() {
-        AuthnFailedErrorState state = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().build();
+        AuthnFailedErrorStateTransitional state = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().build();
         StateController stateController = new AuthnFailedErrorStateController(state, responseFromHubFactory, stateTransitionAction, sessionStartedStateFactory, transactionsConfigProxy, identityProvidersConfigProxy, eventSinkHubEventLogger);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -122,7 +122,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInRequesterErrorState() {
-        RequesterErrorState state = RequesterErrorStateBuilder.aRequesterErrorState().build();
+        RequesterErrorStateTransitional state = RequesterErrorStateBuilder.aRequesterErrorState().build();
         StateController stateController = new RequesterErrorStateController(state, responseFromHubFactory, stateTransitionAction, transactionsConfigProxy, identityProvidersConfigProxy, eventSinkHubEventLogger);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -133,7 +133,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInCycle0And1MatchRequestSentState() {
-        Cycle0And1MatchRequestSentState state = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().build();
+        Cycle0And1MatchRequestSentStateTransitional state = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().build();
         StateController stateController = new Cycle0And1MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, transactionsConfigProxy, responseFromHubFactory, assertionRestrictionFactory, matchingServiceConfigProxy, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -144,7 +144,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInAwaitingCycle3DataState() {
-        AwaitingCycle3DataState state = AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState().build();
+        AwaitingCycle3DataStateTransitional state = AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState().build();
         StateController stateController = new AwaitingCycle3DataStateController(state, eventSinkHubEventLogger, stateTransitionAction, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionFactory, matchingServiceConfigProxy);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -166,7 +166,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInCycle3MatchRequestSentState() {
-        Cycle3MatchRequestSentState state = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().build();
+        Cycle3MatchRequestSentStateTransitional state = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().build();
         StateController stateController = new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory, transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -177,7 +177,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInSuccessfulMatchState() {
-        SuccessfulMatchState state = SuccessfulMatchStateBuilder.aSuccessfulMatchState().build();
+        SuccessfulMatchStateTransitional state = SuccessfulMatchStateBuilder.aSuccessfulMatchState().build();
         StateController stateController = new SuccessfulMatchStateController(state, responseFromHubFactory, identityProvidersConfigProxy);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -210,7 +210,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInUserAccountCreationRequestSentState() {
-        UserAccountCreationRequestSentState state = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().build();
+        UserAccountCreationRequestSentStateTransitional state = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().build();
         StateController stateController = new UserAccountCreationRequestSentStateController(state, stateTransitionAction, eventSinkHubEventLogger, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -222,7 +222,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInFraudEventDetectedState() {
-        FraudEventDetectedState state = FraudEventDetectedStateBuilder.aFraudEventDetectedState().build();
+        FraudEventDetectedStateTransitional state = FraudEventDetectedStateBuilder.aFraudEventDetectedState().build();
         StateController stateController = new FraudEventDetectedStateController(state, responseFromHubFactory, stateTransitionAction, sessionStartedStateFactory, null, null, null);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -233,7 +233,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInIdpSelectedState() {
-        IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().build();
+        IdpSelectedStateTransitional state = IdpSelectedStateBuilder.anIdpSelectedState().build();
         StateController stateController = new IdpSelectedStateController(state, sessionStartedStateFactory, eventSinkHubEventLogger, stateTransitionAction, identityProvidersConfigProxy, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionFactory, matchingServiceConfigProxy);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -255,7 +255,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInUserAccountCreatedState() {
-        UserAccountCreatedState state = UserAccountCreatedStateBuilder.aUserAccountCreatedState().build();
+        UserAccountCreatedStateTransitional state = UserAccountCreatedStateBuilder.aUserAccountCreatedState().build();
         StateController stateController = new UserAccountCreatedStateController(state, identityProvidersConfigProxy, responseFromHubFactory);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 

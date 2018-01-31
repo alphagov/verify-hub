@@ -4,13 +4,13 @@ import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.integrationtest.hub.policy.rest.Cycle3DTO;
 import uk.gov.ida.integrationtest.hub.policy.rest.EidasCycle3DTO;
 
@@ -60,7 +60,7 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSessionInSuccessfulMatchState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new SuccessfulMatchState(testSessionDto.getRequestId(),
+                new SuccessfulMatchStateTransitional(testSessionDto.getRequestId(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getIdentityProviderEntityId(),
                         testSessionDto.getMatchingServiceAssertion(),
@@ -99,7 +99,7 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSessionInIdpSelectedState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new IdpSelectedState(testSessionDto.getRequestId(),
+                new IdpSelectedStateTransitional(testSessionDto.getRequestId(),
                         testSessionDto.getIdentityProviderEntityId(),
                         testSessionDto.getMatchingServiceEntityId(),
                         testSessionDto.getLevelsOfAssurance(),
@@ -123,7 +123,7 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSessionInCountrySelectingState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new SessionStartedState(testSessionDto.getRequestId(),
+                new SessionStartedStateTransitional(testSessionDto.getRequestId(),
                         testSessionDto.getRelayState(),
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getAssertionConsumerServiceUri(),
@@ -140,7 +140,7 @@ public class TestSessionResource {
     public Response createSessionInAwaitingCycle3DataState(Cycle3DTO dto) {
         testSessionRepository.createSession(
                 dto.getSessionId(),
-                new AwaitingCycle3DataState(dto.getRequestId(),
+                new AwaitingCycle3DataStateTransitional(dto.getRequestId(),
                         dto.getIdentityProviderEntityId(),
                         dto.getSessionExpiryTimestamp(),
                         dto.getRequestIssuerId(),
@@ -189,7 +189,7 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSessionInAuthnFailedState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new AuthnFailedErrorState(testSessionDto.getRequestId(),
+                new AuthnFailedErrorStateTransitional(testSessionDto.getRequestId(),
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getAssertionConsumerServiceUri(),

@@ -10,8 +10,8 @@ import uk.gov.ida.hub.policy.domain.ResponseFromMatchingService;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
@@ -30,7 +30,7 @@ public class UserAccountCreationRequestSentStateControllerTest {
 
     @Test
     public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() throws Exception {
-        UserAccountCreationRequestSentState state = aUserAccountCreationRequestSentState().build();
+        UserAccountCreationRequestSentStateTransitional state = aUserAccountCreationRequestSentState().build();
         UserAccountCreationRequestSentStateController controller =
                 new UserAccountCreationRequestSentStateController(state, null, null, null, null, null, null);
 
@@ -47,7 +47,7 @@ public class UserAccountCreationRequestSentStateControllerTest {
     @Test
     public void getNextState_shouldMaintainRelayState() throws Exception {
         final String relayState = "4x100m";
-        UserAccountCreationRequestSentState state = aUserAccountCreationRequestSentState()
+        UserAccountCreationRequestSentStateTransitional state = aUserAccountCreationRequestSentState()
                 .withRelayState(Optional.of(relayState))
                 .build();
         UserAccountCreationRequestSentStateController controller =
@@ -56,9 +56,9 @@ public class UserAccountCreationRequestSentStateControllerTest {
         UserAccountCreatedFromMatchingService userAccountCreatedFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.<LevelOfAssurance>absent());
 
         final State newState = controller.getNextStateForUserAccountCreated(userAccountCreatedFromMatchingService);
-        assertThat(newState).isInstanceOf(UserAccountCreatedState.class);
+        assertThat(newState).isInstanceOf(UserAccountCreatedStateTransitional.class);
 
-        final UserAccountCreatedState userAccountCreatedState = (UserAccountCreatedState)newState;
+        final UserAccountCreatedStateTransitional userAccountCreatedState = (UserAccountCreatedStateTransitional)newState;
         assertThat(userAccountCreatedState.getRelayState()).isNotNull();
         assertThat(userAccountCreatedState.getRelayState().isPresent()).isTrue();
         assertThat(userAccountCreatedState.getRelayState().get()).isEqualTo(relayState);
