@@ -13,7 +13,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 
 import javax.inject.Inject;
@@ -214,7 +214,7 @@ public class EventSinkHubEventLogger {
     }
 
 
-    public void logIdpSelectedEvent(IdpSelectedState idpSelectedState, String principalIpAddress) {
+    public void logIdpSelectedEvent(IdpSelectedStateTransitional idpSelectedState, String principalIpAddress) {
         List<LevelOfAssurance> levelsOfAssurance = idpSelectedState.getLevelsOfAssurance();
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(idp_entity_id, idpSelectedState.getIdpEntityId());

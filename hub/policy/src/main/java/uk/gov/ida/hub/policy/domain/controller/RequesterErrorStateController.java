@@ -1,19 +1,20 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 public class RequesterErrorStateController implements StateController, ResponsePreparedStateController, ErrorResponsePreparedStateController, IdpSelectingStateController {
 
-    private final RequesterErrorState state;
+    private final RequesterErrorStateTransitional state;
     private final ResponseFromHubFactory responseFromHubFactory;
     private final StateTransitionAction stateTransitionAction;
     private final TransactionsConfigProxy transactionsConfigProxy;
@@ -21,7 +22,7 @@ public class RequesterErrorStateController implements StateController, ResponseP
     private final EventSinkHubEventLogger eventSinkHubEventLogger;
 
     public RequesterErrorStateController(
-        RequesterErrorState state,
+        RequesterErrorStateTransitional state,
         ResponseFromHubFactory responseFromHubFactory,
         StateTransitionAction stateTransitionAction,
         TransactionsConfigProxy transactionsConfigProxy,
@@ -57,8 +58,8 @@ public class RequesterErrorStateController implements StateController, ResponseP
     }
 
     @Override
-    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, transactionsConfigProxy, identityProvidersConfigProxy);
+    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
+        IdpSelectedStateTransitional idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
         eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }
@@ -71,7 +72,6 @@ public class RequesterErrorStateController implements StateController, ResponseP
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
         return new AuthnRequestSignInProcess(
-            state.getAvailableIdentityProviderEntityIds(),
             state.getRequestIssuerEntityId(),
             state.getTransactionSupportsEidas());
     }

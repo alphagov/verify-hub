@@ -3,13 +3,14 @@ package uk.gov.ida.hub.policy.domain.controller;
 import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
 import uk.gov.ida.hub.policy.domain.FailureResponseDetails;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
@@ -19,14 +20,14 @@ public class AuthnFailedErrorStateController implements IdpSelectingStateControl
 
     private final StateTransitionAction stateTransitionAction;
     private final SessionStartedStateFactory sessionStartedStateFactory;
-    private AuthnFailedErrorState state;
+    private AuthnFailedErrorStateTransitional state;
     private final ResponseFromHubFactory responseFromHubFactory;
     private final TransactionsConfigProxy transactionsConfigProxy;
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
     private final EventSinkHubEventLogger eventSinkHubEventLogger;
 
     public AuthnFailedErrorStateController(
-            AuthnFailedErrorState state,
+            AuthnFailedErrorStateTransitional state,
             ResponseFromHubFactory responseFromHubFactory,
             StateTransitionAction stateTransitionAction,
             SessionStartedStateFactory sessionStartedStateFactory,
@@ -71,21 +72,21 @@ public class AuthnFailedErrorStateController implements IdpSelectingStateControl
         stateTransitionAction.transitionTo(createSessionStartedState());
     }
 
-    private SessionStartedState createSessionStartedState() {
+    private SessionStartedStateTransitional createSessionStartedState() {
         return sessionStartedStateFactory.build(
                 state.getRequestId(),
                 state.getAssertionConsumerServiceUri(),
                 state.getRequestIssuerEntityId(),
                 state.getRelayState(),
-                Optional.<Boolean>absent(),
+                Optional.absent(),
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());
     }
 
     @Override
-    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, transactionsConfigProxy, identityProvidersConfigProxy);
+    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
+        IdpSelectedStateTransitional idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
         eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }
@@ -98,7 +99,6 @@ public class AuthnFailedErrorStateController implements IdpSelectingStateControl
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
         return new AuthnRequestSignInProcess(
-                state.getAvailableIdentityProviderEntityIds(),
                 state.getRequestIssuerEntityId(),
                 state.getTransactionSupportsEidas());
     }

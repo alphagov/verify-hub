@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 
 import java.net.URI;
 import java.util.UUID;
@@ -23,9 +24,42 @@ public class UserAccountCreationRequestSentStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private boolean transactionSupportsEidas = false;
+    private boolean registering = false;
 
     public static UserAccountCreationRequestSentStateBuilder aUserAccountCreationRequestSentState() {
         return new UserAccountCreationRequestSentStateBuilder();
+    }
+
+    public UserAccountCreationRequestSentStateTransitional build() {
+        return new UserAccountCreationRequestSentStateTransitional(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                identityProviderEntityId,
+                relayState,
+                levelOfAssurance,
+                registering,
+                "matchingServiceEntityId"
+        );
+    }
+
+    @Deprecated
+    public UserAccountCreationRequestSentState buildOld() {
+        return new UserAccountCreationRequestSentState(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                identityProviderEntityId,
+                relayState,
+                levelOfAssurance,
+                "matchingServiceEntityId"
+        );
     }
 
     public UserAccountCreationRequestSentStateBuilder withRelayState(Optional<String> relayState) {
@@ -33,18 +67,8 @@ public class UserAccountCreationRequestSentStateBuilder {
         return this;
     }
 
-    public UserAccountCreationRequestSentState build() {
-        return new UserAccountCreationRequestSentState(
-            requestId,
-            requestIssuerId,
-            sessionExpiryTimestamp,
-            assertionConsumerServiceUri,
-            sessionId,
-            transactionSupportsEidas,
-            identityProviderEntityId,
-            relayState,
-            levelOfAssurance,
-            "matchingServiceEntityId"
-        );
+    public UserAccountCreationRequestSentStateBuilder withRegistering(boolean registering) {
+        this.registering = registering;
+        return this;
     }
 }

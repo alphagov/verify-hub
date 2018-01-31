@@ -4,7 +4,12 @@ import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.*;
+import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -31,7 +36,7 @@ public class TestSessionResourceHelper {
             URI uri,
             boolean transactionSupportsEidas) {
 
-        IdpSelectedState idpSelectedState = anIdpSelectedState()
+        IdpSelectedStateTransitional idpSelectedState = anIdpSelectedState()
                 .withRequestIssuerEntityId(issuerId)
                 .withIdpEntityId(idpEntityId)
                 .withSessionId(sessionId)
@@ -49,7 +54,8 @@ public class TestSessionResourceHelper {
                 idpSelectedState.getAssertionConsumerServiceUri(),
                 idpSelectedState.getLevelsOfAssurance(),
                 idpSelectedState.getUseExactComparisonType(),
-                idpSelectedState.registering(),
+                idpSelectedState.isRegistering(),
+                idpSelectedState.getRequestedLoa(),
                 idpSelectedState.getForceAuthentication(),
                 idpSelectedState.getAvailableIdentityProviderEntityIds(),
                 idpSelectedState.getTransactionSupportsEidas());
@@ -60,8 +66,11 @@ public class TestSessionResourceHelper {
                 .post(Entity.json(testSessionDto));
     }
 
-    public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String idpEntityId, Client client, URI uri) {
-        SuccessfulMatchState successfulMatchState = aSuccessfulMatchState().withSessionId(sessionId).withIdentityProviderEntityId(idpEntityId).build();
+    public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String requestIssuerEntityId, String idpEntityId, Client client, URI uri) {
+        SuccessfulMatchStateTransitional successfulMatchState = aSuccessfulMatchState().withSessionId(sessionId)
+                .withIdentityProviderEntityId(idpEntityId)
+                .withRequestIssuerEntityId(requestIssuerEntityId)
+                .build();
 
         TestSessionDto testSessionDto = createASuccessfulMatchStateTestSessionDto(successfulMatchState, sessionId);
 
@@ -97,7 +106,7 @@ public class TestSessionResourceHelper {
     }
 
     public static Response createSessionInAuthnFailedErrorState(SessionId sessionId, Client client, URI uri) {
-        AuthnFailedErrorState state = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().build();
+        AuthnFailedErrorStateTransitional state = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().build();
         TestSessionDto testSessionDto = new TestSessionDto(sessionId,
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp(),

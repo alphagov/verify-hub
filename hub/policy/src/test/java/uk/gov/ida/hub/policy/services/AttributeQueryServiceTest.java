@@ -16,7 +16,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
@@ -54,7 +54,7 @@ public class AttributeQueryServiceTest {
     public void setup() {
         sessionId = SessionIdBuilder.aSessionId().build();
         service = new AttributeQueryService(samlEngineProxy, samlSoapProxyProxy);
-        when(sessionRepository.getStateController(sessionId, IdpSelectedState.class)).thenReturn(idpSelectedStateController);
+        when(sessionRepository.getStateController(sessionId, IdpSelectedStateTransitional.class)).thenReturn(idpSelectedStateController);
     }
 
     @Test

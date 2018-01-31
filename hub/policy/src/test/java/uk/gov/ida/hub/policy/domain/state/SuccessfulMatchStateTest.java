@@ -17,11 +17,12 @@ public class SuccessfulMatchStateTest {
     private static final String MATCHING_SERVICE_ASSERTION = "matchingServiceAssertion";
     private static final Optional<String> RELAY_STATE = Optional.of("relayState");
     private static final LevelOfAssurance LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_2;
-    private SuccessfulMatchState state;
+    private static final boolean IS_REGISTERING = false;
+    private SuccessfulMatchStateTransitional state;
 
     @Before
     public void setUp() {
-        state = new SuccessfulMatchState(
+        state = new SuccessfulMatchStateTransitional(
             "requestId",
             DateTime.now(),
             IDENTITY_PROVIDER_ENTITY_ID,
@@ -31,6 +32,7 @@ public class SuccessfulMatchStateTest {
             URI.create("assertionConsumerServiceUri"),
             new SessionId("sessionId"),
             LEVEL_OF_ASSURANCE,
+                IS_REGISTERING,
             false
         );
     }
@@ -56,9 +58,15 @@ public class SuccessfulMatchStateTest {
     }
 
     @Test
+    public void getIsRegistering() {
+        assertThat(state.isRegistering()).isEqualTo(IS_REGISTERING);
+    }
+
+    @Test
     public void testToString() {
-        final StringBuffer sb = new StringBuffer("uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState[");
-        sb.append("identityProviderEntityId=").append(state.getIdentityProviderEntityId());
+        final StringBuffer sb = new StringBuffer("uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional[");
+        sb.append("isRegistering=").append(state.isRegistering());
+        sb.append(",identityProviderEntityId=").append(state.getIdentityProviderEntityId());
         sb.append(",matchingServiceAssertion=").append(state.getMatchingServiceAssertion());
         sb.append(",relayState=").append(state.getRelayState());
         sb.append(",levelOfAssurance=").append(state.getLevelOfAssurance());
@@ -75,6 +83,6 @@ public class SuccessfulMatchStateTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(SuccessfulMatchState.class).verify();
+        EqualsVerifier.forClass(SuccessfulMatchStateTransitional.class).withRedefinedSuperclass().verify();
     }
 }

@@ -4,10 +4,9 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static com.google.common.base.Optional.absent;
@@ -23,16 +22,10 @@ public class AuthnFailedErrorStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private String idpEntityId = "IDP Entity ID";
-    private List<String> availableIdpEntityIds = new ArrayList<>();
     private Optional<Boolean> forceAuthentication = Optional.of(true);
 
     public static AuthnFailedErrorStateBuilder anAuthnFailedErrorState() {
         return new AuthnFailedErrorStateBuilder();
-    }
-
-    public AuthnFailedErrorStateBuilder withAvailableIdpEntityIds(List<String> availableIdpEntityIds) {
-        this.availableIdpEntityIds = availableIdpEntityIds;
-        return this;
     }
 
     public AuthnFailedErrorStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
@@ -40,7 +33,21 @@ public class AuthnFailedErrorStateBuilder {
         return this;
     }
 
-    public AuthnFailedErrorState build() {
+    public AuthnFailedErrorStateTransitional build() {
+        return new AuthnFailedErrorStateTransitional(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceIndex,
+                relayState,
+                sessionId,
+                idpEntityId,
+                forceAuthentication,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
+    public AuthnFailedErrorState buildOld() {
         return new AuthnFailedErrorState(
                 requestId,
                 requestIssuerId,
@@ -49,7 +56,7 @@ public class AuthnFailedErrorStateBuilder {
                 relayState,
                 sessionId,
                 idpEntityId,
-                availableIdpEntityIds,
+                null,
                 forceAuthentication,
                 transactionSupportsEidas);
     }

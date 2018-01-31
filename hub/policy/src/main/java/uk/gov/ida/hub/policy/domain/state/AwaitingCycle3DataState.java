@@ -29,17 +29,17 @@ public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState imp
             boolean transactionSupportsEidas) {
 
         super(
-            requestId,
-            requestIssuerId,
-            sessionExpiryTimestamp,
-            assertionConsumerServiceUri,
-            sessionId,
-            transactionSupportsEidas,
-            identityProviderEntityId,
-            matchingServiceEntityId,
-            relayState,
-            persistentId,
-            levelOfAssurance);
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                identityProviderEntityId,
+                matchingServiceEntityId,
+                relayState,
+                persistentId,
+                levelOfAssurance);
 
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
         this.authnStatementAssertion = authnStatementAssertion;

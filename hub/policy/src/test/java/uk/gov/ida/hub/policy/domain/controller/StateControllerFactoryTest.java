@@ -84,6 +84,14 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(SessionStartedStateController.class);
     }
 
+    @Deprecated
+    @Test
+    public void shouldCreateASessionStartedStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(aSessionStartedState().buildOld(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(SessionStartedStateController.class);
+    }
+
     @Test
     public void shouldCreateACountrySelectedStateController() {
         StateController controller = stateControllerFactory.build(aCountrySelectedState().build(), stateTransitionAction);
@@ -98,9 +106,25 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(IdpSelectedStateController.class);
     }
 
+    @Deprecated
+    @Test
+    public void shouldCreateAnIdpSelectedStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(anIdpSelectedState().buildOld(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(IdpSelectedStateController.class);
+    }
+
     @Test
     public void shouldCreateACycle0And1MatchRequestSentStateController() {
         StateController controller = stateControllerFactory.build(aCycle0And1MatchRequestSentState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(Cycle0And1MatchRequestSentStateController.class);
+    }
+
+    @Deprecated
+    @Test
+    public void shouldCreateACycle0And1MatchRequestSentStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(aCycle0And1MatchRequestSentState().buildOld(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(Cycle0And1MatchRequestSentStateController.class);
     }
@@ -119,8 +143,16 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
     }
 
+    @Deprecated
     @Test
-    public void shouldCreateAEidasSuccessfulMatchStateController() {
+    public void shouldCreateASuccessfulMatchStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(aSuccessfulMatchState().buildOld(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
+    }
+
+    @Test
+    public void shouldCreateASuccessfulEidasMatchStateController() {
         StateController controller = stateControllerFactory.build(aEidasSuccessfulMatchState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);
@@ -140,9 +172,25 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(UserAccountCreatedStateController.class);
     }
 
+    @Deprecated
+    @Test
+    public void shouldCreateAUserAccountCreatedStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(aUserAccountCreatedState().buildOld(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(UserAccountCreatedStateController.class);
+    }
+
     @Test
     public void shouldCreateAnAwaitingCycle3DataStateController() {
         StateController controller = stateControllerFactory.build(anAwaitingCycle3DataState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(AwaitingCycle3DataStateController.class);
+    }
+
+    @Deprecated
+    @Test
+    public void shouldCreateAnAwaitingCycle3DataStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(anAwaitingCycle3DataState().buildOld(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(AwaitingCycle3DataStateController.class);
     }
@@ -157,6 +205,14 @@ public class StateControllerFactoryTest {
     @Test
     public void shouldCreateACycle3MatchRequestSentStateController() {
         StateController controller = stateControllerFactory.build(aCycle3MatchRequestSentState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(Cycle3MatchRequestSentStateController.class);
+    }
+
+    @Deprecated
+    @Test
+    public void shouldCreateACycle3MatchRequestSentStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(aCycle3MatchRequestSentState().buildOld(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(Cycle3MatchRequestSentStateController.class);
     }
@@ -182,9 +238,25 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(UserAccountCreationRequestSentStateController.class);
     }
 
+    @Deprecated
+    @Test
+    public void shouldCreateAUserAccountCreationRequestSentStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(aUserAccountCreationRequestSentState().buildOld(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(UserAccountCreationRequestSentStateController.class);
+    }
+
     @Test
     public void shouldCreateAnAuthnFailedErrorStateController() {
         StateController controller = stateControllerFactory.build(anAuthnFailedErrorState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(AuthnFailedErrorStateController.class);
+    }
+
+    @Deprecated
+    @Test
+    public void shouldCreateAnAuthnFailedErrorStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(anAuthnFailedErrorState().buildOld(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(AuthnFailedErrorStateController.class);
     }
@@ -196,9 +268,25 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(FraudEventDetectedStateController.class);
     }
 
+    @Deprecated
+    @Test
+    public void shouldCreateAFraudEventDetectedStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(aFraudEventDetectedState().buildOld(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(FraudEventDetectedStateController.class);
+    }
+
     @Test
     public void shouldCreateARequesterErrorStateController() {
         StateController controller = stateControllerFactory.build(aRequesterErrorState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(RequesterErrorStateController.class);
+    }
+
+    @Deprecated
+    @Test
+    public void shouldCreateARequesterErrorStateControllerFromOldClass() {
+        StateController controller = stateControllerFactory.build(aRequesterErrorState().buildOld(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(RequesterErrorStateController.class);
     }

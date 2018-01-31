@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 
 import java.net.URI;
 
@@ -20,13 +21,30 @@ public class SuccessfulMatchStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId getSessionId = SessionIdBuilder.aSessionId().build();
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
+    private boolean isRegistering = false;
     private boolean transactionSupportsEidas = false;
 
     public static SuccessfulMatchStateBuilder aSuccessfulMatchState() {
         return new SuccessfulMatchStateBuilder();
     }
 
-    public SuccessfulMatchState build() {
+    public SuccessfulMatchStateTransitional build() {
+        return new SuccessfulMatchStateTransitional(
+                requestId,
+                sessionExpiryTimestamp,
+                identityProviderEntityId,
+                matchingServiceAssertion,
+                relayState,
+                requestIssuerId,
+                assertionConsumerServiceUri,
+                getSessionId,
+                levelOfAssurance,
+                isRegistering,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
+    public SuccessfulMatchState buildOld() {
         return new SuccessfulMatchState(
                 requestId,
                 sessionExpiryTimestamp,
@@ -47,6 +65,16 @@ public class SuccessfulMatchStateBuilder {
 
     public SuccessfulMatchStateBuilder withIdentityProviderEntityId(String identityProviderEntityId) {
         this.identityProviderEntityId = identityProviderEntityId;
+        return this;
+    }
+
+    public SuccessfulMatchStateBuilder withRequestIssuerEntityId(String requestIssuerEntityId) {
+        this.requestIssuerId = requestIssuerEntityId;
+        return this;
+    }
+
+    public SuccessfulMatchStateBuilder withRegistering(boolean isRegistering) {
+        this.isRegistering = isRegistering;
         return this;
     }
 }

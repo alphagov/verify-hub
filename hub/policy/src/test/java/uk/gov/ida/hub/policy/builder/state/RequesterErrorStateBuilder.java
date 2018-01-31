@@ -4,10 +4,9 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
+import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
 
 public class RequesterErrorStateBuilder {
 
@@ -18,15 +17,14 @@ public class RequesterErrorStateBuilder {
     private Optional<String> relayState = Optional.of("relayState");
     private SessionId sessionId = SessionId.createNewSessionId();
     private Optional<Boolean> forceAuthentication = Optional.of(false);
-    private List<String> availableIdentityProviderEntityIds = Collections.emptyList();
     private boolean transactionSupportsEidas = false;
 
     public static RequesterErrorStateBuilder aRequesterErrorState() {
         return new RequesterErrorStateBuilder();
     }
 
-    public RequesterErrorState build() {
-        return new RequesterErrorState(
+    public RequesterErrorStateTransitional build() {
+        return new RequesterErrorStateTransitional(
             requestId,
             authnRequestIssuerEntityId,
             sessionExpiryTimestamp,
@@ -34,8 +32,20 @@ public class RequesterErrorStateBuilder {
             relayState,
             sessionId,
             forceAuthentication,
-            availableIdentityProviderEntityIds,
             transactionSupportsEidas);
     }
 
+    @Deprecated
+    public RequesterErrorState buildOld() {
+        return new RequesterErrorState(
+                requestId,
+                authnRequestIssuerEntityId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                relayState,
+                sessionId,
+                forceAuthentication,
+                null,
+                transactionSupportsEidas);
+    }
 }

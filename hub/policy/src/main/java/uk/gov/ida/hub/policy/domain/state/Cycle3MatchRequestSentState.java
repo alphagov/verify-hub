@@ -12,34 +12,34 @@ import java.net.URI;
 public class Cycle3MatchRequestSentState extends Cycle0And1MatchRequestSentState implements Serializable {
 
     public Cycle3MatchRequestSentState(
-        final String requestId,
-        final String requestIssuerEntityId,
-        final DateTime sessionExpiryTime,
-        final URI assertionConsumerServiceIndex,
-        final SessionId sessionId,
-        final boolean transactionSupportsEidas,
-        final String identityProviderEntityId,
-        final Optional<String> relayState,
-        final LevelOfAssurance idpLevelOfAssurance,
-        final String matchingServiceAdapterEntityId,
-        final String encryptedMatchingDatasetAssertion,
-        final String authnStatementAssertion,
-        final PersistentId persistentId) {
+            final String requestId,
+            final String requestIssuerEntityId,
+            final DateTime sessionExpiryTime,
+            final URI assertionConsumerServiceIndex,
+            final SessionId sessionId,
+            final boolean transactionSupportsEidas,
+            final String identityProviderEntityId,
+            final Optional<String> relayState,
+            final LevelOfAssurance idpLevelOfAssurance,
+            final String matchingServiceAdapterEntityId,
+            final String encryptedMatchingDatasetAssertion,
+            final String authnStatementAssertion,
+            final PersistentId persistentId) {
 
         super(
-            requestId,
-            requestIssuerEntityId,
-            sessionExpiryTime,
-            assertionConsumerServiceIndex,
-            sessionId,
-            transactionSupportsEidas,
-            identityProviderEntityId,
-            relayState,
-            idpLevelOfAssurance,
-            matchingServiceAdapterEntityId,
-            encryptedMatchingDatasetAssertion,
-            authnStatementAssertion,
-            persistentId
+                requestId,
+                requestIssuerEntityId,
+                sessionExpiryTime,
+                assertionConsumerServiceIndex,
+                sessionId,
+                transactionSupportsEidas,
+                identityProviderEntityId,
+                relayState,
+                idpLevelOfAssurance,
+                matchingServiceAdapterEntityId,
+                encryptedMatchingDatasetAssertion,
+                authnStatementAssertion,
+                persistentId
         );
     }
 }

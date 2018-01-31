@@ -6,50 +6,31 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.Objects;
 
-public final class EidasSuccessfulMatchState extends AbstractSuccessfulMatchState{
-    public EidasSuccessfulMatchState(String requestId, DateTime sessionExpiryTimestamp, String identityProviderEntityId, String matchingServiceAssertion, Optional<String> relayState, String requestIssuerId, URI assertionConsumerServiceUri, SessionId sessionId, LevelOfAssurance levelOfAssurance, boolean transactionSupportsEidas) {
-        super(requestId, sessionExpiryTimestamp, identityProviderEntityId, matchingServiceAssertion, relayState, requestIssuerId, assertionConsumerServiceUri, sessionId, levelOfAssurance, transactionSupportsEidas);
-    }
+public class EidasSuccessfulMatchState extends AbstractSuccessfulMatchState {
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
+    public EidasSuccessfulMatchState(
+            String requestId,
+            DateTime sessionExpiryTimestamp,
+            String identityProviderEntityId,
+            String matchingServiceAssertion,
+            Optional<String> relayState,
+            String requestIssuerId,
+            URI assertionConsumerServiceUri,
+            SessionId sessionId,
+            LevelOfAssurance levelOfAssurance,
+            boolean transactionSupportsEidas) {
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        EidasSuccessfulMatchState that = (EidasSuccessfulMatchState) o;
-
-        return Objects.equals(identityProviderEntityId, that.identityProviderEntityId) &&
-                Objects.equals(matchingServiceAssertion, that.matchingServiceAssertion) &&
-                Objects.equals(relayState, that.relayState) &&
-                levelOfAssurance == that.levelOfAssurance &&
-                getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
-                Objects.equals(getRequestId(), that.getRequestId()) &&
-                Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
-                Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
-                Objects.equals(getAssertionConsumerServiceUri(), that.getAssertionConsumerServiceUri()) &&
-                Objects.equals(getSessionId(), that.getSessionId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
+        super(
+                requestId,
+                sessionExpiryTimestamp,
                 identityProviderEntityId,
                 matchingServiceAssertion,
                 relayState,
+                requestIssuerId,
+                assertionConsumerServiceUri,
+                sessionId,
                 levelOfAssurance,
-                getTransactionSupportsEidas(),
-                getRequestId(),
-                getRequestIssuerEntityId(),
-                getSessionExpiryTimestamp(),
-                getAssertionConsumerServiceUri(),
-                getSessionId());
+                transactionSupportsEidas);
     }
-
 }

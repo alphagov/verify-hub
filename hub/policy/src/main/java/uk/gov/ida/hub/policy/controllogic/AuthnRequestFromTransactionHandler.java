@@ -17,13 +17,13 @@ import uk.gov.ida.hub.policy.domain.controller.AuthnRequestCapableController;
 import uk.gov.ida.hub.policy.domain.controller.ErrorResponsePreparedStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.controller.ResponsePreparedStateController;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectingStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.ResponsePreparedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -59,7 +59,7 @@ public class AuthnRequestFromTransactionHandler {
         Duration sessionLength = policyConfiguration.getSessionLength();
         DateTime sessionExpiryTimestamp = DateTime.now().plus(sessionLength);
         SessionId sessionId = SessionId.createNewSessionId();
-        SessionStartedState sessionStartedState = sessionStartedStateFactory.build(
+        SessionStartedStateTransitional sessionStartedState = sessionStartedStateFactory.build(
                 samlResponse.getId(),
                 assertionConsumerServiceUri,
                 samlResponse.getIssuer(),
@@ -77,18 +77,18 @@ public class AuthnRequestFromTransactionHandler {
 
     public void tryAnotherIdp(final SessionId sessionId) {
         final AuthnFailedErrorStateController stateController = (AuthnFailedErrorStateController)
-                sessionRepository.getStateController(sessionId, AuthnFailedErrorState.class);
+                sessionRepository.getStateController(sessionId, AuthnFailedErrorStateTransitional.class);
         stateController.tryAnotherIdpResponse();
     }
 
     public void selectIdpForGivenSessionId(SessionId sessionId, IdpSelected idpSelected) {
         IdpSelectingStateController stateController = (IdpSelectingStateController)
-                sessionRepository.getStateController(sessionId, IdpSelectingState.class);
-        stateController.handleIdpSelected(idpSelected.getSelectedIdpEntityId(), idpSelected.getPrincipalIpAddress(), idpSelected.isRegistration());
+                sessionRepository.getStateController(sessionId, IdpSelectingStateTransitional.class);
+        stateController.handleIdpSelected(idpSelected.getSelectedIdpEntityId(), idpSelected.getPrincipalIpAddress(), idpSelected.isRegistration(), idpSelected.getRequestedLoa());
     }
 
     public AuthnRequestFromHub getIdaAuthnRequestFromHub(SessionId sessionId) {
-        Class currentState = sessionRepository.isSessionInState(sessionId, CountrySelectedState.class) ? CountrySelectedState.class : IdpSelectedState.class;
+        Class currentState = sessionRepository.isSessionInState(sessionId, CountrySelectedState.class) ? CountrySelectedState.class : IdpSelectedStateTransitional.class;
         AuthnRequestCapableController stateController = (AuthnRequestCapableController)
                 sessionRepository.getStateController(sessionId, currentState);
         return stateController.getRequestFromHub();
@@ -96,13 +96,13 @@ public class AuthnRequestFromTransactionHandler {
 
     public AuthnRequestSignInProcess getSignInProcessDto(SessionId sessionIdParameter) {
         IdpSelectingStateController stateController = (IdpSelectingStateController)
-                sessionRepository.getStateController(sessionIdParameter, IdpSelectingState.class);
+                sessionRepository.getStateController(sessionIdParameter, IdpSelectingStateTransitional.class);
         return stateController.getSignInProcessDetails();
     }
 
     public String getRequestIssuerId(SessionId sessionId) {
         IdpSelectingStateController stateController = (IdpSelectingStateController)
-                sessionRepository.getStateController(sessionId, IdpSelectingState.class);
+                sessionRepository.getStateController(sessionId, IdpSelectingStateTransitional.class);
         return stateController.getRequestIssuerId();
     }
 

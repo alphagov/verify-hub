@@ -19,7 +19,7 @@ import uk.gov.ida.hub.policy.domain.FraudDetectedDetails;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
@@ -263,7 +263,7 @@ public class EventSinkHubEventLoggerTest {
         final String principalIpAddress = "some-principal-ip-address";
         ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
 
-        IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().withLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2)).build();
+        IdpSelectedStateTransitional state = IdpSelectedStateBuilder.anIdpSelectedState().withLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2)).build();
         eventLogger.logIdpSelectedEvent(state, principalIpAddress);
 
         verify(eventSinkProxy).logHubEvent(eventCaptor.capture());

@@ -18,8 +18,8 @@ import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -109,7 +109,7 @@ public class AwaitingCycle3DataStateControllerTest {
         final String transactionEntityId = "some-transaction-entity-id";
         final DateTime sessionExpiryTime = DateTime.now().plusMinutes(1);
 
-        AwaitingCycle3DataState state = anAwaitingCycle3DataState()
+        AwaitingCycle3DataStateTransitional state = anAwaitingCycle3DataState()
                 .withSessionId(sessionId)
                 .withTransactionEntityId(transactionEntityId)
                 .withSessionExpiryTime(sessionExpiryTime)
@@ -135,16 +135,16 @@ public class AwaitingCycle3DataStateControllerTest {
     @Test
     public void shouldMoveFromAwaitingC3StateToCycle3DataSentStateWhenCycle3DataIsReceived() throws Exception {
         final SessionId sessionId = SessionId.createNewSessionId();
-        AwaitingCycle3DataState state = anAwaitingCycle3DataState().withSessionId(sessionId).build();
+        AwaitingCycle3DataStateTransitional state = anAwaitingCycle3DataState().withSessionId(sessionId).build();
         AwaitingCycle3DataStateController controller = new AwaitingCycle3DataStateController(state, eventSinkHubEventLogger, stateTransitionAction, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionsFactory, matchingServiceConfigProxy);
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));
-        ArgumentCaptor<Cycle3MatchRequestSentState> argumentCaptor = ArgumentCaptor.forClass(Cycle3MatchRequestSentState.class);
+        ArgumentCaptor<Cycle3MatchRequestSentStateTransitional> argumentCaptor = ArgumentCaptor.forClass(Cycle3MatchRequestSentStateTransitional.class);
         when(matchingServiceConfigProxy.getMatchingService(state.getMatchingServiceEntityId())).thenReturn(aMatchingServiceConfigEntityDataDto().build());
 
         controller.handleCycle3DataSubmitted("principalIpAsSeenByHub");
 
         verify(stateTransitionAction, times(1)).transitionTo(argumentCaptor.capture());
-        final Cycle3MatchRequestSentState cycle3MatchRequestSentState = argumentCaptor.getValue();
+        final Cycle3MatchRequestSentStateTransitional cycle3MatchRequestSentState = argumentCaptor.getValue();
         assertThat(cycle3MatchRequestSentState.getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
     }
 }
