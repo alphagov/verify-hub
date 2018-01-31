@@ -22,6 +22,8 @@ public class CertificateChainConfigValidator {
     private final CertificateValidityChecker certificateValidityChecker;
     private final EntityConfigDataToCertificateDtoTransformer certificateDtoTransformer;
 
+    private static final Logger LOG = LoggerFactory.getLogger(CertificateChainConfigValidator.class);
+
     @Inject
     public CertificateChainConfigValidator(final TrustStoreForCertificateProvider trustStoreForCertificateProvider, final CertificateChainValidator certificateChainValidator) {
         this.certificateValidityChecker = createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
@@ -33,7 +35,16 @@ public class CertificateChainConfigValidator {
         ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificateDetails);
 
         if (!invalidCertificates.isEmpty()) {
-            throw createInvalidCertificatesException(invalidCertificates);
+            String errorMessages = invalidCertificates.stream()
+                    .map(certificate -> MessageFormat.format(
+                            "Invalid certificate found.\nEntity Id: {0}\nCertificate Type: {1}\nFederation Type: {2}\nReason: {3}\nDescription: {4}",
+                            certificate.getEntityId(),
+                            certificate.getCertificateType(),
+                            certificate.getFederationType(),
+                            certificate.getReason(),
+                            certificate.getDescription())).collect(Collectors.joining("\n"));
+
+            LOG.info(errorMessages);
         }
     }
 }

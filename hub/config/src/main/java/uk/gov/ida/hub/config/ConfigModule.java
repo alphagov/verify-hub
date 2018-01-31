@@ -3,10 +3,10 @@ package uk.gov.ida.hub.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import io.dropwizard.configuration.ConfigurationFactoryFactory;
 import io.dropwizard.configuration.DefaultConfigurationFactoryFactory;
-import uk.gov.ida.common.shared.security.Certificate;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
@@ -22,6 +22,7 @@ import uk.gov.ida.hub.config.data.FileBackedMatchingServiceConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTransactionConfigDataSource;
 import uk.gov.ida.hub.config.data.LevelsOfAssuranceConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
+import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
 import uk.gov.ida.hub.config.domain.EntityConfigDataToCertificateDtoTransformer;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
@@ -77,5 +78,10 @@ public class ConfigModule extends AbstractModule {
         bind(OCSPPKIXParametersProvider.class).toInstance(new OCSPPKIXParametersProvider());
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(CertificateService.class);
+    }
+
+    @Provides
+    public CertificateValidityChecker validityChecker(TrustStoreForCertificateProvider trustStoreForCertificateProvider, CertificateChainValidator certificateChainValidator) {
+        return CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
     }
 }
