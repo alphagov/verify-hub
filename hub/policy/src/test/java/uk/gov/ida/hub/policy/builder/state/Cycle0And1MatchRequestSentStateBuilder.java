@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 
 import java.net.URI;
 
@@ -28,8 +29,8 @@ public class Cycle0And1MatchRequestSentStateBuilder {
         return new Cycle0And1MatchRequestSentStateBuilder();
     }
 
-    public Cycle0And1MatchRequestSentState build() {
-        return new Cycle0And1MatchRequestSentState(
+    public Cycle0And1MatchRequestSentStateTransitional build() {
+        return new Cycle0And1MatchRequestSentStateTransitional(
                 requestId,
                 requestIssuerId,
                 sessionExpiryTimestamp,
@@ -37,6 +38,25 @@ public class Cycle0And1MatchRequestSentStateBuilder {
                 sessionId,
                 transactionSupportsEidas,
                 registering,
+                "idp-entity-id",
+                Optional.<String>absent(),
+                LevelOfAssurance.LEVEL_1,
+                matchingServiceEntityId,
+                encryptedMatchingDatasetAssertion,
+                "aPassthroughAssertion().buildAuthnStatementAssertion()",
+                persistentId
+        );
+    }
+
+    @Deprecated
+    public Cycle0And1MatchRequestSentState buildOld() {
+        return new Cycle0And1MatchRequestSentState(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                URI.create("default-service-uri"),
+                sessionId,
+                transactionSupportsEidas,
                 "idp-entity-id",
                 Optional.<String>absent(),
                 LevelOfAssurance.LEVEL_1,
@@ -71,5 +91,4 @@ public class Cycle0And1MatchRequestSentStateBuilder {
         this.registering = registering;
         return this;
     }
-
 }

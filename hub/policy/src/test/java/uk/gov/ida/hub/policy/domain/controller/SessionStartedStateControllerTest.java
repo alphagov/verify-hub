@@ -12,8 +12,8 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -49,7 +49,7 @@ public class SessionStartedStateControllerTest {
 
     private SessionStartedStateController controller;
 
-    private SessionStartedState sessionStartedState;
+    private SessionStartedStateTransitional sessionStartedState;
 
     @Before
     public void setup() {
@@ -74,7 +74,7 @@ public class SessionStartedStateControllerTest {
     @Test
     public void handleIdpSelect_shouldTransitionStateAndLogEvent() {
         controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", REGISTERING, LevelOfAssurance.LEVEL_2);
-        ArgumentCaptor<IdpSelectedState> capturedState = ArgumentCaptor.forClass(IdpSelectedState.class);
+        ArgumentCaptor<IdpSelectedStateTransitional> capturedState = ArgumentCaptor.forClass(IdpSelectedStateTransitional.class);
 
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue().getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
@@ -92,7 +92,7 @@ public class SessionStartedStateControllerTest {
         catch(StateProcessingValidationException e) {
             assertThat(e.getMessage()).contains("Available Identity Provider for session ID [" + sessionStartedState
                             .getSessionId().getSessionId() + "] not found for entity ID [notExist].");
-            verify(eventSinkHubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedState.class), eq("some-ip-address"));
+            verify(eventSinkHubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedStateTransitional.class), eq("some-ip-address"));
         }
     }
 }

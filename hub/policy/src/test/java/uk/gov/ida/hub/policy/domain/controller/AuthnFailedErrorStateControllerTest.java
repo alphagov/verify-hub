@@ -12,8 +12,8 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
@@ -36,7 +36,7 @@ public class AuthnFailedErrorStateControllerTest {
     private static final String IDP_ENTITY_ID = "anIdp";
     private static final boolean REGISTERING = false;
 
-    private AuthnFailedErrorState authnFailedErrorState;
+    private AuthnFailedErrorStateTransitional authnFailedErrorState;
 
     private AuthnFailedErrorStateController controller;
 
@@ -77,7 +77,7 @@ public class AuthnFailedErrorStateControllerTest {
     @Test
     public void handleIdpSelect_shouldTransitionStateAndLogEvent() {
         controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", false, LevelOfAssurance.LEVEL_2);
-        ArgumentCaptor<IdpSelectedState> capturedState = ArgumentCaptor.forClass(IdpSelectedState.class);
+        ArgumentCaptor<IdpSelectedStateTransitional> capturedState = ArgumentCaptor.forClass(IdpSelectedStateTransitional.class);
 
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue().getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
@@ -94,7 +94,7 @@ public class AuthnFailedErrorStateControllerTest {
         catch(StateProcessingValidationException e) {
             assertThat(e.getMessage()).contains("Available Identity Provider for session ID [" + authnFailedErrorState
                     .getSessionId().getSessionId() + "] not found for entity ID [notExist].");
-            verify(eventSinkHubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedState.class), eq("some-ip-address"));
+            verify(eventSinkHubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedStateTransitional.class), eq("some-ip-address"));
         }
     }
 

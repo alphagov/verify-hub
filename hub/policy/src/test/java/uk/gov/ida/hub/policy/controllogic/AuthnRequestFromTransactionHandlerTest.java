@@ -18,7 +18,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectingStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -81,7 +81,7 @@ public class AuthnRequestFromTransactionHandlerTest {
         IdpSelected idpSelected = new IdpSelected(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS, REGISTERING, REQUESTED_LOA);
 
         IdpSelectingStateControllerSpy idpSelectingStateController = new IdpSelectingStateControllerSpy();
-        when(sessionRepository.getStateController(sessionId, IdpSelectingState.class)).thenReturn((idpSelectingStateController));
+        when(sessionRepository.getStateController(sessionId, IdpSelectingStateTransitional.class)).thenReturn((idpSelectingStateController));
 
         authnRequestFromTransactionHandler.selectIdpForGivenSessionId(sessionId, idpSelected);
 

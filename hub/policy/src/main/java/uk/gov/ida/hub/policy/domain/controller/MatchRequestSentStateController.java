@@ -5,14 +5,14 @@ import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
-public abstract class MatchRequestSentStateController<T extends MatchRequestSentState> extends AbstractMatchRequestSentStateController<T, SuccessfulMatchState> {
+public abstract class MatchRequestSentStateController<T extends MatchRequestSentStateTransitional> extends AbstractMatchRequestSentStateController<T, SuccessfulMatchStateTransitional> {
 
     public MatchRequestSentStateController(
             final T state,
@@ -43,7 +43,7 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
 
         attributeQueryService.sendAttributeQueryRequest(state.getSessionId(), attributeQueryRequestDto);
 
-        return new UserAccountCreationRequestSentState(
+        return new UserAccountCreationRequestSentStateTransitional(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),

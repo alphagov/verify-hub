@@ -2,14 +2,19 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 
-public abstract class MatchRequestSentState extends AbstractMatchRequestSentState {
+public abstract class MatchRequestSentState extends AbstractState implements ResponseProcessingState, WaitingForMatchingServiceResponseState {
 
-    private final boolean registering;
+    private final String identityProviderEntityId;
+    private final Optional<String> relayState;
+    private final LevelOfAssurance idpLevelOfAssurance;
+    private final String matchingServiceAdapterEntityId;
+    private final DateTime requestSentTime;
 
     protected MatchRequestSentState(
             final String requestId,
@@ -21,7 +26,6 @@ public abstract class MatchRequestSentState extends AbstractMatchRequestSentStat
             final String identityProviderEntityId,
             final Optional<String> relayState,
             final LevelOfAssurance idpLevelOfAssurance,
-            final boolean registering,
             final String matchingServiceAdapterEntityId) {
 
         super(
@@ -30,17 +34,33 @@ public abstract class MatchRequestSentState extends AbstractMatchRequestSentStat
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
-                identityProviderEntityId,
-                relayState,
-                idpLevelOfAssurance,
-                matchingServiceAdapterEntityId
+                transactionSupportsEidas
         );
 
-        this.registering = registering;
+        this.identityProviderEntityId = identityProviderEntityId;
+        this.relayState = relayState;
+        this.idpLevelOfAssurance = idpLevelOfAssurance;
+        this.matchingServiceAdapterEntityId = matchingServiceAdapterEntityId;
+        this.requestSentTime = DateTime.now();
     }
 
-    public boolean isRegistering() {
-        return registering;
+    public String getIdentityProviderEntityId() {
+        return identityProviderEntityId;
+    }
+
+    public Optional<String> getRelayState() {
+        return relayState;
+    }
+
+    public DateTime getRequestSentTime() {
+        return requestSentTime;
+    }
+
+    public LevelOfAssurance getIdpLevelOfAssurance() {
+        return idpLevelOfAssurance;
+    }
+
+    public String getMatchingServiceAdapterEntityId() {
+        return matchingServiceAdapterEntityId;
     }
 }

@@ -25,7 +25,7 @@ import uk.gov.ida.hub.policy.domain.AuthnRequestSignInDetailsDto;
 import uk.gov.ida.hub.policy.domain.IdpSelected;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
@@ -171,7 +171,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
         Response checkStateChanged = client.target(buildUriForTestSession(GET_SESSION_STATE_NAME, sessionId)).request().get();
-        assertThat(checkStateChanged.readEntity(String.class)).isEqualTo(SessionStartedState.class.getName());
+        assertThat(checkStateChanged.readEntity(String.class)).isEqualTo(SessionStartedStateTransitional.class.getName());
     }
 
     @Test

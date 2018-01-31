@@ -26,11 +26,11 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -87,7 +87,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     private MatchingProcess matchingProcess;
 
     public Cycle0And1MatchRequestSentStateController controller;
-    private Cycle0And1MatchRequestSentState state;
+    private Cycle0And1MatchRequestSentStateTransitional state;
 
     @Captor
     private
@@ -174,7 +174,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         assertThat(actualAttributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(userAccountCreationUri);
         assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.of(userAccountCreationAttributes));
 
-        assertThat(nextState).isInstanceOf(UserAccountCreationRequestSentState.class);
+        assertThat(nextState).isInstanceOf(UserAccountCreationRequestSentStateTransitional.class);
     }
 
     @Test
@@ -187,8 +187,8 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         final State nextState = controller.getNextStateForNoMatch();
 
         //Then
-        assertThat(nextState).isInstanceOf(AwaitingCycle3DataState.class);
-        assertThat(((AwaitingCycle3DataState)nextState).getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
+        assertThat(nextState).isInstanceOf(AwaitingCycle3DataStateTransitional.class);
+        assertThat(((AwaitingCycle3DataStateTransitional)nextState).getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
                 verify(transactionsConfigProxy, times(0)).getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID);
     }
 
@@ -263,7 +263,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
 
     @Test
     public void responseProcessingDetails_shouldReturnCompleteStatus_successResponseSentFromMatchingService() {
-        ArgumentCaptor<SuccessfulMatchState> argumentCaptor = ArgumentCaptor.forClass(SuccessfulMatchState.class);
+        ArgumentCaptor<SuccessfulMatchStateTransitional> argumentCaptor = ArgumentCaptor.forClass(SuccessfulMatchStateTransitional.class);
         MatchFromMatchingService matchFromMatchingService = new MatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID, "assertionBlob", Optional.of(LevelOfAssurance.LEVEL_1));
 
         controller.handleMatchResponseFromMatchingService(matchFromMatchingService);

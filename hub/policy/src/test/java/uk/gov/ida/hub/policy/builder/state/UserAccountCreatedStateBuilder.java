@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 
 import java.net.URI;
 
@@ -29,8 +30,8 @@ public class UserAccountCreatedStateBuilder {
         return new UserAccountCreatedStateBuilder();
     }
 
-    public UserAccountCreatedState build() {
-        return new UserAccountCreatedState(
+    public UserAccountCreatedStateTransitional build() {
+        return new UserAccountCreatedStateTransitional(
                 requestId,
                 requestIssuerId,
                 sessionExpiryTimestamp,
@@ -41,6 +42,21 @@ public class UserAccountCreatedStateBuilder {
                 relayState,
                 levelOfAssurance,
                 registering,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
+    public UserAccountCreatedState buildOld() {
+        return new UserAccountCreatedState(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                identityProviderEntityId,
+                matchingServiceAssertion,
+                relayState,
+                levelOfAssurance,
                 transactionSupportsEidas);
     }
 

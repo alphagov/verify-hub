@@ -5,7 +5,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.StateController;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
@@ -13,10 +13,10 @@ import java.util.Collection;
 
 public class UserAccountCreatedStateController implements StateController, ResponseProcessingStateController, ResponsePreparedStateController, ErrorResponsePreparedStateController {
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
-    private final UserAccountCreatedState state;
+    private final UserAccountCreatedStateTransitional state;
     private final ResponseFromHubFactory responseFromHubFactory;
 
-    public UserAccountCreatedStateController(final UserAccountCreatedState state,
+    public UserAccountCreatedStateController(final UserAccountCreatedStateTransitional state,
                                              final IdentityProvidersConfigProxy identityProvidersConfigProxy,
                                              final ResponseFromHubFactory responseFromHubFactory) {
         this.identityProvidersConfigProxy = identityProvidersConfigProxy;

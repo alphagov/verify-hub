@@ -30,7 +30,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
@@ -70,7 +70,7 @@ public class AuthnResponseFromIdpServiceTest {
         sessionId = SessionIdBuilder.aSessionId().build();
         samlAuthnResponseContainerDto = aSamlAuthnResponseContainerDto().withSessionId(sessionId).withPrincipalIPAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS).build();
         service = new AuthnResponseFromIdpService(samlEngineProxy, attributeQueryService, sessionRepository, samlAuthnResponseTranslatorDtoFactory);
-        when(sessionRepository.getStateController(sessionId, IdpSelectedState.class)).thenReturn(idpSelectedStateController);
+        when(sessionRepository.getStateController(sessionId, IdpSelectedStateTransitional.class)).thenReturn(idpSelectedStateController);
     }
 
     @Test

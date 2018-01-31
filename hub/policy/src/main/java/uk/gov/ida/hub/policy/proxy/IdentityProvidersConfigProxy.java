@@ -32,6 +32,10 @@ public class IdentityProvidersConfigProxy {
 
     @Timed
     public List<String> getEnabledIdentityProviders(String transactionEntityId, boolean registering, LevelOfAssurance loa) {
+        if (loa == null) {
+            return getEnabledIdentityProvidersForSignIn(transactionEntityId);
+        }
+
         return registering ?
                 getEnabledIdentityProvidersForLoa(transactionEntityId, loa) :
                 getEnabledIdentityProvidersForSignIn(transactionEntityId);

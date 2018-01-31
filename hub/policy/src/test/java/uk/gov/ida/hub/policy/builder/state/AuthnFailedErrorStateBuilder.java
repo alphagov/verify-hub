@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 
 import java.net.URI;
 import java.util.UUID;
@@ -32,7 +33,21 @@ public class AuthnFailedErrorStateBuilder {
         return this;
     }
 
-    public AuthnFailedErrorState build() {
+    public AuthnFailedErrorStateTransitional build() {
+        return new AuthnFailedErrorStateTransitional(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceIndex,
+                relayState,
+                sessionId,
+                idpEntityId,
+                forceAuthentication,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
+    public AuthnFailedErrorState buildOld() {
         return new AuthnFailedErrorState(
                 requestId,
                 requestIssuerId,
@@ -41,6 +56,7 @@ public class AuthnFailedErrorStateBuilder {
                 relayState,
                 sessionId,
                 idpEntityId,
+                null,
                 forceAuthentication,
                 transactionSupportsEidas);
     }

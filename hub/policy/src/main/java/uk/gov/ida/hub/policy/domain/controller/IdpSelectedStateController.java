@@ -19,13 +19,13 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
-import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
@@ -40,7 +40,7 @@ import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationEx
 
 public class IdpSelectedStateController implements StateController, ErrorResponsePreparedStateController, IdpSelectingStateController, AuthnRequestCapableController {
 
-    private final IdpSelectedState state;
+    private final IdpSelectedStateTransitional state;
     private final SessionStartedStateFactory sessionStartedStateFactory;
     private final EventSinkHubEventLogger eventSinkHubEventLogger;
     private final StateTransitionAction stateTransitionAction;
@@ -52,7 +52,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     private final PolicyConfiguration policyConfiguration;
 
     public IdpSelectedStateController(
-            final IdpSelectedState state,
+            final IdpSelectedStateTransitional state,
             final SessionStartedStateFactory sessionStartedStateFactory,
             final EventSinkHubEventLogger eventSinkHubEventLogger,
             final StateTransitionAction stateTransitionAction,
@@ -186,7 +186,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     }
 
     private State createRequesterErrorState() {
-        return new RequesterErrorState(
+        return new RequesterErrorStateTransitional(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -198,7 +198,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     }
 
     private State createFraudEventDetectedState() {
-        return new FraudEventDetectedState(
+        return new FraudEventDetectedStateTransitional(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -210,7 +210,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getTransactionSupportsEidas());
     }
 
-    private SessionStartedState createSessionStartedState() {
+    private SessionStartedStateTransitional createSessionStartedState() {
         return sessionStartedStateFactory.build(
                 state.getRequestId(),
                 state.getAssertionConsumerServiceUri(),
@@ -223,7 +223,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     }
 
     private State createAuthnFailedErrorState() {
-        return new AuthnFailedErrorState(
+        return new AuthnFailedErrorStateTransitional(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -251,7 +251,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
         String matchingServiceEntityId = getMatchingServiceEntityId();
 
-        return new Cycle0And1MatchRequestSentState(
+        return new Cycle0And1MatchRequestSentStateTransitional(
             state.getRequestId(),
             state.getRequestIssuerEntityId(),
             state.getSessionExpiryTimestamp(),
@@ -312,7 +312,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
     @Override
     public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
+        IdpSelectedStateTransitional idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
         eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }

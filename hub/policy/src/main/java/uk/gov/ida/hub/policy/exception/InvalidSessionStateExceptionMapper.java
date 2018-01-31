@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.facade.EventSinkMessageSenderFacade;
 import uk.gov.ida.shared.utils.logging.LogFormatter;
 
@@ -39,8 +39,8 @@ public class InvalidSessionStateExceptionMapper extends PolicyExceptionMapper<In
     }
 
     private ExceptionType getExceptionType(InvalidSessionStateException exception) {
-        if (exception.getExpectedState().equals(SessionStartedState.class) &&
-                exception.getActualState().equals(IdpSelectedState.class)) {
+        if (exception.getExpectedState().equals(SessionStartedStateTransitional.class) &&
+                exception.getActualState().equals(IdpSelectedStateTransitional.class)) {
             return ExceptionType.EXPECTED_SESSION_STARTED_STATE_ACTUAL_IDP_SELECTED_STATE;
         }
         return ExceptionType.INVALID_STATE;

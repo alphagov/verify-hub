@@ -15,7 +15,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
@@ -48,7 +48,7 @@ public class AuthnResponseFromIdpService {
     public ResponseAction receiveAuthnResponseFromIdp(SessionId sessionId,
                                                       SamlAuthnResponseContainerDto samlResponseDto) {
 
-        IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
+        IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedStateTransitional.class);
 
         String matchingServiceEntityId = idpSelectedController.getMatchingServiceEntityId();
         final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, matchingServiceEntityId);

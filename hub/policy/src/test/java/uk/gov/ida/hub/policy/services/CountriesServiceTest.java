@@ -10,7 +10,7 @@ import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.CountrySelectedStateController;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.exception.EidasCountryNotSupportedException;
 import uk.gov.ida.hub.policy.exception.EidasNotSupportedException;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -78,7 +78,7 @@ public class CountriesServiceTest {
     @Test
     public void shouldSetSelectedCountry() {
         CountrySelectedStateController mockCountrySelectedStateController = mock(CountrySelectedStateController.class);
-        when(sessionRepository.getStateController(sessionId, SessionStartedState.class)).thenReturn(mockCountrySelectedStateController);
+        when(sessionRepository.getStateController(sessionId, SessionStartedStateTransitional.class)).thenReturn(mockCountrySelectedStateController);
         setSystemWideCountries(COUNTRY_1);
 
         service.setSelectedCountry(sessionId, COUNTRY_1.getSimpleId());
@@ -89,7 +89,7 @@ public class CountriesServiceTest {
     @Test(expected = EidasCountryNotSupportedException.class)
     public void shouldReturnErrorWhenAnInvalidCountryIsSelected() {
         CountrySelectedStateController mockCountrySelectedStateController = mock(CountrySelectedStateController.class);
-        when(sessionRepository.getStateController(sessionId, SessionStartedState.class)).thenReturn(mockCountrySelectedStateController);
+        when(sessionRepository.getStateController(sessionId, SessionStartedStateTransitional.class)).thenReturn(mockCountrySelectedStateController);
         setSystemWideCountries(COUNTRY_1);
 
         service.setSelectedCountry(sessionId, "not-a-valid-country-code");

@@ -23,12 +23,12 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
@@ -93,7 +93,7 @@ public class IdpSelectedStateControllerTest {
     private MatchingServiceConfigProxy matchingServiceConfigProxy;
 
     private SessionStartedStateFactory sessionStartedStateFactory;
-    private IdpSelectedState idpSelectedState;
+    private IdpSelectedStateTransitional idpSelectedState;
 
     @Before
     public void setup() {
@@ -111,7 +111,7 @@ public class IdpSelectedStateControllerTest {
                 .withRegistration(isRegistration)
                 .withTransactionSupportsEidas(true)
                 .build();
-        IdpSelectedState state = idpSelectedState;
+        IdpSelectedStateTransitional state = idpSelectedState;
 
         String matchingServiceEntityId = "matching-service-entity-id";
         when(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId())).thenReturn(matchingServiceEntityId);
@@ -151,7 +151,7 @@ public class IdpSelectedStateControllerTest {
 
         ArgumentCaptor<State> stateArgumentCaptor = ArgumentCaptor.forClass(State.class);
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
-        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(FraudEventDetectedState.class);
+        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(FraudEventDetectedStateTransitional.class);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class IdpSelectedStateControllerTest {
 
         ArgumentCaptor<State> stateArgumentCaptor = ArgumentCaptor.forClass(State.class);
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
-        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(AuthnFailedErrorState.class);
+        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(AuthnFailedErrorStateTransitional.class);
     }
 
     @Test
@@ -240,7 +240,7 @@ public class IdpSelectedStateControllerTest {
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(any(String.class), eq(controller.isRegistrationContext()), eq(PROVIDED_LOA)))
                 .thenReturn(singletonList(authenticationErrorResponse.getIssuer()));
         controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
-        verify(stateTransitionAction).transitionTo(isA(AuthnFailedErrorState.class));
+        verify(stateTransitionAction).transitionTo(isA(AuthnFailedErrorStateTransitional.class));
     }
 
     @Test
@@ -249,7 +249,7 @@ public class IdpSelectedStateControllerTest {
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(any(String.class), eq(controller.isRegistrationContext()), eq(PROVIDED_LOA)))
                 .thenReturn(singletonList(authenticationErrorResponse.getIssuer()));
         controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
-        verify(stateTransitionAction).transitionTo(isA(SessionStartedState.class));
+        verify(stateTransitionAction).transitionTo(isA(SessionStartedStateTransitional.class));
     }
 
     @Test(expected = IdpDisabledException.class)
@@ -285,7 +285,7 @@ public class IdpSelectedStateControllerTest {
 
     @Test
     public void handleSuccessResponseFromIdp_shouldTransitionToCycle0And1MatchRequestSentState() throws Exception {
-        ArgumentCaptor<Cycle0And1MatchRequestSentState> stateArgumentCaptor = ArgumentCaptor.forClass(Cycle0And1MatchRequestSentState.class);
+        ArgumentCaptor<Cycle0And1MatchRequestSentStateTransitional> stateArgumentCaptor = ArgumentCaptor.forClass(Cycle0And1MatchRequestSentStateTransitional.class);
         PersistentId persistentId = aPersistentId().withNameId("idname").build();
         final String encryptedMatchingDatasetAssertion = "blah";
         SuccessFromIdp successFromIdp = aSuccessFromIdp()
@@ -304,7 +304,7 @@ public class IdpSelectedStateControllerTest {
         controller.handleSuccessResponseFromIdp(successFromIdp);
 
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
-        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(Cycle0And1MatchRequestSentState.class);
+        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(Cycle0And1MatchRequestSentStateTransitional.class);
         assertThat(stateArgumentCaptor.getValue().getEncryptedMatchingDatasetAssertion()).isEqualTo(encryptedMatchingDatasetAssertion);
     }
 

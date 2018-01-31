@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 
 import java.net.URI;
 import java.util.UUID;
@@ -29,8 +30,8 @@ public class UserAccountCreationRequestSentStateBuilder {
         return new UserAccountCreationRequestSentStateBuilder();
     }
 
-    public UserAccountCreationRequestSentState build() {
-        return new UserAccountCreationRequestSentState(
+    public UserAccountCreationRequestSentStateTransitional build() {
+        return new UserAccountCreationRequestSentStateTransitional(
                 requestId,
                 requestIssuerId,
                 sessionExpiryTimestamp,
@@ -41,6 +42,22 @@ public class UserAccountCreationRequestSentStateBuilder {
                 relayState,
                 levelOfAssurance,
                 registering,
+                "matchingServiceEntityId"
+        );
+    }
+
+    @Deprecated
+    public UserAccountCreationRequestSentState buildOld() {
+        return new UserAccountCreationRequestSentState(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                identityProviderEntityId,
+                relayState,
+                levelOfAssurance,
                 "matchingServiceEntityId"
         );
     }

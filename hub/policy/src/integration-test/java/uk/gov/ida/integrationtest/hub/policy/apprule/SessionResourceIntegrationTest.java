@@ -27,8 +27,8 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
@@ -183,7 +183,7 @@ public class SessionResourceIntegrationTest {
 
         //Then
         assertThat(result).isEqualToComparingFieldByField(expectedResult);
-        IdpSelectedState sessionState = policy.getSessionState(sessionId, IdpSelectedState.class);
+        IdpSelectedStateTransitional sessionState = policy.getSessionState(sessionId, IdpSelectedStateTransitional.class);
         assertThat(sessionState.getMatchingServiceEntityId()).isEqualTo(msEntityId);
     }
 
@@ -308,7 +308,7 @@ public class SessionResourceIntegrationTest {
         ResponseAction actualResult = response.readEntity(ResponseAction.class);
         assertThat(actualResult).isEqualToComparingFieldByField(expectedResult);
 
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentStateTransitional.class.getName());
     }
 
     private String getSessionStateName(SessionId sessionId) {

@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 
 import java.net.URI;
 import java.util.UUID;
@@ -33,8 +34,8 @@ public class Cycle3MatchRequestSentStateBuilder {
         return new Cycle3MatchRequestSentStateBuilder();
     }
 
-    public Cycle3MatchRequestSentState build() {
-        return new Cycle3MatchRequestSentState(
+    public Cycle3MatchRequestSentStateTransitional build() {
+        return new Cycle3MatchRequestSentStateTransitional(
                 requestId,
                 requestIssuerId,
                 sessionExpiryTimestamp,
@@ -45,6 +46,25 @@ public class Cycle3MatchRequestSentStateBuilder {
                 relayState,
                 levelOfAssurance,
                 registering,
+                "matchingServiceEntityId",
+                encryptedMatchingDatasetAssertion,
+                "aPassthroughAssertion().buildAuthnStatementAssertion()",
+                persistentId
+        );
+    }
+
+    @Deprecated
+    public Cycle3MatchRequestSentState buildOld() {
+        return new Cycle3MatchRequestSentState(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                identityProviderEntityId,
+                relayState,
+                levelOfAssurance,
                 "matchingServiceEntityId",
                 encryptedMatchingDatasetAssertion,
                 "aPassthroughAssertion().buildAuthnStatementAssertion()",

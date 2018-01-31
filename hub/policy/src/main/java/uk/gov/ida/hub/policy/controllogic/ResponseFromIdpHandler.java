@@ -6,7 +6,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.AuthnFailedErrorStateController;
 import uk.gov.ida.hub.policy.domain.controller.ResponseProcessingStateController;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.ResponseProcessingState;
 
 import javax.inject.Inject;
@@ -27,7 +27,7 @@ public class ResponseFromIdpHandler {
     }
 
     public FailureResponseDetails getErrorResponseFromIdp(SessionId sessionId) {
-        AuthnFailedErrorStateController stateController = (AuthnFailedErrorStateController) sessionRepository.getStateController(sessionId, AuthnFailedErrorState.class);
+        AuthnFailedErrorStateController stateController = (AuthnFailedErrorStateController) sessionRepository.getStateController(sessionId, AuthnFailedErrorStateTransitional.class);
         return stateController.handleFailureResponse();
     }
 }

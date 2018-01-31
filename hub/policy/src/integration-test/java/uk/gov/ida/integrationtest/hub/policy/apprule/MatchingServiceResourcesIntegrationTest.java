@@ -34,14 +34,14 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
@@ -151,7 +151,7 @@ public class MatchingServiceResourcesIntegrationTest {
         Response response = postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(getSessionStateName(sessionId)).isEqualTo(SuccessfulMatchState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(SuccessfulMatchStateTransitional.class.getName());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         // Note that the state does not get updated if there is a StateProcessingValidationException
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentStateTransitional.class.getName());
 
     }
 
@@ -225,7 +225,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         // Note that the state does not get updated if there is a StateProcessingValidationException
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle3MatchRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle3MatchRequestSentStateTransitional.class.getName());
     }
 
     @Test
@@ -245,7 +245,7 @@ public class MatchingServiceResourcesIntegrationTest {
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.WAIT);
         assertThat(responseProcessingDetails.getSessionId()).isEqualTo(sessionId);
-        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentStateTransitional.class.getName());
     }
 
     @Test
@@ -263,7 +263,7 @@ public class MatchingServiceResourcesIntegrationTest {
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.WAIT);
         assertThat(responseProcessingDetails.getSessionId()).isEqualTo(sessionId);
-        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentStateTransitional.class.getName());
     }
 
     @Test
@@ -284,7 +284,7 @@ public class MatchingServiceResourcesIntegrationTest {
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.SEND_USER_ACCOUNT_CREATED_RESPONSE_TO_TRANSACTION);
         assertThat(responseProcessingDetails.getSessionId()).isEqualTo(sessionId);
-        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreatedState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreatedStateTransitional.class.getName());
     }
 
     @Test
@@ -324,7 +324,7 @@ public class MatchingServiceResourcesIntegrationTest {
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.GET_C3_DATA);
         assertThat(responseProcessingDetails.getSessionId()).isEqualTo(sessionId);
-        assertThat(getSessionStateName(sessionId)).isEqualTo(AwaitingCycle3DataState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(AwaitingCycle3DataStateTransitional.class.getName());
     }
 
     @Test
@@ -381,7 +381,7 @@ public class MatchingServiceResourcesIntegrationTest {
         final Cycle3AttributeRequestData attributeData = response.readEntity(Cycle3AttributeRequestData.class);
         assertThat(attributeData.getAttributeName()).isEqualTo(cycle3Attribute);
         assertThat(attributeData.getRequestIssuerId()).isEqualTo(rpEntityId);
-        assertThat(getSessionStateName(sessionId)).isEqualTo(AwaitingCycle3DataState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(AwaitingCycle3DataStateTransitional.class.getName());
     }
 
     @Test

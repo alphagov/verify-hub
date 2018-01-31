@@ -11,7 +11,7 @@ import uk.gov.ida.hub.policy.builder.domain.ResponseFromHubBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
@@ -35,7 +35,7 @@ public class SuccessfulMatchStateControllerTest {
     private ResponseFromHubFactory responseFromHubFactory;
 
     private SuccessfulMatchStateController controller;
-    private SuccessfulMatchState state;
+    private SuccessfulMatchStateTransitional state;
 
 
     @Before

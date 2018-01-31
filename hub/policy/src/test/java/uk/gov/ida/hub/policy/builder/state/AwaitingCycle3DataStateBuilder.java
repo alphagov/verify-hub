@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
 
 import java.net.URI;
 
@@ -28,8 +29,8 @@ public class AwaitingCycle3DataStateBuilder {
         return new AwaitingCycle3DataStateBuilder();
     }
 
-    public AwaitingCycle3DataState build() {
-        return new AwaitingCycle3DataState(
+    public AwaitingCycle3DataStateTransitional build() {
+        return new AwaitingCycle3DataStateTransitional(
                 requestId,
                 "idp entity-id",
                 sessionExpiryTimestamp,
@@ -46,6 +47,23 @@ public class AwaitingCycle3DataStateBuilder {
                 transactionSupportsEidas);
     }
 
+    @Deprecated
+    public AwaitingCycle3DataState buildOld() {
+        return new AwaitingCycle3DataState(
+                requestId,
+                "idp entity-id",
+                sessionExpiryTimestamp,
+                transactionEntityId,
+                encryptedMatchingDatasetAssertion,
+                "aPassthroughAssertion().buildAuthnStatementAssertion()",
+                relayState,
+                assertionConsumerServiceUri,
+                "matchingServiceEntityId",
+                sessionId,
+                aPersistentId().build(),
+                LevelOfAssurance.LEVEL_1,
+                transactionSupportsEidas);
+    }
 
     public AwaitingCycle3DataStateBuilder withRequestId(String requestId) {
         this.requestId = requestId;

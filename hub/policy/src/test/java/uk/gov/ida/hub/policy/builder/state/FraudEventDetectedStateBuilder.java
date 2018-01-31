@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
+import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedStateTransitional;
 
 import java.net.URI;
 
@@ -22,8 +23,31 @@ public class FraudEventDetectedStateBuilder {
         return new FraudEventDetectedStateBuilder();
     }
 
-    public FraudEventDetectedState build() {
-        return new FraudEventDetectedState(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, idpEntityId, forceAuthentication, false);
+    public FraudEventDetectedStateTransitional build() {
+        return new FraudEventDetectedStateTransitional(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                relayState,
+                sessionId,
+                idpEntityId,
+                forceAuthentication,
+                false);
     }
 
+    @Deprecated
+    public FraudEventDetectedState buildOld() {
+        return new FraudEventDetectedState(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                relayState,
+                sessionId,
+                idpEntityId,
+                null,
+                forceAuthentication,
+                false);
+    }
 }
