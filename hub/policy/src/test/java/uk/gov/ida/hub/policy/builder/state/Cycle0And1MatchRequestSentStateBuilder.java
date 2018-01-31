@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 
 import java.net.URI;
 
@@ -22,26 +23,47 @@ public class Cycle0And1MatchRequestSentStateBuilder {
     private String requestId = "requestId";
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
     private boolean transactionSupportsEidas = false;
+    private boolean registering = false;
 
     public static Cycle0And1MatchRequestSentStateBuilder aCycle0And1MatchRequestSentState() {
         return new Cycle0And1MatchRequestSentStateBuilder();
     }
 
+    public Cycle0And1MatchRequestSentStateTransitional buildTransitional() {
+        return new Cycle0And1MatchRequestSentStateTransitional(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                URI.create("default-service-uri"),
+                sessionId,
+                transactionSupportsEidas,
+                registering,
+                "idp-entity-id",
+                Optional.<String>absent(),
+                LevelOfAssurance.LEVEL_1,
+                matchingServiceEntityId,
+                encryptedMatchingDatasetAssertion,
+                "aPassthroughAssertion().buildAuthnStatementAssertion()",
+                persistentId
+        );
+    }
+
+    @Deprecated
     public Cycle0And1MatchRequestSentState build() {
         return new Cycle0And1MatchRequestSentState(
-            requestId,
-            requestIssuerId,
-            sessionExpiryTimestamp,
-            URI.create("default-service-uri"),
-            sessionId,
-            transactionSupportsEidas,
-            "idp-entity-id",
-            Optional.<String>absent(),
-            LevelOfAssurance.LEVEL_1,
-            matchingServiceEntityId,
-            encryptedMatchingDatasetAssertion,
-            "aPassthroughAssertion().buildAuthnStatementAssertion()",
-            persistentId
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                URI.create("default-service-uri"),
+                sessionId,
+                transactionSupportsEidas,
+                "idp-entity-id",
+                Optional.<String>absent(),
+                LevelOfAssurance.LEVEL_1,
+                matchingServiceEntityId,
+                encryptedMatchingDatasetAssertion,
+                "aPassthroughAssertion().buildAuthnStatementAssertion()",
+                persistentId
         );
     }
 
@@ -62,6 +84,11 @@ public class Cycle0And1MatchRequestSentStateBuilder {
 
     public Cycle0And1MatchRequestSentStateBuilder withRequestIssuerEntityId(String requestIssuerEntityId) {
         this.requestIssuerId = requestIssuerEntityId;
+        return this;
+    }
+
+    public Cycle0And1MatchRequestSentStateBuilder withRegistering(boolean registering) {
+        this.registering = registering;
         return this;
     }
 }

@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
 
 import java.net.URI;
 
@@ -22,11 +23,31 @@ public class AwaitingCycle3DataStateBuilder {
     private String transactionEntityId = "transaction entity id";
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
     private boolean transactionSupportsEidas = false;
+    private boolean registering = false;
 
     public static AwaitingCycle3DataStateBuilder anAwaitingCycle3DataState() {
         return new AwaitingCycle3DataStateBuilder();
     }
 
+    public AwaitingCycle3DataStateTransitional buildTransitional() {
+        return new AwaitingCycle3DataStateTransitional(
+                requestId,
+                "idp entity-id",
+                sessionExpiryTimestamp,
+                transactionEntityId,
+                encryptedMatchingDatasetAssertion,
+                "aPassthroughAssertion().buildAuthnStatementAssertion()",
+                relayState,
+                assertionConsumerServiceUri,
+                "matchingServiceEntityId",
+                sessionId,
+                aPersistentId().build(),
+                LevelOfAssurance.LEVEL_1,
+                registering,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
     public AwaitingCycle3DataState build() {
         return new AwaitingCycle3DataState(
                 requestId,
@@ -43,7 +64,6 @@ public class AwaitingCycle3DataStateBuilder {
                 LevelOfAssurance.LEVEL_1,
                 transactionSupportsEidas);
     }
-
 
     public AwaitingCycle3DataStateBuilder withRequestId(String requestId) {
         this.requestId = requestId;
@@ -62,6 +82,11 @@ public class AwaitingCycle3DataStateBuilder {
 
     public AwaitingCycle3DataStateBuilder withSessionId(SessionId sessionId) {
         this.sessionId = sessionId;
+        return this;
+    }
+
+    public AwaitingCycle3DataStateBuilder withRegistering(boolean registering) {
+        this.registering = registering;
         return this;
     }
 }

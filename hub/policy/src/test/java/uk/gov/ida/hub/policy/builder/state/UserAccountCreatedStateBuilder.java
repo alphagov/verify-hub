@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 
 import java.net.URI;
 
@@ -23,11 +24,28 @@ public class UserAccountCreatedStateBuilder {
     private Optional<String> relayState = absent();
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
     private boolean transactionSupportsEidas = false;
+    private boolean registering = false;
 
     public static UserAccountCreatedStateBuilder aUserAccountCreatedState() {
         return new UserAccountCreatedStateBuilder();
     }
 
+    public UserAccountCreatedStateTransitional buildTransitional() {
+        return new UserAccountCreatedStateTransitional(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                identityProviderEntityId,
+                matchingServiceAssertion,
+                relayState,
+                levelOfAssurance,
+                registering,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
     public UserAccountCreatedState build() {
         return new UserAccountCreatedState(
                 requestId,
@@ -49,6 +67,11 @@ public class UserAccountCreatedStateBuilder {
 
     public UserAccountCreatedStateBuilder withRelayState(Optional<String> relayState) {
         this.relayState = relayState;
+        return this;
+    }
+
+    public UserAccountCreatedStateBuilder withRegistering(boolean registering) {
+        this.registering = registering;
         return this;
     }
 }

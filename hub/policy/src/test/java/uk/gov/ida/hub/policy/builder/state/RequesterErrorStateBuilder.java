@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
+import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
 
 import java.net.URI;
 import java.util.Collections;
@@ -25,17 +26,29 @@ public class RequesterErrorStateBuilder {
         return new RequesterErrorStateBuilder();
     }
 
-    public RequesterErrorState build() {
-        return new RequesterErrorState(
-            requestId,
-            authnRequestIssuerEntityId,
-            sessionExpiryTimestamp,
-            assertionConsumerServiceUri,
-            relayState,
-            sessionId,
-            forceAuthentication,
-            availableIdentityProviderEntityIds,
-            transactionSupportsEidas);
+    public RequesterErrorStateTransitional buildTransitional() {
+        return new RequesterErrorStateTransitional(
+                requestId,
+                authnRequestIssuerEntityId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                relayState,
+                sessionId,
+                forceAuthentication,
+                transactionSupportsEidas);
     }
 
+    @Deprecated
+    public RequesterErrorState build() {
+        return new RequesterErrorState(
+                requestId,
+                authnRequestIssuerEntityId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                relayState,
+                sessionId,
+                forceAuthentication,
+                availableIdentityProviderEntityIds,
+                transactionSupportsEidas);
+    }
 }
