@@ -7,18 +7,20 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 
-public abstract class AbstractSuccessfulMatchStateController implements StateController, ResponseProcessingStateController, ResponsePreparedStateController, ErrorResponsePreparedStateController {
+public abstract class AbstractSuccessfulMatchStateController<T extends AbstractSuccessfulMatchState> implements StateController, ResponseProcessingStateController, ResponsePreparedStateController, ErrorResponsePreparedStateController {
 
-    protected final AbstractSuccessfulMatchState state;
+    protected final T state;
     protected final ResponseFromHubFactory responseFromHubFactory;
 
     public AbstractSuccessfulMatchStateController(
-            final AbstractSuccessfulMatchState state,
+            final T state,
             final ResponseFromHubFactory responseFromHubFactory) {
 
         this.state = state;
         this.responseFromHubFactory = responseFromHubFactory;
     }
+
+    public abstract ResponseFromHub getPreparedResponse();
 
     @Override
     public ResponseProcessingDetails getResponseProcessingDetails() {
@@ -29,23 +31,20 @@ public abstract class AbstractSuccessfulMatchStateController implements StateCon
         );
     }
 
-
-    public abstract ResponseFromHub getPreparedResponse();
-
-    protected ResponseFromHub getResponse() {
-        return responseFromHubFactory.createSuccessResponseFromHub(
+    @Override
+    public ResponseFromHub getErrorResponse() {
+        return responseFromHubFactory.createNoAuthnContextResponseFromHub(
                 state.getRequestId(),
-                state.getMatchingServiceAssertion(),
                 state.getRelayState(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri()
         );
     }
 
-    @Override
-    public ResponseFromHub getErrorResponse() {
-        return responseFromHubFactory.createNoAuthnContextResponseFromHub(
+    protected ResponseFromHub getResponse() {
+        return responseFromHubFactory.createSuccessResponseFromHub(
                 state.getRequestId(),
+                state.getMatchingServiceAssertion(),
                 state.getRelayState(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri()

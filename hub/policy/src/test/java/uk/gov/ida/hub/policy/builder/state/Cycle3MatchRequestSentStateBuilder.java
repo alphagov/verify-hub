@@ -27,9 +27,29 @@ public class Cycle3MatchRequestSentStateBuilder {
     private PersistentId persistentId = aPersistentId().build();
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
     private boolean transactionSupportsEidas = false;
+    private boolean registering = false;
 
     public static Cycle3MatchRequestSentStateBuilder aCycle3MatchRequestSentState() {
         return new Cycle3MatchRequestSentStateBuilder();
+    }
+
+    public Cycle3MatchRequestSentState build() {
+        return new Cycle3MatchRequestSentState(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                identityProviderEntityId,
+                relayState,
+                levelOfAssurance,
+                registering,
+                "matchingServiceEntityId",
+                encryptedMatchingDatasetAssertion,
+                "aPassthroughAssertion().buildAuthnStatementAssertion()",
+                persistentId
+        );
     }
 
     public Cycle3MatchRequestSentStateBuilder withSessionId(SessionId sessionId) {
@@ -42,21 +62,8 @@ public class Cycle3MatchRequestSentStateBuilder {
         return this;
     }
 
-    public Cycle3MatchRequestSentState build() {
-        return new Cycle3MatchRequestSentState(
-            requestId,
-            requestIssuerId,
-            sessionExpiryTimestamp,
-            assertionConsumerServiceUri,
-            sessionId,
-            transactionSupportsEidas,
-            identityProviderEntityId,
-            relayState,
-            levelOfAssurance,
-            "matchingServiceEntityId",
-            encryptedMatchingDatasetAssertion,
-            "aPassthroughAssertion().buildAuthnStatementAssertion()",
-            persistentId
-        );
+    public Cycle3MatchRequestSentStateBuilder withRegistering(boolean registering) {
+        this.registering = registering;
+        return this;
     }
 }

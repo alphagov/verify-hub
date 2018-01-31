@@ -15,6 +15,7 @@ public class UserAccountCreatedState extends AbstractState implements ResponsePr
     private final String matchingServiceAssertion;
     private final Optional<String> relayState;
     private final LevelOfAssurance levelOfAssurance;
+    private final boolean registering;
 
     public UserAccountCreatedState(
             final String requestId,
@@ -26,12 +27,14 @@ public class UserAccountCreatedState extends AbstractState implements ResponsePr
             final String matchingServiceAssertion,
             final Optional<String> relayState,
             LevelOfAssurance levelOfAssurance,
+            boolean registering,
             boolean transactionSupportsEidas) {
         super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceAssertion = matchingServiceAssertion;
         this.relayState = relayState;
         this.levelOfAssurance = levelOfAssurance;
+        this.registering = registering;
     }
 
     @Override
@@ -49,5 +52,9 @@ public class UserAccountCreatedState extends AbstractState implements ResponsePr
 
     public LevelOfAssurance getLevelOfAssurance() {
         return levelOfAssurance;
+    }
+
+    public boolean isRegistering() {
+        return registering;
     }
 }

@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.proxy;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.annotations.Config;
 import uk.gov.ida.hub.policy.domain.IdpConfigDto;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
@@ -31,16 +31,10 @@ public class IdentityProvidersConfigProxy {
     }
 
     @Timed
-    public List<String> getEnabledIdentityProviders(Optional<String> transactionEntityId) {
-        final UriBuilder uriBuilder = UriBuilder
-                .fromUri(configUri)
-                .path(Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_RESOURCE);
-        if (transactionEntityId.isPresent()) {
-            uriBuilder.queryParam(Urls.ConfigUrls.TRANSACTION_ENTITY_ID_PARAM, transactionEntityId.get());
-        }
-        URI uri = uriBuilder.build();
-        return jsonClient.get(uri, new GenericType<List<String>>() {
-        });
+    public List<String> getEnabledIdentityProviders(String transactionEntityId, boolean registering, LevelOfAssurance loa) {
+        return registering ?
+                getEnabledIdentityProvidersForLoa(transactionEntityId, loa) :
+                getEnabledIdentityProvidersForSignIn(transactionEntityId);
     }
 
     @Timed
@@ -53,4 +47,15 @@ public class IdentityProvidersConfigProxy {
         return jsonClient.get(uri, IdpConfigDto.class);
     }
 
+    private List<String> getEnabledIdentityProvidersForLoa(String transactionEntityId, LevelOfAssurance levelOfAssurance) {
+        final UriBuilder uriBuilder = UriBuilder.fromUri(configUri).path(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_LOA_RESOURCE);
+        final URI uri = uriBuilder.buildFromEncoded(StringEncoding.urlEncode(transactionEntityId), levelOfAssurance.toString());
+        return jsonClient.get(uri, new GenericType<List<String>>() {});
+    }
+
+    private List<String> getEnabledIdentityProvidersForSignIn(String transactionEntityId) {
+        final UriBuilder uriBuilder = UriBuilder.fromUri(configUri).path(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_SIGN_IN_RESOURCE);
+        final URI uri = uriBuilder.buildFromEncoded(StringEncoding.urlEncode(transactionEntityId));
+        return jsonClient.get(uri, new GenericType<List<String>>() {});
+    }
 }

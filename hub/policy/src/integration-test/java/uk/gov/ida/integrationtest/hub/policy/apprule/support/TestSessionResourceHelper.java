@@ -4,7 +4,12 @@ import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.*;
+import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -49,7 +54,8 @@ public class TestSessionResourceHelper {
                 idpSelectedState.getAssertionConsumerServiceUri(),
                 idpSelectedState.getLevelsOfAssurance(),
                 idpSelectedState.getUseExactComparisonType(),
-                idpSelectedState.registering(),
+                idpSelectedState.isRegistering(),
+                idpSelectedState.getRequestedLoa(),
                 idpSelectedState.getForceAuthentication(),
                 idpSelectedState.getAvailableIdentityProviderEntityIds(),
                 idpSelectedState.getTransactionSupportsEidas());
@@ -60,8 +66,11 @@ public class TestSessionResourceHelper {
                 .post(Entity.json(testSessionDto));
     }
 
-    public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String idpEntityId, Client client, URI uri) {
-        SuccessfulMatchState successfulMatchState = aSuccessfulMatchState().withSessionId(sessionId).withIdentityProviderEntityId(idpEntityId).build();
+    public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String requestIssuerEntityId, String idpEntityId, Client client, URI uri) {
+        SuccessfulMatchState successfulMatchState = aSuccessfulMatchState().withSessionId(sessionId)
+                .withIdentityProviderEntityId(idpEntityId)
+                .withRequestIssuerEntityId(requestIssuerEntityId)
+                .build();
 
         TestSessionDto testSessionDto = createASuccessfulMatchStateTestSessionDto(successfulMatchState, sessionId);
 

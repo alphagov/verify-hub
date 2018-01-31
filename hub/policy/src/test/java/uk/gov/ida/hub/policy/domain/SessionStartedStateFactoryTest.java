@@ -4,11 +4,9 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
-import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.builder.domain.ReceivedAuthnRequestBuilder.aReceivedAuthnRequest;
@@ -19,12 +17,9 @@ public class SessionStartedStateFactoryTest {
 
     private SessionStartedStateFactory systemUnderTest;
 
-    @Mock
-    private IdentityProvidersConfigProxy identityProvidersConfigProxy;
-
     @Before
     public void setup() {
-        systemUnderTest = new SessionStartedStateFactory(identityProvidersConfigProxy);
+        systemUnderTest = new SessionStartedStateFactory();
     }
 
     @Test

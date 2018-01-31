@@ -6,8 +6,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 public class FraudEventDetectedStateBuilder {
 
@@ -18,7 +16,6 @@ public class FraudEventDetectedStateBuilder {
     private SessionId sessionId = SessionId.createNewSessionId();
     private Optional<String> relayState = Optional.of("relayState");
     private String idpEntityId = "idpEntityId";
-    private List<String> availableIdpEntityIds = Arrays.asList("this-idp", "that-idp");
     private Optional<Boolean> forceAuthentication = Optional.of(true);
 
     public static FraudEventDetectedStateBuilder aFraudEventDetectedState() {
@@ -26,7 +23,7 @@ public class FraudEventDetectedStateBuilder {
     }
 
     public FraudEventDetectedState build() {
-        return new FraudEventDetectedState(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, idpEntityId, availableIdpEntityIds, forceAuthentication, false);
+        return new FraudEventDetectedState(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, idpEntityId, forceAuthentication, false);
     }
 
 }

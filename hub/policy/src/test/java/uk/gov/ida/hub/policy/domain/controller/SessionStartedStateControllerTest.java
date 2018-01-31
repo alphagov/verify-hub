@@ -19,6 +19,7 @@ import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -32,7 +33,8 @@ import static uk.gov.ida.hub.policy.builder.state.SessionStartedStateBuilder.aSe
 @RunWith(MockitoJUnitRunner.class)
 public class SessionStartedStateControllerTest {
 
-    public static final String IDP_ENTITY_ID = "anIdp";
+    private static final String IDP_ENTITY_ID = "anIdp";
+    private static final boolean REGISTERING = false;
 
     @Mock
     private TransactionsConfigProxy transactionsConfigProxy;
@@ -52,13 +54,14 @@ public class SessionStartedStateControllerTest {
     @Before
     public void setup() {
         sessionStartedState = aSessionStartedState()
-            .withAvailableIdpEntityIds(asList(IDP_ENTITY_ID))
             .withTransactionSupportsEidas(true)
             .build();
         when(transactionsConfigProxy.getLevelsOfAssurance(sessionStartedState.getRequestIssuerEntityId()))
                 .thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         IdpConfigDto idpConfigDto = new IdpConfigDto(IDP_ENTITY_ID, true, ImmutableList.of(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(idpConfigDto);
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(sessionStartedState.getRequestIssuerEntityId(), REGISTERING, LevelOfAssurance.LEVEL_2))
+                .thenReturn(singletonList(IDP_ENTITY_ID));
         controller = new SessionStartedStateController(
                 sessionStartedState,
                 eventSinkHubEventLogger,
@@ -68,10 +71,9 @@ public class SessionStartedStateControllerTest {
                 identityProvidersConfigProxy);
     }
 
-
     @Test
     public void handleIdpSelect_shouldTransitionStateAndLogEvent() {
-        controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", false);
+        controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", REGISTERING, LevelOfAssurance.LEVEL_2);
         ArgumentCaptor<IdpSelectedState> capturedState = ArgumentCaptor.forClass(IdpSelectedState.class);
 
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
@@ -84,7 +86,7 @@ public class SessionStartedStateControllerTest {
     @Test
     public void idpSelect_shouldThrowWhenIdentityProviderInvalid() {
         try {
-            controller.handleIdpSelected("notExist", "some-ip-address", false);
+            controller.handleIdpSelected("notExist", "some-ip-address", false, LevelOfAssurance.LEVEL_2);
             fail("Should throw StateProcessingValidationException");
         }
         catch(StateProcessingValidationException e) {
