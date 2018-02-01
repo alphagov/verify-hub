@@ -7,6 +7,7 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -25,6 +26,7 @@ public class IdpSelectedStateBuilder {
     private Optional<String> relayState = Optional.absent();
     private DateTime sessionExpiryTimestamp = DateTime.now().plusDays(5);
     private boolean isRegistration = false;
+    private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_2;
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private List<String> availableIdentityProviders = ImmutableList.of("idp-a", "idp-b", "idp-c");
     private boolean transactionSupportsEidas = false;
@@ -33,6 +35,26 @@ public class IdpSelectedStateBuilder {
         return new IdpSelectedStateBuilder();
     }
 
+    public IdpSelectedStateTransitional buildTransitional() {
+        return new IdpSelectedStateTransitional(
+                requestId,
+                idpEntityId,
+                matchingServiceEntityId,
+                levelsOfAssurance,
+                useExactComparisonType,
+                forceAuthentication,
+                assertionConsumerServiceUri,
+                requestIssuerId,
+                relayState,
+                sessionExpiryTimestamp,
+                isRegistration,
+                requestedLoa,
+                sessionId,
+                availableIdentityProviders,
+                transactionSupportsEidas);
+    }
+
+    @Deprecated
     public IdpSelectedState build() {
         return new IdpSelectedState(
                 requestId,
@@ -83,6 +105,11 @@ public class IdpSelectedStateBuilder {
 
     public IdpSelectedStateBuilder withRegistration(boolean registering) {
         this.isRegistration = registering;
+        return this;
+    }
+
+    public IdpSelectedStateBuilder withRequestedLoa(LevelOfAssurance requestedLoa) {
+        this.requestedLoa = requestedLoa;
         return this;
     }
 

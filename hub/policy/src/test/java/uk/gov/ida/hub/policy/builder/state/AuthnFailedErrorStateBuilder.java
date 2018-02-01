@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -30,16 +31,26 @@ public class AuthnFailedErrorStateBuilder {
         return new AuthnFailedErrorStateBuilder();
     }
 
+    @Deprecated
     public AuthnFailedErrorStateBuilder withAvailableIdpEntityIds(List<String> availableIdpEntityIds) {
         this.availableIdpEntityIds = availableIdpEntityIds;
         return this;
     }
 
-    public AuthnFailedErrorStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
-        this.transactionSupportsEidas = transactionSupportsEidas;
-        return this;
+    public AuthnFailedErrorStateTransitional buildTransitional() {
+        return new AuthnFailedErrorStateTransitional(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceIndex,
+                relayState,
+                sessionId,
+                idpEntityId,
+                forceAuthentication,
+                transactionSupportsEidas);
     }
 
+    @Deprecated
     public AuthnFailedErrorState build() {
         return new AuthnFailedErrorState(
                 requestId,
@@ -52,5 +63,10 @@ public class AuthnFailedErrorStateBuilder {
                 availableIdpEntityIds,
                 forceAuthentication,
                 transactionSupportsEidas);
+    }
+
+    public AuthnFailedErrorStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
+        this.transactionSupportsEidas = transactionSupportsEidas;
+        return this;
     }
 }
