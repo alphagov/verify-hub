@@ -84,6 +84,7 @@ public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3Dat
             getState().getIdentityProviderEntityId(),
             getState().getRelayState(),
             getState().getLevelOfAssurance(),
+                // TT-1613: This will have a value passed properly in the next release
             false,
             getState().getMatchingServiceEntityId(),
             getState().getEncryptedMatchingDatasetAssertion(),

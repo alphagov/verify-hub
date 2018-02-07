@@ -162,6 +162,7 @@ public class TransitionalStateConverter {
                 state.getMatchingServiceAssertion(),
                 state.getRelayState(),
                 state.getLevelOfAssurance(),
+                // TT-1613: This will have a value passed properly in the next release
                 false,
                 state.getTransactionSupportsEidas()
         );

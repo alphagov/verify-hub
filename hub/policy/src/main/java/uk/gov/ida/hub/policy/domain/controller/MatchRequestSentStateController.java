@@ -190,6 +190,7 @@ public abstract class MatchRequestSentStateController<T extends AbstractMatchReq
                 state.getIdentityProviderEntityId(),
                 state.getRelayState(),
                 state.getIdpLevelOfAssurance(),
+                // TT-1613: This will have a value passed properly in the next release
                 false,
                 state.getMatchingServiceAdapterEntityId(),
                 DateTime.now()
