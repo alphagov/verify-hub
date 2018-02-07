@@ -27,7 +27,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
@@ -302,7 +302,7 @@ public class SessionResourceIntegrationTest {
         ResponseAction actualResult = response.readEntity(ResponseAction.class);
         assertThat(actualResult).isEqualToComparingFieldByField(expectedResult);
 
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentStateTransitional.class.getName());
     }
 
     private String getSessionStateName(SessionId sessionId) {
@@ -351,5 +351,4 @@ public class SessionResourceIntegrationTest {
         return client.target(uri).request()
                 .post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
     }
-
 }

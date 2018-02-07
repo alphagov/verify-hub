@@ -20,7 +20,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
@@ -256,20 +256,22 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
         String matchingServiceEntityId = getMatchingServiceEntityId();
 
-        return new Cycle0And1MatchRequestSentState(
+        return new Cycle0And1MatchRequestSentStateTransitional(
             state.getRequestId(),
             state.getRequestIssuerEntityId(),
             state.getSessionExpiryTimestamp(),
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),
             state.getTransactionSupportsEidas(),
+            state.registering(),
             successFromIdp.getIssuer(),
             state.getRelayState(),
             successFromIdp.getLevelOfAssurance(),
             matchingServiceEntityId,
             successFromIdp.getEncryptedMatchingDatasetAssertion(),
             authnStatementAssertion,
-            successFromIdp.getPersistentId()
+            successFromIdp.getPersistentId(),
+            DateTime.now()
         );
     }
 

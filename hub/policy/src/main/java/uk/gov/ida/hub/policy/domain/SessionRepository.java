@@ -100,6 +100,9 @@ public class SessionRepository {
     public Optional<LevelOfAssurance> getLevelOfAssuranceFromIdp(SessionId sessionId){
 
         State currentState = getCurrentState(sessionId);
+        if(currentState instanceof Cycle0And1MatchRequestSentStateTransitional){ // initial match request - no response received
+            return Optional.of(((Cycle0And1MatchRequestSentStateTransitional) currentState).getIdpLevelOfAssurance());
+        }
         if(currentState instanceof Cycle0And1MatchRequestSentState){ // initial match request - no response received
             return Optional.of(((Cycle0And1MatchRequestSentState) currentState).getIdpLevelOfAssurance());
         }

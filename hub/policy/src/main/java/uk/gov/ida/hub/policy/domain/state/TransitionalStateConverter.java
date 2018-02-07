@@ -19,14 +19,6 @@ public class TransitionalStateConverter {
             return getAwaitingCycle3DataStateTransitional((AwaitingCycle3DataState) state);
         }
 
-//        if (state.getClass().equals(Cycle0And1MatchRequestSentState.class)) {
-//            return getCycle0And1MatchRequestSentStateTransitional((Cycle0And1MatchRequestSentState) state);
-//        }
-
-//        if (state.getClass().equals(Cycle3MatchRequestSentState.class)) {
-//            return getCycle3MatchRequestSentStateTransitional((Cycle3MatchRequestSentState) state);
-//        }
-
         if (state.getClass().equals(FraudEventDetectedState.class)) {
             return getFraudEventDetectedStateTransitional((FraudEventDetectedState) state);
         }
@@ -46,10 +38,6 @@ public class TransitionalStateConverter {
         if (state.getClass().equals(UserAccountCreatedState.class)) {
             return getUserAccountCreatedStateTransitional((UserAccountCreatedState) state);
         }
-
-//        if (state.getClass().equals(UserAccountCreationRequestSentState.class)) {
-//            return getUserAccountCreationRequestSentStateTransitional((UserAccountCreationRequestSentState) state);
-//        }
 
         return state;
     }
@@ -99,44 +87,6 @@ public class TransitionalStateConverter {
                 state.getTransactionSupportsEidas()
         );
     }
-
-//    private static Cycle0And1MatchRequestSentStateTransitional getCycle0And1MatchRequestSentStateTransitional(Cycle0And1MatchRequestSentState state) {
-//        return new Cycle0And1MatchRequestSentStateTransitional(
-//                state.getRequestId(),
-//                state.getRequestIssuerEntityId(),
-//                state.getSessionExpiryTimestamp(),
-//                state.getAssertionConsumerServiceUri(),
-//                state.getSessionId(),
-//                state.getTransactionSupportsEidas(),
-//                false,
-//                state.getIdentityProviderEntityId(),
-//                state.getRelayState(),
-//                state.getIdpLevelOfAssurance(),
-//                state.getMatchingServiceAdapterEntityId(),
-//                state.getEncryptedMatchingDatasetAssertion(),
-//                state.getAuthnStatementAssertion(),
-//                state.getPersistentId()
-//        );
-//    }
-//
-//    private static Cycle3MatchRequestSentStateTransitional getCycle3MatchRequestSentStateTransitional(Cycle3MatchRequestSentState state) {
-//        return new Cycle3MatchRequestSentStateTransitional(
-//                state.getRequestId(),
-//                state.getRequestIssuerEntityId(),
-//                state.getSessionExpiryTimestamp(),
-//                state.getAssertionConsumerServiceUri(),
-//                state.getSessionId(),
-//                state.getTransactionSupportsEidas(),
-//                state.getIdentityProviderEntityId(),
-//                state.getRelayState(),
-//                state.getIdpLevelOfAssurance(),
-//                false,
-//                state.getMatchingServiceAdapterEntityId(),
-//                state.getEncryptedMatchingDatasetAssertion(),
-//                state.getAuthnStatementAssertion(),
-//                state.getPersistentId()
-//        );
-//    }
 
     private static FraudEventDetectedStateTransitional getFraudEventDetectedStateTransitional(FraudEventDetectedState state) {
         return new FraudEventDetectedStateTransitional(
@@ -216,20 +166,4 @@ public class TransitionalStateConverter {
                 state.getTransactionSupportsEidas()
         );
     }
-
-//    private static UserAccountCreationRequestSentStateTransitional getUserAccountCreationRequestSentStateTransitional(UserAccountCreationRequestSentState state) {
-//        return new UserAccountCreationRequestSentStateTransitional(
-//                state.getRequestId(),
-//                state.getRequestIssuerEntityId(),
-//                state.getSessionExpiryTimestamp(),
-//                state.getAssertionConsumerServiceUri(),
-//                state.getSessionId(),
-//                state.getTransactionSupportsEidas(),
-//                state.getIdentityProviderEntityId(),
-//                state.getRelayState(),
-//                state.getIdpLevelOfAssurance(),
-//                false,
-//                state.getMatchingServiceAdapterEntityId()
-//        );
-//    }
 }

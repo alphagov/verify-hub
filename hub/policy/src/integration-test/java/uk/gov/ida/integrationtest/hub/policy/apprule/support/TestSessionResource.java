@@ -221,14 +221,6 @@ public class TestSessionResource {
             return AwaitingCycle3DataState.class.getName();
         }
 
-        if (sessionClass.equals(Cycle0And1MatchRequestSentStateTransitional.class)) {
-            return Cycle0And1MatchRequestSentState.class.getName();
-        }
-
-        if (sessionClass.equals(Cycle3MatchRequestSentStateTransitional.class)) {
-            return Cycle3MatchRequestSentState.class.getName();
-        }
-
         if (sessionClass.equals(FraudEventDetectedStateTransitional.class)) {
             return FraudEventDetectedState.class.getName();
         }
@@ -247,10 +239,6 @@ public class TestSessionResource {
 
         if (sessionClass.equals(UserAccountCreatedStateTransitional.class)) {
             return UserAccountCreatedState.class.getName();
-        }
-
-        if (sessionClass.equals(UserAccountCreationRequestSentStateTransitional.class)) {
-            return UserAccountCreationRequestSentState.class.getName();
         }
 
         return sessionClass.getName();

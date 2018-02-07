@@ -35,13 +35,13 @@ import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
@@ -197,8 +197,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         // Note that the state does not get updated if there is a StateProcessingValidationException
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentState.class.getName());
-
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentStateTransitional.class.getName());
     }
 
     @Test
@@ -224,7 +223,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         // Note that the state does not get updated if there is a StateProcessingValidationException
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle3MatchRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle3MatchRequestSentStateTransitional.class.getName());
     }
 
     @Test
@@ -244,7 +243,7 @@ public class MatchingServiceResourcesIntegrationTest {
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.WAIT);
         assertThat(responseProcessingDetails.getSessionId()).isEqualTo(sessionId);
-        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentStateTransitional.class.getName());
     }
 
     @Test
@@ -262,7 +261,7 @@ public class MatchingServiceResourcesIntegrationTest {
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.WAIT);
         assertThat(responseProcessingDetails.getSessionId()).isEqualTo(sessionId);
-        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentStateTransitional.class.getName());
     }
 
     @Test

@@ -25,9 +25,7 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
@@ -45,7 +43,6 @@ import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.domain.state.TransitionalStateConverter;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.exception.SessionTimeoutException;
@@ -199,7 +196,7 @@ public class SessionRepositoryTest {
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         dataStore.replace(sessionId, cycle0And1MatchRequestSentStateTransitional);
 
-        sessionRepository.getStateController(expectedSessionId, Cycle0And1MatchRequestSentState.class);
+        sessionRepository.getStateController(expectedSessionId, Cycle0And1MatchRequestSentStateTransitional.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(cycle0And1MatchRequestSentStateTransitional), any(StateTransitionAction.class));
 
         sessionRepository.getStateController(expectedSessionId, Cycle0And1MatchRequestSentStateTransitional.class);
@@ -216,7 +213,7 @@ public class SessionRepositoryTest {
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         dataStore.replace(sessionId, cycle3MatchRequestSentStateTransitional);
 
-        sessionRepository.getStateController(expectedSessionId, Cycle3MatchRequestSentState.class);
+        sessionRepository.getStateController(expectedSessionId, Cycle3MatchRequestSentStateTransitional.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(cycle3MatchRequestSentStateTransitional), any(StateTransitionAction.class));
 
         sessionRepository.getStateController(expectedSessionId, Cycle3MatchRequestSentStateTransitional.class);
@@ -267,7 +264,7 @@ public class SessionRepositoryTest {
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         dataStore.replace(sessionId, userAccountCreationRequestSentStateTransitional);
 
-        sessionRepository.getStateController(expectedSessionId, UserAccountCreationRequestSentState.class);
+        sessionRepository.getStateController(expectedSessionId, UserAccountCreationRequestSentStateTransitional.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(userAccountCreationRequestSentStateTransitional), any(StateTransitionAction.class));
 
         sessionRepository.getStateController(expectedSessionId, UserAccountCreationRequestSentStateTransitional.class);
