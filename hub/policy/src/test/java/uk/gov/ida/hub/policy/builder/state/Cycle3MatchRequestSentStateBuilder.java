@@ -5,7 +5,6 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 
 import java.net.URI;
@@ -34,7 +33,7 @@ public class Cycle3MatchRequestSentStateBuilder {
         return new Cycle3MatchRequestSentStateBuilder();
     }
 
-    public Cycle3MatchRequestSentStateTransitional buildTransitional() {
+    public Cycle3MatchRequestSentStateTransitional build() {
         return new Cycle3MatchRequestSentStateTransitional(
                 requestId,
                 requestIssuerId,
@@ -51,25 +50,6 @@ public class Cycle3MatchRequestSentStateBuilder {
                 "aPassthroughAssertion().buildAuthnStatementAssertion()",
                 persistentId,
                 DateTime.now()
-        );
-    }
-
-    @Deprecated
-    public Cycle3MatchRequestSentState build() {
-        return new Cycle3MatchRequestSentState(
-                requestId,
-                requestIssuerId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceUri,
-                sessionId,
-                transactionSupportsEidas,
-                identityProviderEntityId,
-                relayState,
-                levelOfAssurance,
-                "matchingServiceEntityId",
-                encryptedMatchingDatasetAssertion,
-                "aPassthroughAssertion().buildAuthnStatementAssertion()",
-                persistentId
         );
     }
 

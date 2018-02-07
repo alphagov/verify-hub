@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 
 import java.net.URI;
@@ -30,7 +29,7 @@ public class UserAccountCreationRequestSentStateBuilder {
         return new UserAccountCreationRequestSentStateBuilder();
     }
 
-    public UserAccountCreationRequestSentStateTransitional buildTransitional() {
+    public UserAccountCreationRequestSentStateTransitional build() {
         return new UserAccountCreationRequestSentStateTransitional(
                 requestId,
                 requestIssuerId,
@@ -44,22 +43,6 @@ public class UserAccountCreationRequestSentStateBuilder {
                 registering,
                 "matchingServiceEntityId",
                 DateTime.now()
-        );
-    }
-
-    @Deprecated
-    public UserAccountCreationRequestSentState build() {
-        return new UserAccountCreationRequestSentState(
-                requestId,
-                requestIssuerId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceUri,
-                sessionId,
-                transactionSupportsEidas,
-                identityProviderEntityId,
-                relayState,
-                levelOfAssurance,
-                "matchingServiceEntityId"
         );
     }
 
