@@ -2,8 +2,6 @@ package uk.gov.ida.hub.config.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.ImmutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.application.CertificateService;
@@ -13,11 +11,9 @@ import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.EntityConfigDataToCertificateDtoTransformer;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
-import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
 import uk.gov.ida.hub.config.dto.CertificateDto;
 import uk.gov.ida.hub.config.dto.CertificateHealthCheckDto;
-import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
 import uk.gov.ida.hub.config.exceptions.CertificateDisabledException;
 import uk.gov.ida.hub.config.exceptions.ExceptionFactory;
@@ -31,13 +27,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static uk.gov.ida.hub.config.dto.CertificateDto.aCertificateDto;
@@ -54,7 +46,6 @@ public class CertificatesResource {
     private final EntityConfigDataToCertificateDtoTransformer configDataToCertificateDtoTransformer;
     private final CertificateService certificateService;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CertificatesResource.class);
 
     @Inject
     public CertificatesResource(

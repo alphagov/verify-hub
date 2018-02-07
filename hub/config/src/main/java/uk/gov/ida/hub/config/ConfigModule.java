@@ -12,6 +12,7 @@ import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPPKIXParametersProvider;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
+import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
@@ -26,6 +27,7 @@ import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
 import uk.gov.ida.hub.config.domain.EntityConfigDataToCertificateDtoTransformer;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.LoggingCertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
@@ -49,6 +51,9 @@ public class ConfigModule extends AbstractModule {
     protected void configure() {
         bind(ConfigHealthCheck.class).asEagerSingleton();
         bind(ConfigDataBootstrap.class).asEagerSingleton();
+        bind(CertificateChainConfigValidator.class)
+                .annotatedWith(CertificateConfigValidator.class)
+                .to(LoggingCertificateChainConfigValidator.class);
         bind(TrustStoreConfiguration.class).to(ConfigConfiguration.class);
         bind(new TypeLiteral<ConfigurationFactoryFactory<IdentityProviderConfigEntityData>>() {}).toInstance(new DefaultConfigurationFactoryFactory<IdentityProviderConfigEntityData>());
         bind(new TypeLiteral<ConfigurationFactoryFactory<TransactionConfigEntityData>>(){}).toInstance(new DefaultConfigurationFactoryFactory<TransactionConfigEntityData>());
@@ -64,7 +69,6 @@ public class ConfigModule extends AbstractModule {
         bind(new TypeLiteral<ConfigEntityDataRepository<IdentityProviderConfigEntityData>>(){}).asEagerSingleton();
         bind(ObjectMapper.class).toInstance(new ObjectMapper().registerModule(new GuavaModule()));
         bind(LevelsOfAssuranceConfigValidator.class).toInstance(new LevelsOfAssuranceConfigValidator());
-        bind(CertificateChainConfigValidator.class);
         bind(CertificateChainValidator.class);
         bind(TrustStoreForCertificateProvider.class);
         bind(X509CertificateFactory.class).toInstance(new X509CertificateFactory());
@@ -84,4 +88,5 @@ public class ConfigModule extends AbstractModule {
     public CertificateValidityChecker validityChecker(TrustStoreForCertificateProvider trustStoreForCertificateProvider, CertificateChainValidator certificateChainValidator) {
         return CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
     }
+
 }

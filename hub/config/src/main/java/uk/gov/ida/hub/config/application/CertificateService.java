@@ -79,10 +79,10 @@ public class CertificateService {
             Function<String, Optional<List<CertificateDetails>>>> signatureDataSource =
             (certEntityRepo, fedType) -> entityId ->
                 certEntityRepo.getData(entityId)
-                .map(CertificateEntity::getSignatureVerificationCertificates)
+                .map(cert -> cert.getSignatureVerificationCertificates())
                 .map(sigCerts -> sigCerts.stream()
                         .map(cert -> new CertificateDetails(entityId, cert, fedType))
-                        .filter(cert -> certificateValidityChecker.isValid(cert))
+                        .filter(certDetail -> certificateValidityChecker.isValid(certDetail))
                         .collect(collectingAndThen(toList(), certDetailsList -> certDetailsList.isEmpty() ? EMPTY : certDetailsList)));
 }
 

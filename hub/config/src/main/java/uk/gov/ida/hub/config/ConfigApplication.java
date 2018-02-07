@@ -49,6 +49,7 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());
+        bootstrap.addCommand(new ConfigValidCommand());
     }
 
     @Override

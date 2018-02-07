@@ -4,21 +4,16 @@ import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
-import uk.gov.ida.hub.config.data.FileBackedConfigDataSource;
 import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
-import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
 import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 
 import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker;
-import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createInvalidCertificatesException;
 
-public class CertificateChainConfigValidator {
+public abstract class CertificateChainConfigValidator {
     private final CertificateValidityChecker certificateValidityChecker;
     private final EntityConfigDataToCertificateDtoTransformer certificateDtoTransformer;
 
@@ -34,17 +29,8 @@ public class CertificateChainConfigValidator {
         Collection<CertificateDetails> certificateDetails = certificateDtoTransformer.transform(transactionConfigEntityData, matchingServiceConfigEntityData);
         ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificateDetails);
 
-        if (!invalidCertificates.isEmpty()) {
-            String errorMessages = invalidCertificates.stream()
-                    .map(certificate -> MessageFormat.format(
-                            "Invalid certificate found.\nEntity Id: {0}\nCertificate Type: {1}\nFederation Type: {2}\nReason: {3}\nDescription: {4}",
-                            certificate.getEntityId(),
-                            certificate.getCertificateType(),
-                            certificate.getFederationType(),
-                            certificate.getReason(),
-                            certificate.getDescription())).collect(Collectors.joining("\n"));
-
-            LOG.info(errorMessages);
-        }
+        handleInvalidCertificates(invalidCertificates);
     }
+
+    abstract void handleInvalidCertificates(ImmutableList<InvalidCertificateDto> invalidCertificates);
 }
