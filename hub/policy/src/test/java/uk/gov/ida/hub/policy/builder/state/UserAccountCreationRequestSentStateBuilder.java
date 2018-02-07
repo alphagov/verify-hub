@@ -42,7 +42,8 @@ public class UserAccountCreationRequestSentStateBuilder {
                 relayState,
                 levelOfAssurance,
                 registering,
-                "matchingServiceEntityId"
+                "matchingServiceEntityId",
+                DateTime.now()
         );
     }
 

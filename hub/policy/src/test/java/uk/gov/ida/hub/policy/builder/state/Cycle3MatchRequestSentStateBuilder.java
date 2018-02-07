@@ -49,7 +49,8 @@ public class Cycle3MatchRequestSentStateBuilder {
                 "matchingServiceEntityId",
                 encryptedMatchingDatasetAssertion,
                 "aPassthroughAssertion().buildAuthnStatementAssertion()",
-                persistentId
+                persistentId,
+                DateTime.now()
         );
     }
 

@@ -44,7 +44,8 @@ public class Cycle0And1MatchRequestSentStateBuilder {
                 matchingServiceEntityId,
                 encryptedMatchingDatasetAssertion,
                 "aPassthroughAssertion().buildAuthnStatementAssertion()",
-                persistentId
+                persistentId,
+                DateTime.now()
         );
     }
 
@@ -58,7 +59,7 @@ public class Cycle0And1MatchRequestSentStateBuilder {
                 sessionId,
                 transactionSupportsEidas,
                 "idp-entity-id",
-                Optional.<String>absent(),
+                Optional.absent(),
                 LevelOfAssurance.LEVEL_1,
                 matchingServiceEntityId,
                 encryptedMatchingDatasetAssertion,
