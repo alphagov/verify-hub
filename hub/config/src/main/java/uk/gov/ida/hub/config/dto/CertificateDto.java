@@ -17,6 +17,10 @@ public class CertificateDto {
         this.federationEntityType = federationEntityType;
     }
 
+    public static CertificateDto aCertificateDto(String issuerId, String certificate, KeyUse keyUse, FederationEntityType federationEntityType) {
+        return new CertificateDto(issuerId, certificate, keyUse, federationEntityType);
+    }
+
     public String getIssuerId() {
         return issuerId;
     }

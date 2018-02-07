@@ -2,6 +2,7 @@ package uk.gov.ida.hub.config.data;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,6 +38,9 @@ import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createI
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigDataBootstrapTest {
+    private static final String MATCHING_SERVICE_ENTITY_ID = "matching-service-entity-id";
+    private static final String NON_EXISTENT_MATCHING_SERVICE_ENTITY_ID = "non-existent-matching-service-entity-id";
+
     @Mock
     private CertificateChainConfigValidator certificateChainConfigValidator;
 
@@ -88,7 +92,32 @@ public class ConfigDataBootstrapTest {
     }
 
     @Test
-    public void start_shouldThrowExceptionWhenCertificateCheckHasInvalidCertificates() {
+    public void start_shouldThrowExceptionWhenMatchingTransactionEntityIdCheckFails() throws Exception {
+        final String transEntityId = "trans-entity-id";
+        final IdentityProviderConfigEntityData identityProviderConfigData = anIdentityProviderConfigData().withEntityId("entity-id").build();
+        final TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+                .withEntityId(transEntityId)
+                .withMatchingServiceEntityId(NON_EXISTENT_MATCHING_SERVICE_ENTITY_ID)
+                .build();
+        final MatchingServiceConfigEntityData matchingServiceConfigData = aMatchingServiceConfigEntityData()
+                .withEntityId(MATCHING_SERVICE_ENTITY_ID)
+                .build();
+
+        final CountriesConfigEntityData countriesConfigEntityData = new CountriesConfigEntityData() {};
+
+        ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(identityProviderConfigData, matchingServiceConfigData, transactionConfigData, countriesConfigEntityData);
+
+        try {
+            configDataBootstrap.start();
+            fail("fail");
+        } catch (ConfigValidationException e) {
+            assertThat(e.getMessage()).isEqualTo(ConfigValidationException.createAbsentMatchingServiceConfigException(NON_EXISTENT_MATCHING_SERVICE_ENTITY_ID, transEntityId).getMessage());
+        }
+    }
+
+
+    @Ignore
+    public void continuesToStart_WhenCertificateCheckHasInvalidCertificates() {
         final String idpEntityId = "idp-entity-id";
         final String matchingServiceId = "matching-service-id";
         final String rpEntityId = "rp-entity";
@@ -109,28 +138,7 @@ public class ConfigDataBootstrapTest {
 
         CountriesConfigEntityData countriesConfigEntityData = createCountriesConfigEntityData();
         ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(identityProviderConfigData, matchingServiceConfigData, transactionConfigData, countriesConfigEntityData);
-
-        try {
-            configDataBootstrap.start();
-            fail("Excepted an exception for invalid certificates");
-        } catch (ConfigValidationException e) {
-            String expectedMatchingServiceError = MessageFormat.format("Invalid certificate found.\nEntity Id: {0}\nCertificate Type: {1}\nFederation Type: {2}\nReason: {3}\nDescription: {4}",
-                    invalidMatchingServiceCertificateDto.getEntityId(),
-                    invalidMatchingServiceCertificateDto.getCertificateType(),
-                    invalidMatchingServiceCertificateDto.getFederationType(),
-                    invalidMatchingServiceCertificateDto.getReason(),
-                    invalidMatchingServiceCertificateDto.getDescription());
-
-            String expectedIdpError = MessageFormat.format("Invalid certificate found.\nEntity Id: {0}\nCertificate Type: {1}\nFederation Type: {2}\nReason: {3}\nDescription: {4}",
-                    invalidIdpCertificateDto.getEntityId(),
-                    invalidIdpCertificateDto.getCertificateType(),
-                    invalidIdpCertificateDto.getFederationType(),
-                    invalidIdpCertificateDto.getReason(),
-                    invalidIdpCertificateDto.getDescription());
-
-            assertThat(e.getMessage()).contains(expectedMatchingServiceError);
-            assertThat(e.getMessage()).contains(expectedIdpError);
-        }
+        configDataBootstrap.start();
     }
 
     @Test

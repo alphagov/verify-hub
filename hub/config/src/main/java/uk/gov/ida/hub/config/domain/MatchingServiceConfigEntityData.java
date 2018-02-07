@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.validation.ValidationMethod;
 import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
+import uk.gov.ida.hub.config.CertificateEntity;
 import uk.gov.ida.hub.config.ConfigEntityData;
 
 import javax.validation.Valid;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MatchingServiceConfigEntityData implements ConfigEntityData {
+public class MatchingServiceConfigEntityData implements ConfigEntityData, CertificateEntity {
 
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected MatchingServiceConfigEntityData() {
