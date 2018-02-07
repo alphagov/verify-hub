@@ -25,7 +25,8 @@ public class Cycle3MatchRequestSentStateTransitional extends Cycle0And1MatchRequ
         final String matchingServiceAdapterEntityId,
         final String encryptedMatchingDatasetAssertion,
         final String authnStatementAssertion,
-        final PersistentId persistentId) {
+        final PersistentId persistentId,
+        final DateTime requestSentTime) {
 
         super(
             requestId,
@@ -41,7 +42,8 @@ public class Cycle3MatchRequestSentStateTransitional extends Cycle0And1MatchRequ
             matchingServiceAdapterEntityId,
             encryptedMatchingDatasetAssertion,
             authnStatementAssertion,
-            persistentId
+            persistentId,
+            requestSentTime
         );
     }
 }

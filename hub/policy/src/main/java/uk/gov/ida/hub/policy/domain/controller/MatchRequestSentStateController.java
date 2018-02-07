@@ -15,7 +15,11 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
-import uk.gov.ida.hub.policy.domain.state.*;
+import uk.gov.ida.hub.policy.domain.state.AbstractMatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
+import uk.gov.ida.hub.policy.domain.state.NoMatchState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
@@ -23,7 +27,7 @@ import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.wrongInResponseTo;
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.wrongResponseIssuer;
 
-public abstract class MatchRequestSentStateController<T extends MatchRequestSentState> implements ResponseProcessingStateController, WaitingForMatchingServiceResponseStateController, ErrorResponsePreparedStateController {
+public abstract class MatchRequestSentStateController<T extends AbstractMatchRequestSentState> implements ResponseProcessingStateController, WaitingForMatchingServiceResponseStateController, ErrorResponsePreparedStateController {
 
     private final StateTransitionAction stateTransitionAction;
     private final ResponseFromHubFactory responseFromHubFactory;

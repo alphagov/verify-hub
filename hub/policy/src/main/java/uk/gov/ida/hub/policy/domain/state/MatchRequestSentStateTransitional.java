@@ -10,6 +10,7 @@ import java.net.URI;
 public abstract class MatchRequestSentStateTransitional extends AbstractMatchRequestSentState {
 
     private final boolean registering;
+    private final DateTime requestSentTime;
 
     protected MatchRequestSentStateTransitional(
             final String requestId,
@@ -22,7 +23,8 @@ public abstract class MatchRequestSentStateTransitional extends AbstractMatchReq
             final Optional<String> relayState,
             final LevelOfAssurance idpLevelOfAssurance,
             final boolean registering,
-            final String matchingServiceAdapterEntityId) {
+            final String matchingServiceAdapterEntityId,
+            final DateTime requestSentTime) {
 
         super(
                 requestId,
@@ -38,9 +40,15 @@ public abstract class MatchRequestSentStateTransitional extends AbstractMatchReq
         );
 
         this.registering = registering;
+        this.requestSentTime = requestSentTime;
     }
 
     public boolean isRegistering() {
         return registering;
+    }
+
+    @Override
+    public DateTime getRequestSentTime() {
+        return requestSentTime;
     }
 }

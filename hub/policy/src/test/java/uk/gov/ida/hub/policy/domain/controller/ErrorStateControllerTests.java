@@ -116,7 +116,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInCycle0And1MatchRequestSentState() {
-        Cycle0And1MatchRequestSentState state = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().build();
+        Cycle0And1MatchRequestSentStateTransitional state = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().build();
         StateController stateController = new Cycle0And1MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, transactionsConfigProxy, responseFromHubFactory, assertionRestrictionFactory, matchingServiceConfigProxy, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -149,7 +149,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInCycle3MatchRequestSentState() {
-        Cycle3MatchRequestSentState state = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().build();
+        Cycle3MatchRequestSentStateTransitional state = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().build();
         StateController stateController = new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory, transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -193,7 +193,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInUserAccountCreationRequestSentState() {
-        UserAccountCreationRequestSentState state = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().build();
+        UserAccountCreationRequestSentStateTransitional state = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().build();
         StateController stateController = new UserAccountCreationRequestSentStateController(state, stateTransitionAction, eventSinkHubEventLogger, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 

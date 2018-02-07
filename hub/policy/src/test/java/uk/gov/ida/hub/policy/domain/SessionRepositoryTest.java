@@ -194,7 +194,7 @@ public class SessionRepositoryTest {
     public void cycle0And1MatchRequestSentStateIsCompatibleWithOldClass() {
         final SessionId expectedSessionId = aSessionId().build();
         final SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
-        final Cycle0And1MatchRequestSentStateTransitional cycle0And1MatchRequestSentStateTransitional = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().buildTransitional();
+        final Cycle0And1MatchRequestSentStateTransitional cycle0And1MatchRequestSentStateTransitional = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().build();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         dataStore.replace(sessionId, sessionStartedState, cycle0And1MatchRequestSentStateTransitional);
@@ -211,7 +211,7 @@ public class SessionRepositoryTest {
     public void cycle3MatchRequestSentStateIsCompatibleWithOldClass() {
         final SessionId expectedSessionId = aSessionId().build();
         final SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
-        final Cycle3MatchRequestSentStateTransitional cycle3MatchRequestSentStateTransitional = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().buildTransitional();
+        final Cycle3MatchRequestSentStateTransitional cycle3MatchRequestSentStateTransitional = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().build();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         dataStore.replace(sessionId, sessionStartedState, cycle3MatchRequestSentStateTransitional);
@@ -262,7 +262,7 @@ public class SessionRepositoryTest {
     public void userAccountCreationRequestSentStateIsCompatibleWithOldClass() {
         final SessionId expectedSessionId = aSessionId().build();
         final SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
-        final UserAccountCreationRequestSentStateTransitional userAccountCreationRequestSentStateTransitional = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().buildTransitional();
+        final UserAccountCreationRequestSentStateTransitional userAccountCreationRequestSentStateTransitional = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().build();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         dataStore.replace(sessionId, sessionStartedState, userAccountCreationRequestSentStateTransitional);

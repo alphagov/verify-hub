@@ -21,7 +21,8 @@ public class UserAccountCreationRequestSentStateTransitional extends MatchReques
         final Optional<String> relayState,
         final LevelOfAssurance idpLevelOfAssurance,
         final boolean registering,
-        final String matchingServiceAdapterEntityId) {
+        final String matchingServiceAdapterEntityId,
+        final DateTime requestSentTime) {
 
         super(
             requestId,
@@ -34,7 +35,8 @@ public class UserAccountCreationRequestSentStateTransitional extends MatchReques
             relayState,
             idpLevelOfAssurance,
             registering,
-            matchingServiceAdapterEntityId
+            matchingServiceAdapterEntityId,
+            requestSentTime
         );
     }
 }

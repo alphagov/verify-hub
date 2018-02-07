@@ -8,7 +8,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
@@ -132,7 +131,7 @@ public class StateControllerFactoryTest {
     @Deprecated
     @Test
     public void shouldCreateACycle0And1MatchRequestSentStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aCycle0And1MatchRequestSentState().buildTransitional(), stateTransitionAction);
+        StateController controller = stateControllerFactory.build(aCycle0And1MatchRequestSentState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(Cycle0And1MatchRequestSentStateController.class);
     }
@@ -220,7 +219,7 @@ public class StateControllerFactoryTest {
     @Deprecated
     @Test
     public void shouldCreateACycle3MatchRequestSentStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aCycle3MatchRequestSentState().buildTransitional(), stateTransitionAction);
+        StateController controller = stateControllerFactory.build(aCycle3MatchRequestSentState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(Cycle3MatchRequestSentStateController.class);
     }
@@ -249,7 +248,7 @@ public class StateControllerFactoryTest {
     @Deprecated
     @Test
     public void shouldCreateAUserAccountCreationRequestSentStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aUserAccountCreationRequestSentState().buildTransitional(), stateTransitionAction);
+        StateController controller = stateControllerFactory.build(aUserAccountCreationRequestSentState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(UserAccountCreationRequestSentStateController.class);
     }

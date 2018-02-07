@@ -5,13 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromMatchingService;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
@@ -29,12 +28,12 @@ public class UserAccountCreationRequestSentStateControllerTest {
     public LevelOfAssuranceValidator levelOfAssuranceValidator;
 
     @Test
-    public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() throws Exception {
-        UserAccountCreationRequestSentState state = aUserAccountCreationRequestSentState().build();
+    public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
+        UserAccountCreationRequestSentStateTransitional state = aUserAccountCreationRequestSentState().build();
         UserAccountCreationRequestSentStateController controller =
                 new UserAccountCreationRequestSentStateController(state, null, null, null, null, null, null);
 
-        ResponseFromMatchingService responseFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.<LevelOfAssurance>absent());
+        ResponseFromMatchingService responseFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.absent());
 
         try {
             controller.validateResponse(responseFromMatchingService);
@@ -45,15 +44,15 @@ public class UserAccountCreationRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextState_shouldMaintainRelayState() throws Exception {
+    public void getNextState_shouldMaintainRelayState() {
         final String relayState = "4x100m";
-        UserAccountCreationRequestSentState state = aUserAccountCreationRequestSentState()
+        UserAccountCreationRequestSentStateTransitional state = aUserAccountCreationRequestSentState()
                 .withRelayState(Optional.of(relayState))
                 .build();
         UserAccountCreationRequestSentStateController controller =
                 new UserAccountCreationRequestSentStateController(state, null, eventSinkHubEventLogger, null, levelOfAssuranceValidator, null, null);
 
-        UserAccountCreatedFromMatchingService userAccountCreatedFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.<LevelOfAssurance>absent());
+        UserAccountCreatedFromMatchingService userAccountCreatedFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.absent());
 
         final State newState = controller.getNextStateForUserAccountCreated(userAccountCreatedFromMatchingService);
         assertThat(newState).isInstanceOf(UserAccountCreatedState.class);

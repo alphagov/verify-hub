@@ -6,7 +6,6 @@ import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
-import uk.gov.ida.hub.policy.domain.Cycle3Dataset;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
@@ -14,7 +13,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -23,14 +22,14 @@ import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import java.util.List;
 
-public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentStateController<Cycle0And1MatchRequestSentState> {
+public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentStateController<Cycle0And1MatchRequestSentStateTransitional> {
 
     private TransactionsConfigProxy transactionsConfigProxy;
     private final AssertionRestrictionsFactory assertionRestrictionFactory;
     private final MatchingServiceConfigProxy matchingServiceConfigProxy;
 
     public Cycle0And1MatchRequestSentStateController(
-            final Cycle0And1MatchRequestSentState state,
+            final Cycle0And1MatchRequestSentStateTransitional state,
             final EventSinkHubEventLogger eventSinkHubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final PolicyConfiguration policyConfiguration,
@@ -124,7 +123,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 state.getRequestId(),
                 state.getEncryptedMatchingDatasetAssertion(),
                 state.getAuthnStatementAssertion(),
-                Optional.<Cycle3Dataset>absent(),
+                Optional.absent(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
                 state.getMatchingServiceAdapterEntityId(),

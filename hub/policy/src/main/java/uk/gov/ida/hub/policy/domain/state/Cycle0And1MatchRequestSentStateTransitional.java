@@ -28,7 +28,8 @@ public class Cycle0And1MatchRequestSentStateTransitional extends MatchRequestSen
         final String matchingServiceAdapterEntityId,
         final String encryptedMatchingDatasetAssertion,
         final String authnStatementAssertion,
-        final PersistentId persistentId) {
+        final PersistentId persistentId,
+        final DateTime requestSentTime) {
 
         super(
             requestId,
@@ -41,7 +42,8 @@ public class Cycle0And1MatchRequestSentStateTransitional extends MatchRequestSen
             relayState,
             idpLevelOfAssurance,
             registering,
-            matchingServiceAdapterEntityId
+            matchingServiceAdapterEntityId,
+            requestSentTime
         );
 
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;

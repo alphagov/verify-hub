@@ -149,23 +149,8 @@ public class StateControllerFactory {
                 );
 
             case CYCLE_0_AND_1_MATCH_REQUEST_SENT_TRANSITIONAL:
-                final Cycle0And1MatchRequestSentStateTransitional cycle0And1MatchRequestSentStateTransitional = (Cycle0And1MatchRequestSentStateTransitional) state;
                 return new Cycle0And1MatchRequestSentStateController(
-                    new Cycle0And1MatchRequestSentState(
-                            cycle0And1MatchRequestSentStateTransitional.getRequestId(),
-                            cycle0And1MatchRequestSentStateTransitional.getRequestIssuerEntityId(),
-                            cycle0And1MatchRequestSentStateTransitional.getSessionExpiryTimestamp(),
-                            cycle0And1MatchRequestSentStateTransitional.getAssertionConsumerServiceUri(),
-                            cycle0And1MatchRequestSentStateTransitional.getSessionId(),
-                            cycle0And1MatchRequestSentStateTransitional.getTransactionSupportsEidas(),
-                            cycle0And1MatchRequestSentStateTransitional.getIdentityProviderEntityId(),
-                            cycle0And1MatchRequestSentStateTransitional.getRelayState(),
-                            cycle0And1MatchRequestSentStateTransitional.getIdpLevelOfAssurance(),
-                            cycle0And1MatchRequestSentStateTransitional.getMatchingServiceAdapterEntityId(),
-                            cycle0And1MatchRequestSentStateTransitional.getEncryptedMatchingDatasetAssertion(),
-                            cycle0And1MatchRequestSentStateTransitional.getAuthnStatementAssertion(),
-                            cycle0And1MatchRequestSentStateTransitional.getPersistentId()
-                    ),
+                    (Cycle0And1MatchRequestSentStateTransitional) state,
                     injector.getInstance(EventSinkHubEventLogger.class),
                     stateTransitionAction,
                     injector.getInstance(PolicyConfiguration.class),
@@ -179,8 +164,25 @@ public class StateControllerFactory {
 
             // Deprecated
             case CYCLE_0_AND_1_MATCH_REQUEST_SENT:
+                final Cycle0And1MatchRequestSentState cycle0And1MatchRequestSentState = (Cycle0And1MatchRequestSentState) state;
                 return new Cycle0And1MatchRequestSentStateController(
-                        (Cycle0And1MatchRequestSentState) state,
+                        new Cycle0And1MatchRequestSentStateTransitional(
+                                cycle0And1MatchRequestSentState.getRequestId(),
+                                cycle0And1MatchRequestSentState.getRequestIssuerEntityId(),
+                                cycle0And1MatchRequestSentState.getSessionExpiryTimestamp(),
+                                cycle0And1MatchRequestSentState.getAssertionConsumerServiceUri(),
+                                cycle0And1MatchRequestSentState.getSessionId(),
+                                cycle0And1MatchRequestSentState.getTransactionSupportsEidas(),
+                                false,
+                                cycle0And1MatchRequestSentState.getIdentityProviderEntityId(),
+                                cycle0And1MatchRequestSentState.getRelayState(),
+                                cycle0And1MatchRequestSentState.getIdpLevelOfAssurance(),
+                                cycle0And1MatchRequestSentState.getMatchingServiceAdapterEntityId(),
+                                cycle0And1MatchRequestSentState.getEncryptedMatchingDatasetAssertion(),
+                                cycle0And1MatchRequestSentState.getAuthnStatementAssertion(),
+                                cycle0And1MatchRequestSentState.getPersistentId(),
+                                cycle0And1MatchRequestSentState.getRequestSentTime()
+                        ),
                         injector.getInstance(EventSinkHubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(PolicyConfiguration.class),
@@ -321,23 +323,8 @@ public class StateControllerFactory {
                     injector.getInstance(MatchingServiceConfigProxy.class)
                 );
             case CYCLE3_MATCH_REQUEST_SENT_TRANSITIONAL:
-                final Cycle3MatchRequestSentStateTransitional cycle3MatchRequestSentStateTransitional = (Cycle3MatchRequestSentStateTransitional) state;
                 return new Cycle3MatchRequestSentStateController(
-                    new Cycle3MatchRequestSentState(
-                            cycle3MatchRequestSentStateTransitional.getRequestId(),
-                            cycle3MatchRequestSentStateTransitional.getRequestIssuerEntityId(),
-                            cycle3MatchRequestSentStateTransitional.getSessionExpiryTimestamp(),
-                            cycle3MatchRequestSentStateTransitional.getAssertionConsumerServiceUri(),
-                            cycle3MatchRequestSentStateTransitional.getSessionId(),
-                            cycle3MatchRequestSentStateTransitional.getTransactionSupportsEidas(),
-                            cycle3MatchRequestSentStateTransitional.getIdentityProviderEntityId(),
-                            cycle3MatchRequestSentStateTransitional.getRelayState(),
-                            cycle3MatchRequestSentStateTransitional.getIdpLevelOfAssurance(),
-                            cycle3MatchRequestSentStateTransitional.getMatchingServiceAdapterEntityId(),
-                            cycle3MatchRequestSentStateTransitional.getEncryptedMatchingDatasetAssertion(),
-                            cycle3MatchRequestSentStateTransitional.getAuthnStatementAssertion(),
-                            cycle3MatchRequestSentStateTransitional.getPersistentId()
-                    ),
+                    (Cycle3MatchRequestSentStateTransitional) state,
                     injector.getInstance(EventSinkHubEventLogger.class),
                     stateTransitionAction,
                     injector.getInstance(PolicyConfiguration.class),
@@ -351,8 +338,25 @@ public class StateControllerFactory {
 
             // Deprecated
             case CYCLE3_MATCH_REQUEST_SENT:
+                final Cycle3MatchRequestSentState cycle3MatchRequestSentState = (Cycle3MatchRequestSentState) state;
                 return new Cycle3MatchRequestSentStateController(
-                        (Cycle3MatchRequestSentState) state,
+                        new Cycle3MatchRequestSentStateTransitional(
+                                cycle3MatchRequestSentState.getRequestId(),
+                                cycle3MatchRequestSentState.getRequestIssuerEntityId(),
+                                cycle3MatchRequestSentState.getSessionExpiryTimestamp(),
+                                cycle3MatchRequestSentState.getAssertionConsumerServiceUri(),
+                                cycle3MatchRequestSentState.getSessionId(),
+                                cycle3MatchRequestSentState.getTransactionSupportsEidas(),
+                                cycle3MatchRequestSentState.getIdentityProviderEntityId(),
+                                cycle3MatchRequestSentState.getRelayState(),
+                                cycle3MatchRequestSentState.getIdpLevelOfAssurance(),
+                                false,
+                                cycle3MatchRequestSentState.getMatchingServiceAdapterEntityId(),
+                                cycle3MatchRequestSentState.getEncryptedMatchingDatasetAssertion(),
+                                cycle3MatchRequestSentState.getAuthnStatementAssertion(),
+                                cycle3MatchRequestSentState.getPersistentId(),
+                                cycle3MatchRequestSentState.getRequestSentTime()
+                        ),
                         injector.getInstance(EventSinkHubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(PolicyConfiguration.class),
@@ -375,20 +379,8 @@ public class StateControllerFactory {
                     injector.getInstance(ResponseFromHubFactory.class)
                 );
             case USER_ACCOUNT_CREATION_REQUEST_SENT_TRANSITIONAL:
-                final UserAccountCreationRequestSentStateTransitional userAccountCreationRequestSentStateTransitional = (UserAccountCreationRequestSentStateTransitional) state;
                 return new UserAccountCreationRequestSentStateController(
-                    new UserAccountCreationRequestSentState(
-                            userAccountCreationRequestSentStateTransitional.getRequestId(),
-                            userAccountCreationRequestSentStateTransitional.getRequestIssuerEntityId(),
-                            userAccountCreationRequestSentStateTransitional.getSessionExpiryTimestamp(),
-                            userAccountCreationRequestSentStateTransitional.getAssertionConsumerServiceUri(),
-                            userAccountCreationRequestSentStateTransitional.getSessionId(),
-                            userAccountCreationRequestSentStateTransitional.getTransactionSupportsEidas(),
-                            userAccountCreationRequestSentStateTransitional.getIdentityProviderEntityId(),
-                            userAccountCreationRequestSentStateTransitional.getRelayState(),
-                            userAccountCreationRequestSentStateTransitional.getIdpLevelOfAssurance(),
-                            userAccountCreationRequestSentStateTransitional.getMatchingServiceAdapterEntityId()
-                    ),
+                    (UserAccountCreationRequestSentStateTransitional) state,
                     stateTransitionAction,
                     injector.getInstance(EventSinkHubEventLogger.class),
                     injector.getInstance(PolicyConfiguration.class),
@@ -399,8 +391,22 @@ public class StateControllerFactory {
 
             // Deprecated
             case USER_ACCOUNT_CREATION_REQUEST_SENT:
+                final UserAccountCreationRequestSentState userAccountCreationRequestSentState = (UserAccountCreationRequestSentState) state;
                 return new UserAccountCreationRequestSentStateController(
-                        (UserAccountCreationRequestSentState) state,
+                        new UserAccountCreationRequestSentStateTransitional(
+                            userAccountCreationRequestSentState.getRequestId(),
+                            userAccountCreationRequestSentState.getRequestIssuerEntityId(),
+                            userAccountCreationRequestSentState.getSessionExpiryTimestamp(),
+                            userAccountCreationRequestSentState.getAssertionConsumerServiceUri(),
+                            userAccountCreationRequestSentState.getSessionId(),
+                            userAccountCreationRequestSentState.getTransactionSupportsEidas(),
+                            userAccountCreationRequestSentState.getIdentityProviderEntityId(),
+                            userAccountCreationRequestSentState.getRelayState(),
+                            userAccountCreationRequestSentState.getIdpLevelOfAssurance(),
+                            false,
+                            userAccountCreationRequestSentState.getMatchingServiceAdapterEntityId(),
+                            userAccountCreationRequestSentState.getRequestSentTime()
+                        ),
                         stateTransitionAction,
                         injector.getInstance(EventSinkHubEventLogger.class),
                         injector.getInstance(PolicyConfiguration.class),
