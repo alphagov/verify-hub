@@ -83,6 +83,7 @@ public class TransitionalStateConverter {
                 state.getSessionId(),
                 state.getPersistentId(),
                 state.getLevelOfAssurance(),
+                // TT-1613: This will have a value passed properly in the next release
                 false,
                 state.getTransactionSupportsEidas()
         );
@@ -115,6 +116,7 @@ public class TransitionalStateConverter {
                 state.getRelayState(),
                 state.getSessionExpiryTimestamp(),
                 state.registering(),
+                // TT-1613: This will have a value passed properly in the next release
                 null,
                 state.getSessionId(),
                 state.getAvailableIdentityProviderEntityIds(),
@@ -146,6 +148,7 @@ public class TransitionalStateConverter {
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
                 state.getLevelOfAssurance(),
+                // TT-1613: This will have a value passed properly in the next release
                 false,
                 state.getTransactionSupportsEidas()
         );

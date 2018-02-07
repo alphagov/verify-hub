@@ -290,6 +290,7 @@ public class SessionRepositoryTest {
         assertThat(sessionId).isEqualTo(expectedSessionId);
         assertThat(dataStore.containsKey(expectedSessionId)).isEqualTo(true);
         assertThat(sessionStartedMap.containsKey(expectedSessionId)).isEqualTo(true);
+        // TT-1613: Commented out and replaced by the check below temporarily until we get rid of transitional state classes in the next release
 //        verify(controllerFactory).build(eq(sessionStartedState), any(StateTransitionAction.class));
 
         final ArgumentCaptor<SessionStartedStateTransitional> transitionalStateArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
@@ -315,6 +316,7 @@ public class SessionRepositoryTest {
 
         sessionRepository.getStateController(sessionId, SessionStartedState.class);
 
+        // TT-1613: Commented out and replaced by the check below temporarily until we get rid of transitional state classes in the next release
 //        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
         final ArgumentCaptor<SessionStartedStateTransitional> transitionalStateArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
         verify(controllerFactory).build(transitionalStateArgCaptor.capture(), stateTransitionActionArgumentCaptor.capture());
@@ -333,8 +335,9 @@ public class SessionRepositoryTest {
         SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         sessionRepository.getStateController(sessionId, SessionStartedState.class);
 
-        final ArgumentCaptor<SessionStartedStateTransitional> transitionalArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
+        // TT-1613: Commented out and replaced by the check below temporarily until we get rid of transitional state classes in the next release
 //        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
+        final ArgumentCaptor<SessionStartedStateTransitional> transitionalArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
         verify(controllerFactory).build(transitionalArgCaptor.capture(), stateTransitionActionArgumentCaptor.capture());
         assertThat(transitionalArgCaptor.getValue()).isEqualToComparingFieldByField((SessionStartedStateTransitional) TransitionalStateConverter.convertToTransitional(sessionStartedState));
 
