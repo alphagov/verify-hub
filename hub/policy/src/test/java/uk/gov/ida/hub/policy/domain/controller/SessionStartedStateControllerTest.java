@@ -68,7 +68,6 @@ public class SessionStartedStateControllerTest {
                 identityProvidersConfigProxy);
     }
 
-
     @Test
     public void handleIdpSelect_shouldTransitionStateAndLogEvent() {
         controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", false);

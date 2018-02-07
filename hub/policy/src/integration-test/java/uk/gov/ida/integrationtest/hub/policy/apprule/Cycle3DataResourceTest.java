@@ -18,7 +18,7 @@ import uk.gov.ida.hub.policy.domain.Cycle3UserInput;
 import uk.gov.ida.hub.policy.domain.MatchingProcessDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
@@ -96,7 +96,7 @@ public class Cycle3DataResourceTest {
         postCycle3Data(sessionId, cycle3UserInput);
 
         //Then
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle3MatchRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle3MatchRequestSentStateTransitional.class.getName());
     }
 
     @Test

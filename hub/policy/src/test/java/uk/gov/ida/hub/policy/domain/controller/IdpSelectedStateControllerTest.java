@@ -24,7 +24,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
@@ -288,7 +288,7 @@ public class IdpSelectedStateControllerTest {
 
     @Test
     public void handleSuccessResponseFromIdp_shouldTransitionToCycle0And1MatchRequestSentState() throws Exception {
-        ArgumentCaptor<Cycle0And1MatchRequestSentState> stateArgumentCaptor = ArgumentCaptor.forClass(Cycle0And1MatchRequestSentState.class);
+        ArgumentCaptor<Cycle0And1MatchRequestSentStateTransitional> stateArgumentCaptor = ArgumentCaptor.forClass(Cycle0And1MatchRequestSentStateTransitional.class);
         PersistentId persistentId = aPersistentId().withNameId("idname").build();
         final String encryptedMatchingDatasetAssertion = "blah";
         SuccessFromIdp successFromIdp = aSuccessFromIdp()
@@ -307,7 +307,7 @@ public class IdpSelectedStateControllerTest {
         controller.handleSuccessResponseFromIdp(successFromIdp);
 
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
-        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(Cycle0And1MatchRequestSentState.class);
+        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(Cycle0And1MatchRequestSentStateTransitional.class);
         assertThat(stateArgumentCaptor.getValue().getEncryptedMatchingDatasetAssertion()).isEqualTo(encryptedMatchingDatasetAssertion);
     }
 

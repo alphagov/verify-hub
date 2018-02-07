@@ -173,6 +173,7 @@ public class StateControllerFactory {
                                 cycle0And1MatchRequestSentState.getAssertionConsumerServiceUri(),
                                 cycle0And1MatchRequestSentState.getSessionId(),
                                 cycle0And1MatchRequestSentState.getTransactionSupportsEidas(),
+                                // TT-1613: This will have a value passed properly in the next release
                                 false,
                                 cycle0And1MatchRequestSentState.getIdentityProviderEntityId(),
                                 cycle0And1MatchRequestSentState.getRelayState(),
@@ -350,6 +351,7 @@ public class StateControllerFactory {
                                 cycle3MatchRequestSentState.getIdentityProviderEntityId(),
                                 cycle3MatchRequestSentState.getRelayState(),
                                 cycle3MatchRequestSentState.getIdpLevelOfAssurance(),
+                                // TT-1613: This will have a value passed properly in the next release
                                 false,
                                 cycle3MatchRequestSentState.getMatchingServiceAdapterEntityId(),
                                 cycle3MatchRequestSentState.getEncryptedMatchingDatasetAssertion(),
@@ -403,6 +405,7 @@ public class StateControllerFactory {
                             userAccountCreationRequestSentState.getIdentityProviderEntityId(),
                             userAccountCreationRequestSentState.getRelayState(),
                             userAccountCreationRequestSentState.getIdpLevelOfAssurance(),
+                                // TT-1613: This will have a value passed properly in the next release
                             false,
                             userAccountCreationRequestSentState.getMatchingServiceAdapterEntityId(),
                             userAccountCreationRequestSentState.getRequestSentTime()
@@ -533,6 +536,5 @@ public class StateControllerFactory {
             default:
                 throw new IllegalStateException(format("Invalid state controller class for {0}", policyState));
         }
-
     }
 }

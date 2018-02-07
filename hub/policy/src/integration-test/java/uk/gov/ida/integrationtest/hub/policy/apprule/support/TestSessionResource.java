@@ -121,8 +121,8 @@ public class TestSessionResource {
                         testSessionDto.getRelayState(),
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getAssertionConsumerServiceUri(),
-                        Optional.<Boolean>absent(),
-                        Collections.<String>emptyList(),
+                        Optional.absent(),
+                        Collections.emptyList(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getTransactionSupportsEidas()));
@@ -202,6 +202,45 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getSessionStateName(@PathParam(SESSION_ID_PARAM) SessionId sessionId) {
         State session = testSessionRepository.getSession(sessionId);
-        return Response.ok(session.getClass().getName()).build();
+//        return Response.ok(session.getClass().getName()).build();
+        return Response.ok(getNonTransitionalName(session.getClass())).build();
+    }
+
+    @Deprecated
+    private String getNonTransitionalName(Class<? extends State> sessionClass) {
+
+        if (sessionClass.equals(SessionStartedStateTransitional.class)) {
+            return SessionStartedState.class.getName();
+        }
+
+        if (sessionClass.equals(AuthnFailedErrorStateTransitional.class)) {
+            return AuthnFailedErrorState.class.getName();
+        }
+
+        if (sessionClass.equals(AwaitingCycle3DataStateTransitional.class)) {
+            return AwaitingCycle3DataState.class.getName();
+        }
+
+        if (sessionClass.equals(FraudEventDetectedStateTransitional.class)) {
+            return FraudEventDetectedState.class.getName();
+        }
+
+        if (sessionClass.equals(IdpSelectedStateTransitional.class)) {
+            return IdpSelectedState.class.getName();
+        }
+
+        if (sessionClass.equals(RequesterErrorStateTransitional.class)) {
+            return RequesterErrorState.class.getName();
+        }
+
+        if (sessionClass.equals(SuccessfulMatchStateTransitional.class)) {
+            return SuccessfulMatchState.class.getName();
+        }
+
+        if (sessionClass.equals(UserAccountCreatedStateTransitional.class)) {
+            return UserAccountCreatedState.class.getName();
+        }
+
+        return sessionClass.getName();
     }
 }

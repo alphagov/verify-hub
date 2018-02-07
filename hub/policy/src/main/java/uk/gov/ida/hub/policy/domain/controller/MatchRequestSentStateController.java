@@ -19,7 +19,7 @@ import uk.gov.ida.hub.policy.domain.state.AbstractMatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
@@ -180,15 +180,20 @@ public abstract class MatchRequestSentStateController<T extends AbstractMatchReq
 
         attributeQueryService.sendAttributeQueryRequest(state.getSessionId(), attributeQueryRequestDto);
 
-        return new UserAccountCreationRequestSentState(
+        return new UserAccountCreationRequestSentStateTransitional(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-            state.getSessionId(), state.getTransactionSupportsEidas(), state.getIdentityProviderEntityId(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas(),
+                state.getIdentityProviderEntityId(),
                 state.getRelayState(),
                 state.getIdpLevelOfAssurance(),
-                state.getMatchingServiceAdapterEntityId()
+                // TT-1613: This will have a value passed properly in the next release
+                false,
+                state.getMatchingServiceAdapterEntityId(),
+                DateTime.now()
         );
     }
 

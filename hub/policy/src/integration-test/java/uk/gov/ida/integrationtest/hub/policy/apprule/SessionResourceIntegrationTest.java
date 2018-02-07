@@ -20,9 +20,15 @@ import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
-import uk.gov.ida.hub.policy.domain.*;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.AuthnRequestFromHubContainerDto;
+import uk.gov.ida.hub.policy.domain.EidasCountryDto;
+import uk.gov.ida.hub.policy.domain.IdpSelected;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
+import uk.gov.ida.hub.policy.domain.ResponseAction;
+import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
+import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
@@ -42,7 +48,10 @@ import java.net.URI;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.*;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.EIDAS_SUCCESSFUL_MATCH_STATE;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.IDP_SELECTED_STATE;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.SUCCESSFUL_MATCH_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.builders.AuthnRequestFromHubContainerDtoBuilder.anAuthnRequestFromHubContainerDto;
 import static uk.gov.ida.integrationtest.hub.policy.builders.AuthnResponseFromHubContainerDtoBuilder.anAuthnResponseFromHubContainerDto;
 import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
@@ -169,7 +178,7 @@ public class SessionResourceIntegrationTest {
 
         //Then
         assertThat(result).isEqualToComparingFieldByField(expectedResult);
-        IdpSelectedState sessionState = policy.getSessionState(sessionId, IdpSelectedState.class);
+        IdpSelectedStateTransitional sessionState = policy.getSessionState(sessionId, IdpSelectedStateTransitional.class);
         assertThat(sessionState.getMatchingServiceEntityId()).isEqualTo(msEntityId);
     }
 
@@ -293,7 +302,7 @@ public class SessionResourceIntegrationTest {
         ResponseAction actualResult = response.readEntity(ResponseAction.class);
         assertThat(actualResult).isEqualToComparingFieldByField(expectedResult);
 
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle0And1MatchRequestSentStateTransitional.class.getName());
     }
 
     private String getSessionStateName(SessionId sessionId) {
@@ -342,5 +351,4 @@ public class SessionResourceIntegrationTest {
         return client.target(uri).request()
                 .post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
     }
-
 }
