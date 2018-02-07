@@ -9,6 +9,7 @@ dependencies {
 
     compile configurations.ida_utils,
             configurations.rest_utils,
+            configurations.verify_event_emitter,
             configurations.common,
             configurations.dropwizard,
             configurations.dropwizard_infinispan

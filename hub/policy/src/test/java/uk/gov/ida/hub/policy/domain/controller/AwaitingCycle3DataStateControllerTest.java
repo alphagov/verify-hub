@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
@@ -55,13 +56,15 @@ public class AwaitingCycle3DataStateControllerTest {
     private AssertionRestrictionsFactory assertionRestrictionsFactory;
     @Mock
     private MatchingServiceConfigProxy matchingServiceConfigProxy;
+    @Mock
+    private EventEmitter eventEmitter;
 
     private ServiceInfoConfiguration serviceInfo = new ServiceInfoConfiguration("service-name");
     private EventSinkHubEventLogger eventSinkHubEventLogger;
 
     @Before
     public void setUp() {
-        eventSinkHubEventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
+        eventSinkHubEventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
     }
 
     @Test

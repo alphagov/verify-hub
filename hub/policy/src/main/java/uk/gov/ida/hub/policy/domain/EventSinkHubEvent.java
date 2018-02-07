@@ -3,12 +3,13 @@ package uk.gov.ida.hub.policy.domain;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.eventemitter.Event;
 import uk.gov.ida.eventsink.EventDetailsKey;
 
 import java.util.Map;
 import java.util.UUID;
 
-public class EventSinkHubEvent {
+public class EventSinkHubEvent implements Event {
 
     private final UUID eventId;
     private final DateTime timestamp = DateTime.now();

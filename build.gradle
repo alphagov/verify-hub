@@ -72,6 +72,7 @@ subprojects {
         integrationtests
         config
         rest_utils
+        verify_event_emitter
         ida_utils
         ida_test_utils
         dev_pki
@@ -93,6 +94,8 @@ subprojects {
         config 'commons-io:commons-io:2.1'
 
         rest_utils "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.ida_utils"
+
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-7"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils"

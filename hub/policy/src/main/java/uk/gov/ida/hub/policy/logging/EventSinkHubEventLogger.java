@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
@@ -68,11 +69,13 @@ public class EventSinkHubEventLogger {
 
     private final EventSinkProxy eventSinkProxy;
     private final ServiceInfoConfiguration serviceInfo;
+    private final EventEmitter eventEmitter;
 
     @Inject
-    public EventSinkHubEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy) {
+    public EventSinkHubEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy, EventEmitter eventEmitter) {
         this.serviceInfo = serviceInfo;
         this.eventSinkProxy = eventSinkProxy;
+        this.eventEmitter = eventEmitter;
     }
 
     public void logSessionStartedEvent(SamlResponseWithAuthnRequestInformationDto samlResponse, String ipAddress, DateTime sessionExpiryTimestamp, SessionId sessionId, LevelOfAssurance minimum, LevelOfAssurance required) {
@@ -191,6 +194,7 @@ public class EventSinkHubEventLogger {
                 details);
 
         eventSinkProxy.logHubEvent(eventSinkHubEvent);
+        eventEmitter.record(eventSinkHubEvent);
     }
 
     public void logSessionTimeoutEvent(SessionId sessionId, DateTime sessionExpiryTimestamp, String transactionEntityId, String requestId) {
@@ -207,6 +211,7 @@ public class EventSinkHubEventLogger {
                 details);
 
         eventSinkProxy.logHubEvent(eventSinkHubEvent);
+        eventEmitter.record(eventSinkHubEvent);
     }
 
     public void logMatchingServiceUserAccountCreationRequestSentEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId) {
@@ -238,6 +243,7 @@ public class EventSinkHubEventLogger {
                 details);
 
         eventSinkProxy.logHubEvent(sessionHubEvent);
+        eventEmitter.record(sessionHubEvent);
     }
 
     public void logCountrySelectedEvent(CountrySelectedState countrySelectedState) {

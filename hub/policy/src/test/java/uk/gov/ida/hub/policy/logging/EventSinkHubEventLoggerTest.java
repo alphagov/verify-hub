@@ -1,17 +1,20 @@
 package uk.gov.ida.hub.policy.logging;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
-import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
@@ -23,18 +26,19 @@ import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.eventsink.EventDetailsKey.gpg45_status;
 import static uk.gov.ida.eventsink.EventDetailsKey.hub_event_type;
 import static uk.gov.ida.eventsink.EventDetailsKey.idp_entity_id;
 import static uk.gov.ida.eventsink.EventDetailsKey.idp_fraud_event_id;
 import static uk.gov.ida.eventsink.EventDetailsKey.message;
+import static uk.gov.ida.eventsink.EventDetailsKey.message_id;
 import static uk.gov.ida.eventsink.EventDetailsKey.minimum_level_of_assurance;
 import static uk.gov.ida.eventsink.EventDetailsKey.pid;
 import static uk.gov.ida.eventsink.EventDetailsKey.principal_ip_address_as_seen_by_hub;
@@ -52,6 +56,7 @@ import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.CYCL
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.FRAUD_DETECTED;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.IDP_AUTHN_FAILED;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.IDP_AUTHN_PENDING;
+import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.IDP_AUTHN_SUCCEEDED;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.IDP_SELECTED;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.NO_AUTHN_CONTEXT;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.REQUESTER_ERROR;
@@ -66,406 +71,324 @@ import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformatio
 @RunWith(MockitoJUnitRunner.class)
 public class EventSinkHubEventLoggerTest {
 
+    private static final PersistentId PERSISTENT_ID = aPersistentId().withNameId("nameId").build();
+    private static final String TRANSACTION_ENTITY_ID = "transaction-entity-id";
+    private static final String IDP_ENTITY_ID = "idp entity id";
+    private static final LevelOfAssurance MINIMUM_LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_1;
+    private static final LevelOfAssurance REQUIRED_LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_2;
+    private static final LevelOfAssurance PROVIDED_LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_2;
+    private static final String REQUEST_ID = "requestId";
+    private static final SessionId SESSION_ID = aSessionId().build();
+    private static final String PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB = "some-ip-address";
+    private static final String PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP = "principal-ip-address-seen-by-idp";
+    private static final ServiceInfoConfiguration SERVICE_INFO = ServiceInfoConfigurationBuilder.aServiceInfo().withName("service-name").build();
+    private static final DateTime SESSION_EXPIRY_TIMESTAMP = DateTime.now().minusMinutes(10);
+
     @Mock
     private EventSinkProxy eventSinkProxy;
-    ServiceInfoConfiguration serviceInfo = ServiceInfoConfigurationBuilder.aServiceInfo().withName("service-name").build();
+
+    @Mock
+    private EventEmitter eventEmitter;
+
+    private EventSinkHubEventLogger eventLogger;
+
+    @Before
+    public void setUp() {
+        DateTimeFreezer.freezeTime();
+        eventLogger = new EventSinkHubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter);
+    }
 
     @After
-    public void unfreezeTime() {
+    public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }
 
     @Test
-    public void logSessionOpenEvent_shouldSendEvent() throws Exception {
-        DateTimeFreezer.freezeTime();
-        int sessionDuration = 10;
-        DateTime expectedSessionExpiryTime = DateTime.now().plusMinutes(sessionDuration);
-
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-        SessionId expectedSessionId = aSessionId().build();
-        String principalIpAddress = "some-ip-address";
-        String requestId = UUID.randomUUID().toString();
-        LevelOfAssurance minimumLevelOfAssurance = LevelOfAssurance.LEVEL_1;
-        LevelOfAssurance requiredLevelOfAssurance = LevelOfAssurance.LEVEL_2;
-        SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto()
-                .withId(requestId)
+    public void logSessionOpenEvent_shouldSendEvent() {
+        final SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto()
+                .withId(REQUEST_ID)
+                .withIssuer(TRANSACTION_ENTITY_ID)
                 .build();
-        eventLogger.logSessionStartedEvent(samlResponse, principalIpAddress, expectedSessionExpiryTime, expectedSessionId, minimumLevelOfAssurance, requiredLevelOfAssurance);
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
 
-        EventSinkHubEvent actualEvent = eventCaptor.getValue();
+        eventLogger.logSessionStartedEvent(samlResponse, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, SESSION_EXPIRY_TIMESTAMP, SESSION_ID, MINIMUM_LEVEL_OF_ASSURANCE, REQUIRED_LEVEL_OF_ASSURANCE);
 
-        assertThat(actualEvent.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(actualEvent.getOriginatingService()).isEqualTo(serviceInfo.getName());
-        assertThat(actualEvent.getSessionId()).isEqualTo(expectedSessionId.getSessionId());
-        assertThat(actualEvent.getEventType()).isEqualTo(EventSinkHubEventConstants.EventTypes.SESSION_EVENT);
-        assertThat(actualEvent.getDetails().get(EventDetailsKey.minimum_level_of_assurance)).isEqualTo(minimumLevelOfAssurance.name());
-        assertThat(actualEvent.getDetails().get(EventDetailsKey.required_level_of_assurance)).isEqualTo(requiredLevelOfAssurance.name());
+        final Map<EventDetailsKey, String> details = new HashMap<>();
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        details.put(message_id, samlResponse.getId());
+        details.put(minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name());
+        details.put(required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name());
+        details.put(session_event_type, SESSION_STARTED);
 
-        Map<EventDetailsKey, String> details = actualEvent.getDetails();
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        assertThat(details.containsKey(session_event_type)).isTrue();
-        String state = details.get(session_event_type);
-        assertThat(state).isEqualTo(SESSION_STARTED);
-
-        assertThat(details.containsKey(session_expiry_time)).isTrue();
-        assertThat(details.get(session_expiry_time)).isEqualTo(expectedSessionExpiryTime.toString());
-        assertThat(details.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddress);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
-    public void logEventSinkHubEvent_shouldSendEvent() throws Exception {
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-        SessionId expectedSessionId = aSessionId().build();
+    public void logEventSinkHubEvent_shouldSendEvent() {
+        eventLogger.logRequestFromHub(SESSION_ID, TRANSACTION_ENTITY_ID);
 
-        eventLogger.logRequestFromHub(expectedSessionId, "transaction-entity-id");
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(hub_event_type, RECEIVED_AUTHN_REQUEST_FROM_HUB);
+        details.put(transaction_entity_id, TRANSACTION_ENTITY_ID);
 
-        EventSinkHubEvent actualEvent = eventCaptor.getValue();
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(SERVICE_INFO, SESSION_ID, HUB_EVENT, details);
 
-        assertThat(actualEvent.getEventType()).isEqualTo(HUB_EVENT);
-        assertThat(actualEvent.getSessionId()).isEqualTo(expectedSessionId.getSessionId());
-        Map<EventDetailsKey, String> details = actualEvent.getDetails();
-
-        assertThat(details.containsKey(hub_event_type)).isTrue();
-        String hubEventType = details.get(hub_event_type);
-        assertThat(hubEventType).isEqualTo(RECEIVED_AUTHN_REQUEST_FROM_HUB);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
-    public void logIdpAuthnSucceededEvent_shouldContainLevelsOfAssuranceInDetailsFieldForBilling() throws Exception {
+    public void logIdpAuthnSucceededEvent_shouldContainLevelsOfAssuranceInDetailsFieldForBilling() {
+        eventLogger.logIdpAuthnSucceededEvent(
+            SESSION_ID,
+            SESSION_EXPIRY_TIMESTAMP,
+            IDP_ENTITY_ID,
+            TRANSACTION_ENTITY_ID,
+            PERSISTENT_ID,
+            REQUEST_ID,
+            MINIMUM_LEVEL_OF_ASSURANCE,
+            REQUIRED_LEVEL_OF_ASSURANCE,
+            PROVIDED_LEVEL_OF_ASSURANCE,
+            Optional.fromNullable(PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP),
+            PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        String requestId = "requestId";
-        DateTimeFreezer.freezeTime();
-        int sessionDuration = 10;
-        DateTime sessionExpiryTime = DateTime.now().plusMinutes(sessionDuration);
-        SessionId sessionId = aSessionId().build();
-        String idpEntityId = "idp entity id";
-        String transactionEntityId = "transaction entity id";
-        LevelOfAssurance minimumLevelOfAssurance = LevelOfAssurance.LEVEL_1;
-        LevelOfAssurance requiredLevelOfAssurance = LevelOfAssurance.LEVEL_2;
-        LevelOfAssurance providedLevelOfAssurance = LevelOfAssurance.LEVEL_2;
-        PersistentId persistentId = aPersistentId().withNameId("nameId").build();
-        Optional<String> principalIpAddress = Optional.fromNullable("principal ip address");
-        String principalIpAddressAsSeenByHub = "principal-ip-address-seen-by-hub";
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(idp_entity_id, IDP_ENTITY_ID);
+        details.put(pid, PERSISTENT_ID.getNameId());
+        details.put(minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name());
+        details.put(required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name());
+        details.put(provided_level_of_assurance, PROVIDED_LEVEL_OF_ASSURANCE.name());
+        details.put(principal_ip_address_as_seen_by_idp, PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP);
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        details.put(session_event_type, IDP_AUTHN_SUCCEEDED);
 
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-
-        //When
-        eventLogger.logIdpAuthnSucceededEvent(sessionId, sessionExpiryTime, idpEntityId, transactionEntityId, persistentId, requestId, minimumLevelOfAssurance, requiredLevelOfAssurance, providedLevelOfAssurance, principalIpAddress, principalIpAddressAsSeenByHub);
-
-        //Then
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
-
-        EventSinkHubEvent actualEvent = eventCaptor.getValue();
-
-        assertThat(actualEvent.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(actualEvent.getSessionId()).isEqualTo(sessionId.getSessionId());
-        assertThat(actualEvent.getEventType()).isEqualTo(EventSinkHubEventConstants.EventTypes.SESSION_EVENT);
-
-        Map<EventDetailsKey, String> details = actualEvent.getDetails();
-
-        assertThat(details.containsKey(minimum_level_of_assurance)).isTrue();
-        String actualMinimumLevelOfAssurance = details.get(minimum_level_of_assurance);
-        assertThat(actualMinimumLevelOfAssurance).isEqualTo(minimumLevelOfAssurance.name());
-
-        assertThat(details.containsKey(required_level_of_assurance)).isTrue();
-        String actualRequiredLevelOfAssurance = details.get(required_level_of_assurance);
-        assertThat(actualRequiredLevelOfAssurance).isEqualTo(requiredLevelOfAssurance.name());
-
-        assertThat(details.containsKey(provided_level_of_assurance)).isTrue();
-        String actualProvidedLevelOfAssurance = details.get(provided_level_of_assurance);
-        assertThat(actualProvidedLevelOfAssurance).isEqualTo(providedLevelOfAssurance.name());
-
-        assertThat(details.containsKey(principal_ip_address_as_seen_by_idp)).isTrue();
-        String actualPrincipalIpAddress = details.get(principal_ip_address_as_seen_by_idp);
-        assertThat(actualPrincipalIpAddress).isEqualTo(principalIpAddress.get());
-
-        assertThat(details.containsKey(principal_ip_address_as_seen_by_hub)).isTrue();
-        assertThat(details.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddressAsSeenByHub);
-
-        assertThat(details.containsKey(request_id)).isTrue();
-        assertThat(details.get(request_id)).isEqualTo(requestId);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logIdpFraudEvent_shouldLogFraudEventWithDetails() {
-        DateTimeFreezer.freezeTime();
-        SessionId sessionId = aSessionId().build();
-        String idpEntityId = "idp";
-        String transactionEntityId = "transaction entity id";
-        PersistentId persistentIdDto = aPersistentId().withNameId("nameId").build();
-        DateTime sessionExpiryTime = DateTime.now().plusMinutes(10);
-        String fraudEventId = "fraudEventId";
-        String fraudIndicator = "FI02";
-        String principalIpAddressSeenByIdp = "principal-ip-address-seen-by-idp";
-        String principalIpAddressSeenByHub = "principal-ip-address-seen-by-hub";
-        FraudDetectedDetails fraudDetectedDetailsDto = aFraudDetectedDetails()
-                .withFraudEventId(fraudEventId)
-                .withFraudIndicator(fraudIndicator)
-                .build();
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-        String requestId = UUID.randomUUID().toString();
+        final String fraudEventId = "fraudEventId";
+        final String fraudIndicator = "FI02";
+        final FraudDetectedDetails fraudDetectedDetailsDto = aFraudDetectedDetails()
+            .withFraudEventId(fraudEventId)
+            .withFraudIndicator(fraudIndicator)
+            .build();
 
-        eventLogger.logIdpFraudEvent(sessionId, idpEntityId, transactionEntityId, persistentIdDto, sessionExpiryTime, fraudDetectedDetailsDto, Optional.fromNullable(principalIpAddressSeenByIdp), principalIpAddressSeenByHub, requestId);
+        eventLogger.logIdpFraudEvent(
+            SESSION_ID,
+            IDP_ENTITY_ID,
+            TRANSACTION_ENTITY_ID,
+            PERSISTENT_ID,
+            SESSION_EXPIRY_TIMESTAMP,
+            fraudDetectedDetailsDto,
+            Optional.of(PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP),
+            PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+            REQUEST_ID
+        );
 
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(session_event_type, FRAUD_DETECTED);
+        details.put(idp_entity_id, IDP_ENTITY_ID);
+        details.put(pid, PERSISTENT_ID.getNameId());
+        details.put(idp_fraud_event_id, fraudEventId);
+        details.put(gpg45_status, fraudIndicator);
+        details.put(principal_ip_address_as_seen_by_idp, PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP);
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        EventSinkHubEvent actualHubEvent = eventCaptor.getValue();
-        Map<EventDetailsKey, String> actualEventDetails = actualHubEvent.getDetails();
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        assertThat(actualEventDetails.get(session_event_type)).isEqualTo(FRAUD_DETECTED);
-        assertThat(actualHubEvent.getSessionId()).isEqualTo(sessionId.getSessionId());
-        assertThat(actualHubEvent.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(actualEventDetails.get(idp_entity_id)).isEqualTo(idpEntityId);
-        assertThat(actualEventDetails.get(pid)).isEqualTo(persistentIdDto.getNameId());
-        assertThat(actualEventDetails.get(idp_fraud_event_id)).isEqualTo(fraudEventId);
-        assertThat(actualEventDetails.get(gpg45_status)).isEqualTo(fraudIndicator);
-        assertThat(actualEventDetails.get(principal_ip_address_as_seen_by_idp)).isEqualTo(principalIpAddressSeenByIdp);
-        assertThat(actualEventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddressSeenByHub);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
-    public void logSessionTimeoutEvent_shouldSendEvent() throws Exception {
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-        SessionId sessionId = aSessionId().build();
-        DateTime sessionExpiryTimestamp = DateTime.now().minusMinutes(10);
-        String transactionEntityId = "Some entity id";
+    public void logSessionTimeoutEvent_shouldSendEvent() {
+        eventLogger.logSessionTimeoutEvent(SESSION_ID, SESSION_EXPIRY_TIMESTAMP, TRANSACTION_ENTITY_ID, REQUEST_ID);
 
-        eventLogger.logSessionTimeoutEvent(sessionId, sessionExpiryTimestamp, transactionEntityId, null);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(session_event_type, SESSION_TIMEOUT);
 
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        EventSinkHubEvent actualEvent = eventCaptor.getValue();
-        assertThat(actualEvent.getEventType()).isEqualTo(SESSION_EVENT);
-        assertThat(actualEvent.getDetails().containsKey(session_event_type)).as("Message details does not contain an entry for Session Event Type.").isTrue();
-        assertThat(actualEvent.getDetails().get(session_event_type)).isEqualTo(SESSION_TIMEOUT);
-
-        String actualExpiryTimeString = actualEvent.getDetails().get(session_expiry_time);
-        DateTime actualExpiryTime = DateTime.parse(actualExpiryTimeString);
-        assertThat(actualExpiryTime.isEqual(sessionExpiryTimestamp)).as(MessageFormat.format("Expected timestamp {0} but got {1}", sessionExpiryTimestamp, actualExpiryTime)).isTrue();
-
-        assertThat(actualEvent.getDetails().containsKey(transaction_entity_id)).as("Message details does not contain an entry for Transaction Entity Id").isEqualTo(actualEvent.getDetails().containsKey(transaction_entity_id));
-        assertThat(actualEvent.getDetails().get(transaction_entity_id)).isEqualTo(transactionEntityId);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logIdpSelectedEvent_shouldLogEventWithIdpSelected() {
-        DateTimeFreezer.freezeTime();
+        final IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState()
+            .withLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
+            .withSessionExpiryTimestamp(SESSION_EXPIRY_TIMESTAMP)
+            .withIdpEntityId(IDP_ENTITY_ID)
+            .withRequestIssuerEntityId(TRANSACTION_ENTITY_ID)
+            .withRequestId(REQUEST_ID)
+            .withSessionId(SESSION_ID)
+            .build();
 
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        final String principalIpAddress = "some-principal-ip-address";
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        eventLogger.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().withLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2)).build();
-        eventLogger.logIdpSelectedEvent(state, principalIpAddress);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(session_event_type, IDP_SELECTED);
+        details.put(idp_entity_id, IDP_ENTITY_ID);
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        details.put(minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name());
+        details.put(required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name());
 
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
-        EventSinkHubEvent event = eventCaptor.getValue();
-        assertThat(event.getEventType()).isEqualTo(SESSION_EVENT);
-        assertThat(event.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(event.getSessionId()).isEqualTo(state.getSessionId().getSessionId());
-        assertThat(event.getOriginatingService()).isEqualTo(serviceInfo.getName());
-        String actualExpiryTimeString = event.getDetails().get(session_expiry_time);
-        DateTime eventSessionExpiryTime = DateTime.parse(actualExpiryTimeString);
-        assertThat(eventSessionExpiryTime.isEqual(state.getSessionExpiryTimestamp())).as(MessageFormat.format("Expected timestamp {0} but got {1}", state.getSessionExpiryTimestamp(), eventSessionExpiryTime)).isTrue();
-        Map<EventDetailsKey, String> eventDetails = event.getDetails();
-        assertThat(eventDetails.get(session_event_type)).isEqualTo(IDP_SELECTED);
-        assertThat(eventDetails.get(idp_entity_id)).isEqualTo(state.getIdpEntityId());
-        assertThat(eventDetails.get(transaction_entity_id)).isEqualTo(state.getRequestIssuerEntityId());
-        assertThat(eventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddress);
-        assertThat(eventDetails.get(minimum_level_of_assurance)).isEqualTo(LevelOfAssurance.LEVEL_1.name());
-        assertThat(eventDetails.get(required_level_of_assurance)).isEqualTo(LevelOfAssurance.LEVEL_2.name());
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logIdpRequesterErrorEvent_shouldLogEvent() {
-        DateTimeFreezer.freezeTime();
-
-
-        final String requestId = "request-id";
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        final SessionId sessionId = aSessionId().build();
-        final String transactionEntityId = "some-transaction-entity-id";
         final String errorMessage = "some error message";
-        final String principalIpAddressSeenByHub = "some-principal-ip-address";
-        final DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(30);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
 
-        eventLogger.logIdpRequesterErrorEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, Optional.fromNullable(errorMessage), principalIpAddressSeenByHub);
+        eventLogger.logIdpRequesterErrorEvent(
+            SESSION_ID,
+            TRANSACTION_ENTITY_ID,
+            SESSION_EXPIRY_TIMESTAMP,
+            REQUEST_ID,
+            Optional.fromNullable(errorMessage),
+            PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
-        EventSinkHubEvent event = eventCaptor.getValue();
-        assertThat(event.getEventType()).isEqualTo(SESSION_EVENT);
-        assertThat(event.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(event.getSessionId()).isEqualTo(sessionId.getSessionId());
-        assertThat(event.getOriginatingService()).isEqualTo(serviceInfo.getName());
-        String actualExpiryTimeString = event.getDetails().get(session_expiry_time);
-        DateTime eventSessionExpiryTime = DateTime.parse(actualExpiryTimeString);
-        assertThat(eventSessionExpiryTime.isEqual(sessionExpiryTimestamp)).as(MessageFormat.format("Expected timestamp {0} but got {1}", sessionExpiryTimestamp, eventSessionExpiryTime)).isTrue();
-        Map<EventDetailsKey, String> eventDetails = event.getDetails();
-        assertThat(eventDetails.get(session_event_type)).isEqualTo(REQUESTER_ERROR);
-        assertThat(eventDetails.get(transaction_entity_id)).isEqualTo(transactionEntityId);
-        assertThat(eventDetails.get(message)).isEqualTo(errorMessage);
-        assertThat(eventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddressSeenByHub);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(message, errorMessage);
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        details.put(session_event_type, REQUESTER_ERROR);
+
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logIdpAuthnFailedEvent_shouldLogEvent() {
-        DateTimeFreezer.freezeTime();
 
-        final String requestId = "requestId";
-        ServiceInfoConfiguration serviceInfo = ServiceInfoConfigurationBuilder.aServiceInfo().withName("some-originating-service-name").build();
+        eventLogger.logIdpAuthnFailedEvent(
+            SESSION_ID,
+            TRANSACTION_ENTITY_ID,
+            SESSION_EXPIRY_TIMESTAMP,
+            REQUEST_ID,
+            PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB
+        );
 
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        final SessionId sessionId = aSessionId().build();
-        final String transactionEntityId = "some-transaction-entity-id";
-        final String principalIpAddressSeenByHub = "some-principal-ip-address";
-        final DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(30);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(session_event_type, IDP_AUTHN_FAILED);
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        eventLogger.logIdpAuthnFailedEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, principalIpAddressSeenByHub);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
-        EventSinkHubEvent event = eventCaptor.getValue();
-        assertThat(event.getEventType()).isEqualTo(SESSION_EVENT);
-        assertThat(event.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(event.getSessionId()).isEqualTo(sessionId.getSessionId());
-        assertThat(event.getOriginatingService()).isEqualTo(serviceInfo.getName());
-        String actualExpiryTimeString = event.getDetails().get(session_expiry_time);
-        DateTime eventSessionExpiryTime = DateTime.parse(actualExpiryTimeString);
-        assertThat(eventSessionExpiryTime.isEqual(sessionExpiryTimestamp)).as(MessageFormat.format("Expected timestamp {0} but got {1}", sessionExpiryTimestamp, eventSessionExpiryTime)).isTrue();
-        Map<EventDetailsKey, String> eventDetails = event.getDetails();
-        assertThat(eventDetails.get(session_event_type)).isEqualTo(IDP_AUTHN_FAILED);
-        assertThat(eventDetails.get(transaction_entity_id)).isEqualTo(transactionEntityId);
-        assertThat(eventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddressSeenByHub);
-        assertThat(eventDetails.get(request_id)).isEqualTo(requestId);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logIdpAuthnPendingEvent_shouldLogEvent() {
-        DateTimeFreezer.freezeTime();
+        eventLogger.logPausedRegistrationEvent(SESSION_ID, TRANSACTION_ENTITY_ID, SESSION_EXPIRY_TIMESTAMP, REQUEST_ID, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        final String requestId = "requestId";
-        ServiceInfoConfiguration serviceInfo = ServiceInfoConfigurationBuilder.aServiceInfo().withName("some-originating-service-name").build();
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        details.put(session_event_type, IDP_AUTHN_PENDING);
 
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        final SessionId sessionId = aSessionId().build();
-        final String transactionEntityId = "some-transaction-entity-id";
-        final String principalIpAddressSeenByHub = "some-principal-ip-address";
-        final DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(30);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        eventLogger.logPausedRegistrationEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, principalIpAddressSeenByHub);
-
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
-        EventSinkHubEvent event = eventCaptor.getValue();
-        assertThat(event.getEventType()).isEqualTo(SESSION_EVENT);
-        assertThat(event.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(event.getSessionId()).isEqualTo(sessionId.getSessionId());
-        assertThat(event.getOriginatingService()).isEqualTo(serviceInfo.getName());
-        String actualExpiryTimeString = event.getDetails().get(session_expiry_time);
-        DateTime eventSessionExpiryTime = DateTime.parse(actualExpiryTimeString);
-        assertThat(eventSessionExpiryTime.isEqual(sessionExpiryTimestamp)).as(MessageFormat.format("Expected timestamp {0} but got {1}", sessionExpiryTimestamp, eventSessionExpiryTime)).isTrue();
-        Map<EventDetailsKey, String> eventDetails = event.getDetails();
-        assertThat(eventDetails.get(session_event_type)).isEqualTo(IDP_AUTHN_PENDING);
-        assertThat(eventDetails.get(transaction_entity_id)).isEqualTo(transactionEntityId);
-        assertThat(eventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddressSeenByHub);
-        assertThat(eventDetails.get(request_id)).isEqualTo(requestId);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
-
 
     @Test
     public void logIdpNoAuthnContext_shouldLogEvent() {
-        DateTimeFreezer.freezeTime();
+        eventLogger.logNoAuthnContextEvent(
+            SESSION_ID,
+            TRANSACTION_ENTITY_ID,
+            SESSION_EXPIRY_TIMESTAMP,
+            REQUEST_ID,
+            PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB
+        );
 
-        final String requestId = "requestId";
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        final SessionId sessionId = aSessionId().build();
-        final String transactionEntityId = "some-transaction-entity-id";
-        final String principalIpAddressSeenByHub = "some-principal-ip-address";
-        final DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(30);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(session_event_type, NO_AUTHN_CONTEXT);
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        eventLogger.logNoAuthnContextEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, principalIpAddressSeenByHub);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
-        EventSinkHubEvent event = eventCaptor.getValue();
-        assertThat(event.getEventType()).isEqualTo(SESSION_EVENT);
-        assertThat(event.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(event.getSessionId()).isEqualTo(sessionId.getSessionId());
-        assertThat(event.getOriginatingService()).isEqualTo(serviceInfo.getName());
-        String actualExpiryTimeString = event.getDetails().get(session_expiry_time);
-        DateTime eventSessionExpiryTime = DateTime.parse(actualExpiryTimeString);
-        assertThat(eventSessionExpiryTime.isEqual(sessionExpiryTimestamp)).as(MessageFormat.format("Expected timestamp {0} but got {1}", sessionExpiryTimestamp, eventSessionExpiryTime)).isTrue();
-        Map<EventDetailsKey, String> eventDetails = event.getDetails();
-        assertThat(eventDetails.get(session_event_type)).isEqualTo(NO_AUTHN_CONTEXT);
-        assertThat(eventDetails.get(transaction_entity_id)).isEqualTo(transactionEntityId);
-        assertThat(eventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddressSeenByHub);
-        assertThat(eventDetails.get(request_id)).isEqualTo(requestId);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logCycle3DataObtained_shouldLogEvent() {
-        DateTimeFreezer.freezeTime();
+        eventLogger.logCycle3DataObtained(SESSION_ID, TRANSACTION_ENTITY_ID, SESSION_EXPIRY_TIMESTAMP, REQUEST_ID, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        final String requestId = "requestID";
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        final SessionId sessionId = aSessionId().build();
-        final String transactionEntityId = "some-transaction-entity-id";
-        final String principalIpAddressSeenByHub = "some-principal-ip-address";
-        final DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(30);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        details.put(session_event_type, CYCLE3_DATA_OBTAINED);
 
-        eventLogger.logCycle3DataObtained(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, principalIpAddressSeenByHub);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
-        EventSinkHubEvent event = eventCaptor.getValue();
-        assertThat(event.getEventType()).isEqualTo(SESSION_EVENT);
-        assertThat(event.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(event.getSessionId()).isEqualTo(sessionId.getSessionId());
-        assertThat(event.getOriginatingService()).isEqualTo(serviceInfo.getName());
-        String actualExpiryTimeString = event.getDetails().get(session_expiry_time);
-        DateTime eventSessionExpiryTime = DateTime.parse(actualExpiryTimeString);
-        assertThat(eventSessionExpiryTime.isEqual(sessionExpiryTimestamp)).as(MessageFormat.format("Expected timestamp {0} but got {1}", sessionExpiryTimestamp, eventSessionExpiryTime)).isTrue();
-        Map<EventDetailsKey, String> eventDetails = event.getDetails();
-        assertThat(eventDetails.get(session_event_type)).isEqualTo(CYCLE3_DATA_OBTAINED);
-        assertThat(eventDetails.get(transaction_entity_id)).isEqualTo(transactionEntityId);
-        assertThat(eventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddressSeenByHub);
-        assertThat(eventDetails.get(request_id)).isEqualTo(requestId);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logMatchingServiceUserAccountCreationRequestSentEvent_shouldLogEvent() {
-        DateTimeFreezer.freezeTime();
+        eventLogger.logMatchingServiceUserAccountCreationRequestSentEvent(
+            SESSION_ID,
+            TRANSACTION_ENTITY_ID,
+            SESSION_EXPIRY_TIMESTAMP,
+            REQUEST_ID
+        );
 
-        final String requestId = "requestID";
-        EventSinkHubEventLogger eventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
-        final SessionId sessionId = aSessionId().build();
-        final String transactionEntityId = "some-transaction-entity-id";
-        final DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(30);
-        ArgumentCaptor<EventSinkHubEvent> eventCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(session_event_type, USER_ACCOUNT_CREATION_REQUEST_SENT);
 
-        eventLogger.logMatchingServiceUserAccountCreationRequestSentEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
 
-        verify(eventSinkProxy).logHubEvent(eventCaptor.capture());
-        EventSinkHubEvent event = eventCaptor.getValue();
-        assertThat(event.getEventType()).isEqualTo(SESSION_EVENT);
-        assertThat(event.getTimestamp()).isEqualTo(DateTime.now());
-        assertThat(event.getSessionId()).isEqualTo(sessionId.getSessionId());
-        assertThat(event.getOriginatingService()).isEqualTo(serviceInfo.getName());
-        String actualExpiryTimeString = event.getDetails().get(session_expiry_time);
-        DateTime eventSessionExpiryTime = DateTime.parse(actualExpiryTimeString);
-        assertThat(eventSessionExpiryTime.isEqual(sessionExpiryTimestamp)).as(MessageFormat.format("Expected timestamp {0} but got {1}", sessionExpiryTimestamp, eventSessionExpiryTime)).isTrue();
-        Map<EventDetailsKey, String> eventDetails = event.getDetails();
-        assertThat(eventDetails.get(session_event_type)).isEqualTo(USER_ACCOUNT_CREATION_REQUEST_SENT);
-        assertThat(eventDetails.get(transaction_entity_id)).isEqualTo(transactionEntityId);
-        assertThat(eventDetails.get(request_id)).isEqualTo(requestId);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
+    }
+
+    @NotNull
+    private EventSinkHubEvent createExpectedEventSinkHubEvent(Map<EventDetailsKey, String> details) {
+        details.put(session_expiry_time, SESSION_EXPIRY_TIMESTAMP.toString());
+        details.put(transaction_entity_id, TRANSACTION_ENTITY_ID);
+        details.put(request_id, REQUEST_ID);
+
+        return new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            SESSION_EVENT,
+            details
+        );
+    }
+
+    private class EventMatching extends ArgumentMatcher<EventSinkHubEvent> {
+
+        private EventSinkHubEvent expectedEvent;
+
+        private EventMatching(EventSinkHubEvent expectedEvent) {
+            this.expectedEvent = expectedEvent;
+        }
+
+        @Override
+        public boolean matches(Object other) {
+            if (other == null || expectedEvent.getClass() != other.getClass()) {
+                return false;
+            }
+            EventSinkHubEvent actualEvent = (EventSinkHubEvent) other;
+            return
+                Objects.equals(expectedEvent.getTimestamp(), actualEvent.getTimestamp()) &&
+                    Objects.equals(expectedEvent.getOriginatingService(), actualEvent.getOriginatingService()) &&
+                    Objects.equals(expectedEvent.getSessionId(), actualEvent.getSessionId()) &&
+                    Objects.equals(expectedEvent.getEventType(), actualEvent.getEventType()) &&
+                    Objects.equals(expectedEvent.getDetails(), actualEvent.getDetails());
+        }
     }
 }

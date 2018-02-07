@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.common.shared.security.IdGenerator;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
@@ -83,6 +84,9 @@ public class Cycle3MatchRequestSentStateControllerTest {
     @Mock
     private EventSinkProxy eventSinkProxy;
 
+    @Mock
+    private EventEmitter eventEmitter;
+
     private EventSinkHubEventLogger eventSinkHubEventLogger;
 
     private final ServiceInfoConfiguration serviceInfo = ServiceInfoConfigurationBuilder.aServiceInfo().build();
@@ -94,7 +98,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
 
     @Before
     public void setUp() {
-        eventSinkHubEventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy);
+        eventSinkHubEventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
     }
 
     @Test
