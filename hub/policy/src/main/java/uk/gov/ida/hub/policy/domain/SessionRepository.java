@@ -21,6 +21,8 @@ import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectingStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
@@ -28,6 +30,7 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
+import uk.gov.ida.hub.policy.domain.state.TransitionalStateConverter;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
@@ -62,7 +65,7 @@ public class SessionRepository {
     public SessionId createSession(SessionStartedState startedState) {
         SessionId sessionId = startedState.getSessionId();
 
-        dataStore.put(sessionId, startedState);
+        dataStore.put(sessionId, TransitionalStateConverter.convertToTransitional(startedState));
         sessionStartedMap.put(sessionId, startedState.getSessionExpiryTimestamp());
         LOG.info(format("Session {0} created", sessionId.getSessionId()));
 
@@ -82,7 +85,7 @@ public class SessionRepository {
         handleTimeout(sessionId, currentState, currentStateClass, expectedStateClass);
 
         if (isAKindOf(expectedStateClass, currentStateClass) || currentStateClass.equals(TimeoutState.class)) {
-            return controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
+            return controllerFactory.build(currentState, state -> dataStore.replace(sessionId, TransitionalStateConverter.convertToTransitional(state)));
         }
 
         throw new InvalidSessionStateException(sessionId, expectedStateClass, currentState.getClass());
@@ -124,6 +127,10 @@ public class SessionRepository {
     private <T extends State> boolean isATransitionalKindOf(
             final Class<T> expectedStateClass,
             final Class<? extends State> currentStateClass) {
+
+        if (expectedStateClass.equals(IdpSelectingState.class)) {
+            return IdpSelectingStateTransitional.class.isAssignableFrom(currentStateClass);
+        }
 
         if (currentStateClass.equals(IdpSelectedStateTransitional.class) && expectedStateClass.equals(IdpSelectedState.class)) {
             return true;

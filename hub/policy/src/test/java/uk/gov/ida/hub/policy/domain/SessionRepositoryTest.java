@@ -42,6 +42,7 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
+import uk.gov.ida.hub.policy.domain.state.TransitionalStateConverter;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
@@ -94,7 +95,7 @@ public class SessionRepositoryTest {
         final IdpSelectedStateTransitional idpSelectedStateTransitional = IdpSelectedStateBuilder.anIdpSelectedState().buildTransitional();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, idpSelectedStateTransitional);
+        dataStore.replace(sessionId, idpSelectedStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, IdpSelectedState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(idpSelectedStateTransitional), any(StateTransitionAction.class));
@@ -111,7 +112,7 @@ public class SessionRepositoryTest {
         final SessionStartedStateTransitional sessionStartedStateTransitional = aSessionStartedState().withSessionId(expectedSessionId).buildTransitional();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, sessionStartedStateTransitional);
+        dataStore.replace(sessionId, sessionStartedStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, SessionStartedState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(sessionStartedStateTransitional), any(StateTransitionAction.class));
@@ -128,7 +129,7 @@ public class SessionRepositoryTest {
         final AuthnFailedErrorStateTransitional authnFailedErrorStateTransitional = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().buildTransitional();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, authnFailedErrorStateTransitional);
+        dataStore.replace(sessionId, authnFailedErrorStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, AuthnFailedErrorState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(authnFailedErrorStateTransitional), any(StateTransitionAction.class));
@@ -145,7 +146,7 @@ public class SessionRepositoryTest {
         final FraudEventDetectedStateTransitional fraudEventDetectedStateTransitional = FraudEventDetectedStateBuilder.aFraudEventDetectedState().buildTransitional();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, fraudEventDetectedStateTransitional);
+        dataStore.replace(sessionId, fraudEventDetectedStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, FraudEventDetectedState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(fraudEventDetectedStateTransitional), any(StateTransitionAction.class));
@@ -162,7 +163,7 @@ public class SessionRepositoryTest {
         final RequesterErrorStateTransitional requesterErrorStateTransitional = RequesterErrorStateBuilder.aRequesterErrorState().buildTransitional();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, requesterErrorStateTransitional);
+        dataStore.replace(sessionId, requesterErrorStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, RequesterErrorState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(requesterErrorStateTransitional), any(StateTransitionAction.class));
@@ -170,7 +171,6 @@ public class SessionRepositoryTest {
         sessionRepository.getStateController(expectedSessionId, RequesterErrorStateTransitional.class);
         verify(controllerFactory, VerificationModeFactory.times(2)).build(eq(requesterErrorStateTransitional), any(StateTransitionAction.class));
     }
-
 
     @Deprecated
     @Test
@@ -180,7 +180,7 @@ public class SessionRepositoryTest {
         final AwaitingCycle3DataStateTransitional awaitingCycle3DataStateTransitional = AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState().buildTransitional();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, awaitingCycle3DataStateTransitional);
+        dataStore.replace(sessionId, awaitingCycle3DataStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, AwaitingCycle3DataState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(awaitingCycle3DataStateTransitional), any(StateTransitionAction.class));
@@ -197,7 +197,7 @@ public class SessionRepositoryTest {
         final Cycle0And1MatchRequestSentStateTransitional cycle0And1MatchRequestSentStateTransitional = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().build();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, cycle0And1MatchRequestSentStateTransitional);
+        dataStore.replace(sessionId, cycle0And1MatchRequestSentStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, Cycle0And1MatchRequestSentState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(cycle0And1MatchRequestSentStateTransitional), any(StateTransitionAction.class));
@@ -214,7 +214,7 @@ public class SessionRepositoryTest {
         final Cycle3MatchRequestSentStateTransitional cycle3MatchRequestSentStateTransitional = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().build();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, cycle3MatchRequestSentStateTransitional);
+        dataStore.replace(sessionId, cycle3MatchRequestSentStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, Cycle3MatchRequestSentState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(cycle3MatchRequestSentStateTransitional), any(StateTransitionAction.class));
@@ -231,7 +231,7 @@ public class SessionRepositoryTest {
         final SuccessfulMatchStateTransitional successfulMatchStateTransitional = SuccessfulMatchStateBuilder.aSuccessfulMatchState().buildTransitional();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, successfulMatchStateTransitional);
+        dataStore.replace(sessionId, successfulMatchStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, SuccessfulMatchState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(successfulMatchStateTransitional), any(StateTransitionAction.class));
@@ -248,7 +248,7 @@ public class SessionRepositoryTest {
         final UserAccountCreatedStateTransitional userAccountCreatedStateTransitional = UserAccountCreatedStateBuilder.aUserAccountCreatedState().buildTransitional();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, userAccountCreatedStateTransitional);
+        dataStore.replace(sessionId, userAccountCreatedStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, UserAccountCreatedState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(userAccountCreatedStateTransitional), any(StateTransitionAction.class));
@@ -265,7 +265,7 @@ public class SessionRepositoryTest {
         final UserAccountCreationRequestSentStateTransitional userAccountCreationRequestSentStateTransitional = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().build();
 
         final SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        dataStore.replace(sessionId, sessionStartedState, userAccountCreationRequestSentStateTransitional);
+        dataStore.replace(sessionId, userAccountCreationRequestSentStateTransitional);
 
         sessionRepository.getStateController(expectedSessionId, UserAccountCreationRequestSentState.class);
         verify(controllerFactory, VerificationModeFactory.times(1)).build(eq(userAccountCreationRequestSentStateTransitional), any(StateTransitionAction.class));
@@ -284,7 +284,7 @@ public class SessionRepositoryTest {
     }
 
     @Test
-    public void createSession_shouldCreateAndStoreSession() throws Exception {
+    public void createSession_shouldCreateAndStoreSession() {
         SessionId expectedSessionId = aSessionId().build();
         SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
         SessionId sessionId = sessionRepository.createSession(sessionStartedState);
@@ -293,7 +293,22 @@ public class SessionRepositoryTest {
         assertThat(sessionId).isEqualTo(expectedSessionId);
         assertThat(dataStore.containsKey(expectedSessionId)).isEqualTo(true);
         assertThat(sessionStartedMap.containsKey(expectedSessionId)).isEqualTo(true);
-        verify(controllerFactory).build(eq(sessionStartedState), any(StateTransitionAction.class));
+//        verify(controllerFactory).build(eq(sessionStartedState), any(StateTransitionAction.class));
+
+        final ArgumentCaptor<SessionStartedStateTransitional> transitionalStateArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
+        verify(controllerFactory).build(transitionalStateArgCaptor.capture(), any(StateTransitionAction.class));
+        assertThat(transitionalStateArgCaptor.getValue()).isEqualToComparingFieldByField((SessionStartedStateTransitional) TransitionalStateConverter.convertToTransitional(sessionStartedState));
+    }
+
+    @Deprecated
+    @Test
+    public void createSession_shouldCreateAndStoreTransitionalSession() {
+        SessionId expectedSessionId = aSessionId().build();
+        SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
+        sessionRepository.createSession(sessionStartedState);
+
+        assertThat(dataStore.containsKey(expectedSessionId)).isEqualTo(true);
+        assertThat(dataStore.get(expectedSessionId).getClass()).isEqualTo(SessionStartedStateTransitional.class);
     }
 
     @Test
@@ -302,20 +317,30 @@ public class SessionRepositoryTest {
         SessionId sessionId = sessionRepository.createSession(sessionStartedState);
 
         sessionRepository.getStateController(sessionId, SessionStartedState.class);
-        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
+
+//        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
+        final ArgumentCaptor<SessionStartedStateTransitional> transitionalStateArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
+        verify(controllerFactory).build(transitionalStateArgCaptor.capture(), stateTransitionActionArgumentCaptor.capture());
+        assertThat(transitionalStateArgCaptor.getValue()).isEqualToComparingFieldByField((SessionStartedStateTransitional) TransitionalStateConverter.convertToTransitional(sessionStartedState));
+
         TestState state = new TestState();
         stateTransitionActionArgumentCaptor.getValue().transitionTo(state);
 
-        assertThat(dataStore.get(sessionId)).isEqualTo((State) state);
+        assertThat(dataStore.get(sessionId)).isEqualTo(state);
     }
 
     @Test
-    public void getState_shouldGetAnInterfaceImplementation() throws Exception {
+    public void getState_shouldGetAnInterfaceImplementation() {
 
         SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).build();
         SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         sessionRepository.getStateController(sessionId, SessionStartedState.class);
-        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
+
+        final ArgumentCaptor<SessionStartedStateTransitional> transitionalArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
+//        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
+        verify(controllerFactory).build(transitionalArgCaptor.capture(), stateTransitionActionArgumentCaptor.capture());
+        assertThat(transitionalArgCaptor.getValue()).isEqualToComparingFieldByField((SessionStartedStateTransitional) TransitionalStateConverter.convertToTransitional(sessionStartedState));
+
         TestState state = new TestState();
         stateTransitionActionArgumentCaptor.getValue().transitionTo(state);
 

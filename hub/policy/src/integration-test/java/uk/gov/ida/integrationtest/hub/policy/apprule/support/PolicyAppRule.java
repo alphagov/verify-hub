@@ -55,7 +55,6 @@ public class PolicyAppRule extends DropwizardAppRule<PolicyConfiguration> {
                 .build();
     }
 
-
     public ConcurrentMap<SessionId, State> getDataStore() {
        return ((PolicyIntegrationApplication)this.getApplication()).getDataStore();
     }

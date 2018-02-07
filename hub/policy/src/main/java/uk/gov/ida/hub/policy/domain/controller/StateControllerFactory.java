@@ -533,6 +533,5 @@ public class StateControllerFactory {
             default:
                 throw new IllegalStateException(format("Invalid state controller class for {0}", policyState));
         }
-
     }
 }
