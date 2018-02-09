@@ -15,7 +15,7 @@ import java.util.Objects;
 public abstract class AbstractSuccessfulMatchState extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
     protected final String identityProviderEntityId;
     protected final String matchingServiceAssertion;
-    protected final Optional<String> relayState;
+    protected final String relayState;
     protected final LevelOfAssurance levelOfAssurance;
 
     public AbstractSuccessfulMatchState(
@@ -34,7 +34,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceAssertion = matchingServiceAssertion;
-        this.relayState = relayState;
+        this.relayState = relayState.orNull();
         this.levelOfAssurance = levelOfAssurance;
     }
 
@@ -47,7 +47,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.fromNullable(relayState);
     }
 
     public LevelOfAssurance getLevelOfAssurance() {
@@ -61,5 +61,42 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
         return ReflectionToStringBuilder.toString(this, style);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
 
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        AbstractSuccessfulMatchState that = (AbstractSuccessfulMatchState) o;
+
+        return Objects.equals(identityProviderEntityId, that.identityProviderEntityId) &&
+                Objects.equals(matchingServiceAssertion, that.matchingServiceAssertion) &&
+                Objects.equals(relayState, that.relayState) &&
+                levelOfAssurance == that.levelOfAssurance &&
+                getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
+                Objects.equals(getRequestId(), that.getRequestId()) &&
+                Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
+                Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
+                Objects.equals(getAssertionConsumerServiceUri(), that.getAssertionConsumerServiceUri()) &&
+                Objects.equals(getSessionId(), that.getSessionId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                identityProviderEntityId,
+                matchingServiceAssertion,
+                relayState,
+                levelOfAssurance,
+                getTransactionSupportsEidas(),
+                getRequestId(),
+                getRequestIssuerEntityId(),
+                getSessionExpiryTimestamp(),
+                getAssertionConsumerServiceUri(),
+                getSessionId());
+    }
 }

@@ -15,8 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SuccessfulMatchStateTest {
     private static final String IDENTITY_PROVIDER_ENTITY_ID = "identityProviderEntityId";
     private static final String MATCHING_SERVICE_ASSERTION = "matchingServiceAssertion";
-    private static final Optional<String> RELAY_STATE = Optional.of("relayState");
+    private static final String RELAY_STATE = "relayState";
     private static final LevelOfAssurance LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_2;
+    private static final boolean IS_REGISTERING = false;
     private SuccessfulMatchState state;
 
     @Before
@@ -31,6 +32,7 @@ public class SuccessfulMatchStateTest {
             URI.create("assertionConsumerServiceUri"),
             new SessionId("sessionId"),
             LEVEL_OF_ASSURANCE,
+                IS_REGISTERING,
             false
         );
     }
@@ -47,7 +49,7 @@ public class SuccessfulMatchStateTest {
 
     @Test
     public void getRelayState() {
-        assertThat(state.getRelayState()).isEqualTo(RELAY_STATE);
+        assertThat(state.getRelayState()).isEqualTo(Optional.of(RELAY_STATE));
     }
 
     @Test
@@ -56,11 +58,17 @@ public class SuccessfulMatchStateTest {
     }
 
     @Test
+    public void getIsRegistering() {
+        assertThat(state.isRegistering()).isEqualTo(IS_REGISTERING);
+    }
+
+    @Test
     public void testToString() {
         final StringBuffer sb = new StringBuffer("uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState[");
-        sb.append("identityProviderEntityId=").append(state.getIdentityProviderEntityId());
+        sb.append("isRegistering=").append(state.isRegistering());
+        sb.append(",identityProviderEntityId=").append(state.getIdentityProviderEntityId());
         sb.append(",matchingServiceAssertion=").append(state.getMatchingServiceAssertion());
-        sb.append(",relayState=").append(state.getRelayState());
+        sb.append(",relayState=").append(state.getRelayState().orNull());
         sb.append(",levelOfAssurance=").append(state.getLevelOfAssurance());
         sb.append(",requestId=").append(state.getRequestId());
         sb.append(",requestIssuerEntityId=").append(state.getRequestIssuerEntityId());
@@ -75,6 +83,6 @@ public class SuccessfulMatchStateTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(SuccessfulMatchState.class).verify();
+        EqualsVerifier.forClass(SuccessfulMatchState.class).withRedefinedSuperclass().verify();
     }
 }

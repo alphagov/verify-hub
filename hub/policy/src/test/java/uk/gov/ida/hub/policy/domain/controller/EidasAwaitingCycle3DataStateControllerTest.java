@@ -43,6 +43,7 @@ import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBu
 
 @RunWith(MockitoJUnitRunner.class)
 public class EidasAwaitingCycle3DataStateControllerTest {
+
     @Mock
     private IdGenerator idGenerator;
 
@@ -201,7 +202,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
             state.getSessionId(),
             state.getTransactionSupportsEidas(),
             state.getIdentityProviderEntityId(),
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             state.getLevelOfAssurance(),
             state.getMatchingServiceEntityId(),
             state.getEncryptedIdentityAssertion(),

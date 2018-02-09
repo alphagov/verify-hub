@@ -6,7 +6,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestSessionDto {
@@ -17,32 +17,71 @@ public class TestSessionDto {
     private DateTime sessionExpiryTimestamp;
     private String identityProviderEntityId;
     private String matchingServiceAssertion;
-    private Optional<String> relayState;
+    private String relayState;
     private String requestIssuerId;
     private String matchingServiceEntityId;
     private URI assertionConsumerServiceUri;
     private List<LevelOfAssurance> levelsOfAssurance;
     private Boolean useExactComparisonType;
-    private Optional<Boolean> forceAuthentication;
+    private Boolean forceAuthentication;
     private boolean registering;
     private List<String> availableIdentityProviders;
     private boolean transactionSupportsEidas;
+    private LevelOfAssurance requestedLoa;
 
     @SuppressWarnings("unused") //Needed for JAXB
     private TestSessionDto() {
     }
 
-    public TestSessionDto(SessionId sessionId, String requestId,
+    public TestSessionDto(SessionId sessionId,
+                          String requestId,
                           DateTime sessionExpiryTimestamp,
                           String identityProviderEntityId,
-                          String matchingServiceAssertion,
-                          Optional<String> relayState,
+                          String relayState,
                           String requestIssuerId,
                           String matchingServiceEntityId,
+                          String matchingServiceAssertion,
                           URI assertionConsumerServiceUri,
                           List<LevelOfAssurance> levelsOfAssurance,
                           Boolean useExactComparisonType,
                           boolean transactionSupportsEidas) {
+        this(
+                sessionId,
+                requestId,
+                sessionExpiryTimestamp,
+                identityProviderEntityId,
+                matchingServiceAssertion,
+                relayState,
+                requestIssuerId,
+                matchingServiceEntityId,
+                assertionConsumerServiceUri,
+                levelsOfAssurance,
+                useExactComparisonType,
+                false,
+                LevelOfAssurance.LEVEL_2,
+                false,
+                new ArrayList<>(),
+                transactionSupportsEidas);
+    }
+
+    public TestSessionDto(
+            SessionId sessionId,
+            String requestId,
+            DateTime sessionExpiryTimestamp,
+            String identityProviderEntityId,
+            String matchingServiceAssertion,
+            String relayState,
+            String requestIssuerId,
+            String matchingServiceEntityId,
+            URI assertionConsumerServiceUri,
+            List<LevelOfAssurance> levelsOfAssurance,
+            Boolean useExactComparisonType,
+            Boolean registering,
+            LevelOfAssurance requestedLoa,
+            Boolean forceAuthentication,
+            List<String> availableIdentityProviders,
+            boolean transactionSupportsEidas) {
+
         this.sessionId = sessionId;
         this.requestId = requestId;
         this.sessionExpiryTimestamp = sessionExpiryTimestamp;
@@ -54,34 +93,8 @@ public class TestSessionDto {
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         this.levelsOfAssurance = levelsOfAssurance;
         this.useExactComparisonType = useExactComparisonType;
-        this.transactionSupportsEidas = transactionSupportsEidas;
-        this.availableIdentityProviders = Collections.emptyList();
-    }
-
-    public TestSessionDto(SessionId sessionId, String requestId,
-                          DateTime sessionExpiryTimestamp,
-                          String identityProviderEntityId,
-                          Optional<String> relayState,
-                          String requestIssuerId,
-                          String matchingServiceEntityId,
-                          URI assertionConsumerServiceUri,
-                          List<LevelOfAssurance> levelsOfAssurance,
-                          Boolean useExactComparisonType,
-                          Boolean registering,
-                          Optional<Boolean> forceAuthentication,
-                          List<String> availableIdentityProviders,
-                          boolean transactionSupportsEidas) {
-        this.sessionId = sessionId;
-        this.requestId = requestId;
-        this.sessionExpiryTimestamp = sessionExpiryTimestamp;
-        this.identityProviderEntityId = identityProviderEntityId;
-        this.relayState = relayState;
-        this.requestIssuerId = requestIssuerId;
-        this.matchingServiceEntityId = matchingServiceEntityId;
-        this.assertionConsumerServiceUri = assertionConsumerServiceUri;
-        this.levelsOfAssurance = levelsOfAssurance;
-        this.useExactComparisonType = useExactComparisonType;
         this.registering = registering;
+        this.requestedLoa = requestedLoa;
         this.forceAuthentication = forceAuthentication;
         this.availableIdentityProviders = availableIdentityProviders;
         this.transactionSupportsEidas = transactionSupportsEidas;
@@ -108,7 +121,7 @@ public class TestSessionDto {
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.fromNullable(relayState);
     }
 
     public String getRequestIssuerId() {
@@ -120,18 +133,24 @@ public class TestSessionDto {
     }
 
     public Optional<Boolean> getForceAuthentication() {
-        return forceAuthentication;
+        return Optional.fromNullable(forceAuthentication);
     }
 
     public boolean isRegistering() {
         return registering;
     }
 
+    public LevelOfAssurance getRequestedLoa() {
+        return requestedLoa;
+    }
+
     public String getMatchingServiceEntityId() {
         return matchingServiceEntityId;
     }
 
-    public List<String> getAvailableIdentityProviders() { return availableIdentityProviders; }
+    public List<String> getAvailableIdentityProviders() {
+        return availableIdentityProviders;
+    }
 
     public List<LevelOfAssurance> getLevelsOfAssurance() {
         return levelsOfAssurance;
@@ -145,4 +164,3 @@ public class TestSessionDto {
         return transactionSupportsEidas;
     }
 }
-

@@ -20,13 +20,12 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
@@ -43,7 +42,6 @@ import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationEx
 public class IdpSelectedStateController implements StateController, ErrorResponsePreparedStateController, IdpSelectingStateController, AuthnRequestCapableController {
 
     private final IdpSelectedState state;
-    private final SessionStartedStateFactory sessionStartedStateFactory;
     private final EventSinkHubEventLogger eventSinkHubEventLogger;
     private final StateTransitionAction stateTransitionAction;
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
@@ -55,7 +53,6 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
     public IdpSelectedStateController(
             final IdpSelectedState state,
-            final SessionStartedStateFactory sessionStartedStateFactory,
             final EventSinkHubEventLogger eventSinkHubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final IdentityProvidersConfigProxy identityProvidersConfigProxy,
@@ -66,7 +63,6 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
             final MatchingServiceConfigProxy matchingServiceConfigProxy) {
 
         this.state = state;
-        this.sessionStartedStateFactory = sessionStartedStateFactory;
         this.eventSinkHubEventLogger = eventSinkHubEventLogger;
         this.stateTransitionAction = stateTransitionAction;
         this.identityProvidersConfigProxy = identityProvidersConfigProxy;
@@ -85,7 +81,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getIdpEntityId(),
                 state.getForceAuthentication(),
                 state.getSessionExpiryTimestamp(),
-                state.registering(),
+                state.isRegistering(),
                 null);
 
         eventSinkHubEventLogger.logRequestFromHub(state.getSessionId(), state.getRequestIssuerEntityId());
@@ -120,7 +116,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     public void handleNoAuthenticationContextResponseFromIdp(AuthenticationErrorResponse authenticationErrorResponse) {
         validateIdpIsEnabledAndWasIssuedWithRequest(authenticationErrorResponse.getIssuer(), state.getRequestIssuerEntityId());
         eventSinkHubEventLogger.logNoAuthnContextEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub());
-        if (state.registering()) {
+        if (state.isRegistering()) {
             stateTransitionAction.transitionTo(createAuthnFailedErrorState());
         } else {
             stateTransitionAction.transitionTo(createSessionStartedState());
@@ -193,10 +189,9 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getSessionId(),
-                state.getForceAuthentication(),
-                state.getAvailableIdentityProviderEntityIds(),
+                state.getForceAuthentication().orNull(),
                 state.getTransactionSupportsEidas());
     }
 
@@ -206,21 +201,20 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getSessionId(),
                 state.getIdpEntityId(),
-                state.getAvailableIdentityProviderEntityIds(),
-                state.getForceAuthentication(),
+                state.getForceAuthentication().orNull(),
                 state.getTransactionSupportsEidas());
     }
 
     private SessionStartedState createSessionStartedState() {
-        return sessionStartedStateFactory.build(
+        return new SessionStartedState(
                 state.getRequestId(),
-                state.getAssertionConsumerServiceUri(),
+                state.getRelayState().orNull(),
                 state.getRequestIssuerEntityId(),
-                state.getRelayState(),
-                state.getForceAuthentication(),
+                state.getAssertionConsumerServiceUri(),
+                state.getForceAuthentication().orNull(),
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());
@@ -232,11 +226,10 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getSessionId(),
                 state.getIdpEntityId(),
-                state.getAvailableIdentityProviderEntityIds(),
-                state.getForceAuthentication(),
+                state.getForceAuthentication().orNull(),
                 state.getTransactionSupportsEidas());
     }
 
@@ -256,22 +249,21 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
         String matchingServiceEntityId = getMatchingServiceEntityId();
 
-        return new Cycle0And1MatchRequestSentStateTransitional(
+        return new Cycle0And1MatchRequestSentState(
             state.getRequestId(),
             state.getRequestIssuerEntityId(),
             state.getSessionExpiryTimestamp(),
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),
             state.getTransactionSupportsEidas(),
-            state.registering(),
+            state.isRegistering(),
             successFromIdp.getIssuer(),
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             successFromIdp.getLevelOfAssurance(),
             matchingServiceEntityId,
             successFromIdp.getEncryptedMatchingDatasetAssertion(),
             authnStatementAssertion,
-            successFromIdp.getPersistentId(),
-            DateTime.now()
+            successFromIdp.getPersistentId()
         );
     }
 
@@ -307,7 +299,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     }
 
     public boolean isRegistrationContext() {
-        return state.registering();
+        return state.isRegistering();
     }
 
     public String getMatchingServiceEntityId() {

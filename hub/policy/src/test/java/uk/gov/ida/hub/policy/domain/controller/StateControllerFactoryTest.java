@@ -17,7 +17,6 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -78,7 +77,6 @@ public class StateControllerFactoryTest {
         when(injector.getInstance(MatchingServiceConfigProxy.class)).thenReturn(null);
         when(injector.getInstance(PolicyConfiguration.class)).thenReturn(null);
         when(injector.getInstance(ResponseFromHubFactory.class)).thenReturn(null);
-        when(injector.getInstance(SessionStartedStateFactory.class)).thenReturn(null);
         when(injector.getInstance(TransactionsConfigProxy.class)).thenReturn(null);
 
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(any(Optional.class))).thenReturn(Collections.emptyList());

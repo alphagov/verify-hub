@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import com.google.inject.Injector;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
@@ -32,7 +31,6 @@ import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
@@ -65,17 +63,16 @@ public class StateControllerFactory {
     public <T extends State> StateController build(final T state, final StateTransitionAction stateTransitionAction) {
         PolicyState policyState = PolicyState.fromStateClass(state.getClass());
         switch (policyState) {
+            // Deprecated
             case SESSION_STARTED_TRANSITIONAL:
                 final SessionStartedStateTransitional startedStateTransitional = (SessionStartedStateTransitional) state;
                 return new SessionStartedStateController(
                     new SessionStartedState(
                             startedStateTransitional.getRequestId(),
-                            startedStateTransitional.getRelayState(),
+                            startedStateTransitional.getRelayState().orNull(),
                             startedStateTransitional.getRequestIssuerEntityId(),
                             startedStateTransitional.getAssertionConsumerServiceUri(),
-                            startedStateTransitional.getForceAuthentication(),
-                            injector.getInstance(IdentityProvidersConfigProxy.class)
-                                    .getEnabledIdentityProviders(Optional.of(startedStateTransitional.getRequestIssuerEntityId())),
+                            startedStateTransitional.getForceAuthentication().orNull(),
                             startedStateTransitional.getSessionExpiryTimestamp(),
                             startedStateTransitional.getSessionId(),
                             startedStateTransitional.getTransactionSupportsEidas()
@@ -86,7 +83,6 @@ public class StateControllerFactory {
                     injector.getInstance(ResponseFromHubFactory.class),
                     injector.getInstance(IdentityProvidersConfigProxy.class));
 
-            // Deprecated
             case SESSION_STARTED:
                 return new SessionStartedStateController(
                         (SessionStartedState) state,
@@ -103,6 +99,7 @@ public class StateControllerFactory {
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class));
 
+            // Deprecated
             case IDP_SELECTED_TRANSITIONAL:
                 final IdpSelectedStateTransitional idpSelectedStateTransitional = (IdpSelectedStateTransitional) state;
                 return new IdpSelectedStateController(
@@ -112,17 +109,17 @@ public class StateControllerFactory {
                             idpSelectedStateTransitional.getMatchingServiceEntityId(),
                             idpSelectedStateTransitional.getLevelsOfAssurance(),
                             idpSelectedStateTransitional.getUseExactComparisonType(),
-                            idpSelectedStateTransitional.getForceAuthentication(),
+                            idpSelectedStateTransitional.getForceAuthentication().orNull(),
                             idpSelectedStateTransitional.getAssertionConsumerServiceUri(),
                             idpSelectedStateTransitional.getRequestIssuerEntityId(),
-                            idpSelectedStateTransitional.getRelayState(),
+                            idpSelectedStateTransitional.getRelayState().orNull(),
                             idpSelectedStateTransitional.getSessionExpiryTimestamp(),
                             idpSelectedStateTransitional.isRegistering(),
+                            idpSelectedStateTransitional.getRequestedLoa(),
                             idpSelectedStateTransitional.getSessionId(),
                             idpSelectedStateTransitional.getAvailableIdentityProviderEntityIds(),
                             idpSelectedStateTransitional.getTransactionSupportsEidas()
                     ),
-                    injector.getInstance(SessionStartedStateFactory.class),
                     injector.getInstance(EventSinkHubEventLogger.class),
                     stateTransitionAction,
                     injector.getInstance(IdentityProvidersConfigProxy.class),
@@ -133,11 +130,9 @@ public class StateControllerFactory {
                     injector.getInstance(MatchingServiceConfigProxy.class)
                 );
 
-            // Deprecated
             case IDP_SELECTED:
                 return new IdpSelectedStateController(
                         (IdpSelectedState) state,
-                        injector.getInstance(SessionStartedStateFactory.class),
                         injector.getInstance(EventSinkHubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(IdentityProvidersConfigProxy.class),
@@ -148,6 +143,7 @@ public class StateControllerFactory {
                         injector.getInstance(MatchingServiceConfigProxy.class)
                 );
 
+            // Deprecated
             case CYCLE_0_AND_1_MATCH_REQUEST_SENT_TRANSITIONAL:
                 return new Cycle0And1MatchRequestSentStateController(
                     (Cycle0And1MatchRequestSentStateTransitional) state,
@@ -162,7 +158,6 @@ public class StateControllerFactory {
                     injector.getInstance(AttributeQueryService.class)
                 );
 
-            // Deprecated
             case CYCLE_0_AND_1_MATCH_REQUEST_SENT:
                 final Cycle0And1MatchRequestSentState cycle0And1MatchRequestSentState = (Cycle0And1MatchRequestSentState) state;
                 return new Cycle0And1MatchRequestSentStateController(
@@ -173,8 +168,7 @@ public class StateControllerFactory {
                                 cycle0And1MatchRequestSentState.getAssertionConsumerServiceUri(),
                                 cycle0And1MatchRequestSentState.getSessionId(),
                                 cycle0And1MatchRequestSentState.getTransactionSupportsEidas(),
-                                // TT-1613: This will have a value passed properly in the next release
-                                false,
+                                cycle0And1MatchRequestSentState.isRegistering(),
                                 cycle0And1MatchRequestSentState.getIdentityProviderEntityId(),
                                 cycle0And1MatchRequestSentState.getRelayState(),
                                 cycle0And1MatchRequestSentState.getIdpLevelOfAssurance(),
@@ -207,6 +201,7 @@ public class StateControllerFactory {
                     injector.getInstance(TransactionsConfigProxy.class)
                 );
 
+            // Deprecated
             case SUCCESSFUL_MATCH_TRANSITIONAL:
                 final SuccessfulMatchStateTransitional successfulMatchStateTransitional = (SuccessfulMatchStateTransitional) state;
                 return new SuccessfulMatchStateController(
@@ -215,18 +210,18 @@ public class StateControllerFactory {
                             successfulMatchStateTransitional.getSessionExpiryTimestamp(),
                             successfulMatchStateTransitional.getIdentityProviderEntityId(),
                             successfulMatchStateTransitional.getMatchingServiceAssertion(),
-                            successfulMatchStateTransitional.getRelayState(),
+                            successfulMatchStateTransitional.getRelayState().orNull(),
                             successfulMatchStateTransitional.getRequestIssuerEntityId(),
                             successfulMatchStateTransitional.getAssertionConsumerServiceUri(),
                             successfulMatchStateTransitional.getSessionId(),
                             successfulMatchStateTransitional.getLevelOfAssurance(),
+                            successfulMatchStateTransitional.isRegistering(),
                             successfulMatchStateTransitional.getTransactionSupportsEidas()
                     ),
                     injector.getInstance(ResponseFromHubFactory.class),
                     injector.getInstance(IdentityProvidersConfigProxy.class)
                 );
 
-            // Deprecated
             case SUCCESSFUL_MATCH:
                 return new SuccessfulMatchStateController(
                         (SuccessfulMatchState) state,
@@ -245,6 +240,8 @@ public class StateControllerFactory {
                     (NoMatchState) state,
                     injector.getInstance(ResponseFromHubFactory.class)
                 );
+
+            // Deprecated
             case USER_ACCOUNT_CREATED_TRANSITIONAL:
                 final UserAccountCreatedStateTransitional userAccountCreatedStateTransitional = (UserAccountCreatedStateTransitional) state;
                 return new UserAccountCreatedStateController(
@@ -256,15 +253,15 @@ public class StateControllerFactory {
                             userAccountCreatedStateTransitional.getSessionId(),
                             userAccountCreatedStateTransitional.getIdentityProviderEntityId(),
                             userAccountCreatedStateTransitional.getMatchingServiceAssertion(),
-                            userAccountCreatedStateTransitional.getRelayState(),
+                            userAccountCreatedStateTransitional.getRelayState().orNull(),
                             userAccountCreatedStateTransitional.getLevelOfAssurance(),
+                            userAccountCreatedStateTransitional.isRegistering(),
                             userAccountCreatedStateTransitional.getTransactionSupportsEidas()
                     ),
                     injector.getInstance(IdentityProvidersConfigProxy.class),
                     injector.getInstance(ResponseFromHubFactory.class)
                 );
 
-            // Deprecated
             case USER_ACCOUNT_CREATED:
                 return new UserAccountCreatedStateController(
                         (UserAccountCreatedState) state,
@@ -272,6 +269,7 @@ public class StateControllerFactory {
                         injector.getInstance(ResponseFromHubFactory.class)
                 );
 
+            // Deprecated
             case AWAITING_CYCLE3_DATA_TRANSITIONAL:
                 final AwaitingCycle3DataStateTransitional awaitingCycle3DataStateTransitional = (AwaitingCycle3DataStateTransitional) state;
                 return new AwaitingCycle3DataStateController(
@@ -282,12 +280,13 @@ public class StateControllerFactory {
                             awaitingCycle3DataStateTransitional.getRequestIssuerEntityId(),
                             awaitingCycle3DataStateTransitional.getEncryptedMatchingDatasetAssertion(),
                             awaitingCycle3DataStateTransitional.getAuthnStatementAssertion(),
-                            awaitingCycle3DataStateTransitional.getRelayState(),
+                            awaitingCycle3DataStateTransitional.getRelayState().orNull(),
                             awaitingCycle3DataStateTransitional.getAssertionConsumerServiceUri(),
                             awaitingCycle3DataStateTransitional.getMatchingServiceEntityId(),
                             awaitingCycle3DataStateTransitional.getSessionId(),
                             awaitingCycle3DataStateTransitional.getPersistentId(),
                             awaitingCycle3DataStateTransitional.getLevelOfAssurance(),
+                            awaitingCycle3DataStateTransitional.isRegistering(),
                             awaitingCycle3DataStateTransitional.getTransactionSupportsEidas()
                     ),
                     injector.getInstance(EventSinkHubEventLogger.class),
@@ -299,7 +298,6 @@ public class StateControllerFactory {
                     injector.getInstance(MatchingServiceConfigProxy.class)
                 );
 
-            // Deprecated
             case AWAITING_CYCLE3_DATA:
                 return new AwaitingCycle3DataStateController(
                         (AwaitingCycle3DataState) state,
@@ -323,6 +321,8 @@ public class StateControllerFactory {
                     injector.getInstance(AssertionRestrictionsFactory.class),
                     injector.getInstance(MatchingServiceConfigProxy.class)
                 );
+
+            // Deprecated
             case CYCLE3_MATCH_REQUEST_SENT_TRANSITIONAL:
                 return new Cycle3MatchRequestSentStateController(
                     (Cycle3MatchRequestSentStateTransitional) state,
@@ -337,7 +337,6 @@ public class StateControllerFactory {
                     injector.getInstance(AttributeQueryService.class)
                 );
 
-            // Deprecated
             case CYCLE3_MATCH_REQUEST_SENT:
                 final Cycle3MatchRequestSentState cycle3MatchRequestSentState = (Cycle3MatchRequestSentState) state;
                 return new Cycle3MatchRequestSentStateController(
@@ -351,8 +350,7 @@ public class StateControllerFactory {
                                 cycle3MatchRequestSentState.getIdentityProviderEntityId(),
                                 cycle3MatchRequestSentState.getRelayState(),
                                 cycle3MatchRequestSentState.getIdpLevelOfAssurance(),
-                                // TT-1613: This will have a value passed properly in the next release
-                                false,
+                                cycle3MatchRequestSentState.isRegistering(),
                                 cycle3MatchRequestSentState.getMatchingServiceAdapterEntityId(),
                                 cycle3MatchRequestSentState.getEncryptedMatchingDatasetAssertion(),
                                 cycle3MatchRequestSentState.getAuthnStatementAssertion(),
@@ -380,6 +378,8 @@ public class StateControllerFactory {
                     (MatchingServiceRequestErrorState) state,
                     injector.getInstance(ResponseFromHubFactory.class)
                 );
+
+            // Deprecated
             case USER_ACCOUNT_CREATION_REQUEST_SENT_TRANSITIONAL:
                 return new UserAccountCreationRequestSentStateController(
                     (UserAccountCreationRequestSentStateTransitional) state,
@@ -391,7 +391,6 @@ public class StateControllerFactory {
                     injector.getInstance(AttributeQueryService.class)
                 );
 
-            // Deprecated
             case USER_ACCOUNT_CREATION_REQUEST_SENT:
                 final UserAccountCreationRequestSentState userAccountCreationRequestSentState = (UserAccountCreationRequestSentState) state;
                 return new UserAccountCreationRequestSentStateController(
@@ -405,8 +404,7 @@ public class StateControllerFactory {
                             userAccountCreationRequestSentState.getIdentityProviderEntityId(),
                             userAccountCreationRequestSentState.getRelayState(),
                             userAccountCreationRequestSentState.getIdpLevelOfAssurance(),
-                                // TT-1613: This will have a value passed properly in the next release
-                            false,
+                            userAccountCreationRequestSentState.isRegistering(),
                             userAccountCreationRequestSentState.getMatchingServiceAdapterEntityId(),
                             userAccountCreationRequestSentState.getRequestSentTime()
                         ),
@@ -418,6 +416,7 @@ public class StateControllerFactory {
                         injector.getInstance(AttributeQueryService.class)
                 );
 
+            // Deprecated
             case AUTHN_FAILED_ERROR_TRANSITIONAL:
                 final AuthnFailedErrorStateTransitional authnFailedErrorStateTransitional = (AuthnFailedErrorStateTransitional) state;
                 return new AuthnFailedErrorStateController(
@@ -426,34 +425,30 @@ public class StateControllerFactory {
                             authnFailedErrorStateTransitional.getRequestIssuerEntityId(),
                             authnFailedErrorStateTransitional.getSessionExpiryTimestamp(),
                             authnFailedErrorStateTransitional.getAssertionConsumerServiceUri(),
-                            authnFailedErrorStateTransitional.getRelayState(),
+                            authnFailedErrorStateTransitional.getRelayState().orNull(),
                             authnFailedErrorStateTransitional.getSessionId(),
                             authnFailedErrorStateTransitional.getIdpEntityId(),
-                            injector.getInstance(IdentityProvidersConfigProxy.class)
-                                    .getEnabledIdentityProviders(Optional.of(authnFailedErrorStateTransitional.getRequestIssuerEntityId())),
-                            authnFailedErrorStateTransitional.getForceAuthentication(),
+                            authnFailedErrorStateTransitional.getForceAuthentication().orNull(),
                             authnFailedErrorStateTransitional.getTransactionSupportsEidas()
                     ),
                     injector.getInstance(ResponseFromHubFactory.class),
                     stateTransitionAction,
-                    injector.getInstance(SessionStartedStateFactory.class),
                     injector.getInstance(TransactionsConfigProxy.class),
                     injector.getInstance(IdentityProvidersConfigProxy.class),
                     injector.getInstance(EventSinkHubEventLogger.class)
                 );
 
-            // Deprecated
             case AUTHN_FAILED_ERROR:
                 return new AuthnFailedErrorStateController(
                         (AuthnFailedErrorState) state,
                         injector.getInstance(ResponseFromHubFactory.class),
                         stateTransitionAction,
-                        injector.getInstance(SessionStartedStateFactory.class),
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class),
                         injector.getInstance(EventSinkHubEventLogger.class)
                 );
 
+            // Deprecated
             case FRAUD_EVENT_DETECTED_TRANSITIONAL:
                 final FraudEventDetectedStateTransitional fraudEventDetectedStateTransitional = (FraudEventDetectedStateTransitional) state;
                 return new FraudEventDetectedStateController(
@@ -462,34 +457,30 @@ public class StateControllerFactory {
                             fraudEventDetectedStateTransitional.getRequestIssuerEntityId(),
                             fraudEventDetectedStateTransitional.getSessionExpiryTimestamp(),
                             fraudEventDetectedStateTransitional.getAssertionConsumerServiceUri(),
-                            fraudEventDetectedStateTransitional.getRelayState(),
+                            fraudEventDetectedStateTransitional.getRelayState().orNull(),
                             fraudEventDetectedStateTransitional.getSessionId(),
                             fraudEventDetectedStateTransitional.getIdpEntityId(),
-                            injector.getInstance(IdentityProvidersConfigProxy.class)
-                                    .getEnabledIdentityProviders(Optional.of(fraudEventDetectedStateTransitional.getRequestIssuerEntityId())),
-                            fraudEventDetectedStateTransitional.getForceAuthentication(),
+                            fraudEventDetectedStateTransitional.getForceAuthentication().orNull(),
                             fraudEventDetectedStateTransitional.getTransactionSupportsEidas()
                     ),
                     injector.getInstance(ResponseFromHubFactory.class),
                     stateTransitionAction,
-                    injector.getInstance(SessionStartedStateFactory.class),
                     injector.getInstance(TransactionsConfigProxy.class),
                     injector.getInstance(IdentityProvidersConfigProxy.class),
                     injector.getInstance(EventSinkHubEventLogger.class)
                 );
 
-            // Deprecated
             case FRAUD_EVENT_DETECTED:
                 return new FraudEventDetectedStateController(
                         (FraudEventDetectedState) state,
                         injector.getInstance(ResponseFromHubFactory.class),
                         stateTransitionAction,
-                        injector.getInstance(SessionStartedStateFactory.class),
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class),
                         injector.getInstance(EventSinkHubEventLogger.class)
                 );
 
+            // Deprecated
             case REQUESTER_ERROR_TRANSITIONAL:
                 final RequesterErrorStateTransitional requesterErrorStateTransitional = (RequesterErrorStateTransitional) state;
                 return new RequesterErrorStateController(
@@ -498,11 +489,9 @@ public class StateControllerFactory {
                             requesterErrorStateTransitional.getRequestIssuerEntityId(),
                             requesterErrorStateTransitional.getSessionExpiryTimestamp(),
                             requesterErrorStateTransitional.getAssertionConsumerServiceUri(),
-                            requesterErrorStateTransitional.getRelayState(),
+                            requesterErrorStateTransitional.getRelayState().orNull(),
                             requesterErrorStateTransitional.getSessionId(),
-                            requesterErrorStateTransitional.getForceAuthentication(),
-                            injector.getInstance(IdentityProvidersConfigProxy.class)
-                                    .getEnabledIdentityProviders(Optional.of(requesterErrorStateTransitional.getRequestIssuerEntityId())),
+                            requesterErrorStateTransitional.getForceAuthentication().orNull(),
                             requesterErrorStateTransitional.getTransactionSupportsEidas()
                     ),
                     injector.getInstance(ResponseFromHubFactory.class),
@@ -512,7 +501,6 @@ public class StateControllerFactory {
                     injector.getInstance(EventSinkHubEventLogger.class)
                 );
 
-            // Deprecated
             case REQUESTER_ERROR:
                 return new RequesterErrorStateController(
                         (RequesterErrorState) state,

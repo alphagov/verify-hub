@@ -236,7 +236,7 @@ public class SessionResourceIntegrationTest {
     public void shouldGetRpResponseGivenASessionExistsInPolicy() throws JsonProcessingException {
         // Given
         SessionId sessionId = SessionId.createNewSessionId();
-        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, idpEntityId, client, policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + SUCCESSFUL_MATCH_STATE).build().toASCIIString()));
+        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, rpEntityId, idpEntityId, client, policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + SUCCESSFUL_MATCH_STATE).build().toASCIIString()));
         assertThat(sessionCreatedResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         AuthnResponseFromHubContainerDto expectedAuthnResponseFromHub = anAuthnResponseFromHubContainerDto().build();

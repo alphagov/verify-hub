@@ -14,7 +14,6 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -48,8 +47,6 @@ public class AuthnFailedErrorStateControllerTest {
     private IdentityProvidersConfigProxy identityProvidersConfigProxy;
     @Mock
     private ResponseFromHubFactory responseFromHubFactory;
-    @Mock
-    private SessionStartedStateFactory sessionStartedStateFactory;
 
     @Before
     public void setup() {
@@ -65,7 +62,6 @@ public class AuthnFailedErrorStateControllerTest {
                 authnFailedErrorState,
                 responseFromHubFactory,
                 stateTransitionAction,
-                sessionStartedStateFactory,
                 transactionsConfigProxy,
                 identityProvidersConfigProxy,
                 eventSinkHubEventLogger);
@@ -96,11 +92,10 @@ public class AuthnFailedErrorStateControllerTest {
     }
 
     @Test
-    public void getSignInProcessDetails_shouldReturnFieldsFromTheState() throws Exception {
+    public void getSignInProcessDetails_shouldReturnFieldsFromTheState() {
         AuthnRequestSignInProcess signInProcessDetails = controller.getSignInProcessDetails();
         assertThat(signInProcessDetails.getTransactionSupportsEidas()).isEqualTo(true);
         assertThat(signInProcessDetails.getAvailableIdentityProviderEntityIds()).containsSequence("anIdp");
         assertThat(signInProcessDetails.getRequestIssuerId()).isEqualTo("requestIssuerId");
     }
-
 }

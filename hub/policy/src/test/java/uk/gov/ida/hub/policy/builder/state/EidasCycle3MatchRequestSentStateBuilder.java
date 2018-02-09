@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
@@ -29,7 +28,7 @@ public class EidasCycle3MatchRequestSentStateBuilder {
             new SessionId("sessionId"),
             true,
             "identityProviderEntityId",
-            Optional.<String>absent(),
+            null,
             LevelOfAssurance.LEVEL_2,
             "matchingServiceAdapterEntityId",
             encryptedIdentityAssertion,

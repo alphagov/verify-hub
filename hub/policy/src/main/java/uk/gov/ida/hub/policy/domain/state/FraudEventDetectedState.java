@@ -1,11 +1,9 @@
 package uk.gov.ida.hub.policy.domain.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.List;
 
 public class FraudEventDetectedState extends AuthnFailedErrorState {
 
@@ -14,13 +12,21 @@ public class FraudEventDetectedState extends AuthnFailedErrorState {
             String requestIssuerId,
             DateTime sessionExpiryTimestamp,
             URI assertionConsumerServiceUri,
-            Optional<String> relayState,
+            String relayState,
             SessionId sessionId,
             String idpEntityId,
-            List<String> availableIdpEntityIds,
-            Optional<Boolean> forceAuthentication,
+            Boolean forceAuthentication,
             boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, idpEntityId, availableIdpEntityIds, forceAuthentication, transactionSupportsEidas);
+        super(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                relayState,
+                sessionId,
+                idpEntityId,
+                forceAuthentication,
+                transactionSupportsEidas);
     }
 }

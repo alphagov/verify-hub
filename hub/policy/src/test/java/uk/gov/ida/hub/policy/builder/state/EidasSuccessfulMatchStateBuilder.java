@@ -1,12 +1,10 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 
 import java.net.URI;
 
@@ -16,7 +14,7 @@ public class EidasSuccessfulMatchStateBuilder {
     private String identityProviderEntityId = "country-entity-id";
     private String matchingServiceAssertion = "aPassthroughAssertion().buildMatchingServiceAssertion()";
     private URI assertionConsumerServiceUri = URI.create("http://assertionconsumeruri");
-    private Optional<String> relayState = Optional.fromNullable("relay state");
+    private String relayState = "relay state";
     private String requestIssuerId = "request issuer id";
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId getSessionId = SessionIdBuilder.aSessionId().build();

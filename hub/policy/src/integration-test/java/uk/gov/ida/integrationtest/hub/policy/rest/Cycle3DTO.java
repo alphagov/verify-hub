@@ -19,12 +19,13 @@ public class Cycle3DTO {
     private String requestIssuerId = "request-issuer-id";
     private String matchingServiceAssertion = "matching-service-assertion";
     private String authnStatementAssertion = "authn-statement-assertion";
-    private Optional<String> relayState = Optional.fromNullable("relay-state");
+    private String relayState = "relay-state";
     private URI assertionConsumerServiceUri = URI.create("http://assertionconsumeruri");
     private String matchingServiceEntityId = "matching-service-entity-id";
     private PersistentId persistentId = new PersistentId("persistent-id");
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
     private boolean transactionSupportsEidas = false;
+    private boolean registering = false;
 
     @Nullable
     private String encryptedMatchingDatasetAssertion = matchingServiceAssertion;
@@ -65,7 +66,7 @@ public class Cycle3DTO {
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.fromNullable(relayState);
     }
 
     public URI getAssertionConsumerServiceUri() {
@@ -90,5 +91,9 @@ public class Cycle3DTO {
 
     public boolean getTransactionSupportsEidas() {
         return transactionSupportsEidas;
+    }
+
+    public boolean isRegistering() {
+        return registering;
     }
 }

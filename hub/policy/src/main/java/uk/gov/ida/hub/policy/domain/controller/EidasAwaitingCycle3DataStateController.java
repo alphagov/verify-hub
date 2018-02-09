@@ -19,6 +19,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import java.net.URI;
 
 public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycle3DataStateController<EidasAttributeQueryRequestDto, EidasAwaitingCycle3DataState> implements StateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
+
     public EidasAwaitingCycle3DataStateController(
         final EidasAwaitingCycle3DataState state,
         final EventSinkHubEventLogger eventSinkHubEventLogger,
@@ -79,12 +80,13 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
             getState().getSessionId(),
             getState().getTransactionSupportsEidas(),
             getState().getIdentityProviderEntityId(),
-            getState().getRelayState(),
+            getState().getRelayState().orNull(),
             getState().getLevelOfAssurance(),
             getState().getMatchingServiceEntityId(),
             getState().getEncryptedIdentityAssertion(),
             getState().getPersistentId()
         );
+
         getStateTransitionAction().transitionTo(eidasCycle3MatchRequestSentState);
     }
 }

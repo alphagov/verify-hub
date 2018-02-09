@@ -49,8 +49,6 @@ public class ErrorStateControllerTests {
     @Mock
     private SessionRepository sessionRepository;
     @Mock
-    private SessionStartedStateFactory sessionStartedStateFactory;
-    @Mock
     private EventSinkHubEventLogger eventSinkHubEventLogger;
     @Mock
     private PolicyConfiguration policyConfiguration;
@@ -78,7 +76,7 @@ public class ErrorStateControllerTests {
     @Before
     public void setUp() {
         sessionId = SessionId.createNewSessionId();
-        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, sessionStartedStateFactory, eventSinkHubEventLogger, policyConfiguration, transactionsConfigProxy);
+        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, eventSinkHubEventLogger, policyConfiguration, transactionsConfigProxy);
     }
 
     @Test
@@ -95,7 +93,7 @@ public class ErrorStateControllerTests {
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInAuthnFailedErrorState() {
         AuthnFailedErrorState state = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().build();
-        StateController stateController = new AuthnFailedErrorStateController(state, responseFromHubFactory, stateTransitionAction, sessionStartedStateFactory, transactionsConfigProxy, identityProvidersConfigProxy, eventSinkHubEventLogger);
+        StateController stateController = new AuthnFailedErrorStateController(state, responseFromHubFactory, stateTransitionAction, transactionsConfigProxy, identityProvidersConfigProxy, eventSinkHubEventLogger);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
         ResponseFromHub responseFromHub = authnRequestFromTransactionHandler.getErrorResponseFromHub(sessionId);
@@ -206,7 +204,7 @@ public class ErrorStateControllerTests {
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInFraudEventDetectedState() {
         FraudEventDetectedState state = FraudEventDetectedStateBuilder.aFraudEventDetectedState().build();
-        StateController stateController = new FraudEventDetectedStateController(state, responseFromHubFactory, stateTransitionAction, sessionStartedStateFactory, null, null, null);
+        StateController stateController = new FraudEventDetectedStateController(state, responseFromHubFactory, stateTransitionAction, null, null, null);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
         ResponseFromHub responseFromHub = authnRequestFromTransactionHandler.getErrorResponseFromHub(sessionId);
@@ -217,7 +215,7 @@ public class ErrorStateControllerTests {
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInIdpSelectedState() {
         IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().build();
-        StateController stateController = new IdpSelectedStateController(state, sessionStartedStateFactory, eventSinkHubEventLogger, stateTransitionAction, identityProvidersConfigProxy, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionFactory, matchingServiceConfigProxy);
+        StateController stateController = new IdpSelectedStateController(state, eventSinkHubEventLogger, stateTransitionAction, identityProvidersConfigProxy, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionFactory, matchingServiceConfigProxy);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
         ResponseFromHub responseFromHub = authnRequestFromTransactionHandler.getErrorResponseFromHub(sessionId);

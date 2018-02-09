@@ -140,7 +140,7 @@ public class CountrySelectedStateController implements StateController, ErrorRes
             new SessionId(state.getSessionId().getSessionId()),
             state.getTransactionSupportsEidas(),
             identityProviderEntityId,
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             dto.getLevelOfAssurance(),
             getMatchingServiceEntityId(),
             dto.getEncryptedIdentityAssertion(),

@@ -13,7 +13,10 @@ import uk.gov.ida.hub.policy.domain.MatchingProcess;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.*;
+import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
@@ -82,7 +85,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getSessionExpiryTimestamp(),
             state.getIdentityProviderEntityId(),
             matchFromMatchingService.getMatchingServiceAssertion(),
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             state.getRequestIssuerEntityId(),
             state.getAssertionConsumerServiceUri(),
             state.getSessionId(),

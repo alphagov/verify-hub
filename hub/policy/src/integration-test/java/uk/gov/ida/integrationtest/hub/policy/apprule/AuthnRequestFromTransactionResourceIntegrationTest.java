@@ -153,7 +153,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     @Test
     public void idpSelected_shouldThrowIfSessionInWrongState(){
         sessionId = SessionId.createNewSessionId();
-        TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, idpEntityId, client, buildUriForTestSession(SUCCESSFUL_MATCH_STATE, sessionId));
+        TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, transactionEntityId, idpEntityId, client, buildUriForTestSession(SUCCESSFUL_MATCH_STATE, sessionId));
 
         Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING));
 
