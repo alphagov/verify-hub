@@ -19,14 +19,12 @@ import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
 
-import static com.google.common.base.Optional.fromNullable;
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
@@ -43,8 +41,6 @@ public class AuthnRequestFromTransactionHandlerTest {
     @Mock
     private SessionRepository sessionRepository;
     @Mock
-    private SessionStartedStateFactory sessionStartedStateFactory;
-    @Mock
     private EventSinkHubEventLogger eventSinkHubEventLogger;
     @Mock
     private PolicyConfiguration policyConfiguration;
@@ -55,15 +51,15 @@ public class AuthnRequestFromTransactionHandlerTest {
 
     @Before
     public void setUp() {
-        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, sessionStartedStateFactory, eventSinkHubEventLogger, policyConfiguration, transactionsConfigProxy);
+        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, eventSinkHubEventLogger, policyConfiguration, transactionsConfigProxy);
     }
 
     @Test
-    public void testHandleRequestFromTransaction_logsToEventSink() throws Exception {
+    public void testHandleRequestFromTransaction_logsToEventSink() {
         final SamlResponseWithAuthnRequestInformationDto samlResponseWithAuthnRequestInformationDto = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().build();
         final String ipAddress = "ipaddress";
         final URI assertionConsumerServiceUri = URI.create("blah");
-        final Optional<String> relayState = fromNullable("relaystate");
+        final Optional<String> relayState = Optional.of("relaystate");
 
         when(policyConfiguration.getSessionLength()).thenReturn(Duration.standardHours(1));
         when(transactionsConfigProxy.getLevelsOfAssurance(samlResponseWithAuthnRequestInformationDto.getIssuer())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_1));
@@ -75,7 +71,7 @@ public class AuthnRequestFromTransactionHandlerTest {
     }
 
     @Test
-    public void stateControllerInvokedFromSessionRepositoryForselectedIdp() throws Exception {
+    public void stateControllerInvokedFromSessionRepositoryForselectedIdp() {
         SessionId sessionId = new SessionId("aSessionId");
         IdpSelected idpSelected = new IdpSelected(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS, REGISTERING);
 

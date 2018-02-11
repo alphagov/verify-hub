@@ -16,7 +16,7 @@ public class SuccessfulMatchStateBuilder {
     private String identityProviderEntityId = "idp-entity-id";
     private String matchingServiceAssertion = "aPassthroughAssertion().buildMatchingServiceAssertion()";
     private URI assertionConsumerServiceUri = URI.create("http://assertionconsumeruri");
-    private Optional<String> relayState = Optional.fromNullable("relay state");
+    private String relayState = "relay state";
     private String requestIssuerId = "request issuer id";
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId getSessionId = SessionIdBuilder.aSessionId().build();
@@ -28,13 +28,14 @@ public class SuccessfulMatchStateBuilder {
         return new SuccessfulMatchStateBuilder();
     }
 
+    @Deprecated
     public SuccessfulMatchStateTransitional buildTransitional() {
         return new SuccessfulMatchStateTransitional(
                 requestId,
                 sessionExpiryTimestamp,
                 identityProviderEntityId,
                 matchingServiceAssertion,
-                relayState,
+                Optional.fromNullable(relayState),
                 requestIssuerId,
                 assertionConsumerServiceUri,
                 getSessionId,
@@ -43,7 +44,6 @@ public class SuccessfulMatchStateBuilder {
                 transactionSupportsEidas);
     }
 
-    @Deprecated
     public SuccessfulMatchState build() {
         return new SuccessfulMatchState(
                 requestId,
@@ -55,6 +55,7 @@ public class SuccessfulMatchStateBuilder {
                 assertionConsumerServiceUri,
                 getSessionId,
                 levelOfAssurance,
+                isRegistering,
                 transactionSupportsEidas);
     }
 

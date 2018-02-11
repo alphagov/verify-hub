@@ -15,27 +15,27 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
-public class EidasCycle0And1MatchRequestSentStateController extends MatchRequestSentStateController<EidasCycle0And1MatchRequestSentState> {
+public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRequestSentStateController<EidasCycle0And1MatchRequestSentState> {
     private final TransactionsConfigProxy transactionsConfigProxy;
 
     public EidasCycle0And1MatchRequestSentStateController(
-        final EidasCycle0And1MatchRequestSentState state,
-        final StateTransitionAction stateTransitionAction,
-        final EventSinkHubEventLogger eventSinkHubEventLogger,
-        final PolicyConfiguration policyConfiguration,
-        final LevelOfAssuranceValidator validator,
-        final ResponseFromHubFactory responseFromHubFactory,
-        final AttributeQueryService attributeQueryService,
-        final TransactionsConfigProxy transactionsConfigProxy) {
+            final EidasCycle0And1MatchRequestSentState state,
+            final StateTransitionAction stateTransitionAction,
+            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final PolicyConfiguration policyConfiguration,
+            final LevelOfAssuranceValidator validator,
+            final ResponseFromHubFactory responseFromHubFactory,
+            final AttributeQueryService attributeQueryService,
+            final TransactionsConfigProxy transactionsConfigProxy) {
 
         super(
-            state,
-            stateTransitionAction,
-            eventSinkHubEventLogger,
-            policyConfiguration,
-            validator,
-            responseFromHubFactory,
-            attributeQueryService);
+                state,
+                stateTransitionAction,
+                eventSinkHubEventLogger,
+                policyConfiguration,
+                validator,
+                responseFromHubFactory,
+                attributeQueryService);
 
         this.transactionsConfigProxy = transactionsConfigProxy;
     }
@@ -52,16 +52,44 @@ public class EidasCycle0And1MatchRequestSentStateController extends MatchRequest
         return null;
     }
 
-    protected EidasSuccessfulMatchState getEidasSuccessfulMatchState(MatchFromMatchingService responseFromMatchingService) {
-        String matchingServiceAssertion = responseFromMatchingService.getMatchingServiceAssertion();
-        validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
-        String requestIssuerId = state.getRequestIssuerEntityId();
+    @Override
+    protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
+        eventSinkHubEventLogger.logCycle01SuccessfulMatchEvent(
+                state.getSessionId(),
+                state.getRequestIssuerEntityId(),
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp());
+        return getSuccessfulMatchState(responseFromMatchingService);
+    }
+
+    @Override
+    protected State getNextStateForNoMatch() {
+        Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
+        if (selfAssertedAttributeName.isPresent()) {
+            eventSinkHubEventLogger.logWaitingForCycle3AttributesEvent(
+                    state.getSessionId(),
+                    state.getRequestIssuerEntityId(),
+                    state.getRequestId(),
+                    state.getSessionExpiryTimestamp());
+            return getAwaitingCycle3DataState();
+        }
+
+        eventSinkHubEventLogger.logCycle01NoMatchEvent(
+                state.getSessionId(),
+                state.getRequestIssuerEntityId(),
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp());
+        return getNoMatchState();
+    }
+
+    @Override
+    protected EidasSuccessfulMatchState createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId) {
         return new EidasSuccessfulMatchState(
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp(),
                 state.getIdentityProviderEntityId(),
                 matchingServiceAssertion,
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 requestIssuerId,
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
@@ -70,49 +98,19 @@ public class EidasCycle0And1MatchRequestSentStateController extends MatchRequest
         );
     }
 
-    @Override
-    protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
-        eventSinkHubEventLogger.logCycle01SuccessfulMatchEvent(
-            state.getSessionId(),
-            state.getRequestIssuerEntityId(),
-            state.getRequestId(),
-            state.getSessionExpiryTimestamp());
-        return getEidasSuccessfulMatchState(responseFromMatchingService);
-    }
-
-    @Override
-    protected State getNextStateForNoMatch() {
-        Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
-        if (selfAssertedAttributeName.isPresent()) {
-            eventSinkHubEventLogger.logWaitingForCycle3AttributesEvent(
-                state.getSessionId(),
-                state.getRequestIssuerEntityId(),
-                state.getRequestId(),
-                state.getSessionExpiryTimestamp());
-            return getAwaitingCycle3DataState();
-        }
-
-        eventSinkHubEventLogger.logCycle01NoMatchEvent(
-            state.getSessionId(),
-            state.getRequestIssuerEntityId(),
-            state.getRequestId(),
-            state.getSessionExpiryTimestamp());
-        return getNoMatchState();
-    }
-
     private EidasAwaitingCycle3DataState getAwaitingCycle3DataState() {
         return new EidasAwaitingCycle3DataState(
-            state.getRequestId(),
-            state.getRequestIssuerEntityId(),
-            state.getSessionExpiryTimestamp(),
-            state.getAssertionConsumerServiceUri(),
-            state.getSessionId(),
-            state.getTransactionSupportsEidas(),
-            state.getIdentityProviderEntityId(),
-            state.getMatchingServiceAdapterEntityId(),
-            state.getRelayState(),
-            state.getPersistentId(),
-            state.getIdpLevelOfAssurance(),
-            state.getEncryptedIdentityAssertion());
+                state.getRequestId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas(),
+                state.getIdentityProviderEntityId(),
+                state.getMatchingServiceAdapterEntityId(),
+                state.getRelayState(),
+                state.getPersistentId(),
+                state.getIdpLevelOfAssurance(),
+                state.getEncryptedIdentityAssertion());
     }
 }

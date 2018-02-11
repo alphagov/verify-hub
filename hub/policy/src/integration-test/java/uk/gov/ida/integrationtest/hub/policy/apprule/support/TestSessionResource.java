@@ -1,10 +1,15 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
-import uk.gov.ida.hub.policy.domain.state.*;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.integrationtest.hub.policy.rest.Cycle3DTO;
 import uk.gov.ida.integrationtest.hub.policy.rest.EidasCycle3DTO;
 
@@ -17,7 +22,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
 
 import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM;
 import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM_PATH;
@@ -41,7 +45,6 @@ public class TestSessionResource {
     public static final String AWAITING_CYCLE_3_DATA_STATE = "/awaiting-cycle-3-data-state";
     public static final String EIDAS_AWAITING_CYCLE_3_DATA_STATE = "/eidas-awaiting-cycle-3-data-state";
     public static final String GET_SESSION_STATE_NAME = "/session-state-name" + SESSION_ID_PARAM_PATH;
-    public static final String GET_SESSION_STATE = "/session-state" + SESSION_ID_PARAM_PATH;
     public static final String AUTHN_FAILED_STATE = "/session-authn-failed-state";
 
     private TestSessionRepository testSessionRepository;
@@ -56,15 +59,17 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSessionInSuccessfulMatchState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new SuccessfulMatchState(testSessionDto.getRequestId(),
+                new SuccessfulMatchState(
+                        testSessionDto.getRequestId(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getIdentityProviderEntityId(),
                         testSessionDto.getMatchingServiceAssertion(),
-                        testSessionDto.getRelayState(),
+                        testSessionDto.getRelayState().orNull(),
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getAssertionConsumerServiceUri(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getLevelsOfAssurance().get(testSessionDto.getLevelsOfAssurance().size()-1),
+                        testSessionDto.isRegistering(),
                         testSessionDto.getTransactionSupportsEidas())
                         );
         return Response.ok().build();
@@ -79,7 +84,7 @@ public class TestSessionResource {
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getIdentityProviderEntityId(),
                         testSessionDto.getMatchingServiceAssertion(),
-                        testSessionDto.getRelayState(),
+                        testSessionDto.getRelayState().orNull(),
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getAssertionConsumerServiceUri(),
                         testSessionDto.getSessionId(),
@@ -99,12 +104,13 @@ public class TestSessionResource {
                         testSessionDto.getMatchingServiceEntityId(),
                         testSessionDto.getLevelsOfAssurance(),
                         testSessionDto.getUseExactComparisonType(),
-                        testSessionDto.getForceAuthentication(),
+                        testSessionDto.getForceAuthentication().orNull(),
                         testSessionDto.getAssertionConsumerServiceUri(),
                         testSessionDto.getRequestIssuerId(),
-                        testSessionDto.getRelayState(),
+                        testSessionDto.getRelayState().orNull(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.isRegistering(),
+                        testSessionDto.getRequestedLoa(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getAvailableIdentityProviders(),
                         testSessionDto.getTransactionSupportsEidas())
@@ -117,12 +123,12 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSessionInCountrySelectingState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new SessionStartedState(testSessionDto.getRequestId(),
-                        testSessionDto.getRelayState(),
+                new SessionStartedState(
+                        testSessionDto.getRequestId(),
+                        testSessionDto.getRelayState().orNull(),
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getAssertionConsumerServiceUri(),
-                        Optional.absent(),
-                        Collections.emptyList(),
+                        null,
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getTransactionSupportsEidas()));
@@ -141,14 +147,14 @@ public class TestSessionResource {
                         dto.getRequestIssuerId(),
                         dto.getEncryptedMatchingDatasetAssertion(),
                         dto.getAuthnStatementAssertion(),
-                        dto.getRelayState(),
+                        dto.getRelayState().orNull(),
                         dto.getAssertionConsumerServiceUri(),
                         dto.getMatchingServiceEntityId(),
                         dto.getSessionId(),
                         dto.getPersistentId(),
                         dto.getLevelOfAssurance(),
+                        dto.isRegistering(),
                         dto.getTransactionSupportsEidas()));
-
 
         return Response.ok().build();
     }
@@ -187,11 +193,10 @@ public class TestSessionResource {
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getAssertionConsumerServiceUri(),
-                        testSessionDto.getRelayState(),
+                        testSessionDto.getRelayState().orNull(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getIdentityProviderEntityId(),
-                        testSessionDto.getAvailableIdentityProviders(),
-                        testSessionDto.getForceAuthentication(),
+                        testSessionDto.getForceAuthentication().orNull(),
                         testSessionDto.getTransactionSupportsEidas())
         );
         return Response.ok().build();
@@ -202,45 +207,6 @@ public class TestSessionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getSessionStateName(@PathParam(SESSION_ID_PARAM) SessionId sessionId) {
         State session = testSessionRepository.getSession(sessionId);
-//        return Response.ok(session.getClass().getName()).build();
-        return Response.ok(getNonTransitionalName(session.getClass())).build();
-    }
-
-    @Deprecated
-    private String getNonTransitionalName(Class<? extends State> sessionClass) {
-
-        if (sessionClass.equals(SessionStartedStateTransitional.class)) {
-            return SessionStartedState.class.getName();
-        }
-
-        if (sessionClass.equals(AuthnFailedErrorStateTransitional.class)) {
-            return AuthnFailedErrorState.class.getName();
-        }
-
-        if (sessionClass.equals(AwaitingCycle3DataStateTransitional.class)) {
-            return AwaitingCycle3DataState.class.getName();
-        }
-
-        if (sessionClass.equals(FraudEventDetectedStateTransitional.class)) {
-            return FraudEventDetectedState.class.getName();
-        }
-
-        if (sessionClass.equals(IdpSelectedStateTransitional.class)) {
-            return IdpSelectedState.class.getName();
-        }
-
-        if (sessionClass.equals(RequesterErrorStateTransitional.class)) {
-            return RequesterErrorState.class.getName();
-        }
-
-        if (sessionClass.equals(SuccessfulMatchStateTransitional.class)) {
-            return SuccessfulMatchState.class.getName();
-        }
-
-        if (sessionClass.equals(UserAccountCreatedStateTransitional.class)) {
-            return UserAccountCreatedState.class.getName();
-        }
-
-        return sessionClass.getName();
+        return Response.ok(session.getClass().getName()).build();
     }
 }

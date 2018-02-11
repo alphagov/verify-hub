@@ -20,10 +20,10 @@ public class IdpSelectedStateBuilder {
     private String matchingServiceEntityId = "matching-service-entity-id";
     private List<LevelOfAssurance> levelsOfAssurance = Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
     private Boolean useExactComparisonType = false;
-    private Optional<Boolean> forceAuthentication = Optional.absent();
+    private Boolean forceAuthentication = null;
     private URI assertionConsumerServiceUri = URI.create("/default-service-uri");
     private String requestIssuerId = "transaction-entity-id";
-    private Optional<String> relayState = Optional.absent();
+    private String relayState = null;
     private DateTime sessionExpiryTimestamp = DateTime.now().plusDays(5);
     private boolean isRegistration = false;
     private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_2;
@@ -35,6 +35,7 @@ public class IdpSelectedStateBuilder {
         return new IdpSelectedStateBuilder();
     }
 
+    @Deprecated
     public IdpSelectedStateTransitional buildTransitional() {
         return new IdpSelectedStateTransitional(
                 requestId,
@@ -42,10 +43,10 @@ public class IdpSelectedStateBuilder {
                 matchingServiceEntityId,
                 levelsOfAssurance,
                 useExactComparisonType,
-                forceAuthentication,
+                Optional.fromNullable(forceAuthentication),
                 assertionConsumerServiceUri,
                 requestIssuerId,
-                relayState,
+                Optional.fromNullable(relayState),
                 sessionExpiryTimestamp,
                 isRegistration,
                 requestedLoa,
@@ -54,7 +55,6 @@ public class IdpSelectedStateBuilder {
                 transactionSupportsEidas);
     }
 
-    @Deprecated
     public IdpSelectedState build() {
         return new IdpSelectedState(
                 requestId,
@@ -68,6 +68,7 @@ public class IdpSelectedStateBuilder {
                 relayState,
                 sessionExpiryTimestamp,
                 isRegistration,
+                requestedLoa,
                 sessionId,
                 availableIdentityProviders,
                 transactionSupportsEidas);
@@ -129,7 +130,7 @@ public class IdpSelectedStateBuilder {
     }
 
     public IdpSelectedStateBuilder withRelayState(String relayState){
-        this.relayState = Optional.of(relayState);
+        this.relayState = relayState;
         return this;
     }
 

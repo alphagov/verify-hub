@@ -10,8 +10,6 @@ import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 
 import java.net.URI;
 
-import static com.google.common.base.Optional.absent;
-
 public class UserAccountCreatedStateBuilder {
 
     private String requestId = "request-id";
@@ -21,7 +19,7 @@ public class UserAccountCreatedStateBuilder {
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private String identityProviderEntityId = "identity-provider-id";
     private String matchingServiceAssertion = "aPassthroughAssertion().buildMatchingServiceAssertion()";
-    private Optional<String> relayState = absent();
+    private String relayState = null;
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
     private boolean transactionSupportsEidas = false;
     private boolean registering = false;
@@ -30,8 +28,24 @@ public class UserAccountCreatedStateBuilder {
         return new UserAccountCreatedStateBuilder();
     }
 
+    @Deprecated
     public UserAccountCreatedStateTransitional buildTransitional() {
         return new UserAccountCreatedStateTransitional(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                identityProviderEntityId,
+                matchingServiceAssertion,
+                Optional.fromNullable(relayState),
+                levelOfAssurance,
+                registering,
+                transactionSupportsEidas);
+    }
+
+    public UserAccountCreatedState build() {
+        return new UserAccountCreatedState(
                 requestId,
                 requestIssuerId,
                 sessionExpiryTimestamp,
@@ -45,27 +59,12 @@ public class UserAccountCreatedStateBuilder {
                 transactionSupportsEidas);
     }
 
-    @Deprecated
-    public UserAccountCreatedState build() {
-        return new UserAccountCreatedState(
-                requestId,
-                requestIssuerId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceUri,
-                sessionId,
-                identityProviderEntityId,
-                matchingServiceAssertion,
-                relayState,
-                levelOfAssurance,
-                transactionSupportsEidas);
-    }
-
     public UserAccountCreatedStateBuilder withIdentityProviderEntityId(final String identityProviderEntityId) {
         this.identityProviderEntityId = identityProviderEntityId;
         return this;
     }
 
-    public UserAccountCreatedStateBuilder withRelayState(Optional<String> relayState) {
+    public UserAccountCreatedStateBuilder withRelayState(String relayState) {
         this.relayState = relayState;
         return this;
     }

@@ -24,7 +24,6 @@ import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
 import uk.gov.ida.hub.policy.domain.state.ResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -35,7 +34,6 @@ import java.util.List;
 public class AuthnRequestFromTransactionHandler {
 
     private final SessionRepository sessionRepository;
-    private final SessionStartedStateFactory sessionStartedStateFactory;
     private final EventSinkHubEventLogger eventSinkHubEventLogger;
     private final PolicyConfiguration policyConfiguration;
     private final TransactionsConfigProxy transactionsConfigProxy;
@@ -43,13 +41,11 @@ public class AuthnRequestFromTransactionHandler {
     @Inject
     public AuthnRequestFromTransactionHandler(
             SessionRepository sessionRepository,
-            SessionStartedStateFactory sessionStartedStateFactory,
             EventSinkHubEventLogger eventSinkHubEventLogger,
             PolicyConfiguration policyConfiguration,
             TransactionsConfigProxy transactionsConfigProxy) {
 
         this.sessionRepository = sessionRepository;
-        this.sessionStartedStateFactory = sessionStartedStateFactory;
         this.eventSinkHubEventLogger = eventSinkHubEventLogger;
         this.policyConfiguration = policyConfiguration;
         this.transactionsConfigProxy = transactionsConfigProxy;
@@ -59,12 +55,12 @@ public class AuthnRequestFromTransactionHandler {
         Duration sessionLength = policyConfiguration.getSessionLength();
         DateTime sessionExpiryTimestamp = DateTime.now().plus(sessionLength);
         SessionId sessionId = SessionId.createNewSessionId();
-        SessionStartedState sessionStartedState = sessionStartedStateFactory.build(
+        SessionStartedState sessionStartedState = new SessionStartedState(
                 samlResponse.getId(),
-                assertionConsumerServiceUri,
+                relayState.orNull(),
                 samlResponse.getIssuer(),
-                relayState,
-                samlResponse.getForceAuthentication(),
+                assertionConsumerServiceUri,
+                samlResponse.getForceAuthentication().orNull(),
                 sessionExpiryTimestamp,
                 sessionId,
                 transactionSupportsEidas);

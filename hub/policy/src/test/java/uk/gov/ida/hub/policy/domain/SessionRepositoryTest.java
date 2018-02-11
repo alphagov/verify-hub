@@ -40,7 +40,6 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
-import uk.gov.ida.hub.policy.domain.state.TransitionalStateConverter;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
@@ -290,42 +289,20 @@ public class SessionRepositoryTest {
         assertThat(sessionId).isEqualTo(expectedSessionId);
         assertThat(dataStore.containsKey(expectedSessionId)).isEqualTo(true);
         assertThat(sessionStartedMap.containsKey(expectedSessionId)).isEqualTo(true);
-        // TT-1613: Commented out and replaced by the check below temporarily until we get rid of transitional state classes in the next release
-//        verify(controllerFactory).build(eq(sessionStartedState), any(StateTransitionAction.class));
-
-        final ArgumentCaptor<SessionStartedStateTransitional> transitionalStateArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
-        verify(controllerFactory).build(transitionalStateArgCaptor.capture(), any(StateTransitionAction.class));
-        assertThat(transitionalStateArgCaptor.getValue()).isEqualToComparingFieldByField((SessionStartedStateTransitional) TransitionalStateConverter.convertToTransitional(sessionStartedState));
-    }
-
-    @Deprecated
-    @Test
-    public void createSession_shouldCreateAndStoreTransitionalSession() {
-        SessionId expectedSessionId = aSessionId().build();
-        SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
-        sessionRepository.createSession(sessionStartedState);
-
-        assertThat(dataStore.containsKey(expectedSessionId)).isEqualTo(true);
-        assertThat(dataStore.get(expectedSessionId).getClass()).isEqualTo(SessionStartedStateTransitional.class);
+        verify(controllerFactory).build(eq(sessionStartedState), any(StateTransitionAction.class));
     }
 
     @Test
-    public void stateTransitionAction_shouldUpdateDatastore() throws Exception {
+    public void stateTransitionAction_shouldUpdateDatastore() {
         SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).build();
         SessionId sessionId = sessionRepository.createSession(sessionStartedState);
 
         sessionRepository.getStateController(sessionId, SessionStartedState.class);
-
-        // TT-1613: Commented out and replaced by the check below temporarily until we get rid of transitional state classes in the next release
-//        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
-        final ArgumentCaptor<SessionStartedStateTransitional> transitionalStateArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
-        verify(controllerFactory).build(transitionalStateArgCaptor.capture(), stateTransitionActionArgumentCaptor.capture());
-        assertThat(transitionalStateArgCaptor.getValue()).isEqualToComparingFieldByField((SessionStartedStateTransitional) TransitionalStateConverter.convertToTransitional(sessionStartedState));
-
+        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
         TestState state = new TestState();
         stateTransitionActionArgumentCaptor.getValue().transitionTo(state);
 
-        assertThat(dataStore.get(sessionId)).isEqualTo(state);
+        assertThat(dataStore.get(sessionId)).isEqualTo((State) state);
     }
 
     @Test
@@ -334,19 +311,12 @@ public class SessionRepositoryTest {
         SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).build();
         SessionId sessionId = sessionRepository.createSession(sessionStartedState);
         sessionRepository.getStateController(sessionId, SessionStartedState.class);
-
-        // TT-1613: Commented out and replaced by the check below temporarily until we get rid of transitional state classes in the next release
-//        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
-        final ArgumentCaptor<SessionStartedStateTransitional> transitionalArgCaptor = ArgumentCaptor.forClass(SessionStartedStateTransitional.class);
-        verify(controllerFactory).build(transitionalArgCaptor.capture(), stateTransitionActionArgumentCaptor.capture());
-        assertThat(transitionalArgCaptor.getValue()).isEqualToComparingFieldByField((SessionStartedStateTransitional) TransitionalStateConverter.convertToTransitional(sessionStartedState));
-
+        verify(controllerFactory).build(eq(sessionStartedState), stateTransitionActionArgumentCaptor.capture());
         TestState state = new TestState();
         stateTransitionActionArgumentCaptor.getValue().transitionTo(state);
 
         sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
         verify(controllerFactory).build(eq(state), any(StateTransitionAction.class));
-
     }
 
     @Test(expected = SessionTimeoutException.class)

@@ -30,7 +30,7 @@ public class IdpSelectorTest {
     private IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         IdpConfigDto idpConfigDto = new IdpConfigDto(IDP_ENTITY_ID, true, ImmutableList.of(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(idpConfigDto);
     }
@@ -70,7 +70,7 @@ public class IdpSelectorTest {
         assertThat(idpSelectedState.getRelayState()).isEqualTo(state.getRelayState());
         assertThat(idpSelectedState.getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
         assertThat(idpSelectedState.getRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
-        assertThat(idpSelectedState.getAvailableIdentityProviderEntityIds()).isEqualTo(state.getAvailableIdentityProviderEntityIds());
+        assertThat(idpSelectedState.getAvailableIdentityProviderEntityIds()).isEqualTo(null);
         assertThat(idpSelectedState.getMatchingServiceEntityId()).isEqualTo("matching-service-id");
         assertThat(idpSelectedState.getForceAuthentication()).isEqualTo(state.getForceAuthentication());
         assertThat(idpSelectedState.getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);

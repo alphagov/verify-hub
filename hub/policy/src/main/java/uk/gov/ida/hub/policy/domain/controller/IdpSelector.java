@@ -8,6 +8,7 @@ import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,23 +39,25 @@ public class IdpSelector {
                 matchingServiceEntityId,
                 levelsOfAssuranceForTransactionSupportedByIdp,
                 idpConfig.getUseExactComparisonType(),
-                state.getForceAuthentication(),
+                state.getForceAuthentication().orNull(),
                 state.getAssertionConsumerServiceUri(),
                 state.getRequestIssuerEntityId(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getSessionExpiryTimestamp(),
                 registering,
+                LevelOfAssurance.LEVEL_2,
                 state.getSessionId(),
-                state.getAvailableIdentityProviderEntityIds(),
+                null,
                 state.getTransactionSupportsEidas()
         );
+
         return idpSelectedState;
     }
 
     private static void checkValidIdentityProvider(final String idpEntityId, IdpSelectingState state) {
         boolean found = false;
 
-        for (String entityId : state.getAvailableIdentityProviderEntityIds()) {
+        for (String entityId : new ArrayList<String>()) {
             if (entityId.equals(idpEntityId)) {
                 found = true;
                 break;

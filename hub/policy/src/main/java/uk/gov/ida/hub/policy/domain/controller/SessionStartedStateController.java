@@ -44,7 +44,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
         return new AuthnRequestSignInProcess(
-                state.getAvailableIdentityProviderEntityIds(),
+                null,
                 state.getRequestIssuerEntityId(),
                 state.getTransactionSupportsEidas());
     }

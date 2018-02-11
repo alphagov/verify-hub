@@ -10,18 +10,18 @@ import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
 
 import java.net.URI;
 
-import static com.google.common.base.Optional.absent;
 import static uk.gov.ida.hub.policy.builder.domain.PersistentIdBuilder.aPersistentId;
 
 public class AwaitingCycle3DataStateBuilder {
 
     private String requestId = "request-id";
-    private Optional<String> relayState = absent();
+    private String relayState = null;
     private URI assertionConsumerServiceUri = URI.create("/default-service-uri");
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private String transactionEntityId = "transaction entity id";
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
+    private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_1;
     private boolean transactionSupportsEidas = false;
     private boolean registering = false;
 
@@ -29,6 +29,7 @@ public class AwaitingCycle3DataStateBuilder {
         return new AwaitingCycle3DataStateBuilder();
     }
 
+    @Deprecated
     public AwaitingCycle3DataStateTransitional buildTransitional() {
         return new AwaitingCycle3DataStateTransitional(
                 requestId,
@@ -37,17 +38,16 @@ public class AwaitingCycle3DataStateBuilder {
                 transactionEntityId,
                 encryptedMatchingDatasetAssertion,
                 "aPassthroughAssertion().buildAuthnStatementAssertion()",
-                relayState,
+                Optional.fromNullable(relayState),
                 assertionConsumerServiceUri,
                 "matchingServiceEntityId",
                 sessionId,
                 aPersistentId().build(),
-                LevelOfAssurance.LEVEL_1,
+                requestedLoa,
                 registering,
                 transactionSupportsEidas);
     }
 
-    @Deprecated
     public AwaitingCycle3DataState build() {
         return new AwaitingCycle3DataState(
                 requestId,
@@ -61,7 +61,8 @@ public class AwaitingCycle3DataStateBuilder {
                 "matchingServiceEntityId",
                 sessionId,
                 aPersistentId().build(),
-                LevelOfAssurance.LEVEL_1,
+                requestedLoa,
+                registering,
                 transactionSupportsEidas);
     }
 
