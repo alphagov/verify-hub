@@ -41,7 +41,7 @@ public class TestSessionResourceHelper {
                 .withRegistration(true)
                 .withTransactionSupportsEidas(transactionSupportsEidas)
                 .build();
-        
+
         TestSessionDto testSessionDto = new TestSessionDto(
                 sessionId,
                 idpSelectedState.getRequestId(),
@@ -60,7 +60,7 @@ public class TestSessionResourceHelper {
                 idpSelectedState.getAvailableIdentityProviderEntityIds(),
                 idpSelectedState.getTransactionSupportsEidas());
 
-        return  client
+        return client
                 .target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(testSessionDto));
@@ -76,8 +76,8 @@ public class TestSessionResourceHelper {
         TestSessionDto testSessionDto = createASuccessfulMatchStateTestSessionDto(successfulMatchState, sessionId);
 
         return client.target(uri)
-                     .request(MediaType.APPLICATION_JSON_TYPE)
-                     .post(Entity.json(testSessionDto));
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(testSessionDto));
     }
 
     public static Response createSessionInEidasSuccessfulMatchState(SessionId sessionId, String rpEntityId, String countryEntityId, Client client, URI uri) {
@@ -90,9 +90,9 @@ public class TestSessionResourceHelper {
                 .post(Entity.json(testSessionDto));
     }
 
-    private static TestSessionDto createASuccessfulMatchStateTestSessionDto(AbstractSuccessfulMatchState state, SessionId sessionId){
+    private static TestSessionDto createASuccessfulMatchStateTestSessionDto(AbstractSuccessfulMatchState state, SessionId sessionId) {
 
-        return  new TestSessionDto(
+        return new TestSessionDto(
                 sessionId,
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp(),
@@ -124,37 +124,39 @@ public class TestSessionResourceHelper {
                 state.getTransactionSupportsEidas());
 
         return client.target(uri)
-                     .request(MediaType.APPLICATION_JSON_TYPE)
-                     .post(Entity.json(testSessionDto));
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(testSessionDto));
     }
 
     public static Response selectCountryInSession(SessionId sessionId, Client client, URI uri) {
-        return  client
-            .target(uri)
-            .request(MediaType.APPLICATION_JSON_TYPE)
-            .post(Entity.text(""));
+        return client
+                .target(uri)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.text(""));
     }
 
     public static Response createSessionInCountrySelectingState(SessionId sessionId, Client client, URI uri, String rpEntityId, boolean transactionSupportsEidas) {
         CountrySelectingState countrySelectedState = CountrySelectedStateBuilder.aCountrySelectedState()
-            .withSessionId(sessionId)
-            .withTransactionSupportsEidas(transactionSupportsEidas)
-            .build();
+                .withSessionId(sessionId)
+                .withRequestIssuerEntityId(rpEntityId)
+                .withTransactionSupportsEidas(transactionSupportsEidas)
+                .build();
 
-        TestSessionDto testSessionDto = new TestSessionDto(sessionId,
-            countrySelectedState.getRequestId(),
-            countrySelectedState.getSessionExpiryTimestamp(),
-            null,
-            null,
-            null,
-            rpEntityId,
-            null,
-            countrySelectedState.getAssertionConsumerServiceUri(),
-            null,
-            null,
-            countrySelectedState.getTransactionSupportsEidas());
+        TestSessionDto testSessionDto = new TestSessionDto(
+                sessionId,
+                countrySelectedState.getRequestId(),
+                countrySelectedState.getSessionExpiryTimestamp(),
+                null,
+                null,
+                rpEntityId,
+                null,
+                null,
+                countrySelectedState.getAssertionConsumerServiceUri(),
+                null,
+                null,
+                countrySelectedState.getTransactionSupportsEidas());
         return client.target(uri)
-            .request(MediaType.APPLICATION_JSON_TYPE)
-            .post(Entity.json(testSessionDto));
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(testSessionDto));
     }
 }

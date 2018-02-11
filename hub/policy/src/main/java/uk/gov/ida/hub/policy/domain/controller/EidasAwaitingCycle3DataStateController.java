@@ -56,7 +56,7 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
             matchingServiceConfigData.isOnboarding(),
             getState().getLevelOfAssurance(),
             getState().getPersistentId(),
-            Optional.of(cycle3Dataset),
+            Optional.fromNullable(cycle3Dataset),
             Optional.absent(),
             getState().getEncryptedIdentityAssertion()
         );

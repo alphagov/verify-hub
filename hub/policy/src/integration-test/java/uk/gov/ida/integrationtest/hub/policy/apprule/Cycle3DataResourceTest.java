@@ -18,7 +18,7 @@ import uk.gov.ida.hub.policy.domain.Cycle3UserInput;
 import uk.gov.ida.hub.policy.domain.MatchingProcessDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
@@ -40,7 +40,8 @@ import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionR
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
 
 public class Cycle3DataResourceTest {
-    public static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
+
+    private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
 
     @ClassRule
     public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
@@ -96,7 +97,7 @@ public class Cycle3DataResourceTest {
         postCycle3Data(sessionId, cycle3UserInput);
 
         //Then
-        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle3MatchRequestSentStateTransitional.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(Cycle3MatchRequestSentState.class.getName());
     }
 
     @Test

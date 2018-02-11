@@ -13,10 +13,10 @@ import java.net.URI;
 import java.util.Objects;
 
 public abstract class AbstractSuccessfulMatchState extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
-    protected final String identityProviderEntityId;
-    protected final String matchingServiceAssertion;
-    protected final String relayState;
-    protected final LevelOfAssurance levelOfAssurance;
+    private final String identityProviderEntityId;
+    private final String matchingServiceAssertion;
+    private final String relayState;
+    private final LevelOfAssurance levelOfAssurance;
 
     public AbstractSuccessfulMatchState(
             String requestId,
@@ -73,10 +73,10 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
 
         AbstractSuccessfulMatchState that = (AbstractSuccessfulMatchState) o;
 
-        return Objects.equals(identityProviderEntityId, that.identityProviderEntityId) &&
-                Objects.equals(matchingServiceAssertion, that.matchingServiceAssertion) &&
-                Objects.equals(relayState, that.relayState) &&
-                levelOfAssurance == that.levelOfAssurance &&
+        return Objects.equals(identityProviderEntityId, that.getIdentityProviderEntityId()) &&
+                Objects.equals(matchingServiceAssertion, that.getMatchingServiceAssertion()) &&
+                Objects.equals(relayState, that.getRelayState().orNull()) &&
+                levelOfAssurance == that.getLevelOfAssurance() &&
                 getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
                 Objects.equals(getRequestId(), that.getRequestId()) &&
                 Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&

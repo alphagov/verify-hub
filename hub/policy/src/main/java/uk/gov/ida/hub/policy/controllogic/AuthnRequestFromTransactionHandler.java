@@ -80,7 +80,7 @@ public class AuthnRequestFromTransactionHandler {
     public void selectIdpForGivenSessionId(SessionId sessionId, IdpSelected idpSelected) {
         IdpSelectingStateController stateController = (IdpSelectingStateController)
                 sessionRepository.getStateController(sessionId, IdpSelectingState.class);
-        stateController.handleIdpSelected(idpSelected.getSelectedIdpEntityId(), idpSelected.getPrincipalIpAddress(), idpSelected.isRegistration());
+        stateController.handleIdpSelected(idpSelected.getSelectedIdpEntityId(), idpSelected.getPrincipalIpAddress(), idpSelected.isRegistration(), idpSelected.getRequestedLoa());
     }
 
     public AuthnRequestFromHub getIdaAuthnRequestFromHub(SessionId sessionId) {

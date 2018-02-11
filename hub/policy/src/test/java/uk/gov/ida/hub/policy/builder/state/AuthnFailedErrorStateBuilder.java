@@ -7,7 +7,6 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
@@ -26,11 +25,6 @@ public class AuthnFailedErrorStateBuilder {
 
     public static AuthnFailedErrorStateBuilder anAuthnFailedErrorState() {
         return new AuthnFailedErrorStateBuilder();
-    }
-
-    @Deprecated
-    public AuthnFailedErrorStateBuilder withAvailableIdpEntityIds(List<String> availableIdpEntityIds) {
-        return this;
     }
 
     @Deprecated

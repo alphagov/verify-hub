@@ -37,7 +37,7 @@ public class CountriesResourceIntegrationTest {
             );
 
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUp() {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client = new JerseyClientBuilder(configAppRule.getEnvironment()).using(jerseyClientConfiguration).build(CountriesResourceIntegrationTest.class.getSimpleName());
     }

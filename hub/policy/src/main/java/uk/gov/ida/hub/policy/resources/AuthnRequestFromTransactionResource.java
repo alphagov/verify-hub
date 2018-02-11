@@ -5,10 +5,8 @@ import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.controllogic.AuthnRequestFromTransactionHandler;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInDetailsDto;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
-import uk.gov.ida.hub.policy.domain.IdpConfigDto;
 import uk.gov.ida.hub.policy.domain.IdpSelected;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -19,8 +17,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM;
 
@@ -28,14 +24,11 @@ import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM;
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthnRequestFromTransactionResource {
     private final AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler;
-    private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
 
     @Inject
     public AuthnRequestFromTransactionResource(
-            AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler,
-            IdentityProvidersConfigProxy identityProvidersConfigProxy) {
+            AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler) {
         this.authnRequestFromTransactionHandler = authnRequestFromTransactionHandler;
-        this.identityProvidersConfigProxy = identityProvidersConfigProxy;
     }
 
     @POST
@@ -61,12 +54,7 @@ public class AuthnRequestFromTransactionResource {
     @Timed
     public AuthnRequestSignInDetailsDto getSignInProcessDto(@PathParam(SESSION_ID_PARAM) SessionId sessionId) {
         AuthnRequestSignInProcess signInProcess = authnRequestFromTransactionHandler.getSignInProcessDto(sessionId);
-        List<IdpConfigDto> detailedIdps = signInProcess.getAvailableIdentityProviderEntityIds().stream()
-                .map(idpEntityId -> identityProvidersConfigProxy.getIdpConfig(idpEntityId))
-                .collect(Collectors.toList());
         return new AuthnRequestSignInDetailsDto(
-                detailedIdps,
-                signInProcess.getAvailableIdentityProviderEntityIds(),
                 signInProcess.getRequestIssuerId(),
                 signInProcess.getTransactionSupportsEidas());
     }

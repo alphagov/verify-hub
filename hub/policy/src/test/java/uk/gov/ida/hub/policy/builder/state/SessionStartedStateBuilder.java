@@ -7,8 +7,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 
-import java.util.List;
-
 public class SessionStartedStateBuilder {
 
     private String requestId = "requestId";
@@ -48,11 +46,6 @@ public class SessionStartedStateBuilder {
 
     public SessionStartedStateBuilder withRequestId(String requestId) {
         this.requestId = requestId;
-        return this;
-    }
-
-    @Deprecated
-    public SessionStartedStateBuilder withAvailableIdpEntityIds(List<String> availableIdpEntityIds) {
         return this;
     }
 

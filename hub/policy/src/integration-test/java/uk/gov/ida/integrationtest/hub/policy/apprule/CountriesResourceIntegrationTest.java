@@ -37,7 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_SELECTED_STATE;
 
 public class CountriesResourceIntegrationTest {
-    public static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
+
+    private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
 
     private static Client client;
     @ClassRule

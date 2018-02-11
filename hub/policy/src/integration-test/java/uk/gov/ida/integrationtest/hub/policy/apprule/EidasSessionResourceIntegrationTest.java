@@ -36,7 +36,6 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_SELECTED_STATE;
@@ -44,7 +43,7 @@ import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseCo
 
 public class EidasSessionResourceIntegrationTest {
 
-    public static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
+    private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
 
     private InboundResponseFromCountry translationDto;
     private AttributeQueryContainerDto aqrDto;
@@ -66,7 +65,6 @@ public class EidasSessionResourceIntegrationTest {
 
     private static Client client;
 
-    private static final String IDP_ENTITY_ID = "idpEntityId";
     private static final String RP_ENTITY_ID = "rpEntityId";
     private static final String MS_ENTITY_ID = "Matching-service-entity-id";
     private static final EidasCountryDto NETHERLANDS = new EidasCountryDto("http://netherlandsEnitity.nl", "NL", true);
@@ -87,13 +85,12 @@ public class EidasSessionResourceIntegrationTest {
         stubSamlEngineGenerationOfAQR();
         configStub.reset();
         configStub.setUpStubForMatchingServiceRequest(RP_ENTITY_ID, MS_ENTITY_ID, true);
-        configStub.setupStubForEnabledIdps(asList(IDP_ENTITY_ID));
         configStub.setUpStubForLevelsOfAssurance(RP_ENTITY_ID);
         configStub.setupStubForEidasEnabledForTransaction(RP_ENTITY_ID, false);
-        enableCountriesForRp(RP_ENTITY_ID, NETHERLANDS, SPAIN);
         configStub.setupStubForEidasCountries(EIDAS_COUNTRIES);
         eventSinkStub.reset();
         eventSinkStub.setupStubForLogging();
+        enableCountriesForRp(RP_ENTITY_ID, NETHERLANDS, SPAIN);
     }
 
     @Test
@@ -219,7 +216,6 @@ public class EidasSessionResourceIntegrationTest {
         aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true);
         samlEngineStub.setupStubForEidasAttributeQueryRequestGeneration(aqrDto);
     }
-
 
     private void enableCountriesForRp(String rpEntityId, EidasCountryDto... countries) throws Exception {
         configStub.setupStubForEidasRPCountries(rpEntityId, Arrays.stream(countries).map(EidasCountryDto::getEntityId).collect(toList()));

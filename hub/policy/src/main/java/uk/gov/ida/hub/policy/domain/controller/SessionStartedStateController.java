@@ -44,7 +44,6 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
         return new AuthnRequestSignInProcess(
-                null,
                 state.getRequestIssuerEntityId(),
                 state.getTransactionSupportsEidas());
     }
@@ -55,8 +54,8 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
     }
 
     @Override
-    public void handleIdpSelected(final String idpEntityId, final String principalIpAddress, boolean registering) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, transactionsConfigProxy, identityProvidersConfigProxy);
+    public void handleIdpSelected(final String idpEntityId, final String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
         eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }
