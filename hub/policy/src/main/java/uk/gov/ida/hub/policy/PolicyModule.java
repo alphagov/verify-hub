@@ -22,7 +22,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
-import uk.gov.ida.hub.policy.facade.EventSinkMessageSenderFacade;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
@@ -69,7 +68,6 @@ public class PolicyModule extends AbstractModule {
         bind(ObjectMapper.class).toInstance(new ObjectMapper());
         bind(EventSinkProxy.class).to(EventSinkHttpProxy.class);
         bind(HubEventLogger.class);
-        bind(EventSinkMessageSenderFacade.class);
         bind(SessionService.class);
         bind(CountriesService.class);
         bind(AuthnRequestFromTransactionHandler.class);

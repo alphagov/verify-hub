@@ -13,6 +13,7 @@ import org.xml.sax.SAXException;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.common.shared.security.verification.exceptions.CertificateChainValidationException;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -32,6 +33,7 @@ import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -55,6 +57,8 @@ public class AttributeQueryRequestRunnableTest {
     @Mock
     private EventSinkProxy eventSinkProxy;
     @Mock
+    private EventEmitter eventEmitter;
+    @Mock
     private HubMatchingServiceResponseReceiverProxy hubMatchingServiceResponseReceiverProxy;
 
     private AttributeQueryRequestRunnable attributeQueryRequestRunnable;
@@ -75,25 +79,27 @@ public class AttributeQueryRequestRunnableTest {
                 timeoutEvaluator,
                 hubMatchingServiceResponseReceiverProxy,
                 serviceInfoConfiguration,
-                eventSinkProxy);
+                eventSinkProxy,
+                eventEmitter);
     }
 
     @Test
-    public void shouldIncrementAndDecrementCounter() throws Exception {
+    public void shouldIncrementAndDecrementCounter() {
         verify(counter).inc();
         attributeQueryRequestRunnable.run();
         verify(counter).dec();
     }
 
     @Test
-    public void run_shouldEvaluateTimeoutBeforeSendingRequest() throws Exception {
+    public void run_shouldEvaluateTimeoutBeforeSendingRequest() {
         doThrow(new AttributeQueryTimeoutException()).when(timeoutEvaluator).hasAttributeQueryTimedOut(attributeQueryContainerDto);
 
         //This represents the queue being full/slow - so don't make matters worse by doing slow work that's not needed.
         attributeQueryRequestRunnable.run();
 
         verify(executeAttributeQueryRequest, never()).execute(any(SessionId.class), any(AttributeQueryContainerDto.class));
-        verify(eventSinkProxy, times(1)).logHubEvent(any(EventSinkHubEvent.class));
+        verify(eventSinkProxy, times(1)).logHubEvent(isA(EventSinkHubEvent.class));
+        verify(eventEmitter, times(1)).record(isA(EventSinkHubEvent.class));
     }
 
     @Test
@@ -105,7 +111,8 @@ public class AttributeQueryRequestRunnableTest {
 
         attributeQueryRequestRunnable.run();
 
-        verify(eventSinkProxy, times(2)).logHubEvent(any(EventSinkHubEvent.class));//One for the timeout, one for the message error
+        verify(eventSinkProxy, times(2)).logHubEvent(isA(EventSinkHubEvent.class)); //One for the timeout, one for the message error
+        verify(eventEmitter, times(2)).record(isA(EventSinkHubEvent.class));
         verify(hubMatchingServiceResponseReceiverProxy, never()).notifyHubOfMatchingServiceRequestFailure(sessionId);
     }
 
@@ -123,7 +130,8 @@ public class AttributeQueryRequestRunnableTest {
                 any(SessionId.class),
                 any(String.class)
         );
-        verify(eventSinkProxy, times(1)).logHubEvent(any(EventSinkHubEvent.class));
+        verify(eventSinkProxy, times(1)).logHubEvent(isA(EventSinkHubEvent.class));
+        verify(eventEmitter, times(1)).record(isA(EventSinkHubEvent.class));
     }
 
     @Test
@@ -154,8 +162,11 @@ public class AttributeQueryRequestRunnableTest {
         attributeQueryRequestRunnable.run();
 
         final ArgumentCaptor<EventSinkHubEvent> loggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final ArgumentCaptor<EventSinkHubEvent> emitterLoggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy).logHubEvent(loggedHubEvent.capture());
+        verify(eventEmitter).record(emitterLoggedHubEvent.capture());
         assertThat(loggedHubEvent.getValue().getDetails().get(EventDetailsKey.message)).isEqualTo("Matching service attribute timed out before even being sent.");
+        assertThat(emitterLoggedHubEvent.getValue().getDetails().get(EventDetailsKey.message)).isEqualTo("Matching service attribute timed out before even being sent.");
     }
 
     @Test
@@ -166,8 +177,11 @@ public class AttributeQueryRequestRunnableTest {
         attributeQueryRequestRunnable.run();
 
         final ArgumentCaptor<EventSinkHubEvent> loggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final ArgumentCaptor<EventSinkHubEvent> emitterLoggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy).logHubEvent(loggedHubEvent.capture());
+        verify(eventEmitter).record(emitterLoggedHubEvent.capture());
         assertThat(loggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
+        assertThat(emitterLoggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
         verify(hubMatchingServiceResponseReceiverProxy).notifyHubOfMatchingServiceRequestFailure(sessionId);
         verify(timeoutEvaluator, times(2)).hasAttributeQueryTimedOut(attributeQueryContainerDto); //Request has not timed out - didn't throw.
     }
@@ -180,11 +194,15 @@ public class AttributeQueryRequestRunnableTest {
         attributeQueryRequestRunnable.run();
 
         final ArgumentCaptor<EventSinkHubEvent> loggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final ArgumentCaptor<EventSinkHubEvent> emitterLoggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy).logHubEvent(loggedHubEvent.capture());
+        verify(eventEmitter).record(emitterLoggedHubEvent.capture());
         assertThat(loggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
+        assertThat(emitterLoggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
         verify(hubMatchingServiceResponseReceiverProxy).notifyHubOfMatchingServiceRequestFailure(sessionId);
         verify(timeoutEvaluator, times(2)).hasAttributeQueryTimedOut(attributeQueryContainerDto);
         assertThat(loggedHubEvent.getValue().getDetails().get(message)).doesNotContain("Incorrect message provided by caller");
+        assertThat(emitterLoggedHubEvent.getValue().getDetails().get(message)).doesNotContain("Incorrect message provided by caller");
 
     }
 
@@ -196,12 +214,15 @@ public class AttributeQueryRequestRunnableTest {
         attributeQueryRequestRunnable.run();
 
         final ArgumentCaptor<EventSinkHubEvent> loggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final ArgumentCaptor<EventSinkHubEvent> emitterLoggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy).logHubEvent(loggedHubEvent.capture());
+        verify(eventEmitter).record(emitterLoggedHubEvent.capture());
         assertThat(loggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
+        assertThat(emitterLoggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
         verify(hubMatchingServiceResponseReceiverProxy).notifyHubOfMatchingServiceRequestFailure(sessionId);
         verify(timeoutEvaluator, times(2)).hasAttributeQueryTimedOut(attributeQueryContainerDto);
         assertThat(loggedHubEvent.getValue().getDetails().get(message)).contains("Incorrect message provided by caller");
-
+        assertThat(emitterLoggedHubEvent.getValue().getDetails().get(message)).contains("Incorrect message provided by caller");
     }
 
     @Test
@@ -212,11 +233,15 @@ public class AttributeQueryRequestRunnableTest {
         attributeQueryRequestRunnable.run();
 
         final ArgumentCaptor<EventSinkHubEvent> loggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final ArgumentCaptor<EventSinkHubEvent> emitterLoggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy).logHubEvent(loggedHubEvent.capture());
+        verify(eventEmitter).record(emitterLoggedHubEvent.capture());
         assertThat(loggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
+        assertThat(emitterLoggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
         verify(hubMatchingServiceResponseReceiverProxy, times(1)).notifyHubOfMatchingServiceRequestFailure(sessionId);
         verify(timeoutEvaluator, times(2)).hasAttributeQueryTimedOut(attributeQueryContainerDto);
         assertThat(loggedHubEvent.getValue().getDetails().get(message)).contains("Problem with the matching service's signing certificate");
+        assertThat(emitterLoggedHubEvent.getValue().getDetails().get(message)).contains("Problem with the matching service's signing certificate");
 
     }
 
@@ -228,11 +253,15 @@ public class AttributeQueryRequestRunnableTest {
         attributeQueryRequestRunnable.run();
 
         final ArgumentCaptor<EventSinkHubEvent> loggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final ArgumentCaptor<EventSinkHubEvent> emitterLoggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy).logHubEvent(loggedHubEvent.capture());
+        verify(eventEmitter).record(emitterLoggedHubEvent.capture());
         assertThat(loggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
+        assertThat(emitterLoggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
         verify(hubMatchingServiceResponseReceiverProxy, times(0)).notifyHubOfMatchingServiceRequestFailure(sessionId);
         verify(timeoutEvaluator, times(1)).hasAttributeQueryTimedOut(attributeQueryContainerDto);
         assertThat(loggedHubEvent.getValue().getDetails().get(message)).contains("Matching service attribute timed out before even being sent.");
+        assertThat(emitterLoggedHubEvent.getValue().getDetails().get(message)).contains("Matching service attribute timed out before even being sent.");
     }
 
     @Test
@@ -247,11 +276,14 @@ public class AttributeQueryRequestRunnableTest {
         attributeQueryRequestRunnable.run();
 
         final ArgumentCaptor<EventSinkHubEvent> loggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        final ArgumentCaptor<EventSinkHubEvent> emitterLoggedHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy).logHubEvent(loggedHubEvent.capture());
+        verify(eventEmitter).record(emitterLoggedHubEvent.capture());
         assertThat(loggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
+        assertThat(emitterLoggedHubEvent.getValue().getSessionId()).isEqualTo(sessionId.toString());
         verify(hubMatchingServiceResponseReceiverProxy, times(0)).notifyHubOfMatchingServiceRequestFailure(sessionId);
         verify(timeoutEvaluator, times(2)).hasAttributeQueryTimedOut(attributeQueryContainerDto);
         assertThat(loggedHubEvent.getValue().getDetails().get(message)).contains("Matching service attribute query has timed out, therefore not sending failure notification to saml engine.");
+        assertThat(emitterLoggedHubEvent.getValue().getDetails().get(message)).contains("Matching service attribute query has timed out, therefore not sending failure notification to saml engine.");
     }
-
 }

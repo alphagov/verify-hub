@@ -1,14 +1,16 @@
 package uk.gov.ida.hub.samlproxy.logging;
 
-import org.joda.time.DateTime;
+import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -17,8 +19,9 @@ import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.common.ServiceInfoConfigurationBuilder.aServiceInfo;
@@ -34,16 +37,32 @@ import static uk.gov.ida.eventsink.EventSinkHubEventConstants.ExternalCommunicat
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExternalCommunicationEventLoggerTest {
+    private static final String SERVICE_NAME = "some-service-name";
+    private static final ServiceInfoConfiguration SERVICE_INFO = aServiceInfo().withName(SERVICE_NAME).build();
+    private static final SessionId SESSION_ID = SessionId.createNewSessionId();
+    private static final String MESSAGE_ID = "some-message-id";
+    private static final URI ENDPOINT_URL = URI.create("http://someurl.com");
+    private static final String ENDPOINT_IP_ADDRESS = "1.2.3.4";
+    private static final String PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB = "some-ip-address";
 
     @Mock
-    EventSinkProxy eventSinkProxy;
+    private EventSinkProxy eventSinkProxy;
 
     @Mock
-    IpAddressResolver ipAddressResolver;
+    private IpAddressResolver ipAddressResolver;
+
+    @Mock
+    private EventEmitter eventEmitter;
+
+    private ExternalCommunicationEventLogger externalCommunicationEventLogger;
 
     @Before
     public void setUp() throws Exception {
         DateTimeFreezer.freezeTime();
+
+        when(ipAddressResolver.lookupIpAddress(ENDPOINT_URL)).thenReturn(ENDPOINT_IP_ADDRESS);
+        externalCommunicationEventLogger = new ExternalCommunicationEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter, ipAddressResolver);
+
     }
 
     @After
@@ -53,96 +72,87 @@ public class ExternalCommunicationEventLoggerTest {
 
     @Test
     public void logMatchingServiceRequest_shouldPassHubEventToEventSinkProxy() {
+        externalCommunicationEventLogger.logMatchingServiceRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL);
 
-        final String serviceName = "some-service-name";
-        final SessionId sessionId = SessionId.createNewSessionId();
-        final String messageId = "some-message-id";
-        final String endpoint = "http://someurl.com";
-        final URI endpointUrl = URI.create(endpoint);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(external_communication_type, MATCHING_SERVICE_REQUEST);
+        details.put(message_id, MESSAGE_ID);
+        details.put(external_endpoint, ENDPOINT_URL.toString());
+        details.put(external_ip_address, ENDPOINT_IP_ADDRESS);
 
-        final String endpointIpAddress = "1.2.3.4";
-        when(ipAddressResolver.lookupIpAddress(endpointUrl)).thenReturn(endpointIpAddress);
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            EXTERNAL_COMMUNICATION_EVENT,
+            details
+        );
 
-        final ExternalCommunicationEventLogger externalCommunicationEventLogger = new ExternalCommunicationEventLogger(aServiceInfo().withName(serviceName).build(), eventSinkProxy, ipAddressResolver);
-        externalCommunicationEventLogger.logMatchingServiceRequest(messageId, sessionId, endpointUrl);
-
-        final ArgumentCaptor<EventSinkHubEvent> logHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-        verify(eventSinkProxy).logHubEvent(logHubEvent.capture());
-
-        final EventSinkHubEvent loggedEvent = logHubEvent.getValue();
-        assertThat(loggedEvent.getOriginatingService()).isEqualTo(serviceName);
-        assertThat(loggedEvent.getEventType()).isEqualTo(EXTERNAL_COMMUNICATION_EVENT);
-        assertThat(loggedEvent.getTimestamp().isEqual(DateTime.now())).isTrue();
-        assertThat(loggedEvent.getSessionId()).isEqualTo(sessionId.toString());
-        final Map<EventDetailsKey, String> eventDetails = loggedEvent.getDetails();
-        assertThat(eventDetails.get(external_communication_type)).isEqualTo(MATCHING_SERVICE_REQUEST);
-        assertThat(eventDetails.get(message_id)).isEqualTo(messageId);
-        assertThat(eventDetails.get(external_endpoint)).isEqualTo(endpoint);
-        assertThat(eventDetails.get(external_ip_address)).isEqualTo(endpointIpAddress);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logAuthenticationRequest_shouldPassHubEventToEventSinkProxy() {
+        externalCommunicationEventLogger.logIdpAuthnRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
 
-        final String serviceName = "some-service-name";
-        final SessionId sessionId = SessionId.createNewSessionId();
-        final String messageId = "some-message-id";
-        final String endpoint = "http://someurl.com";
-        final URI endpointUrl = URI.create(endpoint);
-        final String principalIpAddress = "some-ip-address";
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(external_communication_type, AUTHN_REQUEST);
+        details.put(message_id, MESSAGE_ID);
+        details.put(external_endpoint, ENDPOINT_URL.toString());
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
 
-        final String endpointIpAddress = "1.2.3.4";
-        when(ipAddressResolver.lookupIpAddress(endpointUrl)).thenReturn(endpointIpAddress);
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            EXTERNAL_COMMUNICATION_EVENT,
+            details
+        );
 
-        final ExternalCommunicationEventLogger externalCommunicationEventLogger = new ExternalCommunicationEventLogger(aServiceInfo().withName(serviceName).build(), eventSinkProxy, ipAddressResolver);
-        externalCommunicationEventLogger.logIdpAuthnRequest(messageId, sessionId, endpointUrl, principalIpAddress);
-
-        final ArgumentCaptor<EventSinkHubEvent> logHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-        verify(eventSinkProxy).logHubEvent(logHubEvent.capture());
-
-        final EventSinkHubEvent loggedEvent = logHubEvent.getValue();
-        assertThat(loggedEvent.getOriginatingService()).isEqualTo(serviceName);
-        assertThat(loggedEvent.getEventType()).isEqualTo(EXTERNAL_COMMUNICATION_EVENT);
-        assertThat(loggedEvent.getTimestamp().isEqual(DateTime.now())).isTrue();
-        assertThat(loggedEvent.getSessionId()).isEqualTo(sessionId.toString());
-        final Map<EventDetailsKey, String> eventDetails = loggedEvent.getDetails();
-        assertThat(eventDetails.get(external_communication_type)).isEqualTo(AUTHN_REQUEST);
-        assertThat(eventDetails.get(message_id)).isEqualTo(messageId);
-        assertThat(eventDetails.get(external_endpoint)).isEqualTo(endpoint);
-        assertThat(eventDetails.get(external_ip_address)).isNull();
-        assertThat(eventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddress);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
     @Test
     public void logResponseFromHub_shouldPassHubEventToEventSinkProxy() {
+        externalCommunicationEventLogger.logResponseFromHub(MESSAGE_ID, SESSION_ID, ENDPOINT_URL, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
 
-        final String serviceName = "some-service-name";
-        final SessionId sessionId = SessionId.createNewSessionId();
-        final String messageId = "some-message-id";
-        final String endpoint = "http://someurl.com";
-        final URI endpointUrl = URI.create(endpoint);
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(external_communication_type, RESPONSE_FROM_HUB);
+        details.put(message_id, MESSAGE_ID);
+        details.put(external_endpoint, ENDPOINT_URL.toString());
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
 
-        final String endpointIpAddress = "1.2.3.4";
-        when(ipAddressResolver.lookupIpAddress(endpointUrl)).thenReturn(endpointIpAddress);
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            EXTERNAL_COMMUNICATION_EVENT,
+            details
+        );
 
-        final ExternalCommunicationEventLogger externalCommunicationEventLogger = new ExternalCommunicationEventLogger(aServiceInfo().withName(serviceName).build(), eventSinkProxy, ipAddressResolver);
-        final String principalIpAddressSeenByHub = "a-principal-ip-address";
-        externalCommunicationEventLogger.logResponseFromHub(messageId, sessionId, endpointUrl, principalIpAddressSeenByHub);
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
+    }
 
-        final ArgumentCaptor<EventSinkHubEvent> logHubEvent = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-        verify(eventSinkProxy).logHubEvent(logHubEvent.capture());
+    private class EventMatching extends ArgumentMatcher<EventSinkHubEvent> {
 
-        final EventSinkHubEvent loggedEvent = logHubEvent.getValue();
-        assertThat(loggedEvent.getOriginatingService()).isEqualTo(serviceName);
-        assertThat(loggedEvent.getEventType()).isEqualTo(EXTERNAL_COMMUNICATION_EVENT);
-        assertThat(loggedEvent.getTimestamp().isEqual(DateTime.now())).isTrue();
-        assertThat(loggedEvent.getSessionId()).isEqualTo(sessionId.toString());
-        assertThat(loggedEvent.getSessionId()).isEqualTo(sessionId.toString());
-        final Map<EventDetailsKey, String> eventDetails = loggedEvent.getDetails();
-        assertThat(eventDetails.get(external_communication_type)).isEqualTo(RESPONSE_FROM_HUB);
-        assertThat(eventDetails.get(message_id)).isEqualTo(messageId);
-        assertThat(eventDetails.get(external_endpoint)).isEqualTo(endpoint);
-        assertThat(eventDetails.get(external_ip_address)).isNull();
-        assertThat(eventDetails.get(principal_ip_address_as_seen_by_hub)).isEqualTo(principalIpAddressSeenByHub);
+        private EventSinkHubEvent expectedEvent;
+
+        private EventMatching(EventSinkHubEvent expectedEvent) {
+            this.expectedEvent = expectedEvent;
+        }
+
+        @Override
+        public boolean matches(Object other) {
+            if (other == null || expectedEvent.getClass() != other.getClass()) {
+                return false;
+            }
+            EventSinkHubEvent actualEvent = (EventSinkHubEvent) other;
+            return
+                Objects.equals(expectedEvent.getTimestamp(), actualEvent.getTimestamp()) &&
+                    Objects.equals(expectedEvent.getOriginatingService(), actualEvent.getOriginatingService()) &&
+                    Objects.equals(expectedEvent.getSessionId(), actualEvent.getSessionId()) &&
+                    Objects.equals(expectedEvent.getEventType(), actualEvent.getEventType()) &&
+                    Objects.equals(expectedEvent.getDetails(), actualEvent.getDetails());
+        }
     }
 }

@@ -9,7 +9,8 @@ dependencies {
             configurations.dropwizard,
             configurations.saml,
             configurations.common,
-            configurations.soap
+            configurations.soap,
+            configurations.verify_event_emitter
 }
 
 apply plugin: 'application'

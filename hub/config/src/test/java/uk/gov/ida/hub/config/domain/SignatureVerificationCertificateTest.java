@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.shared.ValidationTestHelper.runValidations;
 
 public class SignatureVerificationCertificateTest {
-    
+
     @Test
     public void isX509Valid_shouldReturnViolationIfValueIsInvalid() throws Exception {
         final Certificate certificate = new SignatureVerificationCertificateBuilder().withX509("blah").build();
@@ -29,5 +29,5 @@ public class SignatureVerificationCertificateTest {
 
         assertThat(constraintViolations.size()).isEqualTo(0);
     }
-    
+
 }
