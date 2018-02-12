@@ -47,7 +47,7 @@ public class UserAccountCreationRequestSentStateControllerTest {
     public void getNextState_shouldMaintainRelayState() {
         final String relayState = "4x100m";
         UserAccountCreationRequestSentStateTransitional state = aUserAccountCreationRequestSentState()
-                .withRelayState(Optional.of(relayState))
+                .withRelayState(Optional.fromNullable(relayState))
                 .build();
         UserAccountCreationRequestSentStateController controller =
                 new UserAccountCreationRequestSentStateController(state, null, eventSinkHubEventLogger, null, levelOfAssuranceValidator, null, null);

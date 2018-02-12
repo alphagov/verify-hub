@@ -122,7 +122,7 @@ public class CountrySelectedStateControllerTest {
             new SessionId(state.getSessionId().getSessionId()),
             state.getTransactionSupportsEidas(),
             COUNTRY_ENTITY_ID,
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             eidasAttributeQueryRequestDto.getLevelOfAssurance(),
             MSA_ID,
             eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion(),

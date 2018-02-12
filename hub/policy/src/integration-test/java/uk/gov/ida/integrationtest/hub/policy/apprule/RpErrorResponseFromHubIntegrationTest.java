@@ -32,7 +32,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RpErrorResponseFromHubIntegrationTest {
@@ -54,7 +53,6 @@ public class RpErrorResponseFromHubIntegrationTest {
             ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()));
 
-    private String idpEntityId;
     private String rpEntityId;
     private SamlResponseWithAuthnRequestInformationDto translatedAuthnRequest;
     private SamlAuthnRequestContainerDto rpSamlRequest;
@@ -67,13 +65,11 @@ public class RpErrorResponseFromHubIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        idpEntityId = "idpEntityId";
         rpEntityId = "rpEntityId";
         translatedAuthnRequest = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(rpEntityId).build();
         rpSamlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
         eventSinkStub.setupStubForLogging();
-        configStub.setupStubForEnabledIdps(asList(idpEntityId));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
         configStub.setupStubForEidasEnabledForTransaction(rpEntityId, false);
     }
@@ -124,5 +120,4 @@ public class RpErrorResponseFromHubIntegrationTest {
         final URI uri1 = policy.uri(uri.toASCIIString());
         return client.target(uri1).request(MediaType.APPLICATION_JSON_TYPE).get();
     }
-
 }

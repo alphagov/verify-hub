@@ -6,6 +6,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
@@ -44,6 +45,23 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
     }
 
     @Override
+    protected SuccessfulMatchState createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId) {
+        return new SuccessfulMatchState(
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp(),
+                state.getIdentityProviderEntityId(),
+                matchingServiceAssertion,
+                state.getRelayState().orNull(),
+                requestIssuerId,
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getIdpLevelOfAssurance(),
+                state.isRegistering(),
+                state.getTransactionSupportsEidas()
+        );
+    }
+
+    @Override
     protected State getNextStateForUserAccountCreated(UserAccountCreatedFromMatchingService responseFromMatchingService) {
         eventSinkHubEventLogger.logUserAccountCreatedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
 
@@ -56,21 +74,22 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
                 state.getSessionId(),
                 state.getIdentityProviderEntityId(),
                 responseFromMatchingService.getMatchingServiceAssertion(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getIdpLevelOfAssurance(),
+                state.isRegistering(),
                 state.getTransactionSupportsEidas());
     }
 
     public UserAccountCreationFailedState getNextStateForUserAccountCreationFailed() {
         eventSinkHubEventLogger.logUserAccountCreationFailedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
         return new UserAccountCreationFailedState(
-            state.getRequestId(),
-            state.getRequestIssuerEntityId(),
-            state.getSessionExpiryTimestamp(),
-            state.getAssertionConsumerServiceUri(),
-            state.getRelayState(),
-            state.getSessionId(),
-            state.getTransactionSupportsEidas()
+                state.getRequestId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getAssertionConsumerServiceUri(),
+                state.getRelayState(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas()
         );
     }
 }

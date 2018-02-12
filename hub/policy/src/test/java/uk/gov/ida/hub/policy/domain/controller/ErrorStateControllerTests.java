@@ -32,7 +32,23 @@ import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
-import uk.gov.ida.hub.policy.domain.state.*;
+import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
+import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
+import uk.gov.ida.hub.policy.domain.state.NoMatchState;
+import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.TimeoutState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -48,8 +64,6 @@ public class ErrorStateControllerTests {
 
     @Mock
     private SessionRepository sessionRepository;
-    @Mock
-    private SessionStartedStateFactory sessionStartedStateFactory;
     @Mock
     private EventSinkHubEventLogger eventSinkHubEventLogger;
     @Mock
@@ -78,7 +92,7 @@ public class ErrorStateControllerTests {
     @Before
     public void setUp() {
         sessionId = SessionId.createNewSessionId();
-        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, sessionStartedStateFactory, eventSinkHubEventLogger, policyConfiguration, transactionsConfigProxy);
+        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, eventSinkHubEventLogger, policyConfiguration, transactionsConfigProxy);
     }
 
     @Test
@@ -95,7 +109,7 @@ public class ErrorStateControllerTests {
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInAuthnFailedErrorState() {
         AuthnFailedErrorState state = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().build();
-        StateController stateController = new AuthnFailedErrorStateController(state, responseFromHubFactory, stateTransitionAction, sessionStartedStateFactory, transactionsConfigProxy, identityProvidersConfigProxy, eventSinkHubEventLogger);
+        StateController stateController = new AuthnFailedErrorStateController(state, responseFromHubFactory, stateTransitionAction, transactionsConfigProxy, identityProvidersConfigProxy, eventSinkHubEventLogger);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
         ResponseFromHub responseFromHub = authnRequestFromTransactionHandler.getErrorResponseFromHub(sessionId);
@@ -206,7 +220,7 @@ public class ErrorStateControllerTests {
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInFraudEventDetectedState() {
         FraudEventDetectedState state = FraudEventDetectedStateBuilder.aFraudEventDetectedState().build();
-        StateController stateController = new FraudEventDetectedStateController(state, responseFromHubFactory, stateTransitionAction, sessionStartedStateFactory, null, null, null);
+        StateController stateController = new FraudEventDetectedStateController(state, responseFromHubFactory, stateTransitionAction, null, null, null);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
         ResponseFromHub responseFromHub = authnRequestFromTransactionHandler.getErrorResponseFromHub(sessionId);
@@ -217,7 +231,7 @@ public class ErrorStateControllerTests {
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInIdpSelectedState() {
         IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().build();
-        StateController stateController = new IdpSelectedStateController(state, sessionStartedStateFactory, eventSinkHubEventLogger, stateTransitionAction, identityProvidersConfigProxy, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionFactory, matchingServiceConfigProxy);
+        StateController stateController = new IdpSelectedStateController(state, eventSinkHubEventLogger, stateTransitionAction, identityProvidersConfigProxy, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionFactory, matchingServiceConfigProxy);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
         ResponseFromHub responseFromHub = authnRequestFromTransactionHandler.getErrorResponseFromHub(sessionId);

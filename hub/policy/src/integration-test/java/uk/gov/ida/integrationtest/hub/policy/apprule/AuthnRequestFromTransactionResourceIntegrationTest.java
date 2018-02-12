@@ -20,10 +20,8 @@ import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.domain.IdpConfigDtoBuilder;
-import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInDetailsDto;
-import uk.gov.ida.hub.policy.domain.IdpConfigDto;
 import uk.gov.ida.hub.policy.domain.IdpSelected;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -41,11 +39,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.AUTHN_FAILED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
@@ -91,7 +88,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void setUp() throws Exception {
         samlResponse = aSamlResponseWithAuthnRequestInformationDto().withIssuer(transactionEntityId).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
-        configStub.setupStubForEnabledIdps(ImmutableList.of(idpEntityId, "differentIdp"));
+        configStub.setupStubForEnabledIdps(transactionEntityId, REGISTERING, LEVEL_2, ImmutableList.of(idpEntityId, "differentIdp"));
         configStub.setupStubForEidasEnabledForTransaction(transactionEntityId, false);
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         eventSinkStub.setupStubForLogging();
@@ -112,7 +109,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     @Test
     public void badEntityResponseThrown_WhenMandatoryFieldsAreMissing() throws Exception {
         sessionId = aSessionIsCreated();
-        Response response = postIdpSelected(new IdpSelected(null, null, null));
+        Response response = postIdpSelected(new IdpSelected(null, null, null, null));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
 
@@ -121,12 +118,13 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         assertThat(msg.getErrors()).contains("selectedIdpEntityId may not be empty");
         assertThat(msg.getErrors()).contains("principalIpAddress may not be empty");
         assertThat(msg.getErrors()).contains("registration may not be null");
+        assertThat(msg.getErrors()).contains("requestedLoa may not be null");
     }
 
     @Test
     public void selectIdp_shouldReturnSuccessResponseAndAudit() throws JsonProcessingException {
         sessionId = aSessionIsCreated();
-        Response response = postIdpSelected(new IdpSelected(idpEntityId, principalIpAddress, REGISTERING));
+        Response response = postIdpSelected(new IdpSelected(idpEntityId, principalIpAddress, REGISTERING, LEVEL_2));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(eventSinkStub.getRecordedRequest()).hasSize(2); // one session started event, one idp selected event
@@ -142,7 +140,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void idpSelected_shouldThrowIfIdpIsNotAvailable() throws JsonProcessingException {
         sessionId = aSessionIsCreated();
 
-        IdpSelected idpSelected = new IdpSelected("does-not-exist", principalIpAddress, REGISTERING);
+        IdpSelected idpSelected = new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, LEVEL_2);
         Response response = postIdpSelected(idpSelected);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -153,9 +151,9 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     @Test
     public void idpSelected_shouldThrowIfSessionInWrongState(){
         sessionId = SessionId.createNewSessionId();
-        TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, idpEntityId, client, buildUriForTestSession(SUCCESSFUL_MATCH_STATE, sessionId));
+        TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, transactionEntityId, idpEntityId, client, buildUriForTestSession(SUCCESSFUL_MATCH_STATE, sessionId));
 
-        Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING));
+        Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, LEVEL_2));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto error = response.readEntity(ErrorStatusDto.class);
@@ -182,21 +180,11 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         TestSessionResourceHelper.createSessionInIdpSelectedState(session, samlResponse.getIssuer(), idpEntityId, client,
                 buildUriForTestSession(IDP_SELECTED_STATE, session));
 
-        List<IdpConfigDto> expectedIdpConfigDtos = Arrays.asList(
-                IdpConfigDtoBuilder.anIdpConfigDto().build(),
-                IdpConfigDtoBuilder.anIdpConfigDto().build(),
-                IdpConfigDtoBuilder.anIdpConfigDto().build()
-        );
-
-        List<String> expectedEntityIds = IdpSelectedStateBuilder.anIdpSelectedState().build().getAvailableIdentityProviderEntityIds();
-
         Response response = getAuthRequestSignInProcess(session);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         AuthnRequestSignInDetailsDto entity = response.readEntity(AuthnRequestSignInDetailsDto.class);
         assertThat(entity.getRequestIssuerId()).isEqualTo(samlResponse.getIssuer());
-        assertThat(entity.getAvailableIdentityProviderEntityIds()).isEqualTo(expectedEntityIds);
-        assertThat(entity.getAvailableIdentityProviders()).usingFieldByFieldElementComparator().containsAll(expectedIdpConfigDtos);
     }
 
     @Test

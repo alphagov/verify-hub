@@ -8,7 +8,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 
 public class IdpSelectedState extends AbstractState implements IdpSelectingState, Serializable {
@@ -16,11 +15,12 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     private final String idpEntityId;
     private final String matchingServiceEntityId;
 
-    private Boolean useExactComparisonType = false;
-    private List<LevelOfAssurance> levelsOfAssurance = Collections.EMPTY_LIST;
-    private final Optional<Boolean> forceAuthentication;
-    private final Optional<String> relayState;
+    private Boolean useExactComparisonType;
+    private List<LevelOfAssurance> levelsOfAssurance;
+    private final Boolean forceAuthentication;
+    private final String relayState;
     private final boolean registering;
+    private final LevelOfAssurance requestedLoa;
     private final List<String> availableIdentityProviders;
 
     public IdpSelectedState(
@@ -29,12 +29,13 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             String matchingServiceEntityId,
             List<LevelOfAssurance> levelsOfAssurance,
             Boolean useExactComparisonType,
-            Optional<Boolean> forceAuthentication,
+            Boolean forceAuthentication,
             URI assertionConsumerServiceUri,
             String requestIssuerId,
-            Optional<String> relayState,
+            String relayState,
             DateTime sessionExpiryTimestamp,
             boolean registering,
+            LevelOfAssurance requestedLoa,
             SessionId sessionId,
             List<String> availableIdentityProviders,
             boolean transactionSupportsEidas) {
@@ -48,6 +49,7 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         this.forceAuthentication = forceAuthentication;
         this.relayState = relayState;
         this.registering = registering;
+        this.requestedLoa = requestedLoa;
         this.availableIdentityProviders = availableIdentityProviders;
     }
 
@@ -56,20 +58,23 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     }
 
     public Optional<Boolean> getForceAuthentication() {
-        return forceAuthentication;
+        return Optional.fromNullable(forceAuthentication);
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.fromNullable(relayState);
     }
 
-    @Override
     public List<String> getAvailableIdentityProviderEntityIds() {
         return availableIdentityProviders;
     }
 
-    public boolean registering() {
+    public boolean isRegistering() {
         return registering;
+    }
+
+    public LevelOfAssurance getRequestedLoa() {
+        return requestedLoa;
     }
 
     public String getMatchingServiceEntityId() {
@@ -83,5 +88,4 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     public List<LevelOfAssurance> getLevelsOfAssurance() {
         return levelsOfAssurance;
     }
-
 }

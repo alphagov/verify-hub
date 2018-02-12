@@ -20,7 +20,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -141,13 +141,13 @@ public class AwaitingCycle3DataStateControllerTest {
         AwaitingCycle3DataState state = anAwaitingCycle3DataState().withSessionId(sessionId).build();
         AwaitingCycle3DataStateController controller = new AwaitingCycle3DataStateController(state, eventSinkHubEventLogger, stateTransitionAction, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionsFactory, matchingServiceConfigProxy);
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));
-        ArgumentCaptor<Cycle3MatchRequestSentStateTransitional> argumentCaptor = ArgumentCaptor.forClass(Cycle3MatchRequestSentStateTransitional.class);
+        ArgumentCaptor<Cycle3MatchRequestSentState> argumentCaptor = ArgumentCaptor.forClass(Cycle3MatchRequestSentState.class);
         when(matchingServiceConfigProxy.getMatchingService(state.getMatchingServiceEntityId())).thenReturn(aMatchingServiceConfigEntityDataDto().build());
 
         controller.handleCycle3DataSubmitted("principalIpAsSeenByHub");
 
         verify(stateTransitionAction, times(1)).transitionTo(argumentCaptor.capture());
-        final Cycle3MatchRequestSentStateTransitional cycle3MatchRequestSentState = argumentCaptor.getValue();
+        final Cycle3MatchRequestSentState cycle3MatchRequestSentState = argumentCaptor.getValue();
         assertThat(cycle3MatchRequestSentState.getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
     }
 }

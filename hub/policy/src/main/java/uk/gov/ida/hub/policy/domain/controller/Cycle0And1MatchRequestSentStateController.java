@@ -14,6 +14,7 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -86,7 +87,23 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 state.getSessionExpiryTimestamp());
 
         return getNoMatchState();
+    }
 
+    @Override
+    protected SuccessfulMatchState createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId) {
+        return new SuccessfulMatchState(
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp(),
+                state.getIdentityProviderEntityId(),
+                matchingServiceAssertion,
+                state.getRelayState().orNull(),
+                requestIssuerId,
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getIdpLevelOfAssurance(),
+                state.isRegistering(),
+                state.getTransactionSupportsEidas()
+        );
     }
 
     @Override
@@ -107,12 +124,13 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 state.getRequestIssuerEntityId(),
                 state.getEncryptedMatchingDatasetAssertion(),
                 state.getAuthnStatementAssertion(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getAssertionConsumerServiceUri(),
                 state.getMatchingServiceAdapterEntityId(),
                 state.getSessionId(),
                 state.getPersistentId(),
                 state.getIdpLevelOfAssurance(),
+                state.isRegistering(),
                 state.getTransactionSupportsEidas());
     }
 

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
@@ -15,31 +14,33 @@ public class Cycle0And1MatchRequestSentState extends MatchRequestSentState {
     private final PersistentId persistentId;
 
     public Cycle0And1MatchRequestSentState(
-        final String requestId,
-        final String requestIssuerEntityId,
-        final DateTime sessionExpiryTimestamp,
-        final URI assertionConsumerServiceUri,
-        final SessionId sessionId,
-        final boolean transactionSupportsEidas,
-        final String identityProviderEntityId,
-        final Optional<String> relayState,
-        final LevelOfAssurance idpLevelOfAssurance,
-        final String matchingServiceAdapterEntityId,
-        final String encryptedMatchingDatasetAssertion,
-        final String authnStatementAssertion,
-        final PersistentId persistentId) {
+            final String requestId,
+            final String requestIssuerEntityId,
+            final DateTime sessionExpiryTimestamp,
+            final URI assertionConsumerServiceUri,
+            final SessionId sessionId,
+            final boolean transactionSupportsEidas,
+            final boolean registering,
+            final String identityProviderEntityId,
+            final String relayState,
+            final LevelOfAssurance idpLevelOfAssurance,
+            final String matchingServiceAdapterEntityId,
+            final String encryptedMatchingDatasetAssertion,
+            final String authnStatementAssertion,
+            final PersistentId persistentId) {
 
         super(
-            requestId,
-            requestIssuerEntityId,
-            sessionExpiryTimestamp,
-            assertionConsumerServiceUri,
-            sessionId,
-            transactionSupportsEidas,
-            identityProviderEntityId,
-            relayState,
-            idpLevelOfAssurance,
-            matchingServiceAdapterEntityId
+                requestId,
+                requestIssuerEntityId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                identityProviderEntityId,
+                relayState,
+                idpLevelOfAssurance,
+                registering,
+                matchingServiceAdapterEntityId
         );
 
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;

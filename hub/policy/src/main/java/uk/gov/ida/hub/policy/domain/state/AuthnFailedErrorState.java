@@ -6,48 +6,39 @@ import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.List;
 
-public class AuthnFailedErrorState extends AbstractState implements ResponsePreparedState, IdpSelectingState {
+public class AuthnFailedErrorState extends AbstractState implements IdpSelectingState, ResponsePreparedState {
 
-    private Optional<String> relayState;
+    private String relayState;
     private String idpEntityId;
-    private List<String> availableIdpEntityIds;
-    private Optional<Boolean> forceAuthentication;
+    private Boolean forceAuthentication;
 
     public AuthnFailedErrorState(
             String requestId,
             String authnRequestIssuerEntityId,
             DateTime sessionExpiryTimestamp,
             URI assertionConsumerServiceUri,
-            Optional<String> relayState,
+            String relayState,
             SessionId sessionId,
             String idpEntityId,
-            List<String> availableIdpEntityIds,
-            Optional<Boolean> forceAuthentication,
+            Boolean forceAuthentication,
             boolean transactionSupportsEidas) {
 
         super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
 
         this.relayState = relayState;
         this.idpEntityId = idpEntityId;
-        this.availableIdpEntityIds = availableIdpEntityIds;
         this.forceAuthentication = forceAuthentication;
     }
 
     @Override
     public Optional<Boolean> getForceAuthentication() {
-        return forceAuthentication;
+        return Optional.fromNullable(forceAuthentication);
     }
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
-    }
-
-    @Override
-    public List<String> getAvailableIdentityProviderEntityIds() {
-        return availableIdpEntityIds;
+        return Optional.fromNullable(relayState);
     }
 
     public String getIdpEntityId() {

@@ -30,7 +30,6 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
-import uk.gov.ida.hub.policy.domain.state.TransitionalStateConverter;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
@@ -65,7 +64,7 @@ public class SessionRepository {
     public SessionId createSession(SessionStartedState startedState) {
         SessionId sessionId = startedState.getSessionId();
 
-        dataStore.put(sessionId, TransitionalStateConverter.convertToTransitional(startedState));
+        dataStore.put(sessionId, startedState);
         sessionStartedMap.put(sessionId, startedState.getSessionExpiryTimestamp());
         LOG.info(format("Session {0} created", sessionId.getSessionId()));
 
@@ -85,7 +84,7 @@ public class SessionRepository {
         handleTimeout(sessionId, currentState, currentStateClass, expectedStateClass);
 
         if (isAKindOf(expectedStateClass, currentStateClass) || currentStateClass.equals(TimeoutState.class)) {
-            return controllerFactory.build(currentState, state -> dataStore.replace(sessionId, TransitionalStateConverter.convertToTransitional(state)));
+            return controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
         }
 
         throw new InvalidSessionStateException(sessionId, expectedStateClass, currentState.getClass());
@@ -159,14 +158,6 @@ public class SessionRepository {
             return true;
         }
 
-        if (currentStateClass.equals(Cycle0And1MatchRequestSentStateTransitional.class) && expectedStateClass.equals(Cycle0And1MatchRequestSentState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(Cycle3MatchRequestSentStateTransitional.class) && expectedStateClass.equals(Cycle3MatchRequestSentState.class)) {
-            return true;
-        }
-
         if (currentStateClass.equals(SuccessfulMatchStateTransitional.class) && expectedStateClass.equals(SuccessfulMatchState.class)) {
             return true;
         }
@@ -175,7 +166,27 @@ public class SessionRepository {
             return true;
         }
 
+        if (currentStateClass.equals(Cycle0And1MatchRequestSentStateTransitional.class) && expectedStateClass.equals(Cycle0And1MatchRequestSentState.class)) {
+            return true;
+        }
+
+        if (currentStateClass.equals(Cycle0And1MatchRequestSentState.class) && expectedStateClass.equals(Cycle0And1MatchRequestSentStateTransitional.class)) {
+            return true;
+        }
+
+        if (currentStateClass.equals(Cycle3MatchRequestSentStateTransitional.class) && expectedStateClass.equals(Cycle3MatchRequestSentState.class)) {
+            return true;
+        }
+
+        if (currentStateClass.equals(Cycle3MatchRequestSentState.class) && expectedStateClass.equals(Cycle3MatchRequestSentStateTransitional.class)) {
+            return true;
+        }
+
         if (currentStateClass.equals(UserAccountCreationRequestSentStateTransitional.class) && expectedStateClass.equals(UserAccountCreationRequestSentState.class)) {
+            return true;
+        }
+
+        if (currentStateClass.equals(UserAccountCreationRequestSentState.class) && expectedStateClass.equals(UserAccountCreationRequestSentStateTransitional.class)) {
             return true;
         }
 

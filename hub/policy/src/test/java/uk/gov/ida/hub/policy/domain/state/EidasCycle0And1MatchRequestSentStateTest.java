@@ -51,6 +51,6 @@ public class EidasCycle0And1MatchRequestSentStateTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(EidasCycle0And1MatchRequestSentState.class).verify();
+        EqualsVerifier.forClass(EidasCycle0And1MatchRequestSentState.class).withRedefinedSuperclass().verify();
     }
 }

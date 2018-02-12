@@ -11,7 +11,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -74,7 +74,7 @@ public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3Dat
             principalIpAddressAsSeenByHub
         );
 
-        Cycle3MatchRequestSentStateTransitional cycle3MatchRequestSentState = new Cycle3MatchRequestSentStateTransitional(
+        Cycle3MatchRequestSentState cycle3MatchRequestSentState = new Cycle3MatchRequestSentState(
             getState().getRequestId(),
             getState().getRequestIssuerEntityId(),
             getState().getSessionExpiryTimestamp(),
@@ -82,16 +82,15 @@ public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3Dat
             getState().getSessionId(),
             getState().getTransactionSupportsEidas(),
             getState().getIdentityProviderEntityId(),
-            getState().getRelayState(),
+            getState().getRelayState().orNull(),
             getState().getLevelOfAssurance(),
-                // TT-1613: This will have a value passed properly in the next release
-            false,
+            getState().isRegistering(),
             getState().getMatchingServiceEntityId(),
             getState().getEncryptedMatchingDatasetAssertion(),
             getState().getAuthnStatementAssertion(),
-            getState().getPersistentId(),
-            DateTime.now()
+            getState().getPersistentId()
         );
+
         getStateTransitionAction().transitionTo(cycle3MatchRequestSentState);
     }
 }

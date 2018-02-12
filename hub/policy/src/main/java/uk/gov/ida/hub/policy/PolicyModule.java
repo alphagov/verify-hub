@@ -20,7 +20,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateFactory;
 import uk.gov.ida.hub.policy.facade.EventSinkMessageSenderFacade;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
@@ -75,8 +74,6 @@ public class PolicyModule extends AbstractModule {
         bind(AuthnRequestFromTransactionHandler.class);
         bind(SessionRepository.class);
         bind(StateControllerFactory.class);
-        bind(SessionStartedStateFactory.class);
-        bind(SessionStartedStateFactory.class);
         bind(SamlEngineProxy.class);
         bind(TransactionsConfigProxy.class);
         bind(IdentityProvidersConfigProxy.class);

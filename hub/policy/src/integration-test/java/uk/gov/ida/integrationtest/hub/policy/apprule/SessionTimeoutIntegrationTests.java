@@ -17,6 +17,7 @@ import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.IdpSelected;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -32,7 +33,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.util.Collections;
 
 import static java.text.MessageFormat.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,9 +42,10 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
 public class SessionTimeoutIntegrationTests {
     private static final int SOME_TIMEOUT = 10;
     private static final DateTime SOME_TIME = new DateTime(2013, 5, 30, 12, 0);
-    public static final String THE_TX_ID = "the-tx-id";
+    private static final String THE_TX_ID = "the-tx-id";
     private static Client client;
     private static final boolean REGISTERING = true;
+    private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
 
     @ClassRule
     public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
@@ -76,7 +77,6 @@ public class SessionTimeoutIntegrationTests {
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
         samlEngineStub.setupStubForAuthnRequestTranslate(samlResponse);
-        configStub.setupStubForEnabledIdps(Collections.singletonList("Idp"));
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         eventSinkStub.setupStubForLogging();
         configStub.setUpStubForAssertionConsumerServiceUri(samlResponse.getIssuer());
@@ -84,12 +84,12 @@ public class SessionTimeoutIntegrationTests {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }
 
     @Test
-    public void selectIdpShouldReturnErrorWhenSessionHasTimedOut() throws Exception {
+    public void selectIdpShouldReturnErrorWhenSessionHasTimedOut() {
         DateTimeFreezer.freezeTime(SOME_TIME);
         SessionId sessionId = client
                 .target(policy.uri(Urls.PolicyUrls.NEW_SESSION_RESOURCE)).request()
@@ -100,12 +100,12 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING),
+        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA),
                 SESSION_TIMEOUT);
     }
 
     @Test
-    public void selectIdpShouldReturnErrorWhenSessionDoesNotExistInPolicy() throws Exception {
+    public void selectIdpShouldReturnErrorWhenSessionDoesNotExistInPolicy() {
 
         SessionId sessionId = SessionId.createNewSessionId();
 
@@ -113,7 +113,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING), ExceptionType
+        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA), ExceptionType
                 .SESSION_NOT_FOUND);
     }
 

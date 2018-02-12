@@ -38,7 +38,7 @@ public class Cycle0And1MatchRequestSentStateBuilder {
                 transactionSupportsEidas,
                 registering,
                 "idp-entity-id",
-                Optional.<String>absent(),
+                Optional.absent(),
                 LevelOfAssurance.LEVEL_1,
                 matchingServiceEntityId,
                 encryptedMatchingDatasetAssertion,

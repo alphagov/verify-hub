@@ -35,7 +35,7 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -151,7 +151,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.fromNullable(userAccountCreationAttributes));
         assertThat(actualAttributeQueryRequestDto.getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
 
-        assertThat(nextState).isInstanceOf(UserAccountCreationRequestSentStateTransitional.class);
+        assertThat(nextState).isInstanceOf(UserAccountCreationRequestSentState.class);
     }
 
     @Test

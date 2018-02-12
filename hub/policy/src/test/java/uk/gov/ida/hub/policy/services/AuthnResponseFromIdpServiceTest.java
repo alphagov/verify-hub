@@ -64,6 +64,7 @@ public class AuthnResponseFromIdpServiceTest {
     private SamlAuthnResponseContainerDto samlAuthnResponseContainerDto;
     private SessionId sessionId;
     private static final String PRINCIPAL_IP_ADDRESS = "1.1.1.1";
+    private static final boolean REGISTERING = true;
 
     @Before
     public void setup() {
@@ -76,10 +77,9 @@ public class AuthnResponseFromIdpServiceTest {
     @Test
     public void shouldSendRequestToMatchingServiceViaAttributeQueryServiceAndUpdateSessionStateWhenSuccessfulResponseIsReceived() {
         // Given
-        boolean isRegistration = true;
         final String msaEntityId = "a-msa-entity-id";
         LevelOfAssurance loaAchieved = LevelOfAssurance.LEVEL_2;
-        stub(idpSelectedStateController.isRegistrationContext()).toReturn(isRegistration);
+        stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         when(idpSelectedStateController.getMatchingServiceEntityId()).thenReturn(msaEntityId);
         InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), loaAchieved);
         SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
@@ -97,15 +97,14 @@ public class AuthnResponseFromIdpServiceTest {
         verify(samlAuthnResponseTranslatorDtoFactory).fromSamlAuthnResponseContainerDto(samlAuthnResponseContainerDto, msaEntityId);
         verify(attributeQueryService).sendAttributeQueryRequest(sessionId, attributeQueryRequestDto);
         verifyIdpStateControllerIsCalledWithRightDataOnSuccess(successResponseFromIdp);
-        ResponseAction expectedResponseAction = ResponseAction.success(sessionId, isRegistration, loaAchieved);
+        ResponseAction expectedResponseAction = ResponseAction.success(sessionId, REGISTERING, loaAchieved);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
     }
 
     @Test
     public void shouldOnlyUpdateSessionStateWhenAFraudSuccessfulResponseIsReceived() {
         // Given
-        boolean isRegistration = true;
-        stub(idpSelectedStateController.isRegistrationContext()).toReturn(isRegistration);
+        stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         InboundResponseFromIdpDto fraudResponseFromIdp = InboundResponseFromIdpDtoBuilder.fraudResponse(UUID.randomUUID().toString());
         stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(fraudResponseFromIdp);
 
@@ -114,7 +113,7 @@ public class AuthnResponseFromIdpServiceTest {
 
         // Then
         verify(samlEngineProxy).translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class));
-        ResponseAction expectedResponseAction = ResponseAction.other(sessionId, isRegistration);
+        ResponseAction expectedResponseAction = ResponseAction.other(sessionId, REGISTERING);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
 
         verifyIdpStateControllerIsCalledWithRightDataOnFraud(fraudResponseFromIdp);
@@ -123,8 +122,7 @@ public class AuthnResponseFromIdpServiceTest {
     @Test
     public void shouldOnlyUpdateSessionStateWhenANonFraudRequesterErrorResponseIsReceived() {
         // Given
-        boolean isRegistration = true;
-        stub(idpSelectedStateController.isRegistrationContext()).toReturn(isRegistration);
+        stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         InboundResponseFromIdpDto requesterErrorResponse = InboundResponseFromIdpDtoBuilder.errorResponse(UUID.randomUUID().toString(), IdpIdaStatus.Status.RequesterError);
         stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(requesterErrorResponse);
 
@@ -134,7 +132,7 @@ public class AuthnResponseFromIdpServiceTest {
         // Then
         verify(samlEngineProxy).translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class));
         verify(idpSelectedStateController).handleRequesterErrorResponseFromIdp(any(RequesterErrorResponse.class));
-        ResponseAction expectedResponseAction = ResponseAction.other(sessionId, isRegistration);
+        ResponseAction expectedResponseAction = ResponseAction.other(sessionId, REGISTERING);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
 
         verifyIdpStateControllerIsCalledWithRightDataOnNonFraudRequesterError(requesterErrorResponse);
@@ -151,7 +149,7 @@ public class AuthnResponseFromIdpServiceTest {
         ResponseAction responseAction = service.receiveAuthnResponseFromIdp(sessionId, samlAuthnResponseContainerDto);
 
         // Then
-        verify(idpSelectedStateController).handlePausedRegistrationResponseFromIdp(entityId, PRINCIPAL_IP_ADDRESS);
+        verify(idpSelectedStateController).handlePausedRegistrationResponseFromIdp(entityId, PRINCIPAL_IP_ADDRESS, authnPendingResponse.getLevelOfAssurance().toJavaUtil());
         ResponseAction expectedResponseAction = ResponseAction.pending(sessionId);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
     }
@@ -159,8 +157,7 @@ public class AuthnResponseFromIdpServiceTest {
     @Test
     public void shouldOnlyUpdateSessionStateWhenANonFraudAuthenticationFailedResponseIsReceived() {
         // Given
-        boolean isRegistration = true;
-        stub(idpSelectedStateController.isRegistrationContext()).toReturn(isRegistration);
+        stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         InboundResponseFromIdpDto authenticationFailedResponse = InboundResponseFromIdpDtoBuilder.errorResponse(UUID.randomUUID().toString(), IdpIdaStatus.Status.AuthenticationFailed);
         stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(authenticationFailedResponse);
 
@@ -171,7 +168,7 @@ public class AuthnResponseFromIdpServiceTest {
         verify(samlEngineProxy).translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class));
 
         verifyNoMoreInteractions(samlEngineProxy);
-        ResponseAction expectedResponseAction = ResponseAction.other(sessionId, isRegistration);
+        ResponseAction expectedResponseAction = ResponseAction.other(sessionId, REGISTERING);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
 
         verifyIdpStateControllerIsCalledWithRightDataOnNonFraudAuthenticationFailed(authenticationFailedResponse);
@@ -180,7 +177,7 @@ public class AuthnResponseFromIdpServiceTest {
     @Test
     public void mapAuthnContextResponseFromIdpAsOther() {
         // Given
-        boolean isRegistration = true;
+        final boolean isRegistration = true;
         stub(idpSelectedStateController.isRegistrationContext()).toReturn(isRegistration);
         InboundResponseFromIdpDto noAuthenticationContextResponse = InboundResponseFromIdpDtoBuilder.errorResponse(UUID.randomUUID().toString(), IdpIdaStatus.Status.NoAuthenticationContext);
         stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(noAuthenticationContextResponse);
@@ -201,7 +198,7 @@ public class AuthnResponseFromIdpServiceTest {
     @Test
     public void mapAuthnCancelResponseFromIDP() {
         // Given
-        boolean isRegistration = true;
+        final boolean isRegistration = true;
         stub(idpSelectedStateController.isRegistrationContext()).toReturn(isRegistration);
         InboundResponseFromIdpDto noAuthenticationContextResponse = InboundResponseFromIdpDtoBuilder.errorResponse(UUID.randomUUID().toString(), IdpIdaStatus.Status.AuthenticationCancelled);
         stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(noAuthenticationContextResponse);
@@ -224,8 +221,7 @@ public class AuthnResponseFromIdpServiceTest {
     @Test
     public void mapFailedUpliftResponseFromIDP() {
         // Given
-        boolean isRegistration = true;
-        stub(idpSelectedStateController.isRegistrationContext()).toReturn(isRegistration);
+        stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         InboundResponseFromIdpDto noAuthenticationContextResponse = InboundResponseFromIdpDtoBuilder.errorResponse(UUID.randomUUID().toString(), IdpIdaStatus.Status.UpliftFailed);
         stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(noAuthenticationContextResponse);
 
@@ -237,7 +233,7 @@ public class AuthnResponseFromIdpServiceTest {
 
         verifyNoMoreInteractions(samlEngineProxy);
         verify(idpSelectedStateController).handleNoAuthenticationContextResponseFromIdp(any(AuthenticationErrorResponse.class));
-        ResponseAction expectedResponseAction = ResponseAction.failedUplift(sessionId, isRegistration);
+        ResponseAction expectedResponseAction = ResponseAction.failedUplift(sessionId, REGISTERING);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
         verifyIdpStateControllerIsCalledWithRightDataOnNonFraudNoAuthenticationContext(noAuthenticationContextResponse);
     }

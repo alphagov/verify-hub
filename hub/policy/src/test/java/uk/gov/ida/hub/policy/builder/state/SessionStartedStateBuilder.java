@@ -7,14 +7,10 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SessionStartedStateBuilder {
 
     private String requestId = "requestId";
     private String requestIssuerId = "requestIssuerId";
-    private List<String> availableIdpEntityIds = new ArrayList<>();
     private DateTime sessionExpiryTimestamp = DateTime.now().plusDays(5);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private boolean transactionSupportsEidas = false;
@@ -23,27 +19,26 @@ public class SessionStartedStateBuilder {
         return new SessionStartedStateBuilder();
     }
 
+    @Deprecated
     public SessionStartedStateTransitional buildTransitional() {
         return new SessionStartedStateTransitional(
                 requestId,
                 Optional.absent(),
                 requestIssuerId,
                 null,
-                null,
+                Optional.absent(),
                 sessionExpiryTimestamp,
                 sessionId,
                 transactionSupportsEidas);
     }
 
-    @Deprecated
     public SessionStartedState build() {
         return new SessionStartedState(
                 requestId,
-                Optional.absent(),
+                null,
                 requestIssuerId,
                 null,
                 null,
-                availableIdpEntityIds,
                 sessionExpiryTimestamp,
                 sessionId,
                 transactionSupportsEidas);
@@ -51,11 +46,6 @@ public class SessionStartedStateBuilder {
 
     public SessionStartedStateBuilder withRequestId(String requestId) {
         this.requestId = requestId;
-        return this;
-    }
-
-    public SessionStartedStateBuilder withAvailableIdpEntityIds(List<String> availableIdpEntityIds) {
-        this.availableIdpEntityIds = availableIdpEntityIds;
         return this;
     }
 

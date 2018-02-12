@@ -7,11 +7,8 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import static com.google.common.base.Optional.absent;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
 public class AuthnFailedErrorStateBuilder {
@@ -20,37 +17,30 @@ public class AuthnFailedErrorStateBuilder {
     private String requestId = UUID.randomUUID().toString();
     private String requestIssuerId = "requestIssuerId";
     private URI assertionConsumerServiceIndex = URI.create("/default-service-index");
-    private Optional<String> relayState = absent();
+    private String relayState = null;
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private String idpEntityId = "IDP Entity ID";
-    private List<String> availableIdpEntityIds = new ArrayList<>();
-    private Optional<Boolean> forceAuthentication = Optional.of(true);
+    private Boolean forceAuthentication = true;
 
     public static AuthnFailedErrorStateBuilder anAuthnFailedErrorState() {
         return new AuthnFailedErrorStateBuilder();
     }
 
     @Deprecated
-    public AuthnFailedErrorStateBuilder withAvailableIdpEntityIds(List<String> availableIdpEntityIds) {
-        this.availableIdpEntityIds = availableIdpEntityIds;
-        return this;
-    }
-
     public AuthnFailedErrorStateTransitional buildTransitional() {
         return new AuthnFailedErrorStateTransitional(
                 requestId,
                 requestIssuerId,
                 sessionExpiryTimestamp,
                 assertionConsumerServiceIndex,
-                relayState,
+                Optional.fromNullable(relayState),
                 sessionId,
                 idpEntityId,
-                forceAuthentication,
+                Optional.fromNullable(forceAuthentication),
                 transactionSupportsEidas);
     }
 
-    @Deprecated
     public AuthnFailedErrorState build() {
         return new AuthnFailedErrorState(
                 requestId,
@@ -60,7 +50,6 @@ public class AuthnFailedErrorStateBuilder {
                 relayState,
                 sessionId,
                 idpEntityId,
-                availableIdpEntityIds,
                 forceAuthentication,
                 transactionSupportsEidas);
     }
