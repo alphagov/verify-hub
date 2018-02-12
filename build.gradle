@@ -20,7 +20,7 @@ ext {
 }
 
 def dependencyVersions = [
-            ida_utils:'323',
+            ida_utils:'330',
             dropwizard:'1.1.4',
             dropwizard_infinispan:'1.1.4-41',
             pact:'3.5.6',
