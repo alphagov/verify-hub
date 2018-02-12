@@ -1,14 +1,11 @@
 package uk.gov.ida.hub.config.domain;
 
-
-import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
-
 public class EncryptionCertificate extends Certificate {
 
     public EncryptionCertificate() {
     }
 
-    public EncryptionCertificate(DeserializablePublicKeyConfiguration publicKeyConfiguration) {
+    public EncryptionCertificate(X509Certificate publicKeyConfiguration) {
         this.fullCert = publicKeyConfiguration.getCert();
     }
 
