@@ -1,13 +1,11 @@
 package uk.gov.ida.hub.config.domain.builders;
 
-import uk.gov.ida.common.shared.configuration.X509CertificateConfiguration;
-import uk.gov.ida.hub.config.domain.EncryptionCertificate;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
-import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.ida.hub.config.domain.*;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,6 +69,7 @@ public class MatchingServiceConfigEntityDataBuilder {
         return this;
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class TestMatchingServiceConfigEntityData extends MatchingServiceConfigEntityData {
         private TestMatchingServiceConfigEntityData(
             String entityId,
@@ -82,9 +81,9 @@ public class MatchingServiceConfigEntityDataBuilder {
             boolean onboarding) {
 
             this.entityId = entityId;
-            this.encryptionCertificate = new X509CertificateConfiguration(encryptionCertificate.getX509());
+            this.encryptionCertificate = new TestX509CertificateConfiguration(encryptionCertificate.getX509());
             this.signatureVerificationCertificates = signatureVerificationCertificates.stream()
-                .map(cert -> new X509CertificateConfiguration(cert.getX509()))
+                .map(cert -> new TestX509CertificateConfiguration(cert.getX509()))
                 .collect(Collectors.toList());
             this.uri = uri;
             this.userAccountCreationUri = userAccountCreationUri;

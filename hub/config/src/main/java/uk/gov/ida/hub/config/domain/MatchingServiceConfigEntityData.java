@@ -3,7 +3,6 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.validation.ValidationMethod;
-import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
 import uk.gov.ida.hub.config.CertificateEntity;
 import uk.gov.ida.hub.config.ConfigEntityData;
 
@@ -29,12 +28,12 @@ public class MatchingServiceConfigEntityData implements ConfigEntityData, Certif
     @Valid
     @NotNull
     @JsonProperty
-    protected DeserializablePublicKeyConfiguration encryptionCertificate;
+    protected X509CertificateConfiguration encryptionCertificate;
 
     @Valid
     @NotNull
     @JsonProperty
-    protected List<DeserializablePublicKeyConfiguration> signatureVerificationCertificates;
+    protected List<X509CertificateConfiguration> signatureVerificationCertificates;
 
     @Valid
     @NotNull
