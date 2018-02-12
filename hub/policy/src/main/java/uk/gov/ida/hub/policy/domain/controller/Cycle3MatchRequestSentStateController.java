@@ -12,7 +12,7 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -22,14 +22,14 @@ import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import java.util.List;
 
-public class Cycle3MatchRequestSentStateController extends MatchRequestSentStateController<Cycle3MatchRequestSentStateTransitional> {
+public class Cycle3MatchRequestSentStateController extends MatchRequestSentStateController<Cycle3MatchRequestSentState> {
 
     private final TransactionsConfigProxy transactionsConfigProxy;
     private final MatchingServiceConfigProxy matchingServiceConfigProxy;
     private final AssertionRestrictionsFactory assertionRestrictionFactory;
 
     public Cycle3MatchRequestSentStateController(
-            final Cycle3MatchRequestSentStateTransitional state,
+            final Cycle3MatchRequestSentState state,
             final EventSinkHubEventLogger eventSinkHubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final PolicyConfiguration policyConfiguration,

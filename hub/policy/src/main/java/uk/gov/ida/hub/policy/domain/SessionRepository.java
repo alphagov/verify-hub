@@ -8,32 +8,13 @@ import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
-import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
-import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectingStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
-import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedStateTransitional;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.exception.SessionTimeoutException;
 
@@ -99,9 +80,7 @@ public class SessionRepository {
     public Optional<LevelOfAssurance> getLevelOfAssuranceFromIdp(SessionId sessionId){
 
         State currentState = getCurrentState(sessionId);
-        if(currentState instanceof Cycle0And1MatchRequestSentStateTransitional){ // initial match request - no response received
-            return Optional.of(((Cycle0And1MatchRequestSentStateTransitional) currentState).getIdpLevelOfAssurance());
-        }
+
         if(currentState instanceof Cycle0And1MatchRequestSentState){ // initial match request - no response received
             return Optional.of(((Cycle0And1MatchRequestSentState) currentState).getIdpLevelOfAssurance());
         }
@@ -114,6 +93,7 @@ public class SessionRepository {
         if(currentState instanceof UserAccountCreatedState){ // when no cycle3 and user account creation
             return Optional.of(((UserAccountCreatedState) currentState).getLevelOfAssurance());
         }
+
         return Optional.absent();
     }
 
@@ -121,76 +101,7 @@ public class SessionRepository {
             final Class<T> expectedStateClass,
             final Class<? extends State> currentStateClass) {
 
-        return currentStateClass.equals(expectedStateClass) || expectedStateClass.isAssignableFrom(currentStateClass)
-                || isATransitionalKindOf(expectedStateClass, currentStateClass);
-    }
-
-    @Deprecated
-    private <T extends State> boolean isATransitionalKindOf(
-            final Class<T> expectedStateClass,
-            final Class<? extends State> currentStateClass) {
-
-        if (expectedStateClass.equals(IdpSelectingState.class)) {
-            return IdpSelectingStateTransitional.class.isAssignableFrom(currentStateClass);
-        }
-
-        if (currentStateClass.equals(IdpSelectedStateTransitional.class) && expectedStateClass.equals(IdpSelectedState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(SessionStartedStateTransitional.class) && expectedStateClass.equals(SessionStartedState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(AuthnFailedErrorStateTransitional.class) && expectedStateClass.equals(AuthnFailedErrorState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(FraudEventDetectedStateTransitional.class) && expectedStateClass.equals(FraudEventDetectedState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(RequesterErrorStateTransitional.class) && expectedStateClass.equals(RequesterErrorState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(AwaitingCycle3DataStateTransitional.class) && expectedStateClass.equals(AwaitingCycle3DataState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(SuccessfulMatchStateTransitional.class) && expectedStateClass.equals(SuccessfulMatchState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(UserAccountCreatedStateTransitional.class) && expectedStateClass.equals(UserAccountCreatedState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(Cycle0And1MatchRequestSentStateTransitional.class) && expectedStateClass.equals(Cycle0And1MatchRequestSentState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(Cycle0And1MatchRequestSentState.class) && expectedStateClass.equals(Cycle0And1MatchRequestSentStateTransitional.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(Cycle3MatchRequestSentStateTransitional.class) && expectedStateClass.equals(Cycle3MatchRequestSentState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(Cycle3MatchRequestSentState.class) && expectedStateClass.equals(Cycle3MatchRequestSentStateTransitional.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(UserAccountCreationRequestSentStateTransitional.class) && expectedStateClass.equals(UserAccountCreationRequestSentState.class)) {
-            return true;
-        }
-
-        if (currentStateClass.equals(UserAccountCreationRequestSentState.class) && expectedStateClass.equals(UserAccountCreationRequestSentStateTransitional.class)) {
-            return true;
-        }
-
-        return false;
+        return currentStateClass.equals(expectedStateClass) || expectedStateClass.isAssignableFrom(currentStateClass);
     }
 
     public boolean getTransactionSupportsEidas(SessionId sessionId) {

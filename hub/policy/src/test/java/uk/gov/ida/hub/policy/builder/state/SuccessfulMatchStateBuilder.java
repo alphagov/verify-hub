@@ -1,12 +1,10 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchStateTransitional;
 
 import java.net.URI;
 
@@ -26,22 +24,6 @@ public class SuccessfulMatchStateBuilder {
 
     public static SuccessfulMatchStateBuilder aSuccessfulMatchState() {
         return new SuccessfulMatchStateBuilder();
-    }
-
-    @Deprecated
-    public SuccessfulMatchStateTransitional buildTransitional() {
-        return new SuccessfulMatchStateTransitional(
-                requestId,
-                sessionExpiryTimestamp,
-                identityProviderEntityId,
-                matchingServiceAssertion,
-                Optional.fromNullable(relayState),
-                requestIssuerId,
-                assertionConsumerServiceUri,
-                getSessionId,
-                levelOfAssurance,
-                isRegistering,
-                transactionSupportsEidas);
     }
 
     public SuccessfulMatchState build() {

@@ -10,7 +10,7 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
@@ -29,7 +29,7 @@ public class UserAccountCreationRequestSentStateControllerTest {
 
     @Test
     public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
-        UserAccountCreationRequestSentStateTransitional state = aUserAccountCreationRequestSentState().build();
+        UserAccountCreationRequestSentState state = aUserAccountCreationRequestSentState().build();
         UserAccountCreationRequestSentStateController controller =
                 new UserAccountCreationRequestSentStateController(state, null, null, null, null, null, null);
 
@@ -46,8 +46,8 @@ public class UserAccountCreationRequestSentStateControllerTest {
     @Test
     public void getNextState_shouldMaintainRelayState() {
         final String relayState = "4x100m";
-        UserAccountCreationRequestSentStateTransitional state = aUserAccountCreationRequestSentState()
-                .withRelayState(Optional.fromNullable(relayState))
+        UserAccountCreationRequestSentState state = aUserAccountCreationRequestSentState()
+                .withRelayState(relayState)
                 .build();
         UserAccountCreationRequestSentStateController controller =
                 new UserAccountCreationRequestSentStateController(state, null, eventSinkHubEventLogger, null, levelOfAssuranceValidator, null, null);

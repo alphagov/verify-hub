@@ -1,10 +1,8 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
-import uk.gov.ida.hub.policy.domain.state.RequesterErrorStateTransitional;
 
 import java.net.URI;
 
@@ -21,19 +19,6 @@ public class RequesterErrorStateBuilder {
 
     public static RequesterErrorStateBuilder aRequesterErrorState() {
         return new RequesterErrorStateBuilder();
-    }
-
-    @Deprecated
-    public RequesterErrorStateTransitional buildTransitional() {
-        return new RequesterErrorStateTransitional(
-                requestId,
-                authnRequestIssuerEntityId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceUri,
-                Optional.fromNullable(relayState),
-                sessionId,
-                Optional.fromNullable(forceAuthentication),
-                transactionSupportsEidas);
     }
 
     public RequesterErrorState build() {

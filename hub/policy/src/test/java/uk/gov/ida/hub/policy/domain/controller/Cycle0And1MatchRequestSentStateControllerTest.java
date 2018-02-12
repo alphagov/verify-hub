@@ -27,7 +27,7 @@ import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
@@ -89,7 +89,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     private MatchingProcess matchingProcess;
 
     public Cycle0And1MatchRequestSentStateController controller;
-    private Cycle0And1MatchRequestSentStateTransitional state;
+    private Cycle0And1MatchRequestSentState state;
 
     @Captor
     private ArgumentCaptor<AttributeQueryRequestDto> attributeQueryRequestCaptor = null;

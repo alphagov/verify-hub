@@ -1,11 +1,10 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 
 import java.net.URI;
 
@@ -28,8 +27,8 @@ public class Cycle0And1MatchRequestSentStateBuilder {
         return new Cycle0And1MatchRequestSentStateBuilder();
     }
 
-    public Cycle0And1MatchRequestSentStateTransitional build() {
-        return new Cycle0And1MatchRequestSentStateTransitional(
+    public Cycle0And1MatchRequestSentState build() {
+        return new Cycle0And1MatchRequestSentState(
                 requestId,
                 requestIssuerId,
                 sessionExpiryTimestamp,
@@ -38,13 +37,12 @@ public class Cycle0And1MatchRequestSentStateBuilder {
                 transactionSupportsEidas,
                 registering,
                 "idp-entity-id",
-                Optional.absent(),
+                null,
                 LevelOfAssurance.LEVEL_1,
                 matchingServiceEntityId,
                 encryptedMatchingDatasetAssertion,
                 "aPassthroughAssertion().buildAuthnStatementAssertion()",
-                persistentId,
-                DateTime.now()
+                persistentId
         );
     }
 

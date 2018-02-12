@@ -9,19 +9,19 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 
-public class UserAccountCreationRequestSentStateController extends MatchRequestSentStateController<UserAccountCreationRequestSentStateTransitional> {
-    protected final UserAccountCreationRequestSentStateTransitional state;
+public class UserAccountCreationRequestSentStateController extends MatchRequestSentStateController<UserAccountCreationRequestSentState> {
+    protected final UserAccountCreationRequestSentState state;
     protected final EventSinkHubEventLogger eventSinkHubEventLogger;
     private final LevelOfAssuranceValidator validator;
 
     public UserAccountCreationRequestSentStateController(
-            final UserAccountCreationRequestSentStateTransitional state,
+            final UserAccountCreationRequestSentState state,
             final StateTransitionAction stateTransitionAction,
             final EventSinkHubEventLogger eventSinkHubEventLogger,
             final PolicyConfiguration policyConfiguration,
