@@ -77,7 +77,9 @@ public class HubEventLogger {
     private final EventEmitter eventEmitter;
 
     @Inject
-    public HubEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy, EventEmitter eventEmitter) {
+    public HubEventLogger(ServiceInfoConfiguration serviceInfo,
+                          EventSinkProxy eventSinkProxy,
+                          EventEmitter eventEmitter) {
         this.serviceInfo = serviceInfo;
         this.eventSinkProxy = eventSinkProxy;
         this.eventEmitter = eventEmitter;
@@ -262,14 +264,7 @@ public class HubEventLogger {
         final Map<EventDetailsKey, String> details = ImmutableMap.of(
             message, errorMessage,
             error_id, errorId.toString());
-        final EventSinkHubEvent eventSinkHubEvent = new EventSinkHubEvent(
-            serviceInfo,
-            sessionId,
-            EventSinkHubEventConstants.EventTypes.ERROR_EVENT,
-            details);
-
-        eventSinkProxy.logHubEvent(eventSinkHubEvent);
-        eventEmitter.record(eventSinkHubEvent);
+        logErrorEvent(details, sessionId);
     }
 
     public void logErrorEvent(final UUID errorId, final String entityId, final SessionId sessionId) {

@@ -99,7 +99,7 @@ subprojects {
 
         rest_utils "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.rest_utils"
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-7"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-10"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils"

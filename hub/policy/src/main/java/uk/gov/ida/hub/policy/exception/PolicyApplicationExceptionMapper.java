@@ -58,7 +58,11 @@ public class PolicyApplicationExceptionMapper extends PolicyExceptionMapper<Appl
         boolean isAudited = exception.isAudited();
 
         if (!isAudited && exception.requiresAuditing()) {
-            eventLogger.logErrorEvent(exception.getErrorId(), getSessionId().or(NO_SESSION_CONTEXT_IN_ERROR), exception.getMessage(), exception.getUri().or(URI.create("uri-not-present")).toASCIIString());
+            eventLogger.logErrorEvent(
+                exception.getErrorId(),
+                getSessionId().or(NO_SESSION_CONTEXT_IN_ERROR),
+                exception.getMessage(),
+                exception.getUri().or(URI.create("uri-not-present")).toASCIIString());
             isAudited = true;
         }
 

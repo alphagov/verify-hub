@@ -89,6 +89,10 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @JsonProperty
     public Boolean eidas = false;
 
+    @Valid
+    @JsonProperty
+    public boolean sendToRecordingSystem = false;
+
     public URI getSamlSoapProxyUri() { return samlSoapProxyUri;  }
 
     public org.joda.time.Duration getSessionLength() {
@@ -148,5 +152,9 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
 
     public boolean isEidasEnabled() {
         return eidas;
+    }
+
+    public boolean getSendToRecordingSystem() {
+        return sendToRecordingSystem;
     }
 }
