@@ -68,7 +68,7 @@ public class SuccessfulMatchStateTest {
         sb.append("isRegistering=").append(state.isRegistering());
         sb.append(",identityProviderEntityId=").append(state.getIdentityProviderEntityId());
         sb.append(",matchingServiceAssertion=").append(state.getMatchingServiceAssertion());
-        sb.append(",relayState=").append(state.getRelayState().orNull());
+        sb.append(",relayState=").append(state.getRelayState());
         sb.append(",levelOfAssurance=").append(state.getLevelOfAssurance());
         sb.append(",requestId=").append(state.getRequestId());
         sb.append(",requestIssuerEntityId=").append(state.getRequestIssuerEntityId());
