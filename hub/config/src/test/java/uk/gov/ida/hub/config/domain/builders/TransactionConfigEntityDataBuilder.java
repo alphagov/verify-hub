@@ -8,7 +8,6 @@ import uk.gov.ida.hub.config.domain.MatchingProcess;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
-import uk.gov.ida.hub.config.domain.X509Certificate;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -160,7 +159,7 @@ public class TransactionConfigEntityDataBuilder {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
             this.simpleId = simpleId;
-            this.encryptionCertificate = new X509Certificate("test");
+            this.encryptionCertificate = new X509CertificateConfiguration(null, "test", null);
             this.signatureVerificationCertificates = Collections.emptyList();
             this.matchingServiceEntityId = matchingServiceEntityId;
             this.assertionConsumerServices = assertionConsumerServices;
