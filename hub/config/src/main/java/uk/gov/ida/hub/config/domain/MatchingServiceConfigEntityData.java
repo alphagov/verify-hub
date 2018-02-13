@@ -29,12 +29,12 @@ public class MatchingServiceConfigEntityData implements ConfigEntityData, Certif
     @Valid
     @NotNull
     @JsonProperty
-    protected X509Certificate encryptionCertificate;
+    protected DeserializablePublicKeyConfiguration encryptionCertificate;
 
     @Valid
     @NotNull
     @JsonProperty
-    protected List<X509Certificate> signatureVerificationCertificates;
+    protected List<DeserializablePublicKeyConfiguration> signatureVerificationCertificates;
 
     @Valid
     @NotNull
