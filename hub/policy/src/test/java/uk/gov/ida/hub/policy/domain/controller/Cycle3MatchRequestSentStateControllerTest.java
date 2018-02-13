@@ -16,6 +16,7 @@ import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
@@ -37,7 +38,6 @@ import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitiona
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;

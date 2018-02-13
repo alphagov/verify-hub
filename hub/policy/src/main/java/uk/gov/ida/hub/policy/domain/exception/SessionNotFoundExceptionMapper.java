@@ -7,10 +7,10 @@ import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.exception.PolicyExceptionMapper;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;

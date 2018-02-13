@@ -8,10 +8,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;

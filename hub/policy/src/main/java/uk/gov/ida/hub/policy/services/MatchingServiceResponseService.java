@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
@@ -18,7 +19,6 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.controller.WaitingForMatchingServiceResponseStateController;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.WaitingForMatchingServiceResponseState;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
 import java.util.Map;
