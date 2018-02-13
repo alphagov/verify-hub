@@ -6,6 +6,7 @@ import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
+import uk.gov.ida.hub.samlproxy.SamlProxyConfiguration;
 import uk.gov.ida.shared.utils.IpAddressResolver;
 
 import javax.inject.Inject;
@@ -29,6 +30,7 @@ public class ExternalCommunicationEventLogger {
     private final EventSinkProxy eventSinkProxy;
     private final EventEmitter eventEmitter;
     private final IpAddressResolver ipAddressResolver;
+    private final boolean sendToRecordingSystem;
 
     private enum IncludeIpAddressState {
         WITH_RESOLVED_IP_ADDRESS,
@@ -39,11 +41,13 @@ public class ExternalCommunicationEventLogger {
     public ExternalCommunicationEventLogger(ServiceInfoConfiguration serviceInfo,
                                             EventSinkProxy eventSinkProxy,
                                             EventEmitter eventEmitter,
-                                            IpAddressResolver ipAddressResolver) {
+                                            IpAddressResolver ipAddressResolver,
+                                            SamlProxyConfiguration configuration) {
         this.serviceInfo = serviceInfo;
         this.eventSinkProxy = eventSinkProxy;
         this.eventEmitter = eventEmitter;
         this.ipAddressResolver = ipAddressResolver;
+        this.sendToRecordingSystem = configuration.getSendToRecordingSystem();
     }
 
     public void logMatchingServiceRequest(String messageId, SessionId sessionId, URI targetUrl) {
@@ -88,6 +92,8 @@ public class ExternalCommunicationEventLogger {
             details
         );
         eventSinkProxy.logHubEvent(hubEvent);
-        eventEmitter.record(hubEvent);
+        if (sendToRecordingSystem) {
+            eventEmitter.record(hubEvent);
+        }
     }
 }

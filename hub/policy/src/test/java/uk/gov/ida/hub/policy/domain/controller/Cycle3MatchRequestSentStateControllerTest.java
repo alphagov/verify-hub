@@ -87,6 +87,9 @@ public class Cycle3MatchRequestSentStateControllerTest {
     @Mock
     private EventEmitter eventEmitter;
 
+    @Mock
+    private PolicyConfiguration configuration;
+
     private HubEventLogger hubEventLogger;
 
     private final ServiceInfoConfiguration serviceInfo = ServiceInfoConfigurationBuilder.aServiceInfo().build();
@@ -98,7 +101,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
 
     @Before
     public void setUp() {
-        hubEventLogger = new HubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
+        hubEventLogger = new HubEventLogger(serviceInfo, eventSinkProxy, eventEmitter, configuration);
     }
 
     @Test

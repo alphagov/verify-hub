@@ -16,6 +16,7 @@ import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkProxy;
+import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
@@ -34,6 +35,8 @@ import java.util.UUID;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static uk.gov.ida.eventsink.EventDetailsKey.downstream_uri;
 import static uk.gov.ida.eventsink.EventDetailsKey.error_id;
 import static uk.gov.ida.eventsink.EventDetailsKey.gpg45_status;
@@ -96,12 +99,18 @@ public class HubEventLoggerTest {
     @Mock
     private EventEmitter eventEmitter;
 
-    private HubEventLogger eventLogger;
+    @Mock
+    private PolicyConfiguration configuration;
+
+    private HubEventLogger eventLoggerWithoutRecordingSystem;
+    private HubEventLogger eventLoggerWithRecordingSystem;
 
     @Before
     public void setUp() {
         DateTimeFreezer.freezeTime();
-        eventLogger = new HubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter);
+        eventLoggerWithoutRecordingSystem = new HubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter, configuration);
+        when(configuration.getSendToRecordingSystem()).thenReturn(true);
+        eventLoggerWithRecordingSystem = new HubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter, configuration);
     }
 
     @After
@@ -116,7 +125,7 @@ public class HubEventLoggerTest {
                 .withIssuer(TRANSACTION_ENTITY_ID)
                 .build();
 
-        eventLogger.logSessionStartedEvent(samlResponse, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, SESSION_EXPIRY_TIMESTAMP, SESSION_ID, MINIMUM_LEVEL_OF_ASSURANCE, REQUIRED_LEVEL_OF_ASSURANCE);
+        eventLoggerWithRecordingSystem.logSessionStartedEvent(samlResponse, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, SESSION_EXPIRY_TIMESTAMP, SESSION_ID, MINIMUM_LEVEL_OF_ASSURANCE, REQUIRED_LEVEL_OF_ASSURANCE);
 
         final Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
@@ -132,8 +141,30 @@ public class HubEventLoggerTest {
     }
 
     @Test
+    public void logSessionOpenEvent_shouldSendEventToEventSinkOnly() {
+        final SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto()
+                .withId(REQUEST_ID)
+                .withIssuer(TRANSACTION_ENTITY_ID)
+                .build();
+
+        eventLoggerWithoutRecordingSystem.logSessionStartedEvent(samlResponse, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, SESSION_EXPIRY_TIMESTAMP, SESSION_ID, MINIMUM_LEVEL_OF_ASSURANCE, REQUIRED_LEVEL_OF_ASSURANCE);
+
+        final Map<EventDetailsKey, String> details = new HashMap<>();
+        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        details.put(message_id, samlResponse.getId());
+        details.put(minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name());
+        details.put(required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name());
+        details.put(session_event_type, SESSION_STARTED);
+
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verifyNoMoreInteractions(eventEmitter);
+    }
+
+    @Test
     public void logEventSinkHubEvent_shouldSendEvent() {
-        eventLogger.logRequestFromHub(SESSION_ID, TRANSACTION_ENTITY_ID);
+        eventLoggerWithRecordingSystem.logRequestFromHub(SESSION_ID, TRANSACTION_ENTITY_ID);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(hub_event_type, RECEIVED_AUTHN_REQUEST_FROM_HUB);
@@ -146,8 +177,22 @@ public class HubEventLoggerTest {
     }
 
     @Test
+    public void logEventSinkHubEvent_shouldSendEventToEventSinkOnly() {
+        eventLoggerWithoutRecordingSystem.logRequestFromHub(SESSION_ID, TRANSACTION_ENTITY_ID);
+
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(hub_event_type, RECEIVED_AUTHN_REQUEST_FROM_HUB);
+        details.put(transaction_entity_id, TRANSACTION_ENTITY_ID);
+
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(SERVICE_INFO, SESSION_ID, HUB_EVENT, details);
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verifyNoMoreInteractions(eventEmitter);
+    }
+
+    @Test
     public void logIdpAuthnSucceededEvent_shouldContainLevelsOfAssuranceInDetailsFieldForBilling() {
-        eventLogger.logIdpAuthnSucceededEvent(
+        eventLoggerWithRecordingSystem.logIdpAuthnSucceededEvent(
             SESSION_ID,
             SESSION_EXPIRY_TIMESTAMP,
             IDP_ENTITY_ID,
@@ -185,7 +230,7 @@ public class HubEventLoggerTest {
             .withFraudIndicator(fraudIndicator)
             .build();
 
-        eventLogger.logIdpFraudEvent(
+        eventLoggerWithRecordingSystem.logIdpFraudEvent(
             SESSION_ID,
             IDP_ENTITY_ID,
             TRANSACTION_ENTITY_ID,
@@ -214,7 +259,7 @@ public class HubEventLoggerTest {
 
     @Test
     public void logSessionTimeoutEvent_shouldSendEvent() {
-        eventLogger.logSessionTimeoutEvent(SESSION_ID, SESSION_EXPIRY_TIMESTAMP, TRANSACTION_ENTITY_ID, REQUEST_ID);
+        eventLoggerWithRecordingSystem.logSessionTimeoutEvent(SESSION_ID, SESSION_EXPIRY_TIMESTAMP, TRANSACTION_ENTITY_ID, REQUEST_ID);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(session_event_type, SESSION_TIMEOUT);
@@ -223,6 +268,19 @@ public class HubEventLoggerTest {
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
+    }
+
+    @Test
+    public void logSessionTimeoutEvent_shouldSendEventToEventSinkOnly() {
+        eventLoggerWithoutRecordingSystem.logSessionTimeoutEvent(SESSION_ID, SESSION_EXPIRY_TIMESTAMP, TRANSACTION_ENTITY_ID, REQUEST_ID);
+
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(session_event_type, SESSION_TIMEOUT);
+
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verifyNoMoreInteractions(eventEmitter);
     }
 
     @Test
@@ -236,7 +294,7 @@ public class HubEventLoggerTest {
             .withSessionId(SESSION_ID)
             .build();
 
-        eventLogger.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        eventLoggerWithRecordingSystem.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(session_event_type, IDP_SELECTED);
@@ -255,7 +313,7 @@ public class HubEventLoggerTest {
     public void logIdpRequesterErrorEvent_shouldLogEvent() {
         final String errorMessage = "some error message";
 
-        eventLogger.logIdpRequesterErrorEvent(
+        eventLoggerWithRecordingSystem.logIdpRequesterErrorEvent(
             SESSION_ID,
             TRANSACTION_ENTITY_ID,
             SESSION_EXPIRY_TIMESTAMP,
@@ -276,8 +334,7 @@ public class HubEventLoggerTest {
 
     @Test
     public void logIdpAuthnFailedEvent_shouldLogEvent() {
-
-        eventLogger.logIdpAuthnFailedEvent(
+        eventLoggerWithRecordingSystem.logIdpAuthnFailedEvent(
             SESSION_ID,
             TRANSACTION_ENTITY_ID,
             SESSION_EXPIRY_TIMESTAMP,
@@ -297,7 +354,7 @@ public class HubEventLoggerTest {
 
     @Test
     public void logIdpAuthnPendingEvent_shouldLogEvent() {
-        eventLogger.logPausedRegistrationEvent(SESSION_ID, TRANSACTION_ENTITY_ID, SESSION_EXPIRY_TIMESTAMP, REQUEST_ID, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        eventLoggerWithRecordingSystem.logPausedRegistrationEvent(SESSION_ID, TRANSACTION_ENTITY_ID, SESSION_EXPIRY_TIMESTAMP, REQUEST_ID, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
@@ -311,7 +368,7 @@ public class HubEventLoggerTest {
 
     @Test
     public void logIdpNoAuthnContext_shouldLogEvent() {
-        eventLogger.logNoAuthnContextEvent(
+        eventLoggerWithRecordingSystem.logNoAuthnContextEvent(
             SESSION_ID,
             TRANSACTION_ENTITY_ID,
             SESSION_EXPIRY_TIMESTAMP,
@@ -331,7 +388,7 @@ public class HubEventLoggerTest {
 
     @Test
     public void logCycle3DataObtained_shouldLogEvent() {
-        eventLogger.logCycle3DataObtained(SESSION_ID, TRANSACTION_ENTITY_ID, SESSION_EXPIRY_TIMESTAMP, REQUEST_ID, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
+        eventLoggerWithRecordingSystem.logCycle3DataObtained(SESSION_ID, TRANSACTION_ENTITY_ID, SESSION_EXPIRY_TIMESTAMP, REQUEST_ID, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
@@ -345,7 +402,7 @@ public class HubEventLoggerTest {
 
     @Test
     public void logMatchingServiceUserAccountCreationRequestSentEvent_shouldLogEvent() {
-        eventLogger.logMatchingServiceUserAccountCreationRequestSentEvent(
+        eventLoggerWithRecordingSystem.logMatchingServiceUserAccountCreationRequestSentEvent(
             SESSION_ID,
             TRANSACTION_ENTITY_ID,
             SESSION_EXPIRY_TIMESTAMP,
@@ -363,7 +420,7 @@ public class HubEventLoggerTest {
 
     @Test
     public void shouldLogErrorEvent() {
-        eventLogger.logErrorEvent(ERROR_ID, SESSION_ID, ERROR_MESSAGE);
+        eventLoggerWithRecordingSystem.logErrorEvent(ERROR_ID, SESSION_ID, ERROR_MESSAGE);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(message, ERROR_MESSAGE);
@@ -380,12 +437,11 @@ public class HubEventLoggerTest {
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
-
     @Test
     public void shouldLogErrorEventContainingIDPEntityId() {
         final String idpEntityId = "IDP entity id";
 
-        eventLogger.logErrorEvent(ERROR_ID, idpEntityId, SESSION_ID);
+        eventLoggerWithRecordingSystem.logErrorEvent(ERROR_ID, idpEntityId, SESSION_ID);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(idp_entity_id, idpEntityId);
@@ -403,10 +459,31 @@ public class HubEventLoggerTest {
     }
 
     @Test
+    public void shouldLogErrorEventContainingIDPEntityIdToEventSinkOnly() {
+        final String idpEntityId = "IDP entity id";
+
+        eventLoggerWithoutRecordingSystem.logErrorEvent(ERROR_ID, idpEntityId, SESSION_ID);
+
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(idp_entity_id, idpEntityId);
+        details.put(error_id, ERROR_ID.toString());
+
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            ERROR_EVENT,
+            details
+        );
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verifyNoMoreInteractions(eventEmitter);
+    }
+
+    @Test
     public void shouldLogErrorEventContainingDownstreamUri() {
         final String downstreamUri = "uri";
 
-        eventLogger.logErrorEvent(ERROR_ID, SESSION_ID, ERROR_MESSAGE, downstreamUri);
+        eventLoggerWithRecordingSystem.logErrorEvent(ERROR_ID, SESSION_ID, ERROR_MESSAGE, downstreamUri);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(downstream_uri, downstreamUri);
@@ -426,7 +503,7 @@ public class HubEventLoggerTest {
 
     @Test
     public void shouldLogErrorEventContainingAnErrorMessage() {
-        eventLogger.logErrorEvent(ERROR_MESSAGE, SESSION_ID);
+        eventLoggerWithRecordingSystem.logErrorEvent(ERROR_MESSAGE, SESSION_ID);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(message, ERROR_MESSAGE);

@@ -92,6 +92,10 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
+    @Valid
+    @JsonProperty
+    public boolean sendToRecordingSystem = false;
+
     public SamlConfiguration getSamlConfiguration() {
         return saml;
     }
@@ -155,4 +159,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Override
     public boolean getEnableRetryTimeOutConnections() { return enableRetryTimeOutConnections; }
 
+    public boolean getSendToRecordingSystem() {
+        return sendToRecordingSystem;
+    }
 }

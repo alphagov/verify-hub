@@ -58,13 +58,15 @@ public class AwaitingCycle3DataStateControllerTest {
     private MatchingServiceConfigProxy matchingServiceConfigProxy;
     @Mock
     private EventEmitter eventEmitter;
+    @Mock
+    private PolicyConfiguration configuration;
 
     private ServiceInfoConfiguration serviceInfo = new ServiceInfoConfiguration("service-name");
     private HubEventLogger hubEventLogger;
 
     @Before
     public void setUp() {
-        hubEventLogger = new HubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
+        hubEventLogger = new HubEventLogger(serviceInfo, eventSinkProxy, eventEmitter, configuration);
     }
 
     @Test
