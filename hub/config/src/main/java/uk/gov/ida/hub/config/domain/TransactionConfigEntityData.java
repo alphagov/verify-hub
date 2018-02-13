@@ -44,7 +44,7 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     @Valid
     @NotNull
     @JsonProperty
-    protected DeserializablePublicKeyConfiguration encryptionCertificate;
+    protected X509Certificate encryptionCertificate;
 
     @Valid
     @NotNull
@@ -89,7 +89,7 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     @Valid
     @NotNull
     @JsonProperty
-    protected List<DeserializablePublicKeyConfiguration> signatureVerificationCertificates;
+    protected List<X509Certificate> signatureVerificationCertificates;
 
     @Valid
     @JsonProperty
