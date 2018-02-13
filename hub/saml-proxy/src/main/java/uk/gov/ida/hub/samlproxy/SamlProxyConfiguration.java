@@ -95,6 +95,10 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @JsonProperty
     protected CountryConfiguration country;
 
+    @Valid
+    @JsonProperty
+    public boolean sendToRecordingSystem = false;
+
     public SamlConfiguration getSamlConfiguration() {
         return saml;
     }
@@ -152,5 +156,9 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
 
     public Optional<CountryConfiguration> getCountryConfiguration() {
         return country != null ? Optional.of(country) : Optional.empty();
+    }
+
+    public boolean getSendToRecordingSystem() {
+        return sendToRecordingSystem;
     }
 }

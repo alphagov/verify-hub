@@ -10,6 +10,7 @@ import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.eventsink.EventSinkProxy;
+import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
 import uk.gov.ida.hub.policy.domain.FraudDetectedDetails;
@@ -75,12 +76,17 @@ public class HubEventLogger {
     private final EventSinkProxy eventSinkProxy;
     private final ServiceInfoConfiguration serviceInfo;
     private final EventEmitter eventEmitter;
+    private final boolean sendToRecordingSystem;
 
     @Inject
-    public HubEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy, EventEmitter eventEmitter) {
+    public HubEventLogger(ServiceInfoConfiguration serviceInfo,
+                          EventSinkProxy eventSinkProxy,
+                          EventEmitter eventEmitter,
+                          PolicyConfiguration configuration) {
         this.serviceInfo = serviceInfo;
         this.eventSinkProxy = eventSinkProxy;
         this.eventEmitter = eventEmitter;
+        this.sendToRecordingSystem = configuration.getSendToRecordingSystem();
     }
 
     public void logSessionStartedEvent(SamlResponseWithAuthnRequestInformationDto samlResponse, String ipAddress, DateTime sessionExpiryTimestamp, SessionId sessionId, LevelOfAssurance minimum, LevelOfAssurance required) {
@@ -199,7 +205,10 @@ public class HubEventLogger {
                 details);
 
         eventSinkProxy.logHubEvent(eventSinkHubEvent);
-        eventEmitter.record(eventSinkHubEvent);
+
+        if (sendToRecordingSystem) {
+            eventEmitter.record(eventSinkHubEvent);
+        }
     }
 
     public void logSessionTimeoutEvent(SessionId sessionId, DateTime sessionExpiryTimestamp, String transactionEntityId, String requestId) {
@@ -216,7 +225,10 @@ public class HubEventLogger {
                 details);
 
         eventSinkProxy.logHubEvent(eventSinkHubEvent);
-        eventEmitter.record(eventSinkHubEvent);
+
+        if (sendToRecordingSystem) {
+            eventEmitter.record(eventSinkHubEvent);
+        }
     }
 
     public void logMatchingServiceUserAccountCreationRequestSentEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId) {
@@ -248,7 +260,10 @@ public class HubEventLogger {
                 details);
 
         eventSinkProxy.logHubEvent(sessionHubEvent);
-        eventEmitter.record(sessionHubEvent);
+
+        if (sendToRecordingSystem) {
+            eventEmitter.record(sessionHubEvent);
+        }
     }
 
     public void logCountrySelectedEvent(CountrySelectedState countrySelectedState) {
@@ -262,14 +277,7 @@ public class HubEventLogger {
         final Map<EventDetailsKey, String> details = ImmutableMap.of(
             message, errorMessage,
             error_id, errorId.toString());
-        final EventSinkHubEvent eventSinkHubEvent = new EventSinkHubEvent(
-            serviceInfo,
-            sessionId,
-            EventSinkHubEventConstants.EventTypes.ERROR_EVENT,
-            details);
-
-        eventSinkProxy.logHubEvent(eventSinkHubEvent);
-        eventEmitter.record(eventSinkHubEvent);
+        logErrorEvent(details, sessionId);
     }
 
     public void logErrorEvent(final UUID errorId, final String entityId, final SessionId sessionId) {
@@ -301,6 +309,9 @@ public class HubEventLogger {
             details
         );
         eventSinkProxy.logHubEvent(eventSinkHubEvent);
-        eventEmitter.record(eventSinkHubEvent);
+
+        if (sendToRecordingSystem) {
+            eventEmitter.record(eventSinkHubEvent);
+        }
     }
 }

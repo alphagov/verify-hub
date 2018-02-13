@@ -14,6 +14,7 @@ import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
+import uk.gov.ida.hub.samlproxy.SamlProxyConfiguration;
 import uk.gov.ida.shared.utils.IpAddressResolver;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
@@ -23,6 +24,7 @@ import java.util.Objects;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.common.ServiceInfoConfigurationBuilder.aServiceInfo;
 import static uk.gov.ida.eventsink.EventDetailsKey.external_communication_type;
@@ -54,14 +56,21 @@ public class ExternalCommunicationEventLoggerTest {
     @Mock
     private EventEmitter eventEmitter;
 
-    private ExternalCommunicationEventLogger externalCommunicationEventLogger;
+    @Mock
+    private SamlProxyConfiguration configuration;
+
+    private ExternalCommunicationEventLogger externalCommunicationEventLoggerWithoutRecordingSystem;
+    private ExternalCommunicationEventLogger externalCommunicationEventLoggerWithRecordingSystem;
 
     @Before
     public void setUp() throws Exception {
         DateTimeFreezer.freezeTime();
 
         when(ipAddressResolver.lookupIpAddress(ENDPOINT_URL)).thenReturn(ENDPOINT_IP_ADDRESS);
-        externalCommunicationEventLogger = new ExternalCommunicationEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter, ipAddressResolver);
+        externalCommunicationEventLoggerWithoutRecordingSystem = new ExternalCommunicationEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter, ipAddressResolver, configuration);
+
+        when(configuration.getSendToRecordingSystem()).thenReturn(true);
+        externalCommunicationEventLoggerWithRecordingSystem = new ExternalCommunicationEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter, ipAddressResolver, configuration);
 
     }
 
@@ -71,8 +80,8 @@ public class ExternalCommunicationEventLoggerTest {
     }
 
     @Test
-    public void logMatchingServiceRequest_shouldPassHubEventToEventSinkProxy() {
-        externalCommunicationEventLogger.logMatchingServiceRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL);
+    public void logMatchingServiceRequest_shouldPassHubEventToEventSinkAndRecordingSystem() {
+        externalCommunicationEventLoggerWithRecordingSystem.logMatchingServiceRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(external_communication_type, MATCHING_SERVICE_REQUEST);
@@ -92,8 +101,29 @@ public class ExternalCommunicationEventLoggerTest {
     }
 
     @Test
-    public void logAuthenticationRequest_shouldPassHubEventToEventSinkProxy() {
-        externalCommunicationEventLogger.logIdpAuthnRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
+    public void logMatchingServiceRequest_shouldPassHubEventToEventSinkOnly() {
+        externalCommunicationEventLoggerWithoutRecordingSystem.logMatchingServiceRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL);
+
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(external_communication_type, MATCHING_SERVICE_REQUEST);
+        details.put(message_id, MESSAGE_ID);
+        details.put(external_endpoint, ENDPOINT_URL.toString());
+        details.put(external_ip_address, ENDPOINT_IP_ADDRESS);
+
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            EXTERNAL_COMMUNICATION_EVENT,
+            details
+        );
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verifyNoMoreInteractions(eventEmitter);
+    }
+
+    @Test
+    public void logAuthenticationRequest_shouldPassHubEventToEventSinkAndRecordingSystem() {
+        externalCommunicationEventLoggerWithRecordingSystem.logIdpAuthnRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(external_communication_type, AUTHN_REQUEST);
@@ -113,8 +143,8 @@ public class ExternalCommunicationEventLoggerTest {
     }
 
     @Test
-    public void logResponseFromHub_shouldPassHubEventToEventSinkProxy() {
-        externalCommunicationEventLogger.logResponseFromHub(MESSAGE_ID, SESSION_ID, ENDPOINT_URL, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
+    public void logResponseFromHub_shouldPassHubEventToEventSinkAndRecordingSystem() {
+        externalCommunicationEventLoggerWithRecordingSystem.logResponseFromHub(MESSAGE_ID, SESSION_ID, ENDPOINT_URL, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
 
         final Map<EventDetailsKey, String> details = Maps.newHashMap();
         details.put(external_communication_type, RESPONSE_FROM_HUB);
