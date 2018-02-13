@@ -21,6 +21,7 @@ ext {
 
 def dependencyVersions = [
             ida_utils:'323',
+            rest_utils:'330',
             dropwizard:'1.1.4',
             dropwizard_infinispan:'1.1.4-41',
             pact:'3.5.6',
@@ -93,7 +94,7 @@ subprojects {
 
         config 'commons-io:commons-io:2.1'
 
-        rest_utils "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.ida_utils"
+        rest_utils "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.rest_utils"
 
         verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-7"
 
@@ -152,7 +153,7 @@ task(outputDependencies) doLast {
     println "saml_extensions="+dependencyVersions.saml_extensions
     println "saml_metadata="+dependencyVersions.saml_metadata
     println "saml_serializers="+dependencyVersions.saml_serializers
-    println "rest_utils="+dependencyVersions.ida_utils
+    println "rest_utils="+dependencyVersions.rest_utils
     println "ida_utils="+dependencyVersions.ida_utils
     println "dropwizard_infinispan="+dependencyVersions.dropwizard_infinispan
 }

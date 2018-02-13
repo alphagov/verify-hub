@@ -4,9 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
+import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.facade.EventSinkMessageSenderFacade;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.shared.utils.logging.LogFormatter;
 
 import javax.inject.Inject;
@@ -16,13 +17,13 @@ import java.util.UUID;
 public class InvalidSessionStateExceptionMapper extends PolicyExceptionMapper<InvalidSessionStateException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InvalidSessionStateExceptionMapper.class);
-    private final EventSinkMessageSenderFacade eventSinkMessageSenderFacade;
+    private final HubEventLogger eventLogger;
 
 
     @Inject
-    public InvalidSessionStateExceptionMapper(EventSinkMessageSenderFacade eventSinkMessageSenderFacade) {
+    public InvalidSessionStateExceptionMapper(HubEventLogger eventLogger) {
         super();
-        this.eventSinkMessageSenderFacade = eventSinkMessageSenderFacade;
+        this.eventLogger = eventLogger;
     }
 
     @Override
@@ -30,7 +31,7 @@ public class InvalidSessionStateExceptionMapper extends PolicyExceptionMapper<In
         UUID errorId = UUID.randomUUID();
         LOG.warn(LogFormatter.formatLog(errorId, exception.getMessage()), exception);
 
-        eventSinkMessageSenderFacade.audit(exception, errorId, getSessionId().get());
+        eventLogger.logErrorEvent(errorId, getSessionId().or(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
 
         ExceptionType type = getExceptionType(exception);
 

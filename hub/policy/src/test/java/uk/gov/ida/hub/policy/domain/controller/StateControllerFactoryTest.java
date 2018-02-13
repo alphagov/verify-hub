@@ -17,14 +17,13 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 
 import java.net.URI;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -69,7 +68,7 @@ public class StateControllerFactoryTest {
         stateControllerFactory = new StateControllerFactory(injector);
         when(injector.getInstance(AssertionRestrictionsFactory.class)).thenReturn(null);
         when(injector.getInstance(AttributeQueryService.class)).thenReturn(null);
-        when(injector.getInstance(EventSinkHubEventLogger.class)).thenReturn(null);
+        when(injector.getInstance(HubEventLogger.class)).thenReturn(null);
         when(injector.getInstance(IdentityProvidersConfigProxy.class)).thenReturn(null);
         when(injector.getInstance(MatchingServiceConfigProxy.class)).thenReturn(null);
         when(injector.getInstance(PolicyConfiguration.class)).thenReturn(null);

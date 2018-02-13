@@ -2,6 +2,7 @@ package uk.gov.ida.hub.samlsoapproxy.logging;
 
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -26,6 +27,7 @@ public class ExternalCommunicationEventLogger {
 
     private final ServiceInfoConfiguration serviceInfo;
     private final EventSinkProxy eventSinkProxy;
+    private final EventEmitter eventEmitter;
     private final IpAddressResolver ipAddressResolver;
 
     private enum IncludeIpAddressState {
@@ -34,9 +36,13 @@ public class ExternalCommunicationEventLogger {
     }
 
     @Inject
-    public ExternalCommunicationEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy, IpAddressResolver ipAddressResolver) {
+    public ExternalCommunicationEventLogger(ServiceInfoConfiguration serviceInfo,
+                                            EventSinkProxy eventSinkProxy,
+                                            EventEmitter eventEmitter,
+                                            IpAddressResolver ipAddressResolver) {
         this.serviceInfo = serviceInfo;
         this.eventSinkProxy = eventSinkProxy;
+        this.eventEmitter = eventEmitter;
         this.ipAddressResolver = ipAddressResolver;
     }
 
@@ -75,10 +81,12 @@ public class ExternalCommunicationEventLogger {
             details.put(external_ip_address, ipAddressResolver.lookupIpAddress(targetUrl));
         }
 
-        eventSinkProxy.logHubEvent(new EventSinkHubEvent(
-                serviceInfo,
-                sessionId,
-                EXTERNAL_COMMUNICATION_EVENT,
-                details));
+        final EventSinkHubEvent hubEvent = new EventSinkHubEvent(
+            serviceInfo,
+            sessionId,
+            EXTERNAL_COMMUNICATION_EVENT,
+            details);
+        eventSinkProxy.logHubEvent(hubEvent);
+        eventEmitter.record(hubEvent);
     }
 }

@@ -19,7 +19,7 @@ import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -42,7 +42,7 @@ public class AuthnRequestFromTransactionHandlerTest {
     @Mock
     private SessionRepository sessionRepository;
     @Mock
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
     @Mock
     private PolicyConfiguration policyConfiguration;
     @Mock
@@ -52,7 +52,7 @@ public class AuthnRequestFromTransactionHandlerTest {
 
     @Before
     public void setUp() {
-        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, eventSinkHubEventLogger, policyConfiguration, transactionsConfigProxy);
+        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, hubEventLogger, policyConfiguration, transactionsConfigProxy);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class AuthnRequestFromTransactionHandlerTest {
 
         authnRequestFromTransactionHandler.handleRequestFromTransaction(samlResponseWithAuthnRequestInformationDto, relayState, ipAddress, assertionConsumerServiceUri, false);
 
-        verify(eventSinkHubEventLogger, times(1)).logSessionStartedEvent(Matchers.<SamlResponseWithAuthnRequestInformationDto>any(), anyString(), Matchers.<DateTime>any(), Matchers.<SessionId>any(), Matchers.<LevelOfAssurance>any(), Matchers.<LevelOfAssurance>any());
+        verify(hubEventLogger, times(1)).logSessionStartedEvent(Matchers.<SamlResponseWithAuthnRequestInformationDto>any(), anyString(), Matchers.<DateTime>any(), Matchers.<SessionId>any(), Matchers.<LevelOfAssurance>any(), Matchers.<LevelOfAssurance>any());
 
     }
 

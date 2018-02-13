@@ -18,20 +18,18 @@ import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
 
 import javax.ws.rs.core.UriBuilder;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static com.google.common.base.Throwables.propagate;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Arrays.asList;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
-import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.CountriesConfigEntityDataBuilder.aCountriesConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
 
 public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
 

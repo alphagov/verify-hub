@@ -10,7 +10,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -19,7 +19,7 @@ import java.util.Collections;
 public class SessionStartedStateController implements IdpSelectingStateController, CountrySelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
     private final SessionStartedState state;
-    private final EventSinkHubEventLogger eventSinkHubEventLogger;
+    private final HubEventLogger hubEventLogger;
     private final StateTransitionAction stateTransitionAction;
     private final TransactionsConfigProxy transactionsConfigProxy;
     private final ResponseFromHubFactory responseFromHubFactory;
@@ -27,14 +27,14 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
 
     public SessionStartedStateController(
             final SessionStartedState state,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final TransactionsConfigProxy transactionsConfigProxy,
             final ResponseFromHubFactory responseFromHubFactory,
             final IdentityProvidersConfigProxy identityProvidersConfigProxy) {
 
         this.state = state;
-        this.eventSinkHubEventLogger = eventSinkHubEventLogger;
+        this.hubEventLogger = hubEventLogger;
         this.stateTransitionAction = stateTransitionAction;
         this.transactionsConfigProxy = transactionsConfigProxy;
         this.responseFromHubFactory = responseFromHubFactory;
@@ -57,7 +57,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
     public void handleIdpSelected(final String idpEntityId, final String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
-        eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
+        hubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }
 
     @Override
@@ -95,6 +95,6 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
                 Collections.singletonList(LevelOfAssurance.LEVEL_2) // TODO: EID-154 will plug in a real LOA
         );
         stateTransitionAction.transitionTo(countrySelectedState);
-        eventSinkHubEventLogger.logCountrySelectedEvent(countrySelectedState);
+        hubEventLogger.logCountrySelectedEvent(countrySelectedState);
     }
 }

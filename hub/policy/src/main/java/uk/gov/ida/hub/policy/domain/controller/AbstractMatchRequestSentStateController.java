@@ -18,7 +18,7 @@ import uk.gov.ida.hub.policy.domain.state.AbstractMatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
@@ -34,14 +34,14 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
     private final ResponseFromHubFactory responseFromHubFactory;
 
     protected final T state;
-    protected final EventSinkHubEventLogger eventSinkHubEventLogger;
+    protected final HubEventLogger hubEventLogger;
     protected PolicyConfiguration policyConfiguration;
     protected AttributeQueryService attributeQueryService;
 
     public AbstractMatchRequestSentStateController(
             final T state,
             final StateTransitionAction stateTransitionAction,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
             final ResponseFromHubFactory responseFromHubFactory,
@@ -49,7 +49,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
 
         this.state = state;
         this.stateTransitionAction = stateTransitionAction;
-        this.eventSinkHubEventLogger = eventSinkHubEventLogger;
+        this.hubEventLogger = hubEventLogger;
         this.validator = validator;
         this.responseFromHubFactory = responseFromHubFactory;
         this.policyConfiguration = policyConfiguration;

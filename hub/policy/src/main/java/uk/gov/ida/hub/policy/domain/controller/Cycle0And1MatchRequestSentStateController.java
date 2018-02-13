@@ -15,7 +15,7 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
@@ -31,7 +31,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
 
     public Cycle0And1MatchRequestSentStateController(
             final Cycle0And1MatchRequestSentStateTransitional state,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
@@ -44,7 +44,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
         super(
                 state,
                 stateTransitionAction,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 policyConfiguration,
                 validator,
                 responseFromHubFactory,
@@ -57,7 +57,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
 
     @Override
     protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
-        eventSinkHubEventLogger.logCycle01SuccessfulMatchEvent(
+        hubEventLogger.logCycle01SuccessfulMatchEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getRequestId(),
@@ -70,7 +70,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
     protected State getNextStateForNoMatch() {
         Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
         if (selfAssertedAttributeName.isPresent()) {
-            eventSinkHubEventLogger.logWaitingForCycle3AttributesEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
+            hubEventLogger.logWaitingForCycle3AttributesEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
             return getAwaitingCycle3DataState();
         }
 
@@ -80,7 +80,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
             return handleUserAccountCreationRequestAndGenerateState(attributeQueryRequestDto);
         }
 
-        eventSinkHubEventLogger.logCycle01NoMatchEvent(
+        hubEventLogger.logCycle01NoMatchEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getRequestId(),

@@ -20,7 +20,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public class CountrySelectedStateControllerTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Mock
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
 
     @Mock
     private StateTransitionAction stateTransitionAction;
@@ -57,7 +57,7 @@ public class CountrySelectedStateControllerTest {
     @Before
     public void setUp() {
         DateTimeUtils.setCurrentMillisFixed(NOW.getMillis());
-        controller = new CountrySelectedStateController(state, eventSinkHubEventLogger, stateTransitionAction, transactionsConfigProxy);
+        controller = new CountrySelectedStateController(state, hubEventLogger, stateTransitionAction, transactionsConfigProxy);
     }
 
     @After
@@ -131,7 +131,7 @@ public class CountrySelectedStateControllerTest {
 
         controller.transitionToEidasCycle0And1MatchRequestSentState(eidasAttributeQueryRequestDto, ipAddress, COUNTRY_ENTITY_ID);
 
-        verify(eventSinkHubEventLogger).logIdpAuthnSucceededEvent(
+        verify(hubEventLogger).logIdpAuthnSucceededEvent(
             state.getSessionId(),
             state.getSessionExpiryTimestamp(),
             state.getCountryEntityId(),

@@ -14,7 +14,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -41,7 +41,7 @@ public class SessionStartedStateControllerTest {
     @Mock
     private IdentityProvidersConfigProxy identityProvidersConfigProxy;
     @Mock
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
     @Mock
     private StateTransitionAction stateTransitionAction;
     @Mock
@@ -64,7 +64,7 @@ public class SessionStartedStateControllerTest {
                 .thenReturn(singletonList(IDP_ENTITY_ID));
         controller = new SessionStartedStateController(
                 sessionStartedState,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 stateTransitionAction,
                 transactionsConfigProxy,
                 responseFromHubFactory,
@@ -80,7 +80,7 @@ public class SessionStartedStateControllerTest {
         assertThat(capturedState.getValue().getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
         assertThat(capturedState.getValue().getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
         assertTrue(capturedState.getValue().getTransactionSupportsEidas());
-        verify(eventSinkHubEventLogger, times(1)).logIdpSelectedEvent(capturedState.getValue(), "some-ip-address");
+        verify(hubEventLogger, times(1)).logIdpSelectedEvent(capturedState.getValue(), "some-ip-address");
     }
 
     @Test
@@ -92,7 +92,7 @@ public class SessionStartedStateControllerTest {
         catch(StateProcessingValidationException e) {
             assertThat(e.getMessage()).contains("Available Identity Provider for session ID [" + sessionStartedState
                             .getSessionId().getSessionId() + "] not found for entity ID [notExist].");
-            verify(eventSinkHubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedState.class), eq("some-ip-address"));
+            verify(hubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedState.class), eq("some-ip-address"));
         }
     }
 }

@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.event.Level;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
@@ -23,10 +24,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SessionAlreadyExistingExceptionMapperTest {
+public class SessionCreationFailureExceptionMapperTest {
 
     private static final SessionId SESSION_ID = SessionIdBuilder.aSessionId().build();
-    private static final String MESSAGE = "this requestid already has a session";
+    private static final String MESSAGE = "The session does not exist.";
 
     @Mock
     private HubEventLogger hubEventLogger;
@@ -34,19 +35,19 @@ public class SessionAlreadyExistingExceptionMapperTest {
     @Mock
     private HttpServletRequest servletRequest;
 
-    private SessionAlreadyExistingExceptionMapper mapper;
+    private SessionCreationFailureExceptionMapper mapper;
 
     @Before
     public void setUp() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.getSessionId());
 
-        mapper = new SessionAlreadyExistingExceptionMapper(hubEventLogger);
+        mapper = new SessionCreationFailureExceptionMapper(hubEventLogger);
         mapper.setHttpServletRequest(servletRequest);
     }
 
     @Test
     public void toResponse_shouldLogToAudit() {
-        SessionAlreadyExistingException exception = new SessionAlreadyExistingException(MESSAGE, SESSION_ID);
+        SessionCreationFailureException exception = new SessionCreationFailureException(MESSAGE, Level.ERROR, ExceptionType.DUPLICATE_SESSION);
 
         final Response response = mapper.toResponse(exception);
 

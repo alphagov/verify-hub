@@ -19,7 +19,7 @@ import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.controller.*;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
@@ -76,7 +76,7 @@ public class StateControllerFactoryTest {
                         bind(PolicyConfiguration.class).toInstance(aPolicyConfiguration().build());
                         InfinispanCacheManager infinispanCacheManager = anInfinispanCacheManager().build(InfinispanJunitRunner.EMBEDDED_CACHE_MANAGER);
                         bind(InfinispanCacheManager.class).toInstance(infinispanCacheManager);
-                        bind(EventSinkHubEventLogger.class).toInstance(mock(EventSinkHubEventLogger.class));
+                        bind(HubEventLogger.class).toInstance(mock(HubEventLogger.class));
                         bind(JsonClient.class).annotatedWith(Names.named("samlSoapProxyClient")).toInstance(mock(JsonClient.class));
                         bind(JsonClient.class).toInstance(mock(JsonClient.class));
                     }

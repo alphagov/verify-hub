@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
@@ -42,16 +43,17 @@ public class AttributeQueryRequestRunnable implements Runnable {
     private final HubMatchingServiceResponseReceiverProxy hubMatchingServiceResponseReceiverProxy;
     private final ServiceInfoConfiguration serviceInfo;
     private final EventSinkProxy eventSinkProxy;
+    private final EventEmitter eventEmitter;
 
-    public AttributeQueryRequestRunnable(
-            SessionId sessionId,
-            AttributeQueryContainerDto attributeQueryContainerDto,
-            ExecuteAttributeQueryRequest executeAttributeQueryRequest,
-            @MatchingServiceRequestExecutorBacklog Counter counter,
-            TimeoutEvaluator timeoutEvaluator,
-            HubMatchingServiceResponseReceiverProxy hubMatchingServiceResponseReceiverProxy,
-            ServiceInfoConfiguration serviceInfo,
-            EventSinkProxy eventSinkProxy) {
+    public AttributeQueryRequestRunnable(SessionId sessionId,
+                                         AttributeQueryContainerDto attributeQueryContainerDto,
+                                         ExecuteAttributeQueryRequest executeAttributeQueryRequest,
+                                         @MatchingServiceRequestExecutorBacklog Counter counter,
+                                         TimeoutEvaluator timeoutEvaluator,
+                                         HubMatchingServiceResponseReceiverProxy hubMatchingServiceResponseReceiverProxy,
+                                         ServiceInfoConfiguration serviceInfo,
+                                         EventSinkProxy eventSinkProxy,
+                                         EventEmitter eventEmitter) {
         this.counter = counter;
         this.sessionId = sessionId;
         this.attributeQueryContainerDto = attributeQueryContainerDto;
@@ -60,6 +62,7 @@ public class AttributeQueryRequestRunnable implements Runnable {
         this.hubMatchingServiceResponseReceiverProxy = hubMatchingServiceResponseReceiverProxy;
         this.serviceInfo = serviceInfo;
         this.eventSinkProxy = eventSinkProxy;
+        this.eventEmitter = eventEmitter;
         this.counter.inc();
     }
 
@@ -102,12 +105,13 @@ public class AttributeQueryRequestRunnable implements Runnable {
         String errorId = UUID.randomUUID().toString();
         details.put(error_id, errorId);
         details.put(EventDetailsKey.message, message);
-        EventSinkHubEvent eventSinkHubEvent = new EventSinkHubEvent(
+        EventSinkHubEvent hubEvent = new EventSinkHubEvent(
                 serviceInfo,
                 sessionId,
                 EventSinkHubEventConstants.EventTypes.ERROR_EVENT,
                 details);
-        eventSinkProxy.logHubEvent(eventSinkHubEvent);
+        eventSinkProxy.logHubEvent(hubEvent);
+        eventEmitter.record(hubEvent);
 
         LOG.warn(format(message + " It has been Audited with error id: {0}.", errorId), exception);
     }
@@ -129,12 +133,13 @@ public class AttributeQueryRequestRunnable implements Runnable {
         details.put(message, errorMessage + e.getMessage());
         details.put(error_id, errorId.toString());
 
-        EventSinkHubEvent eventSinkHubEvent = new EventSinkHubEvent(
+        EventSinkHubEvent hubEvent = new EventSinkHubEvent(
                 serviceInfo,
                 sessionId,
                 EventSinkHubEventConstants.EventTypes.ERROR_EVENT,
                 details);
-        eventSinkProxy.logHubEvent(eventSinkHubEvent);
+        eventSinkProxy.logHubEvent(hubEvent);
+        eventEmitter.record(hubEvent);
         if (attributeQueryContainerDto.isOnboarding()) {
             LOG.warn(LogFormatter.formatLog(errorId, e.getMessage()), e);
         } else {

@@ -1,15 +1,10 @@
 package uk.gov.ida.hub.policy.services;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import org.apache.log4j.Logger;
-import uk.gov.ida.common.ServiceInfoConfiguration;
-import uk.gov.ida.eventsink.EventDetailsKey;
-import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
-import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.NoMatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -18,10 +13,8 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.controller.WaitingForMatchingServiceResponseStateController;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.WaitingForMatchingServiceResponseState;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
-
-import java.util.Map;
 
 import static java.text.MessageFormat.format;
 
@@ -29,22 +22,17 @@ public class MatchingServiceResponseService {
 
     private static final Logger LOG = Logger.getLogger(MatchingServiceResponseService.class);
 
-    private final EventSinkProxy eventSinkProxy;
-    private final ServiceInfoConfiguration serviceInfo;
     private final SamlEngineProxy samlEngineProxy;
     private final SessionRepository sessionRepository;
+    private final HubEventLogger eventLogger;
 
     @Inject
-    public MatchingServiceResponseService(
-            EventSinkProxy eventSinkProxy,
-            ServiceInfoConfiguration serviceInfo,
-            SamlEngineProxy samlEngineProxy,
-            SessionRepository sessionRepository) {
-
-        this.eventSinkProxy = eventSinkProxy;
-        this.serviceInfo = serviceInfo;
+    public MatchingServiceResponseService(SamlEngineProxy samlEngineProxy,
+                                          SessionRepository sessionRepository,
+                                          HubEventLogger eventLogger) {
         this.samlEngineProxy = samlEngineProxy;
         this.sessionRepository = sessionRepository;
+        this.eventLogger = eventLogger;
     }
 
     public void handleFailure(SessionId sessionId) {
@@ -104,10 +92,7 @@ public class MatchingServiceResponseService {
     }
 
     private void logToEventSinkAndUpdateState(String message, SessionId sessionId) {
-        Map<EventDetailsKey, String> details = ImmutableMap.of(EventDetailsKey.message, message);
-        EventSinkHubEvent event = new EventSinkHubEvent(serviceInfo, sessionId, EventSinkHubEventConstants.EventTypes.ERROR_EVENT, details);
-        eventSinkProxy.logHubEvent(event);
-
+        eventLogger.logErrorEvent(message, sessionId);
         handleHubMatchingServiceRequestFailure(sessionId);
     }
 
@@ -175,5 +160,4 @@ public class MatchingServiceResponseService {
 
         throw new SessionNotFoundException(sessionId);
     }
-
 }

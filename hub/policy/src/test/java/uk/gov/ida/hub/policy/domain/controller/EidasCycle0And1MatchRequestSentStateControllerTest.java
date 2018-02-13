@@ -17,7 +17,7 @@ import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
@@ -33,7 +33,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
     private StateTransitionAction stateTransitionAction;
 
     @Mock
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
 
     @Mock
     private PolicyConfiguration policyConfiguration;
@@ -59,7 +59,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
         eidasCycle0And1MatchRequestSentStateController = new EidasCycle0And1MatchRequestSentStateController(
             state,
             stateTransitionAction,
-            eventSinkHubEventLogger,
+            hubEventLogger,
             policyConfiguration,
             levelOfAssuranceValidator,
             responseFromHubFactory,
@@ -75,7 +75,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             "inResponseTo",
             "matchingServiceAssertion",
             Optional.of(LevelOfAssurance.LEVEL_2));
-        doNothing().when(eventSinkHubEventLogger).logCycle01SuccessfulMatchEvent(
+        doNothing().when(hubEventLogger).logCycle01SuccessfulMatchEvent(
             state.getSessionId(),
             state.getRequestIssuerEntityId(),
             state.getRequestId(),
@@ -101,7 +101,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
     @Test
     public void shouldReturnEidasAwaitingCycle3DataState() {
         when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.of("cycle3AttributeName")));
-        doNothing().when(eventSinkHubEventLogger).logWaitingForCycle3AttributesEvent(
+        doNothing().when(hubEventLogger).logWaitingForCycle3AttributesEvent(
             state.getSessionId(),
             state.getRequestIssuerEntityId(),
             state.getRequestId(),
@@ -129,7 +129,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
     @Test
     public void shouldReturnNoMatchState() {
         when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.absent()));
-        doNothing().when(eventSinkHubEventLogger).logCycle01NoMatchEvent(
+        doNothing().when(hubEventLogger).logCycle01NoMatchEvent(
             state.getSessionId(),
             state.getRequestIssuerEntityId(),
             state.getRequestId(),

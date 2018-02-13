@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -32,12 +33,15 @@ public class HealthCheckEventLoggerTest {
     @Mock
     private EventSinkProxy eventSinkProxy;
 
+    @Mock
+    private EventEmitter eventEmitter;
+
     private ServiceInfoConfiguration serviceInfo = new ServiceInfoConfiguration("test");
     private HealthCheckEventLogger eventLogger;
 
     @Before
     public void setUp() {
-        eventLogger = new HealthCheckEventLogger(eventSinkProxy, serviceInfo);
+        eventLogger = new HealthCheckEventLogger(eventSinkProxy, eventEmitter, serviceInfo);
     }
 
     @Test
@@ -51,9 +55,15 @@ public class HealthCheckEventLoggerTest {
 
         eventLogger.logException(unauditedException, "test error message");
 
-        ArgumentCaptor<EventSinkHubEvent> captor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
-        verify(eventSinkProxy, times(1)).logHubEvent(captor.capture());
-        assertThat(event).isEqualToComparingOnlyGivenFields(captor.getValue(), "originatingService", "sessionId", "eventType", "details");
+        ArgumentCaptor<EventSinkHubEvent> eventSinkCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+        ArgumentCaptor<EventSinkHubEvent> eventEmitterCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
+
+        verify(eventSinkProxy, times(1)).logHubEvent(eventSinkCaptor.capture());
+        verify(eventEmitter, times(1)).record(eventEmitterCaptor.capture());
+
+
+        assertThat(event).isEqualToComparingOnlyGivenFields(eventSinkCaptor.getValue(), "originatingService", "sessionId", "eventType", "details");
+        assertThat(event).isEqualToComparingOnlyGivenFields(eventEmitterCaptor.getValue(), "originatingService", "sessionId", "eventType", "details");
     }
 
     @Test

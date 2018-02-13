@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
+import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
@@ -21,8 +22,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -60,11 +60,11 @@ public class AwaitingCycle3DataStateControllerTest {
     private EventEmitter eventEmitter;
 
     private ServiceInfoConfiguration serviceInfo = new ServiceInfoConfiguration("service-name");
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
 
     @Before
     public void setUp() {
-        eventSinkHubEventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
+        hubEventLogger = new HubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class AwaitingCycle3DataStateControllerTest {
 
         final AwaitingCycle3DataStateController awaitingCycle3DataStateController = new AwaitingCycle3DataStateController(
                 state,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 stateTransitionAction,
                 transactionsConfigProxy,
                 responseFromHubFactory,
@@ -139,7 +139,7 @@ public class AwaitingCycle3DataStateControllerTest {
     public void shouldMoveFromAwaitingC3StateToCycle3DataSentStateWhenCycle3DataIsReceived() throws Exception {
         final SessionId sessionId = SessionId.createNewSessionId();
         AwaitingCycle3DataState state = anAwaitingCycle3DataState().withSessionId(sessionId).build();
-        AwaitingCycle3DataStateController controller = new AwaitingCycle3DataStateController(state, eventSinkHubEventLogger, stateTransitionAction, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionsFactory, matchingServiceConfigProxy);
+        AwaitingCycle3DataStateController controller = new AwaitingCycle3DataStateController(state, hubEventLogger, stateTransitionAction, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionsFactory, matchingServiceConfigProxy);
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));
         ArgumentCaptor<Cycle3MatchRequestSentState> argumentCaptor = ArgumentCaptor.forClass(Cycle3MatchRequestSentState.class);
         when(matchingServiceConfigProxy.getMatchingService(state.getMatchingServiceEntityId())).thenReturn(aMatchingServiceConfigEntityDataDto().build());
