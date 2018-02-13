@@ -21,6 +21,9 @@ ext {
 
 def dependencyVersions = [
             ida_utils:'323',
+            // rest_utils:'330' has been added to dependency temporarily for enabling Hub to send events using event emitter.
+            // Upgrading ida_utils to 330 breaks verify-hub. The fix for this issue is still being developed. Once the fix is completed,
+            // rest_utils will be removed from the dependency.
             rest_utils:'330',
             dropwizard:'1.1.4',
             dropwizard_infinispan:'1.1.4-41',
