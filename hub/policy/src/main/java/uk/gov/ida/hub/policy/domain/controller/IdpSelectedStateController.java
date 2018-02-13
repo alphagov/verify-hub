@@ -27,7 +27,7 @@ import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -40,7 +40,7 @@ import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationEx
 public class IdpSelectedStateController implements StateController, ErrorResponsePreparedStateController, IdpSelectingStateController, AuthnRequestCapableController {
 
     private final IdpSelectedState state;
-    private final EventSinkHubEventLogger eventSinkHubEventLogger;
+    private final HubEventLogger hubEventLogger;
     private final StateTransitionAction stateTransitionAction;
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
     private final TransactionsConfigProxy transactionsConfigProxy;
@@ -51,7 +51,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
     public IdpSelectedStateController(
             final IdpSelectedState state,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final IdentityProvidersConfigProxy identityProvidersConfigProxy,
             final TransactionsConfigProxy transactionsConfigProxy,
@@ -61,7 +61,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
             final MatchingServiceConfigProxy matchingServiceConfigProxy) {
 
         this.state = state;
-        this.eventSinkHubEventLogger = eventSinkHubEventLogger;
+        this.hubEventLogger = hubEventLogger;
         this.stateTransitionAction = stateTransitionAction;
         this.identityProvidersConfigProxy = identityProvidersConfigProxy;
         this.transactionsConfigProxy = transactionsConfigProxy;
@@ -82,7 +82,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.isRegistering(),
                 null);
 
-        eventSinkHubEventLogger.logRequestFromHub(state.getSessionId(), state.getRequestIssuerEntityId());
+        hubEventLogger.logRequestFromHub(state.getSessionId(), state.getRequestIssuerEntityId());
         return requestToSendFromHub;
     }
 
@@ -113,7 +113,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
     public void handleNoAuthenticationContextResponseFromIdp(AuthenticationErrorResponse authenticationErrorResponse) {
         validateIdpIsEnabledAndWasIssuedWithRequest(authenticationErrorResponse.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
-        eventSinkHubEventLogger.logNoAuthnContextEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub());
+        hubEventLogger.logNoAuthnContextEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub());
         if (state.isRegistering()) {
             stateTransitionAction.transitionTo(createAuthnFailedErrorState());
         } else {
@@ -123,19 +123,19 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
     public void handlePausedRegistrationResponseFromIdp(String requestIssuerEntityId, String principalIdAsSeenByHub, Optional<LevelOfAssurance> responseLoa) {
         validateIdpIsEnabledAndWasIssuedWithRequest(requestIssuerEntityId, state.isRegistering(), responseLoa.orElseGet(state::getRequestedLoa), state.getRequestIssuerEntityId());
-        eventSinkHubEventLogger.logPausedRegistrationEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), principalIdAsSeenByHub);
+        hubEventLogger.logPausedRegistrationEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), principalIdAsSeenByHub);
         stateTransitionAction.transitionTo(createPausedRegistrationState());
     }
 
     public void handleAuthenticationFailedResponseFromIdp(AuthenticationErrorResponse authenticationErrorResponse) {
         validateIdpIsEnabledAndWasIssuedWithRequest(authenticationErrorResponse.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
-        eventSinkHubEventLogger.logIdpAuthnFailedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub());
+        hubEventLogger.logIdpAuthnFailedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub());
         stateTransitionAction.transitionTo(createAuthnFailedErrorState());
     }
 
     public void handleRequesterErrorResponseFromIdp(RequesterErrorResponse requesterErrorResponseDto) {
         validateIdpIsEnabledAndWasIssuedWithRequest(requesterErrorResponseDto.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
-        eventSinkHubEventLogger.logIdpRequesterErrorEvent(
+        hubEventLogger.logIdpRequesterErrorEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -149,7 +149,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
         validateIdpIsEnabledAndWasIssuedWithRequest(successFromIdp.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
         validateIdpLevelOfAssuranceIsInAcceptedLevels(successFromIdp.getLevelOfAssurance(), state.getLevelsOfAssurance());
         validateReturnedLevelOfAssuranceFromIdpIsConsistentWithIdpConfig(successFromIdp.getLevelOfAssurance(), successFromIdp.getIssuer(), state.getRequestId());
-        eventSinkHubEventLogger.logIdpAuthnSucceededEvent(
+        hubEventLogger.logIdpAuthnSucceededEvent(
                 state.getSessionId(),
                 state.getSessionExpiryTimestamp(),
                 state.getIdpEntityId(),
@@ -167,7 +167,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
 
     public void handleFraudResponseFromIdp(FraudFromIdp fraudFromIdp) {
         validateIdpIsEnabledAndWasIssuedWithRequest(fraudFromIdp.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
-        eventSinkHubEventLogger.logIdpFraudEvent(
+        hubEventLogger.logIdpFraudEvent(
                 state.getSessionId(),
                 state.getIdpEntityId(),
                 state.getRequestIssuerEntityId(),
@@ -310,7 +310,7 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
     public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
-        eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
+        hubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }
 
     @Override

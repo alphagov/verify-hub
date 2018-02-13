@@ -31,7 +31,7 @@ import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransit
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -69,7 +69,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     private TransactionsConfigProxy transactionsConfigProxy;
 
     @Mock
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
 
     private ResponseFromHubFactory responseFromHubFactory = new ResponseFromHubFactory(new IdGenerator());
 
@@ -106,7 +106,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
 
         controller = new Cycle0And1MatchRequestSentStateController(
                 state,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 stateTransitionAction,
                 policyConfiguration,
                 mock(LevelOfAssuranceValidator.class),
@@ -167,7 +167,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         final State nextState = controller.getNextStateForNoMatch();
 
         //Then
-        verify(eventSinkHubEventLogger).logMatchingServiceUserAccountCreationRequestSentEvent(
+        verify(hubEventLogger).logMatchingServiceUserAccountCreationRequestSentEvent(
                 state.getSessionId(), TRANSACTION_ENTITY_ID, state.getSessionExpiryTimestamp(), state.getRequestId());
         verify(attributeQueryService).sendAttributeQueryRequest(eq(nextState.getSessionId()), attributeQueryRequestCaptor.capture());
 
@@ -204,8 +204,8 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         controller.handleNoMatchResponseFromMatchingService(noMatchFromMatchingService);
 
         // Then
-        verify(eventSinkHubEventLogger, times(1)).logCycle01NoMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
-        verify(eventSinkHubEventLogger, times(0)).logCycle01SuccessfulMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
+        verify(hubEventLogger, times(1)).logCycle01NoMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
+        verify(hubEventLogger, times(0)).logCycle01SuccessfulMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
     }
 
     @Test
@@ -220,8 +220,8 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         MatchFromMatchingService matchFromMatchingService = new MatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID, "assertionBlob", Optional.of(LevelOfAssurance.LEVEL_1));
         controller.handleMatchResponseFromMatchingService(matchFromMatchingService);
 
-        verify(eventSinkHubEventLogger, times(1)).logCycle01SuccessfulMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
-        verify(eventSinkHubEventLogger, times(0)).logCycle01NoMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
+        verify(hubEventLogger, times(1)).logCycle01SuccessfulMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
+        verify(hubEventLogger, times(0)).logCycle01NoMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
     }
 
     @Test
@@ -234,8 +234,8 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         NoMatchFromMatchingService noMatchFromMatchingService = new NoMatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID);
         controller.handleNoMatchResponseFromMatchingService(noMatchFromMatchingService);
 
-        verify(eventSinkHubEventLogger, times(0)).logCycle01NoMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
-        verify(eventSinkHubEventLogger, times(1)).logWaitingForCycle3AttributesEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
+        verify(hubEventLogger, times(0)).logCycle01NoMatchEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
+        verify(hubEventLogger, times(1)).logWaitingForCycle3AttributesEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
     }
 
     @Test
@@ -246,7 +246,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         NoMatchFromMatchingService noMatchFromMatchingService = new NoMatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID);
         controller.handleNoMatchResponseFromMatchingService(noMatchFromMatchingService);
 
-        verify(eventSinkHubEventLogger, times(0)).logWaitingForCycle3AttributesEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
+        verify(hubEventLogger, times(0)).logWaitingForCycle3AttributesEvent(state.getSessionId(), TRANSACTION_ENTITY_ID, REQUEST_ID, state.getSessionExpiryTimestamp());
     }
 
     @Test

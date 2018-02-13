@@ -63,16 +63,16 @@ import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.USER
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.USER_ACCOUNT_CREATION_REQUEST_SENT;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.WAITING_FOR_CYCLE3_ATTRIBUTES;
 
-public class EventSinkHubEventLogger {
+public class HubEventLogger {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EventSinkHubEventLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HubEventLogger.class);
 
     private final EventSinkProxy eventSinkProxy;
     private final ServiceInfoConfiguration serviceInfo;
     private final EventEmitter eventEmitter;
 
     @Inject
-    public EventSinkHubEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy, EventEmitter eventEmitter) {
+    public HubEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy, EventEmitter eventEmitter) {
         this.serviceInfo = serviceInfo;
         this.eventSinkProxy = eventSinkProxy;
         this.eventEmitter = eventEmitter;

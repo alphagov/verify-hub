@@ -69,7 +69,7 @@ import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EventSinkHubEventLoggerTest {
+public class HubEventLoggerTest {
 
     private static final PersistentId PERSISTENT_ID = aPersistentId().withNameId("nameId").build();
     private static final String TRANSACTION_ENTITY_ID = "transaction-entity-id";
@@ -90,12 +90,12 @@ public class EventSinkHubEventLoggerTest {
     @Mock
     private EventEmitter eventEmitter;
 
-    private EventSinkHubEventLogger eventLogger;
+    private HubEventLogger eventLogger;
 
     @Before
     public void setUp() {
         DateTimeFreezer.freezeTime();
-        eventLogger = new EventSinkHubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter);
+        eventLogger = new HubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter);
     }
 
     @After

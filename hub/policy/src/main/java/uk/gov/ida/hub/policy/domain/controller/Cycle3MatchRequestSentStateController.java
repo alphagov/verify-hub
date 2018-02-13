@@ -14,7 +14,7 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
@@ -30,7 +30,7 @@ public class Cycle3MatchRequestSentStateController extends MatchRequestSentState
 
     public Cycle3MatchRequestSentStateController(
             final Cycle3MatchRequestSentStateTransitional state,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
@@ -43,7 +43,7 @@ public class Cycle3MatchRequestSentStateController extends MatchRequestSentState
         super(
                 state,
                 stateTransitionAction,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 policyConfiguration,
                 validator,
                 responseFromHubFactory,
@@ -56,7 +56,7 @@ public class Cycle3MatchRequestSentStateController extends MatchRequestSentState
 
     @Override
     protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
-        eventSinkHubEventLogger.logCycle3SuccessfulMatchEvent(
+        hubEventLogger.logCycle3SuccessfulMatchEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -73,7 +73,7 @@ public class Cycle3MatchRequestSentStateController extends MatchRequestSentState
             return handleUserAccountCreationRequestAndGenerateState(attributeQueryRequestDto);
         }
 
-        eventSinkHubEventLogger.logCycle3NoMatchEvent(
+        hubEventLogger.logCycle3NoMatchEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),

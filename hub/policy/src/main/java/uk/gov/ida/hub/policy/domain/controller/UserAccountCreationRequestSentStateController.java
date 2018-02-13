@@ -10,27 +10,27 @@ import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 
 public class UserAccountCreationRequestSentStateController extends MatchRequestSentStateController<UserAccountCreationRequestSentStateTransitional> {
     protected final UserAccountCreationRequestSentStateTransitional state;
-    protected final EventSinkHubEventLogger eventSinkHubEventLogger;
+    protected final HubEventLogger hubEventLogger;
     private final LevelOfAssuranceValidator validator;
 
     public UserAccountCreationRequestSentStateController(
             final UserAccountCreationRequestSentStateTransitional state,
             final StateTransitionAction stateTransitionAction,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
             final ResponseFromHubFactory responseFromHubFactory,
             final AttributeQueryService attributeQueryService) {
-        super(state, stateTransitionAction, eventSinkHubEventLogger, policyConfiguration, validator, responseFromHubFactory, attributeQueryService);
+        super(state, stateTransitionAction, hubEventLogger, policyConfiguration, validator, responseFromHubFactory, attributeQueryService);
         this.state = state;
-        this.eventSinkHubEventLogger = eventSinkHubEventLogger;
+        this.hubEventLogger = hubEventLogger;
         this.validator = validator;
     }
 
@@ -63,7 +63,7 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
 
     @Override
     protected State getNextStateForUserAccountCreated(UserAccountCreatedFromMatchingService responseFromMatchingService) {
-        eventSinkHubEventLogger.logUserAccountCreatedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
+        hubEventLogger.logUserAccountCreatedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
 
         validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
         return new UserAccountCreatedState(
@@ -81,7 +81,7 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
     }
 
     public UserAccountCreationFailedState getNextStateForUserAccountCreationFailed() {
-        eventSinkHubEventLogger.logUserAccountCreationFailedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
+        hubEventLogger.logUserAccountCreationFailedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
         return new UserAccountCreationFailedState(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),

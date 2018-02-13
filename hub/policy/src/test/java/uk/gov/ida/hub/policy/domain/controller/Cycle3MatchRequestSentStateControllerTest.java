@@ -37,7 +37,7 @@ import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
@@ -87,7 +87,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
     @Mock
     private EventEmitter eventEmitter;
 
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
 
     private final ServiceInfoConfiguration serviceInfo = ServiceInfoConfigurationBuilder.aServiceInfo().build();
     private final String matchingServiceEntityId = "matchingServiceEntityId";
@@ -98,7 +98,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
 
     @Before
     public void setUp() {
-        eventSinkHubEventLogger = new EventSinkHubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
+        hubEventLogger = new HubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
                 .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
 
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, null, policyConfiguration, null, null,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, null, policyConfiguration, null, null,
                         transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
 
         //When
@@ -160,7 +160,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         ImmutableList<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of();
         when(transactionsConfigProxy.getUserAccountCreationAttributes("request issuer id")).thenReturn(userAccountCreationAttributes);
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, null, null, null, null, transactionsConfigProxy, null, null, null);
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, null, null, null, null, transactionsConfigProxy, null, null, null);
 
         State nextState = controller.getNextStateForNoMatch();
 
@@ -173,7 +173,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration, null, null,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, null, null,
                         transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
         ArgumentCaptor<EventSinkHubEvent> argumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
 
@@ -195,7 +195,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, mock(StateTransitionAction.class),
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, mock(StateTransitionAction.class),
                         policyConfiguration, mock(LevelOfAssuranceValidator.class), null, transactionsConfigProxy, matchingServiceConfigProxy,
                         assertionRestrictionFactory, attributeQueryService);
         ArgumentCaptor<EventSinkHubEvent> argumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
@@ -217,7 +217,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, mock(StateTransitionAction.class),
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, mock(StateTransitionAction.class),
                         policyConfiguration, null, null, transactionsConfigProxy, matchingServiceConfigProxy,
                         assertionRestrictionFactory, attributeQueryService);
         ArgumentCaptor<EventSinkHubEvent> argumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
@@ -236,7 +236,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, null, policyConfiguration, null, responseFromHubFactory,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, null, policyConfiguration, null, responseFromHubFactory,
                         transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
 
         final ResponseFromHub responseFromHub = controller.getErrorResponse();
@@ -250,7 +250,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, null, policyConfiguration,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, null, policyConfiguration,
                         mock(LevelOfAssuranceValidator.class), null, transactionsConfigProxy, matchingServiceConfigProxy,
                         assertionRestrictionFactory, attributeQueryService);
 
@@ -265,7 +265,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration,
                         null, null, transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
         ArgumentCaptor<NoMatchState> argumentCaptor = ArgumentCaptor.forClass(NoMatchState.class);
         NoMatchFromMatchingService noMatchFromMatchingService = new NoMatchFromMatchingService(matchingServiceEntityId, requestId);
@@ -285,7 +285,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration,
                         null, null, transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));
 
@@ -301,7 +301,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration,
                         null, null, transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));
 
@@ -315,7 +315,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentStateTransitional state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, eventSinkHubEventLogger, stateTransitionAction, policyConfiguration,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration,
                         null, responseFromHubFactory, transactionsConfigProxy, matchingServiceConfigProxy,
                         assertionRestrictionFactory, attributeQueryService);
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));

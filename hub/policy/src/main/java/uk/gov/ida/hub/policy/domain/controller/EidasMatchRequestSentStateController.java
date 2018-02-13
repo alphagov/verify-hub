@@ -5,7 +5,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.EidasMatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
@@ -14,7 +14,7 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
     public EidasMatchRequestSentStateController(
             final T state,
             final StateTransitionAction stateTransitionAction,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
             final ResponseFromHubFactory responseFromHubFactory,
@@ -23,7 +23,7 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
         super(
                 state,
                 stateTransitionAction,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 policyConfiguration,
                 validator,
                 responseFromHubFactory,

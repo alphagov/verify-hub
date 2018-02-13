@@ -11,7 +11,7 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +22,7 @@ import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationRequestSent
 public class UserAccountCreationRequestSentStateControllerTest {
 
     @Mock
-    public EventSinkHubEventLogger eventSinkHubEventLogger;
+    public HubEventLogger hubEventLogger;
 
     @Mock
     public LevelOfAssuranceValidator levelOfAssuranceValidator;
@@ -50,7 +50,7 @@ public class UserAccountCreationRequestSentStateControllerTest {
                 .withRelayState(Optional.fromNullable(relayState))
                 .build();
         UserAccountCreationRequestSentStateController controller =
-                new UserAccountCreationRequestSentStateController(state, null, eventSinkHubEventLogger, null, levelOfAssuranceValidator, null, null);
+                new UserAccountCreationRequestSentStateController(state, null, hubEventLogger, null, levelOfAssuranceValidator, null, null);
 
         UserAccountCreatedFromMatchingService userAccountCreatedFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.absent());
 

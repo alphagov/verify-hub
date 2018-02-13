@@ -9,7 +9,7 @@ import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -25,12 +25,12 @@ public class SessionTimeoutExceptionMapperTest {
     @Mock
     private HttpServletRequest servletRequest;
     @Mock
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
 
     @Test
     public void toResponse_shouldReturnAuditedErrorStatus() throws Exception {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(eventSinkHubEventLogger);
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(hubEventLogger);
         mapper.setHttpServletRequest(servletRequest);
 
         SessionTimeoutException exception = new SessionTimeoutException("Timeout exception", aSessionId().build(), "some entity id", DateTime.now().minusMinutes(10), "some request id");
@@ -47,7 +47,7 @@ public class SessionTimeoutExceptionMapperTest {
     @Test
     public void toResponse_shouldLogToEventSink() throws Exception {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(eventSinkHubEventLogger);
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(hubEventLogger);
         mapper.setHttpServletRequest(servletRequest);
 
         SessionId sessionId = aSessionId().build();
@@ -59,7 +59,7 @@ public class SessionTimeoutExceptionMapperTest {
 
         mapper.toResponse(exception);
 
-        verify(eventSinkHubEventLogger)
+        verify(hubEventLogger)
                 .logSessionTimeoutEvent(sessionId, sessionExpiryTimestamp, transactionEntityId, requestId);
     }
 }

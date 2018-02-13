@@ -28,7 +28,7 @@ import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -51,7 +51,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
     private TransactionsConfigProxy transactionsConfigProxy;
 
     @Mock
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
 
     @Mock
     private StateTransitionAction stateTransitionAction;
@@ -78,7 +78,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
         state = anEidasAwaitingCycle3DataState().build();
         controller = new EidasAwaitingCycle3DataStateController(
             state,
-            eventSinkHubEventLogger,
+            hubEventLogger,
             stateTransitionAction,
             transactionsConfigProxy,
             responseFromHubFactory,
@@ -135,7 +135,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
 
     @Test
     public void handleCancellation() {
-        doNothing().when(eventSinkHubEventLogger).logCycle3DataInputCancelled(
+        doNothing().when(hubEventLogger).logCycle3DataInputCancelled(
             state.getSessionId(),
             state.getRequestIssuerEntityId(),
             state.getSessionExpiryTimestamp(),
@@ -187,7 +187,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
     @Test
     public void shouldTransitionToEidasCycle3MatchRequestSentState() {
         final String principalIpAddressAsSeenByHub = "principalIpAddressAsSeenByHub";
-        doNothing().when(eventSinkHubEventLogger).logCycle3DataObtained(
+        doNothing().when(hubEventLogger).logCycle3DataObtained(
             state.getSessionId(),
             state.getRequestIssuerEntityId(),
             state.getSessionExpiryTimestamp(),
