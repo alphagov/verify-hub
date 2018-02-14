@@ -20,6 +20,7 @@ import uk.gov.ida.common.shared.security.PublicKeyInputStreamFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventSink;
 import uk.gov.ida.eventsink.EventSinkHttpProxy;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -134,6 +135,12 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(IpAddressResolver.class).toInstance(new IpAddressResolver());
         bind(TimeoutEvaluator.class).toInstance(new TimeoutEvaluator());
         bind(MetadataHealthCheckRegistry.class).asEagerSingleton();
+    }
+
+    @Provides
+    @Singleton
+    public EventEmitter getEventEmitter(SamlSoapProxyConfiguration configuration) {
+        return new EventEmitter(configuration.getSendToRecordingSystem());
     }
 
     @Provides

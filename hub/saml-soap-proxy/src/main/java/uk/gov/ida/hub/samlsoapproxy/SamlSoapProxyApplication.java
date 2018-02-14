@@ -10,7 +10,6 @@ import io.dropwizard.setup.Environment;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
-import uk.gov.ida.eventemitter.EventEmitterModule;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.IdaJsonProcessingExceptionMapperBundle;
 import uk.gov.ida.hub.samlsoapproxy.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlsoapproxy.resources.AttributeQueryRequestSenderResource;
@@ -48,7 +47,7 @@ public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfigura
 
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
         guiceBundle = defaultBuilder(SamlSoapProxyConfiguration.class)
-                .modules(new SamlSoapProxyModule(), new EventEmitterModule())
+                .modules(new SamlSoapProxyModule())
                 .build();
         bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());

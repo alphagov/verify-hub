@@ -8,6 +8,7 @@ import io.dropwizard.setup.Environment;
 import org.joda.time.DateTime;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.security.IdGenerator;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventSink;
 import uk.gov.ida.eventsink.EventSinkHttpProxy;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -88,6 +89,12 @@ public class PolicyModule extends AbstractModule {
         bind(Cycle3Service.class);
         bind(MatchingServiceResponseService.class);
         bind(ResponseFromIdpHandler.class);
+    }
+
+    @Provides
+    @Singleton
+    public EventEmitter getEventEmitter(PolicyConfiguration configuration) {
+        return new EventEmitter(configuration.getSendToRecordingSystem());
     }
 
     @Provides

@@ -380,7 +380,6 @@ public class HubEventLoggerTest {
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
-
     @Test
     public void shouldLogErrorEventContainingIDPEntityId() {
         final String idpEntityId = "IDP entity id";
