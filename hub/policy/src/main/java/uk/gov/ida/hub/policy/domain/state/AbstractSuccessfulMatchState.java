@@ -13,10 +13,10 @@ import java.net.URI;
 import java.util.Objects;
 
 public abstract class AbstractSuccessfulMatchState extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
-    private final String identityProviderEntityId;
-    private final String matchingServiceAssertion;
-    private final String relayState;
-    private final LevelOfAssurance levelOfAssurance;
+    protected final String identityProviderEntityId;
+    protected final String matchingServiceAssertion;
+    protected final Optional<String> relayState;
+    protected final LevelOfAssurance levelOfAssurance;
 
     public AbstractSuccessfulMatchState(
             String requestId,
@@ -34,7 +34,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceAssertion = matchingServiceAssertion;
-        this.relayState = relayState.orNull();
+        this.relayState = relayState;
         this.levelOfAssurance = levelOfAssurance;
     }
 
@@ -47,7 +47,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
     }
 
     public Optional<String> getRelayState() {
-        return Optional.fromNullable(relayState);
+        return relayState;
     }
 
     public LevelOfAssurance getLevelOfAssurance() {
@@ -75,7 +75,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
 
         return Objects.equals(identityProviderEntityId, that.getIdentityProviderEntityId()) &&
                 Objects.equals(matchingServiceAssertion, that.getMatchingServiceAssertion()) &&
-                Objects.equals(relayState, that.getRelayState().orNull()) &&
+                Objects.equals(relayState, that.getRelayState()) &&
                 levelOfAssurance == that.getLevelOfAssurance() &&
                 getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
                 Objects.equals(getRequestId(), that.getRequestId()) &&
