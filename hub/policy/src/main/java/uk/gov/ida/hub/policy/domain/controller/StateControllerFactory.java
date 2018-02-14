@@ -28,7 +28,7 @@ import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -56,7 +56,7 @@ public class StateControllerFactory {
             case SESSION_STARTED:
                 return new SessionStartedStateController(
                         (SessionStartedState) state,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(ResponseFromHubFactory.class),
@@ -65,14 +65,14 @@ public class StateControllerFactory {
             case COUNTRY_SELECTED:
                 return new CountrySelectedStateController(
                         (CountrySelectedState) state,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class));
 
             case IDP_SELECTED:
                 return new IdpSelectedStateController(
                         (IdpSelectedState) state,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(IdentityProvidersConfigProxy.class),
                         injector.getInstance(TransactionsConfigProxy.class),
@@ -84,7 +84,7 @@ public class StateControllerFactory {
             case CYCLE_0_AND_1_MATCH_REQUEST_SENT:
                 return new Cycle0And1MatchRequestSentStateController(
                         (Cycle0And1MatchRequestSentState) state,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(PolicyConfiguration.class),
                         new LevelOfAssuranceValidator(),
@@ -98,7 +98,7 @@ public class StateControllerFactory {
                 return new EidasCycle0And1MatchRequestSentStateController(
                         (EidasCycle0And1MatchRequestSentState) state,
                         stateTransitionAction,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         injector.getInstance(PolicyConfiguration.class),
                         new LevelOfAssuranceValidator(),
                         injector.getInstance(ResponseFromHubFactory.class),
@@ -131,7 +131,7 @@ public class StateControllerFactory {
             case AWAITING_CYCLE3_DATA:
                 return new AwaitingCycle3DataStateController(
                         (AwaitingCycle3DataState) state,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(ResponseFromHubFactory.class),
@@ -142,7 +142,7 @@ public class StateControllerFactory {
             case EIDAS_AWAITING_CYCLE3_DATA:
                 return new EidasAwaitingCycle3DataStateController(
                         (EidasAwaitingCycle3DataState) state,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(ResponseFromHubFactory.class),
@@ -153,7 +153,7 @@ public class StateControllerFactory {
             case CYCLE3_MATCH_REQUEST_SENT:
                 return new Cycle3MatchRequestSentStateController(
                         (Cycle3MatchRequestSentState) state,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(PolicyConfiguration.class),
                         new LevelOfAssuranceValidator(),
@@ -177,7 +177,7 @@ public class StateControllerFactory {
                 return new UserAccountCreationRequestSentStateController(
                         (UserAccountCreationRequestSentState) state,
                         stateTransitionAction,
-                        injector.getInstance(EventSinkHubEventLogger.class),
+                        injector.getInstance(HubEventLogger.class),
                         injector.getInstance(PolicyConfiguration.class),
                         new LevelOfAssuranceValidator(),
                         injector.getInstance(ResponseFromHubFactory.class),
@@ -190,7 +190,7 @@ public class StateControllerFactory {
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class),
-                        injector.getInstance(EventSinkHubEventLogger.class));
+                        injector.getInstance(HubEventLogger.class));
 
             case FRAUD_EVENT_DETECTED:
                 return new FraudEventDetectedStateController(
@@ -199,7 +199,7 @@ public class StateControllerFactory {
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class),
-                        injector.getInstance(EventSinkHubEventLogger.class));
+                        injector.getInstance(HubEventLogger.class));
 
             case REQUESTER_ERROR:
                 return new RequesterErrorStateController(
@@ -208,7 +208,7 @@ public class StateControllerFactory {
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class),
-                        injector.getInstance(EventSinkHubEventLogger.class));
+                        injector.getInstance(HubEventLogger.class));
 
             case CYCLE_3_DATA_INPUT_CANCELLED:
                 return new Cycle3DataInputCancelledStateController(

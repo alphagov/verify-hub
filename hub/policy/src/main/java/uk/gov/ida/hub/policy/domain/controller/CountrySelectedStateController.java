@@ -12,7 +12,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class CountrySelectedStateController implements StateController, ErrorResponsePreparedStateController, CountrySelectingStateController, AuthnRequestCapableController {
     private final CountrySelectedState state;
-    private final EventSinkHubEventLogger eventSinkHubEventLogger;
+    private final HubEventLogger hubEventLogger;
     private final StateTransitionAction stateTransitionAction;
     private final TransactionsConfigProxy transactionsConfigProxy;
 
@@ -33,11 +33,11 @@ public class CountrySelectedStateController implements StateController, ErrorRes
 
     public CountrySelectedStateController(
             final CountrySelectedState state,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final TransactionsConfigProxy transactionsConfigProxy) {
         this.state = state;
-        this.eventSinkHubEventLogger = eventSinkHubEventLogger;
+        this.hubEventLogger = hubEventLogger;
         this.stateTransitionAction = stateTransitionAction;
         this.transactionsConfigProxy = transactionsConfigProxy;
     }
@@ -56,7 +56,7 @@ public class CountrySelectedStateController implements StateController, ErrorRes
                 state.getLevelsOfAssurance()
         );
         stateTransitionAction.transitionTo(countrySelectedState);
-        eventSinkHubEventLogger.logCountrySelectedEvent(countrySelectedState);
+        hubEventLogger.logCountrySelectedEvent(countrySelectedState);
     }
 
     public void validateCountryIsIn(List<EidasCountryDto> countries) {
@@ -88,7 +88,7 @@ public class CountrySelectedStateController implements StateController, ErrorRes
                 false,
                 countryDto.map(EidasCountryDto::getOverriddenSsoUrl).orElse(null));
 
-        eventSinkHubEventLogger.logRequestFromHub(state.getSessionId(), state.getRequestIssuerEntityId());
+        hubEventLogger.logRequestFromHub(state.getSessionId(), state.getRequestIssuerEntityId());
         return requestToSendFromHub;
     }
 
@@ -113,7 +113,7 @@ public class CountrySelectedStateController implements StateController, ErrorRes
         final EidasAttributeQueryRequestDto dto,
         final String principalIpAddressAsSeenByHub,
         final String identityProviderEntityId) {
-        eventSinkHubEventLogger.logIdpAuthnSucceededEvent(
+        hubEventLogger.logIdpAuthnSucceededEvent(
             state.getSessionId(),
             state.getSessionExpiryTimestamp(),
             state.getCountryEntityId(),

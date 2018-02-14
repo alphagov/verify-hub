@@ -15,6 +15,7 @@ import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
+import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
@@ -23,16 +24,18 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
+import static uk.gov.ida.eventsink.EventDetailsKey.downstream_uri;
+import static uk.gov.ida.eventsink.EventDetailsKey.error_id;
 import static uk.gov.ida.eventsink.EventDetailsKey.gpg45_status;
 import static uk.gov.ida.eventsink.EventDetailsKey.hub_event_type;
 import static uk.gov.ida.eventsink.EventDetailsKey.idp_entity_id;
@@ -49,6 +52,7 @@ import static uk.gov.ida.eventsink.EventDetailsKey.required_level_of_assurance;
 import static uk.gov.ida.eventsink.EventDetailsKey.session_event_type;
 import static uk.gov.ida.eventsink.EventDetailsKey.session_expiry_time;
 import static uk.gov.ida.eventsink.EventDetailsKey.transaction_entity_id;
+import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.ERROR_EVENT;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.HUB_EVENT;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.SESSION_EVENT;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.HubEvents.RECEIVED_AUTHN_REQUEST_FROM_HUB;
@@ -69,7 +73,7 @@ import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EventSinkHubEventLoggerTest {
+public class HubEventLoggerTest {
 
     private static final PersistentId PERSISTENT_ID = aPersistentId().withNameId("nameId").build();
     private static final String TRANSACTION_ENTITY_ID = "transaction-entity-id";
@@ -83,6 +87,8 @@ public class EventSinkHubEventLoggerTest {
     private static final String PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP = "principal-ip-address-seen-by-idp";
     private static final ServiceInfoConfiguration SERVICE_INFO = ServiceInfoConfigurationBuilder.aServiceInfo().withName("service-name").build();
     private static final DateTime SESSION_EXPIRY_TIMESTAMP = DateTime.now().minusMinutes(10);
+    private static final UUID ERROR_ID = UUID.randomUUID();
+    private static final String ERROR_MESSAGE = "SAML error";
 
     @Mock
     private EventSinkProxy eventSinkProxy;
@@ -90,12 +96,12 @@ public class EventSinkHubEventLoggerTest {
     @Mock
     private EventEmitter eventEmitter;
 
-    private EventSinkHubEventLogger eventLogger;
+    private HubEventLogger eventLogger;
 
     @Before
     public void setUp() {
         DateTimeFreezer.freezeTime();
-        eventLogger = new EventSinkHubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter);
+        eventLogger = new HubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter);
     }
 
     @After
@@ -350,6 +356,87 @@ public class EventSinkHubEventLoggerTest {
         details.put(session_event_type, USER_ACCOUNT_CREATION_REQUEST_SENT);
 
         final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
+    }
+
+    @Test
+    public void shouldLogErrorEvent() {
+        eventLogger.logErrorEvent(ERROR_ID, SESSION_ID, ERROR_MESSAGE);
+
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(message, ERROR_MESSAGE);
+        details.put(error_id, ERROR_ID.toString());
+
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            ERROR_EVENT,
+            details
+        );
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
+    }
+
+
+    @Test
+    public void shouldLogErrorEventContainingIDPEntityId() {
+        final String idpEntityId = "IDP entity id";
+
+        eventLogger.logErrorEvent(ERROR_ID, idpEntityId, SESSION_ID);
+
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(idp_entity_id, idpEntityId);
+        details.put(error_id, ERROR_ID.toString());
+
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            ERROR_EVENT,
+            details
+        );
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
+    }
+
+    @Test
+    public void shouldLogErrorEventContainingDownstreamUri() {
+        final String downstreamUri = "uri";
+
+        eventLogger.logErrorEvent(ERROR_ID, SESSION_ID, ERROR_MESSAGE, downstreamUri);
+
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(downstream_uri, downstreamUri);
+        details.put(message, ERROR_MESSAGE);
+        details.put(error_id, ERROR_ID.toString());
+
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            ERROR_EVENT,
+            details
+        );
+
+        verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
+        verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
+    }
+
+    @Test
+    public void shouldLogErrorEventContainingAnErrorMessage() {
+        eventLogger.logErrorEvent(ERROR_MESSAGE, SESSION_ID);
+
+        final Map<EventDetailsKey, String> details = Maps.newHashMap();
+        details.put(message, ERROR_MESSAGE);
+
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
+            SERVICE_INFO,
+            SESSION_ID,
+            ERROR_EVENT,
+            details
+        );
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));

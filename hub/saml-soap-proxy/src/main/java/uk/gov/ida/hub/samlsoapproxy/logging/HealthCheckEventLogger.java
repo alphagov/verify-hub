@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -19,12 +20,15 @@ import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.ERROR_E
 public class HealthCheckEventLogger {
     private static final Logger LOG = LoggerFactory.getLogger(HealthCheckEventLogger.class);
     private EventSinkProxy eventSinkProxy;
+    private EventEmitter eventEmitter;
     private ServiceInfoConfiguration serviceInfo;
 
     @Inject
     public HealthCheckEventLogger(EventSinkProxy eventSinkProxy,
+                                  EventEmitter eventEmitter,
                                   ServiceInfoConfiguration serviceInfo){
         this.eventSinkProxy = eventSinkProxy;
+        this.eventEmitter = eventEmitter;
         this.serviceInfo = serviceInfo;
     }
 
@@ -39,6 +43,8 @@ public class HealthCheckEventLogger {
                 downstream_uri, exception.getUri().or(URI.create("uri-not-present")).toASCIIString(),
                 EventDetailsKey.message, exception.getMessage());
 
-        eventSinkProxy.logHubEvent(new EventSinkHubEvent(serviceInfo, NO_SESSION_CONTEXT_IN_ERROR, ERROR_EVENT, details));
+        EventSinkHubEvent hubEvent = new EventSinkHubEvent(serviceInfo, NO_SESSION_CONTEXT_IN_ERROR, ERROR_EVENT, details);
+        eventSinkProxy.logHubEvent(hubEvent);
+        eventEmitter.record(hubEvent);
     }
 }

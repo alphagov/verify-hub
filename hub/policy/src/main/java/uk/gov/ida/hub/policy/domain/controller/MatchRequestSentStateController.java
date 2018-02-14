@@ -8,7 +8,7 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
@@ -17,7 +17,7 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
     public MatchRequestSentStateController(
             final T state,
             final StateTransitionAction stateTransitionAction,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
             final ResponseFromHubFactory responseFromHubFactory,
@@ -26,7 +26,7 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
         super(
                 state,
                 stateTransitionAction,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 policyConfiguration,
                 validator,
                 responseFromHubFactory,
@@ -35,7 +35,7 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
     }
 
     protected State handleUserAccountCreationRequestAndGenerateState(AttributeQueryRequestDto attributeQueryRequestDto) {
-        eventSinkHubEventLogger.logMatchingServiceUserAccountCreationRequestSentEvent(
+        hubEventLogger.logMatchingServiceUserAccountCreationRequestSentEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),

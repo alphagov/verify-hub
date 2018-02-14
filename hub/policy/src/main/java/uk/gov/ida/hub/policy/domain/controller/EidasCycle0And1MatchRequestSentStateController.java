@@ -10,7 +10,7 @@ import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
@@ -21,7 +21,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
     public EidasCycle0And1MatchRequestSentStateController(
             final EidasCycle0And1MatchRequestSentState state,
             final StateTransitionAction stateTransitionAction,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
             final ResponseFromHubFactory responseFromHubFactory,
@@ -31,7 +31,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
         super(
                 state,
                 stateTransitionAction,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 policyConfiguration,
                 validator,
                 responseFromHubFactory,
@@ -54,7 +54,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
 
     @Override
     protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
-        eventSinkHubEventLogger.logCycle01SuccessfulMatchEvent(
+        hubEventLogger.logCycle01SuccessfulMatchEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getRequestId(),
@@ -66,7 +66,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
     protected State getNextStateForNoMatch() {
         Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
         if (selfAssertedAttributeName.isPresent()) {
-            eventSinkHubEventLogger.logWaitingForCycle3AttributesEvent(
+            hubEventLogger.logWaitingForCycle3AttributesEvent(
                     state.getSessionId(),
                     state.getRequestIssuerEntityId(),
                     state.getRequestId(),
@@ -74,7 +74,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
             return getAwaitingCycle3DataState();
         }
 
-        eventSinkHubEventLogger.logCycle01NoMatchEvent(
+        hubEventLogger.logCycle01NoMatchEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getRequestId(),

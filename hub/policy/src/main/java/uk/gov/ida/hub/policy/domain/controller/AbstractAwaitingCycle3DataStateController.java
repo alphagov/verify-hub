@@ -15,13 +15,13 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.AbstractAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 public abstract class AbstractAwaitingCycle3DataStateController<S extends AbstractAttributeQueryRequestDto, T extends AbstractAwaitingCycle3DataState> implements StateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
     private final T state;
-    private final EventSinkHubEventLogger eventSinkHubEventLogger;
+    private final HubEventLogger hubEventLogger;
     private final StateTransitionAction stateTransitionAction;
     private final TransactionsConfigProxy transactionsConfigProxy;
     private final ResponseFromHubFactory responseFromHubFactory;
@@ -31,7 +31,7 @@ public abstract class AbstractAwaitingCycle3DataStateController<S extends Abstra
 
     public AbstractAwaitingCycle3DataStateController(
             final T state,
-            final EventSinkHubEventLogger eventSinkHubEventLogger,
+            final HubEventLogger hubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final TransactionsConfigProxy transactionsConfigProxy,
             final ResponseFromHubFactory responseFromHubFactory,
@@ -40,7 +40,7 @@ public abstract class AbstractAwaitingCycle3DataStateController<S extends Abstra
             final MatchingServiceConfigProxy matchingServiceConfigProxy) {
 
         this.state = state;
-        this.eventSinkHubEventLogger = eventSinkHubEventLogger;
+        this.hubEventLogger = hubEventLogger;
         this.stateTransitionAction = stateTransitionAction;
         this.transactionsConfigProxy = transactionsConfigProxy;
         this.responseFromHubFactory = responseFromHubFactory;
@@ -53,8 +53,8 @@ public abstract class AbstractAwaitingCycle3DataStateController<S extends Abstra
         return state;
     }
 
-    public EventSinkHubEventLogger getEventSinkHubEventLogger() {
-        return eventSinkHubEventLogger;
+    public HubEventLogger getHubEventLogger() {
+        return hubEventLogger;
     }
 
     public MatchingServiceConfigProxy getMatchingServiceConfigProxy() {
@@ -111,7 +111,7 @@ public abstract class AbstractAwaitingCycle3DataStateController<S extends Abstra
     }
 
     public void handleCancellation() {
-        eventSinkHubEventLogger.logCycle3DataInputCancelled(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId());
+        hubEventLogger.logCycle3DataInputCancelled(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId());
         Cycle3DataInputCancelledState cycle3DataInputCancelledState = new Cycle3DataInputCancelledState(
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp(),

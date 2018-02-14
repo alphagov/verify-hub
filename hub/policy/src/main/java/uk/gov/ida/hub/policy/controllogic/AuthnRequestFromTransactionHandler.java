@@ -24,7 +24,7 @@ import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
 import uk.gov.ida.hub.policy.domain.state.ResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import javax.inject.Inject;
@@ -34,19 +34,19 @@ import java.util.List;
 public class AuthnRequestFromTransactionHandler {
 
     private final SessionRepository sessionRepository;
-    private final EventSinkHubEventLogger eventSinkHubEventLogger;
+    private final HubEventLogger hubEventLogger;
     private final PolicyConfiguration policyConfiguration;
     private final TransactionsConfigProxy transactionsConfigProxy;
 
     @Inject
     public AuthnRequestFromTransactionHandler(
             SessionRepository sessionRepository,
-            EventSinkHubEventLogger eventSinkHubEventLogger,
+            HubEventLogger hubEventLogger,
             PolicyConfiguration policyConfiguration,
             TransactionsConfigProxy transactionsConfigProxy) {
 
         this.sessionRepository = sessionRepository;
-        this.eventSinkHubEventLogger = eventSinkHubEventLogger;
+        this.hubEventLogger = hubEventLogger;
         this.policyConfiguration = policyConfiguration;
         this.transactionsConfigProxy = transactionsConfigProxy;
     }
@@ -66,7 +66,7 @@ public class AuthnRequestFromTransactionHandler {
                 transactionSupportsEidas);
         final List<LevelOfAssurance> transactionLevelsOfAssurance = transactionsConfigProxy.getLevelsOfAssurance(samlResponse.getIssuer());
 
-        eventSinkHubEventLogger.logSessionStartedEvent(samlResponse, ipAddress, sessionExpiryTimestamp, sessionId, transactionLevelsOfAssurance.get(0), transactionLevelsOfAssurance.get(transactionLevelsOfAssurance.size() -1));
+        hubEventLogger.logSessionStartedEvent(samlResponse, ipAddress, sessionExpiryTimestamp, sessionId, transactionLevelsOfAssurance.get(0), transactionLevelsOfAssurance.get(transactionLevelsOfAssurance.size() -1));
 
         return sessionRepository.createSession(sessionStartedState);
     }

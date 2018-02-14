@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.exception;
 
-import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ErrorStatusDto;
@@ -8,33 +7,27 @@ import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
+import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.shared.utils.logging.LogFormatter;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-import java.util.Map;
 import java.util.UUID;
-
-import static uk.gov.ida.eventsink.EventDetailsKey.error_id;
-import static uk.gov.ida.eventsink.EventDetailsKey.idp_entity_id;
 
 public class IdpDisabledExceptionMapper extends PolicyExceptionMapper<IdpDisabledException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(IdpDisabledExceptionMapper.class);
 
-    private final ServiceInfoConfiguration serviceInfo;
-    private final EventSinkProxy eventSinkProxy;
+    private final HubEventLogger eventLogger;
 
     @Inject
-    public IdpDisabledExceptionMapper(
-            ServiceInfoConfiguration serviceInfo,
-            EventSinkProxy eventSinkProxy) {
+    public IdpDisabledExceptionMapper(HubEventLogger eventLogger) {
 
         super();
-        this.serviceInfo = serviceInfo;
-        this.eventSinkProxy = eventSinkProxy;
+        this.eventLogger = eventLogger;
     }
 
     @Override
@@ -42,11 +35,7 @@ public class IdpDisabledExceptionMapper extends PolicyExceptionMapper<IdpDisable
         UUID errorId = UUID.randomUUID();
         LOG.error(LogFormatter.formatLog(errorId, exception.getMessage()), exception);
 
-        Map<EventDetailsKey, String> details = ImmutableMap.of(
-                idp_entity_id, exception.getEntityId(),
-                error_id, errorId.toString());
-        EventSinkHubEvent event = new EventSinkHubEvent(serviceInfo, getSessionId().get(), EventSinkHubEventConstants.EventTypes.ERROR_EVENT, details);
-        eventSinkProxy.logHubEvent(event);
+        eventLogger.logErrorEvent(errorId, exception.getEntityId(), getSessionId().or(SessionId.SESSION_ID_DOES_NOT_EXIST_YET));
 
         return Response.status(Response.Status.FORBIDDEN).entity(ErrorStatusDto.createAuditedErrorStatus(errorId, ExceptionType
                 .IDP_DISABLED)).build();

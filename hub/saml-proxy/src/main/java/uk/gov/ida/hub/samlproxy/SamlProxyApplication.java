@@ -10,6 +10,7 @@ import io.dropwizard.setup.Environment;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
+import uk.gov.ida.eventemitter.EventEmitterModule;
 import uk.gov.ida.hub.samlproxy.exceptions.NoKeyConfiguredForEntityExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyExceptionMapper;
@@ -51,7 +52,7 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
         );
 
         guiceBundle = defaultBuilder(SamlProxyConfiguration.class)
-                .modules(new SamlProxyModule())
+                .modules(new EventEmitterModule(),new SamlProxyModule())
                 .build();
         bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());

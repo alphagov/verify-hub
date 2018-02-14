@@ -12,7 +12,7 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -22,7 +22,7 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
 
     public EidasAwaitingCycle3DataStateController(
         final EidasAwaitingCycle3DataState state,
-        final EventSinkHubEventLogger eventSinkHubEventLogger,
+        final HubEventLogger hubEventLogger,
         final StateTransitionAction stateTransitionAction,
         final TransactionsConfigProxy transactionsConfigProxy,
         final ResponseFromHubFactory responseFromHubFactory,
@@ -31,7 +31,7 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
         final MatchingServiceConfigProxy matchingServiceConfigProxy) {
         super(
             state,
-            eventSinkHubEventLogger,
+            hubEventLogger,
             stateTransitionAction,
             transactionsConfigProxy,
             responseFromHubFactory,
@@ -64,7 +64,7 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
 
     @Override
     public void handleCycle3DataSubmitted(final String principalIpAddressAsSeenByHub) {
-        getEventSinkHubEventLogger().logCycle3DataObtained(
+        getHubEventLogger().logCycle3DataObtained(
             getState().getSessionId(),
             getState().getRequestIssuerEntityId(),
             getState().getSessionExpiryTimestamp(),

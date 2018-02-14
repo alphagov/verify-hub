@@ -8,7 +8,7 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -19,7 +19,7 @@ public class RequesterErrorStateController implements StateController, ResponseP
     private final StateTransitionAction stateTransitionAction;
     private final TransactionsConfigProxy transactionsConfigProxy;
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
-    private final EventSinkHubEventLogger eventSinkHubEventLogger;
+    private final HubEventLogger hubEventLogger;
 
     public RequesterErrorStateController(
         RequesterErrorState state,
@@ -27,14 +27,14 @@ public class RequesterErrorStateController implements StateController, ResponseP
         StateTransitionAction stateTransitionAction,
         TransactionsConfigProxy transactionsConfigProxy,
         IdentityProvidersConfigProxy identityProvidersConfigProxy,
-        EventSinkHubEventLogger eventSinkHubEventLogger) {
+        HubEventLogger hubEventLogger) {
 
         this.state = state;
         this.responseFromHubFactory = responseFromHubFactory;
         this.stateTransitionAction = stateTransitionAction;
         this.transactionsConfigProxy = transactionsConfigProxy;
         this.identityProvidersConfigProxy = identityProvidersConfigProxy;
-        this.eventSinkHubEventLogger = eventSinkHubEventLogger;
+        this.hubEventLogger = hubEventLogger;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class RequesterErrorStateController implements StateController, ResponseP
     public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
         stateTransitionAction.transitionTo(idpSelectedState);
-        eventSinkHubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
+        hubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress);
     }
 
     @Override

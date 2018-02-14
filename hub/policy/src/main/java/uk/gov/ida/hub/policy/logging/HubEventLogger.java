@@ -1,12 +1,15 @@
 package uk.gov.ida.hub.policy.logging;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventsink.EventDetailsKey;
+import uk.gov.ida.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
 import uk.gov.ida.hub.policy.domain.FraudDetectedDetails;
@@ -15,14 +18,16 @@ import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.proxy.EventSinkProxy;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import static uk.gov.ida.eventsink.EventDetailsKey.downstream_uri;
+import static uk.gov.ida.eventsink.EventDetailsKey.error_id;
 import static uk.gov.ida.eventsink.EventDetailsKey.gpg45_status;
 import static uk.gov.ida.eventsink.EventDetailsKey.hub_event_type;
 import static uk.gov.ida.eventsink.EventDetailsKey.idp_entity_id;
@@ -63,16 +68,16 @@ import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.USER
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.USER_ACCOUNT_CREATION_REQUEST_SENT;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.WAITING_FOR_CYCLE3_ATTRIBUTES;
 
-public class EventSinkHubEventLogger {
+public class HubEventLogger {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EventSinkHubEventLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HubEventLogger.class);
 
     private final EventSinkProxy eventSinkProxy;
     private final ServiceInfoConfiguration serviceInfo;
     private final EventEmitter eventEmitter;
 
     @Inject
-    public EventSinkHubEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy, EventEmitter eventEmitter) {
+    public HubEventLogger(ServiceInfoConfiguration serviceInfo, EventSinkProxy eventSinkProxy, EventEmitter eventEmitter) {
         this.serviceInfo = serviceInfo;
         this.eventSinkProxy = eventSinkProxy;
         this.eventEmitter = eventEmitter;
@@ -251,5 +256,51 @@ public class EventSinkHubEventLogger {
         details.put(transaction_entity_id, countrySelectedState.getRequestIssuerEntityId());
         details.put(EventDetailsKey.country_code, countrySelectedState.getCountryEntityId());
         logSessionEvent(countrySelectedState.getSessionId(), countrySelectedState.getRequestIssuerEntityId(), countrySelectedState.getSessionExpiryTimestamp(), countrySelectedState.getRequestId(), COUNTRY_SELECTED, details);
+    }
+
+    public void logErrorEvent(final UUID errorId, final SessionId sessionId, final String errorMessage) {
+        final Map<EventDetailsKey, String> details = ImmutableMap.of(
+            message, errorMessage,
+            error_id, errorId.toString());
+        final EventSinkHubEvent eventSinkHubEvent = new EventSinkHubEvent(
+            serviceInfo,
+            sessionId,
+            EventSinkHubEventConstants.EventTypes.ERROR_EVENT,
+            details);
+
+        eventSinkProxy.logHubEvent(eventSinkHubEvent);
+        eventEmitter.record(eventSinkHubEvent);
+    }
+
+    public void logErrorEvent(final UUID errorId, final String entityId, final SessionId sessionId) {
+        final Map<EventDetailsKey, String> details = ImmutableMap.of(
+            idp_entity_id, entityId,
+            error_id, errorId.toString());
+        logErrorEvent(details, sessionId);
+    }
+
+    public void logErrorEvent(final UUID errorId, final SessionId sessionId, final String errorMessage, final String downstreamUri) {
+        final Map<EventDetailsKey, String> details = ImmutableMap.of(
+            downstream_uri, downstreamUri,
+            message, errorMessage,
+            error_id, errorId.toString());
+        logErrorEvent(details, sessionId);
+    }
+
+    public void logErrorEvent(final String errorMessage, final SessionId sessionId) {
+        final Map<EventDetailsKey, String> details = ImmutableMap.of(
+            message, errorMessage);
+        logErrorEvent(details, sessionId);
+    }
+
+    private void logErrorEvent(final Map<EventDetailsKey, String> details, final SessionId sessionId) {
+        final EventSinkHubEvent eventSinkHubEvent = new EventSinkHubEvent(
+            serviceInfo,
+            sessionId,
+            EventSinkHubEventConstants.EventTypes.ERROR_EVENT,
+            details
+        );
+        eventSinkProxy.logHubEvent(eventSinkHubEvent);
+        eventEmitter.record(eventSinkHubEvent);
     }
 }

@@ -30,7 +30,7 @@ import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
-import uk.gov.ida.hub.policy.logging.EventSinkHubEventLogger;
+import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -79,7 +79,7 @@ public class IdpSelectedStateControllerTest {
     @Mock
     private TransactionsConfigProxy transactionsConfigProxy;
     @Mock
-    private EventSinkHubEventLogger eventSinkHubEventLogger;
+    private HubEventLogger hubEventLogger;
     @Mock
     private ResponseFromHubFactory responseFromHubFactory;
     @Mock
@@ -115,7 +115,7 @@ public class IdpSelectedStateControllerTest {
 
         return new IdpSelectedStateController(
                 state,
-                eventSinkHubEventLogger,
+                hubEventLogger,
                 stateTransitionAction,
                 identityProvidersConfigProxy,
                 transactionsConfigProxy,
@@ -163,7 +163,7 @@ public class IdpSelectedStateControllerTest {
 
         controller.handleFraudResponseFromIdp(fraudFromIdp);
 
-        verify(eventSinkHubEventLogger).logIdpFraudEvent(NEW_SESSION_ID, IDP_ENTITY_ID, TRANSACTION_ENTITY_ID, fraudFromIdp.getPersistentId(), SESSION_EXPIRY_TIMESTAMP, idpFraudDetectedDetails, Optional.fromNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP), PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, REQUEST_ID);
+        verify(hubEventLogger).logIdpFraudEvent(NEW_SESSION_ID, IDP_ENTITY_ID, TRANSACTION_ENTITY_ID, fraudFromIdp.getPersistentId(), SESSION_EXPIRY_TIMESTAMP, idpFraudDetectedDetails, Optional.fromNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP), PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, REQUEST_ID);
     }
 
     @Test
@@ -318,7 +318,7 @@ public class IdpSelectedStateControllerTest {
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(LEVELS_OF_ASSURANCE).build());
         controller.handleSuccessResponseFromIdp(successFromIdp);
-        verify(eventSinkHubEventLogger).logIdpAuthnSucceededEvent(
+        verify(hubEventLogger).logIdpAuthnSucceededEvent(
                 NEW_SESSION_ID,
                 SESSION_EXPIRY_TIMESTAMP,
                 IDP_ENTITY_ID,
@@ -339,7 +339,7 @@ public class IdpSelectedStateControllerTest {
 
         controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA));
 
-        verify(eventSinkHubEventLogger).logPausedRegistrationEvent(
+        verify(hubEventLogger).logPausedRegistrationEvent(
                 NEW_SESSION_ID,
                 TRANSACTION_ENTITY_ID,
                 SESSION_EXPIRY_TIMESTAMP,
@@ -360,7 +360,7 @@ public class IdpSelectedStateControllerTest {
 
         controller.handleRequesterErrorResponseFromIdp(requesterErrorResponse);
 
-        verify(eventSinkHubEventLogger).logIdpRequesterErrorEvent(
+        verify(hubEventLogger).logIdpRequesterErrorEvent(
                 NEW_SESSION_ID,
                 TRANSACTION_ENTITY_ID,
                 SESSION_EXPIRY_TIMESTAMP,
@@ -380,7 +380,7 @@ public class IdpSelectedStateControllerTest {
 
         controller.handleAuthenticationFailedResponseFromIdp(authenticationErrorResponse);
 
-        verify(eventSinkHubEventLogger).logIdpAuthnFailedEvent(
+        verify(hubEventLogger).logIdpAuthnFailedEvent(
                 NEW_SESSION_ID,
                 TRANSACTION_ENTITY_ID,
                 SESSION_EXPIRY_TIMESTAMP,
@@ -399,7 +399,7 @@ public class IdpSelectedStateControllerTest {
 
         controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
 
-        verify(eventSinkHubEventLogger).logNoAuthnContextEvent(
+        verify(hubEventLogger).logNoAuthnContextEvent(
                 NEW_SESSION_ID,
                 TRANSACTION_ENTITY_ID,
                 SESSION_EXPIRY_TIMESTAMP,
