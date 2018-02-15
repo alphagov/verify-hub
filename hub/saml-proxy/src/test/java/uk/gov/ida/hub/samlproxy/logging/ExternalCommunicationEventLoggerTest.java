@@ -147,12 +147,12 @@ public class ExternalCommunicationEventLoggerTest {
                 return false;
             }
             EventSinkHubEvent actualEvent = (EventSinkHubEvent) other;
-            return
+            return !actualEvent.getEventId().toString().isEmpty() &&
                 Objects.equals(expectedEvent.getTimestamp(), actualEvent.getTimestamp()) &&
-                    Objects.equals(expectedEvent.getOriginatingService(), actualEvent.getOriginatingService()) &&
-                    Objects.equals(expectedEvent.getSessionId(), actualEvent.getSessionId()) &&
-                    Objects.equals(expectedEvent.getEventType(), actualEvent.getEventType()) &&
-                    Objects.equals(expectedEvent.getDetails(), actualEvent.getDetails());
+                Objects.equals(expectedEvent.getOriginatingService(), actualEvent.getOriginatingService()) &&
+                Objects.equals(expectedEvent.getSessionId(), actualEvent.getSessionId()) &&
+                Objects.equals(expectedEvent.getEventType(), actualEvent.getEventType()) &&
+                Objects.equals(expectedEvent.getDetails(), actualEvent.getDetails());
         }
     }
 }

@@ -32,7 +32,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.net.URI;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.text.MessageFormat.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +65,8 @@ public class SessionTimeoutIntegrationTests {
             ConfigOverride.config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("timeoutPeriod", format("{0}m", SOME_TIMEOUT)));
+            ConfigOverride.config("timeoutPeriod", format("{0}m", SOME_TIMEOUT)),
+            ConfigOverride.config("sendToRecordingSystem", "true"));
 
     private SamlAuthnRequestContainerDto samlRequest;
 
@@ -106,7 +111,8 @@ public class SessionTimeoutIntegrationTests {
 
     @Test
     public void selectIdpShouldReturnErrorWhenSessionDoesNotExistInPolicy() {
-
+        final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
         SessionId sessionId = SessionId.createNewSessionId();
 
         URI uri = UriBuilder
@@ -115,6 +121,15 @@ public class SessionTimeoutIntegrationTests {
 
         confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA), ExceptionType
                 .SESSION_NOT_FOUND);
+
+        assertThatEventEmitterWritesToStandardOutput(outContent);
+        System.setOut(System.out);
+    }
+
+    private void assertThatEventEmitterWritesToStandardOutput(ByteArrayOutputStream outContent) {
+        Pattern p = Pattern.compile("Event ID: [0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}, Timestamp: [0-9]+-[0-1][0-9]-[0-3][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]Z, Event Type: error_event");
+        Matcher m = p.matcher(outContent.toString());
+        assertThat(m.find()).isTrue();
     }
 
     private void confirmError(URI uri, Object entity, ExceptionType exceptionType) {
