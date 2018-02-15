@@ -1,13 +1,11 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedStateTransitional;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -33,26 +31,6 @@ public class IdpSelectedStateBuilder {
 
     public static IdpSelectedStateBuilder anIdpSelectedState() {
         return new IdpSelectedStateBuilder();
-    }
-
-    @Deprecated
-    public IdpSelectedStateTransitional buildTransitional() {
-        return new IdpSelectedStateTransitional(
-                requestId,
-                idpEntityId,
-                matchingServiceEntityId,
-                levelsOfAssurance,
-                useExactComparisonType,
-                Optional.fromNullable(forceAuthentication),
-                assertionConsumerServiceUri,
-                requestIssuerId,
-                Optional.fromNullable(relayState),
-                sessionExpiryTimestamp,
-                isRegistration,
-                requestedLoa,
-                sessionId,
-                availableIdentityProviders,
-                transactionSupportsEidas);
     }
 
     public IdpSelectedState build() {
@@ -138,5 +116,4 @@ public class IdpSelectedStateBuilder {
         this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
     }
-
 }

@@ -1,12 +1,10 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataStateTransitional;
 
 import java.net.URI;
 
@@ -27,25 +25,6 @@ public class AwaitingCycle3DataStateBuilder {
 
     public static AwaitingCycle3DataStateBuilder anAwaitingCycle3DataState() {
         return new AwaitingCycle3DataStateBuilder();
-    }
-
-    @Deprecated
-    public AwaitingCycle3DataStateTransitional buildTransitional() {
-        return new AwaitingCycle3DataStateTransitional(
-                requestId,
-                "idp entity-id",
-                sessionExpiryTimestamp,
-                transactionEntityId,
-                encryptedMatchingDatasetAssertion,
-                "aPassthroughAssertion().buildAuthnStatementAssertion()",
-                Optional.fromNullable(relayState),
-                assertionConsumerServiceUri,
-                "matchingServiceEntityId",
-                sessionId,
-                aPersistentId().build(),
-                requestedLoa,
-                registering,
-                transactionSupportsEidas);
     }
 
     public AwaitingCycle3DataState build() {

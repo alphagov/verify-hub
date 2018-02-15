@@ -26,7 +26,6 @@ import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
@@ -83,14 +82,6 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(SessionStartedStateController.class);
     }
 
-    @Deprecated
-    @Test
-    public void shouldCreateASessionStartedStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aSessionStartedState().buildTransitional(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(SessionStartedStateController.class);
-    }
-
     @Test
     public void shouldCreateACountrySelectedStateController() {
         StateController controller = stateControllerFactory.build(aCountrySelectedState().build(), stateTransitionAction);
@@ -101,14 +92,6 @@ public class StateControllerFactoryTest {
     @Test
     public void shouldCreateAnIdpSelectedStateController() {
         StateController controller = stateControllerFactory.build(anIdpSelectedState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(IdpSelectedStateController.class);
-    }
-
-    @Deprecated
-    @Test
-    public void shouldCreateAnIdpSelectedStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(anIdpSelectedState().buildTransitional(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(IdpSelectedStateController.class);
     }
@@ -142,14 +125,6 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
     }
 
-    @Deprecated
-    @Test
-    public void shouldCreateASuccessfulMatchStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aSuccessfulMatchState().buildTransitional(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
-    }
-
     @Test
     public void shouldCreateAEidasSuccessfulMatchStateController() {
         StateController controller = stateControllerFactory.build(aEidasSuccessfulMatchState().build(), stateTransitionAction);
@@ -171,25 +146,9 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(UserAccountCreatedStateController.class);
     }
 
-    @Deprecated
-    @Test
-    public void shouldCreateAUserAccountCreatedStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aUserAccountCreatedState().buildTransitional(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(UserAccountCreatedStateController.class);
-    }
-
     @Test
     public void shouldCreateAnAwaitingCycle3DataStateController() {
         StateController controller = stateControllerFactory.build(anAwaitingCycle3DataState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(AwaitingCycle3DataStateController.class);
-    }
-
-    @Deprecated
-    @Test
-    public void shouldCreateAnAwaitingCycle3DataStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(anAwaitingCycle3DataState().buildTransitional(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(AwaitingCycle3DataStateController.class);
     }
@@ -252,14 +211,6 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(AuthnFailedErrorStateController.class);
     }
 
-    @Deprecated
-    @Test
-    public void shouldCreateAnAuthnFailedErrorStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(anAuthnFailedErrorState().buildTransitional(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(AuthnFailedErrorStateController.class);
-    }
-
     @Test
     public void shouldCreateAFraudEventDetectedStateController() {
         StateController controller = stateControllerFactory.build(aFraudEventDetectedState().build(), stateTransitionAction);
@@ -267,25 +218,9 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(FraudEventDetectedStateController.class);
     }
 
-    @Deprecated
-    @Test
-    public void shouldCreateAFraudEventDetectedStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aFraudEventDetectedState().buildTransitional(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(FraudEventDetectedStateController.class);
-    }
-
     @Test
     public void shouldCreateARequesterErrorStateController() {
         StateController controller = stateControllerFactory.build(aRequesterErrorState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(RequesterErrorStateController.class);
-    }
-
-    @Deprecated
-    @Test
-    public void shouldCreateARequesterErrorStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aRequesterErrorState().buildTransitional(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(RequesterErrorStateController.class);
     }

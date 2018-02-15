@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
 @Singleton
@@ -32,6 +33,10 @@ public class IdentityProvidersConfigProxy {
 
     @Timed
     public List<String> getEnabledIdentityProviders(String transactionEntityId, boolean registering, LevelOfAssurance loa) {
+        if (transactionEntityId == null) {
+            return Collections.emptyList();
+        }
+
         return registering ?
                 getEnabledIdentityProvidersForLoa(transactionEntityId, loa) :
                 getEnabledIdentityProvidersForSignIn(transactionEntityId);

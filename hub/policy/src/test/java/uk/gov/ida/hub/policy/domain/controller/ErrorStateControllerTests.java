@@ -34,9 +34,9 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
-import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
@@ -48,7 +48,7 @@ import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -130,7 +130,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInCycle0And1MatchRequestSentState() {
-        Cycle0And1MatchRequestSentStateTransitional state = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().build();
+        Cycle0And1MatchRequestSentState state = Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState().build();
         StateController stateController = new Cycle0And1MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, transactionsConfigProxy, responseFromHubFactory, assertionRestrictionFactory, matchingServiceConfigProxy, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -163,7 +163,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInCycle3MatchRequestSentState() {
-        Cycle3MatchRequestSentStateTransitional state = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().build();
+        Cycle3MatchRequestSentState state = Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState().build();
         StateController stateController = new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory, transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -207,7 +207,7 @@ public class ErrorStateControllerTests {
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInUserAccountCreationRequestSentState() {
-        UserAccountCreationRequestSentStateTransitional state = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().build();
+        UserAccountCreationRequestSentState state = UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState().build();
         StateController stateController = new UserAccountCreationRequestSentStateController(state, stateTransitionAction, hubEventLogger, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory, attributeQueryService);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
@@ -215,7 +215,6 @@ public class ErrorStateControllerTests {
 
         assertThat(responseFromHub.getStatus()).isEqualTo(TransactionIdaStatus.NoAuthenticationContext);
     }
-
 
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInFraudEventDetectedState() {

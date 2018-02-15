@@ -5,14 +5,14 @@ import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.MatchRequestSentStateTransitional;
+import uk.gov.ida.hub.policy.domain.state.MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
-public abstract class MatchRequestSentStateController<T extends MatchRequestSentStateTransitional> extends AbstractMatchRequestSentStateController<T, SuccessfulMatchState> {
+public abstract class MatchRequestSentStateController<T extends MatchRequestSentState> extends AbstractMatchRequestSentStateController<T, SuccessfulMatchState> {
 
     public MatchRequestSentStateController(
             final T state,

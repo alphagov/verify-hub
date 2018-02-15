@@ -1,10 +1,8 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorStateTransitional;
 
 import java.net.URI;
 import java.util.UUID;
@@ -25,20 +23,6 @@ public class AuthnFailedErrorStateBuilder {
 
     public static AuthnFailedErrorStateBuilder anAuthnFailedErrorState() {
         return new AuthnFailedErrorStateBuilder();
-    }
-
-    @Deprecated
-    public AuthnFailedErrorStateTransitional buildTransitional() {
-        return new AuthnFailedErrorStateTransitional(
-                requestId,
-                requestIssuerId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceIndex,
-                Optional.fromNullable(relayState),
-                sessionId,
-                idpEntityId,
-                Optional.fromNullable(forceAuthentication),
-                transactionSupportsEidas);
     }
 
     public AuthnFailedErrorState build() {

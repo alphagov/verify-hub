@@ -1,10 +1,8 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
-import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedStateTransitional;
 
 import java.net.URI;
 
@@ -21,20 +19,6 @@ public class FraudEventDetectedStateBuilder {
 
     public static FraudEventDetectedStateBuilder aFraudEventDetectedState() {
         return new FraudEventDetectedStateBuilder();
-    }
-
-    @Deprecated
-    public FraudEventDetectedStateTransitional buildTransitional() {
-        return new FraudEventDetectedStateTransitional(
-                requestId,
-                requestIssuerId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceUri,
-                Optional.fromNullable(relayState),
-                sessionId,
-                idpEntityId,
-                Optional.fromNullable(forceAuthentication),
-                false);
     }
 
     public FraudEventDetectedState build() {
