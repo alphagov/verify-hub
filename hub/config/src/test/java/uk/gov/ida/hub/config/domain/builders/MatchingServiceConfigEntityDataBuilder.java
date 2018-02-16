@@ -1,15 +1,18 @@
 package uk.gov.ida.hub.config.domain.builders;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import uk.gov.ida.common.shared.configuration.X509CertificateConfiguration;
 import uk.gov.ida.hub.config.domain.EncryptionCertificate;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
+import uk.gov.ida.hub.config.domain.X509Certificate;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
 
@@ -70,9 +73,8 @@ public class MatchingServiceConfigEntityDataBuilder {
         return this;
     }
 
+    @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class TestMatchingServiceConfigEntityData extends MatchingServiceConfigEntityData {
-        private final EncryptionCertificate encCertificate;
-        private final List<SignatureVerificationCertificate> sigCertificates;
 
         private TestMatchingServiceConfigEntityData(
             String entityId,
@@ -84,25 +86,14 @@ public class MatchingServiceConfigEntityDataBuilder {
             boolean onboarding) {
 
             this.entityId = entityId;
-            this.encryptionCertificate = new X509CertificateConfiguration(null, "test", null);
-            this.signatureVerificationCertificates = Collections.emptyList();
+            this.encryptionCertificate = new X509Certificate(encryptionCertificate.getX509());
+            this.signatureVerificationCertificates = signatureVerificationCertificates.stream().map(
+                    s -> new X509Certificate(s.getX509())
+            ).collect(Collectors.toList());
             this.uri = uri;
             this.userAccountCreationUri = userAccountCreationUri;
             this.healthCheckEnabled = healthCheckEnabled;
             this.onboarding = onboarding;
-
-            this.encCertificate = encryptionCertificate;
-            this.sigCertificates = signatureVerificationCertificates;
-        }
-
-        @Override
-        public EncryptionCertificate getEncryptionCertificate() {
-            return encCertificate;
-        }
-
-        @Override
-        public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
-            return sigCertificates;
         }
     }
 }

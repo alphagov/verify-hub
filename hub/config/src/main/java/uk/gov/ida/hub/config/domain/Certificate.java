@@ -64,4 +64,19 @@ public abstract class Certificate {
     }
 
     public abstract CertificateType getType();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Certificate that = (Certificate) o;
+
+        return fullCert != null ? fullCert.equals(that.fullCert) : that.fullCert == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return fullCert != null ? fullCert.hashCode() : 0;
+    }
 }

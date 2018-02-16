@@ -22,7 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.hub.config.domain.CertificateDetails.aCertifcateDetail;
+import static uk.gov.ida.hub.config.domain.CertificateDetails.aCertificateDetail;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
 import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
@@ -63,7 +63,7 @@ public class CertificateServiceTest {
 
         CertificateDetails certificateDetails = certificateService.encryptionCertificateFor(ENTITY_ID);
 
-        assertThat(certificateDetails).isEqualTo(aCertifcateDetail(ENTITY_ID,
+        assertThat(certificateDetails).isEqualTo(aCertificateDetail(ENTITY_ID,
                 transactionConfigEntityData.getEncryptionCertificate(), FederationEntityType.RP));
     }
 
@@ -93,7 +93,7 @@ public class CertificateServiceTest {
 
         CertificateDetails certificateDetails = certificateService.encryptionCertificateFor(ENTITY_ID);
 
-        assertThat(certificateDetails).isEqualTo(aCertifcateDetail(ENTITY_ID,
+        assertThat(certificateDetails).isEqualTo(aCertificateDetail(ENTITY_ID,
                 matchingServiceConfigEntityData.getEncryptionCertificate(), FederationEntityType.MS));
     }
 
@@ -150,8 +150,8 @@ public class CertificateServiceTest {
         List<CertificateDetails> certificateDetailsFound = certificateService.signatureVerificatonCertificatesFor(ENTITY_ID);
 
         assertThat(certificateDetailsFound.size()).isEqualTo(2);
-        assertThat(certificateDetailsFound).contains(aCertifcateDetail(ENTITY_ID, sigCert1, FederationEntityType.RP),
-                aCertifcateDetail(ENTITY_ID, sigCert2, FederationEntityType.RP));
+        assertThat(certificateDetailsFound).contains(aCertificateDetail(ENTITY_ID, sigCert1, FederationEntityType.RP),
+                aCertificateDetail(ENTITY_ID, sigCert2, FederationEntityType.RP));
     }
 
     @Test
@@ -165,8 +165,8 @@ public class CertificateServiceTest {
                 .addSignatureVerificationCertificate(invalidCert)
                 .build();
 
-        CertificateDetails validCertificate = aCertifcateDetail(ENTITY_ID, validCert, FederationEntityType.RP);
-        CertificateDetails invalidCertificate = aCertifcateDetail(ENTITY_ID, invalidCert, FederationEntityType.RP);
+        CertificateDetails validCertificate = aCertificateDetail(ENTITY_ID, validCert, FederationEntityType.RP);
+        CertificateDetails invalidCertificate = aCertificateDetail(ENTITY_ID, invalidCert, FederationEntityType.RP);
 
         when(matchingServiceDataSource.getData(ENTITY_ID)).thenReturn(Optional.empty());
         when(transactionDataSource.getData(ENTITY_ID)).thenReturn(Optional.of(transactionConfigEntityData));
@@ -197,8 +197,8 @@ public class CertificateServiceTest {
         List<CertificateDetails> certificateDetailsFound = certificateService.signatureVerificatonCertificatesFor(ENTITY_ID);
 
         assertThat(certificateDetailsFound.size()).isEqualTo(2);
-        assertThat(certificateDetailsFound).contains(aCertifcateDetail(ENTITY_ID, sigCert1, FederationEntityType.MS),
-                aCertifcateDetail(ENTITY_ID, sigCert2, FederationEntityType.MS));
+        assertThat(certificateDetailsFound).contains(aCertificateDetail(ENTITY_ID, sigCert1, FederationEntityType.MS),
+                aCertificateDetail(ENTITY_ID, sigCert2, FederationEntityType.MS));
     }
 
     @Test

@@ -24,7 +24,7 @@ public class CertificateDetails {
         this.isEnabled = isEnabled;
     }
 
-    public static CertificateDetails aCertifcateDetail(String issuerId, Certificate certificate, FederationEntityType federationEntityType) {
+    public static CertificateDetails aCertificateDetail(String issuerId, Certificate certificate, FederationEntityType federationEntityType) {
         return new CertificateDetails(issuerId, certificate, federationEntityType);
     }
 

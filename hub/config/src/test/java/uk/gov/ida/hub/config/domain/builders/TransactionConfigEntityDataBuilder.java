@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.config.domain.builders;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import uk.gov.ida.common.shared.configuration.X509CertificateConfiguration;
 import uk.gov.ida.hub.config.domain.AssertionConsumerService;
 import uk.gov.ida.hub.config.domain.EncryptionCertificate;
@@ -8,6 +9,7 @@ import uk.gov.ida.hub.config.domain.MatchingProcess;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
+import uk.gov.ida.hub.config.domain.X509Certificate;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.builders.AssertionConsumerServiceBuilder.anAssertionConsumerService;
 
@@ -138,9 +141,8 @@ public class TransactionConfigEntityDataBuilder {
         return this;
     }
 
+    @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class TestTransactionConfigEntityData extends TransactionConfigEntityData {
-        private final EncryptionCertificate encCertificate;
-        private final List<SignatureVerificationCertificate> sigCertificates;
 
         private TestTransactionConfigEntityData(
                 String entityId,
@@ -159,8 +161,10 @@ public class TransactionConfigEntityDataBuilder {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
             this.simpleId = simpleId;
-            this.encryptionCertificate = new X509CertificateConfiguration(null, "test", null);
-            this.signatureVerificationCertificates = Collections.emptyList();
+            this.encryptionCertificate = new X509Certificate(encryptionCertificate.getX509());
+            this.signatureVerificationCertificates = signatureVerificationCertificates.stream().map(
+                    s -> new X509Certificate(s.getX509())
+            ).collect(Collectors.toList());
             this.matchingServiceEntityId = matchingServiceEntityId;
             this.assertionConsumerServices = assertionConsumerServices;
             this.userAccountCreationAttributes = userAccountCreationAttributes;
@@ -169,19 +173,6 @@ public class TransactionConfigEntityDataBuilder {
             this.eidasEnabled = eidasEnabled;
             this.shouldHubSignResponseMessages = shouldHubSignResponseMessages;
             this.levelsOfAssurance = levelsOfAssurance;
-
-            this.encCertificate = encryptionCertificate;
-            this.sigCertificates = signatureVerificationCertificates;
-        }
-
-        @Override
-        public EncryptionCertificate getEncryptionCertificate() {
-            return encCertificate;
-        }
-
-        @Override
-        public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
-            return sigCertificates;
         }
     }
 }
