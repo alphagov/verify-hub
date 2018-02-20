@@ -65,8 +65,7 @@ public class SessionTimeoutIntegrationTests {
             ConfigOverride.config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("timeoutPeriod", format("{0}m", SOME_TIMEOUT)),
-            ConfigOverride.config("sendToRecordingSystem", "true"));
+            ConfigOverride.config("timeoutPeriod", format("{0}m", SOME_TIMEOUT)));
 
     private SamlAuthnRequestContainerDto samlRequest;
 

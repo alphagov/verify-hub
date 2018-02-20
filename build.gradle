@@ -21,10 +21,10 @@ ext {
 
 def dependencyVersions = [
             ida_utils:'323',
-            // rest_utils:'330' has been added to dependency temporarily for enabling Hub to send events using event emitter.
-            // Upgrading ida_utils to 330 breaks verify-hub. The fix for this issue is still being developed. Once the fix is completed,
-            // rest_utils will be removed from the dependency.
-            rest_utils:'330',
+            // rest_utils has been added to dependency temporarily for enabling Hub to send events using event emitter.
+            // Upgrading ida_utils to the latest version breaks verify-hub. The fix for this issue is still being developed.
+            // Once the fix is completed, rest_utils will be removed from the dependency.
+            rest_utils:'332',
             dropwizard:'1.1.4',
             dropwizard_infinispan:'1.1.4-41',
             pact:'3.5.6',
@@ -99,7 +99,7 @@ subprojects {
 
         rest_utils "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.rest_utils"
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-10"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-30"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils"

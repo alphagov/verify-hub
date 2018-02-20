@@ -25,9 +25,9 @@ public class PolicyApplicationTest {
     }
 
     @Test
-    public void shouldReturnSendToRecordingSystemAsFalseByDefault() throws Exception {
+    public void shouldReturnEventEmitterConfigurationAsNullByDefault() throws Exception {
         application.run(config, environment);
 
-        assertThat(config.getSendToRecordingSystem()).isFalse();
+        assertThat(config.getEventEmitterConfiguration()).isNull();
     }
 }

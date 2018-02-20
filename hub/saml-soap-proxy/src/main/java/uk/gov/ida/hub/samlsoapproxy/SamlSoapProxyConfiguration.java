@@ -94,7 +94,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
 
     @Valid
     @JsonProperty
-    public boolean sendToRecordingSystem = false;
+    public EventEmitterConfiguration eventEmitterConfiguration;
 
     public SamlConfiguration getSamlConfiguration() {
         return saml;
@@ -159,7 +159,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Override
     public boolean getEnableRetryTimeOutConnections() { return enableRetryTimeOutConnections; }
 
-    public boolean getSendToRecordingSystem() {
-        return sendToRecordingSystem;
+    public EventEmitterConfiguration getEventEmitterConfiguration() {
+        return eventEmitterConfiguration;
     }
 }

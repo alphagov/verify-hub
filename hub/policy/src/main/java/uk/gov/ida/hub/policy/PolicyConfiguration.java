@@ -91,7 +91,7 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
 
     @Valid
     @JsonProperty
-    public boolean sendToRecordingSystem = false;
+    public EventEmitterConfiguration eventEmitterConfiguration;
 
     public URI getSamlSoapProxyUri() { return samlSoapProxyUri;  }
 
@@ -154,7 +154,7 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
         return eidas;
     }
 
-    public boolean getSendToRecordingSystem() {
-        return sendToRecordingSystem;
+    public EventEmitterConfiguration getEventEmitterConfiguration() {
+        return eventEmitterConfiguration;
     }
 }

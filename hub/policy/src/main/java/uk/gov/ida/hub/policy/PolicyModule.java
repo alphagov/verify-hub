@@ -8,7 +8,7 @@ import io.dropwizard.setup.Environment;
 import org.joda.time.DateTime;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.security.IdGenerator;
-import uk.gov.ida.eventemitter.EventEmitter;
+import uk.gov.ida.eventemitter.Configuration;
 import uk.gov.ida.eventsink.EventSink;
 import uk.gov.ida.eventsink.EventSinkHttpProxy;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -53,6 +53,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.KeyStore;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
 public class PolicyModule extends AbstractModule {
@@ -92,9 +93,8 @@ public class PolicyModule extends AbstractModule {
     }
 
     @Provides
-    @Singleton
-    public EventEmitter getEventEmitter(PolicyConfiguration configuration) {
-        return new EventEmitter(configuration.getSendToRecordingSystem());
+    private Optional<Configuration> getEventEmitterConfiguration(final PolicyConfiguration configuration) {
+        return Optional.ofNullable(configuration.getEventEmitterConfiguration());
     }
 
     @Provides
