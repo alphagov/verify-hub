@@ -3,12 +3,12 @@ package uk.gov.ida.saml.hub.transformers.inbound.decorators;
 import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
 
-public class ValidateSamlResponseIssuedByIdpDestination {
+public class ResponseDestinationValidator {
 
     private final DestinationValidator validator;
     private final String expectedEndpoint;
 
-    public ValidateSamlResponseIssuedByIdpDestination(
+    public ResponseDestinationValidator(
             DestinationValidator validator,
             String expectedEndpoint
     ) {

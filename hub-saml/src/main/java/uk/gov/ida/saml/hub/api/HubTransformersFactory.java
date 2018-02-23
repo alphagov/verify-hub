@@ -19,7 +19,7 @@ import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
-import uk.gov.ida.saml.core.transformers.inbound.decorators.ValidateSamlAuthnRequestFromTransactionDestination;
+import uk.gov.ida.saml.core.transformers.inbound.decorators.AuthnRequestDestinationValidator;
 import uk.gov.ida.saml.core.transformers.outbound.OutboundAssertionToSubjectTransformer;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseAssertionSigner;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.SamlAttributeQueryAssertionEncrypter;
@@ -64,7 +64,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappings
 import uk.gov.ida.saml.hub.transformers.inbound.decorators.AssertionSizeValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.decorators.AuthnRequestSizeValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.decorators.ResponseSizeValidator;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.ValidateSamlResponseIssuedByIdpDestination;
+import uk.gov.ida.saml.hub.transformers.inbound.decorators.ResponseDestinationValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
@@ -429,7 +429,7 @@ public class HubTransformersFactory {
                 this.<InboundResponseFromIdp>getSamlResponseAssertionDecrypter(keyStore),
                 new SamlAssertionsSignatureValidator(new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory))),
                 new EncryptedResponseFromIdpValidator(new SamlStatusToIdpIdaStatusMappingsFactory()),
-                new ValidateSamlResponseIssuedByIdpDestination(
+                new ResponseDestinationValidator(
                         new DestinationValidator(expectedDestinationHost),
                         expectedEndpoint),
                 getResponseAssertionsFromIdpValidator(assertionIdCache, hubEntityId)
@@ -450,7 +450,7 @@ public class HubTransformersFactory {
         return new AuthnRequestToIdaRequestFromRelyingPartyTransformer(
             new AuthnRequestFromRelyingPartyUnmarshaller(decrypter),
             coreTransformersFactory.<AuthnRequest>getSamlRequestSignatureValidator(signingKeyStore),
-            new ValidateSamlAuthnRequestFromTransactionDestination(new DestinationValidator(expectedDestinationHost), Endpoints.SSO_REQUEST_ENDPOINT),
+            new AuthnRequestDestinationValidator(new DestinationValidator(expectedDestinationHost), Endpoints.SSO_REQUEST_ENDPOINT),
             new AuthnRequestFromTransactionValidator(
                 new IssuerValidator(),
                 new DuplicateAuthnRequestValidator(duplicateIds, samlDuplicateRequestValidationConfiguration),

@@ -7,7 +7,7 @@ import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.IdaResponseFromIdpUnmarshaller;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.ValidateSamlResponseIssuedByIdpDestination;
+import uk.gov.ida.saml.hub.transformers.inbound.decorators.ResponseDestinationValidator;
 import uk.gov.ida.saml.hub.validators.response.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.hub.validators.response.ResponseFromIdpValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
@@ -24,7 +24,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
     private final AssertionDecrypter assertionDecrypter;
     private final SamlAssertionsSignatureValidator samlAssertionsSignatureValidator;
     private final ResponseFromIdpValidator responseFromIdpValidator;
-    private final ValidateSamlResponseIssuedByIdpDestination validateSamlResponseDestination;
+    private final ResponseDestinationValidator responseDestinationValidator;
     private final ResponseAssertionsFromIdpValidator responseAssertionsFromIdpValidator;
 
     public DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
@@ -33,7 +33,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
             AssertionDecrypter assertionDecrypter,
             SamlAssertionsSignatureValidator samlAssertionsSignatureValidator,
             ResponseFromIdpValidator responseFromIdpValidator,
-            ValidateSamlResponseIssuedByIdpDestination validateSamlResponseDestination,
+            ResponseDestinationValidator responseDestinationValidator,
             ResponseAssertionsFromIdpValidator responseAssertionsFromIdpValidator) {
 
         this.idaResponseUnmarshaller = idaResponseUnmarshaller;
@@ -41,7 +41,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
         this.assertionDecrypter = assertionDecrypter;
         this.samlAssertionsSignatureValidator = samlAssertionsSignatureValidator;
         this.responseFromIdpValidator = responseFromIdpValidator;
-        this.validateSamlResponseDestination = validateSamlResponseDestination;
+        this.responseDestinationValidator = responseDestinationValidator;
         this.responseAssertionsFromIdpValidator = responseAssertionsFromIdpValidator;
     }
 
@@ -49,8 +49,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
     public InboundResponseFromIdp apply(Response response) {
 
         responseFromIdpValidator.validate(response);
-        validateSamlResponseDestination.validate(response);
-
+        responseDestinationValidator.validate(response);
 
         ValidatedResponse validatedResponse = samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
         List<Assertion> decryptedAssertions = assertionDecrypter.decryptAssertions(validatedResponse);
