@@ -37,13 +37,11 @@ public class EncryptedResponseFromMatchingServiceValidator {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.signatureNotSigned();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
-        validateIssuer(response.getIssuer());
         validateStatusAndSubStatus(response);
         validateAssertionPresence(response);
     }
 
     protected void validateStatusAndSubStatus(Response response) {
-
         StatusCode statusCode = response.getStatus().getStatusCode();
 
         if(statusCode.getValue().equals(StatusCode.REQUESTER)){
@@ -79,11 +77,6 @@ public class EncryptedResponseFromMatchingServiceValidator {
         }
     }
 
-    private void validateIssuer(Issuer issuer) {
-        if (issuer.getFormat() != null && !issuer.getFormat().equals(NameIDType.ENTITY)) {
-            String format = issuer.getFormat();
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.illegalIssuerFormat(format, NameIDType.ENTITY);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
     }
 

@@ -78,10 +78,7 @@ public class EncryptedResponseFromIdpValidator {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.signatureNotSigned();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
-        validateIssuer(response.getIssuer());
-
         validateStatus(response.getStatus());
-
         validateAssertionPresence(response);
     }
 
@@ -120,14 +117,6 @@ public class EncryptedResponseFromIdpValidator {
 
         if (subStatus != null) {
             validateStatusCode(subStatus, subStatusCount + 1);
-        }
-    }
-
-    private void validateIssuer(Issuer issuer) {
-        if (issuer.getFormat() != null && !issuer.getFormat().equals(NameIDType.ENTITY)) {
-            String format = issuer.getFormat();
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.illegalIssuerFormat(format, NameIDType.ENTITY);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
     }
 }

@@ -37,7 +37,6 @@ public class HealthCheckResponseFromMatchingServiceValidator {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.signatureNotSigned();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
-        validateIssuer(response.getIssuer());
         validateStatusAndSubStatus(response);
     }
 
@@ -45,9 +44,7 @@ public class HealthCheckResponseFromMatchingServiceValidator {
 
         StatusCode statusCode = response.getStatus().getStatusCode();
 
-        if(statusCode.getValue().equals(StatusCode.REQUESTER)){
-            return;
-        }
+        if(statusCode.getValue().equals(StatusCode.REQUESTER)) return;
 
         boolean responseHasNoSubStatus = statusCode.getStatusCode() == null;
 
@@ -69,14 +66,6 @@ public class HealthCheckResponseFromMatchingServiceValidator {
 
         if (!subStatusWasHealthy) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.invalidSubStatusCode(subStatusCodeValue, StatusCode.SUCCESS);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-    }
-
-    private void validateIssuer(Issuer issuer) {
-        if (issuer.getFormat() != null && !issuer.getFormat().equals(NameIDType.ENTITY)) {
-            String format = issuer.getFormat();
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.illegalIssuerFormat(format, NameIDType.ENTITY);
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
     }
