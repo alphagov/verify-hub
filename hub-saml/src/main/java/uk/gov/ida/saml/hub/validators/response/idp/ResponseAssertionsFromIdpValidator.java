@@ -37,21 +37,20 @@ public class ResponseAssertionsFromIdpValidator {
                 assertion -> identityProviderAssertionValidator.validate(assertion, validatedResponse.getInResponseTo(), hubEntityId)
         );
 
-        if (validatedResponse.isSuccess()) {
+        if (!validatedResponse.isSuccess()) return;
 
-            Assertion matchingDatasetAssertion = getMatchingDatasetAssertion(validatedAssertions);
-            Assertion authnStatementAssertion = getAuthnStatementAssertion(validatedAssertions);
+        Assertion matchingDatasetAssertion = getMatchingDatasetAssertion(validatedAssertions);
+        Assertion authnStatementAssertion = getAuthnStatementAssertion(validatedAssertions);
 
-            if (authnStatementAssertion.getAuthnStatements().size() > 1) {
-                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.multipleAuthnStatements();
-                throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-            }
-
-            matchingDatasetAssertionValidator.validate(matchingDatasetAssertion, validatedResponse.getIssuer().getValue());
-            authnStatementAssertionValidator.validate(authnStatementAssertion);
-            identityProviderAssertionValidator.validateConsistency(authnStatementAssertion, matchingDatasetAssertion);
-            ipAddressValidator.validate(authnStatementAssertion);
+        if (authnStatementAssertion.getAuthnStatements().size() > 1) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.multipleAuthnStatements();
+            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
+
+        matchingDatasetAssertionValidator.validate(matchingDatasetAssertion, validatedResponse.getIssuer().getValue());
+        authnStatementAssertionValidator.validate(authnStatementAssertion);
+        identityProviderAssertionValidator.validateConsistency(authnStatementAssertion, matchingDatasetAssertion);
+        ipAddressValidator.validate(authnStatementAssertion);
     }
 
     private Assertion getAuthnStatementAssertion(ValidatedAssertions validatedAssertions) {

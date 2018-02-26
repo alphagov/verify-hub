@@ -10,36 +10,16 @@ import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
+import uk.gov.ida.saml.hub.validators.response.common.IssuerValidator;
+import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
 import uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil;
 
 public class EncryptedResponseFromMatchingServiceValidator {
 
     public void validate(Response response) {
-        validateAndExtractRequestIdAndIssuerId(response);
+        IssuerValidator.validate(response);
+        RequestIdValidator.validate(response);
         validateResponse(response);
-    }
-
-    private void validateAndExtractRequestIdAndIssuerId(Response response) {
-        Issuer issuer = response.getIssuer();
-        if (issuer == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingIssuer();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        String issuerId = issuer.getValue();
-        if (Strings.isNullOrEmpty(issuerId)) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.emptyIssuer();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        if (response.getInResponseTo() == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingInResponseTo();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-        if (response.getInResponseTo().isEmpty()) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.emptyInResponseTo();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
     }
 
     private void validateResponse(Response response) {

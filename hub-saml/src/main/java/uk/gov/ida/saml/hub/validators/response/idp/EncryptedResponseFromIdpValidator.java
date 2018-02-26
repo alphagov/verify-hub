@@ -13,6 +13,8 @@ import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdaStatusCodeMapper;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
+import uk.gov.ida.saml.hub.validators.response.common.IssuerValidator;
+import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
 import uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil;
 
 import java.util.Optional;
@@ -56,31 +58,9 @@ public class EncryptedResponseFromIdpValidator {
     private SamlStatusToIdaStatusCodeMapper statusCodeMapper;
 
     public void validate(Response response) {
-        validateRequestIdAndIssuerId(response);
+        IssuerValidator.validate(response);
+        RequestIdValidator.validate(response);
         validateResponse(response);
-    }
-
-    private void validateRequestIdAndIssuerId(Response response) {
-        Issuer issuer = response.getIssuer();
-        if (issuer == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingIssuer();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        String issuerId = issuer.getValue();
-        if (Strings.isNullOrEmpty(issuerId)) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.emptyIssuer();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        if (response.getInResponseTo() == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingInResponseTo();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-        if (response.getInResponseTo().isEmpty()) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.emptyInResponseTo();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
     }
 
     private void validateResponse(Response response) {
