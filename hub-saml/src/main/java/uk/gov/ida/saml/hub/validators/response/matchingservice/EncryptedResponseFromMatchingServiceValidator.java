@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.hub.validators.response;
+package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
 import com.google.common.base.Strings;
 import org.opensaml.saml.saml2.core.Issuer;
@@ -9,9 +9,10 @@ import org.opensaml.xmlsec.signature.Signature;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;import uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil;
+import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
+import uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil;
 
-public class HealthCheckResponseFromMatchingServiceValidator {
+public class EncryptedResponseFromMatchingServiceValidator {
 
     public void validate(Response response) {
         validateAndExtractRequestIdAndIssuerId(response);
@@ -58,6 +59,7 @@ public class HealthCheckResponseFromMatchingServiceValidator {
         }
         validateIssuer(response.getIssuer());
         validateStatusAndSubStatus(response);
+        validateAssertionPresence(response);
     }
 
     protected void validateStatusAndSubStatus(Response response) {
@@ -75,20 +77,25 @@ public class HealthCheckResponseFromMatchingServiceValidator {
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
 
-        final String statusCodeValue = statusCode.getValue();
-        boolean statusWasSuccess = statusCodeValue.equals(StatusCode.SUCCESS);
+        boolean statusWasResponder = response.getStatus().getStatusCode().getValue().equals(StatusCode.RESPONDER);
+        boolean statusWasSuccess = response.getStatus().getStatusCode().getValue().equals(StatusCode.SUCCESS);
 
-        final String subStatusCodeValue = statusCode.getStatusCode().getValue();
-        boolean subStatusWasHealthy = subStatusCodeValue.equals(SamlStatusCode.HEALTHY);
+        boolean subStatusWasNoMatch = response.getStatus().getStatusCode().getStatusCode().getValue().equals(SamlStatusCode.NO_MATCH);
+        boolean subStatusWasMatch = response.getStatus().getStatusCode().getStatusCode().getValue().equals(SamlStatusCode.MATCH);
+        boolean subStatusWasMultiMatch = response.getStatus().getStatusCode().getStatusCode().getValue().equals(SamlStatusCode.MULTI_MATCH);
+        boolean subStatusWasCreated = response.getStatus().getStatusCode().getStatusCode().getValue().equals(SamlStatusCode.CREATED);
+        boolean subStatusWasCreateFailure = response.getStatus().getStatusCode().getStatusCode().getValue().equals(SamlStatusCode.CREATE_FAILURE);
 
-        if (!statusWasSuccess) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.invalidStatusCode(statusCodeValue);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        if (!subStatusWasHealthy) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.invalidSubStatusCode(subStatusCodeValue, StatusCode.SUCCESS);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        if (statusWasResponder) {
+            if (!subStatusWasNoMatch && !subStatusWasMultiMatch && !subStatusWasCreateFailure) {
+                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.subStatusMustBeOneOf("Responder", "No Match", "Multi Match", "Create Failure");
+                throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+            }
+        } else {
+            if (statusWasSuccess && !(subStatusWasMatch || subStatusWasNoMatch || subStatusWasCreated)) {
+                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.subStatusMustBeOneOf("Success", "Match", "No Match", "Created");
+                throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+            }
         }
     }
 
@@ -96,6 +103,31 @@ public class HealthCheckResponseFromMatchingServiceValidator {
         if (issuer.getFormat() != null && !issuer.getFormat().equals(NameIDType.ENTITY)) {
             String format = issuer.getFormat();
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.illegalIssuerFormat(format, NameIDType.ENTITY);
+            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        }
+    }
+
+    protected void validateAssertionPresence(Response response) {
+        if (!response.getAssertions().isEmpty()) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.unencryptedAssertion();
+            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        }
+
+        boolean responseWasSuccessful = response.getStatus().getStatusCode().getValue().equals(StatusCode.SUCCESS);
+        boolean responseHasNoAssertions = response.getEncryptedAssertions().isEmpty();
+
+        if (responseWasSuccessful && responseHasNoAssertions) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingSuccessUnEncryptedAssertions();
+            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        }
+
+        if (!responseWasSuccessful && !responseHasNoAssertions) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.nonSuccessHasUnEncryptedAssertions();
+            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        }
+
+        if (response.getEncryptedAssertions().size() > 1) {
+            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.unexpectedNumberOfAssertions(1, response.getEncryptedAssertions().size());
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
     }

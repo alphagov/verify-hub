@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.hub.validators.response;
+package uk.gov.ida.saml.hub.validators.response.idp;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -7,15 +7,19 @@ import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
+import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.core.test.builders.ResponseBuilder;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.validation.errors.GenericHubProfileValidationSpecification;
 import uk.gov.ida.saml.core.validation.errors.ResponseProcessingValidationSpecification;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
+import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
 
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.*;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidStatusCode;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidSubStatusCode;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nestedSubStatusCodesBreached;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nonSuccessHasUnEncryptedAssertions;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
@@ -25,7 +29,7 @@ import static uk.gov.ida.saml.core.test.builders.StatusCodeBuilder.aStatusCode;
 @RunWith(OpenSAMLMockitoRunner.class)
 public class EncryptedResponseFromIdpValidatorTest {
 
-    private ResponseFromIdpValidator validator;
+    private EncryptedResponseFromIdpValidator validator;
 
     @Before
     public void setup() {

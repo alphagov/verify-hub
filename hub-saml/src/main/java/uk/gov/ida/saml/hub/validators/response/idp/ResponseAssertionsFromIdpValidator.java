@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.hub.validators.response;
+package uk.gov.ida.saml.hub.validators.response.idp;
 
 import org.opensaml.saml.saml2.core.Assertion;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
@@ -7,6 +7,7 @@ import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;import uk.gov.
 import uk.gov.ida.saml.core.validators.assertion.IPAddressValidator;
 import uk.gov.ida.saml.core.validators.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.MatchingDatasetAssertionValidator;
+import uk.gov.ida.saml.hub.validators.response.ResponseAssertionsValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 

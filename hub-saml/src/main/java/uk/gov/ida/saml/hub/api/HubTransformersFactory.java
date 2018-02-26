@@ -89,11 +89,11 @@ import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestFromTransactionVa
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIssueInstantValidator;
 import uk.gov.ida.saml.hub.validators.authnrequest.DuplicateAuthnRequestValidator;
-import uk.gov.ida.saml.hub.validators.response.EncryptedResponseFromIdpValidator;
-import uk.gov.ida.saml.hub.validators.response.EncryptedResponseFromMatchingServiceValidator;
-import uk.gov.ida.saml.hub.validators.response.HealthCheckResponseFromMatchingServiceValidator;
-import uk.gov.ida.saml.hub.validators.response.ResponseAssertionsFromIdpValidator;
-import uk.gov.ida.saml.hub.validators.response.ResponseAssertionsFromMatchingServiceValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.EncryptedResponseFromIdpValidator;
+import uk.gov.ida.saml.hub.validators.response.matchingservice.EncryptedResponseFromMatchingServiceValidator;
+import uk.gov.ida.saml.hub.validators.response.matchingservice.HealthCheckResponseFromMatchingServiceValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.ResponseAssertionsFromIdpValidator;
+import uk.gov.ida.saml.hub.validators.response.matchingservice.ResponseAssertionsFromMatchingServiceValidator;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.domain.HubServiceProviderMetadataDto;
 import uk.gov.ida.saml.metadata.transformers.AssertionConsumerServicesMarshaller;
