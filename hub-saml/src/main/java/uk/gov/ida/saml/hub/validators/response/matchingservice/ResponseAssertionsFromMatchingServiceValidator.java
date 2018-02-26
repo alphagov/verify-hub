@@ -1,12 +1,13 @@
 package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
 import org.opensaml.saml.saml2.core.Assertion;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
-import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
-import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.validators.assertion.AssertionValidator;
+import uk.gov.ida.saml.hub.exception.SamlValidationException;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
+
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnContextMissingError;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingAuthnStatement;
 
 public class ResponseAssertionsFromMatchingServiceValidator {
 
@@ -23,13 +24,13 @@ public class ResponseAssertionsFromMatchingServiceValidator {
 
         for (Assertion assertion : validatedAssertions.getAssertions()) {
             assertionValidator.validate(assertion, validatedResponse.getInResponseTo(), hubEntityId);
-            if (assertion.getAuthnStatements().size() == 0) {
-                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingAuthnStatement();
-                throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+
+            if (assertion.getAuthnStatements().isEmpty()) {
+                throw new SamlValidationException(missingAuthnStatement());
             }
+
             if (assertion.getAuthnStatements().get(0).getAuthnContext() == null) {
-                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.authnContextMissingError();
-                throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+                throw new SamlValidationException(authnContextMissingError());
             }
         }
     }

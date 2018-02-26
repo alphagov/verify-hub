@@ -4,8 +4,7 @@ import com.google.common.base.Strings;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
-import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
-import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
+import uk.gov.ida.saml.hub.exception.SamlValidationException;
 
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.emptyIssuer;
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.illegalIssuerFormat;
@@ -14,17 +13,13 @@ import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missing
 public class IssuerValidator {
     public static void validate(Response response) {
         Issuer issuer = response.getIssuer();
-        if (issuer == null) throwError(missingIssuer());
+        if (issuer == null) throw new SamlValidationException(missingIssuer());
 
         String issuerId = issuer.getValue();
-        if (Strings.isNullOrEmpty(issuerId)) throwError(emptyIssuer());
+        if (Strings.isNullOrEmpty(issuerId)) throw new SamlValidationException(emptyIssuer());
 
         String issuerFormat = issuer.getFormat();
         if (issuerFormat != null && !NameIDType.ENTITY.equals(issuerFormat))
-            throwError(illegalIssuerFormat(issuerFormat, NameIDType.ENTITY));
-    }
-
-    private static void throwError(SamlValidationSpecificationFailure failure) {
-        throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+            throw new SamlValidationException(illegalIssuerFormat(issuerFormat, NameIDType.ENTITY));
     }
 }

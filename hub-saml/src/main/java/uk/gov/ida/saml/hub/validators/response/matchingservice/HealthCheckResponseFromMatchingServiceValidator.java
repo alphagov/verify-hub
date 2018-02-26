@@ -1,18 +1,21 @@
 package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
 import com.google.common.base.Strings;
-import org.opensaml.saml.saml2.core.Issuer;
-import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.xmlsec.signature.Signature;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
-import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
-import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
+import uk.gov.ida.saml.hub.exception.SamlValidationException;
 import uk.gov.ida.saml.hub.validators.response.common.IssuerValidator;
 import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
-import uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil;
+
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidStatusCode;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidSubStatusCode;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingId;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSignature;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSubStatus;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.signatureNotSigned;
+import static uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil.isSignaturePresent;
 
 public class HealthCheckResponseFromMatchingServiceValidator {
 
@@ -23,50 +26,28 @@ public class HealthCheckResponseFromMatchingServiceValidator {
     }
 
     private void validateResponse(Response response) {
-        if (Strings.isNullOrEmpty(response.getID())) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingId();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
+        if (Strings.isNullOrEmpty(response.getID())) throw new SamlValidationException(missingId());
 
         Signature signature = response.getSignature();
-        if (signature == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingSignature();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-        if (!SamlSignatureUtil.isSignaturePresent(signature)) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.signatureNotSigned();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
+        if (signature == null) throw new SamlValidationException(missingSignature());
+        if (!isSignaturePresent(signature)) throw new SamlValidationException(signatureNotSigned());
+
         validateStatusAndSubStatus(response);
     }
 
     protected void validateStatusAndSubStatus(Response response) {
-
         StatusCode statusCode = response.getStatus().getStatusCode();
 
-        if(statusCode.getValue().equals(StatusCode.REQUESTER)) return;
+        if(StatusCode.REQUESTER.equals(statusCode.getValue())) return;
 
-        boolean responseHasNoSubStatus = statusCode.getStatusCode() == null;
+        if (statusCode.getStatusCode() == null) throw new SamlValidationException(missingSubStatus());
 
-        if (responseHasNoSubStatus) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingSubStatus();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
+        String statusCodeValue = statusCode.getValue();
+        if (!StatusCode.SUCCESS.equals(statusCodeValue)) throw new SamlValidationException(invalidStatusCode(statusCodeValue));
 
-        final String statusCodeValue = statusCode.getValue();
-        boolean statusWasSuccess = statusCodeValue.equals(StatusCode.SUCCESS);
-
-        final String subStatusCodeValue = statusCode.getStatusCode().getValue();
-        boolean subStatusWasHealthy = subStatusCodeValue.equals(SamlStatusCode.HEALTHY);
-
-        if (!statusWasSuccess) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.invalidStatusCode(statusCodeValue);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        if (!subStatusWasHealthy) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.invalidSubStatusCode(subStatusCodeValue, StatusCode.SUCCESS);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+        String subStatusCodeValue = statusCode.getStatusCode().getValue();
+        if (!SamlStatusCode.HEALTHY.equals(subStatusCodeValue)) {
+            throw new SamlValidationException(invalidSubStatusCode(subStatusCodeValue, StatusCode.SUCCESS));
         }
     }
 }
