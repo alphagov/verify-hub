@@ -125,13 +125,8 @@ public class HealthCheckResponseFromMatchingServiceValidatorTest {
 
     private void assertValidationFailureSamlExceptionMessage(SamlValidationSpecificationFailure failure, final Response response) {
         SamlTransformationErrorManagerTestHelper.validateFail(
-                new SamlTransformationErrorManagerTestHelper.Action() {
-                    @Override
-                    public void execute() {
-                        validator.validate(response);
-                    }
-                },
-                failure
+            () -> validator.validate(response),
+            failure
         );
     }
 }

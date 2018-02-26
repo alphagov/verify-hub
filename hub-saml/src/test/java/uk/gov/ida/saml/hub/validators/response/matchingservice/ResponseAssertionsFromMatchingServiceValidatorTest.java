@@ -14,7 +14,6 @@ import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.validators.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.subjectconfirmation.BasicAssertionSubjectConfirmationValidator;
-import uk.gov.ida.saml.hub.validators.response.ResponseAssertionsValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
@@ -31,10 +30,8 @@ public class ResponseAssertionsFromMatchingServiceValidatorTest {
 
     @Mock
     private IdentityProviderAssertionValidator assertionValidator;
-    @Mock
-    private BasicAssertionSubjectConfirmationValidator subjectConfirmationValidator;
 
-    private ResponseAssertionsValidator validator;
+    private ResponseAssertionsFromMatchingServiceValidator validator;
 
     @Before
     public void setUp() throws Exception {

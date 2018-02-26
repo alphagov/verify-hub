@@ -1,35 +1,35 @@
 package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
 import org.opensaml.saml.saml2.core.Assertion;
+import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;import uk.gov.ida.saml.core.validators.assertion.AssertionValidator;
-import uk.gov.ida.saml.hub.validators.response.ResponseAssertionsValidator;
+import uk.gov.ida.saml.core.validators.assertion.AssertionValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
-public class ResponseAssertionsFromMatchingServiceValidator extends ResponseAssertionsValidator {
+public class ResponseAssertionsFromMatchingServiceValidator {
 
-    public ResponseAssertionsFromMatchingServiceValidator(
-            AssertionValidator assertionValidator,
-            String hubEntityId) {
+    private AssertionValidator assertionValidator;
+    private String hubEntityId;
 
-        super(assertionValidator, hubEntityId);
+    public ResponseAssertionsFromMatchingServiceValidator(AssertionValidator assertionValidator, String hubEntityId) {
+        this.assertionValidator = assertionValidator;
+        this.hubEntityId = hubEntityId;
     }
 
-    @Override
     public void validate(ValidatedResponse validatedResponse, ValidatedAssertions validatedAssertions) {
-        if (validatedResponse.isSuccess()) {
-            super.validate(validatedResponse, validatedAssertions);
-            for (Assertion assertion : validatedAssertions.getAssertions()) {
-                if (assertion.getAuthnStatements().size() == 0) {
-                    SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingAuthnStatement();
-                    throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-                }
-                if (assertion.getAuthnStatements().get(0).getAuthnContext() == null) {
-                    SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.authnContextMissingError();
-                    throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-                }
+        if (!validatedResponse.isSuccess()) return;
+
+        for (Assertion assertion : validatedAssertions.getAssertions()) {
+            assertionValidator.validate(assertion, validatedResponse.getInResponseTo(), hubEntityId);
+            if (assertion.getAuthnStatements().size() == 0) {
+                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingAuthnStatement();
+                throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
+            }
+            if (assertion.getAuthnStatements().get(0).getAuthnContext() == null) {
+                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.authnContextMissingError();
+                throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
             }
         }
     }

@@ -3,28 +3,26 @@ package uk.gov.ida.saml.hub.validators.response.idp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.opensaml.saml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
-import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
-import uk.gov.ida.saml.core.test.builders.ResponseBuilder;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.validation.errors.GenericHubProfileValidationSpecification;
-import uk.gov.ida.saml.core.validation.errors.ResponseProcessingValidationSpecification;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
 
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidStatusCode;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidSubStatusCode;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nestedSubStatusCodesBreached;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nonSuccessHasUnEncryptedAssertions;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.*;
+import static uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper.validateFail;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
-import static uk.gov.ida.saml.core.test.builders.StatusBuilder.aStatus;
 import static uk.gov.ida.saml.core.test.builders.StatusCodeBuilder.aStatusCode;
+import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.createStatus;
+import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.createSubStatusCode;
+import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.getResponseBuilderWithTwoAssertions;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class EncryptedResponseFromIdpValidatorTest {
@@ -33,47 +31,35 @@ public class EncryptedResponseFromIdpValidatorTest {
 
     @Before
     public void setup() {
-        validator = new EncryptedResponseFromIdpValidator(
-                new SamlStatusToIdpIdaStatusMappingsFactory()
-        );
+        validator = new EncryptedResponseFromIdpValidator(new SamlStatusToIdpIdaStatusMappingsFactory());
     }
 
     @Test
     public void validate_shouldThrowExceptionIfIdIsMissing() throws Exception {
         Response response = aResponse().withId(null).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                SamlTransformationErrorFactory.missingId(),
-                response
-        );
+        assertValidationFailure(response, missingId());
     }
 
     @Test
     public void validate_shouldThrowExceptionIfIssuerElementIsMissing() throws Exception {
         Response response = aResponse().withIssuer(null).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                SamlTransformationErrorFactory.missingIssuer(),
-                response
-        );
+        assertValidationFailure(response, missingIssuer());
     }
 
     @Test
     public void validate_shouldThrowExceptionIfIssuerIdIsMissing() throws Exception {
-        Response response = aResponse().withIssuer(anIssuer().withIssuerId(null).build()).build();
+        Issuer issuer = anIssuer().withIssuerId(null).build();
+        Response response = aResponse().withIssuer(issuer).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                SamlTransformationErrorFactory.emptyIssuer(),
-                response
-        );
+        assertValidationFailure(response, emptyIssuer());
     }
 
     @Test
-    public void validateRequest_shouldDoNothingIfRequestIsSigned() throws Exception {
+    public void validateRequest_shouldNotErrorIfRequestIsSigned() throws Exception {
         Response response = getResponseBuilderWithTwoAssertions().build();
+
         validator.validate(response);
     }
 
@@ -81,49 +67,40 @@ public class EncryptedResponseFromIdpValidatorTest {
     public void validateRequest_shouldThrowExceptionIfResponseDoesNotContainASignature() throws Exception {
         Response response = aResponse().withoutSignatureElement().build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                SamlTransformationErrorFactory.missingSignature(),
-                response
-        );
+        assertValidationFailure(response, missingSignature());
     }
 
     @Test
     public void validateRequest_shouldThrowExceptionIfResponseIsNotSigned() throws Exception {
         Response response = aResponse().withoutSigning().build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                SamlTransformationErrorFactory.signatureNotSigned(),
-                response
-        );
+        assertValidationFailure(response, signatureNotSigned());
     }
 
     @Test
     public void validateIssuer_shouldThrowExceptionIfFormatAttributeHasInvalidValue() throws Exception {
         String invalidFormat = "goo";
-        Response response = aResponse().withIssuer(anIssuer().withFormat(invalidFormat).build()).build();
+        Issuer issuer = anIssuer().withFormat(invalidFormat).build();
+        Response response = aResponse().withIssuer(issuer).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class, SamlTransformationErrorFactory.illegalIssuerFormat(
-                        invalidFormat,
-                        NameIDType.ENTITY
-                ), response
-        );
+        assertValidationFailure(response, illegalIssuerFormat(
+            invalidFormat,
+            NameIDType.ENTITY
+        ));
     }
 
     @Test
-    public void validateIssuer_shouldDoNothingIfFormatAttributeIsMissing() throws Exception {
-        Response response = getResponseBuilderWithTwoAssertions()
-                .withIssuer(anIssuer().withFormat(null).build()).build();
+    public void validateIssuer_shouldNotErrorIfFormatAttributeIsMissing() throws Exception {
+        Issuer issuer = anIssuer().withFormat(null).build();
+        Response response = getResponseBuilderWithTwoAssertions().withIssuer(issuer).build();
 
         validator.validate(response);
     }
 
     @Test
-    public void validateIssuer_shouldDoNothingIfFormatAttributeHasValidValue() throws Exception {
-        Response response = getResponseBuilderWithTwoAssertions()
-                .withIssuer(anIssuer().withFormat(NameIDType.ENTITY).build()).build();
+    public void validateIssuer_shouldNotErrorIfFormatAttributeHasValidValue() throws Exception {
+        Issuer issuer = anIssuer().withFormat(NameIDType.ENTITY).build();
+        Response response = getResponseBuilderWithTwoAssertions().withIssuer(issuer).build();
 
         validator.validate(response);
     }
@@ -132,223 +109,120 @@ public class EncryptedResponseFromIdpValidatorTest {
     public void validateResponse_shouldThrowExceptionIfResponseHasUnencryptedAssertion() throws Exception {
         Response response = aResponse().addAssertion(anAssertion().buildUnencrypted()).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                ResponseProcessingValidationSpecification.class,
-                SamlTransformationErrorFactory.unencryptedAssertion(),
-                response
-        );
+        assertValidationFailure(response, SamlTransformationErrorFactory.unencryptedAssertion());
     }
 
     @Test
     public void validateResponse_shouldThrowExceptionForSuccessResponsesWithNoAssertions() throws Exception {
         Response response = aResponse().withNoDefaultAssertion().build();
 
-        assertValidationFailureSamlExceptionMessage(
-                ResponseProcessingValidationSpecification.class,
-                SamlTransformationErrorFactory.missingSuccessUnEncryptedAssertions(),
-                response
-        );
+        assertValidationFailure(response, SamlTransformationErrorFactory.missingSuccessUnEncryptedAssertions());
     }
 
     @Test
     public void validateResponse_shouldThrowExceptionForFailureResponsesWithAssertions() throws Exception {
-        Response response = aResponse()
-                .withStatus(
-                        aStatus()
-                                .withStatusCode(
-                                        aStatusCode()
-                                                .withValue(StatusCode.RESPONDER)
-                                                .withSubStatusCode(
-                                                        aStatusCode().withValue(StatusCode.AUTHN_FAILED).build()
-                                                )
-                                                .build()
-                                )
-                                .build()
-                )
-                .build();
+        Status status = createStatus(StatusCode.RESPONDER, createSubStatusCode(StatusCode.AUTHN_FAILED));
+        Response response = aResponse().withStatus(status).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                ResponseProcessingValidationSpecification.class,
-                nonSuccessHasUnEncryptedAssertions(),
-                response
-        );
+        assertValidationFailure(response, nonSuccessHasUnEncryptedAssertions());
     }
 
     @Test
     public void validateResponse_shouldThrowExceptionIfThereIsNoInResponseToAttribute() throws Exception {
         Response response = aResponse().withInResponseTo(null).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                SamlTransformationErrorFactory.missingInResponseTo(),
-                response
-        );
+        assertValidationFailure(response, SamlTransformationErrorFactory.missingInResponseTo());
     }
 
     @Test
-    public void validateStatus_shouldDoNothingIfStatusIsResponderWithSubStatusAuthnFailed() throws Exception {
-        Response response = aResponse().withStatus(
-                aStatus().withStatusCode(
-                        aStatusCode()
-                                .withValue(StatusCode.RESPONDER)
-                                .withSubStatusCode(aStatusCode().withValue(StatusCode.AUTHN_FAILED).build()).build())
-                        .build())
-                .withNoDefaultAssertion().build();
+    public void validateStatus_shouldNotErrorIfStatusIsResponderWithSubStatusAuthnFailed() throws Exception {
+        Status status = createStatus(StatusCode.RESPONDER, createSubStatusCode(StatusCode.AUTHN_FAILED));
+        Response response = aResponse().withStatus(status).withNoDefaultAssertion().build();
 
         validator.validate(response);
     }
 
     @Test
-    public void validateStatus_shouldDoNothingIfStatusIsResponderWithSubStatusNoAuthnContext() throws Exception {
-        Response response = aResponse().withStatus(
-                aStatus().withStatusCode(
-                        aStatusCode()
-                                .withValue(StatusCode.RESPONDER)
-                                .withSubStatusCode(aStatusCode().withValue(StatusCode.NO_AUTHN_CONTEXT).build())
-                                .build())
-                        .build())
-                .withNoDefaultAssertion()
-                .build();
+    public void validateStatus_shouldNotErrorIfStatusIsResponderWithSubStatusNoAuthnContext() throws Exception {
+        Status status = createStatus(StatusCode.RESPONDER, createSubStatusCode(StatusCode.NO_AUTHN_CONTEXT));
+        Response response = aResponse().withStatus(status).withNoDefaultAssertion().build();
 
         validator.validate(response);
     }
 
     @Test
-    public void validateStatus_shouldDoNothingIfStatusIsRequesterWithNoSubStatus() throws Exception {
-        Response response = aResponse().withStatus(
-                aStatus()
-                        .withStatusCode(aStatusCode().withValue(StatusCode.REQUESTER).build())
-                        .build())
-                .withNoDefaultAssertion()
-                .build();
+    public void validateStatus_shouldNotErrorIfStatusIsRequesterWithNoSubStatus() throws Exception {
+        Status status = createStatus(StatusCode.REQUESTER);
+        Response response = aResponse().withStatus(status).withNoDefaultAssertion().build();
 
         validator.validate(response);
     }
 
     @Test
-    public void validateStatus_shouldDoNothingIfStatusIsSuccessWithNoSubStatus() throws Exception {
-        Response response = getResponseBuilderWithTwoAssertions().withStatus(
-                aStatus()
-                        .withStatusCode(
-                                aStatusCode()
-                                        .withValue(StatusCode.SUCCESS)
-                                        .build()
-                        )
-                        .build()
-        ).build();
+    public void validateStatus_shouldNotErrorIfStatusIsSuccessWithNoSubStatus() throws Exception {
+        Status status = createStatus(StatusCode.SUCCESS);
+        Response response = getResponseBuilderWithTwoAssertions().withStatus(status).build();
 
         validator.validate(response);
     }
 
     @Test
     public void validateStatus_shouldThrowExceptionIfTheStatusIsInvalid() throws Exception {
-        final String anInvalidStatusCode = "This is wrong";
-        Response response = aResponse().withStatus(
-                aStatus()
-                        .withStatusCode(
-                                aStatusCode()
-                                        .withValue(anInvalidStatusCode)
-                                        .build()
-                        )
-                        .build()
-        ).build();
+        String anInvalidStatusCode = "This is wrong";
+        Status status = createStatus(anInvalidStatusCode);
+        Response response = aResponse().withStatus(status).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                invalidStatusCode(anInvalidStatusCode),
-                response
-        );
+        assertValidationFailure(response, invalidStatusCode(anInvalidStatusCode));
     }
 
     @Test
     public void validateStatus_shouldThrowExceptionIfSuccessHasASubStatus() throws Exception {
-        final StatusCode subStatusCode = aStatusCode().build();
-        Response response = aResponse().withStatus(
-                aStatus().withStatusCode(
-                        aStatusCode()
-                                .withValue(StatusCode.SUCCESS)
-                                .withSubStatusCode(subStatusCode)
-                                .build()
-                ).build()
-        ).build();
+        StatusCode subStatusCode = createSubStatusCode();
+        Status status = createStatus(StatusCode.SUCCESS, subStatusCode);
+        Response response = aResponse().withStatus(status).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                invalidSubStatusCode(subStatusCode.getValue(), StatusCode.SUCCESS),
-                response
-        );
+        assertValidationFailure(response, invalidSubStatusCode(subStatusCode.getValue(), StatusCode.SUCCESS));
     }
 
     @Test
     public void validateStatus_shouldThrowExceptionIfRequesterHasASubStatus() throws Exception {
-        final StatusCode subStatusCode = aStatusCode().build();
-        final StatusCode statusCode = aStatusCode()
-                .withValue(StatusCode.REQUESTER)
-                .withSubStatusCode(subStatusCode)
-                .build();
-        Status status = aStatus().withStatusCode(statusCode).build();
+        StatusCode subStatusCode = createSubStatusCode();
+        Status status = createStatus(StatusCode.REQUESTER, subStatusCode);
         Response response = aResponse().withStatus(status).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                invalidSubStatusCode(subStatusCode.getValue(), StatusCode.REQUESTER),
-                response
-        );
+        assertValidationFailure(response, invalidSubStatusCode(subStatusCode.getValue(), StatusCode.REQUESTER));
     }
 
     @Test
     public void validateStatus_shouldThrowExceptionIfAuthnFailedHasASubSubStatus() throws Exception {
-        final StatusCode statusCode = aStatusCode()
-                .withValue(StatusCode.RESPONDER)
-                .withSubStatusCode(
-                        aStatusCode().withValue(StatusCode.AUTHN_FAILED)
-                                .withSubStatusCode(aStatusCode().build())
-                                .build()
-                )
-                .build();
-        Status status = aStatus().withStatusCode(statusCode).build();
+        StatusCode subStatusCode = aStatusCode()
+            .withValue(StatusCode.AUTHN_FAILED)
+            .withSubStatusCode(createSubStatusCode())
+            .build();
+
+        Status status = createStatus(StatusCode.RESPONDER, subStatusCode);
         Response response = aResponse().withStatus(status).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                nestedSubStatusCodesBreached(1),
-                response
-        );
+        assertValidationFailure(response, nestedSubStatusCodesBreached(1));
     }
 
     @Test
     public void validate_shouldThrowIfResponseContainsTooManyAssertions() throws Exception {
-        Response response = getResponseBuilderWithTwoAssertions()
-                .addEncryptedAssertion(anAssertion().build())
-                .build();
+        EncryptedAssertion assertion = anAssertion().build();
+        Response response = getResponseBuilderWithTwoAssertions().addEncryptedAssertion(assertion).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                SamlTransformationErrorFactory.unexpectedNumberOfAssertions(2, 3),
-                response
-        );
+        assertValidationFailure(response, unexpectedNumberOfAssertions(2, 3));
     }
-
 
     @Test
     public void validate_shouldThrowIfResponseContainsTooFewAssertions() throws Exception {
-        Response response = aResponse().addEncryptedAssertion(anAssertion().build()).build();
+        EncryptedAssertion assertion = anAssertion().build();
+        Response response = aResponse().addEncryptedAssertion(assertion).build();
 
-        assertValidationFailureSamlExceptionMessage(
-                GenericHubProfileValidationSpecification.class,
-                SamlTransformationErrorFactory.unexpectedNumberOfAssertions(2, 1),
-                response
-        );
+        assertValidationFailure(response, unexpectedNumberOfAssertions(2, 1));
     }
 
-    private void assertValidationFailureSamlExceptionMessage(Class<? extends SamlValidationSpecificationFailure> errorClass, SamlValidationSpecificationFailure failure, final Response response) {
-        SamlTransformationErrorManagerTestHelper.validateFail(
-                () -> validator.validate(response),
-                failure
-        );
-    }
-
-    private ResponseBuilder getResponseBuilderWithTwoAssertions() {
-        return aResponse().addEncryptedAssertion(anAssertion().build()).addEncryptedAssertion(anAssertion().build());
+    private void assertValidationFailure(Response response, SamlValidationSpecificationFailure failure) {
+        validateFail(() -> validator.validate(response), failure);
     }
 }
