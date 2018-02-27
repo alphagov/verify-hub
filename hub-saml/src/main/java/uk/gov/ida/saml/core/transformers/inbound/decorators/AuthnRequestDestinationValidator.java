@@ -3,12 +3,12 @@ package uk.gov.ida.saml.core.transformers.inbound.decorators;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
 
-public class ValidateSamlAuthnRequestFromTransactionDestination {
+public class AuthnRequestDestinationValidator {
 
     private final DestinationValidator validator;
     private final String expectedEndpoint;
 
-    public ValidateSamlAuthnRequestFromTransactionDestination(
+    public AuthnRequestDestinationValidator(
             DestinationValidator validator,
             String expectedEndpoint
     ) {

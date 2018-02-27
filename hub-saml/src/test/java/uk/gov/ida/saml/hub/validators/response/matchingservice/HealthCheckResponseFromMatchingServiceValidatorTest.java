@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.hub.validators.response;
+package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -7,10 +7,11 @@ import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
+import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
+
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 import static uk.gov.ida.saml.core.test.builders.StatusBuilder.aStatus;
@@ -124,13 +125,8 @@ public class HealthCheckResponseFromMatchingServiceValidatorTest {
 
     private void assertValidationFailureSamlExceptionMessage(SamlValidationSpecificationFailure failure, final Response response) {
         SamlTransformationErrorManagerTestHelper.validateFail(
-                new SamlTransformationErrorManagerTestHelper.Action() {
-                    @Override
-                    public void execute() {
-                        validator.validate(response);
-                    }
-                },
-                failure
+            () -> validator.validate(response),
+            failure
         );
     }
 }

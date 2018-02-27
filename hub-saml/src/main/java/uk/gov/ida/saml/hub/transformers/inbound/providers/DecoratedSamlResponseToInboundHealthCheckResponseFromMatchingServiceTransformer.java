@@ -4,7 +4,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
 import uk.gov.ida.saml.hub.domain.InboundHealthCheckResponseFromMatchingService;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundHealthCheckResponseFromMatchingServiceUnmarshaller;
-import uk.gov.ida.saml.hub.validators.response.HealthCheckResponseFromMatchingServiceValidator;
+import uk.gov.ida.saml.hub.validators.response.matchingservice.HealthCheckResponseFromMatchingServiceValidator;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 
 public class DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer {

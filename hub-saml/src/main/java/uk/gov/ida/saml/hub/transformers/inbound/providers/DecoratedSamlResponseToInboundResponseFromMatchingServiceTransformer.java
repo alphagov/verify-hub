@@ -3,12 +3,12 @@ package uk.gov.ida.saml.hub.transformers.inbound.providers;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
+import uk.gov.ida.saml.hub.validators.response.matchingservice.EncryptedResponseFromMatchingServiceValidator;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromMatchingServiceUnmarshaller;
-import uk.gov.ida.saml.hub.validators.response.ResponseAssertionsFromMatchingServiceValidator;
-import uk.gov.ida.saml.hub.validators.response.ResponseFromMatchingServiceValidator;
+import uk.gov.ida.saml.hub.validators.response.matchingservice.ResponseAssertionsFromMatchingServiceValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
@@ -21,7 +21,7 @@ public class DecoratedSamlResponseToInboundResponseFromMatchingServiceTransforme
     private final SamlResponseSignatureValidator samlResponseSignatureValidator;
     private final AssertionDecrypter samlResponseAssertionDecrypter;
     private final SamlAssertionsSignatureValidator samlAssertionsSignatureValidator;
-    private final ResponseFromMatchingServiceValidator responseFromMatchingServiceValidator;
+    private final EncryptedResponseFromMatchingServiceValidator responseFromMatchingServiceValidator;
     private final ResponseAssertionsFromMatchingServiceValidator responseAssertionsFromMatchingServiceValidator;
 
     public DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer(
@@ -29,7 +29,7 @@ public class DecoratedSamlResponseToInboundResponseFromMatchingServiceTransforme
             SamlResponseSignatureValidator samlResponseSignatureValidator,
             AssertionDecrypter samlResponseAssertionDecrypter,
             SamlAssertionsSignatureValidator samlAssertionsSignatureValidator,
-            ResponseFromMatchingServiceValidator responseFromMatchingServiceValidator,
+            EncryptedResponseFromMatchingServiceValidator responseFromMatchingServiceValidator,
             ResponseAssertionsFromMatchingServiceValidator responseAssertionsFromMatchingServiceValidator) {
 
         this.responseUnmarshaller = responseUnmarshaller;
