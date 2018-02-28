@@ -58,6 +58,7 @@ public class EncryptedResponseFromIdpValidator {
 
     private void validateResponse(Response response) {
         if (Strings.isNullOrEmpty(response.getID())) throw new SamlValidationException(missingId());
+        if (response.getIssueInstant() == null) throw new SamlValidationException(missingIssueInstant(response.getID()));
 
         Signature signature = response.getSignature();
         if (signature == null) throw new SamlValidationException(missingSignature());
