@@ -5,8 +5,14 @@ import org.opensaml.saml.saml2.core.AuthnStatement;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
-public class AuthnStatementAssertionValidator {
+import uk.gov.ida.saml.hub.exception.SamlValidationException;
 
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnContextClassRefMissing;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnContextClassRefValueMissing;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnContextMissingError;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnInstantMissing;
+
+public class AuthnStatementAssertionValidator {
     private final DuplicateAssertionValidator duplicateAssertionValidator;
 
     public AuthnStatementAssertionValidator(DuplicateAssertionValidator duplicateAssertionValidator) {
@@ -15,25 +21,17 @@ public class AuthnStatementAssertionValidator {
 
     public void validate(Assertion assertion) {
         validateAuthnStatement(assertion.getAuthnStatements().get(0));
-
-        if(!duplicateAssertionValidator.valid(assertion)){
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.authnStatementAlreadyReceived(assertion.getID());
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
+        duplicateAssertionValidator.validateAuthnStatementAssertion(assertion);
     }
 
     private void validateAuthnStatement(AuthnStatement authnStatement) {
-        if (authnStatement.getAuthnContext() == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.authnContextMissingError();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-        if (authnStatement.getAuthnContext().getAuthnContextClassRef() == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.authnContextClassRefMissing();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-        if (authnStatement.getAuthnContext().getAuthnContextClassRef().getAuthnContextClassRef() == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.authnContextClassRefValueMissing();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
+        if (authnStatement.getAuthnContext() == null)
+            throw new SamlValidationException(authnContextMissingError());
+        if (authnStatement.getAuthnContext().getAuthnContextClassRef() == null)
+            throw new SamlValidationException(authnContextClassRefMissing());
+        if (authnStatement.getAuthnContext().getAuthnContextClassRef().getAuthnContextClassRef() == null)
+            throw new SamlValidationException(authnContextClassRefValueMissing());
+        if (authnStatement.getAuthnInstant() == null)
+            throw new SamlValidationException(authnInstantMissing());
     }
 }

@@ -61,10 +61,10 @@ public class EncryptedResponseFromIdpValidatorTest {
 
     @Test
     public void validate_shouldThrowExceptionIfIssueInstantIsMissing() throws Exception {
-        String testID = "test";
-        Response response = aResponse().withId(testID).withIssueInstant(null).build();
+        String responseId = "test";
+        Response response = aResponse().withId(responseId).withIssueInstant(null).build();
 
-        assertValidationFailure(response, missingIssueInstant(testID));
+        assertValidationFailure(response, missingIssueInstant(responseId));
     }
 
     @Test

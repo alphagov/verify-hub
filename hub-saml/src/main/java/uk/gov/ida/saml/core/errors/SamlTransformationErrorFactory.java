@@ -68,6 +68,10 @@ public final class SamlTransformationErrorFactory {
         return new ResponseProcessingValidationSpecification(ResponseProcessingValidationSpecification.MISSING_AUTHN_CONTEXT_CLASS_REF_VALUE, false);
     }
 
+    public static SamlValidationSpecificationFailure authnInstantMissing() {
+        return new ResponseProcessingValidationSpecification("AuthnStatement is missing 'AuthnInstant'"); //TODO: need to update saml-extensions to constantise this string
+    }
+
     public static SamlValidationSpecificationFailure missingAuthnStatement() {
         return new ResponseProcessingValidationSpecification(ResponseProcessingValidationSpecification.MISSING_AUTHN_STATEMENT, false);
     }

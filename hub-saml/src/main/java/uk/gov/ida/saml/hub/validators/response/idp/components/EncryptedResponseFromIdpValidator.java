@@ -1,7 +1,6 @@
 package uk.gov.ida.saml.hub.validators.response.idp.components;
 
 import com.google.common.base.Strings;
-import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
