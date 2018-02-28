@@ -2,7 +2,6 @@ package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +85,7 @@ public class ExecuteAttributeQueryRequest {
     private void validateRequestSignature(Element matchingServiceRequest, URI matchingServiceUri) {
         AttributeQuery attributeQuery = elementToAttributeQueryTransformer.apply(matchingServiceRequest);
         SamlValidationResponse signatureValidationResponse = matchingRequestSignatureValidator.validate(attributeQuery, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
-        protectiveMonitoringLogger.logAttributeQuery(attributeQuery.getID(), matchingServiceUri.toASCIIString(), attributeQuery.getIssuer().getValue(), signatureValidationResponse.isOK());
+        protectiveMonitoringLogger.logAttributeQuery(attributeQuery, matchingServiceUri, signatureValidationResponse.isOK());
         if (!signatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), signatureValidationResponse.getCause(), Level.ERROR);
@@ -96,16 +95,10 @@ public class ExecuteAttributeQueryRequest {
     private void validateResponseSignature(Element responseFromMatchingService) {
         Response response = elementToSamlResponseTransformer.apply(responseFromMatchingService);
         SamlValidationResponse signatureValidationResponse = matchingResponseSignatureValidator.validate(response, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
-        String message = hasStatusMessage(response.getStatus()) ? response.getStatus().getStatusMessage().getMessage() : "";
-        protectiveMonitoringLogger.logAttributeQueryResponse(response.getID(), response.getInResponseTo(), response.getIssuer().getValue(),
-                signatureValidationResponse.isOK(), response.getStatus().getStatusCode().getValue(), message);
+        protectiveMonitoringLogger.logAttributeQueryResponse(response, signatureValidationResponse.isOK());
         if (!signatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), signatureValidationResponse.getCause(), Level.ERROR);
         }
-    }
-
-    private boolean hasStatusMessage(final Status status) {
-        return status.getStatusMessage() != null;
     }
 }

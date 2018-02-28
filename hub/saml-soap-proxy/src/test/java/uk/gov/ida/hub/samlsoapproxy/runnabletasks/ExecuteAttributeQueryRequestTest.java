@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
-import net.shibboleth.utilities.java.support.codec.Base64Support;
 import org.glassfish.jersey.internal.util.Base64;
 import org.junit.After;
 import org.junit.Before;
@@ -22,7 +21,6 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.hub.samlsoapproxy.client.AttributeQueryRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlsoapproxy.logging.ProtectiveMonitoringLogger;
-import uk.gov.ida.hub.samlsoapproxy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.builders.StatusBuilder;
 import uk.gov.ida.saml.core.test.builders.StatusMessageBuilder;
@@ -63,8 +61,6 @@ public class ExecuteAttributeQueryRequestTest {
     private Function<Element, AttributeQuery> elementToAttributeQueryTransformer;
     @Mock
     private ProtectiveMonitoringLogger protectiveMonitoringLogger;
-    @Mock
-    private MatchingServiceConfigProxy matchingServiceConfigProxy;
     @Mock
     private Element matchingServiceResponse;
 
@@ -178,8 +174,8 @@ public class ExecuteAttributeQueryRequestTest {
 
         executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);
 
-        verify(protectiveMonitoringLogger).logAttributeQuery(attributeQuery.getID(), attributeQueryContainerDto.getMatchingServiceUri().toASCIIString(), attributeQuery.getIssuer().getValue(), true);
-        verify(protectiveMonitoringLogger).logAttributeQueryResponse(response.getID(), response.getInResponseTo(), response.getIssuer().getValue(), true, response.getStatus().getStatusCode().getValue(), "");
+        verify(protectiveMonitoringLogger).logAttributeQuery(attributeQuery, attributeQueryContainerDto.getMatchingServiceUri(), true);
+        verify(protectiveMonitoringLogger).logAttributeQueryResponse(response, true);
     }
 
     @Test
@@ -193,7 +189,7 @@ public class ExecuteAttributeQueryRequestTest {
 
         executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);
 
-        verify(protectiveMonitoringLogger).logAttributeQueryResponse(response.getID(), response.getInResponseTo(), response.getIssuer().getValue(), true, response.getStatus().getStatusCode().getValue(), message);
+        verify(protectiveMonitoringLogger).logAttributeQueryResponse(response, true);
     }
 
     @Test
