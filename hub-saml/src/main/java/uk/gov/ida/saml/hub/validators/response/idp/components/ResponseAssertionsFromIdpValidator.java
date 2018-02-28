@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.hub.validators.response.idp;
+package uk.gov.ida.saml.hub.validators.response.idp.components;
 
 import org.opensaml.saml.saml2.core.Assertion;
 import uk.gov.ida.saml.core.validators.assertion.AuthnStatementAssertionValidator;

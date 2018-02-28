@@ -1,6 +1,7 @@
-package uk.gov.ida.saml.hub.validators.response.idp;
+package uk.gov.ida.saml.hub.validators.response.idp.components;
 
 import com.google.common.base.Strings;
+import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
@@ -17,16 +18,7 @@ import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
 import java.util.List;
 import java.util.Optional;
 
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidStatusCode;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidSubStatusCode;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingId;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSignature;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSuccessUnEncryptedAssertions;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nestedSubStatusCodesBreached;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nonSuccessHasUnEncryptedAssertions;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.signatureNotSigned;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unencryptedAssertion;
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unexpectedNumberOfAssertions;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.*;
 import static uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil.isSignaturePresent;
 
 public class EncryptedResponseFromIdpValidator {
