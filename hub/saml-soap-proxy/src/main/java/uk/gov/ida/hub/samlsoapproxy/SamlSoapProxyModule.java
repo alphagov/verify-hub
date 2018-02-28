@@ -20,7 +20,7 @@ import uk.gov.ida.common.shared.security.PublicKeyInputStreamFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
-import uk.gov.ida.eventemitter.EventEmitter;
+import uk.gov.ida.eventemitter.Configuration;
 import uk.gov.ida.eventsink.EventSink;
 import uk.gov.ida.eventsink.EventSinkHttpProxy;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -83,6 +83,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.cert.CertificateException;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
@@ -138,9 +139,8 @@ public class SamlSoapProxyModule extends AbstractModule {
     }
 
     @Provides
-    @Singleton
-    public EventEmitter getEventEmitter(SamlSoapProxyConfiguration configuration) {
-        return new EventEmitter(configuration.getSendToRecordingSystem());
+    private Optional<Configuration> getEventEmitterConfiguration(final SamlSoapProxyConfiguration configuration) {
+        return Optional.ofNullable(configuration.getEventEmitterConfiguration());
     }
 
     @Provides

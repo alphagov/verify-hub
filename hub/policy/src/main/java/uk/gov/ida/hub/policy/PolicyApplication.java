@@ -12,6 +12,7 @@ import io.dropwizard.setup.Environment;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
+import uk.gov.ida.eventemitter.EventEmitterModule;
 import uk.gov.ida.hub.policy.domain.exception.SessionAlreadyExistingExceptionMapper;
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureExceptionMapper;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundExceptionMapper;
@@ -67,7 +68,7 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
         // the infinispan cache manager needs to be lazy loaded because it is not initialized at this point.
         bootstrap.addBundle(infinispanBundle);
         guiceBundle = GuiceBundle.defaultBuilder(PolicyConfiguration.class)
-                .modules(getPolicyModule(), bindInfinispan(infinispanBundle.getInfinispanCacheManagerProvider()))
+                .modules(getPolicyModule(), new EventEmitterModule(),  bindInfinispan(infinispanBundle.getInfinispanCacheManagerProvider()))
                 .build();
         bootstrap.addBundle(guiceBundle);
     }
