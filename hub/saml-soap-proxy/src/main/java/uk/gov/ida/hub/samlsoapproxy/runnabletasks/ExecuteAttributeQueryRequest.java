@@ -3,6 +3,7 @@ package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.saml.saml2.core.StatusMessage;
 import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import javax.inject.Named;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class ExecuteAttributeQueryRequest {
@@ -96,16 +98,15 @@ public class ExecuteAttributeQueryRequest {
     private void validateResponseSignature(Element responseFromMatchingService) {
         Response response = elementToSamlResponseTransformer.apply(responseFromMatchingService);
         SamlValidationResponse signatureValidationResponse = matchingResponseSignatureValidator.validate(response, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
-        String message = hasStatusMessage(response.getStatus()) ? response.getStatus().getStatusMessage().getMessage() : "";
+        String message = Optional.ofNullable(response.getStatus())
+            .map(Status::getStatusMessage)
+            .map(StatusMessage::getMessage)
+            .orElse("");
         protectiveMonitoringLogger.logAttributeQueryResponse(response.getID(), response.getInResponseTo(), response.getIssuer().getValue(),
                 signatureValidationResponse.isOK(), response.getStatus().getStatusCode().getValue(), message);
         if (!signatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), signatureValidationResponse.getCause(), Level.ERROR);
         }
-    }
-
-    private boolean hasStatusMessage(final Status status) {
-        return status.getStatusMessage() != null;
     }
 }
