@@ -1,5 +1,6 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
+import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusMessage;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
@@ -9,7 +10,6 @@ import java.util.Optional;
 import static java.text.MessageFormat.format;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static uk.gov.ida.shared.utils.xml.XmlUtils.writeToString;
 
 public class IdpIdaStatusUnmarshaller {
 
@@ -34,7 +34,7 @@ public class IdpIdaStatusUnmarshaller {
 
     private IdpIdaStatus.Status getStatus(final Status samlStatus) {
         return idpStatusMapper.map(samlStatus).orElseThrow(() -> new IllegalStateException(
-                format("Could not map status to a IdpIdaStatus: {0}", writeToString(samlStatus.getDOM()))
+                format("Could not map status to a IdpIdaStatus: {0}", SerializeSupport.nodeToString(samlStatus.getDOM()))
         ));
     }
 
