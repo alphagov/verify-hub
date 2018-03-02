@@ -66,6 +66,7 @@ import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionEncrypter;
+import uk.gov.ida.saml.core.transformers.outbound.decorators.NullResponseAssertionSigner;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseAssertionSigner;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.core.validators.assertion.AssertionAttributeStatementValidator;
@@ -172,7 +173,7 @@ public class SamlEngineModule extends AbstractModule {
         bind(SimpleProfileOutboundResponseFromHubToResponseTransformerProvider.class);
         bind(SimpleProfileOutboundResponseFromHubToSamlResponseTransformer.class);
         bind(ResponseToUnsignedStringTransformer.class);
-        bind(ResponseAssertionSigner.class);
+        bind(ResponseAssertionSigner.class).toInstance(new NullResponseAssertionSigner());
         bind(SimpleProfileTransactionIdaStatusMarshaller.class);
         bind(IdpAuthnResponseTranslatorService.class);
         bind(InboundResponseFromIdpDataGenerator.class);
