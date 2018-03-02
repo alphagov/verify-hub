@@ -7,7 +7,6 @@ import io.dropwizard.setup.Environment;
 import org.infinispan.test.fwk.TestCacheManagerFactory;
 import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.hub.samlengine.SamlEngineConfiguration;
-import uk.gov.ida.integrationtest.hub.samlengine.resources.TestSamlMessageResource;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 
 import javax.inject.Provider;
@@ -20,7 +19,6 @@ public class SamlEngineIntegrationApplication extends SamlEngineApplication {
     @Override
     protected void registerResources(Environment environment, SamlEngineConfiguration configuration) {
         super.registerResources(environment, configuration);
-        environment.jersey().register(TestSamlMessageResource.class);
     }
 
     @Override

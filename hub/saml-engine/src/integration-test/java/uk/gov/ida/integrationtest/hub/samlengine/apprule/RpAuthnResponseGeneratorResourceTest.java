@@ -5,12 +5,15 @@ import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
+import net.shibboleth.utilities.java.support.codec.Base64Support;
+import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.xml.sax.SAXException;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.samlengine.Urls;
@@ -19,42 +22,47 @@ import uk.gov.ida.hub.samlengine.contracts.ResponseFromHubDto;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
+import uk.gov.ida.saml.core.test.TestEntityIds;
+import uk.gov.ida.saml.core.test.builders.AssertionBuilder;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
-import uk.gov.ida.saml.deserializers.validators.Base64StringDecoder;
+import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.URI;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.integrationtest.hub.samlengine.builders.AuthnResponseFromHubContainerDtoBuilder.anAuthnResponseFromHubContainerDto;
 import static uk.gov.ida.integrationtest.hub.samlengine.builders.ResponseFromHubDtoBuilder.aResponseFromHubDto;
 
 public class RpAuthnResponseGeneratorResourceTest {
 
-    private static String TEST_SAML_MESSAGE_RESOURCE = Urls.SamlEngineUrls.SAML_ENGINE_ROOT + "/test";
     private static Client client;
 
     @ClassRule
     public static ConfigStubRule configStub = new ConfigStubRule();
 
-    @ClassRule
-    public static SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule(
+    @Rule
+    public SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule(
             config("configUri", configStub.baseUri().build().toASCIIString())
     );
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build(RpAuthnResponseGeneratorResourceTest.class.getSimpleName());
+        if (client == null ) {
+            client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build(RpAuthnResponseGeneratorResourceTest.class.getSimpleName());
+        }
     }
 
     @Before
     public void before() {
+        configStub.reset();
         DateTimeFreezer.freezeTime();
     }
 
@@ -64,49 +72,15 @@ public class RpAuthnResponseGeneratorResourceTest {
     }
 
     @Test
-    public void shouldGenerateRpAuthnResponseWithMessageSignedByHub() throws Exception {
-        // Given
-        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto().build();
-        configStub.setUpStubForShouldHubSignResponseMessagesForSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
-        Response samlMessageResponse = postToTestSamlMessageResource(responseFromHubDto);
-
-        assertThat(samlMessageResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        AuthnResponseFromHubContainerDto expectedResult = anAuthnResponseFromHubContainerDto()
-                .withSamlResponse(samlMessageResponse.readEntity(String.class))
-                .withPostEndPoint(responseFromHubDto.getAssertionConsumerServiceUri())
-                .withResponseId(responseFromHubDto.getResponseId())
-                .withRelayState(responseFromHubDto.getRelayState())
-                .build();
-
-        // When
-        URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
-        Response rpAuthnResponse = client.target(generateAuthnResponseEndpoint).request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
-
-        // Then
-        assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        AuthnResponseFromHubContainerDto actualResult = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
-                .class);
-        assertThat(actualResult).isEqualToComparingFieldByField(expectedResult);
-
-        assertStatusCode(actualResult.getSamlResponse(), StatusCode.SUCCESS);
-    }
-
-    @Test
     public void shouldGenerateRpAuthnResponseWithMessageSignedByHubUsingLegacySamlStandard() throws Exception {
         // Given
-        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto().withStatus(TransactionIdaStatus.NoMatchingServiceMatchFromHub).build();
-        configStub.setUpStubForShouldHubSignResponseMessagesForLegacySamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
-        Response samlMessageResponse = postToTestSamlMessageResource(responseFromHubDto, TransactionIdaStatus.NoMatchingServiceMatchFromHub);
-
-        assertThat(samlMessageResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        AuthnResponseFromHubContainerDto expectedResult = anAuthnResponseFromHubContainerDto()
-                .withSamlResponse(samlMessageResponse.readEntity(String.class))
-                .withPostEndPoint(responseFromHubDto.getAssertionConsumerServiceUri())
-                .withResponseId(responseFromHubDto.getResponseId())
-                .withRelayState(responseFromHubDto.getRelayState())
+        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
+                .withStatus(TransactionIdaStatus.NoMatchingServiceMatchFromHub)
+                .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
+                .withAssertion(createAssertionString())
                 .build();
+        configStub.setupStubForCertificates(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.setUpStubForShouldHubSignResponseMessagesForLegacySamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
         URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
@@ -114,28 +88,30 @@ public class RpAuthnResponseGeneratorResourceTest {
 
         // Then
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        AuthnResponseFromHubContainerDto actualResult = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
+        AuthnResponseFromHubContainerDto result = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
                 .class);
-        assertThat(actualResult).isEqualToComparingFieldByField(expectedResult);
 
-        assertStatusCode(actualResult.getSamlResponse(), StatusCode.SUCCESS);
+        org.opensaml.saml.saml2.core.Response response = extractResponse(result);
+        assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(response.getEncryptedAssertions()).isNotEmpty();
+        assertThat(response.getID()).isEqualTo(responseFromHubDto.getResponseId());
+        assertThat(response.getInResponseTo()).isEqualTo(responseFromHubDto.getInResponseTo());
+        assertThat(response.getIssuer().getValue()).isEqualTo(TestEntityIds.HUB_ENTITY_ID);
     }
 
     @Test
     public void shouldGenerateRpAuthnResponseWithMessageSignedByHubUsingSamlProfileStandard() throws Exception {
         // Given
-        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto().withStatus(TransactionIdaStatus.NoMatchingServiceMatchFromHub).build();
-        configStub.setUpStubForShouldHubSignResponseMessagesForSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
-        Response samlMessageResponse = postToTestSamlMessageResource(responseFromHubDto, TransactionIdaStatus.NoMatchingServiceMatchFromHub);
+        String assertion = createAssertionString();
 
-        assertThat(samlMessageResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        AuthnResponseFromHubContainerDto expectedResult = anAuthnResponseFromHubContainerDto()
-                .withSamlResponse(samlMessageResponse.readEntity(String.class))
-                .withPostEndPoint(responseFromHubDto.getAssertionConsumerServiceUri())
-                .withResponseId(responseFromHubDto.getResponseId())
-                .withRelayState(responseFromHubDto.getRelayState())
+        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
+                .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
+                .withAssertion(assertion)
+                .withStatus(TransactionIdaStatus.Success)
                 .build();
+
+        configStub.setupStubForCertificates(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.setUpStubForShouldHubSignResponseMessagesForSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
         URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
@@ -145,25 +121,30 @@ public class RpAuthnResponseGeneratorResourceTest {
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         AuthnResponseFromHubContainerDto actualResult = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
                 .class);
-        assertThat(actualResult).isEqualToComparingFieldByField(expectedResult);
 
-        assertStatusCode(actualResult.getSamlResponse(), StatusCode.RESPONDER);
+        org.opensaml.saml.saml2.core.Response response = extractResponse(actualResult);
+
+        assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(response.getEncryptedAssertions()).isNotEmpty();
+        assertThat(response.getID()).isEqualTo(responseFromHubDto.getResponseId());
+        assertThat(response.getInResponseTo()).isEqualTo(responseFromHubDto.getInResponseTo());
+        assertThat(response.getIssuer().getValue()).isEqualTo(TestEntityIds.HUB_ENTITY_ID);
+        assertThat(response.getSignature()).isNotNull();
     }
 
     @Test
     public void shouldGenerateRpAuthnResponseWithUnsignedMessage() throws Exception {
         // Given
-        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto().build();
-        configStub.setUpStubForShouldHubSignResponseMessagesForSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        String assertion = createAssertionString();
 
-        Response samlMessageResponse = postToTestSamlMessageResource(responseFromHubDto);
-        assertThat(samlMessageResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        AuthnResponseFromHubContainerDto expectedResult = anAuthnResponseFromHubContainerDto()
-                .withSamlResponse(samlMessageResponse.readEntity(String.class))
-                .withPostEndPoint(responseFromHubDto.getAssertionConsumerServiceUri())
-                .withResponseId(responseFromHubDto.getResponseId())
-                .withRelayState(responseFromHubDto.getRelayState())
+        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
+                .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
+                .withAssertion(assertion)
+                .withStatus(TransactionIdaStatus.Success)
                 .build();
+
+        configStub.setupStubForCertificates(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.doNotSignResponseMessages(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
         URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
@@ -171,10 +152,26 @@ public class RpAuthnResponseGeneratorResourceTest {
 
         // Then
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        AuthnResponseFromHubContainerDto actualResult = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto.class);
-        assertThat(actualResult).isEqualToComparingFieldByField(expectedResult);
 
-        assertStatusCode(actualResult.getSamlResponse(), StatusCode.SUCCESS);
+        AuthnResponseFromHubContainerDto result = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto.class);
+
+        org.opensaml.saml.saml2.core.Response response = extractResponse(result);
+
+        assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(response.getEncryptedAssertions()).isNotEmpty();
+        assertThat(response.getID()).isEqualTo(responseFromHubDto.getResponseId());
+        assertThat(response.getInResponseTo()).isEqualTo(responseFromHubDto.getInResponseTo());
+        assertThat(response.getSignature()).isNull();
+        assertThat(response.getIssuer()).isNull();
+    }
+
+    private String createAssertionString() {
+        return new XmlObjectToBase64EncodedStringTransformer<>().apply(AssertionBuilder.anAssertion().buildUnencrypted());
+    }
+
+    private org.opensaml.saml.saml2.core.Response extractResponse(AuthnResponseFromHubContainerDto actualResult) throws org.opensaml.core.xml.io.UnmarshallingException, IOException, SAXException, ParserConfigurationException {
+        String samlResponse = actualResult.getSamlResponse();
+        return new SamlObjectParser().getSamlObject(new String(Base64Support.decode(actualResult.getSamlResponse())));
     }
 
     @Test
@@ -188,21 +185,5 @@ public class RpAuthnResponseGeneratorResourceTest {
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto errorStatusDto = rpAuthnResponse.readEntity(ErrorStatusDto.class);
         assertThat(errorStatusDto.getExceptionType()).isEqualTo(ExceptionType.INVALID_INPUT);
-    }
-
-    private static void assertStatusCode(String samlString, String statusCode) throws javax.xml.parsers.ParserConfigurationException, org.xml.sax.SAXException, java.io.IOException, org.opensaml.core.xml.io.UnmarshallingException {
-        final SamlObjectParser samlObjectParser = new SamlObjectParser();
-        final Base64StringDecoder base64Decoder = new Base64StringDecoder();
-        String decodedString = base64Decoder.decode(samlString);
-        org.opensaml.saml.saml2.core.Response samlResponse = samlObjectParser.getSamlObject(decodedString);
-        assertThat(samlResponse.getStatus().getStatusCode().getValue()).isEqualTo(statusCode);
-    }
-
-    private Response postToTestSamlMessageResource(ResponseFromHubDto dto, TransactionIdaStatus transactionIdaStatus) {
-        return client.target(samlEngineAppRule.getUri(TEST_SAML_MESSAGE_RESOURCE)).queryParam("transactionIdaStatus", transactionIdaStatus).request().post(Entity.entity(dto, MediaType.APPLICATION_JSON_TYPE));
-    }
-
-    private Response postToTestSamlMessageResource(ResponseFromHubDto dto) {
-        return postToTestSamlMessageResource(dto, TransactionIdaStatus.Success);
     }
 }
