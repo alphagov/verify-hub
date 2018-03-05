@@ -39,7 +39,6 @@ public class CryptoModule extends AbstractModule {
         bind(EncryptionCredentialFactory.class);
         bind(KeyStoreCache.class);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
-        bind(SignatureFactory.class);
         bind(IdaKeyStoreCredentialRetriever.class);
         bind(SamlResponseAssertionEncrypter.class);
         bind(AssertionBlobEncrypter.class);
