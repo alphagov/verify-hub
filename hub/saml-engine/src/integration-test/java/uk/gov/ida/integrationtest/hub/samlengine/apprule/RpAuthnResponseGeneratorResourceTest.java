@@ -6,7 +6,6 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import net.shibboleth.utilities.java.support.codec.Base64Support;
-import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -79,8 +78,8 @@ public class RpAuthnResponseGeneratorResourceTest {
                 .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
                 .withAssertion(createAssertionString())
                 .build();
-        configStub.setupStubForCertificates(responseFromHubDto.getAuthnRequestIssuerEntityId());
-        configStub.setUpStubForShouldHubSignResponseMessagesForLegacySamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseLegacyStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
         URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
@@ -110,8 +109,8 @@ public class RpAuthnResponseGeneratorResourceTest {
                 .withStatus(TransactionIdaStatus.Success)
                 .build();
 
-        configStub.setupStubForCertificates(responseFromHubDto.getAuthnRequestIssuerEntityId());
-        configStub.setUpStubForShouldHubSignResponseMessagesForSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
         URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
@@ -143,7 +142,7 @@ public class RpAuthnResponseGeneratorResourceTest {
                 .withStatus(TransactionIdaStatus.Success)
                 .build();
 
-        configStub.setupStubForCertificates(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
         configStub.doNotSignResponseMessages(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
@@ -176,7 +175,7 @@ public class RpAuthnResponseGeneratorResourceTest {
     @Test
     public void shouldReturnAnErrorResponseGivenBadInput() throws JsonProcessingException {
         ResponseFromHubDto responseFromHubDto = aResponseFromHubDto().withAssertionConsumerServiceUri(null).build();
-        configStub.setUpStubForShouldHubSignResponseMessagesForSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
         Response rpAuthnResponse = client.target(generateAuthnResponseEndpoint).request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));

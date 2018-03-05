@@ -13,7 +13,6 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.CountryMetadataRule;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.MetadataRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
@@ -42,7 +41,7 @@ public class ContractTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        configStub.setupStubForCertificates(TEST_RP_MS);
+        configStub.setupCertificatesForEntity(TEST_RP_MS);
     }
 
     @TestTarget

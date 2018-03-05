@@ -61,7 +61,7 @@ public class CountryAuthnResponseTranslatorResourceTest {
     @Before
     public void setUp() throws Exception {
         authnResponseFactory = AuthnResponseFactory.anAuthnResponseFactory();
-        configStubRule.setupStubForCertificates(TEST_RP_MS);
+        configStubRule.setupCertificatesForEntity(TEST_RP_MS);
     }
 
     @BeforeClass

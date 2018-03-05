@@ -60,7 +60,7 @@ public class RpErrorResponseGeneratorResourceTest {
     @Test
     public void shouldGenerateAnErrorResponseForAnRp() throws JsonProcessingException {
         RequestForErrorResponseFromHubDto requestForErrorResponseFromHubDto = aRequestForErrorResponseFromHubDto().build();
-        configStub.setUpStubForShouldHubSignResponseMessagesForSamlStandard(requestForErrorResponseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(requestForErrorResponseFromHubDto.getAuthnRequestIssuerEntityId());
 
         final URI uri = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_ERROR_RESPONSE_RESOURCE);
         Response rpAuthnResponse = post(requestForErrorResponseFromHubDto, uri);
@@ -73,7 +73,7 @@ public class RpErrorResponseGeneratorResourceTest {
     @Test
     public void shouldReturnAnErrorResponseGivenBadInput() throws JsonProcessingException {
         RequestForErrorResponseFromHubDto requestForErrorResponseFromHubDto = aRequestForErrorResponseFromHubDto().withStatus(null).build();
-        configStub.setUpStubForShouldHubSignResponseMessagesForSamlStandard(requestForErrorResponseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(requestForErrorResponseFromHubDto.getAuthnRequestIssuerEntityId());
 
         final URI uri = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_ERROR_RESPONSE_RESOURCE);
         Response rpAuthnResponse = post(requestForErrorResponseFromHubDto, uri);

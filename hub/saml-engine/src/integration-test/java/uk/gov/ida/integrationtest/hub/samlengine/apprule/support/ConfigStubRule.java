@@ -11,7 +11,6 @@ import uk.gov.ida.shared.utils.string.StringEncoding;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -31,19 +30,19 @@ public class ConfigStubRule extends WireMockClassRule {
         this.start();
     }
 
-    public void setupStubForCertificates(String issuer) throws JsonProcessingException {
+    public void setupCertificatesForEntity(String issuer) throws JsonProcessingException {
         CertificateDto signingCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withKeyUse(CertificateDto.KeyUse.Signing).build();
         CertificateDto encryptionCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withKeyUse(CertificateDto.KeyUse.Encryption).build();
-        registerStubForCertificates(issuer, signingCertificate, encryptionCertificate);
+        setupCertificatesForEntity(issuer, signingCertificate, encryptionCertificate);
     }
 
-    public void setupStubForCertificates(String issuer, String signingCertString, String encryptionCertString) throws JsonProcessingException {
+    public void setupCertificatesForEntity(String issuer, String signingCertString, String encryptionCertString) throws JsonProcessingException {
         CertificateDto signingCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withCertificate(signingCertString).withKeyUse(CertificateDto.KeyUse.Signing).build();
         CertificateDto encryptionCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withCertificate(encryptionCertString).withKeyUse(CertificateDto.KeyUse.Encryption).build();
-        registerStubForCertificates(issuer, signingCertificate, encryptionCertificate);
+        setupCertificatesForEntity(issuer, signingCertificate, encryptionCertificate);
     }
 
-    private void registerStubForCertificates(String issuer, CertificateDto signingCertificate, CertificateDto encryptionCertificate) throws JsonProcessingException {
+    private void setupCertificatesForEntity(String issuer, CertificateDto signingCertificate, CertificateDto encryptionCertificate) throws JsonProcessingException {
         Collection<CertificateDto> signingCertificates = new ArrayList<>();
         signingCertificates.add(signingCertificate);
         stubFor(get(urlPathEqualTo(getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer)))
@@ -75,19 +74,19 @@ public class ConfigStubRule extends WireMockClassRule {
                 .toString();
     }
 
-    public void setUpStubForShouldHubSignResponseMessagesForLegacySamlStandard(String issuerEntityId) throws JsonProcessingException {
-        setUpStubForShouldHubSignResponseMessages(issuerEntityId, true, true);
+    public void signResponsesAndUseLegacyStandard(String issuerEntityId) throws JsonProcessingException {
+        shouldHubSignResponseMessages(issuerEntityId, true, true);
     }
 
-    public void setUpStubForShouldHubSignResponseMessagesForSamlStandard(String issuerEntityId) throws JsonProcessingException {
-        setUpStubForShouldHubSignResponseMessages(issuerEntityId, true, false);
+    public void signResponsesAndUseSamlStandard(String issuerEntityId) throws JsonProcessingException {
+        shouldHubSignResponseMessages(issuerEntityId, true, false);
     }
 
     public void doNotSignResponseMessages(String issuerEntityId) throws JsonProcessingException {
-        setUpStubForShouldHubSignResponseMessages(issuerEntityId, false, false);
+        shouldHubSignResponseMessages(issuerEntityId, false, false);
     }
 
-    private void setUpStubForShouldHubSignResponseMessages(String issuerEntityId, Boolean shouldHubSignResponseMessages, Boolean shouldHubUseLegacySamlStandard) throws JsonProcessingException {
+    private void shouldHubSignResponseMessages(String issuerEntityId, Boolean shouldHubSignResponseMessages, Boolean shouldHubUseLegacySamlStandard) throws JsonProcessingException {
         String hubSignUri = getPath(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE, issuerEntityId);
         stubFor(get(hubSignUri)
                 .willReturn(aResponse()

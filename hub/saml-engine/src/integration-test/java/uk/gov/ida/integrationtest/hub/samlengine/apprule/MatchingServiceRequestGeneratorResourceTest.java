@@ -44,7 +44,7 @@ public class MatchingServiceRequestGeneratorResourceTest {
 
     @Test
     public void should_createAttributeQueryRequest() throws Exception {
-        configStub.setupStubForCertificates(TEST_RP_MS);
+        configStub.setupCertificatesForEntity(TEST_RP_MS);
 
         Response response = getAttributeQuery(new AttributeQueryRequestBuilder().build());
         AttributeQueryContainerDto entity = response.readEntity(AttributeQueryContainerDto.class);

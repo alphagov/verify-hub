@@ -47,7 +47,7 @@ public class MatchingServiceHealthcheckRequestGeneratorResourceTest {
 
     @Test
     public void should_createHealthcheckAttributeQueryRequest() throws Exception {
-        configStub.setupStubForCertificates(TEST_RP_MS);
+        configStub.setupCertificatesForEntity(TEST_RP_MS);
 
         Response response = getAttributeQuery(new MatchingServiceHealthCheckerRequestDto(TEST_RP, TEST_RP_MS));
         SamlMessageDto entity = response.readEntity(SamlMessageDto.class);
@@ -58,7 +58,7 @@ public class MatchingServiceHealthcheckRequestGeneratorResourceTest {
 
     @Test
     public void should_createHealthcheckAttributeQueryRequestShouldReturnErrorStatusDtoWhenThereIsAProblem() throws Exception {
-        configStub.setupStubForCertificates(TEST_RP_MS);
+        configStub.setupCertificatesForEntity(TEST_RP_MS);
 
         Response response = getAttributeQuery(new MatchingServiceHealthCheckerRequestDto(TEST_RP, null));
 
