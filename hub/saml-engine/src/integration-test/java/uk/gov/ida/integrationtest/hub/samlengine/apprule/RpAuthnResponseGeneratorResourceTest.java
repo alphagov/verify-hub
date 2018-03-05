@@ -170,7 +170,6 @@ public class RpAuthnResponseGeneratorResourceTest {
     }
 
     private org.opensaml.saml.saml2.core.Response extractResponse(AuthnResponseFromHubContainerDto actualResult) throws org.opensaml.core.xml.io.UnmarshallingException, IOException, SAXException, ParserConfigurationException {
-        String samlResponse = actualResult.getSamlResponse();
         return new SamlObjectParser().getSamlObject(new String(Base64Support.decode(actualResult.getSamlResponse())));
     }
 
