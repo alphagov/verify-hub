@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.hub.validators.response.idp;
+package uk.gov.ida.saml.hub.validators.response.idp.components;
 
 import org.junit.Before;
 import org.junit.Test;

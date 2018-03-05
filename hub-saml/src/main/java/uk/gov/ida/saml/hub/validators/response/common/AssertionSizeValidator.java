@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.hub.transformers.inbound.decorators;
+package uk.gov.ida.saml.hub.validators.response.common;
 
 import uk.gov.ida.saml.deserializers.validators.SizeValidator;
 

@@ -61,13 +61,14 @@ import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromMatchingServi
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.AssertionSizeValidator;
+import uk.gov.ida.saml.hub.validators.response.common.AssertionSizeValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.decorators.AuthnRequestSizeValidator;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.ResponseSizeValidator;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.ResponseDestinationValidator;
+import uk.gov.ida.saml.hub.validators.response.common.ResponseSizeValidator;
+import uk.gov.ida.saml.hub.validators.response.common.ResponseDestinationValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
+import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AttributeQueryToElementTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EidasAuthnRequestFromHubToAuthnRequestTransformer;
@@ -89,10 +90,10 @@ import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestFromTransactionVa
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIssueInstantValidator;
 import uk.gov.ida.saml.hub.validators.authnrequest.DuplicateAuthnRequestValidator;
-import uk.gov.ida.saml.hub.validators.response.idp.EncryptedResponseFromIdpValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.EncryptedResponseFromMatchingServiceValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.HealthCheckResponseFromMatchingServiceValidator;
-import uk.gov.ida.saml.hub.validators.response.idp.ResponseAssertionsFromIdpValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.ResponseAssertionsFromMatchingServiceValidator;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.domain.HubServiceProviderMetadataDto;
@@ -420,19 +421,21 @@ public class HubTransformersFactory {
             ConcurrentMap<String, DateTime> assertionIdCache,
             String hubEntityId) {
         SigningCredentialFactory signingCredentialFactory = new SigningCredentialFactory(signingKeyStore);
+        IdpResponseValidator validator = new IdpResponseValidator(this.<InboundResponseFromIdp>getSamlResponseSignatureValidator(signingCredentialFactory),
+            this.<InboundResponseFromIdp>getSamlResponseAssertionDecrypter(keyStore),
+            new SamlAssertionsSignatureValidator(new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory))),
+            new EncryptedResponseFromIdpValidator(new SamlStatusToIdpIdaStatusMappingsFactory()),
+            new ResponseDestinationValidator(
+                new DestinationValidator(expectedDestinationHost),
+                expectedEndpoint),
+            getResponseAssertionsFromIdpValidator(assertionIdCache, hubEntityId));
+
         return new DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
+                validator,
                 new IdaResponseFromIdpUnmarshaller(
-                        new IdpIdaStatusUnmarshaller(new IdpIdaStatus.IdpIdaStatusFactory(), new SamlStatusToIdpIdaStatusMappingsFactory()),
-                        getAssertionToPassthroughAssertionTransformer()
-                ),
-                this.<InboundResponseFromIdp>getSamlResponseSignatureValidator(signingCredentialFactory),
-                this.<InboundResponseFromIdp>getSamlResponseAssertionDecrypter(keyStore),
-                new SamlAssertionsSignatureValidator(new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory))),
-                new EncryptedResponseFromIdpValidator(new SamlStatusToIdpIdaStatusMappingsFactory()),
-                new ResponseDestinationValidator(
-                        new DestinationValidator(expectedDestinationHost),
-                        expectedEndpoint),
-                getResponseAssertionsFromIdpValidator(assertionIdCache, hubEntityId)
+                    new IdpIdaStatusUnmarshaller(new IdpIdaStatus.IdpIdaStatusFactory(), new SamlStatusToIdpIdaStatusMappingsFactory()),
+                    getAssertionToPassthroughAssertionTransformer()
+                )
         );
     }
 
