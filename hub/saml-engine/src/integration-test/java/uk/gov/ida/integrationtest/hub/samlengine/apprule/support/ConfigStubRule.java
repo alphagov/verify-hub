@@ -1,7 +1,9 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import httpstub.HttpStubRule;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import io.dropwizard.jackson.Jackson;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.builders.CertificateDtoBuilder;
 import uk.gov.ida.hub.samlengine.domain.CertificateDto;
@@ -9,57 +11,111 @@ import uk.gov.ida.shared.utils.string.StringEncoding;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.OK;
 
-public class ConfigStubRule extends HttpStubRule {
+public class ConfigStubRule extends WireMockClassRule {
 
-    public void setupStubForCertificates(String issuer) throws JsonProcessingException {
+    private ObjectMapper objectMapper;
+
+    public ConfigStubRule() {
+        super(0);
+        this.objectMapper = Jackson.newObjectMapper();
+        this.start();
+    }
+
+    public void setupCertificatesForEntity(String issuer) throws JsonProcessingException {
         CertificateDto signingCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withKeyUse(CertificateDto.KeyUse.Signing).build();
         CertificateDto encryptionCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withKeyUse(CertificateDto.KeyUse.Encryption).build();
-        registerStubForCertificates(issuer, signingCertificate, encryptionCertificate);
+        setupCertificatesForEntity(issuer, signingCertificate, encryptionCertificate);
     }
 
-    public void setupStubForCertificates(String issuer, String signingCertString, String encryptionCertString) throws JsonProcessingException {
+    public void setupCertificatesForEntity(String issuer, String signingCertString, String encryptionCertString) throws JsonProcessingException {
         CertificateDto signingCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withCertificate(signingCertString).withKeyUse(CertificateDto.KeyUse.Signing).build();
         CertificateDto encryptionCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withCertificate(encryptionCertString).withKeyUse(CertificateDto.KeyUse.Encryption).build();
-        registerStubForCertificates(issuer, signingCertificate, encryptionCertificate);
+        setupCertificatesForEntity(issuer, signingCertificate, encryptionCertificate);
     }
 
-    private void registerStubForCertificates(String issuer, CertificateDto signingCertificate, CertificateDto encryptionCertificate) throws JsonProcessingException {
-        String signingCertificateUri = UriBuilder.fromPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(issuer)).toASCIIString();
+    private void setupCertificatesForEntity(String issuer, CertificateDto signingCertificate, CertificateDto encryptionCertificate) throws JsonProcessingException {
         Collection<CertificateDto> signingCertificates = new ArrayList<>();
         signingCertificates.add(signingCertificate);
-        register(signingCertificateUri, OK.getStatusCode(), signingCertificates);
+        stubFor(get(urlPathEqualTo(getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer)))
+                .willReturn(
+                        aResponse()
+                        .withStatus(200)
+                                .withHeader("Content-Type", APPLICATION_JSON)
+                        .withBody(objectMapper.writeValueAsString(signingCertificates)
+                        )
+                )
+        );
 
-        String encryptionCertificateUri = UriBuilder.fromPath(Urls.ConfigUrls.ENCRYPTION_CERTIFICATES_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(issuer)).toASCIIString();
-        register(encryptionCertificateUri, OK.getStatusCode(), encryptionCertificate);
+        String encryptionCertificateUri = getPath(Urls.ConfigUrls.ENCRYPTION_CERTIFICATES_RESOURCE, issuer);
+        stubFor(get(urlPathEqualTo(encryptionCertificateUri))
+                .willReturn(
+                        aResponse()
+                                .withStatus(200)
+                                .withHeader("Content-Type", APPLICATION_JSON)
+                                .withBody(objectMapper.writeValueAsString(encryptionCertificate)
+                                )
+                )
+        );
     }
 
-    public void setUpStubForShouldHubSignResponseMessagesForLegacySamlStandard(String issuerEntityId) throws JsonProcessingException {
-        setUpStubForShouldHubSignResponseMessages(issuerEntityId, true, true);
+    private String getPath(String encryptionCertificatesResource, String param) {
+        return UriBuilder
+                .fromPath(encryptionCertificatesResource)
+                .buildFromEncoded( StringEncoding.urlEncode(param).replace("+", "%20"))
+                .toString();
     }
 
-    public void setUpStubForShouldHubSignResponseMessagesForSamlStandard(String issuerEntityId) throws JsonProcessingException {
-        setUpStubForShouldHubSignResponseMessages(issuerEntityId, true, false);
+    public void signResponsesAndUseLegacyStandard(String issuerEntityId) throws JsonProcessingException {
+        shouldHubSignResponseMessages(issuerEntityId, true, true);
     }
 
-    private void setUpStubForShouldHubSignResponseMessages(String issuerEntityId, Boolean shouldHubSignResponseMessages, Boolean shouldHubUseLegacySamlStandard) throws JsonProcessingException {
-        URI hubSignUri = UriBuilder.fromPath(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(issuerEntityId).replace("+", "%20"));
-        register(hubSignUri.getRawPath(), OK.getStatusCode(), shouldHubSignResponseMessages);
+    public void signResponsesAndUseSamlStandard(String issuerEntityId) throws JsonProcessingException {
+        shouldHubSignResponseMessages(issuerEntityId, true, false);
+    }
 
-        URI hubSamlStandardUri = UriBuilder.fromPath(Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(issuerEntityId).replace("+", "%20"));
-        register(hubSamlStandardUri.getRawPath(), OK.getStatusCode(), shouldHubUseLegacySamlStandard);
+    public void doNotSignResponseMessages(String issuerEntityId) throws JsonProcessingException {
+        shouldHubSignResponseMessages(issuerEntityId, false, false);
+    }
+
+    private void shouldHubSignResponseMessages(String issuerEntityId, Boolean shouldHubSignResponseMessages, Boolean shouldHubUseLegacySamlStandard) throws JsonProcessingException {
+        String hubSignUri = getPath(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE, issuerEntityId);
+        stubFor(get(hubSignUri)
+                .willReturn(aResponse()
+                        .withStatus(OK.getStatusCode())
+                        .withHeader("Content-Type", APPLICATION_JSON)
+                        .withBody(objectMapper.writeValueAsString(shouldHubSignResponseMessages))
+                )
+        );
+
+        String hubSamlStandardUri = getPath(Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE, issuerEntityId);
+        stubFor(get(hubSamlStandardUri)
+                .willReturn(aResponse()
+                        .withStatus(OK.getStatusCode())
+                        .withHeader("Content-Type", APPLICATION_JSON)
+                        .withBody(objectMapper.writeValueAsString(shouldHubUseLegacySamlStandard))
+                )
+        );
     }
 
     public void setupStubForNonExistentSigningCertificates(String issuer) {
-        String encryptionCertificateUri = UriBuilder.fromPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(issuer)).toASCIIString();
-        register(encryptionCertificateUri, Response.Status.NOT_FOUND.getStatusCode());
+        String signingUri = getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer);
+        stubFor(get(signingUri).willReturn(aResponse().withStatus(Response.Status.NOT_FOUND.getStatusCode())));
     }
 
+    public UriBuilder baseUri() {
+        return UriBuilder.fromUri("http://localhost").port(port());
+    }
+
+    public void reset() {
+        super.resetAll();
+    }
 }

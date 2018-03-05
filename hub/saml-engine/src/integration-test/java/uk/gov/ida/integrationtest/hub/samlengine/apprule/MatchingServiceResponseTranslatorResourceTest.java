@@ -89,7 +89,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
 
     @Before
     public void beforeEach() throws Exception {
-        configStub.setupStubForCertificates(TEST_RP_MS, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
+        configStub.setupCertificatesForEntity(TEST_RP_MS, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
     }
 
     @After

@@ -43,7 +43,6 @@ import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_E
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PRIVATE_SIGNING_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC_ENCRYPTION_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC_SIGNING_CERT;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PRIVATE_SIGNING_KEY;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
@@ -78,7 +77,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
 
     @Before
     public void beforeEach() throws Exception {
-        configStub.setupStubForCertificates(TEST_RP_MS, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
+        configStub.setupCertificatesForEntity(TEST_RP_MS, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
     }
 
     @After
