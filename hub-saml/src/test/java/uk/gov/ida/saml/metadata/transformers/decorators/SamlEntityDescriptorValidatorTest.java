@@ -45,36 +45,6 @@ public class SamlEntityDescriptorValidatorTest {
     }
 
     @Test
-    public void decorate_shouldThrowExceptionWhenOrganizationIsMissing() throws Exception {
-        EntityDescriptor entityDescriptor = anEntityDescriptor().withOrganization(null).build();
-
-        assertExceptionMessage(entityDescriptor, SamlTransformationErrorFactory.missingOrganization());
-    }
-
-    @Test
-    public void decorate_shouldThrowExceptionWhenOrganizationDisplayNameIsMissing() throws Exception {
-        EntityDescriptor entityDescriptor = anEntityDescriptor().withOrganization(anOrganization().withDisplayName(null).build()).build();
-
-        assertExceptionMessage(entityDescriptor, SamlTransformationErrorFactory.missingDisplayName());
-    }
-
-    @Test
-    public void decorate_shouldThrowExceptionWhenOrganizationDisplayNameNameIsMissing() throws Exception {
-        EntityDescriptor entityDescriptor = anEntityDescriptor().withOrganization(anOrganization().withDisplayName(anOrganizationDisplayName().withName(null).build()).build()).build();
-
-        assertExceptionMessage(entityDescriptor, SamlTransformationErrorFactory.missingDisplayName());
-
-    }
-
-    @Test
-    public void decorate_shouldThrowExceptionWhenOrganizationDisplayNameNameIsEmpty() throws Exception {
-        EntityDescriptor entityDescriptor = anEntityDescriptor().withOrganization(anOrganization().withDisplayName(anOrganizationDisplayName().withName("").build()).build()).build();
-
-        assertExceptionMessage(entityDescriptor, SamlTransformationErrorFactory.missingDisplayName());
-
-    }
-
-    @Test
     public void decorate_shouldThrowExceptionWhenRoleDescriptorDoesNotHaveAKeyDescriptorElement() throws Exception {
         EntityDescriptor entityDescriptor = anEntityDescriptor().withIdpSsoDescriptor(IdpSsoDescriptorBuilder.anIdpSsoDescriptor().withoutDefaultSigningKey().build()).build();
 

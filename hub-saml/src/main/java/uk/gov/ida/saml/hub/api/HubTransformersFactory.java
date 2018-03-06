@@ -60,14 +60,10 @@ import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromMatchingServi
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
-import uk.gov.ida.saml.hub.validators.response.common.AssertionSizeValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.decorators.AuthnRequestSizeValidator;
-import uk.gov.ida.saml.hub.validators.response.common.ResponseSizeValidator;
-import uk.gov.ida.saml.hub.validators.response.common.ResponseDestinationValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
-import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AttributeQueryToElementTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EidasAuthnRequestFromHubToAuthnRequestTransformer;
@@ -89,16 +85,17 @@ import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestFromTransactionVa
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIssueInstantValidator;
 import uk.gov.ida.saml.hub.validators.authnrequest.DuplicateAuthnRequestValidator;
+import uk.gov.ida.saml.hub.validators.response.common.AssertionSizeValidator;
+import uk.gov.ida.saml.hub.validators.response.common.ResponseDestinationValidator;
+import uk.gov.ida.saml.hub.validators.response.common.ResponseSizeValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.EncryptedResponseFromMatchingServiceValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.HealthCheckResponseFromMatchingServiceValidator;
-import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.ResponseAssertionsFromMatchingServiceValidator;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
-import uk.gov.ida.saml.metadata.domain.HubServiceProviderMetadataDto;
-import uk.gov.ida.saml.metadata.transformers.ContactPersonsUnmarshaller;
 import uk.gov.ida.saml.metadata.transformers.HubIdentityProviderMetadataDtoToEntityDescriptorTransformer;
-import uk.gov.ida.saml.metadata.transformers.OrganizationUnmarshaller;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
 import uk.gov.ida.saml.security.DecrypterFactory;
@@ -194,10 +191,6 @@ public class HubTransformersFactory {
     public Function<HubIdentityProviderMetadataDto, Element> getHubIdentityProviderMetadataDtoToElementTransformer() {
         return
                 coreTransformersFactory.<EntityDescriptor>getXmlObjectToElementTransformer().compose(getHubIdentityProviderMetadataDtoToEntityDescriptorTransformer());
-    }
-
-    public Function<HubServiceProviderMetadataDto, Element> getHubServiceProviderMetadataDtoToElementTransformer() {
-        return coreTransformersFactory.<EntityDescriptor>getXmlObjectToElementTransformer().compose(new CoreTransformersFactory().getHubServiceProviderMetadataDtoToEntityDescriptorTransformer());
     }
 
     public Function<IdaAuthnRequestFromHub, String> getIdaAuthnRequestFromHubToStringTransformer(IdaKeyStore keyStore, SignatureAlgorithm signatureAlgorithm, DigestAlgorithm digestAlgorithm) {
@@ -436,8 +429,6 @@ public class HubTransformersFactory {
         OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
         return new HubIdentityProviderMetadataDtoToEntityDescriptorTransformer(
                 openSamlXmlObjectFactory,
-                new OrganizationUnmarshaller(openSamlXmlObjectFactory),
-                new ContactPersonsUnmarshaller(openSamlXmlObjectFactory),
                 coreTransformersFactory.getCertificatesToKeyDescriptorsTransformer(),
                 new IdGenerator()
         );
