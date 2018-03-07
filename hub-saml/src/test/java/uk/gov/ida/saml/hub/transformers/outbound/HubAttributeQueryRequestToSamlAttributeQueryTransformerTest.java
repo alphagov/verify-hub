@@ -32,7 +32,6 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.HubAssertionBuilder.aHubAssertion;
 import static uk.gov.ida.saml.core.test.builders.PassthroughAssertionBuilder.aPassthroughAssertion;
-import static uk.gov.ida.saml.core.test.builders.PersistentIdBuilder.aPersistentId;
 import static uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute.CURRENT_ADDRESS;
 import static uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute.DATE_OF_BIRTH;
 import static uk.gov.ida.saml.hub.test.builders.HubAttributeQueryRequestBuilder.aHubAttributeQueryRequest;
@@ -80,7 +79,7 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformerTest {
 
     @Test
     public void transform_shouldProperlyTransform() throws Exception {
-        PersistentId persistentId = aPersistentId().build();
+        PersistentId persistentId = new PersistentId("default-name-id");
         HubAttributeQueryRequest originalQuery = aHubAttributeQueryRequest()
                 .withId("originalId")
                 .withPersistentId(persistentId)

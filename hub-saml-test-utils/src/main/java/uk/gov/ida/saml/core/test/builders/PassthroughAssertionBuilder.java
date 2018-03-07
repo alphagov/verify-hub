@@ -9,7 +9,7 @@ import uk.gov.ida.saml.core.domain.PersistentId;
 
 public class PassthroughAssertionBuilder {
 
-    private PersistentId persistentId = PersistentIdBuilder.aPersistentId().build();
+    private PersistentId persistentId = new PersistentId("default-name-id");
     private Optional<AuthnContext> authnContext = Optional.fromNullable(AuthnContext.LEVEL_1);
     private String underlyingAssertion = "blob";
     private Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.absent();

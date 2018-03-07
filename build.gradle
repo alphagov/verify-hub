@@ -9,7 +9,6 @@ buildscript {
   }
 }
 
-
 ext {
     opensaml_version = '3.3.0'
     ida_utils_version = '2.0.0-313'
@@ -32,7 +31,7 @@ subprojects {
 
     dependencies {
         common "org.opensaml:opensaml-core:$opensaml_version",
-                "uk.gov.verify:saml-utils:$opensaml_version-67",
+                "uk.gov.verify:saml-utils:$opensaml_version-68",
                 'com.google.guava:guava:18.0',
                 'com.google.inject:guice:4.0',
                 'joda-time:joda-time:2.9',

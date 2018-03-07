@@ -14,12 +14,11 @@ import java.util.List;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
-import static uk.gov.ida.saml.core.test.builders.PersistentIdBuilder.aPersistentId;
 
 public class HubAttributeQueryRequestBuilder {
 
     private String id = "id";
-    private PersistentId persistentId = aPersistentId().build();
+    private PersistentId persistentId = new PersistentId("default-name-id");
     private String authnStatementAssertion = "aPassthroughAssertion().buildAuthnStatementAssertion()";
     private Optional<HubAssertion> cycle3AttributeAssertion = absent();
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes = absent();

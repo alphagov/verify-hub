@@ -12,12 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static uk.gov.ida.saml.core.test.builders.PersistentIdBuilder.aPersistentId;
-
 public class HubEidasAttributeQueryRequestBuilder {
 
     private String id = "id";
-    private PersistentId persistentId = aPersistentId().build();
+    private PersistentId persistentId = new PersistentId("default-name-id");
     private Optional<HubAssertion> cycle3AttributeAssertion = Optional.empty();
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes = Optional.empty();
     private URI assertionConsumerServiceUrl = URI.create("http://transaction.com");

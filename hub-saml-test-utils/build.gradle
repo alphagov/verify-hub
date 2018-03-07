@@ -1,5 +1,6 @@
 dependencies {
     compile configurations.common,
             configurations.test_deps,
-            'commons-codec:commons-codec:1.10'
+            'commons-codec:commons-codec:1.10',
+            project(':hub-saml')
 }
