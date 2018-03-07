@@ -35,7 +35,6 @@ import uk.gov.ida.saml.core.validators.assertion.MatchingDatasetAssertionValidat
 import uk.gov.ida.saml.core.validators.subject.AssertionSubjectValidator;
 import uk.gov.ida.saml.core.validators.subjectconfirmation.AssertionSubjectConfirmationValidator;
 import uk.gov.ida.saml.core.validators.subjectconfirmation.BasicAssertionSubjectConfirmationValidator;
-import uk.gov.ida.saml.deserializers.ElementToOpenSamlXMLObjectTransformer;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
@@ -97,22 +96,9 @@ import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertions
 import uk.gov.ida.saml.hub.validators.response.matchingservice.ResponseAssertionsFromMatchingServiceValidator;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.domain.HubServiceProviderMetadataDto;
-import uk.gov.ida.saml.metadata.transformers.AssertionConsumerServicesMarshaller;
-import uk.gov.ida.saml.metadata.transformers.ContactPersonsMarshaller;
 import uk.gov.ida.saml.metadata.transformers.ContactPersonsUnmarshaller;
-import uk.gov.ida.saml.metadata.transformers.EndpointMarshaller;
-import uk.gov.ida.saml.metadata.transformers.EntityDescriptorToHubIdentityProviderMetadataDtoValidatingTransformer;
-import uk.gov.ida.saml.metadata.transformers.EntityDescriptorToHubTransactionMetadataDtoValidatingTransformer;
 import uk.gov.ida.saml.metadata.transformers.HubIdentityProviderMetadataDtoToEntityDescriptorTransformer;
-import uk.gov.ida.saml.metadata.transformers.IdentityProviderMetadataMarshaller;
-import uk.gov.ida.saml.metadata.transformers.KeyDescriptorFinder;
-import uk.gov.ida.saml.metadata.transformers.KeyDescriptorMarshaller;
-import uk.gov.ida.saml.metadata.transformers.OrganizationMarshaller;
 import uk.gov.ida.saml.metadata.transformers.OrganizationUnmarshaller;
-import uk.gov.ida.saml.metadata.transformers.SingleSignOnServicesMarshaller;
-import uk.gov.ida.saml.metadata.transformers.TransactionMetadataMarshaller;
-import uk.gov.ida.saml.metadata.transformers.ValidUntilExtractor;
-import uk.gov.ida.saml.metadata.transformers.decorators.SamlEntityDescriptorValidator;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
 import uk.gov.ida.saml.security.DecrypterFactory;
@@ -146,34 +132,6 @@ public class HubTransformersFactory {
 
     public HubTransformersFactory() {
         coreTransformersFactory = new CoreTransformersFactory();
-    }
-
-    public Function<Element, HubIdentityProviderMetadataDto> getMetadataForSpTransformer(String hubEntityId) {
-
-        Function<Element, EntityDescriptor> elementToOpenSamlXMLObjectTransformer = getElementToEntityDescriptorTransformer();
-        Function<EntityDescriptor, HubIdentityProviderMetadataDto> hubIdentityProviderMetadataDtoValidatingTransformer =
-                getEntityDescriptorToHubIdentityProviderMetadataDtoValidatingTransformer(hubEntityId);
-
-        return hubIdentityProviderMetadataDtoValidatingTransformer.compose(elementToOpenSamlXMLObjectTransformer);
-    }
-
-    public Function<Element, HubServiceProviderMetadataDto> getElementToHubServiceProviderMetadataDtoTransformer() {
-
-
-        EntityDescriptorToHubTransactionMetadataDtoValidatingTransformer entityDescriptorToHubTransactionMetadataDtoValidatingTransformer = new EntityDescriptorToHubTransactionMetadataDtoValidatingTransformer(
-                new TransactionMetadataMarshaller(
-                        new OrganizationMarshaller(),
-                        new ContactPersonsMarshaller(),
-                        new KeyDescriptorMarshaller(),
-                        new KeyDescriptorFinder(),
-                        new AssertionConsumerServicesMarshaller(),
-                        new ValidUntilExtractor()
-                ),
-                new SamlEntityDescriptorValidator()
-        );
-
-        return entityDescriptorToHubTransactionMetadataDtoValidatingTransformer
-                .compose(getElementToEntityDescriptorTransformer());
     }
 
     public Function<OutboundResponseFromHub, String> getOutboundResponseFromHubToStringTransformer(
@@ -231,10 +189,6 @@ public class HubTransformersFactory {
         );
 
         return responseStringTransformer.compose(outboundToResponseTransformer);
-    }
-
-    public ElementToOpenSamlXMLObjectTransformer<EntityDescriptor> getElementToEntityDescriptorTransformer() {
-        return coreTransformersFactory.getElementToOpenSamlXmlObjectTransformer();
     }
 
     public Function<HubIdentityProviderMetadataDto, Element> getHubIdentityProviderMetadataDtoToElementTransformer() {
@@ -553,24 +507,6 @@ public class HubTransformersFactory {
         } else {
             return new NoOpSamlAttributeQueryAssertionEncrypter();
         }
-    }
-
-    public EntityDescriptorToHubIdentityProviderMetadataDtoValidatingTransformer getEntityDescriptorToHubIdentityProviderMetadataDtoValidatingTransformer(String hubEntityId) {
-        IdentityProviderMetadataMarshaller identityProviderMetadataMarshaller = getEntityDescriptorToHubIdentityProviderMetadataDtoTransformer(hubEntityId);
-        SamlEntityDescriptorValidator entityDescriptorValidator = new SamlEntityDescriptorValidator();
-
-        return new EntityDescriptorToHubIdentityProviderMetadataDtoValidatingTransformer(identityProviderMetadataMarshaller, entityDescriptorValidator);
-    }
-
-    private IdentityProviderMetadataMarshaller getEntityDescriptorToHubIdentityProviderMetadataDtoTransformer(String hubEntityId) {
-        SingleSignOnServicesMarshaller singleSignOnServiceTransformer = new SingleSignOnServicesMarshaller(new EndpointMarshaller());
-        return new IdentityProviderMetadataMarshaller(
-                new OrganizationMarshaller(),
-                new ContactPersonsMarshaller(),
-                singleSignOnServiceTransformer,
-                new KeyDescriptorMarshaller(),
-                new ValidUntilExtractor(),
-                hubEntityId);
     }
 
     private ResponseAssertionsFromIdpValidator getResponseAssertionsFromIdpValidator(final ConcurrentMap<String, DateTime> assertionIdCache, String hubEntityId) {
