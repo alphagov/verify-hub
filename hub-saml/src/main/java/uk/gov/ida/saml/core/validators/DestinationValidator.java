@@ -1,19 +1,20 @@
 package uk.gov.ida.saml.core.validators;
 
-import com.google.common.base.Throwables;
-import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
-import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
+import uk.gov.ida.saml.hub.exception.SamlValidationException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.destinationEmpty;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.destinationMissing;
+
 public class DestinationValidator {
 
-    private final URI expectedDestinationHost;
-    private static final int NO_PORT = -1;
+    private final URI expectedUri;
 
-    public DestinationValidator(URI expectedDestinationHost) {
-        this.expectedDestinationHost = expectedDestinationHost;
+    public DestinationValidator(URI expectedDestinationHost, String expectedEndpoint) {
+        expectedUri = uriWithoutPort(expectedDestinationHost, expectedEndpoint);
     }
 
     /*
@@ -21,35 +22,23 @@ public class DestinationValidator {
 
     Path is added because we have to do validation on both Responses & Requests
      */
-    public void validate(String destination, String endpointPath) {
-        URI expectedUri;
-        try {
-            expectedUri = new URI(expectedDestinationHost.getScheme(), expectedDestinationHost.getHost(), endpointPath, null);
-        } catch (URISyntaxException e) {
-            throw Throwables.propagate(e);
-        }
+    public void validate(String destination) {
+        if(destination == null) throw new SamlValidationException(destinationMissing(expectedUri));
 
-        if(destination == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.destinationMissing(expectedUri);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        if (!expectedUri.equals(getDestinationUriWithoutPort(destination))) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.destinationEmpty(expectedUri, destination);
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-    }
-
-    private URI getDestinationUriWithoutPort(String destination) {
         URI destinationURI = URI.create(destination);
 
-        if (destinationURI.getPort() == NO_PORT) {
-            return destinationURI;
-        }
+        URI destinationURIWithoutPort;
+        destinationURIWithoutPort = uriWithoutPort(destinationURI, destinationURI.getPath());
+
+        if (!expectedUri.equals(destinationURIWithoutPort))
+            throw new SamlValidationException(destinationEmpty(expectedUri, destination));
+    }
+
+    private URI uriWithoutPort(URI destinationURI, String endpoint) {
         try {
-            return new URI(destinationURI.getScheme(), destinationURI.getHost(), destinationURI.getPath(), null);
+            return new URI(destinationURI.getScheme(), destinationURI.getHost(), endpoint, null);
         } catch (URISyntaxException e) {
-            throw Throwables.propagate(e);
+            throw new SamlValidationException(SamlTransformationErrorFactory.destinationInvalid(destinationURI, endpoint));
         }
     }
 

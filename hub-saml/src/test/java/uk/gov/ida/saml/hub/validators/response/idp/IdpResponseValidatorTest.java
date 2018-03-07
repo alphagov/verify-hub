@@ -9,7 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
-import uk.gov.ida.saml.hub.validators.response.common.ResponseDestinationValidator;
+import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.security.AssertionDecrypter;
@@ -35,7 +35,7 @@ public class IdpResponseValidatorTest {
     @Mock
     private EncryptedResponseFromIdpValidator encryptedResponseFromIdpValidator;
     @Mock
-    private ResponseDestinationValidator responseDestinationValidator;
+    private DestinationValidator responseDestinationValidator;
     @Mock
     private ResponseAssertionsFromIdpValidator responseAssertionsFromIdpValidator;
     @Mock
@@ -63,7 +63,7 @@ public class IdpResponseValidatorTest {
     @Test
     public void shouldValidateResponseDestination() {
         validator.validate(response);
-        verify(responseDestinationValidator).validate(response);
+        verify(responseDestinationValidator).validate(response.getDestination());
     }
 
     @Test

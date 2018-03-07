@@ -19,7 +19,6 @@ import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
-import uk.gov.ida.saml.core.transformers.inbound.decorators.AuthnRequestDestinationValidator;
 import uk.gov.ida.saml.core.transformers.outbound.OutboundAssertionToSubjectTransformer;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseAssertionSigner;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.SamlAttributeQueryAssertionEncrypter;
@@ -86,7 +85,6 @@ import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIssueInstantValidator;
 import uk.gov.ida.saml.hub.validators.authnrequest.DuplicateAuthnRequestValidator;
 import uk.gov.ida.saml.hub.validators.response.common.AssertionSizeValidator;
-import uk.gov.ida.saml.hub.validators.response.common.ResponseDestinationValidator;
 import uk.gov.ida.saml.hub.validators.response.common.ResponseSizeValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
@@ -368,21 +366,20 @@ public class HubTransformersFactory {
             ConcurrentMap<String, DateTime> assertionIdCache,
             String hubEntityId) {
         SigningCredentialFactory signingCredentialFactory = new SigningCredentialFactory(signingKeyStore);
+
         IdpResponseValidator validator = new IdpResponseValidator(this.<InboundResponseFromIdp>getSamlResponseSignatureValidator(signingCredentialFactory),
             this.<InboundResponseFromIdp>getSamlResponseAssertionDecrypter(keyStore),
             new SamlAssertionsSignatureValidator(new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory))),
             new EncryptedResponseFromIdpValidator(new SamlStatusToIdpIdaStatusMappingsFactory()),
-            new ResponseDestinationValidator(
-                new DestinationValidator(expectedDestinationHost),
-                expectedEndpoint),
+            new DestinationValidator(expectedDestinationHost, expectedEndpoint),
             getResponseAssertionsFromIdpValidator(assertionIdCache, hubEntityId));
 
         return new DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
-                validator,
-                new IdaResponseFromIdpUnmarshaller(
-                    new IdpIdaStatusUnmarshaller(new IdpIdaStatus.IdpIdaStatusFactory(), new SamlStatusToIdpIdaStatusMappingsFactory()),
-                    getAssertionToPassthroughAssertionTransformer()
-                )
+            validator,
+            new IdaResponseFromIdpUnmarshaller(
+                new IdpIdaStatusUnmarshaller(new IdpIdaStatus.IdpIdaStatusFactory(), new SamlStatusToIdpIdaStatusMappingsFactory()),
+                getAssertionToPassthroughAssertionTransformer()
+            )
         );
     }
 
@@ -400,7 +397,7 @@ public class HubTransformersFactory {
         return new AuthnRequestToIdaRequestFromRelyingPartyTransformer(
             new AuthnRequestFromRelyingPartyUnmarshaller(decrypter),
             coreTransformersFactory.<AuthnRequest>getSamlRequestSignatureValidator(signingKeyStore),
-            new AuthnRequestDestinationValidator(new DestinationValidator(expectedDestinationHost), Endpoints.SSO_REQUEST_ENDPOINT),
+            new DestinationValidator(expectedDestinationHost, Endpoints.SSO_REQUEST_ENDPOINT),
             new AuthnRequestFromTransactionValidator(
                 new IssuerValidator(),
                 new DuplicateAuthnRequestValidator(duplicateIds, samlDuplicateRequestValidationConfiguration),

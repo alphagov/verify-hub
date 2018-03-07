@@ -2,7 +2,7 @@ package uk.gov.ida.saml.hub.transformers.inbound;
 
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
-import uk.gov.ida.saml.core.transformers.inbound.decorators.AuthnRequestDestinationValidator;
+import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestFromTransactionValidator;
 import uk.gov.ida.saml.security.validators.signature.SamlRequestSignatureValidator;
@@ -13,13 +13,13 @@ public class AuthnRequestToIdaRequestFromRelyingPartyTransformer implements Func
 
     private final AuthnRequestFromRelyingPartyUnmarshaller authnRequestFromRelyingPartyUnmarshaller;
     private final SamlRequestSignatureValidator<AuthnRequest> samlRequestSignatureValidator;
-    private final AuthnRequestDestinationValidator authnRequestDestinationValidator;
+    private final DestinationValidator authnRequestDestinationValidator;
     private final AuthnRequestFromTransactionValidator authnRequestFromTransactionValidator;
 
     public AuthnRequestToIdaRequestFromRelyingPartyTransformer(
         AuthnRequestFromRelyingPartyUnmarshaller authnRequestFromRelyingPartyUnmarshaller,
         SamlRequestSignatureValidator<AuthnRequest> samlRequestSignatureValidator,
-        AuthnRequestDestinationValidator authnRequestDestinationValidator,
+        DestinationValidator authnRequestDestinationValidator,
         AuthnRequestFromTransactionValidator authnRequestFromTransactionValidator
     ) {
         this.authnRequestFromRelyingPartyUnmarshaller = authnRequestFromRelyingPartyUnmarshaller;
@@ -31,7 +31,7 @@ public class AuthnRequestToIdaRequestFromRelyingPartyTransformer implements Func
     @Override
     public AuthnRequestFromRelyingParty apply(final AuthnRequest authnRequest) {
         authnRequestFromTransactionValidator.validate(authnRequest);
-        authnRequestDestinationValidator.validate(authnRequest);
+        authnRequestDestinationValidator.validate(authnRequest.getDestination());
         samlRequestSignatureValidator.validate(authnRequest, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
         return authnRequestFromRelyingPartyUnmarshaller.fromSamlMessage(authnRequest);
     }

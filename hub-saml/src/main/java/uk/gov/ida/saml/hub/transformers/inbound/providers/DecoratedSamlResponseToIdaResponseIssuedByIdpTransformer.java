@@ -1,14 +1,14 @@
 package uk.gov.ida.saml.hub.transformers.inbound.providers;
 
 import org.opensaml.saml.saml2.core.Response;
+import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
-import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
+import uk.gov.ida.saml.hub.transformers.inbound.IdaResponseFromIdpUnmarshaller;
 import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
-import uk.gov.ida.saml.hub.transformers.inbound.IdaResponseFromIdpUnmarshaller;
-import uk.gov.ida.saml.hub.validators.response.common.ResponseDestinationValidator;
-import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
@@ -27,7 +27,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
             AssertionDecrypter assertionDecrypter,
             SamlAssertionsSignatureValidator samlAssertionsSignatureValidator,
             EncryptedResponseFromIdpValidator responseFromIdpValidator,
-            ResponseDestinationValidator responseDestinationValidator,
+            DestinationValidator responseDestinationValidator,
             ResponseAssertionsFromIdpValidator responseAssertionsFromIdpValidator) {
 
         this(new IdpResponseValidator(

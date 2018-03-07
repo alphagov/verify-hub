@@ -7,57 +7,62 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import java.net.URI;
+import java.net.URISyntaxException;
 
+import static org.junit.Assert.fail;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.destinationEmpty;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.destinationMissing;
 import static uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DestinationValidatorTest {
 
-    public static final String EXPECTED_DESTINATION = "http://correct.destination.com";
+    private static final String EXPECTED_DESTINATION = "http://correct.destination.com";
+    private static final String EXPECTED_ENDPOINT = "/foo/bar";
 
     private DestinationValidator validator;
 
     @Before
-    public void setup() {
-        validator = new DestinationValidator(URI.create(EXPECTED_DESTINATION));
+    public void setup() throws URISyntaxException {
+        validator = new DestinationValidator(URI.create(EXPECTED_DESTINATION), EXPECTED_ENDPOINT);
     }
 
     @Test
     public void validate_shouldThrowExceptionIfDestinationIsAbsent() throws Exception {
-        String endpointPath = "/foo/bar";
-
         validateException(
-                SamlTransformationErrorFactory.destinationMissing(URI.create(EXPECTED_DESTINATION + endpointPath)),
-                null,
-                endpointPath);
+            destinationMissing(URI.create(EXPECTED_DESTINATION + EXPECTED_ENDPOINT)),
+            null
+        );
     }
 
     @Test
     public void validate_shouldNotThrowExceptionIfUriMatches() throws Exception {
-        validator.validate("http://correct.destination.com/foo/bar", "/foo/bar");
+        validator.validate("http://correct.destination.com/foo/bar");
     }
 
     @Test
     public void validate_shouldBeValidIfPortSpecifiedOnDestinationButNotForSamlProxy() throws Exception {
-        validator.validate("http://correct.destination.com:999/foo/bar", "/foo/bar");
+        validator.validate("http://correct.destination.com:999/foo/bar");
     }
 
     @Test
     public void validate_shouldThrowSamlExceptionIfHostForTheUriOnResponseDoesNotMatchTheSamlReceiverHost() throws Exception {
-        final String endPoint = "/foo/bar";
+        String invalidDestination = "http://saml.com/foo/bar";
         validateException(
-                SamlTransformationErrorFactory.destinationEmpty(URI.create(EXPECTED_DESTINATION + endPoint), "http://saml.com/foo/bar"),
-                "http://saml.com/foo/bar", endPoint);
+            destinationEmpty(URI.create(EXPECTED_DESTINATION + EXPECTED_ENDPOINT), invalidDestination),
+            invalidDestination
+        );
     }
 
     @Test
     public void validate_shouldThrowSamlExceptionIfHostsMatchButPathsDoNot() throws Exception {
-
-        final String endPoint = "/foo/bar";
-        validateException(SamlTransformationErrorFactory.destinationEmpty(URI.create(EXPECTED_DESTINATION + endPoint), "http://saml.com/this/is/a/path"), "http://saml.com/this/is/a/path", endPoint);
+        validateException(
+            destinationEmpty(URI.create(EXPECTED_DESTINATION + EXPECTED_ENDPOINT), EXPECTED_DESTINATION + "/this/is/a/path"),
+            EXPECTED_DESTINATION + "/this/is/a/path"
+        );
     }
 
-    private void validateException(SamlValidationSpecificationFailure failure, final String destination, final String endpointPath) {
-        validateFail(() -> validator.validate(destination, endpointPath), failure);
+    private void validateException(SamlValidationSpecificationFailure failure, final String destination) {
+        validateFail(() -> validator.validate(destination), failure);
     }
 }

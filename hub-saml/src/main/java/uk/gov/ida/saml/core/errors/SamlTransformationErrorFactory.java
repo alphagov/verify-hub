@@ -132,6 +132,10 @@ public final class SamlTransformationErrorFactory {
         return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.EMPTY_DESTINATION, expectedUri, destination);
     }
 
+    public static SamlValidationSpecificationFailure destinationInvalid(URI uri, String endpoint) {
+        return new GenericHubProfileValidationSpecification("Destination is incorrect. Received: {0}{1}{2}", uri.getScheme(), uri.getPath(), endpoint);
+    }
+
     public static SamlValidationSpecificationFailure assertionNotSigned(final String id) {
         return new GenericHubProfileValidationSpecification(GenericHubProfileValidationSpecification.ASSERTION_SIGNATURE_NOT_SIGNED, id);
     }
