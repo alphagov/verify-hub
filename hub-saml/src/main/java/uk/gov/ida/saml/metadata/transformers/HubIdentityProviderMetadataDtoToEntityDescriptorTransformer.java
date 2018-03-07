@@ -21,19 +21,13 @@ public class HubIdentityProviderMetadataDtoToEntityDescriptorTransformer impleme
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
     private final KeyDescriptorsUnmarshaller keyDescriptorsUnmarshaller;
     private final IdGenerator idGenerator;
-    private OrganizationUnmarshaller organizationUnmarshaller;
-    private ContactPersonsUnmarshaller contactPersonsUnmarshaller;
 
     public HubIdentityProviderMetadataDtoToEntityDescriptorTransformer(
         OpenSamlXmlObjectFactory openSamlXmlObjectFactory,
-        OrganizationUnmarshaller organizationUnmarshaller,
-        ContactPersonsUnmarshaller contactPersonsUnmarshaller,
         KeyDescriptorsUnmarshaller keyDescriptorsUnmarshaller,
         IdGenerator idGenerator) {
 
         this.openSamlXmlObjectFactory = openSamlXmlObjectFactory;
-        this.organizationUnmarshaller = organizationUnmarshaller;
-        this.contactPersonsUnmarshaller = contactPersonsUnmarshaller;
         this.keyDescriptorsUnmarshaller = keyDescriptorsUnmarshaller;
         this.idGenerator = idGenerator;
     }
@@ -66,14 +60,6 @@ public class HubIdentityProviderMetadataDtoToEntityDescriptorTransformer impleme
         idpSsoDescriptor.getKeyDescriptors().addAll(signingKeyDescriptors);
 
         entityDescriptor.getRoleDescriptors().add(idpSsoDescriptor);
-
-        if (dto.getOrganisation() != null) {
-            final Organization transformedOrganisation = organizationUnmarshaller.fromDto(dto.getOrganisation());
-            entityDescriptor.setOrganization(transformedOrganisation);
-        }
-
-        final List<ContactPerson> transformedContactPersons = contactPersonsUnmarshaller.fromDto(dto.getContactPersons());
-        entityDescriptor.getContactPersons().addAll(transformedContactPersons);
 
         return entityDescriptor;
     }

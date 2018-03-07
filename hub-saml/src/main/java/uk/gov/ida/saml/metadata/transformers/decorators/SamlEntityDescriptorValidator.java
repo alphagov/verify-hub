@@ -27,7 +27,6 @@ public class SamlEntityDescriptorValidator {
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
 
-        validateOrganization(descriptor);
         validateRoleDescriptor(descriptor);
     }
 
@@ -66,23 +65,4 @@ public class SamlEntityDescriptorValidator {
         }
     }
 
-    private void validateOrganization(EntityDescriptor descriptor) {
-        Organization organization = descriptor.getOrganization();
-        if (organization == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingOrganization();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        List<OrganizationDisplayName> displayNames = organization.getDisplayNames();
-        if (displayNames.isEmpty()) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingDisplayName();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-
-        String name = displayNames.get(0).getValue();
-        if (name == null) {
-            SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.missingDisplayName();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
-        }
-    }
 }

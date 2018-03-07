@@ -31,7 +31,7 @@ public class HubIdentityProviderMetadataDtoToEntityDescriptorTransformerTest {
     @Before
     public void setUp() throws Exception {
         OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
-        transformer = new HubIdentityProviderMetadataDtoToEntityDescriptorTransformer(openSamlXmlObjectFactory, new OrganizationUnmarshaller(openSamlXmlObjectFactory), new ContactPersonsUnmarshaller(openSamlXmlObjectFactory), new KeyDescriptorsUnmarshaller(openSamlXmlObjectFactory), new IdGenerator());
+        transformer = new HubIdentityProviderMetadataDtoToEntityDescriptorTransformer(openSamlXmlObjectFactory, new KeyDescriptorsUnmarshaller(openSamlXmlObjectFactory), new IdGenerator());
     }
 
     @Test
