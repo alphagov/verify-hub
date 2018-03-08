@@ -31,7 +31,7 @@ subprojects {
 
     dependencies {
         common "org.opensaml:opensaml-core:$opensaml_version",
-                "uk.gov.verify:saml-utils:$opensaml_version-69",
+                "uk.gov.verify:saml-utils:$opensaml_version-70",
                 'com.google.guava:guava:18.0',
                 'com.google.inject:guice:4.0',
                 'joda-time:joda-time:2.9',

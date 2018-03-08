@@ -517,20 +517,20 @@ public class HubTransformersFactory {
     public DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer getResponseInboundHealthCheckResponseFromMatchingServiceTransformer(SigningKeyStore signingKeyStore) {
         SigningCredentialFactory signingCredentialFactory = new SigningCredentialFactory(signingKeyStore);
         return new DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer(
-                new InboundHealthCheckResponseFromMatchingServiceUnmarshaller(
-                        new MatchingServiceIdaStatusUnmarshaller()
-                ),
-                this.<InboundHealthCheckResponseFromMatchingService>getSamlResponseSignatureValidator(signingCredentialFactory),
-                new HealthCheckResponseFromMatchingServiceValidator(
-                )
-
+            new InboundHealthCheckResponseFromMatchingServiceUnmarshaller(
+                new MatchingServiceIdaStatusUnmarshaller()
+            ),
+            this.<InboundHealthCheckResponseFromMatchingService>getSamlResponseSignatureValidator(signingCredentialFactory),
+            new HealthCheckResponseFromMatchingServiceValidator(
+            )
         );
     }
 
     private AssertionDecrypter getSamlResponseAssertionDecrypter(IdaKeyStore keyStore) {
-        return new AssertionDecrypter(
-                new IdaKeyStoreCredentialRetriever(keyStore), new EncryptionAlgorithmValidator(), new DecrypterFactory()
-        );
+        IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever = new IdaKeyStoreCredentialRetriever(keyStore);
+        DecrypterFactory decrypterFactory = new DecrypterFactory();
+        Decrypter decrypter = decrypterFactory.createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
+        return new AssertionDecrypter(new EncryptionAlgorithmValidator(), decrypter);
     }
 
     private SamlResponseSignatureValidator getSamlResponseSignatureValidator(SigningCredentialFactory signingCredentialFactory) {
