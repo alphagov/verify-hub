@@ -12,28 +12,24 @@ import org.junit.Test;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-import uk.gov.ida.common.shared.security.Certificate;
 import uk.gov.ida.hub.samlproxy.domain.SamlDto;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
 import uk.gov.ida.saml.core.test.TestCertificateStrings;
 import uk.gov.ida.saml.deserializers.OpenSamlXMLObjectUnmarshaller;
-import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
-import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
-import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.UriBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.saml.core.test.TestEntityIds.*;
+import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
+import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_SECONDARY_ENTITY_ID;
+import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_FOUR;
+import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
+import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_THREE;
+import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_TWO;
 
 public class HubMetadataIntegrationTests {
 
