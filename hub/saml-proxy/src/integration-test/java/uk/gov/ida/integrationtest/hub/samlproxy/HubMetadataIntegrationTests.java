@@ -115,6 +115,7 @@ public class HubMetadataIntegrationTests {
         EntityDescriptor entityDescriptor = getEntityDescriptor(samlDto);
 
         assertThat(entityDescriptor.getEntityID()).isEqualTo(HUB_ENTITY_ID);
+        assertThat(entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS)).isNull();
         assertThat(entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS)).isNotNull();
         assertThat(entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getAssertionConsumerServices().get(0).getLocation()).isEqualTo("http://foo.com/bar");
         assertThat(entityDescriptor.getValidUntil()).isEqualTo(DateTime.now(DateTimeZone.UTC).plusHours(1));
