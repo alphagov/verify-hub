@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -19,9 +18,7 @@ import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
 import java.text.MessageFormat;
 import java.util.List;
-
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
+import java.util.Optional;
 
 public class PassthroughAssertionUnmarshaller {
 
@@ -44,22 +41,22 @@ public class PassthroughAssertionUnmarshaller {
 
     public PassthroughAssertion fromAssertion(Assertion assertion, boolean isEidas) {
         PersistentId persistentId = new PersistentId(assertion.getSubject().getNameID().getValue());
-        Optional<AuthnContext> levelOfAssurance = absent();
+        Optional<AuthnContext> levelOfAssurance = Optional.empty();
         Optional<String> principalIpAddress = getPrincipalIpAddress(assertion.getAttributeStatements());
         if (!assertion.getAuthnStatements().isEmpty()) {
             String levelOfAssuranceAsString = assertion.getAuthnStatements().get(0).getAuthnContext().getAuthnContextClassRef().getAuthnContextClassRef();
 
             levelOfAssurance = isEidas ?
-                    fromNullable(authnContextFactory.mapFromEidasToLoA(levelOfAssuranceAsString)) :
-                    fromNullable(authnContextFactory.authnContextForLevelOfAssurance(levelOfAssuranceAsString));
+                    Optional.ofNullable(authnContextFactory.mapFromEidasToLoA(levelOfAssuranceAsString)) :
+                    Optional.ofNullable(authnContextFactory.authnContextForLevelOfAssurance(levelOfAssuranceAsString));
         }
 
         String underlyingAssertion = assertionStringTransformer.apply(assertion);
 
-        Optional<FraudDetectedDetails> fraudDetectedDetails = absent();
+        Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
         if (levelOfAssurance.isPresent() && levelOfAssurance.get().equals(AuthnContext.LEVEL_X)) {
             String idpFraudEventId = getIdpFraudEventId(assertion.getAttributeStatements());
-            fraudDetectedDetails = fromNullable(new FraudDetectedDetails(idpFraudEventId, gpg45Status(assertion.getAttributeStatements())));
+            fraudDetectedDetails = Optional.ofNullable(new FraudDetectedDetails(idpFraudEventId, gpg45Status(assertion.getAttributeStatements())));
         }
 
         return new PassthroughAssertion(persistentId, levelOfAssurance, underlyingAssertion, fraudDetectedDetails, principalIpAddress);
@@ -68,10 +65,10 @@ public class PassthroughAssertionUnmarshaller {
     private Optional<String> getPrincipalIpAddress(List<AttributeStatement> attributeStatements) {
         Optional<XMLObject> attribute = getAttributeNamed(attributeStatements, IdaConstants.Attributes_1_1.IPAddress.NAME);
         if (!attribute.isPresent()){
-            return absent();
+            return Optional.empty();
         }
         String ipAddress = ((IPAddress) attribute.get()).getValue();
-        return fromNullable(ipAddress);
+        return Optional.ofNullable(ipAddress);
     }
 
     private String gpg45Status(List<AttributeStatement> attributeStatements) {
@@ -100,11 +97,11 @@ public class PassthroughAssertionUnmarshaller {
         for (AttributeStatement attributeStatement : attributeStatements) {
             for (Attribute attribute : attributeStatement.getAttributes()) {
                 if (attribute.getName().equals(attributeName)) {
-                    return fromNullable(attribute.getAttributeValues().get(0));
+                    return Optional.ofNullable(attribute.getAttributeValues().get(0));
                 }
             }
         }
-        return absent();
+        return Optional.empty();
     }
 
 }

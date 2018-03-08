@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.msa.test.transformers;
 
-import com.google.common.base.Optional;
 import org.joda.time.LocalDate;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -19,8 +18,8 @@ import uk.gov.ida.saml.core.domain.SimpleMdsValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static com.google.common.base.Optional.*;
 import static com.google.common.collect.Lists.*;
 import static java.text.MessageFormat.*;
 
@@ -120,7 +119,7 @@ public class MatchingDatasetUnmarshaller {
         private List<SimpleMdsValue<String>> firstnames = new ArrayList<>();
         private List<SimpleMdsValue<String>> middlenames = new ArrayList<>();
         private List<SimpleMdsValue<String>> surnames = new ArrayList<>();
-        private Optional<SimpleMdsValue<Gender>> gender = Optional.absent();
+        private Optional<SimpleMdsValue<Gender>> gender = Optional.empty();
         private List<SimpleMdsValue<LocalDate>> dateOfBirths = new ArrayList<>();
         private List<Address> currentAddresses = newArrayList();
         private List<Address> previousAddresses = newArrayList();
@@ -141,7 +140,7 @@ public class MatchingDatasetUnmarshaller {
         }
 
         public MatchingDatasetBuilder gender(SimpleMdsValue<Gender> gender) {
-            this.gender = fromNullable(gender);
+            this.gender = Optional.ofNullable(gender);
             return this;
         }
 

@@ -32,7 +32,7 @@ public class InboundResponseFromIdpDataGenerator {
         if(idaResponseFromIdp.getAuthnStatementAssertion().isPresent()) {
             final PassthroughAssertion authnStatementAssertion = idaResponseFromIdp.getAuthnStatementAssertion().get();
             authnAssertionBlob = Optional.of(authnStatementAssertion.getUnderlyingAssertionBlob());
-            principalIpAddressFromIdp = Optional.ofNullable(authnStatementAssertion.getPrincipalIpAddressAsSeenByIdp().orNull());
+            principalIpAddressFromIdp = Optional.ofNullable(authnStatementAssertion.getPrincipalIpAddressAsSeenByIdp().orElse(null));
             persistentId = Optional.ofNullable(authnStatementAssertion.getPersistentId().getNameId());
             if(authnStatementAssertion.getAuthnContext().isPresent()) {
                 levelOfAssurance = authnStatementAssertion.getAuthnContext().get().name();
