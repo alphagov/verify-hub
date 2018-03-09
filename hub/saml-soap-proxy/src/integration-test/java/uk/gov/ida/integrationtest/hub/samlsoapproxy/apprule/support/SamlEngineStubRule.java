@@ -9,7 +9,6 @@ import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.hub.samlsoapproxy.Urls;
 import uk.gov.ida.hub.samlsoapproxy.contract.MatchingServiceHealthCheckerResponseDto;
 import uk.gov.ida.hub.samlsoapproxy.contract.SamlMessageDto;
-import uk.gov.ida.saml.core.test.TestCertificateStrings;
 import uk.gov.ida.saml.core.test.TestCredentialFactory;
 import uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder;
 import uk.gov.ida.saml.core.test.builders.IssuerBuilder;

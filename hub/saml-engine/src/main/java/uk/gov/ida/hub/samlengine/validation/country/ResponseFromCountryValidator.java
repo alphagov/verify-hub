@@ -6,9 +6,9 @@ import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
-import uk.gov.ida.saml.hub.validators.response.ResponseFromIdpValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
 
-public class ResponseFromCountryValidator extends ResponseFromIdpValidator {
+public class ResponseFromCountryValidator extends EncryptedResponseFromIdpValidator {
 
     public ResponseFromCountryValidator(
             final SamlStatusToIdpIdaStatusMappingsFactory statusMappingsFactory) {

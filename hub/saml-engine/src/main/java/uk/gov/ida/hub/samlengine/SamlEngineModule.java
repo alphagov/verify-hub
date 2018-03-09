@@ -12,6 +12,7 @@ import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
@@ -90,7 +91,6 @@ import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.ValidateSamlResponseIssuedByIdpDestination;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
@@ -244,7 +244,7 @@ public class SamlEngineModule extends AbstractModule {
                                                                                            ResponseFromCountryValidator responseFromCountryValidator,
                                                                                            IdpIdaStatusUnmarshaller idpIdaStatusUnmarshaller,
                                                                                            @Named("ResponseAssertionsFromCountryValidator") Optional<ResponseAssertionsFromCountryValidator> responseAssertionFromCountryValidator,
-                                                                                           Optional<ValidateSamlResponseIssuedByIdpDestination> validateSamlResponseIssuedByIdpDestination,
+                                                                                           Optional<DestinationValidator> validateSamlResponseIssuedByIdpDestination,
                                                                                            @Named("AES256DecrypterWithGCM") AssertionDecrypter assertionDecrypter,
                                                                                            AssertionBlobEncrypter assertionBlobEncrypter,
                                                                                            @Named("CountrySamlResponseSignatureValidator") Optional<SamlResponseSignatureValidator> responseSignatureValidator,
@@ -271,9 +271,8 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
-    public Optional<ValidateSamlResponseIssuedByIdpDestination> getValidateSamlResponseIssuedByIdpDestination(@Named("ExpectedEidasDestination") Optional<URI> expectedDestination) {
-        return expectedDestination.map(d -> new ValidateSamlResponseIssuedByIdpDestination(
-                new DestinationValidator(d), Urls.FrontendUrls.SAML2_SSO_EIDAS_RESPONSE_ENDPOINT));
+    public Optional<DestinationValidator> getValidateSamlResponseIssuedByIdpDestination(@Named("ExpectedEidasDestination") Optional<URI> expectedDestination) {
+        return expectedDestination.map(d -> new DestinationValidator(d, Urls.FrontendUrls.SAML2_SSO_EIDAS_RESPONSE_ENDPOINT));
     }
 
     @Provides
@@ -574,8 +573,11 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Named("AES256DecrypterWithGCM")
     private AssertionDecrypter getAES256WithGCMAssertionDecrypter(IdaKeyStore keyStore) {
+        IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever = new IdaKeyStoreCredentialRetriever(keyStore);
+        Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
         return new AssertionDecrypter(
-                new IdaKeyStoreCredentialRetriever(keyStore), new EncryptionAlgorithmValidator(ImmutableSet.of(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM)), new DecrypterFactory()
+            new EncryptionAlgorithmValidator(ImmutableSet.of(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM)),
+            decrypter
         );
     }
 

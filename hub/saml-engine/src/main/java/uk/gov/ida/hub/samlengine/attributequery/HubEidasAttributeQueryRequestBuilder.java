@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.attributequery;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.samlengine.domain.EidasAttributeQueryRequestDto;
 import uk.gov.ida.saml.core.domain.AssertionRestrictions;
@@ -12,6 +11,7 @@ import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Optional;
 import java.util.UUID;
 
 public class HubEidasAttributeQueryRequestBuilder {
@@ -33,27 +33,35 @@ public class HubEidasAttributeQueryRequestBuilder {
             dto.getAuthnRequestIssuerEntityId(),
             dto.getEncryptedIdentityAssertion(),
             AuthnContext.valueOf(dto.getLevelOfAssurance().name()),
-            createCycle3Assertion(dto).transform(java.util.Optional::of).or(java.util.Optional::empty),
-            dto.getUserAccountCreationAttributes().transform(java.util.Optional::of).or(java.util.Optional::empty));
+            createCycle3Assertion(dto),
+            dto.getUserAccountCreationAttributes());
     }
 
     private Optional<HubAssertion> createCycle3Assertion(EidasAttributeQueryRequestDto attributeQueryRequestDto) {
-        Optional<HubAssertion> cycle3AttributeAssertion = Optional.absent();
-        if (attributeQueryRequestDto.getCycle3Dataset().isPresent()) {
+        Optional<HubAssertion> cycle3AttributeAssertion = Optional.empty();
+        Optional<uk.gov.ida.hub.samlengine.domain.Cycle3Dataset> serializableCycle3Dataset = attributeQueryRequestDto.getCycle3Dataset();
+
+        if (serializableCycle3Dataset.isPresent()) {
             AssertionRestrictions assertionRestrictions = new AssertionRestrictions(
                 attributeQueryRequestDto.getAssertionExpiry(),
                 attributeQueryRequestDto.getRequestId(),
                 attributeQueryRequestDto.getAuthnRequestIssuerEntityId());
 
-            Optional<Cycle3Dataset> cycle3Data = Optional.fromNullable(Cycle3Dataset.createFromData(attributeQueryRequestDto.getCycle3Dataset().get().getAttributes()));
-            cycle3AttributeAssertion = Optional.of(new HubAssertion(
+            Optional<Cycle3Dataset> cycle3Data =
+                serializableCycle3Dataset
+                    .map(uk.gov.ida.hub.samlengine.domain.Cycle3Dataset::getAttributes)
+                    .map(Cycle3Dataset::createFromData);
+
+            HubAssertion hubAssertion = new HubAssertion(
                 UUID.randomUUID().toString(),
                 hubEntityId,
                 DateTime.now(),
                 new PersistentId(attributeQueryRequestDto.getPersistentId().getNameId()),
                 assertionRestrictions,
-                com.google.common.base.Optional.fromNullable(cycle3Data.get())
-            ));
+                cycle3Data
+            );
+
+            cycle3AttributeAssertion = Optional.of(hubAssertion);
         }
         return cycle3AttributeAssertion;
     }

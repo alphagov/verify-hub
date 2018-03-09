@@ -24,7 +24,7 @@ public class HubMatchingServiceRequestDtoBuilder {
     private URI assertionConsumerServiceUri = URI.create("/default-ac-service-uri");
     private String matchingServiceEntityId = "matching-service-entity-id";
     private DateTime matchingServiceRequestTimeOut = DateTime.now().plusSeconds(90); //90 is deliberately wrong, but feasible (really it's a minute) //Andrew 27/Jan/2014
-    private PersistentId persistentId = aPersistentId().build();
+    private PersistentId persistentId = aPersistentId().buildSamlEnginePersistentId();
     private URI attributeQueryUri = URI.create("/default-msa-uri");
     private boolean onboarding;
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-service-assertion";

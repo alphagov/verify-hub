@@ -137,9 +137,9 @@ public class IdpAuthnResponseTranslatorServiceTest {
         when(stringToOpenSamlResponseTransformer.apply(saml)).thenReturn(samlResponse);
         when(samlResponseToIdaResponseIssuedByIdpTransformer.apply(samlResponse)).thenReturn(responseFromIdp);
         when(authStatementAssertion.getUnderlyingAssertionBlob()).thenReturn(authStatementUnderlyingAssertionBlob);
-        when(authStatementAssertion.getAuthnContext()).thenReturn(com.google.common.base.Optional.absent());
-        when(authStatementAssertion.getFraudDetectedDetails()).thenReturn(com.google.common.base.Optional.absent());
-        when(authStatementAssertion.getPrincipalIpAddressAsSeenByIdp()).thenReturn(com.google.common.base.Optional.of(principalIpAddressSeenByIdp));
+        when(authStatementAssertion.getAuthnContext()).thenReturn(Optional.empty());
+        when(authStatementAssertion.getFraudDetectedDetails()).thenReturn(Optional.empty());
+        when(authStatementAssertion.getPrincipalIpAddressAsSeenByIdp()).thenReturn(Optional.of(principalIpAddressSeenByIdp));
         when(authnStatementPersistentId.getNameId()).thenReturn("a name id");
         when(authnStatementPersistentId.getNameId()).thenReturn(persistentIdName);
         when(authStatementAssertion.getPersistentId()).thenReturn(authnStatementPersistentId);
@@ -173,7 +173,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
     @Test
     public void shouldExtractLevelOfAssurance() {
         AuthnContext authnContext = AuthnContext.LEVEL_1;
-        when(authStatementAssertion.getAuthnContext()).thenReturn(com.google.common.base.Optional.of(authnContext));
+        when(authStatementAssertion.getAuthnContext()).thenReturn(Optional.of(authnContext));
         when(responseFromIdp.getAuthnStatementAssertion()).thenReturn(of(authStatementAssertion));
 
         InboundResponseFromIdpDto result = translateAndCheckCommonFields();
@@ -189,7 +189,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
         FraudDetectedDetails fraudDetectedDetails = Mockito.mock(FraudDetectedDetails.class);
         when(fraudDetectedDetails.getFraudIndicator()).thenReturn(fraudIndicator);
         when(fraudDetectedDetails.getIdpFraudEventId()).thenReturn(fraudEventId);
-        when(authStatementAssertion.getFraudDetectedDetails()).thenReturn(com.google.common.base.Optional.of(fraudDetectedDetails));
+        when(authStatementAssertion.getFraudDetectedDetails()).thenReturn(Optional.of(fraudDetectedDetails));
         when(responseFromIdp.getAuthnStatementAssertion()).thenReturn(of(authStatementAssertion));
 
         InboundResponseFromIdpDto result = translateAndCheckCommonFields();

@@ -23,7 +23,7 @@ public class AttributeQueryRequestBuilder {
     public AttributeQueryRequestDto build(String persistentIdName, String matchingDatasetAssertionId, String
             authnStatementAssertionId, String requestId) {
         XmlObjectToBase64EncodedStringTransformer<XMLObject> toBase64EncodedStringTransformer = new XmlObjectToBase64EncodedStringTransformer<>();
-        final PersistentId persistentId = aPersistentId().withNameId(persistentIdName).build();
+        final PersistentId persistentId = aPersistentId().withNameId(persistentIdName).buildSamlEnginePersistentId();
         Assertion authnStatementAssertion = AssertionBuilder.anAssertion().withId(authnStatementAssertionId).buildUnencrypted();
         String authnStatementAssertionString = toBase64EncodedStringTransformer.apply(authnStatementAssertion);
         EncryptedAssertion encryptedMdsAssertion = AssertionBuilder.anAssertion().withId(matchingDatasetAssertionId).build();

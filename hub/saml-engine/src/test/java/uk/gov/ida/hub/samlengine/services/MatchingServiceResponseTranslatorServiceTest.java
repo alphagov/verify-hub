@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +20,8 @@ import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,7 +55,7 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final String inResponseTo = "inResponseTo";
         final String issuer = "issuer";
         final Optional<AuthnContext> authnContext = Optional.of(AuthnContext.LEVEL_2);
-        final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.absent();
+        final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
         final String underlyingAssertionBlob = "underlyingAssertionBlob";
         final MatchingServiceIdaStatus status = MatchingServiceIdaStatus.MatchingServiceMatch;
         final SamlResponseDto samlResponse = new SamlResponseDto("saml");
@@ -76,7 +77,7 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final String inResponseTo = "inResponseTo";
         final String issuer = "issuer";
         final Optional<AuthnContext> authnContext = Optional.of(AuthnContext.LEVEL_2);
-        final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.absent();
+        final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
         final String underlyingAssertionBlob = "underlyingAssertionBlob";
         final MatchingServiceIdaStatus status = MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService;
         final SamlResponseDto samlResponse = new SamlResponseDto("saml");
@@ -97,8 +98,8 @@ public class MatchingServiceResponseTranslatorServiceTest {
     public void populateReturnDtoCorrectly_handleRequesterError() {
         final String inResponseTo = "inResponseTo";
         final String issuer = "issuer";
-        final Optional<AuthnContext> authnContext = Optional.absent();
-        final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.absent();
+        final Optional<AuthnContext> authnContext = Optional.empty();
+        final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
         final String underlyingAssertionBlob = null;
         final MatchingServiceIdaStatus status = MatchingServiceIdaStatus.RequesterError;
         final SamlResponseDto samlResponse = new SamlResponseDto("saml");
@@ -118,7 +119,7 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final String inResponseTo = "inResponseTo";
         final String issuer = "issuer";
         final Optional<AuthnContext> authnContext = Optional.of(AuthnContext.LEVEL_2);
-        final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.absent();
+        final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
         final String underlyingAssertionBlob = "underlyingAssertionBlob";
         final MatchingServiceIdaStatus status = MatchingServiceIdaStatus.UserAccountCreated;
         final SamlResponseDto samlResponse = new SamlResponseDto("saml");

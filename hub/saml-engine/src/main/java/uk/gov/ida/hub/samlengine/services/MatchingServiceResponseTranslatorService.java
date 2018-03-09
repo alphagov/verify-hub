@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.hub.samlengine.contracts.InboundResponseFromMatchingServiceDto;
@@ -11,6 +10,8 @@ import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
+
+import java.util.Optional;
 
 public class MatchingServiceResponseTranslatorService {
 
@@ -33,11 +34,11 @@ public class MatchingServiceResponseTranslatorService {
         MdcHelper.addContextToMdc(response);
         final InboundResponseFromMatchingService responseFromMatchingService = responseToInboundResponseFromMatchingServiceTransformer.transform(response);
 
-        Optional<String> assertionBlob = Optional.absent();
-        Optional<LevelOfAssurance> levelOfAssurance = Optional.absent();
+        Optional<String> assertionBlob = Optional.empty();
+        Optional<LevelOfAssurance> levelOfAssurance = Optional.empty();
         // FIXME?: transformer can return null
         if(responseFromMatchingService.getMatchingServiceAssertion()!=null && responseFromMatchingService.getMatchingServiceAssertion().isPresent()) {
-            assertionBlob = Optional.fromNullable(responseFromMatchingService.getMatchingServiceAssertion().get().getUnderlyingAssertionBlob());
+            assertionBlob = Optional.ofNullable(responseFromMatchingService.getMatchingServiceAssertion().get().getUnderlyingAssertionBlob());
             final Optional<AuthnContext> authnContext = responseFromMatchingService.getMatchingServiceAssertion().get().getAuthnContext();
             if(authnContext.isPresent()) {
                 levelOfAssurance = Optional.of(LevelOfAssurance.valueOf(authnContext.get().name()));

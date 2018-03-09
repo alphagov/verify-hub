@@ -90,7 +90,7 @@ public class HubEidasAttributeQueryRequestBuilderTest {
             NOW,
             persistentId,
             assertionRestrictions,
-            com.google.common.base.Optional.of(oldCycle3Dataset));
+            Optional.of(oldCycle3Dataset));
         final Optional<HubAssertion> cycle3Assertion = Optional.of(hubAssertion);
         final HubEidasAttributeQueryRequest expectedResult = new HubEidasAttributeQueryRequest(
             eidasAttributeQueryRequestDto.getRequestId(),

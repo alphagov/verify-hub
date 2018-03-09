@@ -17,13 +17,13 @@ import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
+import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.ValidateSamlResponseIssuedByIdpDestination;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
@@ -31,7 +31,6 @@ import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -63,7 +62,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
     @Mock
     private SamlAssertionsSignatureValidator samlAssertionsSignatureValidator;
     @Mock
-    private ValidateSamlResponseIssuedByIdpDestination validateSamlResponseIssuedByIdpDestination;
+    private DestinationValidator validateSamlResponseIssuedByIdpDestination;
 
     private String persistentIdName = "UK/GB/12345";
     private String responseIssuer = "http://localhost:56002/ServiceMetadata";
@@ -71,7 +70,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
 
     private CountryAuthnResponseTranslatorService service;
 
-    private SAMLObject buildResponseFromFile() throws IOException, javax.xml.parsers.ParserConfigurationException, org.xml.sax.SAXException, org.opensaml.core.xml.io.UnmarshallingException {
+    private SAMLObject buildResponseFromFile() throws Exception {
         String xmlString = new String(Files.readAllBytes(Paths.get(ResourceHelpers.resourceFilePath("EIDASAMLResponse.xml"))));
         return (Response) new SamlObjectParser().getSamlObject(xmlString);
     }

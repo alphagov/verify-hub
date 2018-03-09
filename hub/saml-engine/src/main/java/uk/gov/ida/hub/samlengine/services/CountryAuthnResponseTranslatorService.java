@@ -11,11 +11,11 @@ import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountr
 import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
+import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.ValidateSamlResponseIssuedByIdpDestination;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
@@ -29,7 +29,7 @@ public class CountryAuthnResponseTranslatorService {
 
     private final StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer;
     private final ResponseFromCountryValidator responseFromCountryValidator;
-    private final ValidateSamlResponseIssuedByIdpDestination responseFromCountryDestinationValidator;
+    private final DestinationValidator responseFromCountryDestinationValidator;
     private final IdpIdaStatusUnmarshaller statusUnmarshaller;
     private final SamlResponseSignatureValidator responseSignatureValidator;
     private final AssertionDecrypter assertionDecrypter;
@@ -43,7 +43,7 @@ public class CountryAuthnResponseTranslatorService {
                                                  ResponseFromCountryValidator responseFromCountryValidator,
                                                  IdpIdaStatusUnmarshaller idpIdaStatusUnmarshaller,
                                                  ResponseAssertionsFromCountryValidator responseAssertionFromCountryValidator,
-                                                 ValidateSamlResponseIssuedByIdpDestination validateSamlResponseIssuedByIdpDestination,
+                                                 DestinationValidator validateSamlResponseIssuedByIdpDestination,
                                                  AssertionDecrypter assertionDecrypter,
                                                  AssertionBlobEncrypter assertionBlobEncrypter,
                                                  SamlResponseSignatureValidator responseSignatureValidator,
@@ -77,7 +77,7 @@ public class CountryAuthnResponseTranslatorService {
 
     private ValidatedResponse validateResponse(Response response) {
         responseFromCountryValidator.validate(response);
-        responseFromCountryDestinationValidator.validate(response);
+        responseFromCountryDestinationValidator.validate(response.getDestination());
         return responseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,11 +16,12 @@ import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.ida.hub.samlengine.builders.PersistentIdBuilder.aPersistentId;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
-import static uk.gov.ida.saml.core.test.builders.PersistentIdBuilder.aPersistentId;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class CountryMatchingServiceRequestGeneratorServiceTest {
@@ -34,7 +34,7 @@ public class CountryMatchingServiceRequestGeneratorServiceTest {
 
     private static CountryMatchingServiceRequestGeneratorService service;
     private static final String REQUEST_ID = "request-id";
-    private static final PersistentId PERSISTENT_ID = aPersistentId().build();
+    private static final PersistentId PERSISTENT_ID = aPersistentId().buildSamlCorePersistentId();
     private static final String ENCRYPTED_IDENTITY_ASSERTION = "encrypted-identity-assertion";
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("assertion-consumer-service-uri");
     private static final URI MSA_URI = URI.create("msa-uri");
@@ -55,8 +55,8 @@ public class CountryMatchingServiceRequestGeneratorServiceTest {
         IS_ONBOARDING,
         LevelOfAssurance.LEVEL_2,
         new uk.gov.ida.hub.samlengine.domain.PersistentId(PERSISTENT_ID.getNameId()),
-        Optional.absent(),
-        Optional.absent(),
+        Optional.empty(),
+        Optional.empty(),
         ENCRYPTED_IDENTITY_ASSERTION
     );
     private static final HubEidasAttributeQueryRequest HUB_EIDAS_ATTRIBUTE_QUERY_REQUEST = new HubEidasAttributeQueryRequest(
@@ -68,8 +68,8 @@ public class CountryMatchingServiceRequestGeneratorServiceTest {
         ENCRYPTED_IDENTITY_ASSERTION,
         TEST_RP,
         AuthnContext.LEVEL_2,
-        java.util.Optional.empty(),
-        java.util.Optional.empty());
+        Optional.empty(),
+        Optional.empty());
     private static final AttributeQueryContainerDto ATTRIBUTE_QUERY_CONTAINER_DTO = new AttributeQueryContainerDto(
         REQUEST_ID,
         TEST_RP,

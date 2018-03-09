@@ -10,8 +10,12 @@ public class PersistentIdBuilder {
         return new PersistentIdBuilder();
     }
 
-    public PersistentId build() {
+    public PersistentId buildSamlEnginePersistentId() {
         return new PersistentId(nameId);
+    }
+
+    public uk.gov.ida.saml.core.domain.PersistentId buildSamlCorePersistentId() {
+        return new uk.gov.ida.saml.core.domain.PersistentId(nameId);
     }
 
     public PersistentIdBuilder withNameId(String persistentId) {

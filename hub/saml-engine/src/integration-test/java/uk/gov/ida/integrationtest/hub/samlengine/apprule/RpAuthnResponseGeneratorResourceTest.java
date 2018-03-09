@@ -6,6 +6,7 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import net.shibboleth.utilities.java.support.codec.Base64Support;
+import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -168,7 +169,7 @@ public class RpAuthnResponseGeneratorResourceTest {
         return new XmlObjectToBase64EncodedStringTransformer<>().apply(AssertionBuilder.anAssertion().buildUnencrypted());
     }
 
-    private org.opensaml.saml.saml2.core.Response extractResponse(AuthnResponseFromHubContainerDto actualResult) throws org.opensaml.core.xml.io.UnmarshallingException, IOException, SAXException, ParserConfigurationException {
+    private org.opensaml.saml.saml2.core.Response extractResponse(AuthnResponseFromHubContainerDto actualResult) throws org.opensaml.core.xml.io.UnmarshallingException, IOException, SAXException, ParserConfigurationException, XMLParserException {
         return new SamlObjectParser().getSamlObject(new String(Base64Support.decode(actualResult.getSamlResponse())));
     }
 

@@ -30,6 +30,7 @@ import uk.gov.ida.hub.samlproxy.config.ConfigServiceKeyStore;
 import uk.gov.ida.hub.samlproxy.config.SamlConfiguration;
 import uk.gov.ida.hub.samlproxy.config.TrustStoreForCertificateProvider;
 import uk.gov.ida.hub.samlproxy.controllogic.SamlMessageSenderHandler;
+import uk.gov.ida.hub.samlproxy.domain.HubServiceProviderMetadataDto;
 import uk.gov.ida.hub.samlproxy.exceptions.ExceptionAuditor;
 import uk.gov.ida.hub.samlproxy.exceptions.NoKeyConfiguredForEntityExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
@@ -55,14 +56,13 @@ import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.security.RelayStateValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.api.HubTransformersFactory;
-import uk.gov.ida.saml.hub.transformers.inbound.decorators.ResponseMaxSizeValidator;
+import uk.gov.ida.saml.hub.validators.response.common.ResponseMaxSizeValidator;
 import uk.gov.ida.saml.hub.validators.StringSizeValidator;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.HubMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
-import uk.gov.ida.saml.metadata.domain.HubServiceProviderMetadataDto;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
 import uk.gov.ida.saml.security.PublicKeyFactory;
@@ -263,13 +263,6 @@ public class SamlProxyModule extends AbstractModule {
     @SuppressWarnings("unused")
     public Function<HubIdentityProviderMetadataDto, Element> getHubIdentityProviderMetadataDtoToElementTransformer() {
         return new HubTransformersFactory().getHubIdentityProviderMetadataDtoToElementTransformer();
-    }
-
-    @Provides
-    @SuppressWarnings("unused")
-    public Function<HubServiceProviderMetadataDto, Element> getHubServiceProviderMetadataDtoToElementTransformer() {
-        return new CoreTransformersFactory().getHubServiceProviderMetadataDtoToEntityDescriptorTransformer()
-                .andThen(new XmlObjectToElementTransformer<>());
     }
 
     @Provides
