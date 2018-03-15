@@ -2,13 +2,16 @@ package uk.gov.ida.hub.samlengine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
 import org.joda.time.DateTime;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
+import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
@@ -105,6 +108,7 @@ import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
+import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
@@ -131,6 +135,7 @@ import uk.gov.ida.truststore.TrustStoreConfiguration;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -284,7 +289,9 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     @Named("VerifyMetadataResolver")
     private MetadataResolver getVerifyMetadataResolver(Environment environment, SamlEngineConfiguration configuration) {
-        return new DropwizardMetadataResolverFactory().createMetadataResolver(environment, configuration.getMetadataConfiguration());
+        final MetadataResolver metadataResolver = new DropwizardMetadataResolverFactory().createMetadataResolver(environment, configuration.getMetadataConfiguration());
+        registerMetadataRefreshTask(environment, metadataResolver, configuration.getMetadataConfiguration(), "metadata");
+        return metadataResolver;
     }
 
     @Provides
@@ -322,7 +329,11 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     @Named("CountryMetadataResolver")
     private Optional<MetadataResolver> getCountryMetadataResolver(Environment environment, SamlEngineConfiguration configuration) {
-        return configuration.getCountryConfiguration().map(config -> new DropwizardMetadataResolverFactory().createMetadataResolver(environment, config.getMetadataConfiguration()));
+        final Optional<MetadataResolver> metadataResolver = configuration.getCountryConfiguration().map(config -> new DropwizardMetadataResolverFactory().createMetadataResolver(environment, config.getMetadataConfiguration()));
+        if(metadataResolver.isPresent()) {
+            registerMetadataRefreshTask(environment, metadataResolver.get(), configuration.getCountryConfiguration().get().getMetadataConfiguration(), "connector-metadata");
+        }
+        return metadataResolver;
     }
 
     @Provides
@@ -763,4 +774,12 @@ public class SamlEngineModule extends AbstractModule {
         );
     }
 
+    private void registerMetadataRefreshTask(Environment environment, MetadataResolver metadataResolver, MetadataResolverConfiguration metadataResolverConfiguration, String name) {
+        environment.admin().addTask(new Task(name + "-refresh") {
+            @Override
+            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
+                ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
+            }
+        });
+    }
 }
