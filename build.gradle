@@ -99,7 +99,7 @@ subprojects {
 
         rest_utils "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.rest_utils"
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-30"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-31"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils"
@@ -167,7 +167,9 @@ task(checkJceInstalled) doLast {
   if (Cipher.getMaxAllowedKeyLength('AES') <= 128) {
     throw new GradleException("""ERROR: You need to have the unlimited strength JCE installed.
 
-See http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html""")
+See http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
+
++Note this is installed by default in Java 8 1.6.1 or later""")
   }
 }
 
