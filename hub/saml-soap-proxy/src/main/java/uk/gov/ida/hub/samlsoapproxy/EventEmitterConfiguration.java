@@ -11,6 +11,14 @@ public class EventEmitterConfiguration implements Configuration {
     @JsonProperty
     private String sourceQueueName;
 
+    @Valid
+    @JsonProperty
+    private String bucketName;
+
+    @Valid
+    @JsonProperty
+    private String keyName;
+
     private EventEmitterConfiguration() { }
 
     public EventEmitterConfiguration(String sourceQueueName) {
@@ -20,5 +28,15 @@ public class EventEmitterConfiguration implements Configuration {
     @Override
     public String getSourceQueueName() {
         return sourceQueueName;
+    }
+
+    @Override
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    @Override
+    public String getKeyName() {
+        return keyName;
     }
 }
