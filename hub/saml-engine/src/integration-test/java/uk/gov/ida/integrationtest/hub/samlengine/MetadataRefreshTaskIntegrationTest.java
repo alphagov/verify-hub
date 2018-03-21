@@ -43,7 +43,7 @@ public class MetadataRefreshTaskIntegrationTest {
     @Test
     public void eidasConnectorMetadataRefreshTaskWorks() {
         final Response response = client.target(UriBuilder.fromUri("http://localhost")
-                .path("/tasks/connector-metadata-refresh")
+                .path("/tasks/eidas-metadata-refresh")
                 .port(samlEngineAppRule.getAdminPort())
                 .build())
                 .request()

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
 import org.joda.time.DateTime;
@@ -32,6 +33,7 @@ import uk.gov.ida.hub.samlengine.config.ConfigServiceKeyStore;
 import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
 import uk.gov.ida.hub.samlengine.exceptions.InvalidConfigurationException;
 import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
+import uk.gov.ida.hub.samlengine.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlengine.factories.OutboundResponseFromHubToResponseTransformerFactory;
 import uk.gov.ida.hub.samlengine.locators.AssignableEntityToEncryptForLocator;
 import uk.gov.ida.hub.samlengine.logging.IdpAssertionMetricsCollector;
@@ -105,13 +107,16 @@ import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileTransactionIdaStat
 import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
+import uk.gov.ida.saml.metadata.EidasMetadataConfiguration;
+import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
+import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
+import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.security.AssertionDecrypter;
-import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
 import uk.gov.ida.saml.security.DecrypterFactory;
 import uk.gov.ida.saml.security.EncrypterFactory;
 import uk.gov.ida.saml.security.EncryptionCredentialFactory;
@@ -119,13 +124,9 @@ import uk.gov.ida.saml.security.EncryptionKeyStore;
 import uk.gov.ida.saml.security.EntityToEncryptForLocator;
 import uk.gov.ida.saml.security.IdaKeyStore;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
-import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
-import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
-import uk.gov.ida.saml.security.SigningCredentialFactory;
 import uk.gov.ida.saml.security.SigningKeyStore;
 import uk.gov.ida.saml.security.validators.encryptedelementtype.EncryptionAlgorithmValidator;
 import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
-import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
@@ -138,10 +139,12 @@ import javax.ws.rs.client.Client;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.security.KeyPair;
+import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
@@ -187,7 +190,6 @@ public class SamlEngineModule extends AbstractModule {
         bind(RpAuthnRequestTranslatorService.class);
         bind(RpAuthnResponseGeneratorService.class);
         bind(IdpAuthnRequestGeneratorService.class);
-        bind(CountrySingleSignOnServiceHelper.class);
         bind(IdaAuthnRequestTranslator.class);
         bind(EidasAuthnRequestTranslator.class);
         bind(MatchingServiceHealthcheckResponseTranslatorService.class);
@@ -234,14 +236,14 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
-    private CountryAuthnRequestGeneratorService getCountryAuthnRequestGeneratorService(CountrySingleSignOnServiceHelper countrySingleSignOnServiceHelper,
+    private CountryAuthnRequestGeneratorService getCountryAuthnRequestGeneratorService(Optional<CountrySingleSignOnServiceHelper> countrySingleSignOnServiceHelper,
                                                                                        Function<EidasAuthnRequestFromHub, String> eidasRequestStringTransformer,
                                                                                        EidasAuthnRequestTranslator eidasAuthnRequestTranslator,
                                                                                        @Named("HubEidasEntityId") Optional<String> hubEidasEntityId) {
         if (!hubEidasEntityId.isPresent()) {
             throw new InvalidConfigurationException(EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE);
         }
-        return new CountryAuthnRequestGeneratorService(countrySingleSignOnServiceHelper, eidasRequestStringTransformer, eidasAuthnRequestTranslator, hubEidasEntityId.get());
+        return new CountryAuthnRequestGeneratorService(countrySingleSignOnServiceHelper.get(), eidasRequestStringTransformer, eidasAuthnRequestTranslator, hubEidasEntityId.get());
     }
 
     @Provides
@@ -252,10 +254,9 @@ public class SamlEngineModule extends AbstractModule {
                                                                                            Optional<DestinationValidator> validateSamlResponseIssuedByIdpDestination,
                                                                                            @Named("AES256DecrypterWithGCM") AssertionDecrypter assertionDecrypter,
                                                                                            AssertionBlobEncrypter assertionBlobEncrypter,
-                                                                                           @Named("CountrySamlResponseSignatureValidator") Optional<SamlResponseSignatureValidator> responseSignatureValidator,
-                                                                                           @Named("CountrySamlAssertionsSignatureValidator") Optional<SamlAssertionsSignatureValidator> assertionSignatureValidator,
+                                                                                           Optional<EidasValidatorFactory> eidasValidatorFactory,
                                                                                            PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller) {
-        if (!responseAssertionFromCountryValidator.isPresent() || !validateSamlResponseIssuedByIdpDestination.isPresent() || !responseSignatureValidator.isPresent() || !assertionSignatureValidator.isPresent()) {
+        if (!responseAssertionFromCountryValidator.isPresent() || !validateSamlResponseIssuedByIdpDestination.isPresent() || !eidasValidatorFactory.isPresent()) {
             throw new InvalidConfigurationException("Eidas not configured correctly");
         }
         return new CountryAuthnResponseTranslatorService(stringToOpenSamlResponseTransformer,
@@ -265,8 +266,7 @@ public class SamlEngineModule extends AbstractModule {
                 validateSamlResponseIssuedByIdpDestination.get(),
                 assertionDecrypter,
                 assertionBlobEncrypter,
-                responseSignatureValidator.get(),
-                assertionSignatureValidator.get(),
+                eidasValidatorFactory.get(),
                 passthroughAssertionUnmarshaller);
     }
 
@@ -290,7 +290,7 @@ public class SamlEngineModule extends AbstractModule {
     @Named("VerifyMetadataResolver")
     private MetadataResolver getVerifyMetadataResolver(Environment environment, SamlEngineConfiguration configuration) {
         final MetadataResolver metadataResolver = new DropwizardMetadataResolverFactory().createMetadataResolver(environment, configuration.getMetadataConfiguration());
-        registerMetadataRefreshTask(environment, metadataResolver, configuration.getMetadataConfiguration(), "metadata");
+        registerMetadataRefreshTask(environment, metadataResolver, "metadata");
         return metadataResolver;
     }
 
@@ -327,42 +327,67 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    @Named("CountryMetadataResolver")
-    private Optional<MetadataResolver> getCountryMetadataResolver(Environment environment, SamlEngineConfiguration configuration) {
-        final Optional<MetadataResolver> metadataResolver = configuration.getCountryConfiguration().map(config -> new DropwizardMetadataResolverFactory().createMetadataResolver(environment, config.getMetadataConfiguration()));
-        if(metadataResolver.isPresent()) {
-            registerMetadataRefreshTask(environment, metadataResolver.get(), configuration.getCountryConfiguration().get().getMetadataConfiguration(), "connector-metadata");
+    private Optional<EidasMetadataResolverRepository> getCountryMetadataResolverRepository(Environment environment, SamlEngineConfiguration configuration){
+        if (configuration.isEidasEnabled()) {
+
+            EidasMetadataConfiguration metadataConfiguration = configuration.getCountryConfiguration().get().getMetadataConfiguration();
+            URI trustAnchorUri = metadataConfiguration.getTrustAnchorUri();
+            Client client = new JerseyClientBuilder(environment)
+                    .using(metadataConfiguration.getJerseyClientConfiguration())
+                    .build(metadataConfiguration.getJerseyClientName());
+            KeyStore trustStore = metadataConfiguration.getTrustStore();
+
+            EidasTrustAnchorResolver trustAnchorResolver = new EidasTrustAnchorResolver(
+                    trustAnchorUri,
+                    client,
+                    trustStore);
+
+            EidasMetadataResolverRepository eidasMetadataResolverRepository = new EidasMetadataResolverRepository(
+                    trustAnchorResolver,
+                    environment,
+                    metadataConfiguration,
+                    new DropwizardMetadataResolverFactory(),
+                    new Timer());
+
+            registerEidasMetadataRefreshTask(environment, eidasMetadataResolverRepository, "eidas-metadata");
+            return Optional.of(eidasMetadataResolverRepository);
         }
-        return metadataResolver;
+        return Optional.empty();
     }
 
     @Provides
     @Singleton
-    @Named(COUNTRY_METADATA_HEALTH_CHECK)
-    public Optional<MetadataHealthCheck> getCountryMetadataHealthCheck(
-        @Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver,
-        Environment environment,
-        SamlEngineConfiguration configuration) {
-        Optional<MetadataHealthCheck> metadataHealthCheck = metadataResolver.map(resolver -> new MetadataHealthCheck(resolver, configuration.getCountryConfiguration().get().getMetadataConfiguration().getExpectedEntityId()));
-
-        return metadataHealthCheck.map(healthCheck -> {
-            environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, healthCheck);
-            return healthCheck;
-        });
+    public Optional<EidasValidatorFactory> getEidasValidatorFactory(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository, SamlEngineConfiguration configuration){
+        if (configuration.isEidasEnabled()){
+            Optional<EidasValidatorFactory> eidasValidatorFactory = eidasMetadataResolverRepository
+                    .map(repository -> new  EidasValidatorFactory(repository));
+            return eidasValidatorFactory;
+        }
+        return Optional.empty();
     }
 
     @Provides
     @Singleton
-    @Named("CountryMetadataPublicKeyStore")
-    private Optional<IdpMetadataPublicKeyStore> getCountryMetadataPublicKeyStore(@Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver) {
-        return metadataResolver.map(IdpMetadataPublicKeyStore::new);
+    public Optional<CountrySingleSignOnServiceHelper> getCountrySingleSignOnServiceHelper(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository, SamlEngineConfiguration configuration){
+        if (configuration.isEidasEnabled()){
+            Optional<CountrySingleSignOnServiceHelper> countrySingleSignOnServiceHelper = eidasMetadataResolverRepository
+                    .map(repository -> new CountrySingleSignOnServiceHelper(repository));
+            return countrySingleSignOnServiceHelper;
+        }
+        return Optional.empty();
     }
 
     @Provides
     @Singleton
-    @Named("countryAuthnResponseKeyStore")
-    public Optional<SigningKeyStore> getCountryAuthnResponseKeyStore(@Named("CountryMetadataPublicKeyStore") Optional<IdpMetadataPublicKeyStore> countryMetadataPublicKeyStore) {
-        return countryMetadataPublicKeyStore.map(AuthnResponseKeyStore::new);
+    public Optional<EidasTrustAnchorHealthCheck> getCountryMetadataHealthCheck(
+        Optional<EidasMetadataResolverRepository> metadataResolverRepository,
+        Environment environment){
+        Optional<EidasTrustAnchorHealthCheck> metadataHealthCheck = metadataResolverRepository
+                .map(repository -> new EidasTrustAnchorHealthCheck(repository));
+
+        metadataHealthCheck.ifPresent(healthCheck -> environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, healthCheck));
+
+        return metadataHealthCheck;
     }
 
     @Provides
@@ -594,27 +619,6 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    @Named("CountrySamlMessageSignatureValidator")
-    private Optional<SamlMessageSignatureValidator> getCountrySamlMessageSignatureValidator(@Named("countryAuthnResponseKeyStore") Optional<SigningKeyStore> countrySigningKeyStore) {
-        return countrySigningKeyStore.map(store -> new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(new SigningCredentialFactory(store))));
-    }
-
-    @Provides
-    @Singleton
-    @Named("CountrySamlResponseSignatureValidator")
-    private Optional<SamlResponseSignatureValidator> getCountrySamlResponseSignatureValidator(@Named("CountrySamlMessageSignatureValidator") Optional<SamlMessageSignatureValidator> samlMessageSignatureValidator) {
-        return samlMessageSignatureValidator.map(SamlResponseSignatureValidator::new);
-    }
-
-    @Provides
-    @Singleton
-    @Named("CountrySamlAssertionsSignatureValidator")
-    private Optional<SamlAssertionsSignatureValidator> getCountrySamlAssertionsSignatureValidator(@Named("CountrySamlMessageSignatureValidator") Optional<SamlMessageSignatureValidator> samlMessageSignatureValidator) {
-        return samlMessageSignatureValidator.map(SamlAssertionsSignatureValidator::new);
-    }
-
-    @Provides
-    @Singleton
     @Named("ResponseAssertionsFromCountryValidator")
     private Optional<ResponseAssertionsFromCountryValidator> getResponseAssertionsFromCountryValidator(
             final ConcurrentMap<String, DateTime> assertionIdCache,
@@ -774,11 +778,20 @@ public class SamlEngineModule extends AbstractModule {
         );
     }
 
-    private void registerMetadataRefreshTask(Environment environment, MetadataResolver metadataResolver, MetadataResolverConfiguration metadataResolverConfiguration, String name) {
+    private void registerMetadataRefreshTask(Environment environment, MetadataResolver metadataResolver, String name) {
         environment.admin().addTask(new Task(name + "-refresh") {
             @Override
             public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
                 ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
+            }
+        });
+    }
+
+    private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){
+        environment.admin().addTask(new Task(name + "-refresh") {
+            @Override
+            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) {
+                eidasMetadataResolverRepository.refresh();
             }
         });
     }

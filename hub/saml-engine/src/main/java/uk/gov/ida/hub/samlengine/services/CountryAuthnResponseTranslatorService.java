@@ -4,10 +4,10 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
-import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
+import uk.gov.ida.hub.samlengine.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlengine.logging.MdcHelper;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator;
@@ -20,9 +20,7 @@ import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.security.AssertionDecrypter;
-import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
-import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -36,12 +34,11 @@ public class CountryAuthnResponseTranslatorService {
     private final ResponseFromCountryValidator responseFromCountryValidator;
     private final DestinationValidator responseFromCountryDestinationValidator;
     private final IdpIdaStatusUnmarshaller statusUnmarshaller;
-    private final SamlResponseSignatureValidator responseSignatureValidator;
     private final AssertionDecrypter assertionDecrypter;
     private final AssertionBlobEncrypter assertionBlobEncrypter;
     private final PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller;
-    private final SamlAssertionsSignatureValidator assertionSignatureValidator;
     private final ResponseAssertionsFromCountryValidator responseAssertionFromCountryValidator;
+    private final EidasValidatorFactory eidasValidatorFactory;
 
     @Inject
     public CountryAuthnResponseTranslatorService(StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer,
@@ -51,8 +48,7 @@ public class CountryAuthnResponseTranslatorService {
                                                  DestinationValidator validateSamlResponseIssuedByIdpDestination,
                                                  AssertionDecrypter assertionDecrypter,
                                                  AssertionBlobEncrypter assertionBlobEncrypter,
-                                                 SamlResponseSignatureValidator responseSignatureValidator,
-                                                 SamlAssertionsSignatureValidator assertionSignatureValidator,
+                                                 EidasValidatorFactory eidasValidatorFactory,
                                                  PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller) {
         this.stringToOpenSamlResponseTransformer = stringToOpenSamlResponseTransformer;
         this.responseFromCountryValidator = responseFromCountryValidator;
@@ -61,8 +57,7 @@ public class CountryAuthnResponseTranslatorService {
         this.statusUnmarshaller = idpIdaStatusUnmarshaller;
         this.assertionDecrypter = assertionDecrypter;
         this.assertionBlobEncrypter = assertionBlobEncrypter;
-        this.responseSignatureValidator = responseSignatureValidator;
-        this.assertionSignatureValidator = assertionSignatureValidator;
+        this.eidasValidatorFactory = eidasValidatorFactory;
         this.passthroughAssertionUnmarshaller = passthroughAssertionUnmarshaller;
     }
 
@@ -83,11 +78,11 @@ public class CountryAuthnResponseTranslatorService {
     private ValidatedResponse validateResponse(Response response) {
         responseFromCountryValidator.validate(response);
         responseFromCountryDestinationValidator.validate(response.getDestination());
-        return responseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+        return eidasValidatorFactory.getValidatedResponse(response);
     }
 
     private Optional<Assertion> validateAssertion(ValidatedResponse validatedResponse, List<Assertion> decryptedAssertions) {
-        assertionSignatureValidator.validate(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+        eidasValidatorFactory.getValidatedAssertion(validatedResponse, decryptedAssertions);
         Optional<Assertion> identityAssertion = decryptedAssertions.stream().findFirst();
         identityAssertion.ifPresent(assertion -> responseAssertionFromCountryValidator.validate(validatedResponse, assertion));
         return identityAssertion;

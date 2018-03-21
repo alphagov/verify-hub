@@ -9,9 +9,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
+import uk.gov.ida.hub.samlengine.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
@@ -25,10 +25,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
 import uk.gov.ida.saml.security.AssertionDecrypter;
-import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
-import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
-import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
 import java.nio.file.Files;
@@ -58,9 +55,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
     @Mock
     private AssertionBlobEncrypter assertionBlobEncrypter;
     @Mock
-    private SamlResponseSignatureValidator samlResponseSignatureValidator;
-    @Mock
-    private SamlAssertionsSignatureValidator samlAssertionsSignatureValidator;
+    private EidasValidatorFactory eidasValidatorFactory;
     @Mock
     private DestinationValidator validateSamlResponseIssuedByIdpDestination;
 
@@ -86,8 +81,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
                 validateSamlResponseIssuedByIdpDestination,
                 assertionDecrypter,
                 assertionBlobEncrypter,
-                samlResponseSignatureValidator,
-                samlAssertionsSignatureValidator,
+                eidasValidatorFactory,
                 new PassthroughAssertionUnmarshaller(new XmlObjectToBase64EncodedStringTransformer<>(), new AuthnContextFactory()));
 
         Response eidasSAMLResponse = (Response) buildResponseFromFile();
@@ -98,10 +92,9 @@ public class CountryAuthnResponseTranslatorServiceTest {
         when(samlAuthnResponseTranslatorDto.getMatchingServiceEntityId()).thenReturn("mid");
         when(stringToOpenSamlResponseTransformer.apply("eidas")).thenReturn(eidasSAMLResponse);
         doNothing().when(responseFromCountryValidator).validate(eidasSAMLResponse);
-        when(samlResponseSignatureValidator.validate(eidasSAMLResponse, IDPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(validateEIDASSAMLResponse);
+        when(eidasValidatorFactory.getValidatedResponse(eidasSAMLResponse)).thenReturn(validateEIDASSAMLResponse);
         when(assertionDecrypter.decryptAssertions(validateEIDASSAMLResponse)).thenReturn(decryptedAssertions);
         when(assertionBlobEncrypter.encryptAssertionBlob(eq("mid"), any(String.class))).thenReturn(identityUnderlyingAssertionBlob);
-        when(samlAssertionsSignatureValidator.validate(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(new ValidatedAssertions(decryptedAssertions));
     }
 
     @Test

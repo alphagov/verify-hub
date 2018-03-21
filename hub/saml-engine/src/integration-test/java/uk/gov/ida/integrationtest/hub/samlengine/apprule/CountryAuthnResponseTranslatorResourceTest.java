@@ -65,7 +65,7 @@ public class CountryAuthnResponseTranslatorResourceTest {
     }
 
     @BeforeClass
-    public static void setUpClient() throws Exception {
+    public static void setUpClient() {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build(CountryAuthnResponseTranslatorResourceTest.class.getSimpleName());
     }

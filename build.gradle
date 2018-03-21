@@ -33,7 +33,7 @@ def dependencyVersions = [
             opensaml:"$opensaml_version3",
             dev_pki: '1.1.0-21',
             saml_extensions:"$opensaml_version3-1.2a-41",
-            saml_metadata_bindings:"$opensaml_version3-66",
+            saml_metadata_bindings:"$opensaml_version3-73",
             hub_saml:"$opensaml_version3-115"
         ]
 
@@ -80,6 +80,7 @@ subprojects {
         ida_utils
         ida_test_utils
         dev_pki
+        trust_anchor
     }
 
     dependencies {
@@ -113,6 +114,8 @@ subprojects {
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
              "uk.gov.ida:saml-metadata-bindings:$dependencyVersions.saml_metadata_bindings",
              "uk.gov.ida:hub-saml:$dependencyVersions.hub_saml"
+
+        trust_anchor "uk.gov.ida.eidas:trust-anchor:1.0-17"
 
         stub_saml_test("uk.gov.ida:stub-idp-saml-test:$dependencyVersions.stub_idp_saml") {
             changing = true

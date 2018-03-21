@@ -11,8 +11,6 @@ import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlengine.domain.EidasAttributeQueryRequestDto;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.CountryMetadataRule;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.MetadataRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 import uk.gov.ida.integrationtest.hub.samlengine.builders.EidasAttributeQueryRequestBuilder;
 
