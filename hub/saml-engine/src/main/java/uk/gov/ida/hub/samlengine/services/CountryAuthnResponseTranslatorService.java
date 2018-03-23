@@ -98,7 +98,7 @@ public class CountryAuthnResponseTranslatorService {
         Optional<PassthroughAssertion> passthroughAssertion = validatedIdentityAssertionOptional.map(validatedIdentityAssertion -> passthroughAssertionUnmarshaller.fromAssertion(validatedIdentityAssertion, true));
 
         Optional<LevelOfAssurance> levelOfAssurance = passthroughAssertion
-                .flatMap(assertion -> assertion.getAuthnContext().toJavaUtil())
+                .flatMap(assertion -> assertion.getAuthnContext())
                 .map(AuthnContext::name)
                 .filter(string -> !isNullOrEmpty(string))
                 .map(LevelOfAssurance::valueOf);

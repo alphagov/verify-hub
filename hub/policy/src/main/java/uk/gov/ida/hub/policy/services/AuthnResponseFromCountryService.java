@@ -19,8 +19,10 @@ import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.CountrySelectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -28,6 +30,8 @@ import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
 
 import javax.inject.Inject;
+
+import static uk.gov.ida.hub.policy.domain.ResponseAction.other;
 
 public class AuthnResponseFromCountryService {
 
@@ -71,7 +75,12 @@ public class AuthnResponseFromCountryService {
 
         SamlAuthnResponseTranslatorDto responseToTranslate = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(responseFromCountry, matchingServiceEntityId);
         InboundResponseFromCountry translatedResponse = samlEngineProxy.translateAuthnResponseFromCountry(responseToTranslate);
-        validateTranslatedResponse(stateController, translatedResponse);
+
+        if (translatedResponse.getStatus() != IdpIdaStatus.Status.Success) {
+            return other(sessionId, false);
+        }
+
+        validateSuccessfulResponse(stateController, translatedResponse);
         EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = getEidasAttributeQueryRequestDto(stateController, translatedResponse);
         stateController.transitionToEidasCycle0And1MatchRequestSentState(eidasAttributeQueryRequestDto, responseFromCountry.getPrincipalIPAddressAsSeenByHub(), translatedResponse.getIssuer());
         AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(eidasAttributeQueryRequestDto);
@@ -84,11 +93,7 @@ public class AuthnResponseFromCountryService {
         return new AttributeQueryRequest(aqr.getId(), aqr.getIssuer(), aqr.getSamlRequest(), aqr.getMatchingServiceUri(), aqr.getAttributeQueryClientTimeOut(), aqr.isOnboarding());
     }
 
-    private void validateTranslatedResponse(CountrySelectedStateController controller, InboundResponseFromCountry dto) {
-        controller.validateLevelOfAssurance(dto.getLevelOfAssurance().transform(java.util.Optional::of).or(java.util.Optional.empty()));
-        if (dto.getStatus() != IdpIdaStatus.Status.Success) {
-            throw StateProcessingValidationException.authnResponseTranslationFailed(controller.getRequestId(), dto.getStatus());
-        }
+    private void validateSuccessfulResponse(CountrySelectedStateController controller, InboundResponseFromCountry dto) {
         if (!dto.getPersistentId().isPresent()) {
             throw StateProcessingValidationException.missingMandatoryAttribute(controller.getRequestId(), "persistentId");
         }
@@ -96,6 +101,7 @@ public class AuthnResponseFromCountryService {
             throw StateProcessingValidationException.missingMandatoryAttribute(controller.getRequestId(), "encryptedIdentityAssertionBlob");
         }
 
+        controller.validateLevelOfAssurance(dto.getLevelOfAssurance().transform(java.util.Optional::of).or(java.util.Optional.empty()));
         if (!dto.getLevelOfAssurance().isPresent()) {
             throw StateProcessingValidationException.missingMandatoryAttribute(controller.getRequestId(), "levelOfAssurance");
         }

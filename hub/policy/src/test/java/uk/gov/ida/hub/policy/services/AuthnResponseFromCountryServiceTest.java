@@ -49,6 +49,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_1;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
@@ -199,7 +200,6 @@ public class AuthnResponseFromCountryServiceTest {
     @Test(expected = InvalidSessionStateException.class)
     public void shouldThrowAnExceptionWhenSuccessfulResponseIsReceivedAndIsInInvalidState() {
         when(sessionRepository.getStateController(SESSION_ID, CountrySelectedState.class)).thenThrow(InvalidSessionStateException.class);
-
         service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
     }
 
@@ -222,12 +222,11 @@ public class AuthnResponseFromCountryServiceTest {
 
     @Test
     public void shouldThrowIfTranslationResponseFromSamlEngineNotSuccess() {
-        exception.expect(StateProcessingValidationException.class);
-        exception.expectMessage(String.format("Authn translation for request %s failed with status %s", REQUEST_ID, Status.AuthenticationFailed));
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
             .thenReturn(new InboundResponseFromCountry(Status.AuthenticationFailed, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2)));
 
-        service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
+        ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
+        assertThat(responseAction.getResult()).isEqualTo(OTHER);
     }
 
     @Test
