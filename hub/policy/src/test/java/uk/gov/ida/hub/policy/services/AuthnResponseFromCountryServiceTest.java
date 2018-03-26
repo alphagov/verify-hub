@@ -206,7 +206,7 @@ public class AuthnResponseFromCountryServiceTest {
     }
 
     @Test
-    public void shouldThrowIfTranslationResponseFromSamlEngineNotSuccess() {
+    public void shouldReturnOtherResponseIfTranslationResponseFromSamlEngineNotSuccess() {
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
             .thenReturn(new InboundResponseFromCountry(Status.AuthenticationFailed, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2)));
 
