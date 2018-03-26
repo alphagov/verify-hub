@@ -126,7 +126,7 @@ public class SessionTimeoutIntegrationTests {
     }
 
     private void assertThatEventEmitterWritesToStandardOutput(ByteArrayOutputStream outContent) {
-        Pattern p = Pattern.compile("Event ID: [0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}, Timestamp: [0-9]+-[0-1][0-9]-[0-3][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]Z, Event Type: error_event");
+        Pattern p = Pattern.compile("Event ID: [0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}, Timestamp: [0-9]+-[0-1][0-9]-[0-3][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9](Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9]), Event Type: error_event");
         Matcher m = p.matcher(outContent.toString());
         assertThat(m.find()).isTrue();
     }
