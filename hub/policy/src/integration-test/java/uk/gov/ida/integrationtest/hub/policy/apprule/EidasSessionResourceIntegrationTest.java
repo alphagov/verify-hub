@@ -38,6 +38,8 @@ import java.util.Arrays;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_SELECTED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
 
@@ -137,13 +139,17 @@ public class EidasSessionResourceIntegrationTest {
     }
 
     @Test
-    public void shouldFailWhenTranslationFails() throws Exception {
+    public void shouldReturnPackagedFailureResponseWhenTranslationFails() throws Exception {
         stubSamlEngineTranslationToFailForCountry(NETHERLANDS);
         SessionId sessionId = selectACountry(NETHERLANDS);
 
         Response response = postAuthnResponseToPolicy(sessionId);
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ResponseAction responseAction = response.readEntity(ResponseAction.class);
+
+        assertThat(responseAction.getResult()).isEqualTo(OTHER);
     }
 
     @Test
