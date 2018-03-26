@@ -133,8 +133,7 @@ public class EidasSessionResourceIntegrationTest {
 
         Response response = postAuthnResponseToPolicy(sessionId);
 
-        // TODO: Bug in CEF Reference 1.1. Remove this try..catch when EID-177 CEF Reference 1.3 is deployed.
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -144,8 +143,7 @@ public class EidasSessionResourceIntegrationTest {
 
         Response response = postAuthnResponseToPolicy(sessionId);
 
-        // TODO: Bug in CEF Reference 1.1. Remove this try..catch when EID-177 CEF Reference 1.3 is deployed.
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -155,8 +153,7 @@ public class EidasSessionResourceIntegrationTest {
 
         Response response = postAuthnResponseToPolicy(sessionId);
 
-        // TODO: Bug in CEF Reference 1.1. Remove this try..catch when EID-177 CEF Reference 1.3 is deployed.
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     private void assertThatCurrentStateForSesssionIs(SessionId sessionId, Class state) {
