@@ -76,9 +76,7 @@ public class AuthnResponseFromCountryService {
         SamlAuthnResponseTranslatorDto responseToTranslate = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(responseFromCountry, matchingServiceEntityId);
         InboundResponseFromCountry translatedResponse = samlEngineProxy.translateAuthnResponseFromCountry(responseToTranslate);
 
-        if (translatedResponse.getStatus() != IdpIdaStatus.Status.Success) {
-            return other(sessionId, false);
-        }
+        if (translatedResponse.getStatus() != IdpIdaStatus.Status.Success) return other(sessionId, false);
 
         validateSuccessfulResponse(stateController, translatedResponse);
         EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = getEidasAttributeQueryRequestDto(stateController, translatedResponse);
@@ -101,10 +99,15 @@ public class AuthnResponseFromCountryService {
             throw StateProcessingValidationException.missingMandatoryAttribute(controller.getRequestId(), "encryptedIdentityAssertionBlob");
         }
 
-        controller.validateLevelOfAssurance(dto.getLevelOfAssurance().transform(java.util.Optional::of).or(java.util.Optional.empty()));
-        if (!dto.getLevelOfAssurance().isPresent()) {
+        validateLoa(controller, dto);
+    }
+
+    private void validateLoa(CountrySelectedStateController controller, InboundResponseFromCountry dto) {
+        java.util.Optional<LevelOfAssurance> loa = dto.getLevelOfAssurance().toJavaUtil();
+        if (!loa.isPresent()) {
             throw StateProcessingValidationException.missingMandatoryAttribute(controller.getRequestId(), "levelOfAssurance");
         }
+        loa.ifPresent(controller::validateLevelOfAssurance);
     }
 
     private EidasAttributeQueryRequestDto getEidasAttributeQueryRequestDto(CountrySelectedStateController stateController, InboundResponseFromCountry response) {

@@ -21,13 +21,8 @@ import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
-import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
+import uk.gov.ida.hub.policy.domain.*;
 import uk.gov.ida.hub.policy.domain.IdpIdaStatus.Status;
-import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
-import uk.gov.ida.hub.policy.domain.PersistentId;
-import uk.gov.ida.hub.policy.domain.ResponseAction;
-import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.CountrySelectedStateController;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
@@ -211,16 +206,6 @@ public class AuthnResponseFromCountryServiceTest {
     }
 
     @Test
-    public void shouldThrowIfLevelOfAssuranceNotWhatExpected() {
-        exception.expect(StateProcessingValidationException.class);
-        exception.expectMessage(String.format("Level of assurance in the response does not match level of assurance in the request. Was [%s] but expected [%s]", LEVEL_1, ImmutableList.of(LEVEL_2)));
-        doThrow(StateProcessingValidationException.wrongLevelOfAssurance(Optional.of(LEVEL_1).transform(java.util.Optional::of).or(java.util.Optional::empty), ImmutableList.of(LEVEL_2)))
-            .when(stateController).validateLevelOfAssurance(anyObject());
-
-        service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
-    }
-
-    @Test
     public void shouldThrowIfTranslationResponseFromSamlEngineNotSuccess() {
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
             .thenReturn(new InboundResponseFromCountry(Status.AuthenticationFailed, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2)));
@@ -255,6 +240,16 @@ public class AuthnResponseFromCountryServiceTest {
         exception.expectMessage(String.format("Authn translation for request %s failed with missing mandatory attribute %s", REQUEST_ID, "levelOfAssurance"));
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
             .thenReturn(new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.absent()));
+
+        service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
+    }
+
+    @Test
+    public void shouldThrowIfLevelOfAssuranceNotWhatExpected() {
+        exception.expect(StateProcessingValidationException.class);
+        exception.expectMessage(String.format("Level of assurance in the response does not match level of assurance in the request. Was [%s] but expected [%s]", LEVEL_1, ImmutableList.of(LEVEL_2)));
+        doThrow(StateProcessingValidationException.wrongLevelOfAssurance(Optional.of(LEVEL_1).transform(java.util.Optional::of).or(java.util.Optional::empty), ImmutableList.of(LEVEL_2)))
+                .when(stateController).validateLevelOfAssurance(anyObject());
 
         service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
     }
