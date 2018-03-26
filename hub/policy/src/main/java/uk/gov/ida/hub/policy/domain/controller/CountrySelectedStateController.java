@@ -65,9 +65,9 @@ public class CountrySelectedStateController implements StateController, ErrorRes
         }
     }
 
-    public void validateLevelOfAssurance(Optional<LevelOfAssurance> loa) {
-        if (!loa.isPresent() || !state.getLevelsOfAssurance().contains(loa.get())) {
-            throw StateProcessingValidationException.wrongLevelOfAssurance(loa, state.getLevelsOfAssurance());
+    public void validateLevelOfAssurance(LevelOfAssurance loa) {
+        if (!state.getLevelsOfAssurance().contains(loa)) {
+            throw StateProcessingValidationException.wrongLevelOfAssurance(Optional.ofNullable(loa), state.getLevelsOfAssurance());
         }
     }
 
@@ -147,4 +147,5 @@ public class CountrySelectedStateController implements StateController, ErrorRes
             dto.getPersistentId()
         );
     }
+
 }

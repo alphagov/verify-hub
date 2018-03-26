@@ -38,6 +38,8 @@ import java.util.Arrays;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_SELECTED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
 
@@ -133,19 +135,21 @@ public class EidasSessionResourceIntegrationTest {
 
         Response response = postAuthnResponseToPolicy(sessionId);
 
-        // TODO: Bug in CEF Reference 1.1. Remove this try..catch when EID-177 CEF Reference 1.3 is deployed.
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    public void shouldFailWhenTranslationFails() throws Exception {
+    public void shouldReturnPackagedFailureResponseWhenTranslationFails() throws Exception {
         stubSamlEngineTranslationToFailForCountry(NETHERLANDS);
         SessionId sessionId = selectACountry(NETHERLANDS);
 
         Response response = postAuthnResponseToPolicy(sessionId);
 
-        // TODO: Bug in CEF Reference 1.1. Remove this try..catch when EID-177 CEF Reference 1.3 is deployed.
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ResponseAction responseAction = response.readEntity(ResponseAction.class);
+
+        assertThat(responseAction.getResult()).isEqualTo(OTHER);
     }
 
     @Test
@@ -155,8 +159,7 @@ public class EidasSessionResourceIntegrationTest {
 
         Response response = postAuthnResponseToPolicy(sessionId);
 
-        // TODO: Bug in CEF Reference 1.1. Remove this try..catch when EID-177 CEF Reference 1.3 is deployed.
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     private void assertThatCurrentStateForSesssionIs(SessionId sessionId, Class state) {

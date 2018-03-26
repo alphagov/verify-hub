@@ -1,7 +1,9 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import com.google.common.base.Strings;
-import org.opensaml.saml.saml2.core.*;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
@@ -9,6 +11,7 @@ import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
 import uk.gov.ida.hub.samlengine.logging.MdcHelper;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator;
+import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
@@ -24,6 +27,8 @@ import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValida
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class CountryAuthnResponseTranslatorService {
 
@@ -65,7 +70,7 @@ public class CountryAuthnResponseTranslatorService {
         Response response = unmarshall(samlResponseDto);
         ValidatedResponse validatedResponse = validateResponse(response);
         List<Assertion> assertions = assertionDecrypter.decryptAssertions(validatedResponse);
-        Assertion validatedIdentityAssertion = validateAssertion(validatedResponse, assertions);
+        Optional<Assertion> validatedIdentityAssertion = validateAssertion(validatedResponse, assertions);
         return toModel(validatedResponse, validatedIdentityAssertion, samlResponseDto.getMatchingServiceEntityId());
     }
 
@@ -81,31 +86,31 @@ public class CountryAuthnResponseTranslatorService {
         return responseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 
-    private Assertion validateAssertion(ValidatedResponse validatedResponse, List<Assertion> decryptedAssertions) {
+    private Optional<Assertion> validateAssertion(ValidatedResponse validatedResponse, List<Assertion> decryptedAssertions) {
         assertionSignatureValidator.validate(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
-        Assertion identityAssertion = decryptedAssertions.get(0);
-        responseAssertionFromCountryValidator.validate(validatedResponse, identityAssertion);
+        Optional<Assertion> identityAssertion = decryptedAssertions.stream().findFirst();
+        identityAssertion.ifPresent(assertion -> responseAssertionFromCountryValidator.validate(validatedResponse, assertion));
         return identityAssertion;
     }
 
-    private InboundResponseFromCountry toModel(ValidatedResponse response, Assertion validatedIdentityAssertion, String matchingServiceEntityId) {
+    private InboundResponseFromCountry toModel(ValidatedResponse response, Optional<Assertion> validatedIdentityAssertionOptional, String matchingServiceEntityId) {
 
-        PassthroughAssertion passthroughAssertion = passthroughAssertionUnmarshaller.fromAssertion(validatedIdentityAssertion, true);
+        Optional<PassthroughAssertion> passthroughAssertion = validatedIdentityAssertionOptional.map(validatedIdentityAssertion -> passthroughAssertionUnmarshaller.fromAssertion(validatedIdentityAssertion, true));
 
-        String loa  = passthroughAssertion.getAuthnContext().get().name();
-        Optional<LevelOfAssurance> levelOfAssurance = Optional.empty();
-        if (!Strings.isNullOrEmpty(loa)){
-            levelOfAssurance = Optional.of(LevelOfAssurance.valueOf(loa));
-        }
+        Optional<LevelOfAssurance> levelOfAssurance = passthroughAssertion
+                .flatMap(assertion -> assertion.getAuthnContext())
+                .map(AuthnContext::name)
+                .filter(string -> !isNullOrEmpty(string))
+                .map(LevelOfAssurance::valueOf);
 
         IdpIdaStatus status = statusUnmarshaller.fromSaml(response.getStatus());
 
         return new InboundResponseFromCountry(
             response.getIssuer().getValue(),
-            Optional.ofNullable(validatedIdentityAssertion).map(Assertion::getSubject).map(Subject::getNameID).map(NameID::getValue),
+            validatedIdentityAssertionOptional.map(Assertion::getSubject).map(Subject::getNameID).map(NameID::getValue),
             Optional.ofNullable(status).map(IdpIdaStatus::getStatusCode).map(IdpIdaStatus.Status::name),
             status.getMessage(),
-            Optional.ofNullable(assertionBlobEncrypter.encryptAssertionBlob(matchingServiceEntityId, passthroughAssertion.getUnderlyingAssertionBlob())),
+            passthroughAssertion.map(assertion -> assertionBlobEncrypter.encryptAssertionBlob(matchingServiceEntityId, assertion.getUnderlyingAssertionBlob())),
             levelOfAssurance);
     }
 }

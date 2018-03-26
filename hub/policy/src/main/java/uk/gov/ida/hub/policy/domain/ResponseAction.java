@@ -12,7 +12,7 @@ import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
 // We would like to use the following annotation so in future we can re-use ResponseActionDto,
 // however, it appears Infinispan does not like it: (@JsonIgnoreProperties(ignoreUnknown = true))
 public final class ResponseAction {
-    enum IdpResult {
+    public enum IdpResult {
         SUCCESS, CANCEL, FAILED_UPLIFT, PENDING, OTHER
     }
     

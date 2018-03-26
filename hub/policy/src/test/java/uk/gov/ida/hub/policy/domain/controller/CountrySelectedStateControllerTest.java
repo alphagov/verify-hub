@@ -93,7 +93,7 @@ public class CountrySelectedStateControllerTest {
         exception.expect(StateProcessingValidationException.class);
         exception.expectMessage(String.format("Level of assurance in the response does not match level of assurance in the request. Was [null] but expected [%s].", ImmutableList.of(LevelOfAssurance.LEVEL_2)));
 
-        controller.validateLevelOfAssurance(Optional.empty());
+        controller.validateLevelOfAssurance(null);
     }
 
     @Test
@@ -101,12 +101,12 @@ public class CountrySelectedStateControllerTest {
         exception.expect(StateProcessingValidationException.class);
         exception.expectMessage(String.format("Level of assurance in the response does not match level of assurance in the request. Was [%s] but expected [%s].", LevelOfAssurance.LEVEL_1, ImmutableList.of(LevelOfAssurance.LEVEL_2)));
 
-        controller.validateLevelOfAssurance(Optional.of(LevelOfAssurance.LEVEL_1));
+        controller.validateLevelOfAssurance(LevelOfAssurance.LEVEL_1);
     }
 
     @Test
     public void shouldNotThrowWhenValidatingCorrectLoa() {
-        controller.validateLevelOfAssurance(Optional.of(LevelOfAssurance.LEVEL_2));
+        controller.validateLevelOfAssurance(LevelOfAssurance.LEVEL_2);
     }
 
     @Test
