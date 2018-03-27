@@ -50,9 +50,7 @@ subprojects {
 
     configurations.all {
         resolutionStrategy {
-            // dropwizard-testing uses 2.2.0 but our libraries currently only work with 1.6.0.
-            force 'org.assertj:assertj-core:1.6.0',
-                    'org.glassfish.hk2:hk2-api:2.4.0-b31',
+            force 'org.glassfish.hk2:hk2-api:2.4.0-b31',
                     'org.glassfish.hk2:hk2-locator:2.4.0-b31',
                     'org.glassfish.hk2.external:javax.inject:2.4.0-b31',
                     'com.hubspot.dropwizard:dropwizard-guicier:0.9.1.0'
@@ -132,11 +130,8 @@ subprojects {
         }
 
         def test_deps_deps = [
-                'junit:junit:4.11',
-                'org.assertj:assertj-core:1.6.0',
-                'org.assertj:assertj-joda-time:1.1.0',
-                'org.assertj:assertj-guava:1.1.0',
-                'org.mockito:mockito-core:1.9.5',
+                'org.assertj:assertj-guava:3.1.0',
+                'org.assertj:assertj-core:3.9.0',
                 'org.json:json:20170516',
                 'com.jayway.awaitility:awaitility:1.6.0',
                 'com.github.tomakehurst:wiremock:2.14.0',
