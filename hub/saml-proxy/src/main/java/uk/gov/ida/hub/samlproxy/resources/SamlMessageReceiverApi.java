@@ -150,7 +150,6 @@ public class SamlMessageReceiverApi {
                 sessionId,
                 samlRequestDto.getPrincipalIpAsSeenByFrontend()
             );
-
             return Response.ok(sessionProxy.receiveAuthnResponseFromCountry(authnResponseDto, sessionId)).build();
         }
         return Response.status(Response.Status.NOT_FOUND).build();

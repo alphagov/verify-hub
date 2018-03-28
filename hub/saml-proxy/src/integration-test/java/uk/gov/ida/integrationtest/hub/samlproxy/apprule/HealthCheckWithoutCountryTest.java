@@ -1,15 +1,7 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.util.Duration;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import uk.gov.ida.Constants;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.MetadataRule;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
 
 import javax.ws.rs.client.Client;

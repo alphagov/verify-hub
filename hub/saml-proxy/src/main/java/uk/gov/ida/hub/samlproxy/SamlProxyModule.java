@@ -6,6 +6,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
@@ -59,8 +60,12 @@ import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.security.RelayStateValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.api.HubTransformersFactory;
-import uk.gov.ida.saml.hub.validators.response.common.ResponseMaxSizeValidator;
 import uk.gov.ida.saml.hub.validators.StringSizeValidator;
+import uk.gov.ida.saml.hub.validators.response.common.ResponseMaxSizeValidator;
+import uk.gov.ida.saml.metadata.EidasMetadataConfiguration;
+import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
+import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
+import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.HubMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
@@ -91,6 +96,7 @@ import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.util.Optional;
+import java.util.Timer;
 import java.util.function.Function;
 
 public class SamlProxyModule extends AbstractModule {
@@ -198,34 +204,53 @@ public class SamlProxyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    @Named("CountryMetadataResolver")
-    public Optional<MetadataResolver> getCountryMetadataResolver(Environment environment, SamlProxyConfiguration configuration) {
-        final Optional<MetadataResolver> metadataResolver = configuration.getCountryConfiguration().map(config -> new DropwizardMetadataResolverFactory().createMetadataResolver(environment, config.getMetadataConfiguration()));
-        if(metadataResolver.isPresent()) {
-            registerMetadataRefreshTask(environment, metadataResolver.get(), configuration.getCountryConfiguration().get().getMetadataConfiguration(), "connector-metadata");
+    public Optional<EidasMetadataResolverRepository> getEidasMetadataResolverRepository(Environment environment, SamlProxyConfiguration configuration){
+        if (configuration.isEidasEnabled()){
+
+            environment = environment;
+            EidasMetadataConfiguration eidasMetadataConfiguration = configuration.getCountryConfiguration().get().getMetadataConfiguration();
+
+            URI uri = eidasMetadataConfiguration.getTrustAnchorUri();
+            Client client = new JerseyClientBuilder(environment)
+                    .using(eidasMetadataConfiguration.getJerseyClientConfiguration())
+                    .build(eidasMetadataConfiguration.getJerseyClientName());
+
+            KeyStore keystore = eidasMetadataConfiguration.getTrustStore();
+
+            EidasTrustAnchorResolver trustAnchorResolver = new EidasTrustAnchorResolver(uri, client, keystore);
+
+            EidasMetadataResolverRepository metadataResolverRepository = new EidasMetadataResolverRepository(
+                    trustAnchorResolver,
+                    environment,
+                    eidasMetadataConfiguration,
+                    new DropwizardMetadataResolverFactory(),
+                    new Timer()
+            );
+            registerEidasMetadataRefreshTask(environment, metadataResolverRepository,  "eidas-metadata");
+            return Optional.of(metadataResolverRepository);
         }
-        return metadataResolver;
+        return Optional.empty();
     }
 
     @Provides
     @Singleton
-    public Optional<EidasValidatorFactory> getEidasValidatorFactory(@Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver){
+    public Optional<EidasValidatorFactory> getEidasValidatorFactory(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository){
 
-         return metadataResolver.map(EidasValidatorFactory::new);
+         return eidasMetadataResolverRepository.map(EidasValidatorFactory::new);
     }
 
     @Provides
     @Singleton
     @Named(COUNTRY_METADATA_HEALTH_CHECK)
-    public Optional<MetadataHealthCheck> getCountryMetadataHealthCheck(
-        @Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver,
-        Environment environment,
-        SamlProxyConfiguration configuration) {
-        return metadataResolver.map(resolver -> {
-            MetadataHealthCheck metadataHealthCheck = new MetadataHealthCheck(metadataResolver.get(), configuration.getCountryConfiguration().get().getMetadataConfiguration().getExpectedEntityId());
-            environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, metadataHealthCheck);
-            return metadataHealthCheck;
-        });
+    public Optional<EidasTrustAnchorHealthCheck> getCountryMetadataHealthCheck(
+        Optional<EidasMetadataResolverRepository> metadataResolverRepository,
+        Environment environment){
+
+        Optional<EidasTrustAnchorHealthCheck> metadataHealthCheck = metadataResolverRepository
+                .map(repository -> new EidasTrustAnchorHealthCheck(repository));
+
+        metadataHealthCheck.ifPresent(healthCheck -> environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, healthCheck));
+        return metadataHealthCheck;
     }
 
     @Provides
@@ -366,7 +391,7 @@ public class SamlProxyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    ClientTrustStoreConfiguration clientTrustStoreConfiguration(SamlProxyConfiguration configuration) {
+    public ClientTrustStoreConfiguration clientTrustStoreConfiguration(SamlProxyConfiguration configuration) {
         return configuration.getClientTrustStoreConfiguration();
     }
 
@@ -385,6 +410,15 @@ public class SamlProxyModule extends AbstractModule {
             @Override
             public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
                 ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
+            }
+        });
+    }
+
+    private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){
+        environment.admin().addTask(new Task(name + "-refresh") {
+            @Override
+            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) {
+                eidasMetadataResolverRepository.refresh();
             }
         });
     }

@@ -70,4 +70,27 @@ metadata:
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
 
-eidas: false
+country:
+  metadata:
+    trustAnchorUri: http://localhost:50140/stub-country/ServiceMetadata
+    trustStore:
+      store: truststores/country_metadata_truststore.ts
+      trustStorePassword: password
+    minRefreshDelay: 5000
+    maxRefreshDelay: 60000
+    trustAnchorMaxRefreshDelay: 5000
+    trustAnchorMinRefreshDelay: 60000
+    jerseyClientName: country-metadata-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true
