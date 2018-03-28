@@ -33,12 +33,12 @@ import uk.gov.ida.hub.samlproxy.config.ConfigServiceKeyStore;
 import uk.gov.ida.hub.samlproxy.config.SamlConfiguration;
 import uk.gov.ida.hub.samlproxy.config.TrustStoreForCertificateProvider;
 import uk.gov.ida.hub.samlproxy.controllogic.SamlMessageSenderHandler;
-import uk.gov.ida.hub.samlproxy.domain.HubServiceProviderMetadataDto;
 import uk.gov.ida.hub.samlproxy.exceptions.ExceptionAuditor;
 import uk.gov.ida.hub.samlproxy.exceptions.NoKeyConfiguredForEntityExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxySamlTransformationErrorExceptionMapper;
+import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlproxy.handlers.HubAsIdpMetadataHandler;
 import uk.gov.ida.hub.samlproxy.handlers.HubAsSpMetadataHandler;
 import uk.gov.ida.hub.samlproxy.logging.ExternalCommunicationEventLogger;
@@ -209,6 +209,13 @@ public class SamlProxyModule extends AbstractModule {
 
     @Provides
     @Singleton
+    public Optional<EidasValidatorFactory> getEidasValidatorFactory(@Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver){
+
+         return metadataResolver.map(EidasValidatorFactory::new);
+    }
+
+    @Provides
+    @Singleton
     @Named(COUNTRY_METADATA_HEALTH_CHECK)
     public Optional<MetadataHealthCheck> getCountryMetadataHealthCheck(
         @Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver,
@@ -309,23 +316,9 @@ public class SamlProxyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    @Named("CountryMetadataPublicKeyStore")
-    public Optional<IdpMetadataPublicKeyStore> getCountryMetadataPublicKeyStore(@Named("CountryMetadataResolver") Optional<MetadataResolver> metadataResolver) {
-        return metadataResolver.map(IdpMetadataPublicKeyStore::new);
-    }
-
-    @Provides
-    @Singleton
     @Named("authnResponsePublicCredentialFactory")
     public SigningCredentialFactory getFactoryForAuthnResponses(@Named("VerifyIdpMetadataPublicKeyStore") IdpMetadataPublicKeyStore idpMetadataPublicKeyStore) {
         return new SigningCredentialFactory(new AuthnResponseKeyStore(idpMetadataPublicKeyStore));
-    }
-
-    @Provides
-    @Singleton
-    @Named("eidasAuthnResponsePublicCredentialFactory")
-    public Optional<SigningCredentialFactory> getFactoryForEidasAuthnResponses(@Named("CountryMetadataPublicKeyStore") Optional<IdpMetadataPublicKeyStore> idpMetadataPublicKeyStore) {
-        return idpMetadataPublicKeyStore.map(keystore -> new SigningCredentialFactory(new AuthnResponseKeyStore(keystore)));
     }
 
     @Provides
@@ -351,13 +344,6 @@ public class SamlProxyModule extends AbstractModule {
     @Singleton
     public SamlMessageSignatureValidator getAuthnResponseSignatureValidator(@Named("authnResponsePublicCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
         return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
-    }
-
-    @Named("eidasAuthnResponseSignatureValidator")
-    @Provides
-    @Singleton
-    public Optional<SamlMessageSignatureValidator> getEidasAuthnResponseSignatureValidator(@Named("eidasAuthnResponsePublicCredentialFactory") Optional<SigningCredentialFactory> signingCredentialFactory) {
-        return signingCredentialFactory.map(signingCredentialFactory1 -> new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory1)));
     }
 
     @Provides
