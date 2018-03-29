@@ -14,7 +14,6 @@ import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.samlproxy.domain.ResponseActionDto;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.CountryMetadataRule;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubRule;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
 import uk.gov.ida.saml.idp.test.AuthnResponseFactory;
@@ -36,8 +35,7 @@ public class CountryMetadataConsumerTest {
 
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = new SignatureRSASHA256();
     private static final DigestAlgorithm DIGEST_ALGORITHM = new DigestSHA256();
-    private static final String COUNTRY_ENTITY_ID = "/metadata/country";
-    
+
     private static final String idpSigningCert = STUB_IDP_PUBLIC_PRIMARY_CERT;
     private static final String idpSigningKey = STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY;
     private static final String anotherIdpSigningCert = STUB_IDP_PUBLIC_SECONDARY_CERT;
@@ -45,9 +43,6 @@ public class CountryMetadataConsumerTest {
 
     private static Client client;
     private AuthnResponseFactory authnResponseFactory;
-
-    @ClassRule
-    public static final CountryMetadataRule countryMetadata = new CountryMetadataRule(COUNTRY_ENTITY_ID);
 
     @ClassRule
     public static final ConfigStubRule configStubRule = new ConfigStubRule();
@@ -58,17 +53,16 @@ public class CountryMetadataConsumerTest {
     @ClassRule
     public static final SamlProxyAppRule samlProxyAppRule = new SamlProxyAppRule(
         config("policyUri", policyStubRule.baseUri().build().toASCIIString()),
-        config("configUri", configStubRule.baseUri().build().toASCIIString()),
-        config("country.metadata.uri", countryMetadata.getCountryMetadataUri())
+        config("configUri", configStubRule.baseUri().build().toASCIIString())
     );
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         authnResponseFactory = AuthnResponseFactory.anAuthnResponseFactory();
     }
 
     @BeforeClass
-    public static void setUpClient() throws Exception {
+    public static void setUpClient() {
         client = JerseyClientBuilder.createClient();
     }
 
@@ -78,7 +72,7 @@ public class CountryMetadataConsumerTest {
         SessionId sessionId = SessionId.createNewSessionId();
         policyStubRule.receiveAuthnResponseFromCountry(sessionId.toString(), LEVEL_2);
         String response = authnResponseFactory.aSamlResponseFromIdp("a-request",
-                countryMetadata.getCountryMetadataUri(),
+                samlProxyAppRule.getCountyEntityId(),
                 idpSigningCert,
                 idpSigningKey,
                 "",
@@ -99,7 +93,7 @@ public class CountryMetadataConsumerTest {
         // Given
         SessionId sessionId = SessionId.createNewSessionId();
         String response = authnResponseFactory.aSamlResponseFromIdp("a-request",
-                countryMetadata.getCountryMetadataUri(),
+                samlProxyAppRule.getCountyEntityId(),
                 anotherIdpSigningCert,
                 anotherIdpSigningKey,
                 "",

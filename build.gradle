@@ -127,6 +127,8 @@ subprojects {
         }
         saml_test "uk.gov.ida:ida-saml-extensions-test:$dependencyVersions.saml_extensions"
 
+        trust_anchor "uk.gov.ida.eidas:trust-anchor:1.0-17"
+
         pact_test "au.com.dius:pact-jvm-consumer-junit_2.11:$dependencyVersions.pact",
                 "au.com.dius:pact-jvm-consumer_2.11:$dependencyVersions.pact",
                 "au.com.dius:pact-jvm-model:$dependencyVersions.pact"

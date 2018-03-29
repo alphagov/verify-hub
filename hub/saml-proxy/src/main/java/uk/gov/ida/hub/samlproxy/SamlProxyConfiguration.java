@@ -161,4 +161,8 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     public EventEmitterConfiguration getEventEmitterConfiguration() {
         return eventEmitterConfiguration;
     }
+
+    public boolean isEidasEnabled(){
+        return getCountryConfiguration().isPresent();
+    }
 }

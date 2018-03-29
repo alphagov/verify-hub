@@ -11,6 +11,7 @@ import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.samlproxy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.samlproxy.domain.SamlAuthnResponseContainerDto;
+import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
@@ -20,6 +21,7 @@ import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
+import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,7 +41,7 @@ public class SamlMessageReceiverApi {
     private final StringToOpenSamlObjectTransformer<org.opensaml.saml.saml2.core.Response> stringSamlResponseTransformer;
     private final SamlMessageSignatureValidator authnRequestSignatureValidator;
     private final SamlMessageSignatureValidator authnResponseSignatureValidator;
-    private final Optional<SamlMessageSignatureValidator> eidasAuthnResponseSignatureValidator;
+    private final Optional<EidasValidatorFactory> eidasValidatorFactory;
     private final ProtectiveMonitoringLogger protectiveMonitoringLogger;
     private final SessionProxy sessionProxy;
 
@@ -49,7 +51,7 @@ public class SamlMessageReceiverApi {
                                   StringToOpenSamlObjectTransformer<org.opensaml.saml.saml2.core.Response> stringSamlResponseTransformer,
                                   @Named("authnRequestSignatureValidator") SamlMessageSignatureValidator authnRequestSignatureValidator,
                                   @Named("authnResponseSignatureValidator") SamlMessageSignatureValidator authnResponseSignatureValidator,
-                                  @Named("eidasAuthnResponseSignatureValidator") Optional<SamlMessageSignatureValidator> eidasAuthnResponseSignatureValidator,
+                                  Optional<EidasValidatorFactory> eidasValidatorFactory,
                                   ProtectiveMonitoringLogger protectiveMonitoringLogger,
                                   SessionProxy sessionProxy) {
         this.relayStateValidator = relayStateValidator;
@@ -57,7 +59,7 @@ public class SamlMessageReceiverApi {
         this.stringSamlResponseTransformer = stringSamlResponseTransformer;
         this.authnRequestSignatureValidator = authnRequestSignatureValidator;
         this.authnResponseSignatureValidator = authnResponseSignatureValidator;
-        this.eidasAuthnResponseSignatureValidator = eidasAuthnResponseSignatureValidator;
+        this.eidasValidatorFactory = eidasValidatorFactory;
         this.protectiveMonitoringLogger = protectiveMonitoringLogger;
         this.sessionProxy = sessionProxy;
     }
@@ -128,7 +130,7 @@ public class SamlMessageReceiverApi {
     @Timed
     public Response handleEidasResponsePost(SamlRequestDto samlRequestDto) {
 
-        if (eidasAuthnResponseSignatureValidator.isPresent()) {
+        if (eidasValidatorFactory.isPresent()) {
             final SessionId sessionId = new SessionId(samlRequestDto.getRelayState());
             MDC.put("SessionId", sessionId);
 
@@ -136,23 +138,18 @@ public class SamlMessageReceiverApi {
 
             org.opensaml.saml.saml2.core.Response samlResponse = stringSamlResponseTransformer.apply(samlRequestDto.getSamlRequest());
 
-            SamlValidationResponse signatureValidationResponse = eidasAuthnResponseSignatureValidator.get().validate(samlResponse, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+            ValidatedResponse validatedResponse = eidasValidatorFactory.get().getValidatedResponse(samlResponse);
+
             protectiveMonitoringLogger.logAuthnResponse(
                 samlResponse,
                 Direction.INBOUND,
-                signatureValidationResponse.isOK());
-
-            if (!signatureValidationResponse.isOK()) {
-                SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
-                throw new SamlTransformationErrorException(failure.getErrorMessage(), signatureValidationResponse.getCause(), Level.ERROR);
-            }
+                validatedResponse.isSuccess());
 
             final SamlAuthnResponseContainerDto authnResponseDto = new SamlAuthnResponseContainerDto(
                 samlRequestDto.getSamlRequest(),
                 sessionId,
                 samlRequestDto.getPrincipalIpAsSeenByFrontend()
             );
-
             return Response.ok(sessionProxy.receiveAuthnResponseFromCountry(authnResponseDto, sessionId)).build();
         }
         return Response.status(Response.Status.NOT_FOUND).build();
