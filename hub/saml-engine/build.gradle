@@ -12,7 +12,9 @@ dependencies {
             configurations.saml,
             configurations.soap,
             configurations.common,
-            configurations.ida_utils
+            configurations.ida_utils,
+            configurations.trust_anchor
+
 }
 
 apply plugin: 'application'

@@ -88,7 +88,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
 
     @Valid
     @NotNull
-
     @JsonProperty
     protected JerseyClientConfiguration httpClient;
 
@@ -111,7 +110,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @NotNull
     @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
-
 
     public SamlConfiguration getSamlConfiguration() {
         return saml;
