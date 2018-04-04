@@ -28,12 +28,12 @@ def dependencyVersions = [
             dropwizard:'1.1.4',
             dropwizard_infinispan:'1.1.4-41',
             pact:'3.5.6',
-            stub_idp_saml:"$opensaml_version3-67",
+            stub_idp_saml:"$opensaml_version3-68",
             ida_test_utils:"2.0.0-38",
             opensaml:"$opensaml_version3",
             dev_pki: '1.1.0-21',
-            saml_metadata_bindings:"$opensaml_version3-101",
-            hub_saml:"$opensaml_version3-119"
+            saml_metadata_bindings:"$opensaml_version3-103",
+            hub_saml:"$opensaml_version3-120"
         ]
 
 subprojects {
@@ -114,7 +114,7 @@ subprojects {
              "uk.gov.ida:saml-metadata-bindings:$dependencyVersions.saml_metadata_bindings",
              "uk.gov.ida:hub-saml:$dependencyVersions.hub_saml"
 
-        trust_anchor "uk.gov.ida.eidas:trust-anchor:1.0-17"
+        trust_anchor "uk.gov.ida.eidas:trust-anchor:1.0-19"
 
         stub_saml_test("uk.gov.ida:stub-idp-saml-test:$dependencyVersions.stub_idp_saml") {
             changing = true
@@ -124,8 +124,6 @@ subprojects {
             changing = true
             exclude group: "uk.gov.ida"
         }
-
-        trust_anchor "uk.gov.ida.eidas:trust-anchor:1.0-17"
 
         pact_test "au.com.dius:pact-jvm-consumer-junit_2.11:$dependencyVersions.pact",
                 "au.com.dius:pact-jvm-consumer_2.11:$dependencyVersions.pact",

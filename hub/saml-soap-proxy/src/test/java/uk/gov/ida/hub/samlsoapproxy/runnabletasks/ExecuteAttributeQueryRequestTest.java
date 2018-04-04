@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
-import net.shibboleth.utilities.java.support.codec.Base64Support;
 import org.glassfish.jersey.internal.util.Base64;
 import org.junit.After;
 import org.junit.Before;
