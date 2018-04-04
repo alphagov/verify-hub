@@ -12,6 +12,7 @@ buildscript {
 ext {
     opensaml_version = '3.3.0'
     ida_utils_version = '2.0.0-313'
+    saml_libs_version = "${opensaml_version}-100"
 }
 
 subprojects {
@@ -31,7 +32,7 @@ subprojects {
 
     dependencies {
         common "org.opensaml:opensaml-core:$opensaml_version",
-                "uk.gov.ida:saml-utils:$opensaml_version-100",
+                "uk.gov.ida:saml-utils:$saml_libs_version",
                 'com.google.guava:guava:18.0',
                 'com.google.inject:guice:4.0',
                 'joda-time:joda-time:2.9',
@@ -39,11 +40,11 @@ subprojects {
                 'uk.gov.ida:ida-dev-pki:1.1.0-20',
                 'commons-lang:commons-lang:2.6'
 
-        common ("uk.gov.ida:saml-extensions:$opensaml_version-100") { force = true }
+        common ("uk.gov.ida:saml-extensions:$saml_libs_version") { force = true }
 
         test_deps 'junit:junit:4.11',
                 'org.assertj:assertj-joda-time:1.1.0',
                 'org.assertj:assertj-core:1.6.0',
-                "uk.gov.ida:saml-test-utils:$opensaml_version-100"
+                "uk.gov.ida:saml-test-utils:$saml_libs_version"
     }
 }
