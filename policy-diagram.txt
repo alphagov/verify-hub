@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam Shadowing false
+
+state sessionValid {
+  [*] --> sessionStarted: createSession
+  sessionStarted --> idpSelected: selectIdp
+  idpSelected --> sessionStarted: noAuthnContext
+  idpSelected --> matching: successResponseFromIdp
+  idpSelected --> pausedRegistration: pauseRegistration
+  idpSelected --> error: error
+  
+  state matching {
+    [*] --> cycle0And1
+    cycle0And1 --> successfulMatch: match
+    cycle0And1 --> noMatch: noMatch
+    cycle0And1 --> cycle3: noMatchCycle3
+    cycle3 --> successfulMatch: match
+    cycle3 --> noMatch: noMatch
+  }
+  
+  matching --> error: error
+  
+  error --> sessionStarted: tryAgain
+  
+  state responseToService {
+    successfulMatch --> successfulMatchResponse: respond
+    noMatch --> noMatchResponse: respond
+    pausedRegistration --> pausedResponse
+    error --> errorResponse: error
+  }
+  
+}
+
+sessionValid --> sessionTimeout: timeout
+
+successfulMatchResponse --> [*]
+noMatchResponse --> [*]
+errorResponse --> [*]
+pausedResponse --> [*]
+sessionTimeout --> [*]
+
+@enduml
