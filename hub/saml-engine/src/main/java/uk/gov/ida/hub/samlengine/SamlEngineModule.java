@@ -739,7 +739,7 @@ public class SamlEngineModule extends AbstractModule {
         return new IdpAssertionMetricsCollector(environment.metrics());
     }
 
-    private enum KeyPosition {
+    public enum KeyPosition {
         PRIMARY,
         SECONDARY
     }

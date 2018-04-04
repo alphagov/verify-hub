@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.samlengine;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
@@ -19,6 +21,7 @@ import uk.gov.ida.saml.core.transformers.outbound.decorators.SamlResponseAsserti
 import uk.gov.ida.saml.security.EncrypterFactory;
 import uk.gov.ida.saml.security.EncryptionCredentialFactory;
 import uk.gov.ida.saml.security.EncryptionKeyStore;
+import uk.gov.ida.saml.security.IdaKeyStore;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
 import uk.gov.ida.saml.security.SignatureFactory;
 import uk.gov.ida.saml.security.SigningKeyStore;
@@ -36,15 +39,30 @@ public class CryptoModule extends AbstractModule {
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(CertificatesConfigProxy.class);
         bind(TrustStoreForCertificateProvider.class);
-        bind(EncryptionCredentialFactory.class);
         bind(KeyStoreCache.class);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
-        bind(SignatureFactory.class);
-        bind(IdaKeyStoreCredentialRetriever.class);
         bind(SamlResponseAssertionEncrypter.class);
         bind(AssertionBlobEncrypter.class);
         bind(EncrypterFactory.class).toInstance(new EncrypterFactory());
         bind(SignatureAlgorithm.class).toInstance(new SignatureRSASHA1());
         bind(DigestAlgorithm.class).toInstance(new DigestSHA256());
+    }
+
+    @Provides
+    @Singleton
+    public EncryptionCredentialFactory getEncryptionCredentialFactory(EncryptionKeyStore keyStore) {
+        return new EncryptionCredentialFactory(keyStore);
+    }
+
+    @Provides
+    @Singleton
+    public IdaKeyStoreCredentialRetriever getKeyStoreCredentialRetriever(IdaKeyStore keyStore) {
+        return new IdaKeyStoreCredentialRetriever(keyStore);
+    }
+
+    @Provides
+    @Singleton
+    public SignatureFactory getSignatureFactory(IdaKeyStoreCredentialRetriever keyStoreCredentialRetriever, SignatureAlgorithm signatureAlgorithm, DigestAlgorithm digestAlgorithm) {
+        return new SignatureFactory(keyStoreCredentialRetriever, signatureAlgorithm, digestAlgorithm);
     }
 }
