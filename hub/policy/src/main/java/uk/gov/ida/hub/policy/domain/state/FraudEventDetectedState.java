@@ -7,6 +7,8 @@ import java.net.URI;
 
 public class FraudEventDetectedState extends AuthnFailedErrorState {
 
+    private static final long serialVersionUID = -8284392098372162493L;
+
     public FraudEventDetectedState(
             String requestId,
             String requestIssuerId,

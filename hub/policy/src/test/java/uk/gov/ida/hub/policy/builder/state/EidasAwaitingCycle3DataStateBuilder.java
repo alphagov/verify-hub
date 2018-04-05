@@ -11,8 +11,15 @@ import java.net.URI;
 
 public class EidasAwaitingCycle3DataStateBuilder {
 
+    private SessionId sessionId = new SessionId("sessionId");
+
     public static EidasAwaitingCycle3DataStateBuilder anEidasAwaitingCycle3DataState() {
         return new EidasAwaitingCycle3DataStateBuilder();
+    }
+
+    public EidasAwaitingCycle3DataStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
     }
 
     public EidasAwaitingCycle3DataState build() {
@@ -21,7 +28,7 @@ public class EidasAwaitingCycle3DataStateBuilder {
             "requestIssuerId",
             DateTime.now().plusMinutes(10),
             URI.create("assertionConsumerServiceUri"),
-            new SessionId("sessionId"),
+            sessionId,
             true,
             "identityProviderEntityId",
             "matchingServiceAdapterEntityId",

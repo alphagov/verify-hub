@@ -10,6 +10,8 @@ import java.net.URI;
 
 public class SessionStartedState extends AbstractState implements IdpSelectingState, CountrySelectingState, ResponseProcessingState, Serializable {
 
+    private static final long serialVersionUID = -2890730003642035273L;
+
     private final String relayState;
     private final Boolean forceAuthentication;
 

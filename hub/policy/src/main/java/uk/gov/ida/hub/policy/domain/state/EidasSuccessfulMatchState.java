@@ -9,6 +9,8 @@ import java.net.URI;
 
 public class EidasSuccessfulMatchState extends AbstractSuccessfulMatchState {
 
+    private static final long serialVersionUID = 7677160699140073010L;
+
     public EidasSuccessfulMatchState(
             String requestId,
             DateTime sessionExpiryTimestamp,

@@ -32,4 +32,9 @@ public class RequesterErrorStateBuilder {
                 forceAuthentication,
                 transactionSupportsEidas);
     }
+
+    public RequesterErrorStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
 }

@@ -27,9 +27,14 @@ public class UserAccountCreationFailedStateBuilder {
                 requestIssuerId,
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
-                Optional.<String>absent(),
+                Optional.absent(),
                 sessionId,
                 transactionSupportsEidas
         );
+    }
+
+    public UserAccountCreationFailedStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
     }
 }

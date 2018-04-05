@@ -18,6 +18,11 @@ public class TimeoutStateBuilder {
         return new TimeoutStateBuilder();
     }
 
+    public TimeoutStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
+
     public TimeoutState build() {
         return new TimeoutState(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
     }

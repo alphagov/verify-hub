@@ -13,6 +13,9 @@ import java.net.URI;
 import java.util.Objects;
 
 public abstract class AbstractSuccessfulMatchState extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
+
+    private static final long serialVersionUID = 7151768021473278078L;
+
     protected final String identityProviderEntityId;
     protected final String matchingServiceAssertion;
     protected final Optional<String> relayState;

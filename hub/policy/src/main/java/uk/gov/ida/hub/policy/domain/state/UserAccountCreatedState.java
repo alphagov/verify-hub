@@ -11,6 +11,8 @@ import java.net.URI;
 
 public class UserAccountCreatedState extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
 
+    private static final long serialVersionUID = -1020619173417432390L;
+
     private final String identityProviderEntityId;
     private final String matchingServiceAssertion;
     private final String relayState;

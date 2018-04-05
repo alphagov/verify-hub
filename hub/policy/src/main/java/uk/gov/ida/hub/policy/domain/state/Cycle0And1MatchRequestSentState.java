@@ -9,6 +9,8 @@ import java.net.URI;
 
 public class Cycle0And1MatchRequestSentState extends MatchRequestSentState {
 
+    private static final long serialVersionUID = -1318475127132434126L;
+
     private final String encryptedMatchingDatasetAssertion;
     private final String authnStatementAssertion;
     private final PersistentId persistentId;

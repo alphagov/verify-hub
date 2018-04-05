@@ -11,6 +11,9 @@ import java.io.Serializable;
 import java.net.URI;
 
 public abstract class AbstractAwaitingCycle3DataState extends AbstractState implements ResponseProcessingState, Serializable {
+
+    private static final long serialVersionUID = -3139156310818993792L;
+
     private final String identityProviderEntityId;
     private final String matchingServiceEntityId;
     private final Optional<String> relayState;

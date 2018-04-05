@@ -33,4 +33,9 @@ public class MatchingServiceRequestErrorStateBuilder {
                 sessionId,
                 transactionSupportsEidas);
     }
+
+    public MatchingServiceRequestErrorStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
 }

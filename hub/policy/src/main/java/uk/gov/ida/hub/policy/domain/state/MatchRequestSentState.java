@@ -9,6 +9,8 @@ import java.net.URI;
 
 public abstract class MatchRequestSentState extends AbstractMatchRequestSentState {
 
+    private static final long serialVersionUID = -1474957484318282399L;
+
     private final boolean registering;
 
     protected MatchRequestSentState(

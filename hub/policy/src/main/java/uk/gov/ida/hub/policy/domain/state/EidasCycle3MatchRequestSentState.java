@@ -9,6 +9,8 @@ import java.net.URI;
 
 public final class EidasCycle3MatchRequestSentState extends EidasMatchRequestSentState {
 
+    private static final long serialVersionUID = 8951117516881029017L;
+
     public EidasCycle3MatchRequestSentState(
             final String requestId,
             final String requestIssuerEntityId,
