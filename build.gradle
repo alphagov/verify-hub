@@ -12,7 +12,7 @@ buildscript {
 ext {
     opensaml_version = '3.3.0'
     ida_utils_version = '2.0.0-313'
-    saml_libs_version = "${opensaml_version}-103"
+    saml_libs_version = "${opensaml_version}-107"
 }
 
 subprojects {
