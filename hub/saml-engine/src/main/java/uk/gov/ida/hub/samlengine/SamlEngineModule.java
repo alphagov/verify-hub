@@ -21,6 +21,7 @@ import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
 import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
+import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
@@ -40,7 +41,6 @@ import uk.gov.ida.hub.samlengine.logging.IdpAssertionMetricsCollector;
 import uk.gov.ida.hub.samlengine.proxy.CountrySingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
-import uk.gov.ida.hub.samlengine.security.AuthnResponseKeyStore;
 import uk.gov.ida.hub.samlengine.security.Crypto;
 import uk.gov.ida.hub.samlengine.security.PrivateKeyFileDescriptors;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnRequestGeneratorService;
@@ -112,7 +112,6 @@ import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
-import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
@@ -124,6 +123,8 @@ import uk.gov.ida.saml.security.EncryptionKeyStore;
 import uk.gov.ida.saml.security.EntityToEncryptForLocator;
 import uk.gov.ida.saml.security.IdaKeyStore;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
+import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
+import uk.gov.ida.saml.security.MetadataBackedSignatureValidator;
 import uk.gov.ida.saml.security.SigningKeyStore;
 import uk.gov.ida.saml.security.validators.encryptedelementtype.EncryptionAlgorithmValidator;
 import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
@@ -155,6 +156,9 @@ public class SamlEngineModule extends AbstractModule {
     public static final String VERIFY_METADATA_HEALTH_CHECK = "VerifyMetadataHealthCheck";
     public static final String COUNTRY_METADATA_HEALTH_CHECK = "CountryMetadataHealthCheck";
     public static final String EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE = "eIDAS hub entity id is not configured";
+    public static final String VERIFY_METADATA_RESOLVER = "VerifyMetadataResolver";
+    public static final String FED_METADATA_ENTITY_SIGNATURE_VALIDATOR = "verifySignatureValidator";
+    public static final String VERIFY_METADATA_SIGNATURE_TRUST_ENGINE = "VerifyMetadataSignatureTrustEngine";
     private HubTransformersFactory hubTransformersFactory = new HubTransformersFactory();
 
     @Override
@@ -287,15 +291,6 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    @Named("VerifyMetadataResolver")
-    private MetadataResolver getVerifyMetadataResolver(Environment environment, SamlEngineConfiguration configuration) {
-        final MetadataResolver metadataResolver = new DropwizardMetadataResolverFactory().createMetadataResolver(environment, configuration.getMetadataConfiguration());
-        registerMetadataRefreshTask(environment, metadataResolver, "metadata");
-        return metadataResolver;
-    }
-
-    @Provides
-    @Singleton
     @Named(VERIFY_METADATA_HEALTH_CHECK)
     private MetadataHealthCheck getVerifyMetadataHealthCheck(
         @Named("VerifyMetadataResolver") MetadataResolver metadataResolver,
@@ -307,22 +302,24 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @Named("VERIFY_METADATA_REFRESH_TASK")
+    @Singleton
+    private Task registerMetadataRefreshTask(Environment environment, @Named(VERIFY_METADATA_RESOLVER) MetadataResolver metadataResolver) {
+        Task task = new Task("metadata-refresh") {
+            @Override
+            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
+                ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
+            }
+        };
+        environment.admin().addTask(task);
+        return task;
+    }
+
+
+    @Provides
     @Singleton
     private IdpSingleSignOnServiceHelper getIdpSingleSignOnServiceHelper(@Named("VerifyMetadataResolver") MetadataResolver metadataResolver) {
         return new IdpSingleSignOnServiceHelper(metadataResolver);
-    }
-
-    @Provides
-    @Singleton
-    @Named("IdpMetadataPublicKeyStore")
-    private IdpMetadataPublicKeyStore getIdpMetadataPublicKeyStore(@Named("VerifyMetadataResolver") MetadataResolver metadataResolver) {
-        return new IdpMetadataPublicKeyStore(metadataResolver);
-    }
-
-    @Provides
-    @Named("authnResponseKeyStore")
-    public SigningKeyStore getCountryAuthnResponseKeyStore(@Named("IdpMetadataPublicKeyStore") IdpMetadataPublicKeyStore idpMetadataPublicKeyStore) {
-        return new AuthnResponseKeyStore(idpMetadataPublicKeyStore);
     }
 
     @Provides
@@ -593,16 +590,22 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @Named(FED_METADATA_ENTITY_SIGNATURE_VALIDATOR)
+    private MetadataBackedSignatureValidator fedMetadataEntitySignatureValidator(@Named(VERIFY_METADATA_SIGNATURE_TRUST_ENGINE) ExplicitKeySignatureTrustEngine explicitKeySignatureTrustEngine) {
+       return MetadataBackedSignatureValidator.withoutCertificateChainValidation(explicitKeySignatureTrustEngine);
+    }
+
+    @Provides
     @Named("IdpSamlResponseTransformer")
     private DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer getResponseToInboundResponseFromIdpTransformer(
             ConcurrentMap<String, DateTime> assertionIdCache,
             SamlConfiguration samlConfiguration,
-            @Named("authnResponseKeyStore") SigningKeyStore authnResponseKeyStore,
+            @Named(FED_METADATA_ENTITY_SIGNATURE_VALIDATOR) MetadataBackedSignatureValidator idpSignatureValidator,
             IdaKeyStore keyStore,
             @Named("HubEntityId") String hubEntityId) {
 
         return hubTransformersFactory.getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
-                authnResponseKeyStore, keyStore, samlConfiguration.getExpectedDestinationHost(),
+                idpSignatureValidator, keyStore, samlConfiguration.getExpectedDestinationHost(),
                 Urls.FrontendUrls.SAML2_SSO_RESPONSE_ENDPOINT, assertionIdCache,
                 hubEntityId);
     }
@@ -730,8 +733,8 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
-    private AssertionEncrypter assertionEncrypter(EncryptionCredentialFactory encryptionCredentialFactory) {
-        return new AssertionEncrypter(new EncrypterFactory(), encryptionCredentialFactory);
+    private AssertionEncrypter assertionEncrypter(KeyStoreBackedEncryptionCredentialResolver credentialResolver) {
+        return new AssertionEncrypter(new EncrypterFactory(), credentialResolver);
     }
 
     @Provides
@@ -777,15 +780,6 @@ public class SamlEngineModule extends AbstractModule {
                 KeyPosition.PRIMARY, PrivateKeyFileDescriptors.PRIMARY_ENCRYPTION_KEY.loadKey(),
                 KeyPosition.SECONDARY, PrivateKeyFileDescriptors.SECONDARY_ENCRYPTION_KEY.loadKey()
         );
-    }
-
-    private void registerMetadataRefreshTask(Environment environment, MetadataResolver metadataResolver, String name) {
-        environment.admin().addTask(new Task(name + "-refresh") {
-            @Override
-            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
-                ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
-            }
-        });
     }
 
     private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){
