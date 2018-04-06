@@ -30,6 +30,11 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Throwables.propagate;
 
+
+/**
+ * @deprecated Use {@link uk.gov.ida.saml.security.MetadataBackedSignatureValidator} instead
+ */
+@Deprecated
 public class IdpMetadataPublicKeyStore implements SigningKeyStore {
 
     private final MetadataResolver metadataResolver;

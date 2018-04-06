@@ -44,7 +44,6 @@ import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
-import uk.gov.ida.saml.hub.domain.InboundHealthCheckResponseFromMatchingService;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.hub.domain.MatchingServiceHealthCheckRequest;
@@ -95,7 +94,6 @@ import uk.gov.ida.saml.hub.validators.response.matchingservice.ResponseAssertion
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.transformers.HubIdentityProviderMetadataDtoToEntityDescriptorTransformer;
 import uk.gov.ida.saml.security.AssertionDecrypter;
-import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
 import uk.gov.ida.saml.security.DecrypterFactory;
 import uk.gov.ida.saml.security.EncrypterFactory;
 import uk.gov.ida.saml.security.EncryptionCredentialFactory;
@@ -317,15 +315,14 @@ public class HubTransformersFactory {
     public DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer getResponseToInboundResponseFromMatchingServiceTransformer(
             SigningKeyStore signingKeyStore,
             IdaKeyStore keyStore, String hubEntityId) {
-        SigningCredentialFactory signingCredentialFactory = new SigningCredentialFactory(signingKeyStore);
         return new DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer(
                 new InboundResponseFromMatchingServiceUnmarshaller(
                         getAssertionToPassthroughAssertionTransformer(),
                         new MatchingServiceIdaStatusUnmarshaller()
                 ),
-                this.<InboundResponseFromMatchingService>getSamlResponseSignatureValidator(signingCredentialFactory),
+                getSamlResponseSignatureValidator(getSignatureValidator(signingKeyStore)),
                 this.<InboundResponseFromMatchingService>getSamlResponseAssertionDecrypter(keyStore),
-                new SamlAssertionsSignatureValidator(new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory))),
+                getSamlAssertionsSignatureValidator(getSignatureValidator(signingKeyStore)),
                 new EncryptedResponseFromMatchingServiceValidator(),
                 new ResponseAssertionsFromMatchingServiceValidator(
                         new AssertionValidator(
@@ -339,6 +336,12 @@ public class HubTransformersFactory {
         );
     }
 
+    /**
+     * Compliance Tool should implement this method
+     *
+     * @deprecated Compliance Tool should implement this method
+     */
+    @Deprecated
     public Function<String, InboundResponseFromIdp> getStringToIdaResponseIssuedByIdpTransformer(
             SigningKeyStore signingKeyStore,
             IdaKeyStore keyStore,
@@ -354,10 +357,38 @@ public class HubTransformersFactory {
                 expectedDestinationHost,
                 expectedEndpoint,
                 assertionIdCache,
-                hubEntityId);
+                hubEntityId
+        );
         return  t2.compose(t1);
     }
 
+    public Function<String, InboundResponseFromIdp> getStringToIdaResponseIssuedByIdpTransformer(
+            SignatureValidator idpSignatureValidator,
+            IdaKeyStore keyStore,
+            URI expectedDestinationHost,
+            String expectedEndpoint,
+            ConcurrentMap<String, DateTime> assertionIdCache,
+            String hubEntityId) {
+
+        // not sure if we need to allow an extra ResponseSizeValidator here.
+        Function<String, Response> t1 = getStringToResponseTransformer();
+        Function<Response, InboundResponseFromIdp> t2 = getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
+                idpSignatureValidator,
+                keyStore,
+                expectedDestinationHost,
+                expectedEndpoint,
+                assertionIdCache,
+                hubEntityId
+        );
+        return  t2.compose(t1);
+    }
+
+    /**
+     * Compliance Tool should implement this method
+     *
+     * @deprecated Compliance Tool should implement this method
+     */
+    @Deprecated
     public DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
             SigningKeyStore signingKeyStore,
             IdaKeyStore keyStore,
@@ -365,11 +396,26 @@ public class HubTransformersFactory {
             String expectedEndpoint,
             ConcurrentMap<String, DateTime> assertionIdCache,
             String hubEntityId) {
-        SigningCredentialFactory signingCredentialFactory = new SigningCredentialFactory(signingKeyStore);
+        return getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
+                getSignatureValidator(signingKeyStore),
+                keyStore,
+                expectedDestinationHost,
+                expectedEndpoint,
+                assertionIdCache,
+                hubEntityId
+        );
+    }
 
-        IdpResponseValidator validator = new IdpResponseValidator(this.<InboundResponseFromIdp>getSamlResponseSignatureValidator(signingCredentialFactory),
+    public DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
+            SignatureValidator idpSignatureValidator,
+            IdaKeyStore keyStore,
+            URI expectedDestinationHost,
+            String expectedEndpoint,
+            ConcurrentMap<String, DateTime> assertionIdCache,
+            String hubEntityId) {
+        IdpResponseValidator validator = new IdpResponseValidator(this.<InboundResponseFromIdp>getSamlResponseSignatureValidator(idpSignatureValidator),
             this.<InboundResponseFromIdp>getSamlResponseAssertionDecrypter(keyStore),
-            new SamlAssertionsSignatureValidator(new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory))),
+                getSamlAssertionsSignatureValidator(idpSignatureValidator),
             new EncryptedResponseFromIdpValidator(new SamlStatusToIdpIdaStatusMappingsFactory()),
             new DestinationValidator(expectedDestinationHost, expectedEndpoint),
             getResponseAssertionsFromIdpValidator(assertionIdCache, hubEntityId));
@@ -515,12 +561,12 @@ public class HubTransformersFactory {
     }
 
     public DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer getResponseInboundHealthCheckResponseFromMatchingServiceTransformer(SigningKeyStore signingKeyStore) {
-        SigningCredentialFactory signingCredentialFactory = new SigningCredentialFactory(signingKeyStore);
+
         return new DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer(
             new InboundHealthCheckResponseFromMatchingServiceUnmarshaller(
                 new MatchingServiceIdaStatusUnmarshaller()
             ),
-            this.<InboundHealthCheckResponseFromMatchingService>getSamlResponseSignatureValidator(signingCredentialFactory),
+            getSamlResponseSignatureValidator(getSignatureValidator(signingKeyStore)),
             new HealthCheckResponseFromMatchingServiceValidator(
             )
         );
@@ -533,8 +579,15 @@ public class HubTransformersFactory {
         return new AssertionDecrypter(new EncryptionAlgorithmValidator(), decrypter);
     }
 
-    private SamlResponseSignatureValidator getSamlResponseSignatureValidator(SigningCredentialFactory signingCredentialFactory) {
-        SignatureValidator signatureValidator = coreTransformersFactory.getSignatureValidator(signingCredentialFactory);
+    private SignatureValidator getSignatureValidator(SigningKeyStore signingKeyStore) {
+        SigningCredentialFactory signingCredentialFactory = new SigningCredentialFactory(signingKeyStore);
+        return coreTransformersFactory.getSignatureValidator(signingCredentialFactory);
+    }
+    private SamlResponseSignatureValidator getSamlResponseSignatureValidator(SignatureValidator signatureValidator) {
         return new SamlResponseSignatureValidator(new SamlMessageSignatureValidator(signatureValidator));
+    }
+
+    private SamlAssertionsSignatureValidator getSamlAssertionsSignatureValidator(SignatureValidator signatureValidator) {
+        return new SamlAssertionsSignatureValidator(new SamlMessageSignatureValidator(signatureValidator));
     }
 }

@@ -25,6 +25,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @deprecated Use {@link uk.gov.ida.saml.security.MetadataBackedSignatureValidator} instead
+ */
+@Deprecated
 public class HubMetadataPublicKeyStore implements InternalPublicKeyStore {
 
     private final MetadataResolver metadataResolver;
