@@ -19,8 +19,6 @@ import java.util.List;
 
 public class EidasValidatorFactory {
 
-    private SamlResponseSignatureValidator samlResponseSignatureValidator;
-    private SamlAssertionsSignatureValidator samlAssertionsSignatureValidator;
     private EidasMetadataResolverRepository eidasMetadataResolverRepository;
 
     @Inject
@@ -29,12 +27,12 @@ public class EidasValidatorFactory {
     }
 
     public ValidatedResponse getValidatedResponse(Response response) {
-        samlResponseSignatureValidator = new SamlResponseSignatureValidator(getSamlMessageSignatureValidator(response.getIssuer().getValue()));
+        SamlResponseSignatureValidator samlResponseSignatureValidator = new SamlResponseSignatureValidator(getSamlMessageSignatureValidator(response.getIssuer().getValue()));
         return samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 
     public void getValidatedAssertion(ValidatedResponse validatedResponse, List<Assertion> decryptedAssertions) {
-        samlAssertionsSignatureValidator = new SamlAssertionsSignatureValidator(getSamlMessageSignatureValidator(validatedResponse.getIssuer().getValue()));
+        SamlAssertionsSignatureValidator samlAssertionsSignatureValidator = new SamlAssertionsSignatureValidator(getSamlMessageSignatureValidator(validatedResponse.getIssuer().getValue()));
         samlAssertionsSignatureValidator.validate(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 

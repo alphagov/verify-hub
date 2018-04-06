@@ -14,7 +14,6 @@ import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValida
 
 public class EidasValidatorFactory {
 
-    private SamlResponseSignatureValidator samlResponseSignatureValidator;
     private EidasMetadataResolverRepository metadataResolverRepository;
 
     @Inject
@@ -24,7 +23,7 @@ public class EidasValidatorFactory {
 
     public ValidatedResponse getValidatedResponse(Response response) {
         String entityId = response.getIssuer().getValue();
-        samlResponseSignatureValidator = new SamlResponseSignatureValidator(getSamlMessageSignatureValidator(entityId));
+        SamlResponseSignatureValidator samlResponseSignatureValidator = new SamlResponseSignatureValidator(getSamlMessageSignatureValidator(entityId));
         return samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 
