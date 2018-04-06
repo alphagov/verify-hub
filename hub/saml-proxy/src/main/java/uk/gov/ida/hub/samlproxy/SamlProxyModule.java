@@ -13,6 +13,7 @@ import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolve
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.IpFromXForwardedForHeader;
 import uk.gov.ida.common.ServiceInfoConfiguration;
@@ -46,15 +47,12 @@ import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogFormatter;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.security.AuthnRequestKeyStore;
-import uk.gov.ida.hub.samlproxy.security.AuthnResponseKeyStore;
-import uk.gov.ida.hub.samlproxy.security.HubSigningKeyStore;
 import uk.gov.ida.jerseyclient.DefaultClientProvider;
 import uk.gov.ida.jerseyclient.ErrorHandlingClient;
 import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.jerseyclient.JsonResponseProcessor;
 import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
-import uk.gov.ida.saml.core.InternalPublicKeyStore;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.security.RelayStateValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
@@ -66,15 +64,13 @@ import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
-import uk.gov.ida.saml.metadata.HubMetadataPublicKeyStore;
-import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.MetadataResolverConfigBuilder;
-import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
+import uk.gov.ida.saml.security.MetadataBackedSignatureValidator;
 import uk.gov.ida.saml.security.PublicKeyFactory;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 import uk.gov.ida.saml.security.SigningCredentialFactory;
@@ -102,6 +98,8 @@ public class SamlProxyModule extends AbstractModule {
 
     public static final String VERIFY_METADATA_HEALTH_CHECK = "VerifyMetadataHealthCheck";
     public static final String COUNTRY_METADATA_HEALTH_CHECK = "CountryMetadataHealthCheck";
+    public static final String VERIFY_METADATA_RESOLVER = "VerifyMetadataResolver";
+    public static final String VERIFY_METADATA_TRUST_ENGINE = "VerifyMetadataTrustEngine";
 
     @Override
     protected void configure() {
@@ -146,18 +144,9 @@ public class SamlProxyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    @Named("VerifyMetadataResolver")
-    public MetadataResolver getVerifyMetadataResolver(Environment environment, SamlProxyConfiguration configuration) {
-        final MetadataResolver metadataResolver = new DropwizardMetadataResolverFactory().createMetadataResolver(environment, configuration.getMetadataConfiguration());
-        registerMetadataRefreshTask(environment, metadataResolver, configuration.getMetadataConfiguration(), "metadata");
-        return metadataResolver;
-    }
-
-    @Provides
-    @Singleton
     @Named(VERIFY_METADATA_HEALTH_CHECK)
     public MetadataHealthCheck getVerifyMetadataHealthCheck(
-        @Named("VerifyMetadataResolver") MetadataResolver metadataResolver,
+        @Named(VERIFY_METADATA_RESOLVER) MetadataResolver metadataResolver,
         Environment environment,
         SamlProxyConfiguration configuration) {
         MetadataHealthCheck metadataHealthCheck = new MetadataHealthCheck(metadataResolver, configuration.getMetadataConfiguration().getExpectedEntityId());
@@ -167,11 +156,16 @@ public class SamlProxyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public InternalPublicKeyStore getHubMetadataPublicKeyStore(
-            @Named("VerifyMetadataResolver") MetadataResolver metadataResolver,
-            PublicKeyFactory publicKeyFactory,
-            @Named("HubEntityId") String hubEntityId) {
-        return new HubMetadataPublicKeyStore(metadataResolver, publicKeyFactory, hubEntityId);
+    @Named("VERIFY_METADATA_REFRESH_TASK")
+    public Task registerMetadataRefreshTask(Environment environment, @Named(VERIFY_METADATA_RESOLVER) MetadataResolver metadataResolver) {
+        Task task = new Task("metadata-refresh") {
+            @Override
+            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
+                ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
+            }
+        };
+        environment.admin().addTask(task);
+        return task;
     }
 
     @Provides
@@ -329,34 +323,15 @@ public class SamlProxyModule extends AbstractModule {
     }
 
     @Provides
+    @Singleton
+    public SamlMessageSignatureValidator getSamlMessageSignatureValidator(@Named(VERIFY_METADATA_TRUST_ENGINE) ExplicitKeySignatureTrustEngine metadataTrustEngine) {
+        return new SamlMessageSignatureValidator(MetadataBackedSignatureValidator.withoutCertificateChainValidation(metadataTrustEngine));
+    }
+
+    @Provides
     @Named("authnRequestPublicCredentialFactory")
     public SigningCredentialFactory getFactoryForAuthnRequests(ConfigServiceKeyStore configServiceKeyStore) {
         return new SigningCredentialFactory(new AuthnRequestKeyStore(configServiceKeyStore));
-    }
-
-    @Provides
-    @Singleton
-    @Named("VerifyIdpMetadataPublicKeyStore")
-    public IdpMetadataPublicKeyStore getVerifyIdpMetadataPublicKeyStore(@Named("VerifyMetadataResolver") MetadataResolver metadataResolver) {
-        return new IdpMetadataPublicKeyStore(metadataResolver);
-    }
-
-    @Provides
-    @Singleton
-    @Named("authnResponsePublicCredentialFactory")
-    public SigningCredentialFactory getFactoryForAuthnResponses(@Named("VerifyIdpMetadataPublicKeyStore") IdpMetadataPublicKeyStore idpMetadataPublicKeyStore) {
-        return new SigningCredentialFactory(new AuthnResponseKeyStore(idpMetadataPublicKeyStore));
-    }
-
-    @Provides
-    @Named("hubSigningCredentialFactory")
-    public SigningCredentialFactory getFactoryForHubSigning(InternalPublicKeyStore internalPublicKeyStore) {
-        return new SigningCredentialFactory(new HubSigningKeyStore(internalPublicKeyStore));
-    }
-
-    @Provides
-    public SamlMessageSignatureValidator getSamlMessageSignatureValidator(@Named("hubSigningCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
-        return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
     }
 
     @Named("authnRequestSignatureValidator")
@@ -366,11 +341,12 @@ public class SamlProxyModule extends AbstractModule {
         return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
     }
 
+
     @Named("authnResponseSignatureValidator")
     @Provides
     @Singleton
-    public SamlMessageSignatureValidator getAuthnResponseSignatureValidator(@Named("authnResponsePublicCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
-        return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
+    public SamlMessageSignatureValidator getAuthnResponseSignatureValidator(@Named(VERIFY_METADATA_TRUST_ENGINE) ExplicitKeySignatureTrustEngine metadataTrustEngine) {
+        return new SamlMessageSignatureValidator(MetadataBackedSignatureValidator.withoutCertificateChainValidation(metadataTrustEngine));
     }
 
     @Provides
@@ -399,15 +375,6 @@ public class SamlProxyModule extends AbstractModule {
     @Provides
     public ServiceInfoConfiguration serviceInfoConfiguration(SamlProxyConfiguration samlProxyConfiguration) {
         return samlProxyConfiguration.getServiceInfo();
-    }
-
-    private void registerMetadataRefreshTask(Environment environment, MetadataResolver metadataResolver, MetadataResolverConfiguration metadataResolverConfiguration, String name) {
-        environment.admin().addTask(new Task(name + "-refresh") {
-            @Override
-            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
-                ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
-            }
-        });
     }
 
     private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){

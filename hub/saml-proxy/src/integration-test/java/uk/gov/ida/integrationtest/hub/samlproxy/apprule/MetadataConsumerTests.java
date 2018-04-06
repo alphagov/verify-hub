@@ -95,7 +95,7 @@ public class MetadataConsumerTests {
         SamlRequestDto samlRequestDto = new SamlRequestDto(samlResponseString,
                 sessionId.getSessionId(), "127.0.0.1");
 
-        assertThat(postSAML(samlRequestDto).getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode
+        assertThat(postSAML(samlRequestDto).getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode
                 ());
     }
 
