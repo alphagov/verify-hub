@@ -1,11 +1,8 @@
 package uk.gov.ida.hub.samlengine.proxy;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -19,30 +16,17 @@ import org.opensaml.saml.saml2.metadata.impl.SingleSignOnServiceBuilder;
 import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CountrySingleSignOnServiceHelperTest {
-    @InjectMocks
-    private CountrySingleSignOnServiceHelper service;
-
-    @Mock
-    private MetadataResolver metadataResolver;
-
-    @Mock
-    private EidasMetadataResolverRepository eidasMetadataResolverRepository;
-
-    private String entityId = "the-entity-id";
-
-    @Before
-    public void setUp(){
-        when(eidasMetadataResolverRepository.getMetadataResolver(entityId)).thenReturn(metadataResolver);
-    }
 
     @Test
     public void getSingleSignOn() throws Exception {
@@ -58,12 +42,18 @@ public class CountrySingleSignOnServiceHelperTest {
 
         EntityDescriptorBuilder entityDescriptorBuilder = new EntityDescriptorBuilder();
         EntityDescriptor entityDescriptor = entityDescriptorBuilder.buildObject();
-        entityDescriptor.setEntityID(entityId);
+        entityDescriptor.setEntityID("an-entity-id");
         entityDescriptor.getRoleDescriptors().add(idpssoDescriptor);
 
-        when(metadataResolver.resolveSingle(new CriteriaSet(new EntityIdCriterion(entityDescriptor.getEntityID())))).thenReturn(entityDescriptor);
+        EidasMetadataResolverRepository eidasMetadataResolverRepository = mock(EidasMetadataResolverRepository.class);
+
+        MetadataResolver metadataResolver = mock(MetadataResolver.class);
+        when(eidasMetadataResolverRepository.getMetadataResolver(any())).thenReturn(Optional.of(metadataResolver));
+
+        CountrySingleSignOnServiceHelper service = new CountrySingleSignOnServiceHelper(eidasMetadataResolverRepository);
 
         // When
+        when(metadataResolver.resolveSingle(new CriteriaSet(new EntityIdCriterion(entityDescriptor.getEntityID())))).thenReturn(entityDescriptor);
         URI singleSignOnUri = service.getSingleSignOn(entityDescriptor.getEntityID());
 
         // Then

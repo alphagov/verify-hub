@@ -11,14 +11,11 @@ import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
-import uk.gov.ida.hub.samlengine.EidasMetadataResolver;
 import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
-import java.util.Timer;
 import java.util.UUID;
 
 import static com.google.common.base.Throwables.propagate;
@@ -36,7 +33,9 @@ public class CountrySingleSignOnServiceHelper {
     }
 
     public URI getSingleSignOn(String entityId) {
-        MetadataResolver metadataResolver = metadataResolverRepository.getMetadataResolver(entityId);
+        MetadataResolver metadataResolver = metadataResolverRepository.getMetadataResolver(entityId)
+                .orElseThrow(() -> ApplicationException.createUnauditedException(ExceptionType.METADATA_PROVIDER_EXCEPTION, UUID.randomUUID(),
+                        new RuntimeException(format("no metadata resolver for EU Member State: {0}", entityId))) );
 
         EntityDescriptor idpEntityDescriptor;
         try {
@@ -58,6 +57,6 @@ public class CountrySingleSignOnServiceHelper {
                 return URI.create(singleSignOnServices.get(0).getLocation());
             }
         }
-        throw ApplicationException.createUnauditedException(ExceptionType.NOT_FOUND, UUID.randomUUID(), new RuntimeException(format("no entity descriptor for IDP: {0}", entityId)));
+        throw ApplicationException.createUnauditedException(ExceptionType.NOT_FOUND, UUID.randomUUID(), new RuntimeException(format("no entity descriptor for EU Member State: {0}", entityId)));
     }
 }

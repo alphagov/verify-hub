@@ -48,12 +48,12 @@ public class MetadataConsumerTests {
     public static final SamlProxyAppRule samlProxyAppRule = new SamlProxyAppRule(ConfigOverride.config("policyUri", policyStubRule.baseUri().build().toASCIIString()));
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         authnResponseFactory = AuthnResponseFactory.anAuthnResponseFactory();
     }
 
     @BeforeClass
-    public static void setUpClient() throws Exception {
+    public static void setUpClient() {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client = new JerseyClientBuilder(samlProxyAppRule.getEnvironment()).using(jerseyClientConfiguration).build(SamlMessageReceiverApiResourceTest.class.getSimpleName());
     }

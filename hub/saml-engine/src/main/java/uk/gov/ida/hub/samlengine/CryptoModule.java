@@ -20,9 +20,12 @@ import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncryp
 import uk.gov.ida.saml.core.transformers.outbound.decorators.SamlResponseAssertionEncrypter;
 import uk.gov.ida.saml.security.EncrypterFactory;
 import uk.gov.ida.saml.security.EncryptionCredentialFactory;
+import uk.gov.ida.saml.security.EncryptionCredentialResolver;
 import uk.gov.ida.saml.security.EncryptionKeyStore;
+import uk.gov.ida.saml.security.EntityToEncryptForLocator;
 import uk.gov.ida.saml.security.IdaKeyStore;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
+import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 import uk.gov.ida.saml.security.SignatureFactory;
 import uk.gov.ida.saml.security.SigningKeyStore;
 import uk.gov.ida.truststore.KeyStoreCache;
@@ -41,11 +44,24 @@ public class CryptoModule extends AbstractModule {
         bind(TrustStoreForCertificateProvider.class);
         bind(KeyStoreCache.class);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
-        bind(SamlResponseAssertionEncrypter.class);
         bind(AssertionBlobEncrypter.class);
         bind(EncrypterFactory.class).toInstance(new EncrypterFactory());
         bind(SignatureAlgorithm.class).toInstance(new SignatureRSASHA1());
         bind(DigestAlgorithm.class).toInstance(new DigestSHA256());
+    }
+
+    @Provides
+    @Singleton
+    public KeyStoreBackedEncryptionCredentialResolver getKeyStoreBackedEncryptionCredentialResolver(EncryptionKeyStore keyStore){
+        return new KeyStoreBackedEncryptionCredentialResolver(keyStore);
+    }
+
+    @Provides
+    @Singleton
+    public SamlResponseAssertionEncrypter getSamlResponseAssertionEncrypter(KeyStoreBackedEncryptionCredentialResolver credentialResolver,
+                                                                            EncrypterFactory encrypterFactory,
+                                                                            EntityToEncryptForLocator entityToEncryptForLocator){
+        return new SamlResponseAssertionEncrypter(credentialResolver,encrypterFactory, entityToEncryptForLocator);
     }
 
     @Provides

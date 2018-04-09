@@ -21,9 +21,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CountryAuthnRequestGeneratorResourceTest {
@@ -39,13 +39,13 @@ public class CountryAuthnRequestGeneratorResourceTest {
     );
 
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUp() {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build(CountryAuthnRequestGeneratorResourceTest.class.getSimpleName());
     }
 
     @Test
-    public void shouldRespondWithSamlRequest() throws Exception {
+    public void shouldRespondWithSamlRequest() {
         final URI ssoUri = URI.create("http://foo.com/bar");
 
         Response clientResponse = generateCountryAuthnRequest();
@@ -59,7 +59,7 @@ public class CountryAuthnRequestGeneratorResourceTest {
     private Response generateCountryAuthnRequest() {
         IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = new IdaAuthnRequestFromHubDto(
                 "1",
-                asList(AuthnContext.LEVEL_2),
+                Collections.singletonList(AuthnContext.LEVEL_2),
                 Optional.of(false),
                 new DateTime(),
                 samlEngineAppRule.getCountryMetadataUri(),

@@ -73,6 +73,7 @@ import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
+import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
 import uk.gov.ida.saml.security.PublicKeyFactory;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
@@ -224,7 +225,8 @@ public class SamlProxyModule extends AbstractModule {
                     environment,
                     eidasMetadataConfiguration,
                     new DropwizardMetadataResolverFactory(),
-                    new Timer()
+                    new Timer(),
+                    new MetadataSignatureTrustEngineFactory()
             );
             registerEidasMetadataRefreshTask(environment, metadataResolverRepository,  "eidas-metadata");
             return Optional.of(metadataResolverRepository);
