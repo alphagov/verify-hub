@@ -60,4 +60,4 @@ clientTrustStoreConfiguration:
   path: ${HUB_TRUST_STORE_PATH:-data/pki/hub.ts}
   password: marshmallow
 
-eidas: false
+eidas: true
