@@ -66,12 +66,6 @@ public class CryptoModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public EncryptionCredentialFactory getEncryptionCredentialFactory(EncryptionKeyStore keyStore) {
-        return new EncryptionCredentialFactory(keyStore);
-    }
-
-    @Provides
-    @Singleton
     public IdaKeyStoreCredentialRetriever getKeyStoreCredentialRetriever(IdaKeyStore keyStore) {
         return new IdaKeyStoreCredentialRetriever(keyStore);
     }
