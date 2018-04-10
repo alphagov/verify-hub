@@ -133,7 +133,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         final Response response = postSAML(authnResponse, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE);
 
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
 
     @Test

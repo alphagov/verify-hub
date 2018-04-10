@@ -1,12 +1,16 @@
 package uk.gov.ida.hub.samlsoapproxy;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.opensaml.saml.metadata.resolver.MetadataResolver;
+import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
@@ -17,6 +21,7 @@ import uk.gov.ida.hub.samlsoapproxy.resources.AttributeQueryRequestSenderResourc
 import uk.gov.ida.hub.samlsoapproxy.resources.MatchingServiceHealthCheckResource;
 import uk.gov.ida.hub.samlsoapproxy.resources.MatchingServiceVersionCheckResource;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
@@ -25,6 +30,7 @@ import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
 
 public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfiguration> {
 
+    private final MetadataResolverBundle<SamlSoapProxyConfiguration> verifyMetadataBundle = new MetadataResolverBundle<>((SamlSoapProxyConfiguration::getMetadataConfiguration));
     private GuiceBundle<SamlSoapProxyConfiguration> guiceBundle;
 
     public static void main(String[] args) throws Exception {
@@ -46,14 +52,29 @@ public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfigura
                 )
         );
 
+        bootstrap.addBundle(verifyMetadataBundle);
+
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
         guiceBundle = defaultBuilder(SamlSoapProxyConfiguration.class)
-                .modules(new SamlSoapProxyModule(), new EventEmitterModule())
+                .modules(new SamlSoapProxyModule(), new EventEmitterModule(), bindVerifyMetadata())
                 .build();
         bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());
+    }
+
+    private AbstractModule bindVerifyMetadata() {
+        return new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(MetadataResolver.class)
+                        .toProvider(verifyMetadataBundle.getMetadataResolverProvider());
+                bind(ExplicitKeySignatureTrustEngine.class)
+                        .annotatedWith(Names.named(SamlSoapProxyModule.VERIFY_METADATA_TRUST_ENGINE))
+                        .toProvider(verifyMetadataBundle.getSignatureTrustEngineProvider());
+            }
+        };
     }
 
     @Override

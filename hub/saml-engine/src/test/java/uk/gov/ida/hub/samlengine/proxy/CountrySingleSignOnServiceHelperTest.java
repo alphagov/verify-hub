@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CountrySingleSignOnServiceHelperTest {
-
     @Test
     public void getSingleSignOn() throws Exception {
         // Given

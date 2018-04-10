@@ -13,6 +13,7 @@ import io.dropwizard.setup.Environment;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.security.PublicKeyFileInputStreamFactory;
@@ -52,7 +53,6 @@ import uk.gov.ida.hub.samlsoapproxy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.samlsoapproxy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.samlsoapproxy.runnabletasks.AttributeQueryRequestRunnableFactory;
 import uk.gov.ida.hub.samlsoapproxy.runnabletasks.ExecuteAttributeQueryRequest;
-import uk.gov.ida.hub.samlsoapproxy.security.MatchingRequestSigningKeyStore;
 import uk.gov.ida.hub.samlsoapproxy.security.MatchingResponseSigningKeyStore;
 import uk.gov.ida.hub.samlsoapproxy.soap.SoapMessageManager;
 import uk.gov.ida.jerseyclient.DefaultClientProvider;
@@ -61,15 +61,13 @@ import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.jerseyclient.JsonResponseProcessor;
 import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
-import uk.gov.ida.saml.core.InternalPublicKeyStore;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
-import uk.gov.ida.saml.metadata.HubMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.MetadataRefreshTask;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
-import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
+import uk.gov.ida.saml.security.MetadataBackedSignatureValidator;
 import uk.gov.ida.saml.security.PublicKeyFactory;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 import uk.gov.ida.saml.security.SigningCredentialFactory;
@@ -90,6 +88,8 @@ import java.util.function.Function;
 public class SamlSoapProxyModule extends AbstractModule {
 
 
+    public static final String VERIFY_METADATA_TRUST_ENGINE = "VERIFY_METADATA_TRUST_ENGINE";
+
     public SamlSoapProxyModule() {
     }
 
@@ -98,7 +98,6 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(TrustStoreConfiguration.class).to(SamlSoapProxyConfiguration.class);
         bind(EventSinkProxy.class).to(EventSinkHttpProxy.class);
         bind(PublicKeyInputStreamFactory.class).toInstance(new PublicKeyFileInputStreamFactory());
-        bind(InternalPublicKeyStore.class).to(HubMetadataPublicKeyStore.class);
         bind(RestfulClientConfiguration.class).to(SamlSoapProxyConfiguration.class);
         bind(Client.class).toProvider(DefaultClientProvider.class).asEagerSingleton();
         bind(new TypeLiteral<ConfigurationFactoryFactory<SupportedMsaVersions>>() {}).toInstance(new DefaultConfigurationFactoryFactory<SupportedMsaVersions>() {});
@@ -143,11 +142,6 @@ public class SamlSoapProxyModule extends AbstractModule {
         return Optional.ofNullable(configuration.getEventEmitterConfiguration());
     }
 
-    @Provides
-    @Singleton
-    public MetadataResolver getMetadataResolver(Environment environment, SamlSoapProxyConfiguration configuration) {
-        return new DropwizardMetadataResolverFactory().createMetadataResolver(environment, configuration.getMetadataConfiguration());
-    }
 
     @Provides
     @Singleton
@@ -215,27 +209,21 @@ public class SamlSoapProxyModule extends AbstractModule {
         return new CoreTransformersFactory().getElementToOpenSamlXmlObjectTransformer();
     }
 
+    @Named("matchingRequestSignatureValidator")
+    @Provides
+    public SamlMessageSignatureValidator getMatchingRequestSignatureValidator(@Named(VERIFY_METADATA_TRUST_ENGINE) ExplicitKeySignatureTrustEngine signatureTrustEngine) {
+        return new SamlMessageSignatureValidator(MetadataBackedSignatureValidator.withoutCertificateChainValidation(signatureTrustEngine));
+    }
+
     @Provides
     @Named("matchingResponseSigningCredentialFactory")
     public SigningCredentialFactory getFactoryForAuthnResponses(ConfigServiceKeyStore configServiceKeyStore) {
         return new SigningCredentialFactory(new MatchingResponseSigningKeyStore(configServiceKeyStore));
     }
 
-    @Provides
-    @Named("matchingRequestSigningCredentialFactory")
-    public SigningCredentialFactory getFactoryForHubSigning(InternalPublicKeyStore internalPublicKeyStore, SamlConfiguration samlConfiguration) {
-        return new SigningCredentialFactory(new MatchingRequestSigningKeyStore(internalPublicKeyStore, samlConfiguration));
-    }
-
-    @Named("matchingRequestSignatureValidator")
-    @Provides
-    public SamlMessageSignatureValidator getAuthnRequestSignatureValidator(@Named("matchingRequestSigningCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
-        return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
-    }
-
     @Named("matchingResponseSignatureValidator")
     @Provides
-    public SamlMessageSignatureValidator getAuthnResponseSignatureValidator(@Named("matchingResponseSigningCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
+    public SamlMessageSignatureValidator getMatchingResponseSignatureValidator(@Named("matchingResponseSigningCredentialFactory") SigningCredentialFactory signingCredentialFactory) {
         return new SamlMessageSignatureValidator(new CredentialFactorySignatureValidator(signingCredentialFactory));
     }
 
