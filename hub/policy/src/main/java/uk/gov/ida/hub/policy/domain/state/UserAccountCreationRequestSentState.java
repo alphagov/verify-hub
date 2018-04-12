@@ -9,6 +9,8 @@ import java.net.URI;
 
 public class UserAccountCreationRequestSentState extends MatchRequestSentState implements Serializable {
 
+    private static final long serialVersionUID = -3124130170426481847L;
+
     public UserAccountCreationRequestSentState(
             final String requestId,
             final String requestIssuerEntityId,

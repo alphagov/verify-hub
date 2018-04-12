@@ -10,6 +10,8 @@ import java.net.URI;
 
 public class MatchingServiceRequestErrorState extends AbstractState implements ResponseProcessingState, Serializable {
 
+    private static final long serialVersionUID = 4748254124761879612L;
+
     private final String identityProviderEntityId;
     private Optional<String> relayState;
 

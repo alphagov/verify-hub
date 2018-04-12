@@ -9,6 +9,8 @@ import java.net.URI;
 
 public class AuthnFailedErrorState extends AbstractState implements IdpSelectingState, ResponsePreparedState {
 
+    private static final long serialVersionUID = 8101005936409595481L;
+
     private String relayState;
     private String idpEntityId;
     private Boolean forceAuthentication;

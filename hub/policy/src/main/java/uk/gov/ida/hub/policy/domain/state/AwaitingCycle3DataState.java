@@ -10,6 +10,9 @@ import java.io.Serializable;
 import java.net.URI;
 
 public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState implements ResponseProcessingState, Serializable {
+
+    private static final long serialVersionUID = 2909622650570769370L;
+
     private final String encryptedMatchingDatasetAssertion;
     private final String authnStatementAssertion;
     private final boolean registering;

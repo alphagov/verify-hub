@@ -12,6 +12,8 @@ import java.util.List;
 
 public class IdpSelectedState extends AbstractState implements IdpSelectingState, Serializable {
 
+    private static final long serialVersionUID = -2851353851977677375L;
+
     private final String idpEntityId;
     private final String matchingServiceEntityId;
 

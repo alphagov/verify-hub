@@ -10,6 +10,8 @@ import java.net.URI;
 
 public class PausedRegistrationState extends AbstractState implements State {
 
+    private static final long serialVersionUID = 8208525157755502287L;
+
     private Optional<String> relayState;
 
     public PausedRegistrationState(String requestId,

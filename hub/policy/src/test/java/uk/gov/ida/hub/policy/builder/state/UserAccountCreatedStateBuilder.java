@@ -55,4 +55,9 @@ public class UserAccountCreatedStateBuilder {
         this.registering = registering;
         return this;
     }
+
+    public UserAccountCreatedStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
 }

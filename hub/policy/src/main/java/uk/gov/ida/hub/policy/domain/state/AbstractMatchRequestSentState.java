@@ -10,6 +10,8 @@ import java.net.URI;
 
 public abstract class AbstractMatchRequestSentState extends AbstractState implements ResponseProcessingState, WaitingForMatchingServiceResponseState {
 
+    private static final long serialVersionUID = -3235068474581736050L;
+
     private final String identityProviderEntityId;
     private final Optional<String> relayState;
     private final LevelOfAssurance idpLevelOfAssurance;

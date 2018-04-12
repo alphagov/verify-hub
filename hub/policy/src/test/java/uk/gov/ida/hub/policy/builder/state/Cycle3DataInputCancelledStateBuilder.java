@@ -26,4 +26,14 @@ public class Cycle3DataInputCancelledStateBuilder {
     public Cycle3DataInputCancelledState build() {
         return new Cycle3DataInputCancelledState(requestId, sessionExpiryTimestamp, relayState, requestIssuerId, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
     }
+
+    public Cycle3DataInputCancelledStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
+
+    public Cycle3DataInputCancelledStateBuilder withRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
 }

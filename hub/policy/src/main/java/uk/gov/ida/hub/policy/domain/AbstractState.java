@@ -8,6 +8,8 @@ import java.net.URI;
 
 public abstract class AbstractState implements State, Serializable, ErrorResponsePreparedState {
 
+    private static final long serialVersionUID = -4735026295130074234L;
+
     private final String requestId;
     private final String requestIssuerEntityId;
     private final DateTime sessionExpiryTimestamp;

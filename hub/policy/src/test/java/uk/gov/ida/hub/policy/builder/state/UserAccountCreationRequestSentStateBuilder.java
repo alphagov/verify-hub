@@ -52,4 +52,14 @@ public class UserAccountCreationRequestSentStateBuilder {
         this.registering = registering;
         return this;
     }
+
+    public UserAccountCreationRequestSentStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
+
+    public UserAccountCreationRequestSentStateBuilder withRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
 }

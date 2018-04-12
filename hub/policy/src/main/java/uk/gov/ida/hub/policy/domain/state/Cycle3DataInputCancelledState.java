@@ -11,6 +11,8 @@ import java.util.Objects;
 
 public final class Cycle3DataInputCancelledState extends AbstractState implements ResponsePreparedState, Serializable {
 
+    private static final long serialVersionUID = 9016732137997928472L;
+
     private final Optional<String> relayState;
 
     public Cycle3DataInputCancelledState(

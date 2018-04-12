@@ -21,6 +21,11 @@ public class FraudEventDetectedStateBuilder {
         return new FraudEventDetectedStateBuilder();
     }
 
+    public FraudEventDetectedStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
+
     public FraudEventDetectedState build() {
         return new FraudEventDetectedState(
                 requestId,

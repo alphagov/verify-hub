@@ -10,6 +10,8 @@ import java.net.URI;
 
 public class Cycle3MatchRequestSentState extends Cycle0And1MatchRequestSentState implements Serializable {
 
+    private static final long serialVersionUID = 7239719376154151711L;
+
     public Cycle3MatchRequestSentState(
             final String requestId,
             final String requestIssuerEntityId,

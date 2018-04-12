@@ -9,6 +9,8 @@ import java.net.URI;
 
 public class RequesterErrorState extends AbstractState implements IdpSelectingState, ResponsePreparedState {
 
+    private static final long serialVersionUID = -1738587884705979267L;
+
     private String relayState;
     private Boolean forceAuthentication;
 

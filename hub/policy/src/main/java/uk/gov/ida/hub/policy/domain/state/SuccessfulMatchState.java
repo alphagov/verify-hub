@@ -10,6 +10,8 @@ import java.util.Objects;
 
 public final class SuccessfulMatchState extends AbstractSuccessfulMatchState {
 
+    private static final long serialVersionUID = 383573706638201670L;
+
     private final boolean isRegistering;
 
     public SuccessfulMatchState(

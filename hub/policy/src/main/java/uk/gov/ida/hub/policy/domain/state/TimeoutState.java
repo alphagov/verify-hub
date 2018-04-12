@@ -10,6 +10,8 @@ import java.net.URI;
 
 public class TimeoutState extends AbstractState implements Serializable {
 
+    private static final long serialVersionUID = -4390191044338229404L;
+
     public TimeoutState(
             String requestId,
             String requestIssuerId,

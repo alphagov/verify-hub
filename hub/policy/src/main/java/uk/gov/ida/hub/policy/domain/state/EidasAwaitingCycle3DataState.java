@@ -13,6 +13,9 @@ import java.net.URI;
 import java.util.Objects;
 
 public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataState implements ResponseProcessingState, Serializable {
+
+    private static final long serialVersionUID = -9056285913241958733L;
+
     private final String encryptedIdentityAssertion;
 
     public EidasAwaitingCycle3DataState(

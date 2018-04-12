@@ -11,6 +11,8 @@ import java.util.Objects;
 
 public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSentState {
 
+    private static final long serialVersionUID = -186027641698264989L;
+
     private final String encryptedIdentityAssertion;
     private final PersistentId persistentId;
 

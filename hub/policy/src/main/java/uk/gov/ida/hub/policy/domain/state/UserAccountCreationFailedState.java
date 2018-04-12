@@ -9,6 +9,8 @@ import java.net.URI;
 
 public class UserAccountCreationFailedState extends AbstractState implements ResponseProcessingState, ResponsePreparedState {
 
+    private static final long serialVersionUID = 3462121540778040610L;
+
     private Optional<String> relayState;
 
     public UserAccountCreationFailedState(

@@ -38,6 +38,16 @@ public class AuthnFailedErrorStateBuilder {
                 transactionSupportsEidas);
     }
 
+    public AuthnFailedErrorStateBuilder withRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+
+    public AuthnFailedErrorStateBuilder withSessionId(SessionId sessionId) {
+        this.sessionId = sessionId;
+        return this;
+    }
+
     public AuthnFailedErrorStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
         this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
