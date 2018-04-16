@@ -72,9 +72,9 @@ metadata:
 
 country:
   metadata:
-    trustAnchorUri: http://localhost:50140/stub-country/ServiceMetadata
+    trustAnchorUri: http://localhost:55000/local/trust-anchor.jws
     trustStore:
-      store: truststores/country_metadata_truststore.ts
+      store: truststores/ida_truststore.ts
       trustStorePassword: password
     minRefreshDelay: 5000
     maxRefreshDelay: 60000
