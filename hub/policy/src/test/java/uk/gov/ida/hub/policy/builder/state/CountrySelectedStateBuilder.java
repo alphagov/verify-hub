@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.builder.state;
 
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
@@ -19,7 +20,7 @@ public class CountrySelectedStateBuilder {
     private String requestIssuerId = "requestIssuerId";
     private URI assertionConsumerServiceUri = URI.create("/default-service-index");
     private Optional<String> relayState = absent();
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private List<LevelOfAssurance> levelOfAssurance;
 

@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.builder.state;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 
@@ -16,7 +17,7 @@ public class AuthnFailedErrorStateBuilder {
     private String requestIssuerId = "requestIssuerId";
     private URI assertionConsumerServiceIndex = URI.create("/default-service-index");
     private String relayState = null;
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private String idpEntityId = "IDP Entity ID";
     private Boolean forceAuthentication = true;

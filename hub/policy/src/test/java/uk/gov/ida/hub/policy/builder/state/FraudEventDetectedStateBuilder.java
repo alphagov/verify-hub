@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.builder.state;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 
@@ -10,7 +11,7 @@ public class FraudEventDetectedStateBuilder {
 
     private String requestId = "requestId";
     private String requestIssuerId = "requestId";
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusHours(1);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusHours(1);
     private URI assertionConsumerServiceUri = URI.create("assertionConsumerServiceUri");
     private SessionId sessionId = SessionId.createNewSessionId();
     private String relayState = "relayState";

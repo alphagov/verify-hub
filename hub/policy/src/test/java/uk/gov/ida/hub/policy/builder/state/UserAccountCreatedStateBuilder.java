@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.builder.state;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -13,7 +14,7 @@ public class UserAccountCreatedStateBuilder {
     private String requestId = "request-id";
     private URI assertionConsumerServiceUri = URI.create("http://assertionconsumeruri");
     private String requestIssuerId = "request issuer id";
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private String identityProviderEntityId = "identity-provider-id";
     private String matchingServiceAssertion = "aPassthroughAssertion().buildMatchingServiceAssertion()";

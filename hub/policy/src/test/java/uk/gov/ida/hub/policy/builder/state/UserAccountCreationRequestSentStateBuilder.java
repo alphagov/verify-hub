@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.builder.state;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
@@ -18,7 +19,7 @@ public class UserAccountCreationRequestSentStateBuilder {
     private String relayState = null;
     private URI assertionConsumerServiceUri = URI.create("/default-service-index");
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_1;
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private boolean transactionSupportsEidas = false;
     private boolean registering = false;

@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.builder.state;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -16,7 +17,7 @@ public class EidasSuccessfulMatchStateBuilder {
     private URI assertionConsumerServiceUri = URI.create("http://assertionconsumeruri");
     private String relayState = "relay state";
     private String requestIssuerId = "request issuer id";
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId getSessionId = SessionIdBuilder.aSessionId().build();
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
     private boolean transactionSupportsEidas = true;

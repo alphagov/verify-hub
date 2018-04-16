@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.builder.state;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -20,7 +21,7 @@ public class Cycle3MatchRequestSentStateBuilder {
     private String relayState = null;
     private URI assertionConsumerServiceUri = URI.create("/default-service-index");
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_1;
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private PersistentId persistentId = aPersistentId().build();
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
