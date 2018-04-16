@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.builder.state;
 
 import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -22,7 +23,7 @@ public class IdpSelectedStateBuilder {
     private URI assertionConsumerServiceUri = URI.create("/default-service-uri");
     private String requestIssuerId = "transaction-entity-id";
     private String relayState = null;
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusDays(5);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusDays(5);
     private boolean isRegistration = false;
     private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_2;
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();

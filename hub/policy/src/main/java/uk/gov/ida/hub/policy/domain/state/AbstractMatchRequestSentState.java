@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -43,7 +44,7 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
         this.relayState = relayState;
         this.idpLevelOfAssurance = idpLevelOfAssurance;
         this.matchingServiceAdapterEntityId = matchingServiceAdapterEntityId;
-        this.requestSentTime = DateTime.now();
+        this.requestSentTime = DateTime.now(DateTimeZone.UTC);
     }
 
     @Override

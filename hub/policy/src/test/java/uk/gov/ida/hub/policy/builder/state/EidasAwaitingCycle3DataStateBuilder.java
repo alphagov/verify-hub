@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.builder.state;
 
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -26,7 +27,7 @@ public class EidasAwaitingCycle3DataStateBuilder {
         return new EidasAwaitingCycle3DataState(
             "requestId",
             "requestIssuerId",
-            DateTime.now().plusMinutes(10),
+            DateTime.now(DateTimeZone.UTC).plusMinutes(10),
             URI.create("assertionConsumerServiceUri"),
             sessionId,
             true,

@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.builder.state;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 
@@ -10,7 +11,7 @@ public class RequesterErrorStateBuilder {
 
     private String requestId = "requestId";
     private String authnRequestIssuerEntityId = "authnRequestIssuerEntityId";
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusHours(1);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusHours(1);
     private URI assertionConsumerServiceUri = URI.create("assertionConsumerServiceUri");
     private String relayState = "relayState";
     private SessionId sessionId = SessionId.createNewSessionId();

@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.builder.state;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -15,7 +16,7 @@ public class Cycle0And1MatchRequestSentStateBuilder {
 
     private String matchingServiceEntityId = "matching-service-entityId";
     private String requestIssuerId = "request-issuer-id";
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private PersistentId persistentId = aPersistentId().build();
     private String requestId = "requestId";

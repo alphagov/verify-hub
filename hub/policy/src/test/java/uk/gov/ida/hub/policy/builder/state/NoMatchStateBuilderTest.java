@@ -41,7 +41,7 @@ public class NoMatchStateBuilderTest {
         assertThat(noMatchState.getRequestId()).isEqualTo("request ID");
         assertThat(noMatchState.getIdentityProviderEntityId()).isEqualTo("idp entity id");
         assertThat(noMatchState.getRequestIssuerEntityId()).isEqualTo("requestIssuerId");
-        assertThat(noMatchState.getSessionExpiryTimestamp()).isEqualTo(DateTime.now().plusMinutes(10));
+        assertThat(noMatchState.getSessionExpiryTimestamp()).isEqualTo(DateTime.now(DateTimeZone.UTC).plusMinutes(10));
         assertThat(noMatchState.getAssertionConsumerServiceUri()).isEqualTo(URI.create("/someUri"));
         assertThat(noMatchState.getRelayState()).isEqualTo(Optional.absent());
         assertThat(noMatchState.getSessionId()).isEqualTo(new SessionId("sessionId"));

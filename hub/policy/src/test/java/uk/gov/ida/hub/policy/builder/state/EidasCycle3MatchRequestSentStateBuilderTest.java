@@ -42,7 +42,7 @@ public class EidasCycle3MatchRequestSentStateBuilderTest {
 
         assertThat(state.getRequestId()).isEqualTo("requestId");
         assertThat(state.getIdentityProviderEntityId()).isEqualTo("identityProviderEntityId");
-        assertThat(state.getSessionExpiryTimestamp()).isEqualTo(DateTime.now().plusMinutes(10));
+        assertThat(state.getSessionExpiryTimestamp()).isEqualTo(DateTime.now(DateTimeZone.UTC).plusMinutes(10));
         assertThat(state.getRelayState()).isEqualTo(Optional.absent());
         assertThat(state.getRequestIssuerEntityId()).isEqualTo("requestIssuerId");
         assertThat(state.getEncryptedIdentityAssertion()).isEqualTo("encryptedIdentityAssertion");

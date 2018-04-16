@@ -40,7 +40,7 @@ public class EidasAwaitingCycle3DataStateBuilderTest {
 
         assertThat(state.getRequestId()).isEqualTo("requestId");
         assertThat(state.getRequestIssuerEntityId()).isEqualTo("requestIssuerId");
-        assertThat(state.getSessionExpiryTimestamp()).isEqualTo(DateTime.now().plusMinutes(10));
+        assertThat(state.getSessionExpiryTimestamp()).isEqualTo(DateTime.now(DateTimeZone.UTC).plusMinutes(10));
         assertThat(state.getAssertionConsumerServiceUri()).isEqualTo(URI.create("assertionConsumerServiceUri"));
         assertThat(state.getSessionId()).isEqualTo(new SessionId("sessionId"));
         assertThat(state.getTransactionSupportsEidas()).isEqualTo(true);

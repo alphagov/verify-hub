@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.builder.state;
 
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
@@ -15,7 +16,7 @@ public class Cycle3DataInputCancelledStateBuilder {
     private Optional<String> relayState = Optional.absent();
     private String requestIssuerId = "requestIssuerId";
     private URI assertionConsumerServiceUri = URI.create("/default-service-index");
-    private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
+    private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private String requestId = UUID.randomUUID().toString();
     private boolean transactionSupportsEidas = false;
 
