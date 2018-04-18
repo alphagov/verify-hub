@@ -51,7 +51,7 @@ public class MatchingDatasetUnmarshallerTest {
         Address previousAddress2 = anAddressAttributeValue().addLines(asList("address-line-3")).withFrom(DateTime.parse("2010-08-08")).withTo(DateTime.parse("2011-08-07")).build();
         Attribute previousAddresses = anAddressAttribute().addAddress(previousAddress1).addAddress(previousAddress2).buildPreviousAddress();
 
-        Assertion originalAssertion = aMatchingDatasetAssertion(firstname, middlenames, surname, gender, dateOfBirth, currentAddress, previousAddresses);
+        Assertion originalAssertion = aMatchingDatasetAssertion(firstname, middlenames, surname, gender, dateOfBirth, currentAddress, previousAddresses).buildUnencrypted();
 
         MatchingDataset matchingDataset = unmarshaller.fromAssertion(originalAssertion);
 
@@ -106,7 +106,7 @@ public class MatchingDatasetUnmarshallerTest {
                 aGender_1_1().build(),
                 aDate_1_1().buildAsDateOfBirth(),
                 currentAddress,
-                anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildPreviousAddress());
+                anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildPreviousAddress()).buildUnencrypted();
 
         MatchingDataset matchingDataset = unmarshaller.fromAssertion(assertion);
 
@@ -122,7 +122,7 @@ public class MatchingDatasetUnmarshallerTest {
                 aGender_1_1().build(),
                 aDate_1_1().buildAsDateOfBirth(),
                 anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildCurrentAddress(),
-                anAddressAttribute().addAddress(anAddressAttributeValue().withTo(null).build()).buildPreviousAddress());
+                anAddressAttribute().addAddress(anAddressAttributeValue().withTo(null).build()).buildPreviousAddress()).buildUnencrypted();
 
         MatchingDataset matchingDataset = unmarshaller.fromAssertion(assertion);
 
@@ -139,7 +139,7 @@ public class MatchingDatasetUnmarshallerTest {
                 aGender_1_1().build(),
                 aDate_1_1().buildAsDateOfBirth(),
                 anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildCurrentAddress(),
-                anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildPreviousAddress());
+                anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildPreviousAddress()).buildUnencrypted();
 
         MatchingDataset matchingDataset = unmarshaller.fromAssertion(assertion);
 
@@ -156,7 +156,7 @@ public class MatchingDatasetUnmarshallerTest {
                 aGender_1_1().build(),
                 aDate_1_1().buildAsDateOfBirth(),
                 anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildCurrentAddress(),
-                anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildPreviousAddress());
+                anAddressAttribute().addAddress(anAddressAttributeValue().build()).buildPreviousAddress()).buildUnencrypted();
 
         MatchingDataset matchingDataset = unmarshaller.fromAssertion(assertion);
 
