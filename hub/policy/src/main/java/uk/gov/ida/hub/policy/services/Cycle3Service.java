@@ -25,8 +25,11 @@ public class Cycle3Service {
         String attributeName = controller.getCycle3AttributeRequestData().getAttributeName();
         Cycle3Dataset cycle3Dataset = Cycle3Dataset.createFromData(attributeName, cycle3UserInput.getCycle3Input());
         AbstractAttributeQueryRequestDto attributeQuery = controller.createAttributeQuery(cycle3Dataset);
-        attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
+
+        // NOTE: transitioning the state before sending the matching request avoids a race condition
+        // where the MSA responds before the new state has been replicated across the policy instances.
         controller.handleCycle3DataSubmitted(cycle3UserInput.getPrincipalIpAddress());
+        attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
     }
 
     public void cancelCycle3DataInput(SessionId sessionId) {
