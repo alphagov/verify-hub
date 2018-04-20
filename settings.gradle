@@ -1,3 +1,0 @@
-include "hub-saml",
-        "hub-saml-test-utils",
-        "buildSrc"
