@@ -1,0 +1,9 @@
+dependencies {
+    compile configurations.common,
+            configurations.saml_libs,
+            configurations.ida_utils
+
+    testCompile configurations.test_deps_compile,
+            configurations.dev_pki,
+            project(':hub-saml-test-utils')
+}
