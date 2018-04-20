@@ -2,7 +2,6 @@ dependencies {
     testCompile configurations.test_deps_compile
 
     compile configurations.ida_utils,
-            configurations.rest_utils,
             configurations.common,
             configurations.dropwizard
 }

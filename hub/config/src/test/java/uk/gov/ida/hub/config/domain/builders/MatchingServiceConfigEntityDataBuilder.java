@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
 
@@ -71,9 +72,6 @@ public class MatchingServiceConfigEntityDataBuilder {
     }
 
     private static class TestMatchingServiceConfigEntityData extends MatchingServiceConfigEntityData {
-        private final EncryptionCertificate encCertificate;
-        private final List<SignatureVerificationCertificate> sigCertificates;
-
         private TestMatchingServiceConfigEntityData(
             String entityId,
             EncryptionCertificate encryptionCertificate,
@@ -84,25 +82,14 @@ public class MatchingServiceConfigEntityDataBuilder {
             boolean onboarding) {
 
             this.entityId = entityId;
-            this.encryptionCertificate = new X509CertificateConfiguration(null, "test", null);
-            this.signatureVerificationCertificates = Collections.emptyList();
+            this.encryptionCertificate = new X509CertificateConfiguration(encryptionCertificate.getX509());
+            this.signatureVerificationCertificates = signatureVerificationCertificates.stream()
+                .map(cert -> new X509CertificateConfiguration(cert.getX509()))
+                .collect(Collectors.toList());
             this.uri = uri;
             this.userAccountCreationUri = userAccountCreationUri;
             this.healthCheckEnabled = healthCheckEnabled;
             this.onboarding = onboarding;
-
-            this.encCertificate = encryptionCertificate;
-            this.sigCertificates = signatureVerificationCertificates;
-        }
-
-        @Override
-        public EncryptionCertificate getEncryptionCertificate() {
-            return encCertificate;
-        }
-
-        @Override
-        public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
-            return sigCertificates;
         }
     }
 }

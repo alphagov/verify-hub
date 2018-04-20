@@ -8,7 +8,6 @@ dependencies {
             'nl.jqno.equalsverifier:equalsverifier:2.4'
 
     compile configurations.ida_utils,
-            configurations.rest_utils,
             configurations.verify_event_emitter,
             configurations.common,
             configurations.dropwizard,

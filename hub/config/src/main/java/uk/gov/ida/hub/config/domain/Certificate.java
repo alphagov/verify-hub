@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.config.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.dropwizard.validation.ValidationMethod;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+@JsonIgnoreProperties({ "certificateType", "notAfter", "x509Valid" })
 public abstract class Certificate {
     protected String fullCert;
 
@@ -63,5 +65,20 @@ public abstract class Certificate {
         return getCertificate().getNotBefore();
     }
 
-    public abstract CertificateType getType();
+    public String getType() {
+        return "x509";
+    }
+
+    public abstract CertificateType getCertificateType();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Certificate that = (Certificate) o;
+
+        return getX509().equals(that.getX509());
+    }
 }

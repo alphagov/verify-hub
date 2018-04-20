@@ -13,7 +13,7 @@ public class EncryptionCertificate extends Certificate {
     }
 
     @Override
-    public CertificateType getType() {
+    public CertificateType getCertificateType() {
         return CertificateType.ENCRYPTION;
     }
 }

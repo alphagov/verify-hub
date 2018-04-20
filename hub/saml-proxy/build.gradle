@@ -4,8 +4,7 @@ dependencies {
             configurations.saml_test,
             configurations.stub_saml_test
 
-    compile configurations.rest_utils,
-            configurations.ida_utils,
+    compile configurations.ida_utils,
             configurations.dropwizard,
             configurations.saml,
             configurations.common,

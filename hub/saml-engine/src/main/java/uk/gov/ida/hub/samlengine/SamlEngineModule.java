@@ -113,6 +113,7 @@ import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
+import uk.gov.ida.saml.metadata.MetadataResolverConfigBuilder;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
 import uk.gov.ida.saml.security.AssertionDecrypter;
@@ -345,7 +346,8 @@ public class SamlEngineModule extends AbstractModule {
                     metadataConfiguration,
                     new DropwizardMetadataResolverFactory(),
                     new Timer(),
-                    new MetadataSignatureTrustEngineFactory());
+                    new MetadataSignatureTrustEngineFactory(),
+                    new MetadataResolverConfigBuilder());
 
             registerEidasMetadataRefreshTask(environment, eidasMetadataResolverRepository, "eidas-metadata");
             return Optional.of(eidasMetadataResolverRepository);

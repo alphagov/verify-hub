@@ -70,6 +70,7 @@ import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.HubMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
+import uk.gov.ida.saml.metadata.MetadataResolverConfigBuilder;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
@@ -226,7 +227,8 @@ public class SamlProxyModule extends AbstractModule {
                     eidasMetadataConfiguration,
                     new DropwizardMetadataResolverFactory(),
                     new Timer(),
-                    new MetadataSignatureTrustEngineFactory()
+                    new MetadataSignatureTrustEngineFactory(),
+                    new MetadataResolverConfigBuilder()
             );
             registerEidasMetadataRefreshTask(environment, metadataResolverRepository,  "eidas-metadata");
             return Optional.of(metadataResolverRepository);
