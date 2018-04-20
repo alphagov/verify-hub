@@ -58,6 +58,7 @@ import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_P
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_PRIVATE_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_PUBLIC_CERT;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
+import static uk.gov.ida.saml.metadata.ResourceEncoder.entityIdAsResource;
 
 public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration> {
     private static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
@@ -157,14 +158,14 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
         try {
             InitializationService.initialize();
             String testCountryMetadata = new MetadataFactory().singleEntityMetadata(buildTestCountryEntityDescriptor());
-            String encodedEntityId = encode(encode(COUNTRY_METADATA_PATH, UTF_8.name()), UTF_8.name());
 
             verifyMetadataServer.reset();
             verifyMetadataServer.register(VERIFY_METADATA_PATH, 200, Constants.APPLICATION_SAMLMETADATA_XML, new MetadataFactory().defaultMetadata());
 
             metadataAggregatorServer.reset();
+
             metadataAggregatorServer.register(
-                    String.format("%s/%s", METADATA_AGGREGATOR_PATH, encodedEntityId),
+                    String.format("%s/%s", METADATA_AGGREGATOR_PATH, entityIdAsResource(COUNTRY_METADATA_PATH)),
                     200,
                     Constants.APPLICATION_SAMLMETADATA_XML,
                     testCountryMetadata);

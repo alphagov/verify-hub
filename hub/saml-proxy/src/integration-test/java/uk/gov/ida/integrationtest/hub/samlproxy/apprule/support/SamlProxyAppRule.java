@@ -44,12 +44,12 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Throwables.propagate;
 import static io.dropwizard.testing.ConfigOverride.config;
-import static java.net.URLEncoder.encode;
-import static java.nio.charset.StandardCharsets.UTF_8;
+
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.METADATA_SIGNING_A_PRIVATE_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.METADATA_SIGNING_A_PUBLIC_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
+import static uk.gov.ida.saml.metadata.ResourceEncoder.entityIdAsResource;
 
 public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> {
     private static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
@@ -136,18 +136,16 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
         try {
             InitializationService.initialize();
             String testCountryMetadata = new MetadataFactory().singleEntityMetadata(buildTestCountryEntityDescriptor());
-            String encodedEntityId = encode(encode(COUNTRY_METADATA_PATH, UTF_8.name()), UTF_8.name());
 
             verifyMetadataServer.reset();
             verifyMetadataServer.register(VERIFY_METADATA_PATH, 200, Constants.APPLICATION_SAMLMETADATA_XML, new MetadataFactory().defaultMetadata());
 
             metadataAggregatorServer.reset();
             metadataAggregatorServer.register(
-                    String.format("%s/%s", METADATA_AGGREGATOR_PATH, encodedEntityId),
+                    String.format("%s/%s", METADATA_AGGREGATOR_PATH, entityIdAsResource(COUNTRY_METADATA_PATH)),
                     200,
                     Constants.APPLICATION_SAMLMETADATA_XML,
                     testCountryMetadata);
-
 
             trustAnchorServer.reset();
             trustAnchorServer.register(TRUST_ANCHOR_PATH, 200, MediaType.APPLICATION_OCTET_STREAM, buildTrustAnchorString());

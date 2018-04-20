@@ -119,7 +119,6 @@ import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.DecrypterFactory;
 import uk.gov.ida.saml.security.EncrypterFactory;
-import uk.gov.ida.saml.security.EncryptionCredentialFactory;
 import uk.gov.ida.saml.security.EncryptionKeyStore;
 import uk.gov.ida.saml.security.EntityToEncryptForLocator;
 import uk.gov.ida.saml.security.IdaKeyStore;
