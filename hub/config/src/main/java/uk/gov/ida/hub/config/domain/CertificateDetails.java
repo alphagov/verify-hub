@@ -37,7 +37,7 @@ public class CertificateDetails {
     }
 
     public CertificateType getKeyUse() {
-        return certificate.getType();
+        return certificate.getCertificateType();
     }
 
     public FederationEntityType getFederationEntityType() { return federationEntityType; }

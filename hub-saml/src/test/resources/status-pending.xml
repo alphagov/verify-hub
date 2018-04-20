@@ -1,0 +1,17 @@
+<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+                xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+                ID="_ccb1eabc4827928c9cbb3db34fdbe9df186dfcb8"
+                Version="2.0"
+                IssueInstant="2015-08-20T09:39:53Z"
+                Destination="https://www.signin.service.gov.uk:443/SAML2/SSO/Response/POST"
+                InResponseTo="_7081cbd6-a811-440a-949a-12a9521ed7cc">
+    <saml:Issuer>http://stub-idp</saml:Issuer>
+    <samlp:Status>
+        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">
+            <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:NoAuthnContext" />
+        </samlp:StatusCode>
+        <samlp:StatusDetail>
+            <StatusValue>loa-pending</StatusValue>
+        </samlp:StatusDetail>
+    </samlp:Status>
+</samlp:Response>

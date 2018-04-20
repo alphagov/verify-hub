@@ -4,7 +4,6 @@ dependencies {
             configurations.dev_pki
 
     compile configurations.ida_utils,
-            configurations.rest_utils,
             configurations.config,
             configurations.dropwizard,
             configurations.common

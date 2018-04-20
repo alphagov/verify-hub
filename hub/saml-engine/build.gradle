@@ -6,8 +6,7 @@ dependencies {
             configurations.ida_test_utils,
             'org.infinispan:infinispan-core:7.1.1.Final:tests'
 
-    compile configurations.rest_utils,
-            configurations.dropwizard,
+    compile configurations.dropwizard,
             configurations.dropwizard_infinispan,
             configurations.saml,
             configurations.soap,

@@ -1,0 +1,24 @@
+configure([project(':hub-saml'), project(':hub-saml-test-utils')]) {
+    apply plugin: 'maven-publish'
+    apply plugin: 'java'
+
+    publishing {
+        repositories {
+            maven {
+                credentials {
+                    username "${System.env.ARTIUSER}"
+                    password "${System.env.ARTIPASSWORD}"
+                }
+                url "https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/libs-release-local"
+            }
+        }
+
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                groupId = "uk.gov.ida"
+                version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
+            }
+        }
+    }
+}

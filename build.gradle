@@ -12,28 +12,24 @@ buildscript {
 }
 
 apply from: 'idea.gradle'
+apply from: 'publish.gradle'
 apply plugin: 'java'
 apply plugin: 'com.github.ben-manes.versions'
 
 ext {
-    opensaml_version3 = '3.3.0'
+    opensaml_version = '3.3.0'
 }
 
 def dependencyVersions = [
-            ida_utils:'323',
-            // rest_utils has been added to dependency temporarily for enabling Hub to send events using event emitter.
-            // Upgrading ida_utils to the latest version breaks verify-hub. The fix for this issue is still being developed.
-            // Once the fix is completed, rest_utils will be removed from the dependency.
-            rest_utils:'332',
+            ida_utils:'332',
             dropwizard:'1.1.4',
             dropwizard_infinispan:'1.1.4-41',
             pact:'3.5.6',
-            stub_idp_saml:"$opensaml_version3-68",
+            stub_idp_saml:"$opensaml_version-68",
             ida_test_utils:"2.0.0-38",
-            opensaml:"$opensaml_version3",
+            opensaml:"$opensaml_version",
             dev_pki: '1.1.0-21',
-            saml_metadata_bindings:"$opensaml_version3-109",
-            hub_saml:"$opensaml_version3-124"
+            saml_libs:"$opensaml_version-112",
         ]
 
 subprojects {
@@ -74,17 +70,18 @@ subprojects {
         dropwizard_infinispan
         integrationtests
         config
-        rest_utils
         verify_event_emitter
         ida_utils
         ida_test_utils
         dev_pki
         trust_anchor
+        saml_libs
     }
 
     dependencies {
 
-        common 'joda-time:joda-time:2.3'
+        common 'joda-time:joda-time:2.3',
+                'com.google.inject:guice:4.0'
 
         dropwizard 'io.dropwizard:dropwizard-core:' + dependencyVersions.dropwizard,
                 'io.dropwizard:dropwizard-client:' + dependencyVersions.dropwizard,
@@ -97,12 +94,11 @@ subprojects {
 
         config 'commons-io:commons-io:2.1'
 
-        rest_utils "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.rest_utils"
-
         verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-31"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
-                "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils"
+                "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils",
+                "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.ida_utils"
 
         ida_test_utils "uk.gov.ida:common-test-utils:$dependencyVersions.ida_test_utils"
 
@@ -111,19 +107,17 @@ subprojects {
         dropwizard_infinispan "uk.gov.ida:dropwizard-infinispan:$dependencyVersions.dropwizard_infinispan"
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
-             "uk.gov.ida:saml-metadata-bindings:$dependencyVersions.saml_metadata_bindings",
-             "uk.gov.ida:hub-saml:$dependencyVersions.hub_saml"
+             "uk.gov.ida:saml-metadata-bindings:$dependencyVersions.saml_libs",
+             project(":hub-saml")
 
         trust_anchor "uk.gov.ida.eidas:trust-anchor:1.0-19"
 
-        stub_saml_test("uk.gov.ida:stub-idp-saml-test:$dependencyVersions.stub_idp_saml") {
-            changing = true
-            exclude group: "uk.gov.ida"
-        }
-        saml_test("uk.gov.ida:hub-saml-test-utils:$dependencyVersions.hub_saml") {
-            changing = true
-            exclude group: "uk.gov.ida"
-        }
+        stub_saml_test "uk.gov.ida:stub-idp-saml-test:$dependencyVersions.stub_idp_saml"
+
+        saml_test project(":hub-saml-test-utils")
+
+        saml_libs "uk.gov.ida:saml-utils:$dependencyVersions.saml_libs",
+                "uk.gov.ida:saml-extensions:$dependencyVersions.saml_libs"
 
         pact_test "au.com.dius:pact-jvm-consumer-junit_2.11:$dependencyVersions.pact",
                 "au.com.dius:pact-jvm-consumer_2.11:$dependencyVersions.pact",
@@ -141,7 +135,7 @@ subprojects {
                 'org.json:json:20170516',
                 'com.jayway.awaitility:awaitility:1.6.0',
                 'com.github.tomakehurst:wiremock:2.16.0',
-                "uk.gov.ida:saml-metadata-bindings-test:$dependencyVersions.saml_metadata_bindings",
+                "uk.gov.ida:saml-metadata-bindings-test:$dependencyVersions.saml_libs",
                 'io.dropwizard:dropwizard-testing:' + dependencyVersions.dropwizard]
 
         test_deps_deps.each { dep ->

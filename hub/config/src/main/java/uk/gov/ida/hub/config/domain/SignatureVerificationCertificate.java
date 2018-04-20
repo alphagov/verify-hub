@@ -12,7 +12,7 @@ public class SignatureVerificationCertificate extends Certificate {
     }
 
     @Override
-    public CertificateType getType() {
+    public CertificateType getCertificateType() {
         return CertificateType.SIGNING;
     }
 }

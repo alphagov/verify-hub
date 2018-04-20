@@ -38,7 +38,7 @@ public class CertificateHealthCheckDto {
         String expiryDate = new LocalDate(certificate.getNotAfter()).toString(EXPIRY_DATE_FORMAT);
         String message = getExpiryStatusMessage(status, expiryDate);
 
-        return new CertificateHealthCheckDto(entityId, certificate.getType(), status, message);
+        return new CertificateHealthCheckDto(entityId, certificate.getCertificateType(), status, message);
     }
 
     public String getEntityId() {
