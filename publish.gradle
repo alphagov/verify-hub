@@ -5,11 +5,7 @@ configure([project(':hub-saml'), project(':hub-saml-test-utils')]) {
     publishing {
         repositories {
             maven {
-                credentials {
-                    username "${System.env.ARTIUSER}"
-                    password "${System.env.ARTIPASSWORD}"
-                }
-                url "https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/libs-release-local"
+                url "/srv/maven" // change to point to your repo, e.g. http://my.org/repo
             }
         }
 
