@@ -5,19 +5,19 @@ buildscript {
     dependencies {
         classpath 'com.github.spullara.mustache.java:compiler:0.8.10',
                 'org.yaml:snakeyaml:1.10',
+                'uk.gov.ida:ida-gradle:1.1.0-20',
                 'com.google.guava:guava:14.0.1',
                 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
     }
 }
 
-//apply from: 'idea.gradle'
-//apply from: 'publish.gradle'
+apply from: 'idea.gradle'
+apply from: 'publish.gradle'
 apply plugin: 'java'
-apply plugin: 'idea'
 apply plugin: 'com.github.ben-manes.versions'
 
 ext {
-    opensaml_version3 = '3.3.0'
+    opensaml_version = '3.3.0'
 }
 
 def dependencyVersions = [
@@ -25,16 +25,16 @@ def dependencyVersions = [
             dropwizard:'1.1.4',
             dropwizard_infinispan:'1.1.4-41',
             pact:'3.5.6',
-            stub_idp_saml:"$opensaml_version3-68",
+            stub_idp_saml:"$opensaml_version-68",
             ida_test_utils:"2.0.0-38",
-            opensaml:"$opensaml_version3",
+            opensaml:"$opensaml_version",
             dev_pki: '1.1.0-21',
-            saml_libs:"$opensaml_version3-112",
-            hub_saml:"$opensaml_version3-123"
+            saml_libs:"$opensaml_version-112",
         ]
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'idaJar'
 
     group = "uk.gov.ida"
     version = "0.1.$version"
@@ -145,6 +145,14 @@ subprojects {
 
         soap('org.apache.ws.commons:ws-commons-util:1.0.1') { transitive = false }
     }
+}
+
+task(outputDependencies) doLast {
+    println "hub_saml="+dependencyVersions.hub_saml
+    println "saml_metadata="+dependencyVersions.saml_metadata
+    println "rest_utils="+dependencyVersions.rest_utils
+    println "ida_utils="+dependencyVersions.ida_utils
+    println "dropwizard_infinispan="+dependencyVersions.dropwizard_infinispan
 }
 
 import javax.crypto.Cipher
