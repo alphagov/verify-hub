@@ -72,6 +72,9 @@ metadata:
   uri: ${METADATA_URI:-http://localhost:55000/metadata.xml}
   trustStorePath: ${METADATA_TRUSTSTORE_PATH}
   trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD:-marshmallow}
+  truststore:
+      path: ${METADATA_TRUSTSTORE_PATH}
+      password: ${METADATA_TRUSTSTORE_PASSWORD:-marshmallow}
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
   expectedEntityId: ${SAML_ENTITY_ID:-http://dev-hub.local}

@@ -75,6 +75,9 @@ metadata:
   uri: ${METADATA_URL}
   trustStorePath: data/pki/metadata.ts
   trustStorePassword: marshmallow
+  truststore:
+    path: data/pki/metadata.ts
+    password: marshmallow
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
   expectedEntityId: https://dev-hub.local
