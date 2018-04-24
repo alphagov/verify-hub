@@ -12,7 +12,7 @@ import uk.gov.ida.hub.samlproxy.config.CountryConfiguration;
 import uk.gov.ida.hub.samlproxy.config.SamlConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
-import uk.gov.ida.saml.metadata.TrustStorePathMetadataConfiguration;
+import uk.gov.ida.saml.metadata.TrustStoreBackedMetadataConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
@@ -44,7 +44,7 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @NotNull
     @Valid
     @JsonProperty
-    protected TrustStorePathMetadataConfiguration metadata;
+    protected TrustStoreBackedMetadataConfiguration metadata;
 
     @Valid
     @NotNull

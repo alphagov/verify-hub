@@ -82,7 +82,7 @@ metadata:
   uri: ${METADATA_URL}
   trustStorePath: data/pki/metadata.ts
   trustStorePassword: marshmallow
-  truststore:
+  trustStore:
     path: data/pki/metadata.ts
     password: marshmallow
   minRefreshDelay: 60000

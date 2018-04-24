@@ -91,7 +91,7 @@ metadata:
   uri: ${METADATA_URI}
   trustStorePath: ${METADATA_TRUSTSTORE_PATH}
   trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD}
-  truststore:
+  trustStore:
       path: ${METADATA_TRUSTSTORE_PATH}
       password: ${METADATA_TRUSTSTORE_PASSWORD}
   minRefreshDelay: 60000
