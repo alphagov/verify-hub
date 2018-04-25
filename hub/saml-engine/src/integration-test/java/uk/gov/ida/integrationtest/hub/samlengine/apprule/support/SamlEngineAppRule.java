@@ -33,7 +33,6 @@ import uk.gov.ida.saml.metadata.test.factories.metadata.MetadataFactory;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -46,8 +45,6 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Throwables.propagate;
 import static io.dropwizard.testing.ConfigOverride.config;
-import static java.net.URLEncoder.encode;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT;
@@ -109,8 +106,8 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
                 config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()),
                 config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()),
                 config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
-                config("metadata.trustStorePath", metadataTrustStore.getAbsolutePath()),
-                config("metadata.trustStorePassword", metadataTrustStore.getPassword()),
+                config("metadata.trustStore.path", metadataTrustStore.getAbsolutePath()),
+                config("metadata.trustStore.password", metadataTrustStore.getPassword()),
                 config("metadata.uri", "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH)
         ).collect(Collectors.toList());
 

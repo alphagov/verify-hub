@@ -50,8 +50,8 @@ public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfigu
                 config("clientTrustStoreConfiguration.password", idpTrustStore.getPassword()),
                 config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()),
                 config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
-                config("metadata.trustStorePath", metadataTrustStore.getAbsolutePath()),
-                config("metadata.trustStorePassword", metadataTrustStore.getPassword()),
+                config("metadata.trustStore.path", metadataTrustStore.getAbsolutePath()),
+                config("metadata.trustStore.password", metadataTrustStore.getPassword()),
                 config("metadata.uri", "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH),
                 config("metadata.expectedEntityId", HUB_ENTITY_ID)
         ).collect(Collectors.toList());
