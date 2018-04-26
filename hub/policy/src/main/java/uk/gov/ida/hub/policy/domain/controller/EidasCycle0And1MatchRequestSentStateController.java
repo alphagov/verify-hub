@@ -40,17 +40,6 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
         this.transactionsConfigProxy = transactionsConfigProxy;
     }
 
-    // TODO: The future story EID-269 will implement this method.
-    @Override
-    protected State getNextStateForUserAccountCreated(UserAccountCreatedFromMatchingService responseFromMatchingService) {
-        return null;
-    }
-
-    // TODO: The future story EID-269 will implement this method.
-    @Override
-    protected State getNextStateForUserAccountCreationFailed() {
-        return null;
-    }
 
     @Override
     protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
@@ -96,6 +85,18 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
                 state.getIdpLevelOfAssurance(),
                 state.getTransactionSupportsEidas()
         );
+    }
+
+    // TODO: The future story EID-269 will implement this method.
+    @Override
+    protected State getNextStateForUserAccountCreated(UserAccountCreatedFromMatchingService responseFromMatchingService) {
+        return null;
+    }
+
+    // TODO: The future story EID-269 will implement this method.
+    @Override
+    protected State getNextStateForUserAccountCreationFailed() {
+        return null;
     }
 
     private EidasAwaitingCycle3DataState getAwaitingCycle3DataState() {

@@ -19,6 +19,7 @@ import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
+import uk.gov.ida.hub.policy.domain.Cycle3UserInput;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.IdpIdaStatus;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
@@ -96,6 +97,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
         translatedAuthnRequest = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(RP_ENTITY_ID).build();
         rpSamlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
+        configStub.reset();
         configStub.setupStubForEidasCountries(EIDAS_COUNTRIES);
         configStub.setUpStubForMatchingServiceRequest(RP_ENTITY_ID, MSA_ENTITY_ID, true);
         configStub.setupStubForEidasEnabledForTransaction(RP_ENTITY_ID, true);
@@ -110,20 +112,13 @@ public class EidasMatchingServiceResourceIntegrationTest {
 
     @Test
     public void shouldTransitionToEidasSuccessfulMatchStateWhenMatchIsReceivedForEidasCycle0And1() throws Exception {
-        final SessionId sessionId = aSessionIsCreated();
-        selectACountry(sessionId, NETHERLANDS);
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
         postAuthnResponseToPolicy(sessionId);
 
-        final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = new InboundResponseFromMatchingServiceDto(
-            MatchingServiceIdaStatus.MatchingServiceMatch,
-            translatedAuthnRequest.getId(),
-            MSA_ENTITY_ID,
-            Optional.of("assertionBlob"),
-            Optional.of(LevelOfAssurance.LEVEL_2));
-        samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
-
-        final Response response = postAttributeQueryResponseToPolicy(sessionId);
+        samlEngineStub.setupStubForAttributeResponseTranslate(aMatchResponse());
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(getSessionStateName(sessionId)).isEqualTo(EidasSuccessfulMatchState.class.getName());
@@ -131,21 +126,15 @@ public class EidasMatchingServiceResourceIntegrationTest {
 
     @Test
     public void shouldTransitionToEidasAwaitingCycle3DataStateWhenNoMatchIsReceivedForEidasCycle0And1WithCycle3Enabled() throws Exception {
-        final SessionId sessionId = aSessionIsCreated();
-        selectACountry(sessionId, NETHERLANDS);
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
         postAuthnResponseToPolicy(sessionId);
 
-        final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = new InboundResponseFromMatchingServiceDto(
-            MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
-            translatedAuthnRequest.getId(),
-            MSA_ENTITY_ID,
-            Optional.absent(),
-            Optional.absent());
-        samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
         configStub.setUpStubForEnteringAwaitingCycle3DataState(RP_ENTITY_ID);
 
-        final Response response = postAttributeQueryResponseToPolicy(sessionId);
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(getSessionStateName(sessionId)).isEqualTo(EidasAwaitingCycle3DataState.class.getName());
@@ -153,25 +142,60 @@ public class EidasMatchingServiceResourceIntegrationTest {
 
     @Test
     public void shouldTransitionToNoMatchStateWhenNoMatchIsReceivedForEidasCycle0And1WithCycle3Disabled() throws Exception {
-        final SessionId sessionId = aSessionIsCreated();
-        selectACountry(sessionId, NETHERLANDS);
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
         postAuthnResponseToPolicy(sessionId);
 
-        final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = new InboundResponseFromMatchingServiceDto(
-            MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
-            translatedAuthnRequest.getId(),
-            MSA_ENTITY_ID,
-            Optional.absent(),
-            Optional.absent());
-        samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
         configStub.setUpStubForCycle01NoMatchCycle3Disabled(RP_ENTITY_ID);
 
-        final Response response = postAttributeQueryResponseToPolicy(sessionId);
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(getSessionStateName(sessionId)).isEqualTo(NoMatchState.class.getName());
     }
+
+    @Test
+    public void shouldTransitionToEidasSuccessfulMatchStateWhenMatchIsReceivedForEidasCycle3() throws Exception {
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
+        samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
+        postAuthnResponseToPolicy(sessionId);
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
+        configStub.setUpStubForEnteringAwaitingCycle3DataState(RP_ENTITY_ID);
+
+        postAttributeQueryResponseToPolicy(sessionId);
+        postCycle3Data(sessionId, new Cycle3UserInput("test-value", "principal-ip-address-seen-by-hub"));
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aMatchResponse());
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(EidasSuccessfulMatchState.class.getName());
+    }
+
+    @Test
+    public void shouldTransitionToNoMatchStateWhenNoMatchIsReceivedForEidasCycle3WhenAccountCreationOff() throws Exception {
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
+        samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
+        postAuthnResponseToPolicy(sessionId);
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
+        configStub.setUpStubForEnteringAwaitingCycle3DataState(RP_ENTITY_ID);
+
+        postAttributeQueryResponseToPolicy(sessionId);
+        postCycle3Data(sessionId, new Cycle3UserInput("test-value", "principal-ip-address-seen-by-hub"));
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(NoMatchState.class.getName());
+    }
+
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {
         configStub.setUpStubForAssertionConsumerServiceUri(RP_ENTITY_ID);
@@ -181,12 +205,12 @@ public class EidasMatchingServiceResourceIntegrationTest {
 
     private Response createASession(final SamlAuthnRequestContainerDto samlRequest) {
         return client
-            .target(policy.uri(Urls.PolicyUrls.NEW_SESSION_RESOURCE).toASCIIString())
-            .request()
-            .post(Entity.json(samlRequest));
+                .target(policy.uri(Urls.PolicyUrls.NEW_SESSION_RESOURCE).toASCIIString())
+                .request()
+                .post(Entity.json(samlRequest));
     }
 
-    private SessionId selectACountry(final SessionId sessionId, final EidasCountryDto dto) {
+    private SessionId aCountryWasSelected(final SessionId sessionId, final EidasCountryDto dto) {
         TestSessionResourceHelper.selectCountryInSession(
             sessionId,
             client,
@@ -197,20 +221,45 @@ public class EidasMatchingServiceResourceIntegrationTest {
         return sessionId;
     }
 
+
+    private InboundResponseFromMatchingServiceDto aNoMatchResponse(){
+        return new InboundResponseFromMatchingServiceDto(
+                MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
+                translatedAuthnRequest.getId(),
+                MSA_ENTITY_ID,
+                Optional.absent(),
+                Optional.absent());
+    }
+
+    private InboundResponseFromMatchingServiceDto aMatchResponse(){
+        return new InboundResponseFromMatchingServiceDto(
+                MatchingServiceIdaStatus.MatchingServiceMatch,
+                translatedAuthnRequest.getId(),
+                MSA_ENTITY_ID,
+                Optional.of("assertionBlob"),
+                Optional.of(LevelOfAssurance.LEVEL_2));
+    }
+
     private Response postAuthnResponseToPolicy(final SessionId sessionId) {
         URI countryResponseUri = UriBuilder.fromPath(Urls.PolicyUrls.COUNTRY_AUTHN_RESPONSE_RESOURCE).build(sessionId);
-        return client
-            .target(policy.uri(countryResponseUri.toASCIIString()))
-            .request(MediaType.APPLICATION_JSON_TYPE)
-            .post(Entity.json(aSamlAuthnResponseContainerDto().withSessionId(sessionId).build()));
+        return postResponse(countryResponseUri, aSamlAuthnResponseContainerDto().withSessionId(sessionId).build());
     }
 
     private Response postAttributeQueryResponseToPolicy(final SessionId sessionId) {
-        final URI attributeQueryResponseUri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
+        URI attributeQueryResponseUri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
+        return postResponse(attributeQueryResponseUri, new SamlResponseDto("a-saml-response"));
+    }
+
+    private Response postCycle3Data(final SessionId sessionId, final Cycle3UserInput data) {
+        URI uri = UriBuilder.fromPath(Urls.PolicyUrls.CYCLE_3_SUBMIT_RESOURCE).build(sessionId);
+        return postResponse(uri, data);
+    }
+
+    private Response postResponse(URI uri, Object payload) {
         return client
-            .target(policy.uri(attributeQueryResponseUri.toASCIIString()))
-            .request()
-            .post(Entity.json(new SamlResponseDto("a-saml-response")));
+                .target(policy.uri(uri.toASCIIString()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(payload));
     }
 
     private String getSessionStateName(final SessionId sessionId) {

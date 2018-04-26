@@ -77,7 +77,7 @@ public class Cycle3DataResourceTest {
     }
 
     @Test
-    public void should_ReturnSuccessWhenDataSubmitted() throws JsonProcessingException {
+    public void shouldReturnSuccessWhenDataSubmitted() throws JsonProcessingException {
         //Given
         SessionId sessionId = SessionIdBuilder.aSessionId().build();
         String rpEntityId = new Cycle3DTO(sessionId).getRequestIssuerId();
