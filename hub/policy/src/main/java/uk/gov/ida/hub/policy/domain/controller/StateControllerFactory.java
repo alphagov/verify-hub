@@ -104,7 +104,8 @@ public class StateControllerFactory {
                         new LevelOfAssuranceValidator(),
                         injector.getInstance(ResponseFromHubFactory.class),
                         injector.getInstance(AttributeQueryService.class),
-                        injector.getInstance(TransactionsConfigProxy.class));
+                        injector.getInstance(TransactionsConfigProxy.class),
+                        injector.getInstance(MatchingServiceConfigProxy.class));
 
             case SUCCESSFUL_MATCH:
                 return new SuccessfulMatchStateController(
@@ -172,7 +173,9 @@ public class StateControllerFactory {
                         injector.getInstance(PolicyConfiguration.class),
                         new LevelOfAssuranceValidator(),
                         injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(AttributeQueryService.class));
+                        injector.getInstance(AttributeQueryService.class),
+                        injector.getInstance(TransactionsConfigProxy.class),
+                        injector.getInstance(MatchingServiceConfigProxy.class));
 
             case TIMEOUT:
                 return new TimeoutStateController(
@@ -192,7 +195,9 @@ public class StateControllerFactory {
                         injector.getInstance(PolicyConfiguration.class),
                         new LevelOfAssuranceValidator(),
                         injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(AttributeQueryService.class));
+                        injector.getInstance(AttributeQueryService.class),
+                        injector.getInstance(TransactionsConfigProxy.class),
+                        injector.getInstance(MatchingServiceConfigProxy.class));
 
             case AUTHN_FAILED_ERROR:
                 return new AuthnFailedErrorStateController(

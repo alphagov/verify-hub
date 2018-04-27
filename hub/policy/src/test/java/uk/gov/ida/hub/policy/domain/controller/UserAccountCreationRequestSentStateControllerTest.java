@@ -31,7 +31,7 @@ public class UserAccountCreationRequestSentStateControllerTest {
     public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
         UserAccountCreationRequestSentState state = aUserAccountCreationRequestSentState().build();
         UserAccountCreationRequestSentStateController controller =
-                new UserAccountCreationRequestSentStateController(state, null, null, null, null, null, null);
+                new UserAccountCreationRequestSentStateController(state, null, null, null, null, null, null, null, null);
 
         ResponseFromMatchingService responseFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.absent());
 
@@ -50,7 +50,7 @@ public class UserAccountCreationRequestSentStateControllerTest {
                 .withRelayState(relayState)
                 .build();
         UserAccountCreationRequestSentStateController controller =
-                new UserAccountCreationRequestSentStateController(state, null, hubEventLogger, null, levelOfAssuranceValidator, null, null);
+                new UserAccountCreationRequestSentStateController(state, null, hubEventLogger, null, levelOfAssuranceValidator, null, null, null, null);
 
         UserAccountCreatedFromMatchingService userAccountCreatedFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.absent());
 

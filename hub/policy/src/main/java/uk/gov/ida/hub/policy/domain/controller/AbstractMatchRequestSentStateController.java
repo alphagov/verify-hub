@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.contracts.AbstractAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.NoMatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
@@ -18,7 +19,10 @@ import uk.gov.ida.hub.policy.domain.state.AbstractMatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
+import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
+import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
@@ -37,6 +41,8 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
     protected final HubEventLogger hubEventLogger;
     protected PolicyConfiguration policyConfiguration;
     protected AttributeQueryService attributeQueryService;
+    protected final TransactionsConfigProxy transactionsConfigProxy;
+    protected final MatchingServiceConfigProxy matchingServiceConfigProxy;
 
     public AbstractMatchRequestSentStateController(
             final T state,
@@ -45,7 +51,9 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
             final ResponseFromHubFactory responseFromHubFactory,
-            final AttributeQueryService attributeQueryService) {
+            final AttributeQueryService attributeQueryService,
+            final TransactionsConfigProxy transactionsConfigProxy,
+            final MatchingServiceConfigProxy matchingServiceConfigProxy) {
 
         this.state = state;
         this.stateTransitionAction = stateTransitionAction;
@@ -54,6 +62,8 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
         this.responseFromHubFactory = responseFromHubFactory;
         this.policyConfiguration = policyConfiguration;
         this.attributeQueryService = attributeQueryService;
+        this.transactionsConfigProxy = transactionsConfigProxy;
+        this.matchingServiceConfigProxy = matchingServiceConfigProxy;
     }
 
     @Override
@@ -173,7 +183,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
         return DateTime.now().isAfter(state.getRequestSentTime().plus(policyConfiguration.getMatchingServiceResponseWaitPeriod()));
     }
 
-    protected NoMatchState getNoMatchState() {
+    NoMatchState getNoMatchState() {
         return new NoMatchState(
                 state.getRequestId(),
                 state.getIdentityProviderEntityId(),
@@ -183,5 +193,31 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                 state.getRelayState(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());
+    }
+
+    State handleUserAccountCreationRequestAndGenerateState(
+            AbstractAttributeQueryRequestDto attributeQueryRequestDto,
+            boolean isRegistering) {
+        hubEventLogger.logMatchingServiceUserAccountCreationRequestSentEvent(
+                state.getSessionId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getRequestId());
+
+        attributeQueryService.sendAttributeQueryRequest(state.getSessionId(), attributeQueryRequestDto);
+
+        return new UserAccountCreationRequestSentState(
+                state.getRequestId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas(),
+                state.getIdentityProviderEntityId(),
+                state.getRelayState().orNull(),
+                state.getIdpLevelOfAssurance(),
+                isRegistering,
+                state.getMatchingServiceAdapterEntityId()
+        );
     }
 }

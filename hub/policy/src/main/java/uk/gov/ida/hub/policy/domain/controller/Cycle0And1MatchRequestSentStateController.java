@@ -25,9 +25,7 @@ import java.util.List;
 
 public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentStateController<Cycle0And1MatchRequestSentState> {
 
-    private TransactionsConfigProxy transactionsConfigProxy;
     private final AssertionRestrictionsFactory assertionRestrictionFactory;
-    private final MatchingServiceConfigProxy matchingServiceConfigProxy;
 
     public Cycle0And1MatchRequestSentStateController(
             final Cycle0And1MatchRequestSentState state,
@@ -48,11 +46,11 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 policyConfiguration,
                 validator,
                 responseFromHubFactory,
-                attributeQueryService);
+                attributeQueryService,
+                transactionsConfigProxy,
+                matchingServiceConfigProxy);
 
-        this.transactionsConfigProxy = transactionsConfigProxy;
         this.assertionRestrictionFactory = assertionRestrictionFactory;
-        this.matchingServiceConfigProxy = matchingServiceConfigProxy;
     }
 
     @Override
@@ -77,7 +75,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
         List<UserAccountCreationAttribute> userAccountCreationAttributes = transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId());
         if(!userAccountCreationAttributes.isEmpty()) {
             AttributeQueryRequestDto attributeQueryRequestDto = createAttributeQuery(userAccountCreationAttributes);
-            return handleUserAccountCreationRequestAndGenerateState(attributeQueryRequestDto);
+            return handleUserAccountCreationRequestAndGenerateState(attributeQueryRequestDto, state.isRegistering());
         }
 
         hubEventLogger.logCycle01NoMatchEvent(

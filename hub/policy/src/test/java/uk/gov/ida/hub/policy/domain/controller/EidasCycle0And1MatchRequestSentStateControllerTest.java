@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import com.google.common.base.Optional;
+import org.assertj.core.util.Lists;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,19 +15,32 @@ import uk.gov.ida.hub.policy.domain.MatchingProcess;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
+import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
+import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
+import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
+import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
+
+import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.codehaus.groovy.runtime.InvokerHelper.asList;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.ida.hub.policy.builder.MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto;
 import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
+import static uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute.FIRST_NAME;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EidasCycle0And1MatchRequestSentStateControllerTest {
@@ -50,6 +65,9 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
     @Mock
     private TransactionsConfigProxy transactionsConfigProxy;
 
+    @Mock
+    private MatchingServiceConfigProxy matchingServiceConfigProxy;
+
     private EidasCycle0And1MatchRequestSentStateController eidasCycle0And1MatchRequestSentStateController;
     private EidasCycle0And1MatchRequestSentState state;
 
@@ -64,8 +82,15 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             levelOfAssuranceValidator,
             responseFromHubFactory,
             attributeQueryService,
-            transactionsConfigProxy
+            transactionsConfigProxy,
+            matchingServiceConfigProxy
         );
+        DateTimeFreezer.freezeTime();
+    }
+
+    @After
+    public void tearDown() {
+        DateTimeFreezer.unfreezeTime();
     }
 
     @Test
@@ -127,8 +152,42 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void shouldReturnNoMatchState() {
+    public void shouldReturnUserAccountCreationStateWhenUserAccountCreationIsEnabled() {
+        URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
+
         when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.absent()));
+        when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(asList(FIRST_NAME));
+        when(matchingServiceConfigProxy.getMatchingService(anyString()))
+                .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
+        doNothing().when(hubEventLogger).logMatchingServiceUserAccountCreationRequestSentEvent(
+                state.getSessionId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getRequestId());
+        UserAccountCreationRequestSentState expectedState = new UserAccountCreationRequestSentState(
+                state.getRequestId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas(),
+                state.getIdentityProviderEntityId(),
+                state.getRelayState().orNull(),
+                state.getIdpLevelOfAssurance(),
+                false,
+                state.getMatchingServiceAdapterEntityId()
+        );
+
+        State actualState = eidasCycle0And1MatchRequestSentStateController.getNextStateForNoMatch();
+        verify(attributeQueryService).sendAttributeQueryRequest(eq(state.getSessionId()), any());
+
+        assertThat(actualState).isEqualToComparingFieldByField(expectedState);
+    }
+
+    @Test
+    public void shouldReturnNoMatchStateWhenUserAccountCreationIsDisabled() {
+        when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.absent()));
+        when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(Lists.emptyList());
         doNothing().when(hubEventLogger).logCycle01NoMatchEvent(
             state.getSessionId(),
             state.getRequestIssuerEntityId(),

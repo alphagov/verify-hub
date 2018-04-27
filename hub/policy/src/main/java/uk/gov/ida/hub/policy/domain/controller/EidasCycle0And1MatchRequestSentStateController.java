@@ -1,22 +1,28 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import com.google.common.base.Optional;
+import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
+import uk.gov.ida.hub.policy.contracts.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
+import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
+import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
+import java.util.List;
+
 public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRequestSentStateController<EidasCycle0And1MatchRequestSentState> {
-    private final TransactionsConfigProxy transactionsConfigProxy;
 
     public EidasCycle0And1MatchRequestSentStateController(
             final EidasCycle0And1MatchRequestSentState state,
@@ -26,7 +32,8 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
             final LevelOfAssuranceValidator validator,
             final ResponseFromHubFactory responseFromHubFactory,
             final AttributeQueryService attributeQueryService,
-            final TransactionsConfigProxy transactionsConfigProxy) {
+            final TransactionsConfigProxy transactionsConfigProxy,
+            final MatchingServiceConfigProxy matchingServiceConfigProxy) {
 
         super(
                 state,
@@ -35,11 +42,10 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
                 policyConfiguration,
                 validator,
                 responseFromHubFactory,
-                attributeQueryService);
-
-        this.transactionsConfigProxy = transactionsConfigProxy;
+                attributeQueryService,
+                transactionsConfigProxy,
+                matchingServiceConfigProxy);
     }
-
 
     @Override
     protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
@@ -61,6 +67,12 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
                     state.getRequestId(),
                     state.getSessionExpiryTimestamp());
             return getAwaitingCycle3DataState();
+        }
+
+        List<UserAccountCreationAttribute> userAccountCreationAttributes = transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId());
+        if (!userAccountCreationAttributes.isEmpty()) {
+            EidasAttributeQueryRequestDto attributeQueryRequestDto = createAttributeQuery(userAccountCreationAttributes);
+            return handleUserAccountCreationRequestAndGenerateState(attributeQueryRequestDto, false);
         }
 
         hubEventLogger.logCycle01NoMatchEvent(
@@ -87,13 +99,11 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
         );
     }
 
-    // TODO: The future story EID-269 will implement this method.
     @Override
     protected State getNextStateForUserAccountCreated(UserAccountCreatedFromMatchingService responseFromMatchingService) {
         return null;
     }
 
-    // TODO: The future story EID-269 will implement this method.
     @Override
     protected State getNextStateForUserAccountCreationFailed() {
         return null;
@@ -113,5 +123,25 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
                 state.getPersistentId(),
                 state.getIdpLevelOfAssurance(),
                 state.getEncryptedIdentityAssertion());
+    }
+
+    public EidasAttributeQueryRequestDto createAttributeQuery(List<UserAccountCreationAttribute> userAccountCreationAttributes) {
+        MatchingServiceConfigEntityDataDto matchingServiceConfig = matchingServiceConfigProxy.getMatchingService(state.getMatchingServiceAdapterEntityId());
+
+        return new EidasAttributeQueryRequestDto(
+                state.getRequestId(),
+                state.getRequestIssuerEntityId(),
+                state.getAssertionConsumerServiceUri(),
+                state.getSessionExpiryTimestamp(),
+                state.getMatchingServiceAdapterEntityId(),
+                matchingServiceConfig.getUserAccountCreationUri(),
+                DateTime.now().plus(policyConfiguration.getMatchingServiceResponseWaitPeriod()),
+                matchingServiceConfig.isOnboarding(),
+                state.getIdpLevelOfAssurance(),
+                state.getPersistentId(),
+                Optional.absent(),
+                Optional.of(userAccountCreationAttributes),
+                state.getEncryptedIdentityAssertion()
+            );
     }
 }

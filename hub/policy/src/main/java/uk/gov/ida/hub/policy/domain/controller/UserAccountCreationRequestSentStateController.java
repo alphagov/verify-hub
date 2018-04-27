@@ -11,6 +11,8 @@ import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
+import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
+import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
@@ -27,8 +29,10 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
             final PolicyConfiguration policyConfiguration,
             final LevelOfAssuranceValidator validator,
             final ResponseFromHubFactory responseFromHubFactory,
-            final AttributeQueryService attributeQueryService) {
-        super(state, stateTransitionAction, hubEventLogger, policyConfiguration, validator, responseFromHubFactory, attributeQueryService);
+            final AttributeQueryService attributeQueryService,
+            final TransactionsConfigProxy transactionsConfigProxy,
+            final MatchingServiceConfigProxy matchingServiceConfigProxy) {
+        super(state, stateTransitionAction, hubEventLogger, policyConfiguration, validator, responseFromHubFactory, attributeQueryService, transactionsConfigProxy, matchingServiceConfigProxy);
         this.state = state;
         this.hubEventLogger = hubEventLogger;
         this.validator = validator;
