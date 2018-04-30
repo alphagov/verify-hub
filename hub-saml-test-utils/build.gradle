@@ -1,5 +1,6 @@
 dependencies {
     compile configurations.common,
             configurations.test_deps_compile,
+            configurations.saml_libs,
             project(':hub-saml')
 }
