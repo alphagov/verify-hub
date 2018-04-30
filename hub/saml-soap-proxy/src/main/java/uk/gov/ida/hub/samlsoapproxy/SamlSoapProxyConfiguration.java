@@ -9,7 +9,7 @@ import uk.gov.ida.configuration.ServiceNameConfiguration;
 import uk.gov.ida.hub.samlsoapproxy.config.SamlConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
-import uk.gov.ida.saml.metadata.TrustStoreBackedMetadataConfiguration;
+import uk.gov.ida.saml.metadata.MultiTrustStoresBackedMetadataConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
@@ -51,7 +51,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Valid
     @NotNull
     @JsonProperty
-    protected TrustStoreBackedMetadataConfiguration metadata;
+    protected MultiTrustStoresBackedMetadataConfiguration metadata;
 
     @Valid
     @NotNull

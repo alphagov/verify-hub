@@ -65,6 +65,8 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
     private static final HttpStubRule trustAnchorServer = new HttpStubRule();
 
     private static final KeyStoreResource metadataTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("metadataCA", CACertificates.TEST_METADATA_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).build();
+    private static final KeyStoreResource hubTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("hubCA", CACertificates.TEST_CORE_CA).build();
+    private static final KeyStoreResource idpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static final KeyStoreResource clientTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static final KeyStoreResource rpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rpCA", CACertificates.TEST_RP_CA).build();
     private static final KeyStoreResource countryMetadataTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("idpCA", CACertificates.TEST_IDP_CA).withCertificate("metadataCA", CACertificates.TEST_METADATA_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).build();
@@ -92,7 +94,11 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
                 config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
                 config("metadata.trustStore.path", metadataTrustStore.getAbsolutePath()),
                 config("metadata.trustStore.password", metadataTrustStore.getPassword()),
-                config("metadata.uri", "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH)
+                config("metadata.uri", "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH),
+                config("metadata.hubTrustStore.path", hubTrustStore.getAbsolutePath()),
+                config("metadata.hubTrustStore.password", hubTrustStore.getPassword()),
+                config("metadata.idpTrustStore.path", idpTrustStore.getAbsolutePath()),
+                config("metadata.idpTrustStore.password", idpTrustStore.getPassword())
         ).collect(Collectors.toList());
 
         if (isCountryEnabled) {
@@ -129,6 +135,8 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
     @Override
     protected void before() {
         metadataTrustStore.create();
+        hubTrustStore.create();
+        idpTrustStore.create();
         clientTrustStore.create();
         rpTrustStore.create();
         countryMetadataTrustStore.create();
@@ -159,6 +167,8 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
     @Override
     protected void after() {
         metadataTrustStore.delete();
+        hubTrustStore.delete();
+        idpTrustStore.delete();
         rpTrustStore.delete();
         clientTrustStore.delete();
 
