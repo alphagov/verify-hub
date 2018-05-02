@@ -73,8 +73,14 @@ metadata:
   trustStorePath: ${METADATA_TRUSTSTORE_PATH}
   trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD:-marshmallow}
   trustStore:
-      path: ${METADATA_TRUSTSTORE_PATH}
-      password: ${METADATA_TRUSTSTORE_PASSWORD:-marshmallow}
+    path: ${METADATA_TRUSTSTORE_PATH}
+    password: ${METADATA_TRUSTSTORE_PASSWORD:-marshmallow}
+  hubTrustStore:
+    path: ${HUB_FEDERATION_TRUSTSTORE_PATH}
+    password: ${HUB_FEDERATION_TRUSTSTORE_PASSWORD:-marshmallow}
+  idpTrustStore:
+    path: ${IDP_FEDERATION_TRUSTSTORE_PATH}
+    password: ${IDP_FEDERATION_TRUSTSTORE_PASSWORD:-marshmallow}
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
   expectedEntityId: ${SAML_ENTITY_ID:-http://dev-hub.local}

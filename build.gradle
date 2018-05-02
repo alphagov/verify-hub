@@ -25,11 +25,11 @@ def dependencyVersions = [
             dropwizard:'1.1.4',
             dropwizard_infinispan:'1.1.4-41',
             pact:'3.5.6',
-            stub_idp_saml:"$opensaml_version-68",
+            stub_idp_saml:"$opensaml_version-69",
             ida_test_utils:"2.0.0-38",
             opensaml:"$opensaml_version",
             dev_pki: '1.1.0-21',
-            saml_libs:"$opensaml_version-121",
+            saml_libs:"$opensaml_version-126",
         ]
 
 subprojects {
