@@ -211,18 +211,16 @@ public class SamlEngineModule extends AbstractModule {
         EntityToEncryptForLocator entityToEncryptForLocator,
         SignatureAlgorithm signatureAlgorithm,
         DigestAlgorithm digestAlgorithm,
-        @Named("HubEidasEntityId") Optional<String> hubEidasEntityId
+        @Named("HubEntityId") String hubEntityId
     ) {
-        if (!hubEidasEntityId.isPresent()) {
-            throw new InvalidConfigurationException(EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE);
-        }
+
         return hubTransformersFactory.getEidasMatchingServiceRequestToElementTransformer(
             keyStore,
             encryptionKeyStore,
             entityToEncryptForLocator,
             signatureAlgorithm,
             digestAlgorithm,
-            hubEidasEntityId.get());
+            hubEntityId);
     }
 
     @Provides
