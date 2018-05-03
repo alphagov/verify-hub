@@ -326,13 +326,16 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     private Optional<EidasMetadataResolverRepository> getCountryMetadataResolverRepository(Environment environment, SamlEngineConfiguration configuration){
         if (configuration.isEidasEnabled()) {
+            EidasMetadataConfiguration eidasMetadataConfiguration = configuration.getCountryConfiguration().get().getMetadataConfiguration();
+            URI trustAnchorUri = eidasMetadataConfiguration.getTrustAnchorUri();
 
-            EidasMetadataConfiguration metadataConfiguration = configuration.getCountryConfiguration().get().getMetadataConfiguration();
-            URI trustAnchorUri = metadataConfiguration.getTrustAnchorUri();
-            Client client = new JerseyClientBuilder(environment)
-                    .using(metadataConfiguration.getJerseyClientConfiguration())
-                    .build(metadataConfiguration.getJerseyClientName());
-            KeyStore trustStore = metadataConfiguration.getTrustStore();
+            Client client = new ClientProvider(
+                    environment,
+                    eidasMetadataConfiguration.getJerseyClientConfiguration(),
+                    true,
+                    eidasMetadataConfiguration.getJerseyClientName()).get();
+
+            KeyStore trustStore = eidasMetadataConfiguration.getTrustStore();
 
             EidasTrustAnchorResolver trustAnchorResolver = new EidasTrustAnchorResolver(
                     trustAnchorUri,
@@ -342,7 +345,7 @@ public class SamlEngineModule extends AbstractModule {
             EidasMetadataResolverRepository eidasMetadataResolverRepository = new EidasMetadataResolverRepository(
                     trustAnchorResolver,
                     environment,
-                    metadataConfiguration,
+                    eidasMetadataConfiguration,
                     new DropwizardMetadataResolverFactory(),
                     new Timer(),
                     new MetadataSignatureTrustEngineFactory(),

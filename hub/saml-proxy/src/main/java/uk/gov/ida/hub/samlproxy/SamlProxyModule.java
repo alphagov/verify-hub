@@ -208,14 +208,15 @@ public class SamlProxyModule extends AbstractModule {
     @Singleton
     public Optional<EidasMetadataResolverRepository> getEidasMetadataResolverRepository(Environment environment, SamlProxyConfiguration configuration){
         if (configuration.isEidasEnabled()){
-
-            environment = environment;
             EidasMetadataConfiguration eidasMetadataConfiguration = configuration.getCountryConfiguration().get().getMetadataConfiguration();
 
             URI uri = eidasMetadataConfiguration.getTrustAnchorUri();
-            Client client = new JerseyClientBuilder(environment)
-                    .using(eidasMetadataConfiguration.getJerseyClientConfiguration())
-                    .build(eidasMetadataConfiguration.getJerseyClientName());
+
+            Client client = new ClientProvider(
+                    environment,
+                    eidasMetadataConfiguration.getJerseyClientConfiguration(),
+                    true,
+                    eidasMetadataConfiguration.getJerseyClientName()).get();
 
             KeyStore keystore = eidasMetadataConfiguration.getTrustStore();
 
