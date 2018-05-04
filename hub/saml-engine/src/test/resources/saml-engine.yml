@@ -84,9 +84,6 @@ primaryPrivateEncryptionKeyConfiguration:
 secondaryPrivateEncryptionKeyConfiguration:
   type: base64
   key: ${HUB_SECONDARY_ENC_KEY:}
-clientTrustStoreConfiguration:
-  path: ${IDP_TRUSTSTORE_PATH}
-  password: ${IDP_TRUSTSTORE_PASSWORD}
 
 rpTrustStoreConfiguration:
   path: ${RP_TRUSTSTORE_PATH}

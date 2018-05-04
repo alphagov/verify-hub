@@ -73,8 +73,4 @@ timeoutPeriod: 60m
 assertionLifetime: 60m
 matchingServiceResponseWaitPeriod: 60s
 
-clientTrustStoreConfiguration:
-  path: ${IDP_TRUSTSTORE_PATH}
-  password: ${IDP_TRUSTSTORE_PASSWORD}
-
 eidas: true

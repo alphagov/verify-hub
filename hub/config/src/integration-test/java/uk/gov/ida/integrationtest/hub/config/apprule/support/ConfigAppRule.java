@@ -33,7 +33,6 @@ import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataB
 
 public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
 
-    private static final KeyStoreResource clientTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static final KeyStoreResource rpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rpCA", CACertificates.TEST_RP_CA).build();
     private static final File FED_CONFIG_ROOT = new File(System.getProperty("java.io.tmpdir"), "test-fed-config");
     private final ObjectMapper mapper = new ObjectMapper();
@@ -52,8 +51,6 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
 
     public static ConfigOverride[] withDefaultOverrides(ConfigOverride ... configOverrides) {
         ImmutableList<ConfigOverride> overrides = ImmutableList.<ConfigOverride>builder()
-                .add(config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()))
-                .add(config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()))
                 .add(config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()))
                 .add(config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()))
                 .add(config("rootDataDirectory", FED_CONFIG_ROOT.getAbsolutePath()))
@@ -85,7 +82,6 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
     @Override
     protected void before() {
         mapper.registerModule(new Jdk8Module().configureAbsentsAsNulls(true));
-        clientTrustStore.create();
         rpTrustStore.create();
 
         createFedConfig();
@@ -96,7 +92,6 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
     @Override
     protected void after() {
         rpTrustStore.delete();
-        clientTrustStore.delete();
 
         try {
             FileUtils.deleteDirectory(FED_CONFIG_ROOT);

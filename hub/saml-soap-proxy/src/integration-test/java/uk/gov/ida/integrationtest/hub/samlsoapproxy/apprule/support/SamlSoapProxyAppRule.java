@@ -47,8 +47,6 @@ public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfigu
                 config("saml.entityId", HUB_ENTITY_ID),
                 config("server.applicationConnectors[0].port", "0"),
                 config("server.adminConnectors[0].port", "0"),
-                config("clientTrustStoreConfiguration.path", idpTrustStore.getAbsolutePath()),
-                config("clientTrustStoreConfiguration.password", idpTrustStore.getPassword()),
                 config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()),
                 config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
                 config("metadata.trustStore.path", metadataTrustStore.getAbsolutePath()),
