@@ -44,15 +44,12 @@ import uk.gov.ida.jerseyclient.JsonResponseProcessor;
 import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
-import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
-import uk.gov.ida.truststore.KeyStoreProvider;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
-import java.security.KeyStore;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
@@ -63,7 +60,6 @@ public class PolicyModule extends AbstractModule {
         bind(RestfulClientConfiguration.class).to(PolicyConfiguration.class).in(Scopes.SINGLETON);
         bind(AssertionLifetimeConfiguration.class).to(PolicyConfiguration.class).in(Scopes.SINGLETON);
         bind(Client.class).toProvider(DefaultClientProvider.class).in(Scopes.SINGLETON);
-        bind(KeyStore.class).toProvider(KeyStoreProvider.class).in(Scopes.SINGLETON);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
         bind(InfinispanStartupTasks.class).asEagerSingleton();
         bind(JsonResponseProcessor.class);
@@ -138,12 +134,6 @@ public class PolicyModule extends AbstractModule {
     @Singleton
     public ServiceInfoConfiguration serviceInfo(PolicyConfiguration policyConfiguration) {
         return policyConfiguration.getServiceInfo();
-    }
-
-    @Provides
-    @Singleton
-    public ClientTrustStoreConfiguration clientTrustStoreConfiguration(PolicyConfiguration policyConfiguration) {
-        return policyConfiguration.getClientTrustStoreConfiguration();
     }
 
     @Provides

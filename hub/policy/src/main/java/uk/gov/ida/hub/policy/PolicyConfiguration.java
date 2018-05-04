@@ -10,7 +10,6 @@ import uk.gov.ida.configuration.ServiceNameConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanConfiguration;
 import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanServiceConfiguration;
-import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -81,11 +80,6 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @JsonProperty
     public URI configUri;
 
-    @Valid
-    @NotNull
-    @JsonProperty
-    public ClientTrustStoreConfiguration clientTrustStoreConfiguration;
-
     @JsonProperty
     public Boolean eidas = false;
 
@@ -141,10 +135,6 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @Override
     public String getServiceName() {
         return serviceInfo.getName();
-    }
-
-    public ClientTrustStoreConfiguration getClientTrustStoreConfiguration() {
-        return this.clientTrustStoreConfiguration;
     }
 
     @Override

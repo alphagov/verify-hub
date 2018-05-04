@@ -30,11 +30,6 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @Valid
     @NotNull
     @JsonProperty
-    protected ClientTrustStoreConfiguration clientTrustStoreConfiguration;
-
-    @Valid
-    @NotNull
-    @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
     @Valid
@@ -62,11 +57,6 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @Override
     public String getServiceName() {
         return serviceInfo.getName();
-    }
-
-    @Override
-    public ClientTrustStoreConfiguration getClientTrustStoreConfiguration() {
-        return this.clientTrustStoreConfiguration;
     }
 
     @Override
