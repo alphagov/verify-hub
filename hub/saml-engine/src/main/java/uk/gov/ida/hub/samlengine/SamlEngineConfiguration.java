@@ -104,11 +104,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Valid
     @NotNull
     @JsonProperty
-    protected ClientTrustStoreConfiguration clientTrustStoreConfiguration;
-
-    @Valid
-    @NotNull
-    @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
     public SamlConfiguration getSamlConfiguration() {
@@ -176,11 +171,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Override
     public String getServiceName() {
         return serviceInfo.getName();
-    }
-
-    @Override
-    public ClientTrustStoreConfiguration getClientTrustStoreConfiguration() {
-        return this.clientTrustStoreConfiguration;
     }
 
     @Override

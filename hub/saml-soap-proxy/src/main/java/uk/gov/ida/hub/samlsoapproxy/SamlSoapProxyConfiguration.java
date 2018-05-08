@@ -85,11 +85,6 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Valid
     @NotNull
     @JsonProperty
-    protected ClientTrustStoreConfiguration clientTrustStoreConfiguration;
-
-    @Valid
-    @NotNull
-    @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
     @Valid
@@ -144,11 +139,6 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Override
     public String getServiceName() {
         return serviceInfo.getName();
-    }
-
-    @Override
-    public ClientTrustStoreConfiguration getClientTrustStoreConfiguration() {
-        return this.clientTrustStoreConfiguration;
     }
 
     @Override

@@ -63,10 +63,6 @@ matchingServiceExecutorConfiguration:
   maxPoolSize: 10
   keepAliveDuration: 10s
 
-clientTrustStoreConfiguration:
-  path: data/pki/hub.ts
-  password: marshmallow
-
 rpTrustStoreConfiguration:
   path: data/pki/relying_parties.ts
   password: marshmallow

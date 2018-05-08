@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
-import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
 import org.joda.time.DateTime;
@@ -132,7 +131,6 @@ import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
-import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.inject.Named;
@@ -472,12 +470,6 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     private ServiceInfoConfiguration serviceInfoConfiguration(SamlEngineConfiguration configuration) {
         return configuration.getServiceInfo();
-    }
-
-    @Provides
-    @Singleton
-    private ClientTrustStoreConfiguration clientTrustStoreConfiguration(SamlEngineConfiguration configuration) {
-        return configuration.getClientTrustStoreConfiguration();
     }
 
     @Provides

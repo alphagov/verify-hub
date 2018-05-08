@@ -28,9 +28,6 @@ public class TrustStoreForCertificateProvider {
 
     private ClientTrustStoreConfiguration getAppropriateTrustStoreConfig(final FederationEntityType federationEntityType) {
         switch (federationEntityType) {
-            case HUB:
-            case IDP:
-                return trustStoreConfiguration.getClientTrustStoreConfiguration();
             case RP:
             case MS:
                 return trustStoreConfiguration.getRpTrustStoreConfiguration();

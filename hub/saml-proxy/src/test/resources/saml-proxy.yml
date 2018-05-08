@@ -58,10 +58,6 @@ policyUri: ${POLICY_URI:-http://localhost:50110}
 serviceInfo:
   name: saml-proxy
 
-clientTrustStoreConfiguration:
-  path: ${IDP_TRUSTSTORE_PATH}
-  password: ${IDP_TRUSTSTORE_PASSWORD:-marshmallow}
-
 rpTrustStoreConfiguration:
   path: ${RP_TRUSTSTORE_PATH}
   password: ${RP_TRUSTSTORE_PASSWORD:-marshmallow}

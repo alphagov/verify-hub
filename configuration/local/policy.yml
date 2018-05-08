@@ -56,8 +56,4 @@ timeoutPeriod: 60m
 assertionLifetime: 60m
 matchingServiceResponseWaitPeriod: 60s
 
-clientTrustStoreConfiguration:
-  path: ${HUB_TRUST_STORE_PATH:-data/pki/hub.ts}
-  password: marshmallow
-
 eidas: true

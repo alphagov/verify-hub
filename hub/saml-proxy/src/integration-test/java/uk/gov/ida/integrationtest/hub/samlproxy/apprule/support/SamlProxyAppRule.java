@@ -67,7 +67,6 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
     private static final KeyStoreResource metadataTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("metadataCA", CACertificates.TEST_METADATA_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).build();
     private static final KeyStoreResource hubTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("hubCA", CACertificates.TEST_CORE_CA).build();
     private static final KeyStoreResource idpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
-    private static final KeyStoreResource clientTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static final KeyStoreResource rpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rpCA", CACertificates.TEST_RP_CA).build();
     private static final KeyStoreResource countryMetadataTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("idpCA", CACertificates.TEST_IDP_CA).withCertificate("metadataCA", CACertificates.TEST_METADATA_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).build();
 
@@ -88,8 +87,6 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
                 config("saml.entityId", HUB_ENTITY_ID),
                 config("server.applicationConnectors[0].port", "0"),
                 config("server.adminConnectors[0].port", "0"),
-                config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()),
-                config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()),
                 config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()),
                 config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
                 config("metadata.trustStore.path", metadataTrustStore.getAbsolutePath()),
@@ -137,7 +134,6 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
         metadataTrustStore.create();
         hubTrustStore.create();
         idpTrustStore.create();
-        clientTrustStore.create();
         rpTrustStore.create();
         countryMetadataTrustStore.create();
 
@@ -170,7 +166,6 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
         hubTrustStore.delete();
         idpTrustStore.delete();
         rpTrustStore.delete();
-        clientTrustStore.delete();
 
         super.after();
     }

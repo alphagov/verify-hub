@@ -66,10 +66,6 @@ secondaryPublicEncryptionCert:
    certFile: data/pki/hub_encryption_primary.crt
    name: someId
 
-clientTrustStoreConfiguration:
-  path: data/pki/hub.ts
-  password: marshmallow
-
 rpTrustStoreConfiguration:
   path: data/pki/relying_parties.ts
   password: marshmallow
