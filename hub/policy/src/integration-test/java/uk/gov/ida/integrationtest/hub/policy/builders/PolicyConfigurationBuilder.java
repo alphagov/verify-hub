@@ -4,9 +4,11 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 
 import java.net.URI;
 
+import static org.mockito.Mockito.mock;
 import static uk.gov.ida.common.ServiceInfoConfigurationBuilder.aServiceInfo;
 
 public class PolicyConfigurationBuilder {
@@ -22,6 +24,7 @@ public class PolicyConfigurationBuilder {
         return new TestPolicyConfiguration(
                 new JerseyClientConfiguration(),
                 serviceInfo,
+                mock(ClientTrustStoreConfiguration.class),
                 timeoutPeriod,
                 Duration.minutes(1),
                 Duration.minutes(15));
@@ -41,6 +44,8 @@ public class PolicyConfigurationBuilder {
         private TestPolicyConfiguration(
                 JerseyClientConfiguration httpClient,
                 ServiceInfoConfiguration serviceInfo,
+                ClientTrustStoreConfiguration clientTrustStoreConfiguration,
+
                 Duration timeoutPeriod,
                 Duration matchingServiceResponseWaitPeriod,
                 Duration assertionLifetime) {
@@ -50,6 +55,7 @@ public class PolicyConfigurationBuilder {
             this.samlSoapProxyUri = URI.create("http://saml-soap-proxy");
             this.httpClient = httpClient;
             this.serviceInfo = serviceInfo;
+            this.clientTrustStoreConfiguration = clientTrustStoreConfiguration;
 
             this.timeoutPeriod = timeoutPeriod;
             this.matchingServiceResponseWaitPeriod = matchingServiceResponseWaitPeriod;

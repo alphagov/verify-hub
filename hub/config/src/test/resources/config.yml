@@ -36,6 +36,10 @@ serviceInfo:
 
 rootDataDirectory: configuration/config-service-data/local
 
+clientTrustStoreConfiguration:
+  path: ${IDP_TRUSTSTORE_PATH}
+  password: ${IDP_TRUSTSTORE_PASSWORD}
+
 rpTrustStoreConfiguration:
   path: ${RP_TRUSTSTORE_PATH}
   password: ${RP_TRUSTSTORE_PASSWORD}
