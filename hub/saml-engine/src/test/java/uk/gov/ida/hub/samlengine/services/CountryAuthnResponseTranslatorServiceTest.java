@@ -37,7 +37,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.hub.samlengine.domain.LevelOfAssurance.LEVEL_3;
+import static uk.gov.ida.hub.samlengine.domain.LevelOfAssurance.LEVEL_2;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CountryAuthnResponseTranslatorServiceTest {
@@ -109,7 +109,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
         assertThat(result.getStatusMessage().isPresent()).isFalse();
 
         assertThat(result.getLevelOfAssurance().isPresent()).isTrue();
-        assertThat(result.getLevelOfAssurance().get()).isEqualTo(LEVEL_3);
+        assertThat(result.getLevelOfAssurance().get()).isEqualTo(LEVEL_2);
 
         assertThat(result.getPersistentId().isPresent()).isTrue();
         assertThat(result.getPersistentId().get()).isEqualTo(persistentIdName);

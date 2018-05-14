@@ -79,7 +79,7 @@ public abstract class EidasAuthnRequestToAuthnRequestTransformer implements Func
             switch (lowestAuthnContext) {
                 case LEVEL_1    :   levelOfAssuranceRequested = LevelOfAssurance.LOW.toString();            break;
                 case LEVEL_2    :   levelOfAssuranceRequested = LevelOfAssurance.SUBSTANTIAL.toString();    break;
-                case LEVEL_3    :   levelOfAssuranceRequested = LevelOfAssurance.HIGH.toString();           break;
+                case LEVEL_3    :   levelOfAssuranceRequested = LevelOfAssurance.SUBSTANTIAL.toString();    break;
                 case LEVEL_4    :   levelOfAssuranceRequested = LevelOfAssurance.HIGH.toString();           break;
                 default         :
                     throw new SecurityException("Unknown level of assurance from requested AuthnContext : " + lowestAuthnContext);
