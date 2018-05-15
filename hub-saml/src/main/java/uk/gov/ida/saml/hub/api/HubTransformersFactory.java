@@ -482,7 +482,7 @@ public class HubTransformersFactory {
     }
 
     private EidasAuthnRequestFromHubToAuthnRequestTransformer getEidasAuthnRequestFromHubToAuthnRequestTransformer() {
-        return new EidasAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory());
+        return new EidasAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory());
     }
 
     private HubAttributeQueryRequestToSamlAttributeQueryTransformer getHubAttributeQueryRequestToSamlAttributeQueryTransformer() {

@@ -30,6 +30,7 @@ import uk.gov.ida.saml.core.extensions.SPType;
 import uk.gov.ida.saml.core.extensions.impl.RequestedAttributeImpl;
 import uk.gov.ida.saml.core.extensions.impl.SPTypeImpl;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
 import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.LevelOfAssurance;
@@ -63,7 +64,7 @@ public class IdaAuthnRequestFromHubToAuthnRequestTransformerTest {
     @Before
     public void setup() {
         transformer = new IdaAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory());
-        eidasTransformer = new EidasAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory());
+        eidasTransformer = new EidasAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory());
     }
 
     @Test
@@ -209,7 +210,7 @@ public class IdaAuthnRequestFromHubToAuthnRequestTransformerTest {
 
     @Test
     public void shouldCreateAnEidasAuthnRequest() throws Exception {
-        List<AuthnContext> authnContexts = Collections.singletonList(AuthnContext.LEVEL_3);
+        List<AuthnContext> authnContexts = Collections.singletonList(AuthnContext.LEVEL_2);
         EidasAuthnRequestFromHub originalRequestFromTransaction = anEidasAuthnRequestFromHub(A_PROVIDER, HTTP_ISSUER_ENTITY_ID_COM, authnContexts);
 
         AuthnRequest transformedRequest = eidasTransformer.apply(originalRequestFromTransaction);
@@ -236,7 +237,7 @@ public class IdaAuthnRequestFromHubToAuthnRequestTransformerTest {
         RequestedAuthnContext requestedAuthnContext = transformedRequest.getRequestedAuthnContext();
         Assert.assertEquals(AuthnContextComparisonTypeEnumeration.MINIMUM, requestedAuthnContext.getComparison());
         AuthnContextClassRef authnContextClassRef = requestedAuthnContext.getAuthnContextClassRefs().get(0);
-        Assert.assertEquals(LevelOfAssurance.HIGH.toString(), authnContextClassRef.getAuthnContextClassRef());
+        Assert.assertEquals(LevelOfAssurance.SUBSTANTIAL.toString(), authnContextClassRef.getAuthnContextClassRef());
     }
 
     private EidasAuthnRequestFromHub anEidasAuthnRequestFromHub(String A_PROVIDER, String HTTP_ISSUER_ENTITY_ID_COM, List<AuthnContext> authnContexts) {
@@ -251,7 +252,7 @@ public class IdaAuthnRequestFromHubToAuthnRequestTransformerTest {
 
     @Test
     public void shouldGenerateAnEidasAuthnRequestExtensions() throws MarshallingException, SignatureException, SecurityException {
-        List<AuthnContext> authnContexts = Collections.singletonList(AuthnContext.LEVEL_3);
+        List<AuthnContext> authnContexts = Collections.singletonList(AuthnContext.LEVEL_2);
         EidasAuthnRequestFromHub originalRequestFromTransaction = anEidasAuthnRequestFromHub(A_PROVIDER, HTTP_ISSUER_ENTITY_ID_COM, authnContexts);
 
         AuthnRequest transformedRequest = eidasTransformer.apply(originalRequestFromTransaction);
@@ -284,7 +285,7 @@ public class IdaAuthnRequestFromHubToAuthnRequestTransformerTest {
         Assert.assertEquals("eidas", elementQName.getPrefix());
 
         Assert.assertNotNull(firstNameRequestedAttribute);
-        Assert.assertEquals(EidasAuthnRequestToAuthnRequestTransformer.NATURAL_PERSON_NAME_PREFIX + "CurrentGivenName", firstNameRequestedAttribute.getName());
+        Assert.assertEquals(EidasAuthnRequestFromHubToAuthnRequestTransformer.NATURAL_PERSON_NAME_PREFIX + "CurrentGivenName", firstNameRequestedAttribute.getName());
         Assert.assertEquals(Attribute.URI_REFERENCE, firstNameRequestedAttribute.getNameFormat());
         Assert.assertEquals(true, firstNameRequestedAttribute.isRequired());
 

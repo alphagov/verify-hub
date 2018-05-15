@@ -7,6 +7,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.NameIDType;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.AuthnContext;
+import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
 import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
 
 import java.net.URI;
@@ -16,12 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EidasAuthnRequestFromHubToAuthnRequestTransformerTest {
     private EidasAuthnRequestFromHubToAuthnRequestTransformer transformer;
-    private OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
 
     @Before
     public void setUp() throws Exception {
-        openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
-        transformer = new EidasAuthnRequestFromHubToAuthnRequestTransformer(openSamlXmlObjectFactory);
+        transformer = new EidasAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory());
     }
 
     @Test
