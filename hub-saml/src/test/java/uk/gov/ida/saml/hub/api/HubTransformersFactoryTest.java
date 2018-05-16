@@ -82,7 +82,7 @@ public class HubTransformersFactoryTest {
             digestAlgorithm
         );
         EidasAuthnRequestFromHub eidasAuthnRequestFromHub = EidasAuthnRequestBuilder.anEidasAuthnRequest()
-            .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_3))
+            .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_2))
             .buildFromHub();
 
         //When
