@@ -103,28 +103,16 @@ public class EidasAuthnRequestFromHubToAuthnRequestTransformer implements Functi
         XMLObjectBuilder<?> requestedAttributesBuilder = xmlObjectBuilderFactory.getBuilder(RequestedAttributes.DEFAULT_ELEMENT_NAME);
         RequestedAttributesImpl requestedAttributesObject = (RequestedAttributesImpl) requestedAttributesBuilder.buildObject(RequestedAttributes.DEFAULT_ELEMENT_NAME);
         requestedAttributesObject.setRequestedAttributes(
-            createMandatoryRequestedAttribute("FirstName", "CurrentGivenName"),
-            createMandatoryRequestedAttribute("FamilyName", "CurrentFamilyName"),
-            createMandatoryRequestedAttribute("DateOfBirth", "DateOfBirth"),
-            createMandatoryRequestedAttribute("PersonIdentifier", "PersonIdentifier"),
-            createOptionalRequestedAttribute("CurrentAddress", "CurrentAddress"),
-            createOptionalRequestedAttribute("Gender", "Gender")
+            createRequestedAttribute("FirstName", "CurrentGivenName", true),
+            createRequestedAttribute("FamilyName", "CurrentFamilyName", true),
+            createRequestedAttribute("DateOfBirth", "DateOfBirth", true),
+            createRequestedAttribute("PersonIdentifier", "PersonIdentifier", true)
         );
         return requestedAttributesObject;
     }
 
     protected OpenSamlXmlObjectFactory getSamlObjectFactory() {
         return samlObjectFactory;
-    }
-
-    @Nonnull
-    private RequestedAttributeImpl createOptionalRequestedAttribute(String friendlyName, String nameSuffix) {
-        return createRequestedAttribute(friendlyName, nameSuffix, false);
-    }
-
-    @Nonnull
-    private RequestedAttributeImpl createMandatoryRequestedAttribute(String friendlyName, String nameSuffix) {
-        return createRequestedAttribute(friendlyName, nameSuffix, true);
     }
 
     @Nonnull
