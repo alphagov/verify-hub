@@ -106,6 +106,11 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
+    @NotNull
+    @Valid
+    @JsonProperty
+    private boolean shouldSignWithSHA1 = false;
+
     public SamlConfiguration getSamlConfiguration() {
         return saml;
     }
@@ -180,5 +185,9 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
 
     @Override
     public boolean getEnableRetryTimeOutConnections() { return enableRetryTimeOutConnections; }
+
+    public boolean shouldSignWithSHA1() {
+        return shouldSignWithSHA1;
+    }
 
 }

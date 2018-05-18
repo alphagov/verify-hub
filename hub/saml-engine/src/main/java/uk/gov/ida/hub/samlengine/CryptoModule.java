@@ -8,6 +8,7 @@ import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
+import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
@@ -44,7 +45,6 @@ public class CryptoModule extends AbstractModule {
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
         bind(AssertionBlobEncrypter.class);
         bind(EncrypterFactory.class).toInstance(new EncrypterFactory());
-        bind(SignatureAlgorithm.class).toInstance(new SignatureRSASHA1());
         bind(DigestAlgorithm.class).toInstance(new DigestSHA256());
     }
 
@@ -66,6 +66,16 @@ public class CryptoModule extends AbstractModule {
     @Singleton
     public IdaKeyStoreCredentialRetriever getKeyStoreCredentialRetriever(IdaKeyStore keyStore) {
         return new IdaKeyStoreCredentialRetriever(keyStore);
+    }
+
+    @Provides
+    @Singleton
+    public SignatureAlgorithm getSignatureAlgorithm(SamlEngineConfiguration samlEngineConfiguration) {
+
+        return samlEngineConfiguration.shouldSignWithSHA1() ?
+                new SignatureRSASHA1() :
+                new SignatureRSASHA256();
+
     }
 
     @Provides
