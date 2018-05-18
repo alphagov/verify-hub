@@ -32,9 +32,9 @@ public class ProtectiveMonitoringLogger {
                 .put("issuerId", Optional.ofNullable(request.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
                 .put("destination", request.getDestination())
                 .put("validSignature", validSignature.toString())
-                .put("service-name", "saml-proxy")
                 .build());
         LOG.info(formatter.formatAuthnRequest(request, direction, validSignature));
+        MDC.clear();
         MDC.setContextMap(copyOfContextMap);
     }
 
@@ -50,9 +50,9 @@ public class ProtectiveMonitoringLogger {
                 .put("issuerId", Optional.ofNullable(samlResponse.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
                 .put("destination", samlResponse.getDestination())
                 .put("validSignature", validSignature.toString())
-                .put("service-name", "saml-proxy")
                 .build());
         LOG.info(formatter.formatAuthnResponse(samlResponse, direction, validSignature));
+        MDC.clear();
         MDC.setContextMap(copyOfContextMap);
     }
 
