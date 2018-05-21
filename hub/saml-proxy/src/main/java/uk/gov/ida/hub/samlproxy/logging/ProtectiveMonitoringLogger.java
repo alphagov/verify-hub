@@ -11,6 +11,7 @@ import org.slf4j.MDC;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,12 +26,12 @@ public class ProtectiveMonitoringLogger {
     }
 
     public void logAuthnRequest(AuthnRequest request, Direction direction, Boolean validSignature) {
-        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        Map<String, String> copyOfContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElse(Collections.emptyMap());
         MDC.setContextMap(ImmutableMap.<String, String>builder()
                 .put("requestId", request.getID())
                 .put("direction", direction.name())
                 .put("issuerId", Optional.ofNullable(request.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
-                .put("destination", request.getDestination())
+                .put("destination", Optional.ofNullable(request.getDestination()).orElse("NoDestination"))
                 .put("validSignature", validSignature.toString())
                 .build());
         LOG.info(formatter.formatAuthnRequest(request, direction, validSignature));
@@ -39,7 +40,7 @@ public class ProtectiveMonitoringLogger {
     }
 
     public void logAuthnResponse(Response samlResponse, Direction direction, Boolean validSignature) {
-        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        Map<String, String> copyOfContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElse(Collections.emptyMap());
         StatusCode statusCode = samlResponse.getStatus().getStatusCode();
         MDC.setContextMap(ImmutableMap.<String, String>builder()
                 .put("responseId", samlResponse.getID())
@@ -48,7 +49,7 @@ public class ProtectiveMonitoringLogger {
                 .put("subStatus", Optional.ofNullable(statusCode.getStatusCode()).map(StatusCode::getValue).orElse("NoSubStatus"))
                 .put("direction", direction.name())
                 .put("issuerId", Optional.ofNullable(samlResponse.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
-                .put("destination", samlResponse.getDestination())
+                .put("destination", Optional.ofNullable(samlResponse.getDestination()).orElse("NoDestination"))
                 .put("validSignature", validSignature.toString())
                 .build());
         LOG.info(formatter.formatAuthnResponse(samlResponse, direction, validSignature));
