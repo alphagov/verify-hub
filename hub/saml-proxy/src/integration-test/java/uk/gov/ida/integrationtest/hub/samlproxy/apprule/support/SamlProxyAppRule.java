@@ -37,6 +37,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -186,9 +187,9 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
         PrivateKey trustAnchorKey = new PrivateKeyFactory().createPrivateKey(Base64.decodeBase64(TestCertificateStrings.METADATA_SIGNING_A_PRIVATE_KEY));
         X509Certificate trustAnchorCert = new X509CertificateFactory().createCertificate(TestCertificateStrings.METADATA_SIGNING_A_PUBLIC_CERT);
         Generator generator = new Generator(trustAnchorKey, trustAnchorCert);
-        HashMap<String, X509Certificate> trustAnchorMap = new HashMap<>();
+        HashMap<String, List<X509Certificate>> trustAnchorMap = new HashMap<>();
         X509Certificate metadataCACert = x509CertificateFactory.createCertificate(CACertificates.TEST_METADATA_CA.replace(BEGIN_CERT, "").replace(END_CERT, "").replace("\n", ""));
-        trustAnchorMap.put(COUNTRY_METADATA_PATH, metadataCACert);
+        trustAnchorMap.put(COUNTRY_METADATA_PATH, Collections.singletonList(metadataCACert));
         return generator.generateFromMap(trustAnchorMap).serialize();
     }
 
