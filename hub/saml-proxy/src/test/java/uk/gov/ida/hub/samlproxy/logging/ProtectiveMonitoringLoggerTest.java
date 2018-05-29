@@ -2,26 +2,24 @@ package uk.gov.ida.hub.samlproxy.logging;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.core.Appender;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.slf4j.LoggerFactory;
-
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProtectiveMonitoringLoggerTest {
@@ -33,21 +31,21 @@ public class ProtectiveMonitoringLoggerTest {
     @Mock
     private StatusCode statusCode;
 
-    private static TestAppender testAppender = new TestAppender();
+    @Mock
+    private Appender<ILoggingEvent> appender;
+    @Captor
+    private ArgumentCaptor<ILoggingEvent> captorLoggingEvent;
 
     @Before
     public void setUp() {
-        testAppender.start();
         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        logger.addAppender(testAppender);
+        logger.addAppender(appender);
     }
 
     @After
     public void tearDown() throws Exception {
-        testAppender.stop();
-        TestAppender.events.clear();
         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        logger.detachAppender(testAppender);
+        logger.detachAppender(appender);
     }
 
     @Test
@@ -62,8 +60,9 @@ public class ProtectiveMonitoringLoggerTest {
 
         protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, null);
 
-        assertThat(TestAppender.events.size()).isEqualTo(1);
-        assertThat(TestAppender.events.get(0).getMDCPropertyMap()).contains(
+        verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
+        final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
+        assertThat(loggingEvent.getMDCPropertyMap()).contains(
                 MapEntry.entry("isSigned", "false"),
                 MapEntry.entry("hasValidSignature", "false")
         );
@@ -81,8 +80,9 @@ public class ProtectiveMonitoringLoggerTest {
 
         protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, true);
 
-        assertThat(TestAppender.events.size()).isEqualTo(1);
-        assertThat(TestAppender.events.get(0).getMDCPropertyMap()).contains(
+        verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
+        final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
+        assertThat(loggingEvent.getMDCPropertyMap()).contains(
                 MapEntry.entry("isSigned", "true"),
                 MapEntry.entry("hasValidSignature", "true")
         );
@@ -100,20 +100,11 @@ public class ProtectiveMonitoringLoggerTest {
 
         protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, false);
 
-        assertThat(TestAppender.events.size()).isEqualTo(1);
-        assertThat(TestAppender.events.get(0).getMDCPropertyMap()).contains(
+        verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
+        final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
+        assertThat(loggingEvent.getMDCPropertyMap()).contains(
                 MapEntry.entry("isSigned", "true"),
                 MapEntry.entry("hasValidSignature", "false")
         );
-    }
-
-    private static class TestAppender extends AppenderBase<ILoggingEvent> {
-        public static List<ILoggingEvent> events = new ArrayList<>();
-
-        @Override
-        protected void append(ILoggingEvent eventObject) {
-            events.add(eventObject);
-        }
-
     }
 }
