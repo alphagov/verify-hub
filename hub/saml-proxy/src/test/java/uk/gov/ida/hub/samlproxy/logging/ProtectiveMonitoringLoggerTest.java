@@ -88,6 +88,25 @@ public class ProtectiveMonitoringLoggerTest {
         );
     }
 
+    @Test
+    public void shouldLogWhenSignatureIsPresentButInvalid() {
+        ProtectiveMonitoringLogger protectiveMonitoringLogger = new ProtectiveMonitoringLogger(new ProtectiveMonitoringLogFormatter());
+        when(samlResponse.getStatus()).thenReturn(status);
+        when(samlResponse.getID()).thenReturn("ID");
+        when(samlResponse.getInResponseTo()).thenReturn("InResponseTo");
+        when(status.getStatusCode()).thenReturn(statusCode);
+        when(statusCode.getValue()).thenReturn("all-good");
+
+
+        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, false);
+
+        assertThat(TestAppender.events.size()).isEqualTo(1);
+        assertThat(TestAppender.events.get(0).getMDCPropertyMap()).contains(
+                MapEntry.entry("isSigned", "true"),
+                MapEntry.entry("hasValidSignature", "false")
+        );
+    }
+
     private static class TestAppender extends AppenderBase<ILoggingEvent> {
         public static List<ILoggingEvent> events = new ArrayList<>();
 
