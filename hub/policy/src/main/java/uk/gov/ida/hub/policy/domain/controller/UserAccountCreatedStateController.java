@@ -35,17 +35,6 @@ public class UserAccountCreatedStateController implements StateController, Respo
 
     @Override
     public ResponseFromHub getPreparedResponse() {
-        Collection<String> enabledIdentityProviders = identityProvidersConfigProxy.getEnabledIdentityProviders(
-                state.getRequestIssuerEntityId(), state.isRegistering(), state.getLevelOfAssurance());
-
-        if (!enabledIdentityProviders.contains(state.getIdentityProviderEntityId())) {
-            throw new IdpDisabledException(state.getIdentityProviderEntityId());
-        }
-
-        return getResponse();
-    }
-
-    private ResponseFromHub getResponse() {
         return responseFromHubFactory.createSuccessResponseFromHub(
                 state.getRequestId(),
                 state.getMatchingServiceAssertion(),
