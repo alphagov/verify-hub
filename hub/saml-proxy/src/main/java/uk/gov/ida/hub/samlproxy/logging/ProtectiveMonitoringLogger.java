@@ -27,12 +27,15 @@ public class ProtectiveMonitoringLogger {
 
     public void logAuthnRequest(AuthnRequest request, Direction direction, Boolean validSignature) {
         Map<String, String> copyOfContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElse(Collections.emptyMap());
+        boolean isSigned = validSignature != null;
+        boolean hasValidSignature = isSigned && validSignature.booleanValue();
         MDC.setContextMap(ImmutableMap.<String, String>builder()
                 .put("requestId", request.getID())
                 .put("direction", direction.name())
                 .put("issuerId", Optional.ofNullable(request.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
                 .put("destination", Optional.ofNullable(request.getDestination()).orElse("NoDestination"))
-                .put("validSignature", validSignature.toString())
+                .put("isSigned", String.valueOf(isSigned))
+                .put("hasValidSignature", String.valueOf(hasValidSignature))
                 .build());
         LOG.info(formatter.formatAuthnRequest(request, direction, validSignature));
         MDC.clear();
@@ -42,6 +45,8 @@ public class ProtectiveMonitoringLogger {
     public void logAuthnResponse(Response samlResponse, Direction direction, Boolean validSignature) {
         Map<String, String> copyOfContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElse(Collections.emptyMap());
         StatusCode statusCode = samlResponse.getStatus().getStatusCode();
+        boolean isSigned = validSignature != null;
+        boolean hasValidSignature = isSigned && validSignature.booleanValue();
         MDC.setContextMap(ImmutableMap.<String, String>builder()
                 .put("responseId", samlResponse.getID())
                 .put("inResponseTo", samlResponse.getInResponseTo())
@@ -50,7 +55,8 @@ public class ProtectiveMonitoringLogger {
                 .put("direction", direction.name())
                 .put("issuerId", Optional.ofNullable(samlResponse.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
                 .put("destination", Optional.ofNullable(samlResponse.getDestination()).orElse("NoDestination"))
-                .put("validSignature", validSignature.toString())
+                .put("isSigned", String.valueOf(isSigned))
+                .put("hasValidSignature", String.valueOf(hasValidSignature))
                 .build());
         LOG.info(formatter.formatAuthnResponse(samlResponse, direction, validSignature));
         MDC.clear();
