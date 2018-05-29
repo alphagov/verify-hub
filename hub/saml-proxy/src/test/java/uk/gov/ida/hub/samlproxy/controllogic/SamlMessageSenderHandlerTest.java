@@ -119,7 +119,7 @@ public class SamlMessageSenderHandlerTest {
         assertThat(authnResponse.getSamlMessageType()).isEqualTo(SamlMessageType.SAML_RESPONSE);
 
         verify(externalCommunicationEventLogger).logResponseFromHub(expectedSamlMessageId, sessionId, postEndPoint, principalIpAddressAsSeenByHub);
-        verify(protectiveMonitoringLogger).logAuthnResponse(openSamlResponse, Direction.OUTBOUND, true);
+        verify(protectiveMonitoringLogger).logAuthnResponse(openSamlResponse, Direction.OUTBOUND, true, true);
     }
 
     @Test

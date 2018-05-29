@@ -186,8 +186,8 @@ public class SamlMessageReceiverApiTest {
         verify(protectiveMonitoringLogger).logAuthnResponse(
                 validSamlResponse,
                 Direction.INBOUND,
-                true
-                );
+                true, true
+        );
     }
 
     @Test

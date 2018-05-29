@@ -107,7 +107,7 @@ public class SamlMessageReceiverApi {
         protectiveMonitoringLogger.logAuthnResponse(
                 samlResponse,
                 Direction.INBOUND,
-                signatureValidationResponse.isOK());
+                signatureValidationResponse.isOK(), true);
 
         if (!signatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
@@ -143,7 +143,7 @@ public class SamlMessageReceiverApi {
             protectiveMonitoringLogger.logAuthnResponse(
                 samlResponse,
                 Direction.INBOUND,
-                validatedResponse.isSuccess());
+                validatedResponse.isSuccess(), true);
 
             final SamlAuthnResponseContainerDto authnResponseDto = new SamlAuthnResponseContainerDto(
                 samlRequestDto.getSamlRequest(),

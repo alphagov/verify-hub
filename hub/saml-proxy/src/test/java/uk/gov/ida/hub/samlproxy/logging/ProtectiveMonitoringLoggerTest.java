@@ -58,7 +58,7 @@ public class ProtectiveMonitoringLoggerTest {
         when(statusCode.getValue()).thenReturn("all-good");
 
 
-        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, null);
+        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, false, false);
 
         verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
         final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
@@ -78,7 +78,7 @@ public class ProtectiveMonitoringLoggerTest {
         when(statusCode.getValue()).thenReturn("all-good");
 
 
-        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, true);
+        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, true, true);
 
         verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
         final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
@@ -98,7 +98,7 @@ public class ProtectiveMonitoringLoggerTest {
         when(statusCode.getValue()).thenReturn("all-good");
 
 
-        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, false);
+        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, false, true);
 
         verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
         final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();

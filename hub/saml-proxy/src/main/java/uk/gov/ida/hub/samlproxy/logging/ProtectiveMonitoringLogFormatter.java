@@ -23,7 +23,7 @@ public class ProtectiveMonitoringLogFormatter {
             "inResponseTo: %s, direction: %s, destination: %s, issuerId: %s, validSignature: %s, " +
             "status: %s, subStatus: %s, statusDetails: %s}";
 
-    public String formatAuthnRequest(AuthnRequest authnRequest, Direction direction, Boolean validSignature) {
+    public String formatAuthnRequest(AuthnRequest authnRequest, Direction direction, boolean validSignature) {
         Issuer issuer = authnRequest.getIssuer();
         String issuerId = issuer != null ? issuer.getValue() : "";
 
@@ -35,7 +35,7 @@ public class ProtectiveMonitoringLogFormatter {
                 validSignature);
     }
 
-    public String formatAuthnResponse(Response samlResponse, Direction direction, Boolean validSignature) {
+    public String formatAuthnResponse(Response samlResponse, Direction direction, boolean validSignature) {
         Issuer issuer = samlResponse.getIssuer();
         String issuerString = issuer != null ? issuer.getValue() : "";
 

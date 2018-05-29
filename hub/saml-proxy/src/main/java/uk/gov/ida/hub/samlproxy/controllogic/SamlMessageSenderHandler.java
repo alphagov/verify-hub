@@ -127,14 +127,14 @@ public class SamlMessageSenderHandler {
         boolean isSigned = samlResponse.getIssuer() != null;
         if (isSigned) {
             SamlValidationResponse signatureValidationResponse = samlMessageSignatureValidator.validate(samlResponse, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
-            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, signatureValidationResponse.isOK());
+            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, signatureValidationResponse.isOK(), isSigned);
 
             if (!signatureValidationResponse.isOK()) {
                 SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
                 throw new SamlTransformationErrorException(failure.getErrorMessage(), signatureValidationResponse.getCause(), Level.ERROR);
             }
         } else {
-            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, null);
+            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, false, isSigned);
         }
     }
 }

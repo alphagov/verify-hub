@@ -25,28 +25,23 @@ public class ProtectiveMonitoringLogger {
         this.formatter = formatter;
     }
 
-    public void logAuthnRequest(AuthnRequest request, Direction direction, Boolean validSignature) {
+    public void logAuthnRequest(AuthnRequest request, Direction direction, boolean validSignature) {
         Map<String, String> copyOfContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElse(Collections.emptyMap());
-        boolean isSigned = validSignature != null;
-        boolean hasValidSignature = isSigned && validSignature.booleanValue();
         MDC.setContextMap(ImmutableMap.<String, String>builder()
                 .put("requestId", request.getID())
                 .put("direction", direction.name())
                 .put("issuerId", Optional.ofNullable(request.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
                 .put("destination", Optional.ofNullable(request.getDestination()).orElse("NoDestination"))
-                .put("isSigned", String.valueOf(isSigned))
-                .put("hasValidSignature", String.valueOf(hasValidSignature))
+                .put("hasValidSignature", String.valueOf(validSignature))
                 .build());
         LOG.info(formatter.formatAuthnRequest(request, direction, validSignature));
         MDC.clear();
         MDC.setContextMap(copyOfContextMap);
     }
 
-    public void logAuthnResponse(Response samlResponse, Direction direction, Boolean validSignature) {
+    public void logAuthnResponse(Response samlResponse, Direction direction, boolean validSignature, boolean isSigned) {
         Map<String, String> copyOfContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElse(Collections.emptyMap());
         StatusCode statusCode = samlResponse.getStatus().getStatusCode();
-        boolean isSigned = validSignature != null;
-        boolean hasValidSignature = isSigned && validSignature.booleanValue();
         MDC.setContextMap(ImmutableMap.<String, String>builder()
                 .put("responseId", samlResponse.getID())
                 .put("inResponseTo", samlResponse.getInResponseTo())
@@ -56,7 +51,7 @@ public class ProtectiveMonitoringLogger {
                 .put("issuerId", Optional.ofNullable(samlResponse.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
                 .put("destination", Optional.ofNullable(samlResponse.getDestination()).orElse("NoDestination"))
                 .put("isSigned", String.valueOf(isSigned))
-                .put("hasValidSignature", String.valueOf(hasValidSignature))
+                .put("hasValidSignature", String.valueOf(validSignature))
                 .build());
         LOG.info(formatter.formatAuthnResponse(samlResponse, direction, validSignature));
         MDC.clear();
