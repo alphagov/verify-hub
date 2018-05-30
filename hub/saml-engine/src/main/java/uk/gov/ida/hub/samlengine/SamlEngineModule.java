@@ -98,11 +98,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappings
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
-import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
-import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileOutboundResponseFromHubToSamlResponseTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileTransactionIdaStatusMarshaller;
+import uk.gov.ida.saml.hub.transformers.outbound.*;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
@@ -499,6 +495,32 @@ public class SamlEngineModule extends AbstractModule {
         );
     }
 
+    /*
+     * VCU-43
+     * Make signing algorithm configurable per transaction.
+     * Remove when SHA1 signing is definitively disabled.
+     */
+    @Provides
+    @SuppressWarnings("unused")
+    private OutboundLegacyResponseFromHubToStringFunctionSHA256 getOutboundLegacyResponseFromHubToSignedResponseTransformerProvider(
+            EncryptionKeyStore encryptionKeyStore,
+            IdaKeyStore keyStore,
+            EntityToEncryptForLocator entityToEncryptForLocator,
+            ResponseAssertionSigner responseAssertionSigner,
+            DigestAlgorithm digestAlgorithm) {
+
+        return new OutboundLegacyResponseFromHubToStringFunctionSHA256(
+                hubTransformersFactory.getOutboundResponseFromHubToStringTransformer(
+                        encryptionKeyStore,
+                        keyStore,
+                        entityToEncryptForLocator,
+                        responseAssertionSigner,
+                        new SignatureRSASHA256(),
+                        digestAlgorithm
+                )
+        );
+    }
+
     @Provides
     @SuppressWarnings("unused")
     private OutboundSamlProfileResponseFromHubToStringFunction getOutboundSamlProfileResponseFromHubToSignedResponseTransformerProvider(
@@ -516,6 +538,32 @@ public class SamlEngineModule extends AbstractModule {
                         entityToEncryptForLocator,
                         responseAssertionSigner,
                         signatureAlgorithm,
+                        digestAlgorithm
+                )
+        );
+    }
+
+    /*
+     * VCU-43
+     * Make signing algorithm configurable per transaction.
+     * Remove when SHA1 signing is definitively disabled.
+     */
+    @Provides
+    @SuppressWarnings("unused")
+    private OutboundSamlProfileResponseFromHubToStringFunctionSHA256 getOutboundSamlProfileResponseFromHubToSignedResponseTransformerProviderSHA256(
+            EncryptionKeyStore encryptionKeyStore,
+            IdaKeyStore keyStore,
+            EntityToEncryptForLocator entityToEncryptForLocator,
+            ResponseAssertionSigner responseAssertionSigner,
+            DigestAlgorithm digestAlgorithm) {
+
+        return new OutboundSamlProfileResponseFromHubToStringFunctionSHA256(
+                hubTransformersFactory.getSamlProfileOutboundResponseFromHubToStringTransformer(
+                        encryptionKeyStore,
+                        keyStore,
+                        entityToEncryptForLocator,
+                        responseAssertionSigner,
+                        new SignatureRSASHA256(),
                         digestAlgorithm
                 )
         );
