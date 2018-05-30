@@ -7,6 +7,7 @@ import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.StatusDetail;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
+import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.extensions.StatusValue;
 
 import java.util.Collections;
@@ -23,7 +24,7 @@ public class ProtectiveMonitoringLogFormatter {
             "inResponseTo: %s, direction: %s, destination: %s, issuerId: %s, validSignature: %s, " +
             "status: %s, subStatus: %s, statusDetails: %s}";
 
-    public String formatAuthnRequest(AuthnRequest authnRequest, Direction direction, Boolean validSignature) {
+    public String formatAuthnRequest(AuthnRequest authnRequest, Direction direction, SignatureStatus signatureStatus) {
         Issuer issuer = authnRequest.getIssuer();
         String issuerId = issuer != null ? issuer.getValue() : "";
 
@@ -32,10 +33,10 @@ public class ProtectiveMonitoringLogFormatter {
                 direction,
                 authnRequest.getDestination(),
                 issuerId,
-                validSignature);
+                signatureStatus.valid());
     }
 
-    public String formatAuthnResponse(Response samlResponse, Direction direction, Boolean validSignature) {
+    public String formatAuthnResponse(Response samlResponse, Direction direction, SignatureStatus signatureStatus) {
         Issuer issuer = samlResponse.getIssuer();
         String issuerString = issuer != null ? issuer.getValue() : "";
 
@@ -49,7 +50,7 @@ public class ProtectiveMonitoringLogFormatter {
                 direction,
                 samlResponse.getDestination(),
                 issuerString,
-                validSignature,
+                signatureStatus.valid(),
                 status.getStatusCode().getValue(),
                 subStatus,
                 getStatusDetailValues(status));

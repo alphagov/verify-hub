@@ -20,6 +20,7 @@ import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
+import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.security.RelayStateValidator;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
@@ -173,7 +174,7 @@ public class SamlMessageReceiverApiTest {
 
         samlMessageReceiverApi.handleRequestPost(SAML_REQUEST_DTO);
 
-        verify(protectiveMonitoringLogger).logAuthnRequest(authnRequest, Direction.INBOUND, true);
+        verify(protectiveMonitoringLogger).logAuthnRequest(authnRequest, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
     }
 
     @Test
@@ -186,8 +187,8 @@ public class SamlMessageReceiverApiTest {
         verify(protectiveMonitoringLogger).logAuthnResponse(
                 validSamlResponse,
                 Direction.INBOUND,
-                true
-                );
+                SignatureStatus.VALID_SIGNATURE
+        );
     }
 
     @Test

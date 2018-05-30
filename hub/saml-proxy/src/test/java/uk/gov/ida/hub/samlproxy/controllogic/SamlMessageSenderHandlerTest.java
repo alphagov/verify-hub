@@ -21,6 +21,7 @@ import uk.gov.ida.hub.samlproxy.logging.ExternalCommunicationEventLogger;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
+import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
@@ -119,7 +120,7 @@ public class SamlMessageSenderHandlerTest {
         assertThat(authnResponse.getSamlMessageType()).isEqualTo(SamlMessageType.SAML_RESPONSE);
 
         verify(externalCommunicationEventLogger).logResponseFromHub(expectedSamlMessageId, sessionId, postEndPoint, principalIpAddressAsSeenByHub);
-        verify(protectiveMonitoringLogger).logAuthnResponse(openSamlResponse, Direction.OUTBOUND, true);
+        verify(protectiveMonitoringLogger).logAuthnResponse(openSamlResponse, Direction.OUTBOUND, SignatureStatus.VALID_SIGNATURE);
     }
 
     @Test
