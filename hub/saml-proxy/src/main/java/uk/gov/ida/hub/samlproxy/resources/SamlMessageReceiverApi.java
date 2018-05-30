@@ -15,6 +15,7 @@ import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
+import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.security.RelayStateValidator;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
@@ -76,7 +77,7 @@ public class SamlMessageReceiverApi {
 
         SamlValidationResponse signatureValidationResponse = authnRequestSignatureValidator.validate(authnRequest, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
 
-        protectiveMonitoringLogger.logAuthnRequest(authnRequest, Direction.INBOUND, signatureValidationResponse.isOK());
+        protectiveMonitoringLogger.logAuthnRequest(authnRequest, Direction.INBOUND, SignatureStatus.fromValidationResponse(signatureValidationResponse));
 
         if (!signatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
@@ -107,7 +108,7 @@ public class SamlMessageReceiverApi {
         protectiveMonitoringLogger.logAuthnResponse(
                 samlResponse,
                 Direction.INBOUND,
-                signatureValidationResponse.isOK());
+                SignatureStatus.fromValidationResponse(signatureValidationResponse));
 
         if (!signatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
@@ -138,12 +139,12 @@ public class SamlMessageReceiverApi {
 
             org.opensaml.saml.saml2.core.Response samlResponse = stringSamlResponseTransformer.apply(samlRequestDto.getSamlRequest());
 
-            ValidatedResponse validatedResponse = eidasValidatorFactory.get().getValidatedResponse(samlResponse);
+            eidasValidatorFactory.get().getValidatedResponse(samlResponse);
 
             protectiveMonitoringLogger.logAuthnResponse(
                 samlResponse,
                 Direction.INBOUND,
-                validatedResponse.isSuccess());
+                SignatureStatus.VALID_SIGNATURE);
 
             final SamlAuthnResponseContainerDto authnResponseDto = new SamlAuthnResponseContainerDto(
                 samlRequestDto.getSamlRequest(),

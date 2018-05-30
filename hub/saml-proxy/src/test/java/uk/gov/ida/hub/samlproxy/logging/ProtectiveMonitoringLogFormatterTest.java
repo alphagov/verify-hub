@@ -8,6 +8,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
+import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLRunner;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
@@ -39,7 +40,7 @@ public class ProtectiveMonitoringLogFormatterTest {
         String cancelXml = readXmlFile("status-cancel.xml");
         Response cancelResponse = stringtoOpenSamlObjectTransformer.apply(cancelXml);
 
-        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(cancelResponse, Direction.INBOUND, true);
+        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(cancelResponse, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
 
         String expectedLogMessage = "Protective Monitoring – Authn Response Event – " +
                 "{responseId: _ccb1eabc4827928c9cbb3db34fdbe9df186dfcb8, " +
@@ -58,7 +59,7 @@ public class ProtectiveMonitoringLogFormatterTest {
     public void shouldFormatAuthnSuccessResponse() throws IOException, URISyntaxException, MarshallingException, SignatureException {
         Response response = aResponse().build();
 
-        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(response, Direction.INBOUND, true);
+        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(response, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
 
         String expectedLogMessage = "Protective Monitoring – Authn Response Event – " +
                 "{responseId: default-response-id, " +
@@ -77,7 +78,7 @@ public class ProtectiveMonitoringLogFormatterTest {
     public void shouldFormatResponseWithNoIssuer() throws IOException, URISyntaxException, MarshallingException, SignatureException {
         Response response = aResponse().withIssuer(null).build();
 
-        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(response, Direction.INBOUND, true);
+        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(response, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
 
         assertThat(logString).contains("issuerId: ,");
     }
@@ -86,7 +87,7 @@ public class ProtectiveMonitoringLogFormatterTest {
     public void shouldFormatAuthnRequest() throws IOException, URISyntaxException {
         AuthnRequest authnRequest = anAuthnRequest().withId("test-id").withDestination("veganistan").build();
 
-        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnRequest(authnRequest, Direction.INBOUND, true);
+        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnRequest(authnRequest, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
 
         String expectedLogMessage = "Protective Monitoring – Authn Request Event – {" +
                 "requestId: test-id, " +
@@ -101,7 +102,7 @@ public class ProtectiveMonitoringLogFormatterTest {
     public void shouldFormatAuthnRequestWithoutIssuer() throws IOException, URISyntaxException {
         AuthnRequest authnRequest = anAuthnRequest().withId("test-id").withDestination("veganistan").withIssuer(null).build();
 
-        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnRequest(authnRequest, Direction.INBOUND, true);
+        String logString = new ProtectiveMonitoringLogFormatter().formatAuthnRequest(authnRequest, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
         assertThat(logString).contains("issuerId: ,");
     }
 

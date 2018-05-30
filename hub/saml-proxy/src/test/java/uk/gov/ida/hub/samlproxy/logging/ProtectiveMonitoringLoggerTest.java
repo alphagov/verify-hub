@@ -17,9 +17,13 @@ import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
+import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProtectiveMonitoringLoggerTest {
@@ -58,13 +62,12 @@ public class ProtectiveMonitoringLoggerTest {
         when(statusCode.getValue()).thenReturn("all-good");
 
 
-        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, null);
+        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.NO_SIGNATURE);
 
         verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
         final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
         assertThat(loggingEvent.getMDCPropertyMap()).contains(
-                MapEntry.entry("isSigned", "false"),
-                MapEntry.entry("hasValidSignature", "false")
+                MapEntry.entry("signatureStatus", "NO_SIGNATURE")
         );
     }
 
@@ -78,13 +81,12 @@ public class ProtectiveMonitoringLoggerTest {
         when(statusCode.getValue()).thenReturn("all-good");
 
 
-        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, true);
+        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.VALID_SIGNATURE);
 
         verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
         final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
         assertThat(loggingEvent.getMDCPropertyMap()).contains(
-                MapEntry.entry("isSigned", "true"),
-                MapEntry.entry("hasValidSignature", "true")
+                MapEntry.entry("signatureStatus", "VALID_SIGNATURE")
         );
     }
 
@@ -98,13 +100,12 @@ public class ProtectiveMonitoringLoggerTest {
         when(statusCode.getValue()).thenReturn("all-good");
 
 
-        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, false);
+        protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.INVALID_SIGNATURE);
 
         verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
         final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
         assertThat(loggingEvent.getMDCPropertyMap()).contains(
-                MapEntry.entry("isSigned", "true"),
-                MapEntry.entry("hasValidSignature", "false")
+                MapEntry.entry("signatureStatus", "INVALID_SIGNATURE")
         );
     }
 }

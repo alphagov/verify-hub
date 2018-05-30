@@ -12,6 +12,7 @@ import uk.gov.ida.hub.samlproxy.logging.ExternalCommunicationEventLogger;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
+import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
@@ -111,7 +112,7 @@ public class SamlMessageSenderHandler {
         AuthnRequest request = authnRequestTransformer.apply(authnRequestFromHub.getSamlRequest());
 
         SamlValidationResponse samlSignatureValidationResponse = samlMessageSignatureValidator.validate(request, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
-        protectiveMonitoringLogger.logAuthnRequest(request, Direction.OUTBOUND, samlSignatureValidationResponse.isOK());
+        protectiveMonitoringLogger.logAuthnRequest(request, Direction.OUTBOUND, SignatureStatus.fromValidationResponse(samlSignatureValidationResponse));
 
         if (!samlSignatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = samlSignatureValidationResponse.getSamlValidationSpecificationFailure();
@@ -127,14 +128,14 @@ public class SamlMessageSenderHandler {
         boolean isSigned = samlResponse.getIssuer() != null;
         if (isSigned) {
             SamlValidationResponse signatureValidationResponse = samlMessageSignatureValidator.validate(samlResponse, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
-            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, signatureValidationResponse.isOK());
+            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.fromValidationResponse(signatureValidationResponse));
 
             if (!signatureValidationResponse.isOK()) {
                 SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
                 throw new SamlTransformationErrorException(failure.getErrorMessage(), signatureValidationResponse.getCause(), Level.ERROR);
             }
         } else {
-            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, null);
+            protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.NO_SIGNATURE);
         }
     }
 }
