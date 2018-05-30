@@ -69,7 +69,11 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
     }
 
     @Test
+<<<<<<< HEAD
     public void toResponseShouldReturnOutboundLegacyResponseFromHubToStringFunctionSHA256WhenHubShouldSignResponseMessages() throws Exception {
+=======
+    public void toResponse_shouldReturnOutboundLegacyResponseFromHubToStringFunctionSHA256WhenHubShouldSignResponseMessages() throws Exception {
+>>>>>>> 875b0187ecf489344e91765b0c0e6cdd8b00c758
         when(transactionsConfigProxy.getShouldHubSignResponseMessages(ENTITY_ID)).thenReturn(true);
         when(transactionsConfigProxy.getShouldHubUseLegacySamlStandard(ENTITY_ID)).thenReturn(true);
         when(transactionsConfigProxy.getShouldSignWithSHA1(ENTITY_ID)).thenReturn(false);
@@ -80,7 +84,11 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
     }
 
     @Test
+<<<<<<< HEAD
     public void toResponseShouldReturnOutboundSamlProfileResponseFromHubToStringFunctionWhenHubShouldSignResponseMessages() throws Exception {
+=======
+    public void toResponse_shouldReturnOutboundSamlProfileResponseFromHubToStringFunctionWhenHubShouldSignResponseMessages() throws Exception {
+>>>>>>> 875b0187ecf489344e91765b0c0e6cdd8b00c758
         when(transactionsConfigProxy.getShouldHubSignResponseMessages(ENTITY_ID)).thenReturn(true);
         when(transactionsConfigProxy.getShouldHubUseLegacySamlStandard(ENTITY_ID)).thenReturn(false);
         when(transactionsConfigProxy.getShouldSignWithSHA1(ENTITY_ID)).thenReturn(true);
@@ -91,7 +99,11 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
     }
 
     @Test
+<<<<<<< HEAD
     public void toResponseShouldReturnOutboundSamlProfileResponseFromHubToStringFunctionSHA256WhenHubShouldSignResponseMessages() throws Exception {
+=======
+    public void toResponse_shouldReturnOutboundSamlProfileResponseFromHubToStringFunctionSHA256WhenHubShouldSignResponseMessages() throws Exception {
+>>>>>>> 875b0187ecf489344e91765b0c0e6cdd8b00c758
         when(transactionsConfigProxy.getShouldHubSignResponseMessages(ENTITY_ID)).thenReturn(true);
         when(transactionsConfigProxy.getShouldHubUseLegacySamlStandard(ENTITY_ID)).thenReturn(false);
         when(transactionsConfigProxy.getShouldSignWithSHA1(ENTITY_ID)).thenReturn(false);
@@ -102,7 +114,11 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
     }
 
     @Test
+<<<<<<< HEAD
     public void toResponseShouldReturnSimpleProfileOutboundResponseFromHubToResponseTransformerProviderWhenHubShouldSignResponseMessages() throws Exception {
+=======
+    public void toResponse_shouldReturnSimpleProfileOutboundResponseFromHubToResponseTransformerProviderWhenHubShouldSignResponseMessages() throws Exception {
+>>>>>>> 875b0187ecf489344e91765b0c0e6cdd8b00c758
         when(transactionsConfigProxy.getShouldHubSignResponseMessages(ENTITY_ID)).thenReturn(false);
 
         when(simpleProfileOutboundResponseFromHubToResponseTransformerProvider.get()).thenReturn(simpleProfileOutboundResponseFromHubToResponseTransformer);
