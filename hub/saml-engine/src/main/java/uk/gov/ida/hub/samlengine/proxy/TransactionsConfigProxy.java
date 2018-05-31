@@ -72,4 +72,17 @@ public class TransactionsConfigProxy {
             throw new RuntimeException(e.getCause());
         }
     }
+
+
+    /*
+     * VCU-43
+     * Make signing algorithm configurable per transaction.
+     * Defaults to 'true' (SHA1) until supporting changes made to the config component.
+     * Remove when SHA1 signing is definitively disabled.
+     */
+    public Boolean getShouldSignWithSHA1(String entityId) {
+
+        return true;
+
+    }
 }
