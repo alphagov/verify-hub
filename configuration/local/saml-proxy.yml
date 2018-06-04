@@ -10,13 +10,13 @@ server:
       - type: console
 
 logging:
-  level: INFO
+  level: ${LOG_LEVEL:-INFO}
   appenders:
     - type: console
 
 
 saml:
-  entityId: https://dev-hub.local
+  entityId: ${METADATA_ENTITY_ID}
   expectedDestination: ${FRONTEND_URL}
 
 httpClient:
@@ -55,6 +55,12 @@ metadata:
   trustStore:
     path: data/pki/metadata.ts
     password: marshmallow
+  hubTrustStore:
+    path: data/pki/hub_federation.ts
+    password: marshmallow
+  idpTrustStore:
+    path: data/pki/idp_federation.ts
+    password: marshmallow
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
   expectedEntityId: https://dev-hub.local
@@ -71,14 +77,13 @@ metadata:
 
 country:
   metadata:
-    trustAnchorUri: http://localhost:50140/stub-country/ServiceMetadata
+    trustAnchorUri: ${TRUST_ANCHOR_URL}
+    metadataSourceUri: ${METADATA_SOURCE_URI}
     trustStore:
-      store: truststores/country_metadata_truststore.ts
-      trustStorePassword: password
+      store: data/pki/metadata.ts
+      password: marshmallow
     minRefreshDelay: 5000
-    maxRefreshDelay: 60000
-    trustAnchorMaxRefreshDelay: 5000
-    trustAnchorMinRefreshDelay: 60000
+    maxRefreshDelay: 1800000
     jerseyClientName: country-metadata-client
     client:
       timeout: 2s
