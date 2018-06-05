@@ -104,6 +104,15 @@ public class ConfigStubRule extends WireMockClassRule {
                         .withBody(objectMapper.writeValueAsString(shouldHubUseLegacySamlStandard))
                 )
         );
+
+        String hubSignWithSHA1StandardUri = getPath(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_RESOURCE, issuerEntityId);
+        stubFor(get(hubSignWithSHA1StandardUri)
+                .willReturn(aResponse()
+                        .withStatus(OK.getStatusCode())
+                        .withHeader("Content-Type", APPLICATION_JSON)
+                        .withBody(objectMapper.writeValueAsString(true))
+                )
+        );
     }
 
     public void setupStubForNonExistentSigningCertificates(String issuer) {

@@ -164,6 +164,14 @@ public class TransactionsResource {
         return eidasCountries.isPresent() ? eidasCountries.get() : ImmutableList.of();
     }
 
+    @GET
+    @Path(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_PATH)
+    @Timed
+    public boolean getShouldSignWithSHA1(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
+        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        return configData.getShouldSignWithSHA1();
+    }
+
     private TransactionConfigEntityData getTransactionConfigData(String entityId) {
         final Optional<TransactionConfigEntityData> configData = transactionConfigEntityDataRepository.getData(entityId);
         if (!configData.isPresent()) {

@@ -61,6 +61,7 @@ public class TransactionsResourceIntegrationTest {
                         .build()
                 )
                 .withMatchingServiceEntityId(MS_ENTITY_ID)
+                .withShouldSignWithSHA1(false)
                 .build())
         .addTransaction(aTransactionConfigData()
                 .withEntityId(NO_EIDAS_ENTITY_ID)
@@ -254,4 +255,22 @@ public class TransactionsResourceIntegrationTest {
         assertFalse(response.readEntity(boolean.class));
     }
 
+    @Test
+    public void getShouldSignWithSHA1_returnsOkAndMessages(){
+        String entityId = ENTITY_ID;
+        URI uri = configAppRule.getUri(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertFalse(response.readEntity(boolean.class));
+    }
+
+    @Test
+    public void getShouldSignWithSHA1_returnsNotFound(){
+        String entityId = "not-found";
+        URI uri = configAppRule.getUri(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
 }
