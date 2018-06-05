@@ -72,4 +72,8 @@ public class TransactionsConfigProxy {
             throw new RuntimeException(e.getCause());
         }
     }
+    
+    public Boolean getShouldSignWithSHA1(String entityId) {
+        return true;
+    }
 }
