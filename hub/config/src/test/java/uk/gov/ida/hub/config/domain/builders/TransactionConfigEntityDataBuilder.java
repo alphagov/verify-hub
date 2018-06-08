@@ -30,6 +30,7 @@ public class TransactionConfigEntityDataBuilder {
     private URI serviceHomepage = URI.create("/service-uri");
     private String rpName = "Default RP name";
     private boolean eidasEnabled = false;
+    private boolean shouldSignWithSHA1 = true;
 
     public static TransactionConfigEntityDataBuilder aTransactionConfigData() {
         return new TransactionConfigEntityDataBuilder();
@@ -57,7 +58,8 @@ public class TransactionConfigEntityDataBuilder {
                 enabled,
                 eidasEnabled,
                 shouldHubSignResponseMessages,
-                levelsOfAssurance
+                levelsOfAssurance,
+                shouldSignWithSHA1
         );
     }
 
@@ -131,6 +133,11 @@ public class TransactionConfigEntityDataBuilder {
         return this;
     }
 
+    public TransactionConfigEntityDataBuilder withShouldSignWithSHA1(boolean shouldSignWithSHA1) {
+        this.shouldSignWithSHA1 = shouldSignWithSHA1;
+        return this;
+    }
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class TestTransactionConfigEntityData extends TransactionConfigEntityData {
 
@@ -147,7 +154,8 @@ public class TransactionConfigEntityDataBuilder {
                 boolean enabled,
                 boolean eidasEnabled,
                 boolean shouldHubSignResponseMessages,
-                List<LevelOfAssurance> levelsOfAssurance) {
+                List<LevelOfAssurance> levelsOfAssurance,
+                boolean shouldSignWithSHA1) {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
             this.simpleId = simpleId;
@@ -163,6 +171,7 @@ public class TransactionConfigEntityDataBuilder {
             this.eidasEnabled = eidasEnabled;
             this.shouldHubSignResponseMessages = shouldHubSignResponseMessages;
             this.levelsOfAssurance = levelsOfAssurance;
+            this.shouldSignWithSHA1 = shouldSignWithSHA1;
         }
     }
 }

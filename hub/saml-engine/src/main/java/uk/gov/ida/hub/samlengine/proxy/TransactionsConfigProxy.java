@@ -74,6 +74,18 @@ public class TransactionsConfigProxy {
     }
     
     public Boolean getShouldSignWithSHA1(String entityId) {
-        return true;
+        final UriBuilder uriBuilder = UriBuilder
+                .fromUri(configUri)
+                .path(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_RESOURCE);
+        for (Map.Entry<String, String> entry : ImmutableMap.<String, String>of().entrySet()) {
+            uriBuilder.queryParam(entry.getKey(), entry.getValue());
+        }
+        URI uri = uriBuilder.buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        try {
+            return booleanCache.getUnchecked(uri);
+        } catch (UncheckedExecutionException e) {
+            Throwables.throwIfUnchecked(e.getCause());
+            throw new RuntimeException(e.getCause());
+        }
     }
 }

@@ -21,10 +21,6 @@ import static java.util.Optional.ofNullable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TransactionConfigEntityData implements ConfigEntityData, CertificateEntity {
 
-    @SuppressWarnings("unused") // needed to prevent guice injection
-    protected TransactionConfigEntityData() {
-    }
-
     @Valid
     @NotNull
     @JsonProperty
@@ -91,8 +87,17 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     protected List<X509CertificateConfiguration> signatureVerificationCertificates;
 
     @Valid
+    @NotNull
+    @JsonProperty
+    protected Boolean shouldSignWithSHA1 = true;
+
+    @Valid
     @JsonProperty
     protected List<UserAccountCreationAttribute> userAccountCreationAttributes;
+
+    @SuppressWarnings("unused") // needed to prevent guice injection
+    protected TransactionConfigEntityData() {
+    }
 
     @ValidationMethod(message = "Assertion Consumer Service indices must be unique.")
     @SuppressWarnings("unused") // used by the deserializer
@@ -168,6 +173,10 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
 
     public Boolean getShouldHubSignResponseMessages() {
         return shouldHubSignResponseMessages;
+    }
+
+    public Boolean getShouldSignWithSHA1() {
+        return shouldSignWithSHA1;
     }
 
     public Boolean getShouldHubUseLegacySamlStandard() {
