@@ -2,28 +2,27 @@ package uk.gov.ida.hub.samlproxy.logging;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.AppenderBase;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
 import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProtectiveMonitoringLoggerTest {
@@ -35,21 +34,21 @@ public class ProtectiveMonitoringLoggerTest {
     @Mock
     private StatusCode statusCode;
 
-    @Mock
-    private Appender<ILoggingEvent> appender;
-    @Captor
-    private ArgumentCaptor<ILoggingEvent> captorLoggingEvent;
+    private static TestAppender testAppender = new TestAppender();
 
     @Before
     public void setUp() {
+        testAppender.start();
         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        logger.addAppender(appender);
+        logger.addAppender(testAppender);
     }
 
     @After
     public void tearDown() throws Exception {
+        testAppender.stop();
+        TestAppender.events.clear();
         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        logger.detachAppender(appender);
+        logger.detachAppender(testAppender);
     }
 
     @Test
@@ -64,10 +63,9 @@ public class ProtectiveMonitoringLoggerTest {
 
         protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.NO_SIGNATURE);
 
-        verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
-        final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
-        assertThat(loggingEvent.getMDCPropertyMap()).contains(
-                MapEntry.entry("signatureStatus", "NO_SIGNATURE")
+        assertThat(TestAppender.events.size()).isEqualTo(1);
+        assertThat(TestAppender.events.get(0).getMDCPropertyMap()).contains(
+            MapEntry.entry("signatureStatus", "NO_SIGNATURE")
         );
     }
 
@@ -83,10 +81,9 @@ public class ProtectiveMonitoringLoggerTest {
 
         protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.VALID_SIGNATURE);
 
-        verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
-        final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
-        assertThat(loggingEvent.getMDCPropertyMap()).contains(
-                MapEntry.entry("signatureStatus", "VALID_SIGNATURE")
+        assertThat(TestAppender.events.size()).isEqualTo(1);
+        assertThat(TestAppender.events.get(0).getMDCPropertyMap()).contains(
+            MapEntry.entry("signatureStatus", "VALID_SIGNATURE")
         );
     }
 
@@ -102,10 +99,24 @@ public class ProtectiveMonitoringLoggerTest {
 
         protectiveMonitoringLogger.logAuthnResponse(samlResponse, Direction.OUTBOUND, SignatureStatus.INVALID_SIGNATURE);
 
-        verify(appender, times(1)).doAppend(captorLoggingEvent.capture());
-        final ILoggingEvent loggingEvent = captorLoggingEvent.getValue();
-        assertThat(loggingEvent.getMDCPropertyMap()).contains(
-                MapEntry.entry("signatureStatus", "INVALID_SIGNATURE")
+        assertThat(TestAppender.events.size()).isEqualTo(1);
+        assertThat(TestAppender.events.get(0).getMDCPropertyMap()).contains(
+            MapEntry.entry("signatureStatus", "INVALID_SIGNATURE")
         );
+    }
+
+    private static class TestAppender extends AppenderBase<ILoggingEvent> {
+        public static List<ILoggingEvent> events = new ArrayList<>();
+
+        @Override
+        protected void append(ILoggingEvent eventObject) {
+            // NOTE: a real appender (e.g. the console appender) would call getMDCPropertyMap()
+            // This method is side effectful, and if it's not called during the append stage
+            // we don't get the correct MDC property map out when we assert about its contents.
+            eventObject.getMDCPropertyMap();
+
+            events.add(eventObject);
+        }
+
     }
 }
