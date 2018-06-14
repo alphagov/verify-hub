@@ -1,6 +1,8 @@
 verify-hub
 =======
 
+[![Build Status](https://travis-ci.org/alphagov/verify-hub.svg?branch=master)](https://travis-ci.org/alphagov/verify-hub)
+
 The goal of the Verify Hub Architecture is to provide a long term flexible and scalable solution for GOV.UK Verify. In order to achieve this, the system is a Service Oriented Architecture(SOA) using REST and principles borrowed from the concept of microservices.
 
 The system is divided into logical microservices – with one or more services that provide the functionality required to implement the Hub SAML Profile. Some of the separation is due to logical differences between the components, while other separation is base on security aspects of the service. The eventual goal for this system is for each of these components to be independently deployable and live in separate code bases.
