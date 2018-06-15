@@ -19,12 +19,12 @@ buildscript {
 }
 
 apply from: 'idea.gradle'
-apply from: 'publish.gradle'
 apply plugin: 'java'
 apply plugin: 'com.github.ben-manes.versions'
 
 ext {
     opensaml_version = '3.3.0'
+    build_version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
 }
 
 def dependencyVersions = [
