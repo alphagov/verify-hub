@@ -1,0 +1,24 @@
+
+/*
+    Replacement for the idaJar Plugin.
+    Shared jar task for the Hub sub-components.
+ */
+
+jar {
+    def manifestClasspath = configurations.runtime.collect { 'lib/' + it.getName() }.join(' ')
+    def buildNumber = System.getenv('BUILD_NUMBER')
+    def gitCommit = System.getenv('GIT_COMMIT')
+
+    manifest {
+        attributes(
+                'Main-Class': mainClassName,
+                'Class-Path': manifestClasspath,
+                'Build-Number': buildNumber != null ? buildNumber : '',
+                'Version-Number': project.version,
+                'Git-Commit': gitCommit != null ? gitCommit : '',
+                'Build-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm'Z'"))
+    }
+
+    archiveName = project.name + '.jar'
+    destinationDir = file("$buildDir/output")
+}
