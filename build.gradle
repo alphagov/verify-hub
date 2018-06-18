@@ -41,6 +41,7 @@ def dependencyVersions = [
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'idaJar'
 
     group = "uk.gov.ida"
     version = "0.1.$version"
