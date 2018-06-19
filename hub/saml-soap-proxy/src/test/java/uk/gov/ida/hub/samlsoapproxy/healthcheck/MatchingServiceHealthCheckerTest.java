@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
@@ -27,6 +28,7 @@ import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 
+import javax.xml.namespace.QName;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +52,7 @@ import static uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus.
 public class MatchingServiceHealthCheckerTest {
     private static final String SUPPORTED_MSA_VERSION_NUMBER = "supported-version";
     private static final String UNSUPPORTED_MSA_VERSION_NUMBER = "unsupported-version";
+    public static final QName HUB_ROLE = SPSSODescriptor.DEFAULT_ELEMENT_NAME;
     private MatchingServiceHealthChecker matchingServiceHealthChecker;
     @Mock
     private SamlEngineProxy samlEngineProxy;
@@ -75,7 +78,7 @@ public class MatchingServiceHealthCheckerTest {
         supportedMsaVersionsRepository.add(supportedVersions);
 
         when(elementToAttributeQueryTransformer.apply(any(Element.class))).thenReturn(healthCheckAttributeQuery);
-        when(matchingRequestSignatureValidator.validate(healthCheckAttributeQuery, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(SamlValidationResponse.aValidResponse());
+        when(matchingRequestSignatureValidator.validate(healthCheckAttributeQuery, HUB_ROLE)).thenReturn(SamlValidationResponse.aValidResponse());
 
         mockHealthcheckResponseId("healthcheck-response-id");
 
@@ -92,7 +95,7 @@ public class MatchingServiceHealthCheckerTest {
     @Test(expected = SamlTransformationErrorException.class)
     public void shouldNotSendHealthCheckIfSignatureFailsToValidate() {
         SamlValidationSpecificationFailure mockFailure = mock(SamlValidationSpecificationFailure.class);
-        when(matchingRequestSignatureValidator.validate(any(AttributeQuery.class), eq(AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME))).thenReturn(SamlValidationResponse.anInvalidResponse(mockFailure));
+        when(matchingRequestSignatureValidator.validate(any(AttributeQuery.class), eq(HUB_ROLE))).thenReturn(SamlValidationResponse.anInvalidResponse(mockFailure));
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.<String>absent());

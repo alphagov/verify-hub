@@ -12,6 +12,7 @@ import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusMessage;
 import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.w3c.dom.Element;
@@ -30,6 +31,7 @@ import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 import uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
+import javax.xml.namespace.QName;
 import java.net.URI;
 import java.util.function.Function;
 
@@ -50,6 +52,7 @@ import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 @RunWith(OpenSAMLMockitoRunner.class)
 public class ExecuteAttributeQueryRequestTest {
 
+    public static final QName HUB_ROLE = SPSSODescriptor.DEFAULT_ELEMENT_NAME;
     @Mock
     private AttributeQueryRequestClient attributeQueryRequestClient;
     @Mock
@@ -89,8 +92,8 @@ public class ExecuteAttributeQueryRequestTest {
 
        DateTimeFreezer.freezeTime();
 
-        when(matchingRequestSignatureValidator.validate(any(AttributeQuery.class), eq(AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME))).thenReturn(SamlValidationResponse.aValidResponse());
-        when(matchingRequestSignatureValidator.validate(any(Response.class), eq(AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME))).thenReturn(SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.invalidMessageSignature()));
+        when(matchingRequestSignatureValidator.validate(any(AttributeQuery.class), eq(HUB_ROLE))).thenReturn(SamlValidationResponse.aValidResponse());
+        when(matchingRequestSignatureValidator.validate(any(Response.class), eq(HUB_ROLE))).thenReturn(SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.invalidMessageSignature()));
         when(matchingResponseSignatureValidator.validate(any(AttributeQuery.class), eq(AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME))).thenReturn(SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.invalidMessageSignature()));
         when(matchingResponseSignatureValidator.validate(any(Response.class), eq(AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME))).thenReturn(SamlValidationResponse.aValidResponse());
         when(elementToAttributeQueryTransformer.apply(any(Element.class))).thenReturn(attributeQuery);
@@ -108,7 +111,7 @@ public class ExecuteAttributeQueryRequestTest {
         when(elementToResponseTransformer.apply(matchingServiceResponse)).thenReturn(response);
         executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);
 
-        verify(matchingRequestSignatureValidator).validate(attributeQuery, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
+        verify(matchingRequestSignatureValidator).validate(attributeQuery, HUB_ROLE);
         verify(matchingResponseSignatureValidator).validate(response, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
     }
 
@@ -144,7 +147,7 @@ public class ExecuteAttributeQueryRequestTest {
 
         executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);
 
-        verify(matchingRequestSignatureValidator).validate(attributeQuery, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
+        verify(matchingRequestSignatureValidator).validate(attributeQuery, HUB_ROLE);
     }
 
     @Test
@@ -165,7 +168,7 @@ public class ExecuteAttributeQueryRequestTest {
 
         executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);
 
-        verify(matchingRequestSignatureValidator).validate(attributeQuery, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
+        verify(matchingRequestSignatureValidator).validate(attributeQuery, HUB_ROLE);
     }
 
     @Test

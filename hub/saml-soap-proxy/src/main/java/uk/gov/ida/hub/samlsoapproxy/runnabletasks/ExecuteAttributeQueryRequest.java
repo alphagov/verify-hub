@@ -4,6 +4,7 @@ import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -85,7 +86,7 @@ public class ExecuteAttributeQueryRequest {
 
     private void validateRequestSignature(Element matchingServiceRequest, URI matchingServiceUri) {
         AttributeQuery attributeQuery = elementToAttributeQueryTransformer.apply(matchingServiceRequest);
-        SamlValidationResponse signatureValidationResponse = matchingRequestSignatureValidator.validate(attributeQuery, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
+        SamlValidationResponse signatureValidationResponse = matchingRequestSignatureValidator.validate(attributeQuery, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
         protectiveMonitoringLogger.logAttributeQuery(attributeQuery.getID(), matchingServiceUri.toASCIIString(), attributeQuery.getIssuer().getValue(), signatureValidationResponse.isOK());
         if (!signatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
