@@ -10,12 +10,12 @@ server:
       - type: console
 
 logging:
-  level: INFO
+  level: ${LOG_LEVEL:-INFO}
   appenders:
     - type: console
 
 saml:
-  entityId: https://dev-hub.local
+  entityId: ${METADATA_ENTITY_ID}
 
 httpClient:
   timeout: 2s
@@ -73,6 +73,12 @@ metadata:
   trustStorePassword: marshmallow
   trustStore:
     path: data/pki/metadata.ts
+    password: marshmallow
+  hubTrustStore:
+    path: data/pki/hub_federation.ts
+    password: marshmallow
+  idpTrustStore:
+    path: data/pki/idp_federation.ts
     password: marshmallow
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
