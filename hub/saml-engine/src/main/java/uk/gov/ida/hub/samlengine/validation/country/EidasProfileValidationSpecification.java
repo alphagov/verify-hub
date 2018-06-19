@@ -1,10 +1,9 @@
 package uk.gov.ida.hub.samlengine.validation.country;
 
-
 import org.slf4j.event.Level;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 
-import java.text.MessageFormat;
+import static java.text.MessageFormat.format;
 
 public class EidasProfileValidationSpecification {
 
@@ -20,9 +19,5 @@ public class EidasProfileValidationSpecification {
             format("The Authn Response issuer [{0}] does not match the assertion issuer [{1}]", responseIssuer, assertionIssuer),
             Level.ERROR
         );
-    }
-
-    private static final String format(String errorMessage, Object... params) {
-        return MessageFormat.format(errorMessage, params);
     }
 }
