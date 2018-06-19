@@ -18,3 +18,5 @@ task copyToLib(dependsOn: jar, type: Copy) {
 task zip(dependsOn: copyToLib, type: Zip) {
     from "$buildDir/output"
 }
+
+apply from: "${rootDir}/shared.gradle"
