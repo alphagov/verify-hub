@@ -9,8 +9,6 @@ import javax.inject.Inject;
 import javax.validation.Validation;
 
 public class FileBackedTranslationsDataSource extends FileBackedConfigDataSource<TranslationData> {
-    private static final String TRANSACTIONS_DATA_DIRECTORY = "../../display-locales/transactions";
-
     @Inject
     public FileBackedTranslationsDataSource(
             ConfigConfiguration configuration,
@@ -25,7 +23,7 @@ public class FileBackedTranslationsDataSource extends FileBackedConfigDataSource
                         objectMapper,
                         "hub"
                 ),
-                TRANSACTIONS_DATA_DIRECTORY
+                configuration.getTranslationsDirectory()
         );
     }
 }
