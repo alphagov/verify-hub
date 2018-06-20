@@ -15,6 +15,8 @@ public interface Urls {
         String LEVEL_OF_ASSURANCE_PARAM = "levelOfAssurance";
         String TRANSACTION_ENTITY_ID_PARAM = "transactionEntityId";
         String ENTITY_ID_PARAM = "entityId";
+        String SIMPLE_ID_PARAM = "simpleId";
+        String LOCALE_PARAM = "locale";
     }
 
     interface ConfigUrls {
@@ -22,6 +24,8 @@ public interface Urls {
         String ENTITY_ID_PATH_PARAM = "/{" + SharedUrls.ENTITY_ID_PARAM + "}";
         String LEVEL_OF_ASSURANCE_PATH_PARAM = "/{" + SharedUrls.LEVEL_OF_ASSURANCE_PARAM + "}";
         String TRANSACTION_ENTITY_ID_PARAM_PATH = "/{" + SharedUrls.TRANSACTION_ENTITY_ID_PARAM + "}";
+        String TRANSLATION_SIMPLE_ID_PATH_PARAM = "/{" + SharedUrls.SIMPLE_ID_PARAM + "}";
+        String TRANSLATION_LOCALE_PATH_PARAM = "/{" + SharedUrls.LOCALE_PARAM + "}";
 
         String CERTIFICATES_ROOT = CONFIG_ROOT + "/certificates";
         String SIGNATURE_VERIFICATION_CERTIFICATE_PATH = ENTITY_ID_PATH_PARAM + "/certs/signing";
@@ -59,6 +63,8 @@ public interface Urls {
         String TRANSACTION_DISPLAY_DATA_PATH = ENTITY_ID_PATH_PARAM + "/display-data";
         String TRANSACTION_DISPLAY_DATA_RESOURCE = TRANSACTIONS_ROOT + TRANSACTION_DISPLAY_DATA_PATH;
         String ENABLED_TRANSACTIONS_PATH = "/enabled";
+        String TRANSLATIONS_PATH = TRANSLATION_SIMPLE_ID_PATH_PARAM + "/translations";
+        String TRANSLATIONS_LOCALE_PATH = TRANSLATIONS_PATH + TRANSLATION_LOCALE_PATH_PARAM;
         String EIDAS_ENABLED_FOR_TRANSACTION_PATH = ENTITY_ID_PATH_PARAM + "/eidas-enabled";
         String EIDAS_COUNTRIES_FOR_TRANSACTION_PATH = ENTITY_ID_PATH_PARAM + "/eidas-countries";
         String MATCHING_PROCESS_PATH = ENTITY_ID_PATH_PARAM + "/matching-process";

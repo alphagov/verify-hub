@@ -6,6 +6,7 @@ import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.config.dto.MatchingProcessDto;
 import uk.gov.ida.hub.config.dto.ResourceLocationDto;
@@ -31,14 +32,17 @@ import java.util.stream.Collectors;
 public class TransactionsResource {
 
     private final ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository;
+    private final ConfigEntityDataRepository<TranslationData> translationConfigEntityDataRepository;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public TransactionsResource(
             ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository,
+            ConfigEntityDataRepository<TranslationData> translationConfigEntityDataRepository,
             ExceptionFactory exceptionFactory) {
 
         this.transactionConfigEntityDataRepository = transactionConfigEntityDataRepository;
+        this.translationConfigEntityDataRepository = translationConfigEntityDataRepository;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -102,6 +106,16 @@ public class TransactionsResource {
             .filter(TransactionConfigEntityData::isEnabled)
             .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance()))
             .collect(Collectors.toList());
+    }
+
+    @GET
+    @Path(Urls.ConfigUrls.TRANSLATIONS_LOCALE_PATH)
+    @Timed
+    public TranslationData.Translation getTranslation(@PathParam(Urls.SharedUrls.SIMPLE_ID_PARAM) String simpleId, @PathParam(Urls.SharedUrls.LOCALE_PARAM) String locale) {
+        final TranslationData translationData = getTranslationData(simpleId);
+        Optional<TranslationData.Translation> translation = translationData.getTranslationsByLocale(locale);
+        if (!translation.isPresent()) throw exceptionFactory.createNoTranslationForLocaleException(locale);
+        return translation.get();
     }
 
     @GET
@@ -181,5 +195,11 @@ public class TransactionsResource {
             throw exceptionFactory.createDisabledTransactionException(entityId);
         }
         return configData.get();
+    }
+
+    private TranslationData getTranslationData(String simpleId) {
+        final Optional<TranslationData> data = translationConfigEntityDataRepository.getData(simpleId);
+        if (!data.isPresent()) throw exceptionFactory.createNoDataForEntityException(simpleId);
+        return data.get();
     }
 }
