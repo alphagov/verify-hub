@@ -37,3 +37,5 @@ artifacts {
 
 apply from: "${rootDir}/inttest.gradle"
 apply from: "${rootDir}/shared.gradle"
+
+tasks.check.dependsOn(intTest)
