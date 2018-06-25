@@ -5,7 +5,7 @@ dependencies {
             configurations.ida_test_utils,
             configurations.saml,
             'org.infinispan:infinispan-core:7.1.1.Final:tests',
-            'nl.jqno.equalsverifier:equalsverifier:2.4'
+            'nl.jqno.equalsverifier:equalsverifier:2.4.5'
 
     compile configurations.ida_utils,
             configurations.verify_event_emitter,
