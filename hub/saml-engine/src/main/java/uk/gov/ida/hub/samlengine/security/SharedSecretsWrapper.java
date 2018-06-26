@@ -19,7 +19,7 @@ public class SharedSecretsWrapper {
                     "getJavaIOFileDescriptorAccess").invoke(null);
 
             Class.forName("sun.misc.JavaIOFileDescriptorAccess").getMethod(
-                    "set", FileDescriptor.class, Integer.class).invoke(javaIOFileDescriptorAccess, fileDescriptor, fileDescriptorNumber);
+                    "set", FileDescriptor.class, int.class).invoke(javaIOFileDescriptorAccess, fileDescriptor, fileDescriptorNumber);
 
         } catch (Exception e) {
             throw new KeyLoadingException(fileDescriptorNumber, e);
