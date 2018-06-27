@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.config.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.hub.config.ConfigEntityData;
 import javax.validation.Valid;
@@ -45,9 +46,48 @@ public class TranslationData implements ConfigEntityData {
         protected String tailoredText;
 
         @Valid
-        @NotNull
         @JsonProperty
         protected String taxonName;
+
+        public Translation setLocale(String locale) {
+            this.locale = locale;
+            return this;
+        }
+
+        public Translation setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Translation setAnalyticsDescription(String analyticsDescription) {
+            this.analyticsDescription = analyticsDescription;
+            return this;
+        }
+
+        public Translation setOtherWaysDescription(String otherWaysDescription) {
+            this.otherWaysDescription = otherWaysDescription;
+            return this;
+        }
+
+        public Translation setOtherWaysText(String otherWaysText) {
+            this.otherWaysText = otherWaysText;
+            return this;
+        }
+
+        public Translation setRpName(String rpName) {
+            this.rpName = rpName;
+            return this;
+        }
+
+        public Translation setTailoredText(String tailoredText) {
+            this.tailoredText = tailoredText;
+            return this;
+        }
+
+        public Translation setTaxonName(String taxonName) {
+            this.taxonName = taxonName;
+            return this;
+        }
     }
 
     @Valid
@@ -65,6 +105,7 @@ public class TranslationData implements ConfigEntityData {
     }
 
     @Override
+    @JsonIgnore
     public String getEntityId() {
         return getSimpleId();
     }
