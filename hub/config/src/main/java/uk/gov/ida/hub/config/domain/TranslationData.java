@@ -3,6 +3,7 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.hub.config.ConfigEntityData;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -48,6 +49,30 @@ public class TranslationData implements ConfigEntityData {
         @Valid
         @JsonProperty
         protected String taxonName;
+
+        @Valid
+        @JsonProperty
+        protected String customFailHeading;
+
+        @Valid
+        @JsonProperty
+        protected String customFailWhatNextContent;
+
+        @Valid
+        @JsonProperty
+        protected String customFailOtherOptions;
+
+        @Valid
+        @JsonProperty
+        protected String customFailTryAnotherSummary;
+
+        @Valid
+        @JsonProperty
+        protected String customFailTryAnotherText;
+
+        @Valid
+        @JsonProperty
+        protected String customFailContactDetailsIntro;
 
         public Translation setLocale(String locale) {
             this.locale = locale;
