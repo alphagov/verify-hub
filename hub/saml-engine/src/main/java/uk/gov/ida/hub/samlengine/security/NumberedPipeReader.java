@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.PrivateKey;
 
-import static sun.misc.SharedSecrets.getJavaIOFileDescriptorAccess;
-
 public class NumberedPipeReader {
 
     private final PrivateKeyFactory privateKeyFactory;
@@ -26,7 +24,7 @@ public class NumberedPipeReader {
 
     public PrivateKey readKey(int fileDescriptorNumber) {
         FileDescriptor fileDescriptor = new FileDescriptor();
-        getJavaIOFileDescriptorAccess().set(fileDescriptor, fileDescriptorNumber);
+        SharedSecretsWrapper.setJavaIOFileDescriptorAccess(fileDescriptor, fileDescriptorNumber);
         InputStream fileInputStream = new FileInputStream(fileDescriptor);
         try {
             if (fileInputStream.available() == 0) {

@@ -20,6 +20,12 @@ apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.hub.samlengine.SamlEngineApplication'
 mainClassName = ext.mainclass
 
+test {
+    if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
+        jvmArgs += ["--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"]
+    }
+}
+
 task copyToLib(dependsOn: jar, type: Copy) {
     into "$buildDir/output/lib"
     from configurations.runtime
