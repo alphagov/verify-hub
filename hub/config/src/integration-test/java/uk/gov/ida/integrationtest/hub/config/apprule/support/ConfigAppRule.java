@@ -16,6 +16,7 @@ import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.TranslationData;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.File;
@@ -30,15 +31,19 @@ import static uk.gov.ida.hub.config.domain.builders.CountriesConfigEntityDataBui
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.TranslationDataBuilder.aTranslationData;
 
 public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
 
     private static final KeyStoreResource clientTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static final KeyStoreResource rpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rpCA", CACertificates.TEST_RP_CA).build();
     private static final File FED_CONFIG_ROOT = new File(System.getProperty("java.io.tmpdir"), "test-fed-config");
+    private static final String TRANSLATIONS_RELATIVE_PATH = "../display-locales/transactions";
+    private static final File TRANSLATIONS_ROOT = new File(FED_CONFIG_ROOT.getAbsolutePath() + "/" + TRANSLATIONS_RELATIVE_PATH);
     private final ObjectMapper mapper = new ObjectMapper();
 
     private List<TransactionConfigEntityData> transactions = new ArrayList<>();
+    private List<TranslationData> translations = new ArrayList<>();
     private List<MatchingServiceConfigEntityData> matchingServices = new ArrayList<>();
     private List<IdentityProviderConfigEntityData> idps = new ArrayList<>();
     private List<CountriesConfigEntityData> countries = new ArrayList<>();
@@ -57,6 +62,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
                 .add(config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()))
                 .add(config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()))
                 .add(config("rootDataDirectory", FED_CONFIG_ROOT.getAbsolutePath()))
+                .add(config("translationsDirectory", TRANSLATIONS_RELATIVE_PATH))
                 .add(configOverrides)
                 .build();
         return overrides.toArray(new ConfigOverride[overrides.size()]);
@@ -89,6 +95,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
         rpTrustStore.create();
 
         createFedConfig();
+        createTranslations();
 
         super.before();
     }
@@ -165,6 +172,21 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
         IntStream.range(0, matchingServices.size()).forEach(i -> writeFile(matchingServiceFolder, i, matchingServices.get(i)));
         IntStream.range(0, idps.size()).forEach(i -> writeFile(idpFolder, i, idps.get(i)));
         IntStream.range(0, countries.size()).forEach(i -> writeFile(countryFolder, i, countries.get(i)));
+    }
+    
+    private void createTranslations() {
+        TRANSLATIONS_ROOT.mkdirs();
+        try {
+            FileUtils.cleanDirectory(TRANSLATIONS_ROOT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+        if (translations.isEmpty()) {
+            translations.add(aTranslationData().build());
+        }
+
+        IntStream.range(0, translations.size()).forEach(i -> writeFile(TRANSLATIONS_ROOT, i, translations.get(i)));
     }
 
     private void writeFile(File folder, int index, Object content) {

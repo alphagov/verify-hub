@@ -43,12 +43,24 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @Valid
     @NotNull
     @JsonProperty
+    protected String translationsDirectory;
+
+    @Valid
+    @NotNull
+    @JsonProperty
     protected Duration certificateWarningPeriod = Duration.days(30);
 
     protected ConfigConfiguration() {}
 
     public String getDataDirectory() {
         return rootDataDirectory;
+    }
+
+    /**
+     * @return Relative path from root data directory to translations.
+     */
+    public String getTranslationsDirectory() {
+        return translationsDirectory;
     }
 
     public org.joda.time.Duration getCertificateWarningPeriod() {

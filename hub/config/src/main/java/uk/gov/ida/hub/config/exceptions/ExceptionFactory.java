@@ -26,6 +26,12 @@ public class ExceptionFactory {
         LOG.error(message);
         return new NotFoundException(message);
     }
+    
+    public NotFoundException createNoTranslationForLocaleException(String locale) {
+        final String message = format("''{0}'' - No translation is configured for this locale.", locale);
+        LOG.error(message);
+        return new NotFoundException(message);
+    }
 
     public WebApplicationException createInvalidAssertionConsumerServiceIndexException(String entityId, Integer assertionConsumerServiceIndex) {
         LOG.error(format("Invalid assertion consumer service index ''{0}'' for ''{1}''.", assertionConsumerServiceIndex, entityId));
