@@ -18,12 +18,12 @@ logging:
 serviceInfo:
   name: config
 
-rootDataDirectory: ${FED_CONFIG_PATH:-data/stub-fed-config}
+rootDataDirectory: ${FED_CONFIG_PATH:-/data/stub-fed-config}
 
 clientTrustStoreConfiguration:
-  path: data/pki/hub.ts
+  path: /data/pki/hub.ts
   password: marshmallow
 
 rpTrustStoreConfiguration:
-  path: ${RP_TRUST_STORE_PATH:-data/pki/relying_parties.ts}
+  path: ${RP_TRUST_STORE_PATH:-/data/pki/relying_parties.ts}
   password: marshmallow

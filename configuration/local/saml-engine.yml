@@ -46,28 +46,28 @@ serviceInfo:
 readKeysFromFileDescriptors: false
 
 privateSigningKeyConfiguration:
-  keyFile: data/pki/hub_signing_primary.pk8
+  keyFile: /data/pki/hub_signing_primary.pk8
 
 publicSigningCert:
-   certFile: data/pki/hub_signing_primary.crt
+   certFile: /data/pki/hub_signing_primary.crt
    name: someId
 
 primaryPrivateEncryptionKeyConfiguration:
-  keyFile: data/pki/hub_encryption_primary.pk8
+  keyFile: /data/pki/hub_encryption_primary.pk8
 
 primaryPublicEncryptionCert:
-   certFile: data/pki/hub_encryption_primary.crt
+   certFile: /data/pki/hub_encryption_primary.crt
    name: someId
 
 secondaryPrivateEncryptionKeyConfiguration:
-  keyFile: data/pki/hub_encryption_primary.pk8
+  keyFile: /data/pki/hub_encryption_primary.pk8
 
 secondaryPublicEncryptionCert:
-   certFile: data/pki/hub_encryption_primary.crt
+   certFile: /data/pki/hub_encryption_primary.crt
    name: someId
 
 rpTrustStoreConfiguration:
-  path: data/pki/relying_parties.ts
+  path: /data/pki/relying_parties.ts
   password: marshmallow
 
 authnRequestIdExpirationDuration: 60m
@@ -76,16 +76,16 @@ authnRequestValidityDuration: 5m
 
 metadata:
   uri: ${METADATA_URL}
-  trustStorePath: data/pki/metadata.ts
+  trustStorePath: /data/pki/metadata.ts
   trustStorePassword: marshmallow
   trustStore:
-    path: data/pki/metadata.ts
+    path: /data/pki/metadata.ts
     password: marshmallow
   hubTrustStore:
-    path: data/pki/hub_federation.ts
+    path: /data/pki/hub_federation.ts
     password: marshmallow
   idpTrustStore:
-    path: data/pki/idp_federation.ts
+    path: /data/pki/idp_federation.ts
     password: marshmallow
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
@@ -109,7 +109,7 @@ country:
     trustAnchorUri: ${TRUST_ANCHOR_URL}
     metadataSourceUri: ${METADATA_SOURCE_URI}
     trustStore:
-      store: data/pki/metadata.ts
+      store: /data/pki/metadata.ts
       password: marshmallow
     minRefreshDelay: 5000
     maxRefreshDelay: 60000
