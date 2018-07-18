@@ -30,8 +30,8 @@ import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule
 import uk.gov.ida.integrationtest.hub.samlproxy.support.TestSamlRequestFactory;
 import uk.gov.ida.saml.core.test.AuthnRequestFactory;
 import uk.gov.ida.saml.core.test.AuthnRequestIdGenerator;
+import uk.gov.ida.saml.core.test.AuthnResponseFactory;
 import uk.gov.ida.saml.hub.domain.Endpoints;
-import uk.gov.ida.saml.idp.test.AuthnResponseFactory;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
 import javax.ws.rs.client.Client;
@@ -43,6 +43,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.ida.saml.core.test.AuthnResponseFactory.anAuthnResponseFactory;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_PRIVATE_KEY;
@@ -54,7 +55,6 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 import static uk.gov.ida.saml.core.test.builders.AuthnRequestBuilder.anAuthnRequest;
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
-import static uk.gov.ida.saml.idp.test.AuthnResponseFactory.anAuthnResponseFactory;
 
 public class SamlMessageReceiverApiResourceTest {
     private static final String RELAY_STATE = RandomStringUtils.randomAlphanumeric(10);
@@ -90,13 +90,13 @@ public class SamlMessageReceiverApiResourceTest {
     private XmlObjectToBase64EncodedStringTransformer<AuthnRequest> authnRequestToStringTransformer;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         authnRequestToStringTransformer = new XmlObjectToBase64EncodedStringTransformer<>();
         authnRequestFactory = new AuthnRequestFactory(authnRequestToStringTransformer);
     }
 
     @BeforeClass
-    public static void setUpClient() throws Exception {
+    public static void setUpClient() {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client =  new JerseyClientBuilder(samlProxyAppRule.getEnvironment()).using(jerseyClientConfiguration).build
                 (SamlMessageReceiverApiResourceTest.class.getSimpleName());
@@ -108,13 +108,14 @@ public class SamlMessageReceiverApiResourceTest {
         String sessionId = UUID.randomUUID().toString();
         policyStubRule.receiveAuthnResponseFromIdp(sessionId, LevelOfAssurance.LEVEL_2);
 
-        final String samlResponse = authnResponseFactory.aSamlResponseFromIdp(
+        org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp(
                 STUB_IDP_ONE, STUB_IDP_PUBLIC_PRIMARY_CERT,
                 STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
                 Endpoints.SSO_RESPONSE_ENDPOINT,
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
-        SamlRequestDto authnResponse = new SamlRequestDto(samlResponse, sessionId, "127.0.0.1");
+        final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
+        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, sessionId, "127.0.0.1");
 
         final Response response = postSAML(authnResponse, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE);
 
@@ -123,13 +124,14 @@ public class SamlMessageReceiverApiResourceTest {
 
     @Test
     public void shouldReturn400IfAuthnResponseIsSignedByAnRp() throws Exception {
-        final String samlResponse = authnResponseFactory.aSamlResponseFromIdp(
+        org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp(
                 TEST_RP, TEST_RP_PUBLIC_SIGNING_CERT,
                 TEST_RP_PRIVATE_SIGNING_KEY,
                 Endpoints.SSO_RESPONSE_ENDPOINT,
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
-        SamlRequestDto authnResponse = new SamlRequestDto(samlResponse, "sessionId", "127.0.0.1");
+        final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
+        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, "sessionId", "127.0.0.1");
 
         final Response response = postSAML(authnResponse, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE);
 

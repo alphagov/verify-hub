@@ -16,7 +16,8 @@ import uk.gov.ida.hub.samlproxy.domain.ResponseActionDto;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubRule;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
-import uk.gov.ida.saml.idp.test.AuthnResponseFactory;
+import uk.gov.ida.saml.core.test.AuthnResponseFactory;
+import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -71,16 +72,17 @@ public class CountryMetadataConsumerTest {
         // Given
         SessionId sessionId = SessionId.createNewSessionId();
         policyStubRule.receiveAuthnResponseFromCountry(sessionId.toString(), LEVEL_2);
-        String response = authnResponseFactory.aSamlResponseFromIdp("a-request",
+        org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp("a-request",
                 samlProxyAppRule.getCountyEntityId(),
                 idpSigningCert,
                 idpSigningKey,
                 "",
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
+        final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
 
         // When
-        ResponseActionDto post = postSAML(new SamlRequestDto(response, sessionId.getSessionId(), "127.0.0.1"))
+        ResponseActionDto post = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1"))
                 .readEntity(ResponseActionDto.class);
 
         // Then
@@ -92,16 +94,17 @@ public class CountryMetadataConsumerTest {
     public void shouldReturnErrorWhenValidatingEidasAuthnResponseContainingInvalidSignature() throws Exception {
         // Given
         SessionId sessionId = SessionId.createNewSessionId();
-        String response = authnResponseFactory.aSamlResponseFromIdp("a-request",
+        org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp("a-request",
                 samlProxyAppRule.getCountyEntityId(),
                 anotherIdpSigningCert,
                 anotherIdpSigningKey,
                 "",
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
+        final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
 
         // When
-        Response responseFromSamlProxy = postSAML(new SamlRequestDto(response, sessionId.getSessionId(), "127.0.0.1"));
+        Response responseFromSamlProxy = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1"));
 
         // Then
         assertThat(responseFromSamlProxy.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());

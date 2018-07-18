@@ -19,7 +19,8 @@ import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.samlproxy.domain.LevelOfAssurance;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubRule;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
-import uk.gov.ida.saml.idp.test.AuthnResponseFactory;
+import uk.gov.ida.saml.core.test.AuthnResponseFactory;
+import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -29,9 +30,9 @@ import java.util.UUID;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.ida.saml.core.test.AuthnResponseFactory.anAuthnResponseFactory;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY;
-import static uk.gov.ida.saml.idp.test.AuthnResponseFactory.anAuthnResponseFactory;
 
 public class SamlMessageReceiverApiResourceEidasEnabledTest {
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = new SignatureRSASHA256();
@@ -78,14 +79,15 @@ public class SamlMessageReceiverApiResourceEidasEnabledTest {
         String sessionId = UUID.randomUUID().toString();
         policyStubRule.receiveAuthnResponseFromCountry(sessionId, LevelOfAssurance.LEVEL_2);
 
-        final String samlResponse = authnResponseFactory.aSamlResponseFromIdp("a-request",
+        org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp("a-request",
                 samlProxyAppRule.getCountyEntityId(),
                 idpSigningCert,
                 idpSigningKey,
                 "",
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
-        SamlRequestDto authnResponse = new SamlRequestDto(samlResponse, sessionId, "127.0.0.1");
+        final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
+        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, sessionId, "127.0.0.1");
 
         final Response response = postSAML(authnResponse, Urls.SamlProxyUrls.EIDAS_SAML2_SSO_RECEIVER_API_RESOURCE);
 

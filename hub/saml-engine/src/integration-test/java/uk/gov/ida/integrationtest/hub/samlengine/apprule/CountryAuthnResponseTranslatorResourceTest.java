@@ -5,11 +5,19 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.util.Duration;
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AuthnStatement;
+import org.opensaml.saml.saml2.core.Conditions;
+import org.opensaml.saml.saml2.core.Subject;
+import org.opensaml.saml.saml2.core.impl.AttributeStatementBuilder;
+import org.opensaml.security.credential.Credential;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
@@ -23,9 +31,25 @@ import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 import uk.gov.ida.integrationtest.hub.samlengine.support.AssertionDecrypter;
 import uk.gov.ida.saml.core.extensions.EidasAuthnContext;
+import uk.gov.ida.saml.core.extensions.eidas.PersonIdentifier;
+import uk.gov.ida.saml.core.extensions.eidas.impl.PersonIdentifierBuilder;
 import uk.gov.ida.saml.core.test.TestCertificateStrings;
+import uk.gov.ida.saml.core.test.TestCredentialFactory;
+import uk.gov.ida.saml.core.test.builders.AssertionBuilder;
+import uk.gov.ida.saml.core.test.builders.AudienceRestrictionBuilder;
+import uk.gov.ida.saml.core.test.builders.AuthnContextBuilder;
+import uk.gov.ida.saml.core.test.builders.AuthnContextClassRefBuilder;
+import uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder;
+import uk.gov.ida.saml.core.test.builders.ConditionsBuilder;
+import uk.gov.ida.saml.core.test.builders.IssuerBuilder;
+import uk.gov.ida.saml.core.test.builders.PersonIdentifierAttributeBuilder;
+import uk.gov.ida.saml.core.test.builders.ResponseBuilder;
+import uk.gov.ida.saml.core.test.builders.SignatureBuilder;
+import uk.gov.ida.saml.core.test.builders.SubjectBuilder;
+import uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder;
+import uk.gov.ida.saml.core.test.builders.SubjectConfirmationDataBuilder;
 import uk.gov.ida.saml.hub.api.HubTransformersFactory;
-import uk.gov.ida.saml.idp.test.AuthnResponseFactory;
+import uk.gov.ida.saml.hub.factories.EidasAttributeFactory;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
 import javax.ws.rs.client.Client;
@@ -33,11 +57,14 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
+import static uk.gov.ida.saml.core.test.builders.NameIdBuilder.aNameId;
 
 public class CountryAuthnResponseTranslatorResourceTest {
 
@@ -47,7 +74,6 @@ public class CountryAuthnResponseTranslatorResourceTest {
     public static final String DESTINATION = "http://localhost" + Urls.FrontendUrls.SAML2_SSO_EIDAS_RESPONSE_ENDPOINT;
 
     private static Client client;
-    private AuthnResponseFactory authnResponseFactory;
 
     @ClassRule
     public static final ConfigStubRule configStubRule = new ConfigStubRule();
@@ -60,7 +86,6 @@ public class CountryAuthnResponseTranslatorResourceTest {
 
     @Before
     public void setUp() throws Exception {
-        authnResponseFactory = AuthnResponseFactory.anAuthnResponseFactory();
         configStubRule.setupCertificatesForEntity(TEST_RP_MS);
     }
 
@@ -111,7 +136,7 @@ public class CountryAuthnResponseTranslatorResourceTest {
 
     private SamlAuthnResponseTranslatorDto createAuthnResponseSignedByKeyPair(String publicKey, String privateKey) throws Exception {
         SessionId sessionId = SessionId.createNewSessionId();
-        String samlResponse = authnResponseFactory.aSamlResponseFromCountry("a-request",
+        String samlResponse = aResponseFromCountry("a-request",
             samlEngineAppRule.getCountryMetadataUri(),
             publicKey,
             privateKey,
@@ -134,5 +159,89 @@ public class CountryAuthnResponseTranslatorResourceTest {
                 .target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(dto));
+    }
+
+    public String aResponseFromCountry(
+            String requestId,
+            String idpEntityId,
+            String publicCert,
+            String privateKey,
+            String destination,
+            SignatureAlgorithm signatureAlgorithm,
+            DigestAlgorithm digestAlgorithm,
+            String encryptionAlgorithm,
+            String authnContext,
+            String recipient,
+            String audienceId) throws Exception {
+        TestCredentialFactory hubEncryptionCredentialFactory =
+                new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY);
+        TestCredentialFactory idpSigningCredentialFactory =  new TestCredentialFactory(publicCert, privateKey);
+
+        final String persistentId = "UK/GB/12345";
+        final Subject authnAssertionSubject =
+                SubjectBuilder.aSubject()
+                        .withNameId(aNameId().withValue(persistentId).build())
+                        .withSubjectConfirmation(
+                                SubjectConfirmationBuilder.aSubjectConfirmation()
+                                        .withSubjectConfirmationData(SubjectConfirmationDataBuilder.aSubjectConfirmationData()
+                                                .withInResponseTo(requestId)
+                                                .withRecipient(recipient)
+                                                .build())
+                                        .build())
+                        .build();
+        final Conditions conditions =
+                ConditionsBuilder.aConditions()
+                        .addAudienceRestriction(
+                                AudienceRestrictionBuilder.anAudienceRestriction()
+                                        .withAudienceId(audienceId)
+                                        .build()
+                        ).build();
+        final AuthnStatement authnStatement = AuthnStatementBuilder.anAuthnStatement()
+                .withAuthnContext(AuthnContextBuilder.anAuthnContext()
+                        .withAuthnContextClassRef(
+                                AuthnContextClassRefBuilder.anAuthnContextClassRef().
+                                        withAuthnContextClasRefValue(authnContext)
+                                        .build())
+                        .build())
+                .build();
+
+        Attribute firstNameAttribute = new EidasAttributeFactory().createFirstNameAttribute("Javier");
+        Attribute familyNameAttribute = new EidasAttributeFactory().createFamilyName("Garcia");
+        Attribute dateOfBirthAttribute = new EidasAttributeFactory().createDateOfBirth(new LocalDate("1965-01-01"));
+
+        PersonIdentifier personIdentifier = new PersonIdentifierBuilder().buildObject();
+        personIdentifier.setPersonIdentifier(persistentId);
+        Attribute personIdentifierAttribute = PersonIdentifierAttributeBuilder.aPersonIdentifier().withValue(personIdentifier).build();
+
+        final AttributeStatement attributeStatement = new AttributeStatementBuilder().buildObject();
+        attributeStatement.getAttributes().addAll(Arrays.asList( firstNameAttribute, familyNameAttribute, dateOfBirthAttribute, personIdentifierAttribute));
+
+        final Credential encryptingCredential = hubEncryptionCredentialFactory.getEncryptingCredential();
+        final Credential signingCredential = idpSigningCredentialFactory.getSigningCredential();
+
+        String assertionID = UUID.randomUUID().toString();
+
+        org.opensaml.saml.saml2.core.Response response = ResponseBuilder.aResponse()
+                .withIssuer(IssuerBuilder.anIssuer().withIssuerId(idpEntityId).build())
+                .withSigningCredential(signingCredential)
+                .withSignatureAlgorithm(signatureAlgorithm)
+                .withDigestAlgorithm(digestAlgorithm)
+                .withInResponseTo(requestId)
+                .withDestination(destination)
+                .addEncryptedAssertion(
+                        AssertionBuilder.anAssertion()
+                                .withId(assertionID)
+                                .withIssuer(IssuerBuilder.anIssuer().withIssuerId(idpEntityId).build())
+                                .withSubject(authnAssertionSubject)
+                                .withConditions(conditions)
+                                .addAuthnStatement(authnStatement)
+                                .addAttributeStatement(attributeStatement)
+                                .withSignature(SignatureBuilder.aSignature()
+                                        .withSigningCredential(signingCredential)
+                                        .withSignatureAlgorithm(signatureAlgorithm)
+                                        .withDigestAlgorithm(assertionID, digestAlgorithm).build())
+                                .buildWithEncrypterCredential(encryptingCredential, encryptionAlgorithm))
+                .build();
+        return new XmlObjectToBase64EncodedStringTransformer<>().apply(response);
     }
 }

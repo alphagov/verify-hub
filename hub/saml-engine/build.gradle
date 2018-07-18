@@ -1,7 +1,6 @@
 dependencies {
     testCompile configurations.test_deps_compile,
             configurations.pact_test,
-            configurations.stub_saml_test,
             configurations.saml_test,
             configurations.ida_test_utils,
             'org.infinispan:infinispan-core:7.1.1.Final:tests'
