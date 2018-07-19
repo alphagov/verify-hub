@@ -1,0 +1,74 @@
+server:
+  applicationConnectors:
+    - type: https
+      port: 50243
+      keyStorePath: /ida/config/config.ks
+      keyStorePassword: ${KEYSTORE_PASSWORD}
+      validatePeers: false
+      validateCerts: false
+      # TLSv1.1 included as curl seems to get unset with 1.2 for some
+      # as-yet-uninvestigated reason.
+      supportedProtocols:
+        - "TLSv1.1"
+        - "TLSv1.2"
+      excludedCipherSuites: []
+      supportedCipherSuites:
+        - TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 # for TLS 1.2
+        - TLS_DHE_RSA_WITH_AES_128_CBC_SHA    # for TLS 1.1
+  adminConnectors:
+    - type: http
+      port: 50241
+  requestLog:
+    type: classic
+    appenders:
+      - type: file
+        currentLogFilename: /var/log/ida/debug/config_access.log
+        archivedLogFilenamePattern: /var/log/ida/debug/config_access.log.%d.gz
+        archivedFileCount: 7
+      - type: logstash-file
+        currentLogFilename: /var/log/ida/config_access.log
+        archivedLogFilenamePattern: /var/log/ida/config_access.log.%d.gz
+        archivedFileCount: 7
+      - type: logstash-syslog
+        facility: local2
+        tag: config
+
+
+metrics:
+  reporters:
+    - type: graphite
+      host: graphite
+      port: 2003
+      prefix: ${GRAPHITE_PREFIX}
+      frequency: 10s
+
+
+serviceInfo:
+  name: config
+
+rootDataDirectory: ${CONFIG_DATA_PATH}
+
+translationsDirectory: ../../display-locales/transactions
+
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: /var/log/ida/debug/config.log
+      archivedLogFilenamePattern: /var/log/ida/debug/config.log.%d.gz
+      archivedFileCount: 7
+    - type: logstash-file
+      currentLogFilename: /var/log/ida/config.log
+      archivedLogFilenamePattern: /var/log/ida/config.log.%d.gz
+      archivedFileCount: 7
+    - type: logstash-syslog
+      facility: local2
+      tag: config
+
+clientTrustStoreConfiguration:
+  path: /ida/truststore/ida_truststore.ts
+  password: ${CLIENT_TRUSTSTORE_PASSWORD}
+
+rpTrustStoreConfiguration:
+  path: /ida/truststore/ida_rp_truststore.ts
+  password: ${RP_TRUSTSTORE_PASSWORD}
