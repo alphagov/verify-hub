@@ -160,3 +160,12 @@ metadata:
       protocol: TLSv1.2
       trustStorePath: /ida/truststore/ida_metadata_tls_truststore.ts
       trustStorePassword: ${METADATA_CLIENT_TLS_TRUSTSTORE_PASSWORD}
+
+eventEmitterConfiguration:
+  enabled: ${EVENT_EMITTER_ENABLED}
+  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
+  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
+  region: eu-west-2
+  sourceQueueName: ${EVENT_EMITTER_SOURCE_QUEUE_NAME}
+  bucketName: ${EVENT_EMITTER_BUCKET_NAME}
+  keyName: ${EVENT_EMITTER_KEY_NAME}

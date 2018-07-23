@@ -88,6 +88,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
     @Valid
+    @NotNull
     @JsonProperty
     public EventEmitterConfiguration eventEmitterConfiguration;
 

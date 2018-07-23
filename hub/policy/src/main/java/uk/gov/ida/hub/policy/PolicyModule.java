@@ -93,8 +93,8 @@ public class PolicyModule extends AbstractModule {
     }
 
     @Provides
-    private Optional<Configuration> getEventEmitterConfiguration(final PolicyConfiguration configuration) {
-        return Optional.ofNullable(configuration.getEventEmitterConfiguration());
+    private Configuration getEventEmitterConfiguration(final PolicyConfiguration configuration) {
+        return configuration.getEventEmitterConfiguration();
     }
 
     @Provides
