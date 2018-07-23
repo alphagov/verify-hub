@@ -138,8 +138,8 @@ public class SamlSoapProxyModule extends AbstractModule {
     }
 
     @Provides
-    private Optional<Configuration> getEventEmitterConfiguration(final SamlSoapProxyConfiguration configuration) {
-        return Optional.ofNullable(configuration.getEventEmitterConfiguration());
+    private Configuration getEventEmitterConfiguration(final SamlSoapProxyConfiguration configuration) {
+        return configuration.getEventEmitterConfiguration();
     }
 
 
