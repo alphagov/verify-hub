@@ -15,7 +15,6 @@ import uk.gov.ida.hub.policy.domain.MatchingProcess;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
@@ -30,8 +29,8 @@ import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.net.URI;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.codehaus.groovy.runtime.InvokerHelper.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;

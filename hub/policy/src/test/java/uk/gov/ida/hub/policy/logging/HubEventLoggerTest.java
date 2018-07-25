@@ -2,7 +2,6 @@ package uk.gov.ida.hub.policy.logging;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +25,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

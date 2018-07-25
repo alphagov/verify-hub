@@ -1,8 +1,7 @@
 dependencies {
     testCompile configurations.test_deps_compile,
             configurations.ida_test_utils,
-            configurations.saml_test,
-            configurations.stub_saml_test
+            configurations.saml_test
 
     compile configurations.ida_utils,
             configurations.dropwizard,

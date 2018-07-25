@@ -19,8 +19,9 @@ import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.samlproxy.domain.ResponseActionDto;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubRule;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
+import uk.gov.ida.saml.core.test.AuthnResponseFactory;
 import uk.gov.ida.saml.core.test.TestEntityIds;
-import uk.gov.ida.saml.idp.test.AuthnResponseFactory;
+import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -62,15 +63,16 @@ public class MetadataConsumerTests {
     public void shouldAllowRequestsWhenMetadataIsAvailableAndValid() throws Exception {
         SessionId sessionId = SessionId.createNewSessionId();
         policyStubRule.register(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath(), 200, ResponseActionDto.success(sessionId, true, LEVEL_2));
-        String response = authnResponseFactory.aSamlResponseFromIdp(
+        org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp(
                 TestEntityIds.STUB_IDP_ONE,
                 STUB_IDP_PUBLIC_PRIMARY_CERT,
                 STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
                 "",
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
+        final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
 
-        ResponseActionDto post = postSAML(new SamlRequestDto(response, sessionId.getSessionId(), "127.0.0.1"))
+        ResponseActionDto post = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1"))
                 .readEntity(ResponseActionDto.class);
 
         assertThat(post.getSessionId()).isEqualTo(sessionId);
@@ -82,14 +84,15 @@ public class MetadataConsumerTests {
         SessionId sessionId = SessionId.createNewSessionId();
 
         policyStubRule.register(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath(), 200, ResponseActionDto.success(sessionId, true, LEVEL_2));
-        String response = authnResponseFactory.aSamlResponseFromIdp(
+        org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp(
                 "non-existent-entity-id",
                 STUB_IDP_PUBLIC_PRIMARY_CERT,
                 STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
                 "",
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
-        SamlRequestDto samlRequestDto = new SamlRequestDto(response,
+        final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
+        SamlRequestDto samlRequestDto = new SamlRequestDto(samlResponseString,
                 sessionId.getSessionId(), "127.0.0.1");
 
         assertThat(postSAML(samlRequestDto).getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode

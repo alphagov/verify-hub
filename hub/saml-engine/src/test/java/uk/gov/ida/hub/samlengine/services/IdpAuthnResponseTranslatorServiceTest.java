@@ -29,6 +29,8 @@ import uk.gov.ida.saml.core.domain.PersistentId;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.core.test.builders.AssertionBuilder;
 import uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder;
+import uk.gov.ida.saml.core.test.builders.IPAddressAttributeBuilder;
+import uk.gov.ida.saml.core.test.builders.IssuerBuilder;
 import uk.gov.ida.saml.core.test.builders.MatchingDatasetAttributeStatementBuilder_1_1;
 import uk.gov.ida.saml.core.test.builders.SignatureBuilder;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
@@ -37,8 +39,6 @@ import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
-import uk.gov.ida.saml.idp.test.builders.IPAddressAttributeBuilder;
-import uk.gov.ida.saml.idp.test.builders.IssuerBuilder;
 
 import java.util.Optional;
 
@@ -49,10 +49,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.saml.idp.test.builders.AttributeStatementBuilder.anAttributeStatement;
-import static uk.gov.ida.saml.idp.test.builders.SubjectBuilder.aSubject;
-import static uk.gov.ida.saml.idp.test.builders.SubjectConfirmationBuilder.aSubjectConfirmation;
-import static uk.gov.ida.saml.idp.test.builders.SubjectConfirmationDataBuilder.aSubjectConfirmationData;
+import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.anAttributeStatement;
+import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
+import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder.aSubjectConfirmation;
+import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationDataBuilder.aSubjectConfirmationData;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IdpAuthnResponseTranslatorServiceTest {
