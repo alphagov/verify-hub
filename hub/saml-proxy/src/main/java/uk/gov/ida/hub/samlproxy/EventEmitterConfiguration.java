@@ -1,10 +1,12 @@
 package uk.gov.ida.hub.samlproxy;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.eventemitter.Configuration;
 
 import javax.validation.Valid;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EventEmitterConfiguration implements Configuration {
 
     @Valid
