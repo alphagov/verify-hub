@@ -117,6 +117,7 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
 
         if (isCountryEnabled) {
             List<ConfigOverride> countryOverrides = Stream.of(
+                    config("country.enabled", "true"),
                     config("country.saml.entityId", EIDAS_ENTITY_ID),
                     config("country.saml.expectedDestination", "http://localhost:50300/SAML2/SSO/EidasResponse/POST"),
 

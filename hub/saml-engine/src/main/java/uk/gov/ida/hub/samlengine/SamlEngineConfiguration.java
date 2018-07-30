@@ -111,11 +111,11 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     }
 
     public Optional<CountryConfiguration> getCountryConfiguration() {
-        return country != null ? Optional.of(country) : Optional.empty();
+        return Optional.ofNullable(country);
     }
 
     public boolean isEidasEnabled() {
-        return getCountryConfiguration().isPresent();
+        return getCountryConfiguration().isPresent() && getCountryConfiguration().get().isEnabled();
     }
 
     public PrivateKeyConfiguration getPrivateSigningKeyConfiguration() {
