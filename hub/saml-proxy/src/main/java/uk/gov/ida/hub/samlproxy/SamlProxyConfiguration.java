@@ -145,7 +145,7 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     public boolean getEnableRetryTimeOutConnections() { return enableRetryTimeOutConnections; }
 
     public Optional<CountryConfiguration> getCountryConfiguration() {
-        return country != null ? Optional.of(country) : Optional.empty();
+        return Optional.ofNullable(country);
     }
 
     public EventEmitterConfiguration getEventEmitterConfiguration() {
@@ -153,6 +153,6 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     }
 
     public boolean isEidasEnabled(){
-        return getCountryConfiguration().isPresent();
+        return getCountryConfiguration().isPresent() && getCountryConfiguration().get().isEnabled();
     }
 }

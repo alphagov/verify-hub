@@ -10,6 +10,11 @@ import javax.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CountryConfiguration {
+
+    @Valid
+    @JsonProperty
+    private boolean enabled = false;
+
     @Valid
     @NotNull
     @JsonProperty
@@ -34,5 +39,9 @@ public class CountryConfiguration {
 
     public EidasMetadataConfiguration getMetadataConfiguration() {
         return metadata;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

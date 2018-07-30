@@ -95,25 +95,27 @@ metadata:
       verifyHostname: false
       trustSelfSignedCertificates: true
 
-eidas: true
-countryMetadata:
-  uri: ${METADATA_URI:-http://localhost:55000/metadata.xml}
-  trustStorePath: ${METADATA_TRUSTSTORE_PATH:-pki/metadata.ts}
-  trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD:-marshmallow}
-  minRefreshDelay: 60000
-  maxRefreshDelay: 600000
-  expectedEntityId: ${SAML_ENTITY_ID:-http://dev-hub.local}
-  jerseyClientName: country-metadata-client
-  client:
-    timeout: 2s
-    timeToLive: 10m
-    cookiesEnabled: false
-    connectionTimeout: 1s
-    retries: 3
-    keepAlive: 60s
-    chunkedEncodingEnabled: false
-    validateAfterInactivityPeriod: 5s
-    tls:
-      protocol: TLSv1.2
-      verifyHostname: false
-      trustSelfSignedCertificates: true
+country:
+  enabled: false
+  metadata:
+    trustAnchorUri: http://localhost:55000/trust-anchor
+    metadataSourceUri: http://localhost:55000/aggregator
+    trustStore:
+      store: /ida/truststore/ida_metadata_truststore.ts
+      password: pwd
+    minRefreshDelay: 60000
+    maxRefreshDelay: 600000
+    jerseyClientName: country-metadata-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true

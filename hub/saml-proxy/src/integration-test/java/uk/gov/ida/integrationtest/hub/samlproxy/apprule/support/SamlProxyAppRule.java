@@ -101,10 +101,11 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
 
         if (isCountryEnabled) {
             List<ConfigOverride> countryOverrides = Stream.of(
+                    config("country.enabled", "true"),
                     config("country.metadata.trustAnchorUri", "http://localhost:" + trustAnchorServer.getPort() + TRUST_ANCHOR_PATH),
                     config("country.metadata.metadataSourceUri", "http://localhost:" + metadataAggregatorServer.getPort() + METADATA_AGGREGATOR_PATH),
                     config("country.metadata.trustStore.store", countryMetadataTrustStore.getAbsolutePath()),
-                    config("country.metadata.trustStore.trustStorePassword", countryMetadataTrustStore.getPassword()),
+                    config("country.metadata.trustStore.password", countryMetadataTrustStore.getPassword()),
                     config("country.metadata.minRefreshDelay", "6000"),
                     config("country.metadata.maxRefreshDelay", "600000"),
                     config("country.metadata.trustAnchorMinRefreshDelay", "6000"),

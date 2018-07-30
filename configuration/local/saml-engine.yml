@@ -102,6 +102,7 @@ metadata:
     validateAfterInactivityPeriod: 5s
 
 country:
+  enabled: ${EIDAS_ENABLED}
   saml:
     entityId: ${HUB_CONNECTOR_ENTITY_ID}
     expectedDestination: ${FRONTEND_URL}/SAML2/SSO/EidasResponse/POST

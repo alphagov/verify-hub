@@ -123,3 +123,31 @@ metadata:
       protocol: TLSv1.2
       verifyHostname: false
       trustSelfSignedCertificates: true
+
+country:
+  enabled: false
+  saml:
+    entityId: https://signin.service.gov.uk
+    expectedDestination: http://localhost:50300/SAML2/SSO/EidasResponse/POST
+  metadata:
+    trustAnchorUri: http://localhost:55000/trust-anchor
+    metadataSourceUri: http://localhost:55000/aggregator
+    trustStore:
+      store: /data/pki/metadata.ts
+      password: pwd
+    minRefreshDelay: 5000
+    maxRefreshDelay: 60000
+    jerseyClientName: country-metadata-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true

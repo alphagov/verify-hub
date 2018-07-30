@@ -76,6 +76,7 @@ metadata:
     validateAfterInactivityPeriod: 5s
 
 country:
+  enabled: ${EIDAS_ENABLED}
   metadata:
     trustAnchorUri: ${TRUST_ANCHOR_URL}
     metadataSourceUri: ${METADATA_SOURCE_URI}
