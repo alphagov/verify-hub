@@ -1,0 +1,191 @@
+server:
+  applicationConnectors:
+    - type: https
+      port: 50123
+      keyStorePath: /ida/saml-engine/saml-engine.ks
+      keyStorePassword: ${KEYSTORE_PASSWORD}
+      validatePeers: false
+      validateCerts: false
+      # TLSv1.1 included as curl seems to get unset with 1.2 for some
+      # as-yet-uninvestigated reason.
+      supportedProtocols:
+        - "TLSv1.1"
+        - "TLSv1.2"
+      excludedCipherSuites: []
+      supportedCipherSuites:
+        - TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 # for TLS 1.2
+        - TLS_DHE_RSA_WITH_AES_128_CBC_SHA    # for TLS 1.1
+
+  adminConnectors:
+    - type: http
+      port: 50121
+
+  requestLog:
+    type: classic
+    appenders:
+      - type: file
+        currentLogFilename: /var/log/ida/debug/saml-engine_access.log
+        archivedLogFilenamePattern: /var/log/ida/debug/saml-engine_access.log.%d.gz
+        archivedFileCount: 7
+      - type: logstash-file
+        currentLogFilename: /var/log/ida/saml-engine_access.log
+        archivedLogFilenamePattern: /var/log/ida/saml-engine_access.log.%d.gz
+        archivedFileCount: 7
+      - type: logstash-syslog
+        facility: local2
+        tag: saml-engine
+
+saml:
+  entityId: ${METADATA_ENTITY_ID}
+  expectedDestination: https://${SIGNIN_DOMAIN}
+
+enableRetryTimeOutConnections: true
+
+publicSigningCert:
+  name: hub_signing_cert
+  certFile: ${PKI_PUBLIC_SIGNING_CERT_PATH}
+primaryPublicEncryptionCert:
+  name: hub_encryption_cert_1
+  certFile: ${PKI_PRIMARY_ENCRYPTION_CERT_PATH}
+secondaryPublicEncryptionCert:
+  name: hub_encryption_cert_2
+  certFile: ${PKI_SECONDARY_ENCRYPTION_CERT_PATH}
+
+httpClient:
+  timeout: 60s
+  timeToLive: 10m
+  connectionTimeout: 4s
+  keepAlive: 60s
+  gzipEnabled: false
+  gzipEnabledForRequests: false
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  tls:
+    protocol: TLSv1.2
+    verifyHostname: false
+    trustStorePath: /ida/saml-engine/saml-engine.ks
+    trustStorePassword: ${HTTP_TLS_TRUSTSTORE_PASSWORD}
+
+infinispan:
+  bindAddress: ${INFINISPAN_BIND_ADDRESS}
+  initialHosts: ${INFINISPAN_INITIAL_HOSTS}
+  clusterName: 'saml-engine-cluster'
+  type: ${INFINISPAN_TYPE}
+  expiration: '2h'
+  encryptConfiguration:
+    keyStoreName: /ida/saml-engine/keys/infinispan_saml_engine.ks
+    keyStorePassword: ${INFINISPAN_ENCRYPT_KEYSTORE_PASSWORD}
+    encryptionKeyAlias: 'infinispan_saml_engine'
+  authConfiguration:
+    authValue: ${INFINISPAN_AUTH_AUTHVALUE}
+    keyStorePath: /ida/saml-engine/keys/infinispan_saml_engine.ks
+    keyStorePassword: ${INFINISPAN_AUTH_KEYSTORE_PASSWORD}
+    keyStoreType: 'jceks'
+    certAlias: 'infinispan_saml_engine_auth_key'
+    cipherType: 'RSA'
+  persistenceToFileEnabled: false
+
+configUri: https://config:50243
+
+samlSoapProxyUri: ${SAML_SOAP_PROXY_URI}
+
+
+metrics:
+  reporters:
+    - type: graphite
+      host: graphite
+      port: 2003
+      prefix: ${GRAPHITE_PREFIX}
+      frequency: 10s
+
+
+serviceInfo:
+  name: saml-engine
+
+featureFlagConfiguration: {}
+
+rpTrustStoreConfiguration:
+  path: /ida/truststore/ida_rp_truststore.ts
+  password: ${RP_TRUSTSTORE_PASSWORD}
+
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: /var/log/ida/debug/saml-engine.log
+      archivedLogFilenamePattern: /var/log/ida/debug/saml-engine.log.%d.gz
+      archivedFileCount: 7
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
+    - type: logstash-file
+      currentLogFilename: /var/log/ida/saml-engine.log
+      archivedLogFilenamePattern: /var/log/ida/saml-engine.log.%d.gz
+      archivedFileCount: 7
+    - type: logstash-syslog
+      facility: local2
+      tag: saml-engine
+    - type: raven
+      dsn: ${SENTRY_DSN:-naive+https://sentry/1}
+      threshold: ERROR
+      tags: service-name:saml-engine
+
+authnRequestIdExpirationDuration: 90m
+
+authnRequestValidityDuration: 5m
+
+metadata:
+  uri: https://${SIGNIN_DOMAIN}/SAML2/metadata/federation
+  trustStorePath: /ida/truststore/ida_metadata_truststore.ts
+  trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD}
+  trustStore:
+    path: /ida/truststore/ida_metadata_truststore.ts
+    password: ${METADATA_TRUSTSTORE_PASSWORD}
+  hubTrustStore:
+    path: /ida/truststore/ida_hub_truststore.ts
+    password: ${METADATA_TRUSTSTORE_PASSWORD}
+  idpTrustStore:
+    path: /ida/truststore/ida_idp_truststore.ts
+    password: ${METADATA_TRUSTSTORE_PASSWORD}
+  minRefreshDelay: 30000
+  maxRefreshDelay: 1800000
+  expectedEntityId: ${METADATA_ENTITY_ID}
+  jerseyClientName: hub-metadata-client
+  client:
+    timeout: 60s
+    timeToLive: 10m
+    connectionTimeout: 4s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      trustStorePath: /ida/truststore/ida_metadata_tls_truststore.ts
+      trustStorePassword: ${METADATA_CLIENT_TLS_TRUSTSTORE_PASSWORD}
+
+country:
+  enabled: ${EIDAS_ENABLED}
+  saml:
+    entityId: https://${SIGNIN_DOMAIN}/SAML2/metadata/connector
+    expectedDestination: https://${SIGNIN_DOMAIN}:443/SAML2/SSO/EidasResponse/POST
+  metadata:
+    trustAnchorUri: ${TRUST_ANCHOR_URI}
+    metadataSourceUri: ${METADATA_SOURCE_URI}
+    trustStore:
+      store: /ida/truststore/ida_metadata_truststore.ts
+      trustStorePassword: ${METADATA_TRUSTSTORE_PASSWORD}
+    minRefreshDelay: 5000
+    maxRefreshDelay: 1800000
+    jerseyClientName: country-metadata-client
+    client:
+      timeout: 60s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 4s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true
