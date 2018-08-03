@@ -19,6 +19,7 @@ hub/frontend/.jruby/gems
 *.swp
 *~
 *#
+local.env
 artefacts
 /vendor
 target
