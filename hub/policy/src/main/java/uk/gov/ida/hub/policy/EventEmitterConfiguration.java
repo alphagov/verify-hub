@@ -14,6 +14,10 @@ public class EventEmitterConfiguration implements Configuration {
 
     @Valid
     @JsonProperty
+    private String queueAccountId;
+
+    @Valid
+    @JsonProperty
     private String sourceQueueName;
 
     @Valid
@@ -73,5 +77,10 @@ public class EventEmitterConfiguration implements Configuration {
     @Override
     public String getKeyName() {
         return keyName;
+    }
+
+    @Override
+    public String getQueueAccountId() {
+        return queueAccountId;
     }
 }
