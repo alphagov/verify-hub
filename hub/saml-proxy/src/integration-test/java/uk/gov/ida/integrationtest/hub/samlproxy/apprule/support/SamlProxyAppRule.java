@@ -96,8 +96,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
                 config("metadata.hubTrustStore.path", hubTrustStore.getAbsolutePath()),
                 config("metadata.hubTrustStore.password", hubTrustStore.getPassword()),
                 config("metadata.idpTrustStore.path", idpTrustStore.getAbsolutePath()),
-                config("metadata.idpTrustStore.password", idpTrustStore.getPassword()),
-                config("eventEmitterConfiguration.enabled", "false")
+                config("metadata.idpTrustStore.password", idpTrustStore.getPassword())
         ).collect(Collectors.toList());
 
         if (isCountryEnabled) {
@@ -124,8 +123,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
 
                     config("country.metadata.client.tls.protocol", "TLSv1.2"),
                     config("country.metadata.client.tls.verifyHostname", "false"),
-                    config("country.metadata.client.tls.trustSelfSignedCertificates", "true"),
-                    config("eventEmitterConfiguration.enabled", "false")
+                    config("country.metadata.client.tls.trustSelfSignedCertificates", "true")
             ).collect(Collectors.toList());
             overrides.addAll(countryOverrides);
         }
