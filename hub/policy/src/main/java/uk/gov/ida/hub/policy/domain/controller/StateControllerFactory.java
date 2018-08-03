@@ -68,7 +68,8 @@ public class StateControllerFactory {
                         (CountrySelectedState) state,
                         injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
-                        injector.getInstance(TransactionsConfigProxy.class));
+                        injector.getInstance(TransactionsConfigProxy.class),
+                        injector.getInstance(ResponseFromHubFactory.class));
 
             case IDP_SELECTED:
                 return new IdpSelectedStateController(

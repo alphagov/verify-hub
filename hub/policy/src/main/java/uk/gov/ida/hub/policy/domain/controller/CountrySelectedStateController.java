@@ -5,6 +5,7 @@ import uk.gov.ida.hub.policy.domain.AuthnRequestFromHub;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
+import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateController;
@@ -24,10 +25,15 @@ public class CountrySelectedStateController implements StateController, ErrorRes
     private final HubEventLogger hubEventLogger;
     private final StateTransitionAction stateTransitionAction;
     private final TransactionsConfigProxy transactionsConfigProxy;
+    private final ResponseFromHubFactory responseFromHubFactory;
 
     @Override
     public ResponseFromHub getErrorResponse() {
-        return null;
+        return responseFromHubFactory.createNoAuthnContextResponseFromHub(
+                state.getRequestId(),
+                state.getRelayState(),
+                state.getRequestIssuerEntityId(),
+                state.getAssertionConsumerServiceUri());
     }
 
 
@@ -35,11 +41,13 @@ public class CountrySelectedStateController implements StateController, ErrorRes
             final CountrySelectedState state,
             final HubEventLogger hubEventLogger,
             final StateTransitionAction stateTransitionAction,
-            final TransactionsConfigProxy transactionsConfigProxy) {
+            final TransactionsConfigProxy transactionsConfigProxy,
+            final ResponseFromHubFactory responseFromHubFactory) {
         this.state = state;
         this.hubEventLogger = hubEventLogger;
         this.stateTransitionAction = stateTransitionAction;
         this.transactionsConfigProxy = transactionsConfigProxy;
+        this.responseFromHubFactory = responseFromHubFactory;
     }
 
     @Override
