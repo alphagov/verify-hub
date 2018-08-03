@@ -92,12 +92,3 @@ metadata:
     keepAlive: 60s
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
-
-eventEmitterConfiguration:
-  enabled: ${EVENT_EMITTER_ENABLED}
-  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
-  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
-  region: eu-west-2
-  sourceQueueName: ${EVENT_EMITTER_SOURCE_QUEUE_NAME}
-  bucketName: ${EVENT_EMITTER_BUCKET_NAME}
-  keyName: ${EVENT_EMITTER_KEY_NAME}
