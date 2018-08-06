@@ -12,11 +12,15 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
+import uk.gov.ida.hub.policy.domain.ResponseFromHub;
+import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
+import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
@@ -24,8 +28,8 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.List;
-import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.EidasAttributeQueryRequestDtoBuilder.anEidasAttributeQueryRequestDto;
@@ -57,7 +61,13 @@ public class CountrySelectedStateControllerTest {
     @Before
     public void setUp() {
         DateTimeUtils.setCurrentMillisFixed(NOW.getMillis());
-        controller = new CountrySelectedStateController(state, hubEventLogger, stateTransitionAction, transactionsConfigProxy);
+        controller = new CountrySelectedStateController(
+                state,
+                hubEventLogger,
+                stateTransitionAction,
+                transactionsConfigProxy,
+                new ResponseFromHubFactory(new IdGenerator())
+        );
     }
 
     @After
@@ -144,5 +154,16 @@ public class CountrySelectedStateControllerTest {
             com.google.common.base.Optional.absent(),
             ipAddress);
         verify(stateTransitionAction).transitionTo(eidasCycle0And1MatchRequestSentState);
+    }
+
+    @Test
+    public void shouldReturnNoAuthContextErrorResponse() {
+        ResponseFromHub errorResponse = controller.getErrorResponse();
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus()).isEqualTo(TransactionIdaStatus.NoAuthenticationContext);
+        assertThat(errorResponse.getAuthnRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
+        assertThat(errorResponse.getInResponseTo()).isEqualTo(state.getRequestId());
+        assertThat(errorResponse.getRelayState()).isEqualTo(state.getRelayState());
+        assertThat(errorResponse.getAssertionConsumerServiceUri()).isEqualTo(state.getAssertionConsumerServiceUri());
     }
 }
