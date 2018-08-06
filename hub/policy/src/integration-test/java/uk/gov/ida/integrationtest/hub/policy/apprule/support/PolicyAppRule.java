@@ -29,6 +29,7 @@ public class PolicyAppRule extends DropwizardAppRule<PolicyConfiguration> {
         ImmutableList<ConfigOverride> mergedConfigOverrides = ImmutableList.<ConfigOverride>builder()
                 .add(config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()))
                 .add(config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()))
+                .add(config("eventEmitterConfiguration.enabled", "false"))
                 .add(configOverrides)
                 .build();
         return mergedConfigOverrides.toArray(new ConfigOverride[mergedConfigOverrides.size()]);

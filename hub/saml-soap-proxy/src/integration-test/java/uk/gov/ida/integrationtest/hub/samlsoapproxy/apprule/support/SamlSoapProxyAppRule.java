@@ -56,7 +56,8 @@ public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfigu
                 config("metadata.idpTrustStore.path", idpTrustStore.getAbsolutePath()),
                 config("metadata.idpTrustStore.password", idpTrustStore.getPassword()),
                 config("metadata.uri", "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH),
-                config("metadata.expectedEntityId", HUB_ENTITY_ID)
+                config("metadata.expectedEntityId", HUB_ENTITY_ID),
+                config("eventEmitterConfiguration.enabled", "false")
         ).collect(Collectors.toList());
 
         overrides.addAll(Arrays.asList(configOverrides));

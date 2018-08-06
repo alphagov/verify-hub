@@ -1,11 +1,20 @@
 package uk.gov.ida.hub.policy;
 
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.eventemitter.Configuration;
 
 import javax.validation.Valid;
 
 public class EventEmitterConfiguration implements Configuration {
+
+    @Valid
+    @JsonProperty
+    private boolean enabled;
+
+    @Valid
+    @JsonProperty
+    private String queueAccountId;
 
     @Valid
     @JsonProperty
@@ -19,10 +28,40 @@ public class EventEmitterConfiguration implements Configuration {
     @JsonProperty
     private String keyName;
 
+    @Valid
+    @JsonProperty
+    private String accessKeyId;
+
+    @Valid
+    @JsonProperty
+    private String secretAccessKey;
+
+    @Valid
+    @JsonProperty
+    private Regions region;
+
     private EventEmitterConfiguration() { }
 
     public EventEmitterConfiguration(String sourceQueueName) {
         this.sourceQueueName = sourceQueueName;
+    }
+
+    @Override
+    public boolean isEnabled() { return enabled; }
+
+    @Override
+    public String getAccessKeyId() {
+        return accessKeyId;
+    }
+
+    @Override
+    public String getSecretAccessKey() {
+        return secretAccessKey;
+    }
+
+    @Override
+    public Regions getRegion() {
+        return region;
     }
 
     @Override
@@ -38,5 +77,10 @@ public class EventEmitterConfiguration implements Configuration {
     @Override
     public String getKeyName() {
         return keyName;
+    }
+
+    @Override
+    public String getQueueAccountId() {
+        return queueAccountId;
     }
 }
