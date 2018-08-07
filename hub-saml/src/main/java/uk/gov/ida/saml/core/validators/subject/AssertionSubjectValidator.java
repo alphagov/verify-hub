@@ -5,6 +5,9 @@ import org.opensaml.saml.saml2.core.Subject;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
+
+import java.util.stream.Stream;
+
 public class AssertionSubjectValidator {
 
     public void validate(
@@ -26,7 +29,11 @@ public class AssertionSubjectValidator {
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }
 
-        if (!NameIDType.PERSISTENT.equals(subject.getNameID().getFormat())) {
+        boolean correctNameIdType = Stream
+                .of(NameIDType.PERSISTENT, NameIDType.TRANSIENT)
+                .anyMatch(type -> type.equals(subject.getNameID().getFormat()));
+
+        if (!correctNameIdType) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.illegalAssertionSubjectNameIDFormat(assertionId, subject.getNameID().getFormat());
             throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
         }

@@ -3,6 +3,7 @@ package uk.gov.ida.saml.core.validators.subject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Subject;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
@@ -39,6 +40,15 @@ public class AssertionSubjectValidatorTest {
     public void validate_shouldThrowExceptionIfSubjectNameIdFormatAttributeIsMissing() throws Exception {
         final Subject subject = aSubject().withNameId(NameIdBuilder.aNameId().withFormat(null).build()).build();
         assertExceptionMessage(subject, ResponseProcessingValidationSpecification.class, SamlTransformationErrorFactory.missingAssertionSubjectNameIDFormat(ASSERTION_ID));
+    }
+
+    @Test
+    public void validate_shouldSuccessfullyValidateMultipleNameIdFormats() throws Exception {
+        Subject subject = aSubject().withNameId(NameIdBuilder.aNameId().withFormat(NameIDType.PERSISTENT).build()).build();
+        assert(subject.getNameID().getFormat().equals(NameIDType.PERSISTENT));
+
+        subject = aSubject().withNameId(NameIdBuilder.aNameId().withFormat(NameIDType.TRANSIENT).build()).build();
+        assert(subject.getNameID().getFormat().equals(NameIDType.TRANSIENT));
     }
 
     @Test
