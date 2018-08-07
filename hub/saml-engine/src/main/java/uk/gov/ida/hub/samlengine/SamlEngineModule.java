@@ -248,7 +248,7 @@ public class SamlEngineModule extends AbstractModule {
                                                                                            IdpIdaStatusUnmarshaller idpIdaStatusUnmarshaller,
                                                                                            @Named("ResponseAssertionsFromCountryValidator") Optional<ResponseAssertionsFromCountryValidator> responseAssertionFromCountryValidator,
                                                                                            Optional<DestinationValidator> validateSamlResponseIssuedByIdpDestination,
-                                                                                           @Named("AES256DecrypterWithGCM") AssertionDecrypter assertionDecrypter,
+                                                                                           @Named("EidasAssertionDecrypter") AssertionDecrypter assertionDecrypter,
                                                                                            AssertionBlobEncrypter assertionBlobEncrypter,
                                                                                            Optional<EidasValidatorFactory> eidasValidatorFactory,
                                                                                            PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller) {
@@ -643,12 +643,18 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
-    @Named("AES256DecrypterWithGCM")
-    private AssertionDecrypter getAES256WithGCMAssertionDecrypter(IdaKeyStore keyStore) {
+    @Named("EidasAssertionDecrypter")
+    private AssertionDecrypter getEidasAssertionDecrypter(IdaKeyStore keyStore) {
         IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever = new IdaKeyStoreCredentialRetriever(keyStore);
         Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
+        ImmutableSet<String> contentEncryptionAlgorithms = ImmutableSet.of(
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256,
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM);
+        ImmutableSet<String> keyTransportAlgorithms = ImmutableSet.of(
+                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP,
+                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
         return new AssertionDecrypter(
-            new EncryptionAlgorithmValidator(ImmutableSet.of(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM)),
+            new EncryptionAlgorithmValidator(contentEncryptionAlgorithms, keyTransportAlgorithms),
             decrypter
         );
     }

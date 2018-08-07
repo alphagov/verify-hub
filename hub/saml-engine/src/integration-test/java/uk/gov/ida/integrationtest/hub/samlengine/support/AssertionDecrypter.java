@@ -51,9 +51,11 @@ public class AssertionDecrypter {
         IdaKeyStore keyStore = new IdaKeyStore(signingKeyPair, Collections.singletonList(encryptionKeyPair));
         IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever = new IdaKeyStoreCredentialRetriever(keyStore);
         Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
+        ImmutableSet<String> contentEncryptionAlgorithms = ImmutableSet.of(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM);
+        ImmutableSet<String> keyTransportAlgorithms = ImmutableSet.of(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP, EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
 
         uk.gov.ida.saml.security.AssertionDecrypter assertionDecrypter = new uk.gov.ida.saml.security.AssertionDecrypter(
-            new EncryptionAlgorithmValidator(ImmutableSet.of(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM)),
+            new EncryptionAlgorithmValidator(contentEncryptionAlgorithms, keyTransportAlgorithms),
             decrypter
         );
         return assertionDecrypter.decryptAssertions(new ValidatedResponse(response));
