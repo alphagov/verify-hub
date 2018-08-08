@@ -69,5 +69,4 @@ eventEmitterConfiguration:
   region: eu-west-2
   queueAccountId: ${EVENT_EMITTER_ACCOUNT_ID}
   sourceQueueName: ${EVENT_EMITTER_SOURCE_QUEUE_NAME}
-  bucketName: ${EVENT_EMITTER_BUCKET_NAME}
-  keyName: ${EVENT_EMITTER_KEY_NAME}
+  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
