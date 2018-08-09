@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.eventemitter.Configuration;
 
 import javax.validation.Valid;
+import java.util.Base64;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EventEmitterConfiguration implements Configuration {
@@ -24,14 +25,6 @@ public class EventEmitterConfiguration implements Configuration {
 
     @Valid
     @JsonProperty
-    private String bucketName;
-
-    @Valid
-    @JsonProperty
-    private String keyName;
-
-    @Valid
-    @JsonProperty
     private String accessKeyId;
 
     @Valid
@@ -41,6 +34,10 @@ public class EventEmitterConfiguration implements Configuration {
     @Valid
     @JsonProperty
     private Regions region;
+
+    @Valid
+    @JsonProperty
+    private String encryptionKey;
 
     private EventEmitterConfiguration() { }
 
@@ -72,17 +69,12 @@ public class EventEmitterConfiguration implements Configuration {
     }
 
     @Override
-    public String getBucketName() {
-        return bucketName;
-    }
-
-    @Override
-    public String getKeyName() {
-        return keyName;
-    }
-
-    @Override
     public String getQueueAccountId() {
         return queueAccountId;
+    }
+
+    @Override
+    public byte[] getEncryptionKey() {
+        return Base64.getDecoder().decode(encryptionKey);
     }
 }
