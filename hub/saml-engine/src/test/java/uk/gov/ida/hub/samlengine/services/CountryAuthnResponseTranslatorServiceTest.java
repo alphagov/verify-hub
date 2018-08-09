@@ -117,5 +117,4 @@ public class CountryAuthnResponseTranslatorServiceTest {
         assertThat(result.getEncryptedIdentityAssertionBlob().isPresent()).isTrue();
         assertThat(result.getEncryptedIdentityAssertionBlob().get()).isEqualTo(identityUnderlyingAssertionBlob);
     }
-
 }

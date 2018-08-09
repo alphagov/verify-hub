@@ -117,6 +117,78 @@ public class CountryAuthnResponseTranslatorResourceTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
+    @Test
+    public void shouldReturnSuccessResponseWhenAES256GCMAlgorithmIsUsed() throws Exception {
+        SamlAuthnResponseTranslatorDto dto = createAuthnResponseSignedByKeyPair(
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM,
+                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
+        Response response = postAuthnResponseToSamlEngine(dto);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void shouldReturnSuccessResponseWhenAES128GCMAlgorithmIsUsed() throws Exception {
+        SamlAuthnResponseTranslatorDto dto = createAuthnResponseSignedByKeyPair(
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128_GCM,
+                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP);
+        Response response = postAuthnResponseToSamlEngine(dto);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void shouldReturnSuccessResponseWhenRSAOAEPMGF1PKeyTransportAlgorithmIsUsed() throws Exception {
+        SamlAuthnResponseTranslatorDto dto = createAuthnResponseSignedByKeyPair(
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM,
+                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP);
+        Response response = postAuthnResponseToSamlEngine(dto);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void shouldReturnSuccessResponseWhenRSAOAEPKeyTransportAlgorithmIsUsed() throws Exception {
+        SamlAuthnResponseTranslatorDto dto = createAuthnResponseSignedByKeyPair(
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128_GCM,
+                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
+        Response response = postAuthnResponseToSamlEngine(dto);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void shouldReturnErrorResponseWhenUnsupportedAlgorithmIsUsed() throws Exception {
+        SamlAuthnResponseTranslatorDto dto = createAuthnResponseSignedByKeyPair(
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES192_GCM,
+                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP);
+        Response response = postAuthnResponseToSamlEngine(dto);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void shouldReturnErrorResponseWhenUnsupportedKeyTransportAlgorithmUsed() throws Exception {
+        SamlAuthnResponseTranslatorDto dto = createAuthnResponseSignedByKeyPair(
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+                TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128_GCM,
+                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSA15);
+        Response response = postAuthnResponseToSamlEngine(dto);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
     private void assertThatDecryptedAssertionsAreTheSame(InboundResponseFromCountry response, org.opensaml.saml.saml2.core.Response originalResponse) {
         AssertionDecrypter hubDecrypter = new AssertionDecrypter(TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY, TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT);
         List<Assertion> originalAssertions = hubDecrypter.decryptAssertions(originalResponse);
@@ -135,22 +207,28 @@ public class CountryAuthnResponseTranslatorResourceTest {
     }
 
     private SamlAuthnResponseTranslatorDto createAuthnResponseSignedByKeyPair(String publicKey, String privateKey) throws Exception {
+        return createAuthnResponseSignedByKeyPair(publicKey, privateKey, EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM, EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP);
+    }
+
+    private SamlAuthnResponseTranslatorDto createAuthnResponseSignedByKeyPair(
+            String publicKey, String privateKey, String contentEncrytionAlgorithm, String keyTransportEncryptionAlgorithm) throws Exception {
         SessionId sessionId = SessionId.createNewSessionId();
         String samlResponse = aResponseFromCountry("a-request",
-            samlEngineAppRule.getCountryMetadataUri(),
-            publicKey,
-            privateKey,
-            DESTINATION,
-            SIGNATURE_ALGORITHM,
-            DIGEST_ALGORITHM,
-            EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM,
-            EidasAuthnContext.EIDAS_LOA_SUBSTANTIAL,
-            DESTINATION,
-            samlEngineAppRule.getCountryMetadataUri());
+                samlEngineAppRule.getCountryMetadataUri(),
+                publicKey,
+                privateKey,
+                DESTINATION,
+                SIGNATURE_ALGORITHM,
+                DIGEST_ALGORITHM,
+                contentEncrytionAlgorithm,
+                EidasAuthnContext.EIDAS_LOA_SUBSTANTIAL,
+                DESTINATION,
+                samlEngineAppRule.getCountryMetadataUri(),
+                keyTransportEncryptionAlgorithm);
         return new SamlAuthnResponseTranslatorDto(samlResponse, sessionId, "127.0.0.1", matchingServiceEntityId);
     }
 
-    private Response postAuthnResponseToSamlEngine(SamlAuthnResponseTranslatorDto authnResponse) throws Exception {
+    private Response postAuthnResponseToSamlEngine(SamlAuthnResponseTranslatorDto authnResponse) {
         return postToSamlEngineAuthnResonseSignedBy(authnResponse, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_COUNTRY_AUTHN_RESPONSE_RESOURCE));
     }
 
@@ -172,7 +250,8 @@ public class CountryAuthnResponseTranslatorResourceTest {
             String encryptionAlgorithm,
             String authnContext,
             String recipient,
-            String audienceId) throws Exception {
+            String audienceId,
+            String keyTransportAlgorithm) throws Exception {
         TestCredentialFactory hubEncryptionCredentialFactory =
                 new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY);
         TestCredentialFactory idpSigningCredentialFactory =  new TestCredentialFactory(publicCert, privateKey);
@@ -240,7 +319,7 @@ public class CountryAuthnResponseTranslatorResourceTest {
                                         .withSigningCredential(signingCredential)
                                         .withSignatureAlgorithm(signatureAlgorithm)
                                         .withDigestAlgorithm(assertionID, digestAlgorithm).build())
-                                .buildWithEncrypterCredential(encryptingCredential, encryptionAlgorithm))
+                                .buildWithEncrypterCredential(encryptingCredential, encryptionAlgorithm, keyTransportAlgorithm))
                 .build();
         return new XmlObjectToBase64EncodedStringTransformer<>().apply(response);
     }

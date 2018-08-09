@@ -648,7 +648,7 @@ public class SamlEngineModule extends AbstractModule {
         IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever = new IdaKeyStoreCredentialRetriever(keyStore);
         Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
         ImmutableSet<String> contentEncryptionAlgorithms = ImmutableSet.of(
-                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256,
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128_GCM,
                 EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM);
         ImmutableSet<String> keyTransportAlgorithms = ImmutableSet.of(
                 EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP,
