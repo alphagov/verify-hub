@@ -12,6 +12,7 @@ import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.config.dto.MatchingProcessDto;
 import uk.gov.ida.hub.config.dto.ResourceLocationDto;
+import uk.gov.ida.hub.config.dto.TransactionDetailedDisplayData;
 import uk.gov.ida.hub.config.dto.TransactionDisplayData;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
 import uk.gov.ida.shared.utils.string.StringEncoding;
@@ -26,6 +27,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
@@ -272,5 +274,20 @@ public class TransactionsResourceIntegrationTest {
                 .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void getTransactionsForServiceList_returnsOkAndTransactionsForServiceList(){
+        URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.TRANSACTIONS_FOR_SERVICE_LIST_PATH).build();
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        List<TransactionDetailedDisplayData> transactionDisplayItems
+                = response.readEntity(new GenericType<List<TransactionDetailedDisplayData>>() {});
+        for (TransactionDetailedDisplayData transactionDisplayItem : transactionDisplayItems) {
+            List<LevelOfAssurance> loas = transactionDisplayItem.getLoaList();
+            assertThat(loas != null);
+            assertNotNull(transactionDisplayItem.getEntityId());
+            assertNotNull(transactionDisplayItem.getSimpleId());
+        }
     }
 }

@@ -10,6 +10,7 @@ import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.config.dto.MatchingProcessDto;
 import uk.gov.ida.hub.config.dto.ResourceLocationDto;
+import uk.gov.ida.hub.config.dto.TransactionDetailedDisplayData;
 import uk.gov.ida.hub.config.dto.TransactionDisplayData;
 import uk.gov.ida.hub.config.exceptions.ExceptionFactory;
 
@@ -106,6 +107,21 @@ public class TransactionsResource {
             .filter(TransactionConfigEntityData::isEnabled)
             .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance()))
             .collect(Collectors.toList());
+    }
+
+    @GET
+    @Path(Urls.ConfigUrls.TRANSACTIONS_FOR_SERVICE_LIST_PATH)
+    @Timed
+    public List<TransactionDetailedDisplayData> getEnabledServiceListTransactions(){
+        Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();
+        return allData.stream()
+                .filter(TransactionConfigEntityData::isEnabled)
+                .map(t -> new TransactionDetailedDisplayData(t.getSimpleId().orElse(null),
+                        t.getServiceHomepage(),
+                        t.getLevelsOfAssurance(),
+                        t.getEntityId())
+                )
+                .collect(Collectors.toList());
     }
 
     @GET
