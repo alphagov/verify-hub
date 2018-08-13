@@ -8,6 +8,7 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
+import uk.gov.ida.hub.policy.configuration.SessionStoreConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanConfiguration;
 import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanServiceConfiguration;
@@ -38,7 +39,7 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @Valid
     @NotNull
     @JsonProperty
-    protected InfinispanConfiguration infinispan;
+    protected SessionStoreConfiguration sessionStoreConfiguration;
 
     @Valid
     @NotNull
@@ -108,9 +109,8 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
         return new org.joda.time.Duration(matchingServiceResponseWaitPeriod.toMilliseconds());
     }
 
-    @Override
-    public InfinispanConfiguration getInfinispan() {
-        return infinispan;
+    public SessionStoreConfiguration getSessionStoreConfiguration() {
+        return sessionStoreConfiguration;
     }
 
     @Override
@@ -166,5 +166,10 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @Override
     public boolean isPrometheusEnabled() {
         return prometheusEnabled;
+    }
+
+    @Override
+    public InfinispanConfiguration getInfinispan() {
+        return sessionStoreConfiguration.getInfinispanConfiguration().getConfiguration();
     }
 }

@@ -30,14 +30,16 @@ logging:
       archivedFileCount: 7
     - type: console
 
-
-infinispan:
-  bindAddress: 
-  initialHosts: 
-  clusterName: 
-  type: standalone
-  expiration: 8h
-  persistenceToFileEnabled: false
+sessionStoreConfiguration:
+  infinispanConfiguration:
+    enabled: true
+    configuration:
+      bindAddress:
+      initialHosts:
+      clusterName:
+      type: standalone
+      expiration: 8h
+      persistenceToFileEnabled: false
 
 eventSinkUri: ${EVENTSINK_URI:-http://localhost:51100}
 

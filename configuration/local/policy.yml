@@ -14,14 +14,16 @@ logging:
   appenders:
     - type: console
 
-
-infinispan:
-  bindAddress: 
-  initialHosts: 
-  clusterName: 
-  type: standalone
-  expiration: 8h
-  persistenceToFileEnabled: false
+sessionStoreConfiguration:
+  infinispanConfiguration:
+    enabled: true
+    configuration:
+      bindAddress:
+      initialHosts:
+      clusterName:
+      type: standalone
+      expiration: 8h
+      persistenceToFileEnabled: false
 
 eventSinkUri: ${EVENT_SINK_URL}
 

@@ -49,26 +49,28 @@ metrics:
       prefix: ${GRAPHITE_PREFIX}
       frequency: 10s
 
-
-infinispan:
-  bindAddress: ${INFINISPAN_BIND_ADDRESS}
-  initialHosts: ${INFINISPAN_INITIAL_HOSTS}
-  clusterName: 'policy-cluster'
-  port: 7801
-  type: ${INFINISPAN_TYPE}
-  expiration: 150m
-  encryptConfiguration:
-    keyStoreName: /ida/policy/keys/infinispan_policy.ks
-    keyStorePassword: ${INFINISPAN_ENCRYPT_KEYSTORE_PASSWORD}
-    encryptionKeyAlias: 'infinispan_policy'
-  authConfiguration:
-    authValue: ${INFINISPAN_AUTH_AUTHVALUE}
-    keyStorePath: /ida/policy/keys/infinispan_policy.ks
-    keyStorePassword: ${INFINISPAN_AUTH_KEYSTORE_PASSWORD}
-    keyStoreType: 'jceks'
-    certAlias: 'infinispan_policy_auth_key'
-    cipherType: 'RSA'
-  persistenceToFileEnabled: false
+sessionStoreConfiguration:
+  infinispanConfiguration:
+    enabled: true
+    configuration:
+      bindAddress: ${INFINISPAN_BIND_ADDRESS}
+      initialHosts: ${INFINISPAN_INITIAL_HOSTS}
+      clusterName: 'policy-cluster'
+      port: 7801
+      type: ${INFINISPAN_TYPE}
+      expiration: 150m
+      encryptConfiguration:
+        keyStoreName: /ida/policy/keys/infinispan_policy.ks
+        keyStorePassword: ${INFINISPAN_ENCRYPT_KEYSTORE_PASSWORD}
+        encryptionKeyAlias: 'infinispan_policy'
+      authConfiguration:
+        authValue: ${INFINISPAN_AUTH_AUTHVALUE}
+        keyStorePath: /ida/policy/keys/infinispan_policy.ks
+        keyStorePassword: ${INFINISPAN_AUTH_KEYSTORE_PASSWORD}
+        keyStoreType: 'jceks'
+        certAlias: 'infinispan_policy_auth_key'
+        cipherType: 'RSA'
+      persistenceToFileEnabled: false
 
 
 eventSinkUri: https://event-sink:51103

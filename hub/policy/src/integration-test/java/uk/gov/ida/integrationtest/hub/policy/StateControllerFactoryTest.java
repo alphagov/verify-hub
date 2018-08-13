@@ -11,10 +11,12 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.PolicyModule;
+import uk.gov.ida.hub.policy.configuration.SessionStoreConfiguration;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
@@ -30,6 +32,7 @@ import java.net.URI;
 import static com.google.common.base.Optional.absent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
@@ -62,27 +65,31 @@ public class StateControllerFactoryTest {
     @Mock
     private StateTransitionAction stateTransitionAction;
 
+    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    private SessionStoreConfiguration sessionStoreConfiguration;
+
     private StateControllerFactory factory;
 
     @Before
     public void setup() {
+        when(sessionStoreConfiguration.getInfinispanConfiguration().isEnabled()).thenReturn(true);
         Injector injector = Guice.createInjector(
-            Modules.override(new PolicyModule()
-            ).with(new AbstractModule() {
-                @Override
-                protected void configure() {
-                    bind(EventSinkProxy.class).toInstance(mock(EventSinkProxy.class));
-                    bind(IdentityProvidersConfigProxy.class).toInstance(mock(IdentityProvidersConfigProxy.class));
-                    bind(Client.class).toInstance(mock(Client.class));
-                    bind(Environment.class).toInstance(mock(Environment.class));
-                    bind(PolicyConfiguration.class).toInstance(aPolicyConfiguration().build());
-                    InfinispanCacheManager infinispanCacheManager = anInfinispanCacheManager().build(InfinispanJunitRunner.EMBEDDED_CACHE_MANAGER);
-                    bind(InfinispanCacheManager.class).toInstance(infinispanCacheManager);
-                    bind(HubEventLogger.class).toInstance(mock(HubEventLogger.class));
-                    bind(JsonClient.class).annotatedWith(Names.named("samlSoapProxyClient")).toInstance(mock(JsonClient.class));
-                    bind(JsonClient.class).toInstance(mock(JsonClient.class));
-                }
-            })
+              Modules.override(new PolicyModule()
+              ).with(new AbstractModule() {
+                  @Override
+                  protected void configure() {
+                      bind(EventSinkProxy.class).toInstance(mock(EventSinkProxy.class));
+                      bind(IdentityProvidersConfigProxy.class).toInstance(mock(IdentityProvidersConfigProxy.class));
+                      bind(Client.class).toInstance(mock(Client.class));
+                      bind(Environment.class).toInstance(mock(Environment.class));
+                      bind(PolicyConfiguration.class).toInstance(aPolicyConfiguration().withCacheConfiguration(sessionStoreConfiguration).build());
+                      InfinispanCacheManager infinispanCacheManager = anInfinispanCacheManager().build(InfinispanJunitRunner.EMBEDDED_CACHE_MANAGER);
+                      bind(InfinispanCacheManager.class).toInstance(infinispanCacheManager);
+                      bind(HubEventLogger.class).toInstance(mock(HubEventLogger.class));
+                      bind(JsonClient.class).annotatedWith(Names.named("samlSoapProxyClient")).toInstance(mock(JsonClient.class));
+                      bind(JsonClient.class).toInstance(mock(JsonClient.class));
+                  }
+              })
         );
 
         factory = new StateControllerFactory(injector);
