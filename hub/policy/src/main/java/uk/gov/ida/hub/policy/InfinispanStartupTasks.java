@@ -9,17 +9,17 @@ import java.util.concurrent.ConcurrentMap;
 
 public class InfinispanStartupTasks implements Managed {
 
-    private final ConcurrentMap<SessionId, State> sessionCache;
+    private final ConcurrentMap<SessionId, State> sessionStateStore;
 
     @Inject
-    public InfinispanStartupTasks(ConcurrentMap<SessionId, State> sessionCache) {
-        this.sessionCache = sessionCache;
+    public InfinispanStartupTasks(ConcurrentMap<SessionId, State> sessionStateStore) {
+        this.sessionStateStore = sessionStateStore;
     }
 
     @Override
     public void start() throws Exception {
         SessionId newSessionId = SessionId.createNewSessionId();
-        sessionCache.get(newSessionId);
+        sessionStateStore.get(newSessionId);
     }
 
     @Override

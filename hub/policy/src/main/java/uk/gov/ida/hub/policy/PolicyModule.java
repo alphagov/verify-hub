@@ -16,6 +16,7 @@ import uk.gov.ida.hub.policy.annotations.SamlEngine;
 import uk.gov.ida.hub.policy.annotations.SamlSoapProxy;
 import uk.gov.ida.hub.policy.controllogic.AuthnRequestFromTransactionHandler;
 import uk.gov.ida.hub.policy.controllogic.ResponseFromIdpHandler;
+import uk.gov.ida.hub.policy.controllogic.TransitionStore;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -128,8 +129,10 @@ public class PolicyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public ConcurrentMap<SessionId, State> sessionCache(InfinispanCacheManager infinispanCacheManager) {
-        return infinispanCacheManager.getCache("state_cache");
+    public ConcurrentMap<SessionId, State> getSessionStateStore(
+            InfinispanCacheManager infinispanCacheManager) {
+        ConcurrentMap<SessionId, State> infinispan = infinispanCacheManager.getCache("state_cache");
+        return new TransitionStore<>(infinispan, Optional.empty());
     }
 
     @Provides
