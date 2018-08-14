@@ -90,11 +90,12 @@ public class MatchingServiceHealthChecker {
                 final Optional<String> msaVersion = healthCheckData.getVersion();
                 if (msaVersion.isPresent()) {
                     // if we have conflicting return values, lets trust the one from the ID a little bit more
-                    responseDto = new MatchingServiceHealthCheckResponseDto(responseDto.getResponse(), msaVersion);
-                    if (!responseDto.getVersionNumber().get().equals(msaVersion.get())) {
-                        responseDto = new MatchingServiceHealthCheckResponseDto(responseDto.getResponse(), msaVersion);
-                        LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", responseDto.getVersionNumber().get(), msaVersion.get());
+                    String responseMsaVersion = responseDto.getVersionNumber().orNull();
+                    String extractedMsaVersion = msaVersion.get();
+                    if (responseMsaVersion != null && !responseMsaVersion.equals(extractedMsaVersion)) {
+                        LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", responseMsaVersion, extractedMsaVersion);
                     }
+                    responseDto = new MatchingServiceHealthCheckResponseDto(responseDto.getResponse(), msaVersion);
                 }
             }
         } catch (ApplicationException e) {
