@@ -7,8 +7,12 @@ class HealthCheckData {
     private static final String VERSION_DELIMITER = "version-";
     private static final String EIDAS_DELIMITER = "eidasenabled-";
     private static final String SHA_DELIMITER = "shouldsignwithsha1-";
+
+    private final String version;
+    private final String eidasEnabled;
+    private final String shouldSignWithSha1;
     
-    static HealthCheckData extractFrom(String responseId) {
+    public static HealthCheckData extractFrom(String responseId) {
         if (responseId != null && responseId.contains(VERSION_DELIMITER)) {
             String versionSubstring = responseId.trim().substring(responseId.indexOf(VERSION_DELIMITER) + VERSION_DELIMITER.length());
 
@@ -30,12 +34,9 @@ class HealthCheckData {
 
             return new HealthCheckData(version, eidasEnabled, shouldSignWithSha1);
         }
+
         return new HealthCheckData();
     }
-
-    private String version;
-    private final String eidasEnabled;
-    private final String shouldSignWithSha1;
 
     private HealthCheckData(String versionSubstring, String eidasEnabled, String shouldSignWithSha1) {
         this.version = versionSubstring;
@@ -49,15 +50,15 @@ class HealthCheckData {
         shouldSignWithSha1 = null;
     }
 
-    Optional<String> getVersion() {
+    public Optional<String> getVersion() {
         return Optional.fromNullable(version);
     }
 
-    Optional<String> getEidasEnabled() {
+    public Optional<String> getEidasEnabled() {
         return Optional.fromNullable(eidasEnabled);
     }
 
-    Optional<String> getShouldSignWithSha1() {
+    public Optional<String> getShouldSignWithSha1() {
         return Optional.fromNullable(shouldSignWithSha1);
     }
 }
