@@ -44,6 +44,7 @@ import static uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthChec
 public class MatchingServiceHealthChecker {
     private static final Logger LOG = LoggerFactory.getLogger(MatchingServiceHealthChecker.class);
     private static final String UNDEFINED_VERSION = "0";
+    private static final String UNDEFINED = "UNDEFINED";
 
     private final Function<Element, AttributeQuery> elementToAttributeQueryTransformer;
     private final Function<Element, Response> elementToResponseTransformer;
@@ -103,12 +104,25 @@ public class MatchingServiceHealthChecker {
         final HealthCheckData healthCheckData = getHealthCheckData(responseBody);
 
         final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion()).or(UNDEFINED_VERSION);
+        final String isEidasEnabled = healthCheckData.getEidasEnabled().or(UNDEFINED);
+        final String shouldSignWithSha1 = healthCheckData.getShouldSignWithSha1().or(UNDEFINED);
 
         if (isHealthyResponse(configEntity.getUri(), responseBody)) {
-            return healthy(generateHealthCheckDescription("responded successfully", configEntity.getUri(),
-                    versionNumber, configEntity.isOnboarding()));
+            return healthy(generateHealthCheckDescription(
+                    "responded successfully",
+                    configEntity.getUri(),
+                    versionNumber,
+                    configEntity.isOnboarding(),
+                    isEidasEnabled,
+                    shouldSignWithSha1)
+            );
         } else {
-            return unhealthy(generateHealthCheckFailureDescription(configEntity.getUri(), configEntity.isOnboarding(), responseBody, versionNumber));
+            return unhealthy(generateHealthCheckFailureDescription(configEntity.getUri(),
+                    configEntity.isOnboarding(),
+                    responseBody,
+                    versionNumber,
+                    isEidasEnabled,
+                    shouldSignWithSha1));
         }
     }
 
@@ -149,33 +163,47 @@ public class MatchingServiceHealthChecker {
                 message,
                 configEntity.getUri(),
                 UNDEFINED_VERSION,
-                configEntity.isOnboarding()
-        ));
+                configEntity.isOnboarding(),
+                UNDEFINED,
+                UNDEFINED
+                )
+        );
     }
 
     private MatchingServiceHealthCheckDetails generateHealthCheckDescription(
             final String message,
             final URI matchingServiceUri,
             final String versionNumber,
-            final boolean isOnboarding) {
+            final boolean isOnboarding,
+            final String isEidasEnabled,
+            final String shouldSignWithSha1) {
 
         boolean isSupported = supportedMsaVersionsRepository.getSupportedVersions().contains(versionNumber);
-        return new MatchingServiceHealthCheckDetails(matchingServiceUri, message, versionNumber,
-                isSupported, isOnboarding);
+        return new MatchingServiceHealthCheckDetails(
+                matchingServiceUri,
+                message,
+                versionNumber,
+                isSupported,
+                isOnboarding,
+                isEidasEnabled,
+                shouldSignWithSha1
+        );
     }
 
     private MatchingServiceHealthCheckDetails generateHealthCheckFailureDescription(
             final URI matchingServiceUri,
             final boolean isOnboarding,
             Optional<String> response,
-            String versionNumber) {
+            String versionNumber,
+            String eidasEnabled,
+            String shouldSignWithSha1) {
 
         if (!response.isPresent()) {
-            return generateHealthCheckDescription("no response", matchingServiceUri, versionNumber, isOnboarding);
+            return generateHealthCheckDescription("no response", matchingServiceUri, versionNumber, isOnboarding, eidasEnabled, shouldSignWithSha1);
         }
 
         return generateHealthCheckDescription("responded with non-healthy status", matchingServiceUri,
-                versionNumber, isOnboarding);
+                versionNumber, isOnboarding, eidasEnabled, shouldSignWithSha1);
     }
 
     private boolean isHealthyResponse(

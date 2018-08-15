@@ -9,19 +9,25 @@ public class MatchingServiceHealthCheckDetails {
     private final String versionNumber;
     private final boolean isVersionSupported;
     private final boolean isOnboarding;
+    private final String eidasEnabled;
+    private final String shouldSignWithSha1;
 
     public MatchingServiceHealthCheckDetails(
             final URI matchingService,
             final String details,
             final String versionNumber,
             final boolean isVersionSupported,
-            final boolean isOnboarding) {
+            final boolean isOnboarding,
+            final String eidasEnabled,
+            final String shouldSignWithSha1) {
 
         this.matchingService = matchingService;
         this.details = details;
         this.versionNumber = versionNumber;
         this.isVersionSupported = isVersionSupported;
         this.isOnboarding = isOnboarding;
+        this.eidasEnabled = eidasEnabled;
+        this.shouldSignWithSha1 = shouldSignWithSha1;
     }
 
     @Override
@@ -68,5 +74,13 @@ public class MatchingServiceHealthCheckDetails {
 
     public boolean isOnboarding() {
         return isOnboarding;
+    }
+
+    public String getEidasEnabled() {
+        return eidasEnabled;
+    }
+
+    public String getShouldSignWithSha1() {
+        return shouldSignWithSha1;
     }
 }
