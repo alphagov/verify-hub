@@ -84,20 +84,7 @@ public class MatchingServiceHealthChecker {
             responseDto = matchingServiceHealthCheckClient.sendHealthCheckRequest(matchingServiceHealthCheckRequest,
                     configEntity.getUri()
             );
-            if (responseDto.getResponse().isPresent()) {
-                Response response = elementToResponseTransformer.apply(XmlUtils.convertToElement(responseDto.getResponse().get()));
-                HealthCheckData healthCheckData = HealthCheckData.extractFrom(response.getID());
-                final Optional<String> msaVersion = healthCheckData.getVersion();
-                if (msaVersion.isPresent()) {
-                    // if we have conflicting return values, lets trust the one from the ID a little bit more
-                    String responseMsaVersion = responseDto.getVersionNumber().orNull();
-                    String extractedMsaVersion = msaVersion.get();
-                    if (responseMsaVersion != null && !responseMsaVersion.equals(extractedMsaVersion)) {
-                        LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", responseMsaVersion, extractedMsaVersion);
-                    }
-                    responseDto = new MatchingServiceHealthCheckResponseDto(responseDto.getResponse(), msaVersion);
-                }
-            }
+
         } catch (ApplicationException e) {
             final String message = format("Saml-engine was unable to generate saml to send to MSA: {0}", e);
             eventLogger.logException(e, message);
@@ -107,12 +94,52 @@ public class MatchingServiceHealthChecker {
             return logAndCreateUnhealthyResponse(configEntity, message);
         }
 
-        if (isHealthyResponse(responseDto, configEntity.getUri())) {
-            return healthy(generateHealthCheckDescription("responded successfully", configEntity.getUri(),
-                    responseDto.getVersionNumber(), configEntity.isOnboarding()));
+        return buildMatchingServiceHealthCheckResult(configEntity, responseDto.getResponse(), responseDto.getVersionNumber());
+    }
+
+    private MatchingServiceHealthCheckResult buildMatchingServiceHealthCheckResult(final MatchingServiceConfigEntityDataDto configEntity,
+                                                                                   final Optional<String> responseBody,
+                                                                                   final Optional<String> responseMsaVersion) {
+
+        HealthCheckData healthCheckData;
+
+        if (responseBody.isPresent()) {
+            Response response;
+            try {
+                response = elementToResponseTransformer.apply(XmlUtils.convertToElement(responseBody.get()));
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+                final String message = format("Unable to convert saml request to XML element: {0}", e);
+                return logAndCreateUnhealthyResponse(configEntity, message);
+            }
+
+            healthCheckData = HealthCheckData.extractFrom(response.getID());
         } else {
-            return unhealthy(generateHealthCheckFailureDescription(responseDto, configEntity.getUri(), configEntity.isOnboarding()));
+            healthCheckData = HealthCheckData.extractFrom(null);
         }
+
+        String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion()).orElse(UNDEFINED_VERSION);
+        if (isHealthyResponse(configEntity.getUri(), responseBody)) {
+            return healthy(generateHealthCheckDescription("responded successfully", configEntity.getUri(),
+                    versionNumber, configEntity.isOnboarding()));
+        } else {
+            return unhealthy(generateHealthCheckFailureDescription(configEntity.getUri(), configEntity.isOnboarding(), responseBody, versionNumber));
+        }
+    }
+
+    private java.util.Optional<String> getMsaVersion(Optional<String> responseBodyMsaVersion, Optional<String> requestIdMsaVersion) {
+        Optional<String> actualMsaVersion;
+        if (requestIdMsaVersion.isPresent()) {
+            // if we have conflicting return values, lets trust the one from the ID a little bit more
+            String responseMsaVersion = responseBodyMsaVersion.orNull();
+            String extractedMsaVersion = requestIdMsaVersion.get();
+            if (responseMsaVersion != null && !responseMsaVersion.equals(extractedMsaVersion)) {
+                LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", responseMsaVersion, extractedMsaVersion);
+            }
+            actualMsaVersion = requestIdMsaVersion;
+        } else {
+            actualMsaVersion = responseBodyMsaVersion;
+        }
+        return actualMsaVersion.toJavaUtil();
     }
 
     private void validateRequestSignature(Element matchingServiceRequest) {
@@ -128,50 +155,52 @@ public class MatchingServiceHealthChecker {
         return unhealthy(generateHealthCheckDescription(
                 message,
                 configEntity.getUri(),
-                Optional.<String>absent(), configEntity.isOnboarding()));
+                UNDEFINED_VERSION,
+                configEntity.isOnboarding()
+        ));
     }
 
     private MatchingServiceHealthCheckDetails generateHealthCheckDescription(
             final String message,
             final URI matchingServiceUri,
-            final Optional<String> version,
+            final String versionNumber,
             final boolean isOnboarding) {
 
-        String versionNumber = version.isPresent() ? version.get() : UNDEFINED_VERSION;
         boolean isSupported = isMsaVersionSupported(versionNumber);
         return new MatchingServiceHealthCheckDetails(matchingServiceUri, message, versionNumber,
                 isSupported, isOnboarding);
     }
 
     private boolean isMsaVersionSupported(final String versionNumber) {
-        return supportedMsaVersionsRepository.getSupportedVersions().contains(versionNumber);
+        return versionNumber != null && supportedMsaVersionsRepository.getSupportedVersions().contains(versionNumber);
     }
 
     private MatchingServiceHealthCheckDetails generateHealthCheckFailureDescription(
-            final MatchingServiceHealthCheckResponseDto response,
             final URI matchingServiceUri,
-            final boolean isOnboarding) {
+            final boolean isOnboarding,
+            Optional<String> response,
+            String versionNumber) {
 
-        if (!response.getResponse().isPresent()) {
-            return generateHealthCheckDescription("no response", matchingServiceUri, response.getVersionNumber(), isOnboarding);
+        if (!response.isPresent()) {
+            return generateHealthCheckDescription("no response", matchingServiceUri, versionNumber, isOnboarding);
         }
 
         return generateHealthCheckDescription("responded with non-healthy status", matchingServiceUri,
-                response.getVersionNumber(), isOnboarding);
+                versionNumber, isOnboarding);
     }
 
     private boolean isHealthyResponse(
-            final MatchingServiceHealthCheckResponseDto responseDto,
-            final URI matchingServiceUri) {
+            final URI matchingServiceUri,
+            Optional<String> response) {
 
-        if (!responseDto.getResponse().isPresent()) {
+        if (!response.isPresent()) {
             return false;
         }
 
         String exceptionMessage = format("Matching service health check failed for URI {0}", matchingServiceUri);
         try {
             // Saml-engine expects the saml to be base64 encoded
-            final SamlMessageDto samlMessageDto = new SamlMessageDto(Base64.encodeAsString(responseDto.getResponse().get()));
+            final SamlMessageDto samlMessageDto = new SamlMessageDto(Base64.encodeAsString(response.get()));
             final MatchingServiceHealthCheckerResponseDto responseFromMatchingService =
                     samlEngineProxy.translateHealthcheckMatchingServiceResponse(samlMessageDto);
 
