@@ -101,29 +101,39 @@ public class MatchingServiceHealthChecker {
                                                                                    final Optional<String> responseBody,
                                                                                    final Optional<String> responseMsaVersion) {
 
-        HealthCheckData healthCheckData;
-
-        if (responseBody.isPresent()) {
-            Response response;
-            try {
-                response = elementToResponseTransformer.apply(XmlUtils.convertToElement(responseBody.get()));
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-                final String message = format("Unable to convert saml request to XML element: {0}", e);
-                return logAndCreateUnhealthyResponse(configEntity, message);
-            }
-
-            healthCheckData = HealthCheckData.extractFrom(response.getID());
-        } else {
-            healthCheckData = HealthCheckData.extractFrom(null);
+        final HealthCheckData healthCheckData;
+        try {
+            healthCheckData = getHealthCheckData(responseBody);
+        } catch (IllegalStateException e) {
+            final String message = format("Unable to convert saml request to XML element: {0}", e);
+            return logAndCreateUnhealthyResponse(configEntity, message);
         }
 
-        String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion()).orElse(UNDEFINED_VERSION);
+        final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion()).orElse(UNDEFINED_VERSION);
+        
         if (isHealthyResponse(configEntity.getUri(), responseBody)) {
             return healthy(generateHealthCheckDescription("responded successfully", configEntity.getUri(),
                     versionNumber, configEntity.isOnboarding()));
         } else {
             return unhealthy(generateHealthCheckFailureDescription(configEntity.getUri(), configEntity.isOnboarding(), responseBody, versionNumber));
         }
+    }
+
+    private HealthCheckData getHealthCheckData(Optional<String> responseBody) {
+        HealthCheckData healthCheckData;
+        if (responseBody.isPresent()) {
+            Response response;
+            try {
+                response = elementToResponseTransformer.apply(XmlUtils.convertToElement(responseBody.get()));
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+                throw new IllegalStateException(e);
+            }
+
+            healthCheckData = HealthCheckData.extractFrom(response.getID());
+        } else {
+            healthCheckData = HealthCheckData.extractFrom(null);
+        }
+        return healthCheckData;
     }
 
     private java.util.Optional<String> getMsaVersion(Optional<String> responseBodyMsaVersion, Optional<String> requestIdMsaVersion) {
