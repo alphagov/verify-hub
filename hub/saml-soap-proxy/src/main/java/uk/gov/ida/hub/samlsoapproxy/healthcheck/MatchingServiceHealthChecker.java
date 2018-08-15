@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import org.glassfish.jersey.internal.util.Base64;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,24 +75,27 @@ public class MatchingServiceHealthChecker {
         MatchingServiceHealthCheckerRequestDto matchingServiceHealthCheckerRequestDto =
                 new MatchingServiceHealthCheckerRequestDto(configEntity.getTransactionEntityId(), configEntity.getEntityId());
 
-        MatchingServiceHealthCheckResponseDto response;
+        MatchingServiceHealthCheckResponseDto responseDto;
         try {
             SamlMessageDto samlMessageDto = samlEngineProxy.generateHealthcheckAttributeQuery(matchingServiceHealthCheckerRequestDto);
 
             final Element matchingServiceHealthCheckRequest = XmlUtils.convertToElement(samlMessageDto.getSamlMessage());
             validateRequestSignature(matchingServiceHealthCheckRequest);
-            response = matchingServiceHealthCheckClient.sendHealthCheckRequest(matchingServiceHealthCheckRequest,
-                        configEntity.getUri()
+            responseDto = matchingServiceHealthCheckClient.sendHealthCheckRequest(matchingServiceHealthCheckRequest,
+                    configEntity.getUri()
             );
-            if(response.getResponse().isPresent()) {
-                final Optional<String> msaVersion = extractVersionFromResponseId(response.getResponse().get());
-                if(msaVersion.isPresent()) {
+            if (responseDto.getResponse().isPresent()) {
+                Response response = elementToResponseTransformer.apply(XmlUtils.convertToElement(responseDto.getResponse().get()));
+                HealthCheckData healthCheckData = HealthCheckData.extractFrom(response.getID());
+                final Optional<String> msaVersion = healthCheckData.getVersion();
+                if (msaVersion.isPresent()) {
                     // if we have conflicting return values, lets trust the one from the ID a little bit more
-                    response = new MatchingServiceHealthCheckResponseDto(response.getResponse(), msaVersion);
-                    if (!response.getVersionNumber().get().equals(msaVersion.get())) {
-                        response = new MatchingServiceHealthCheckResponseDto(response.getResponse(), msaVersion);
-                        LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", response.getVersionNumber().get(), msaVersion.get());
+                    String responseMsaVersion = responseDto.getVersionNumber().orNull();
+                    String extractedMsaVersion = msaVersion.get();
+                    if (responseMsaVersion != null && !responseMsaVersion.equals(extractedMsaVersion)) {
+                        LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", responseMsaVersion, extractedMsaVersion);
                     }
+                    responseDto = new MatchingServiceHealthCheckResponseDto(responseDto.getResponse(), msaVersion);
                 }
             }
         } catch (ApplicationException e) {
@@ -105,22 +107,12 @@ public class MatchingServiceHealthChecker {
             return logAndCreateUnhealthyResponse(configEntity, message);
         }
 
-        if (isHealthyResponse(response, configEntity.getUri())) {
+        if (isHealthyResponse(responseDto, configEntity.getUri())) {
             return healthy(generateHealthCheckDescription("responded successfully", configEntity.getUri(),
-                    response.getVersionNumber(), configEntity.isOnboarding()));
+                    responseDto.getVersionNumber(), configEntity.isOnboarding()));
         } else {
-            return unhealthy(generateHealthCheckFailureDescription(response, configEntity.getUri(), configEntity.isOnboarding()));
+            return unhealthy(generateHealthCheckFailureDescription(responseDto, configEntity.getUri(), configEntity.isOnboarding()));
         }
-    }
-
-    private Optional<String> extractVersionFromResponseId(String response) throws IOException, SAXException, ParserConfigurationException {
-        final Response attributeQueryResponse = elementToResponseTransformer.apply(XmlUtils.convertToElement(response));
-        final String responseId = attributeQueryResponse.getID();
-        final String key = "version-";
-        if(responseId.contains(key)) {
-            return Optional.fromNullable(responseId.trim().substring(responseId.indexOf(key) + key.length()));
-        }
-        return Optional.absent();
     }
 
     private void validateRequestSignature(Element matchingServiceRequest) {
@@ -189,7 +181,7 @@ public class MatchingServiceHealthChecker {
         } catch (ApplicationException e) {
             eventLogger.logException(e, exceptionMessage);
             return false;
-        } catch (RuntimeException e ) {
+        } catch (RuntimeException e) {
             LOG.warn(format("Matching service health check failed for URI {0}", matchingServiceUri), e);
             return false;
         }
