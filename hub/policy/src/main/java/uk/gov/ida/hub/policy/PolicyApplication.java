@@ -1,8 +1,6 @@
 package uk.gov.ida.hub.policy;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
 import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
@@ -14,6 +12,8 @@ import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
 import uk.gov.ida.eventemitter.EventEmitterModule;
+import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.exception.SessionAlreadyExistingExceptionMapper;
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureExceptionMapper;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundExceptionMapper;
@@ -38,6 +38,7 @@ import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanBundle;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 
 import javax.inject.Provider;
+import java.util.concurrent.ConcurrentMap;
 
 public class PolicyApplication extends Application<PolicyConfiguration> {
 
@@ -66,17 +67,30 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
         bootstrap.addBundle(new LoggingBundle());
         bootstrap.addBundle(new PrometheusBundle());
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
+
         final InfinispanBundle infinispanBundle = new InfinispanBundle();
-        // the infinispan cache manager needs to be lazy loaded because it is not initialized at this point.
         bootstrap.addBundle(infinispanBundle);
+
+        final SessionBundle sessionBundle = new SessionBundle(infinispanBundle.getInfinispanCacheManagerProvider());
+
+        // the infinispan cache manager needs to be lazy loaded because it is not initialized at this point.
+        bootstrap.addBundle(sessionBundle);
         guiceBundle = GuiceBundle.defaultBuilder(PolicyConfiguration.class)
-                .modules(getPolicyModule(), new EventEmitterModule(),  bindInfinispan(infinispanBundle.getInfinispanCacheManagerProvider()))
+                .modules(getPolicyModule(),
+                        new EventEmitterModule(),
+                        getSessionModule(infinispanBundle.getInfinispanCacheManagerProvider(),
+                                sessionBundle.getSessionStateStoreProvider()))
                 .build();
         bootstrap.addBundle(guiceBundle);
     }
 
     protected PolicyModule getPolicyModule() {
         return new PolicyModule();
+    }
+
+    protected SessionModule getSessionModule(Provider<InfinispanCacheManager> infinispanCacheManagerProvider,
+                                             Provider<ConcurrentMap<SessionId, State>> sessionStateStoreProvider) {
+        return new SessionModule(infinispanCacheManagerProvider, sessionStateStoreProvider);
     }
 
     @Override
@@ -111,14 +125,5 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
             environment.jersey().register(CountriesResource.class);
             environment.jersey().register(EidasSessionResource.class);
         }
-    }
-
-    protected Module bindInfinispan(Provider<InfinispanCacheManager> cacheManagerProvider) {
-        return new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(InfinispanCacheManager.class).toProvider(cacheManagerProvider);
-            }
-        };
     }
 }

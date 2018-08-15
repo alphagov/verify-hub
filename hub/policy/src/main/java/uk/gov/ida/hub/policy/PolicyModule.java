@@ -16,12 +16,9 @@ import uk.gov.ida.hub.policy.annotations.SamlEngine;
 import uk.gov.ida.hub.policy.annotations.SamlSoapProxy;
 import uk.gov.ida.hub.policy.controllogic.AuthnRequestFromTransactionHandler;
 import uk.gov.ida.hub.policy.controllogic.ResponseFromIdpHandler;
-import uk.gov.ida.hub.policy.controllogic.TransitionStore;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
-import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
@@ -43,7 +40,6 @@ import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.jerseyclient.JsonResponseProcessor;
 import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
-import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
 import uk.gov.ida.truststore.KeyStoreProvider;
@@ -53,8 +49,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.KeyStore;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentMap;
 
 public class PolicyModule extends AbstractModule {
 
@@ -126,14 +120,6 @@ public class PolicyModule extends AbstractModule {
                 "SamlSoapProxyClient").get();
         ErrorHandlingClient errorHandlingClient = new ErrorHandlingClient(client);
         return new JsonClient(errorHandlingClient, responseProcessor);
-    }
-
-    @Provides
-    @Singleton
-    public ConcurrentMap<SessionId, State> getSessionStateStore(
-            InfinispanCacheManager infinispanCacheManager) {
-        ConcurrentMap<SessionId, State> infinispan = infinispanCacheManager.getCache("state_cache");
-        return new TransitionStore<>(infinispan, Optional.empty());
     }
 
     @Provides

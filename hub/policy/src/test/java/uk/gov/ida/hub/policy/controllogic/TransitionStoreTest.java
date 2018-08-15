@@ -405,4 +405,34 @@ public class TransitionStoreTest {
         assertThat(transitionStore.replace(key1, "value3")).isEqualTo("value1");
         assertThat(existing.get(key1)).isEqualTo("value3");
     }
+
+    @Test
+    public void transitionSizeShouldReturnSizeOfTransitionMap() {
+        ConcurrentMap existing = new ConcurrentHashMap() {{
+            put(new SessionId("key1"), "value1");
+        }};
+        ConcurrentMap transition = new ConcurrentHashMap() {{
+            put(new SessionId("key2"), "value2");
+            put(new SessionId("key3"), "value3");
+        }};
+
+        TransitionStore transitionStore = new TransitionStore(existing, Optional.of(transition));
+        assertThat(transitionStore.transitionSize()).isEqualTo(transition.size());
+    }
+
+    @Test
+    public void getDifferingKeysShouldGiveSessionIdsOnlyInExistingMap() {
+        SessionId key1 = new SessionId("key1");
+        ConcurrentMap existing = new ConcurrentHashMap() {{
+            put(key1, "value1");
+            put(new SessionId("key2"), "value2");
+        }};
+        ConcurrentMap transition = new ConcurrentHashMap() {{
+            put(new SessionId("key2"), "value2");
+            put(new SessionId("key3"), "value3");
+        }};
+
+        TransitionStore transitionStore = new TransitionStore(existing, Optional.of(transition));
+        assertThat(transitionStore.getDifferingSessionIds()).containsOnly(key1);
+    }
 }

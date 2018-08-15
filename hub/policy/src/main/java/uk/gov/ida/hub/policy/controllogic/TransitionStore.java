@@ -1,12 +1,17 @@
 package uk.gov.ida.hub.policy.controllogic;
 
+import com.google.common.collect.Sets;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 /* This class is designed to transition all values from the existing
  * to the transition store */
@@ -122,5 +127,15 @@ public class TransitionStore<V> implements ConcurrentMap<SessionId, V> {
             transition.ifPresent(t -> t.put(key, value));
         }
         return val;
+    }
+
+    public int transitionSize() {
+        return transition.map(ConcurrentMap::size).orElse(0);
+    }
+
+    public List<SessionId> getDifferingSessionIds() {
+        return transition
+                .map(t -> Sets.difference(existing.keySet(),t.keySet()).stream().collect(toList()))
+                .orElse(emptyList());
     }
 }
