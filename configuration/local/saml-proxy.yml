@@ -42,28 +42,30 @@ policyUri: ${POLICY_URL}
 serviceInfo:
   name: saml-proxy
 
+# this can't accept encoded truststores
 rpTrustStoreConfiguration:
   path: /data/pki/relying_parties.ts
-  password: marshmallow
+  password: ${TRUSTSTORE_PASSWORD:-"marshmallow"}
 
 metadataValidDuration: 1h
 
 metadata:
   uri: ${METADATA_URL}
-  trustStorePath: /data/pki/metadata.ts
-  trustStorePassword: marshmallow
   trustStore:
-    path: /data/pki/metadata.ts
-    password: marshmallow
+    type: ${TRUSTSTORE_TYPE:-"file"}
+    store: ${METADATA_TRUST_STORE:-"/data/pki/metadata.ts"}
+    password: ${METADATA_TRUST_STORE_PASSWORD:-"marshmallow"}
   hubTrustStore:
-    path: /data/pki/hub_federation.ts
-    password: marshmallow
+    type: ${TRUSTSTORE_TYPE:-"file"}
+    store: ${HUB_FEDERATION_TRUST_STORE:-"/data/pki/hub_federation.ts"}
+    password: ${HUB_FEDERATION_TRUST_STORE_PASSWORD:-"marshmallow"}
   idpTrustStore:
-    path: /data/pki/idp_federation.ts
-    password: marshmallow
+    type: ${TRUSTSTORE_TYPE:-"file"}
+    store: ${IDP_FEDERATION_TRUST_STORE:-"/data/pki/idp_federation.ts"}
+    password: ${IDP_FEDERATION_TRUST_STORE_PASSWORD:-"marshmallow"}
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
-  expectedEntityId: https://dev-hub.local
+  expectedEntityId: ${METADATA_ENTITY_ID}
   jerseyClientName: verify-metadata-client
   client:
     timeout: 2s
@@ -81,8 +83,9 @@ country:
     trustAnchorUri: ${TRUST_ANCHOR_URL}
     metadataSourceUri: ${METADATA_SOURCE_URI}
     trustStore:
-      store: /data/pki/metadata.ts
-      password: marshmallow
+      type: ${TRUSTSTORE_TYPE:-"file"}
+      store: ${METADATA_TRUST_STORE:-"/data/pki/metadata.ts"}
+      password: ${METADATA_TRUST_STORE_PASSWORD:-"marshmallow"}
     minRefreshDelay: 5000
     maxRefreshDelay: 1800000
     jerseyClientName: country-metadata-client
