@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
 import com.google.common.base.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.internal.util.Base64;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
@@ -103,9 +104,20 @@ public class MatchingServiceHealthChecker {
 
         final HealthCheckData healthCheckData = getHealthCheckData(responseBody);
 
-        final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion()).or(UNDEFINED_VERSION);
-        final String isEidasEnabled = healthCheckData.getEidasEnabled().or(UNDEFINED);
-        final String shouldSignWithSha1 = healthCheckData.getShouldSignWithSha1().or(UNDEFINED);
+        final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion())
+                .toJavaUtil()
+                .filter(StringUtils::isNotEmpty)
+                .orElse(UNDEFINED_VERSION);
+
+        final String isEidasEnabled = healthCheckData.getEidasEnabled()
+                .toJavaUtil()
+                .filter(StringUtils::isNotEmpty)
+                .orElse(UNDEFINED);
+
+        final String shouldSignWithSha1 = healthCheckData.getShouldSignWithSha1()
+                .toJavaUtil()
+                .filter(StringUtils::isNotEmpty)
+                .orElse(UNDEFINED);
 
         if (isHealthyResponse(configEntity.getUri(), responseBody)) {
             return healthy(generateHealthCheckDescription(
