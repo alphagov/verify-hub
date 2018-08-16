@@ -84,6 +84,18 @@ public class TransitionStoreTest {
     }
 
     @Test
+    public void putPutsValueInSingleMapAndReturnsThePreviousValue() {
+        final SessionId key1 = new SessionId("key1");
+        ConcurrentMap existing = new ConcurrentHashMap() {{
+            put(key1, "value1");
+        }};
+
+        TransitionStore transitionStore = new TransitionStore(existing, Optional.empty());
+        assertThat(transitionStore.put(key1, "value3")).isEqualTo("value1");
+        assertThat(existing.get(key1)).isEqualTo("value3");
+    }
+
+    @Test
     public void putPutsValueInBothMapsAndReturnsThePreviousValueFromExisting() {
         final SessionId key1 = new SessionId("key1");
         ConcurrentMap existing = new ConcurrentHashMap() {{
@@ -100,7 +112,7 @@ public class TransitionStoreTest {
     }
 
     @Test
-    public void removeRemovesFromBothQueuesAndReturnsValueFromExisting() {
+    public void removeRemovesFromBothMapsAndReturnsValueFromExisting() {
         final SessionId key1 = new SessionId("key1");
         ConcurrentMap existing = new ConcurrentHashMap() {{
             put(key1, "value1");
@@ -116,7 +128,19 @@ public class TransitionStoreTest {
     }
 
     @Test
-    public void putAllPutsAllInBothQueues() {
+    public void removeRemovesFromSingleMapsAndReturnsValue() {
+        final SessionId key1 = new SessionId("key1");
+        ConcurrentMap existing = new ConcurrentHashMap() {{
+            put(key1, "value1");
+        }};
+
+        TransitionStore transitionStore = new TransitionStore(existing, Optional.empty());
+        assertThat(transitionStore.remove(key1)).isEqualTo("value1");
+        assertThat(existing.containsKey(key1)).isFalse();
+    }
+
+    @Test
+    public void putAllPutsAllInBothMaps() {
         ConcurrentMap existing = new ConcurrentHashMap();
         ConcurrentMap transition = new ConcurrentHashMap();
         SessionId key3 = new SessionId("key3");
@@ -129,11 +153,26 @@ public class TransitionStoreTest {
         TransitionStore transitionStore = new TransitionStore(existing, Optional.of(transition));
         transitionStore.putAll(putAll);
         assertThat(existing.containsKey(key2) && existing.containsKey(key3)).isTrue();
+        assertThat(transition.containsKey(key2) && transition.containsKey(key3)).isTrue();
+    }
+
+    @Test
+    public void putAllPutsAllInSingleMap() {
+        ConcurrentMap existing = new ConcurrentHashMap();
+        SessionId key3 = new SessionId("key3");
+        SessionId key2 = new SessionId("key2");
+        Map putAll = new HashMap() {{
+            put(key2, "value2");
+            put(key3, "value3");
+        }};
+
+        TransitionStore transitionStore = new TransitionStore(existing, Optional.empty());
+        transitionStore.putAll(putAll);
         assertThat(existing.containsKey(key2) && existing.containsKey(key3)).isTrue();
     }
 
     @Test
-    public void clearClearsBothQueues() {
+    public void clearClearsBothMaps() {
         ConcurrentMap existing = new ConcurrentHashMap() {{
             put(new SessionId("key1"), "value1");
         }};
@@ -145,6 +184,17 @@ public class TransitionStoreTest {
         transitionStore.clear();
         assertThat(existing.isEmpty()).isTrue();
         assertThat(transition.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void clearClearsSingleMap() {
+        ConcurrentMap existing = new ConcurrentHashMap() {{
+            put(new SessionId("key1"), "value1");
+        }};
+
+        TransitionStore transitionStore = new TransitionStore(existing, Optional.empty());
+        transitionStore.clear();
+        assertThat(existing.isEmpty()).isTrue();
     }
 
     @Test
@@ -407,6 +457,16 @@ public class TransitionStoreTest {
     }
 
     @Test
+    public void transitionSizeShouldReturn0WhenNoMap() {
+        ConcurrentMap existing = new ConcurrentHashMap() {{
+            put(new SessionId("key1"), "value1");
+        }};
+
+        TransitionStore transitionStore = new TransitionStore(existing, Optional.empty());
+        assertThat(transitionStore.transitionSize()).isEqualTo(0);
+    }
+
+    @Test
     public void transitionSizeShouldReturnSizeOfTransitionMap() {
         ConcurrentMap existing = new ConcurrentHashMap() {{
             put(new SessionId("key1"), "value1");
@@ -434,5 +494,17 @@ public class TransitionStoreTest {
 
         TransitionStore transitionStore = new TransitionStore(existing, Optional.of(transition));
         assertThat(transitionStore.getDifferingSessionIds()).containsOnly(key1);
+    }
+
+    @Test
+    public void getDifferingKeysShouldReturnEmptyListWhenSingleMap() {
+        SessionId key1 = new SessionId("key1");
+        ConcurrentMap existing = new ConcurrentHashMap() {{
+            put(key1, "value1");
+            put(new SessionId("key2"), "value2");
+        }};
+
+        TransitionStore transitionStore = new TransitionStore(existing, Optional.empty());
+        assertThat(transitionStore.getDifferingSessionIds()).isEmpty();
     }
 }
