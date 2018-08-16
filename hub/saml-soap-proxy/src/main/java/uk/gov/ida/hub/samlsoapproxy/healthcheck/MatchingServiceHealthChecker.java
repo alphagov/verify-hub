@@ -102,8 +102,8 @@ public class MatchingServiceHealthChecker {
 
         final HealthCheckData healthCheckData = getHealthCheckData(responseBody);
 
-        final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion()).orElse(UNDEFINED_VERSION);
-        
+        final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion()).or(UNDEFINED_VERSION);
+
         if (isHealthyResponse(configEntity.getUri(), responseBody)) {
             return healthy(generateHealthCheckDescription("responded successfully", configEntity.getUri(),
                     versionNumber, configEntity.isOnboarding()));
@@ -114,18 +114,15 @@ public class MatchingServiceHealthChecker {
 
     private HealthCheckData getHealthCheckData(Optional<String> responseBody) throws IOException, SAXException, ParserConfigurationException {
 
-        HealthCheckData healthCheckData;
         if (responseBody.isPresent()) {
             Response response = elementToResponseTransformer.apply(XmlUtils.convertToElement(responseBody.get()));
-            healthCheckData = HealthCheckData.extractFrom(response.getID());
-        } else {
-            healthCheckData = HealthCheckData.extractFrom(null);
+            return HealthCheckData.extractFrom(response.getID());
         }
-        return healthCheckData;
+
+        return HealthCheckData.extractFrom(null);
     }
 
-    private java.util.Optional<String> getMsaVersion(Optional<String> responseBodyMsaVersion, Optional<String> requestIdMsaVersion) {
-        Optional<String> actualMsaVersion;
+    private Optional<String> getMsaVersion(Optional<String> responseBodyMsaVersion, Optional<String> requestIdMsaVersion) {
         if (requestIdMsaVersion.isPresent()) {
             // if we have conflicting return values, lets trust the one from the ID a little bit more
             String responseMsaVersion = responseBodyMsaVersion.orNull();
@@ -133,11 +130,9 @@ public class MatchingServiceHealthChecker {
             if (responseMsaVersion != null && !responseMsaVersion.equals(extractedMsaVersion)) {
                 LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", responseMsaVersion, extractedMsaVersion);
             }
-            actualMsaVersion = requestIdMsaVersion;
-        } else {
-            actualMsaVersion = responseBodyMsaVersion;
+            return requestIdMsaVersion;
         }
-        return actualMsaVersion.toJavaUtil();
+        return responseBodyMsaVersion;
     }
 
     private void validateRequestSignature(Element matchingServiceRequest) {
@@ -164,13 +159,9 @@ public class MatchingServiceHealthChecker {
             final String versionNumber,
             final boolean isOnboarding) {
 
-        boolean isSupported = isMsaVersionSupported(versionNumber);
+        boolean isSupported = supportedMsaVersionsRepository.getSupportedVersions().contains(versionNumber);
         return new MatchingServiceHealthCheckDetails(matchingServiceUri, message, versionNumber,
                 isSupported, isOnboarding);
-    }
-
-    private boolean isMsaVersionSupported(final String versionNumber) {
-        return versionNumber != null && supportedMsaVersionsRepository.getSupportedVersions().contains(versionNumber);
     }
 
     private MatchingServiceHealthCheckDetails generateHealthCheckFailureDescription(
