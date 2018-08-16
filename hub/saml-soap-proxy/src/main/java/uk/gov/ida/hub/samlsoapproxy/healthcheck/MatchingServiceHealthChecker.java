@@ -85,6 +85,7 @@ public class MatchingServiceHealthChecker {
                     configEntity.getUri()
             );
 
+            return buildMatchingServiceHealthCheckResult(configEntity, responseDto.getResponse(), responseDto.getVersionNumber());
         } catch (ApplicationException e) {
             final String message = format("Saml-engine was unable to generate saml to send to MSA: {0}", e);
             eventLogger.logException(e, message);
@@ -93,21 +94,13 @@ public class MatchingServiceHealthChecker {
             final String message = format("Unable to convert saml request to XML element: {0}", e);
             return logAndCreateUnhealthyResponse(configEntity, message);
         }
-
-        return buildMatchingServiceHealthCheckResult(configEntity, responseDto.getResponse(), responseDto.getVersionNumber());
     }
 
     private MatchingServiceHealthCheckResult buildMatchingServiceHealthCheckResult(final MatchingServiceConfigEntityDataDto configEntity,
                                                                                    final Optional<String> responseBody,
-                                                                                   final Optional<String> responseMsaVersion) {
+                                                                                   final Optional<String> responseMsaVersion) throws ParserConfigurationException, SAXException, IOException {
 
-        final HealthCheckData healthCheckData;
-        try {
-            healthCheckData = getHealthCheckData(responseBody);
-        } catch (IllegalStateException e) {
-            final String message = format("Unable to convert saml request to XML element: {0}", e);
-            return logAndCreateUnhealthyResponse(configEntity, message);
-        }
+        final HealthCheckData healthCheckData = getHealthCheckData(responseBody);
 
         final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion()).orElse(UNDEFINED_VERSION);
         
@@ -119,16 +112,11 @@ public class MatchingServiceHealthChecker {
         }
     }
 
-    private HealthCheckData getHealthCheckData(Optional<String> responseBody) {
+    private HealthCheckData getHealthCheckData(Optional<String> responseBody) throws IOException, SAXException, ParserConfigurationException {
+
         HealthCheckData healthCheckData;
         if (responseBody.isPresent()) {
-            Response response;
-            try {
-                response = elementToResponseTransformer.apply(XmlUtils.convertToElement(responseBody.get()));
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-                throw new IllegalStateException(e);
-            }
-
+            Response response = elementToResponseTransformer.apply(XmlUtils.convertToElement(responseBody.get()));
             healthCheckData = HealthCheckData.extractFrom(response.getID());
         } else {
             healthCheckData = HealthCheckData.extractFrom(null);
