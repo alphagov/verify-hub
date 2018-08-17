@@ -109,7 +109,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnSuccessWithMessageForHealthyMatchingService() {
+    public void shouldReturnSuccessWithMessageForHealthyMatchingService() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
@@ -149,7 +149,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnVersionIfPresentWithMessageForHealthyMatchingService() {
+    public void shouldReturnVersionIfPresentWithMessageForHealthyMatchingService() {
         final String versionNumber = "version-0.1";
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
@@ -161,7 +161,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnResultWhenVersionIsNotReturnedByMsa() {
+    public void shouldReturnResultWhenVersionIsNotReturnedByMsa() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
@@ -172,7 +172,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnResultWhenVersionReturnedByMsaIsSupported() {
+    public void shouldReturnResultWhenVersionReturnedByMsaIsSupported() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.of(SUPPORTED_MSA_VERSION_NUMBER));
@@ -183,7 +183,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnResultWhenVersionReturnedByMsaIsNotSupported() {
+    public void shouldReturnResultWhenVersionReturnedByMsaIsNotSupported() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.of(UNSUPPORTED_MSA_VERSION_NUMBER));
@@ -206,7 +206,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnVersionIfPresentInResponseIDButNotHeaderWithMessageForHealthyMatchingService() {
+    public void shouldReturnVersionIfPresentInResponseIDButNotHeaderWithMessageForHealthyMatchingService() {
         final String versionNumber = "180";
         final Optional<String> headerVersion = Optional.absent();
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
@@ -220,7 +220,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnVersionIfSameOneIsPresentInResponseIDAndHeaderWithMessageForHealthyMatchingService() {
+    public void shouldReturnVersionIfSameOneIsPresentInResponseIDAndHeaderWithMessageForHealthyMatchingService() {
         final String versionNumber = "180";
         final Optional<String> headerVersion = Optional.fromNullable(versionNumber);
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
@@ -234,7 +234,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnResponseIdVersionIfDifferentOnesArePresentInResponseIDAndHeaderWithMessageForHealthyMatchingService() {
+    public void shouldReturnResponseIdVersionIfDifferentOnesArePresentInResponseIDAndHeaderWithMessageForHealthyMatchingService() {
         final Optional<String> headerVersion = Optional.fromNullable("HEADERVER");
         final String idVersion = "IDVER";
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
@@ -354,7 +354,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnFailureWithMessageForUnhealthyMatchingService() {
+    public void shouldReturnFailureWithMessageForUnhealthyMatchingService() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         prepareForResponse(matchingServiceConfigEntityDataDto, RequesterError, Optional.absent());
@@ -366,7 +366,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnFailureWithMessageForMatchingServiceThatCannotBeTransformed() {
+    public void shouldReturnFailureWithMessageForMatchingServiceThatCannotBeTransformed() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         when(samlEngineProxy.generateHealthcheckAttributeQuery(any())).thenReturn(new SamlMessageDto("<saml/>"));
@@ -384,7 +384,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnFailureWithMessageFromMatchingServiceThatCannotBeParsed() {
+    public void shouldReturnFailureWithMessageFromMatchingServiceThatCannotBeParsed() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         when(samlEngineProxy.generateHealthcheckAttributeQuery(any())).thenReturn(new SamlMessageDto("samSamSaml"));
@@ -402,7 +402,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnFailureWithMessageForMatchingServiceThatCannotBeGeneratedBySamlEngine() {
+    public void shouldReturnFailureWithMessageForMatchingServiceThatCannotBeGeneratedBySamlEngine() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         when(samlEngineProxy.generateHealthcheckAttributeQuery(any())).thenThrow(ApplicationException.createAuditedException(ExceptionType.INVALID_INPUT, UUID.randomUUID()));
@@ -414,7 +414,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldExecuteHealthCheckForMatchingServiceWithHealthCheckEnabled() {
+    public void shouldExecuteHealthCheckForMatchingServiceWithHealthCheckEnabled() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto()
                         .withHealthCheckEnabled()
@@ -429,7 +429,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldReturnReportWhenHubFailsToPerformHealthCheck() {
+    public void shouldReturnReportWhenHubFailsToPerformHealthCheck() {
         final String expectedFailureDetails = "no response";
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
@@ -447,7 +447,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldIncludeOnboardingStatusTrueWhenMsaIsOnboarding() {
+    public void shouldIncludeOnboardingStatusTrueWhenMsaIsOnboarding() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto()
                         .withOnboarding(true)
@@ -461,7 +461,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldIncludeOnboardingStatusFalseWhenMsaIsNotOnboarding() {
+    public void shouldIncludeOnboardingStatusFalseWhenMsaIsNotOnboarding() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto()
                         .withOnboarding(false)
@@ -475,7 +475,7 @@ public class MatchingServiceHealthCheckerTest {
     }
 
     @Test
-    public void handle_shouldBase64EncodeSamlToBeSentToSamlEngine() {
+    public void shouldBase64EncodeSamlToBeSentToSamlEngine() {
         final String saml = "<samlsamlsamlsamlsamlsamlsamlsamlsaml/>";
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
