@@ -9,6 +9,8 @@ public class MatchingServiceHealthCheckDetailsBuilder {
     private URI matchingServiceUri = URI.create("/default-matching-service-uri");
     private String details = "default-failure-reason";
     private String versionNumber;
+    private String isEidasEnabled;
+    private String shouldSignWithSha1;
 
     public static MatchingServiceHealthCheckDetailsBuilder aMatchingServiceHealthCheckDetails() {
         return new MatchingServiceHealthCheckDetailsBuilder();
@@ -20,7 +22,9 @@ public class MatchingServiceHealthCheckDetailsBuilder {
                 details,
                 versionNumber,
                 false,
-                false);
+                false,
+                isEidasEnabled,
+                shouldSignWithSha1);
     }
 
     public MatchingServiceHealthCheckDetailsBuilder withDetails(String failureDetails) {
@@ -36,5 +40,13 @@ public class MatchingServiceHealthCheckDetailsBuilder {
     public MatchingServiceHealthCheckDetailsBuilder withVersionNumber(String versionNumber) {
         this.versionNumber = versionNumber;
         return this;
+    }
+
+    public void withEidasEnabled(String isEidasEnabled) {
+        this.isEidasEnabled = isEidasEnabled;
+    }
+
+    public void withShouldSignWithSha1(String shouldSignWithSha1) {
+        this.shouldSignWithSha1 = shouldSignWithSha1;
     }
 }
