@@ -36,6 +36,7 @@ public class SessionRepositoryTest {
 
     private SessionRepository sessionRepository;
     private ConcurrentMap<SessionId, State> dataStore;
+    private ConcurrentMap<SessionId, DateTime> sessionStartedMap;
     private DateTime defaultSessionExpiry = DateTime.now().plusDays(8);
 
     @Mock
@@ -50,7 +51,8 @@ public class SessionRepositoryTest {
     @Before
     public void setup() {
         dataStore = new ConcurrentHashMap<>();
-        sessionRepository = new SessionRepository(dataStore, controllerFactory);
+        sessionStartedMap = new ConcurrentHashMap<>();
+        sessionRepository = new SessionRepository(dataStore, sessionStartedMap, controllerFactory);
     }
 
     @Test(expected = InvalidSessionStateException.class)
@@ -71,6 +73,7 @@ public class SessionRepositoryTest {
 
         assertThat(sessionId).isEqualTo(expectedSessionId);
         assertThat(dataStore.containsKey(expectedSessionId)).isEqualTo(true);
+        assertThat(sessionStartedMap.containsKey(expectedSessionId)).isEqualTo(true);
         verify(controllerFactory).build(eq(sessionStartedState), any(StateTransitionAction.class));
     }
 
