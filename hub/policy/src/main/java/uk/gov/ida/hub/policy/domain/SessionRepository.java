@@ -28,14 +28,17 @@ public class SessionRepository {
     private static final Logger LOG = LoggerFactory.getLogger(SessionRepository.class);
 
     private final ConcurrentMap<SessionId, State> dataStore;
+    private final ConcurrentMap<SessionId, DateTime> sessionStartedMap;
     private final StateControllerFactory controllerFactory;
 
     @Inject
     public SessionRepository(
             ConcurrentMap<SessionId, State> dataStore,
+            ConcurrentMap<SessionId, DateTime> sessionStartedMap,
             StateControllerFactory controllerFactory) {
 
         this.dataStore = dataStore;
+        this.sessionStartedMap = sessionStartedMap;
         this.controllerFactory = controllerFactory;
     }
 
@@ -43,6 +46,7 @@ public class SessionRepository {
         SessionId sessionId = startedState.getSessionId();
 
         dataStore.put(sessionId, startedState);
+        sessionStartedMap.put(sessionId, startedState.getSessionExpiryTimestamp());
         LOG.info(format("Session {0} created", sessionId.getSessionId()));
 
         return sessionId;
@@ -150,8 +154,8 @@ public class SessionRepository {
     }
 
     private boolean isTimedOut(SessionId sessionId) {
-        if (dataStore.containsKey(sessionId)) {
-            DateTime expiryTime = dataStore.get(sessionId).getSessionExpiryTimestamp();
+        if (sessionStartedMap.containsKey(sessionId)) {
+            DateTime expiryTime = sessionStartedMap.get(sessionId);
             return DateTime.now().isAfter(expiryTime);
         } else {
             throw new SessionNotFoundException(sessionId);

@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import io.dropwizard.setup.Environment;
+import org.joda.time.DateTime;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.eventemitter.Configuration;
@@ -125,6 +126,12 @@ public class PolicyModule extends AbstractModule {
     @Singleton
     public ConcurrentMap<SessionId, State> sessionCache(InfinispanCacheManager infinispanCacheManager) {
         return infinispanCacheManager.getCache("state_cache");
+    }
+
+    @Provides
+    @Singleton
+    public ConcurrentMap<SessionId, DateTime> datetime_cache(InfinispanCacheManager infinispanCacheManager) {
+        return infinispanCacheManager.getCache("datetime_cache");
     }
 
     @Provides
