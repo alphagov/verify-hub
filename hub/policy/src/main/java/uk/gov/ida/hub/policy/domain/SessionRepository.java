@@ -28,17 +28,14 @@ public class SessionRepository {
     private static final Logger LOG = LoggerFactory.getLogger(SessionRepository.class);
 
     private final ConcurrentMap<SessionId, State> dataStore;
-    private final ConcurrentMap<SessionId, DateTime> sessionStartedMap;
     private final StateControllerFactory controllerFactory;
 
     @Inject
     public SessionRepository(
             ConcurrentMap<SessionId, State> dataStore,
-            ConcurrentMap<SessionId, DateTime> sessionStartedMap,
             StateControllerFactory controllerFactory) {
 
         this.dataStore = dataStore;
-        this.sessionStartedMap = sessionStartedMap;
         this.controllerFactory = controllerFactory;
     }
 
@@ -46,7 +43,6 @@ public class SessionRepository {
         SessionId sessionId = startedState.getSessionId();
 
         dataStore.put(sessionId, startedState);
-        sessionStartedMap.put(sessionId, startedState.getSessionExpiryTimestamp());
         LOG.info(format("Session {0} created", sessionId.getSessionId()));
 
         return sessionId;
