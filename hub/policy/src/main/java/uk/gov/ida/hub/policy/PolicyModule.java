@@ -53,7 +53,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.KeyStore;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
 public class PolicyModule extends AbstractModule {
