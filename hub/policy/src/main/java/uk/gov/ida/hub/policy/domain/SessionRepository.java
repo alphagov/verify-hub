@@ -154,8 +154,8 @@ public class SessionRepository {
     }
 
     private boolean isTimedOut(SessionId sessionId) {
-        if (sessionStartedMap.containsKey(sessionId)) {
-            DateTime expiryTime = sessionStartedMap.get(sessionId);
+        if (dataStore.containsKey(sessionId)) {
+            DateTime expiryTime = dataStore.get(sessionId).getSessionExpiryTimestamp();
             return DateTime.now().isAfter(expiryTime);
         } else {
             throw new SessionNotFoundException(sessionId);
