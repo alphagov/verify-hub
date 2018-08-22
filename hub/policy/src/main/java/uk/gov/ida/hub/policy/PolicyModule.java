@@ -115,7 +115,7 @@ public class PolicyModule extends AbstractModule {
                 environment,
                 configuration.getSamlSoapProxyClient(),
                 configuration.getEnableRetryTimeOutConnections(),
-                "SamlSoapProxyClient").get();
+                "policySoapClient").get();
         ErrorHandlingClient errorHandlingClient = new ErrorHandlingClient(client);
         return new JsonClient(errorHandlingClient, responseProcessor);
     }
