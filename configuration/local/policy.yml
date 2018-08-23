@@ -16,11 +16,11 @@ logging:
 
 
 infinispan:
-  bindAddress: 
-  initialHosts: 
-  clusterName: 
-  type: standalone
-  expiration: 8h
+  bindAddress: ${INFINISPAN_BIND_ADDRESS:-""}
+  initialHosts: ${INFINISPAN_INITIAL_HOSTS:-""}
+  clusterName: ${INFINISPAN_CLUSTER_NAME:-""}
+  type: ${INFINISPAN_TYPE:-"standalone"}
+  expiration: ${INFINISPAN_EXPIRATION:-"8h"}
   persistenceToFileEnabled: false
 
 eventSinkUri: ${EVENT_SINK_URL}
@@ -56,9 +56,10 @@ timeoutPeriod: 60m
 assertionLifetime: 60m
 matchingServiceResponseWaitPeriod: 60s
 
+# this can't accept encoded truststores
 clientTrustStoreConfiguration:
   path: ${HUB_TRUST_STORE_PATH:-/data/pki/hub.ts}
-  password: marshmallow
+  password: ${TRUSTSTORE_PASSWORD:-"marshmallow"}
 
 eidas: true
 

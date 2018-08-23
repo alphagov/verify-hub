@@ -31,11 +31,11 @@ httpClient:
   validateAfterInactivityPeriod: 5s
 
 infinispan:
-  bindAddress: 
-  initialHosts: 
-  clusterName: 
-  type: standalone
-  expiration: 8h
+  bindAddress: ${INFINISPAN_BIND_ADDRESS:-""}
+  initialHosts: ${INFINISPAN_INITIAL_HOSTS:-""}
+  clusterName: ${INFINISPAN_CLUSTER_NAME:-""}
+  type: ${INFINISPAN_TYPE:-"standalone"}
+  expiration: ${INFINISPAN_EXPIRATION:-"8h"}
   persistenceToFileEnabled: false
 
 configUri: ${CONFIG_URL}
@@ -46,29 +46,36 @@ serviceInfo:
 readKeysFromFileDescriptors: false
 
 privateSigningKeyConfiguration:
-  keyFile: /data/pki/hub_signing_primary.pk8
+  type: ${KEY_TYPE:-"file"}
+  key: ${HUB_PRIVATE_SIGNING_KEY_PRIMARY:-"/data/pki/hub_signing_primary.pk8"}
 
 publicSigningCert:
-   certFile: /data/pki/hub_signing_primary.crt
+   type: ${CERT_TYPE:-"file"}
+   cert: ${HUB_PUBLIC_SIGNING_CERT_PRIMARY:-"/data/pki/hub_signing_primary.crt"}
    name: someId
 
 primaryPrivateEncryptionKeyConfiguration:
-  keyFile: /data/pki/hub_encryption_primary.pk8
+  type: ${KEY_TYPE:-"file"}
+  key: ${HUB_PRIVATE_ENCRYPTION_KEY_PRIMARY:-"/data/pki/hub_encryption_primary.pk8"}
 
 primaryPublicEncryptionCert:
-   certFile: /data/pki/hub_encryption_primary.crt
+   type: ${CERT_TYPE:-"file"}
+   cert: ${HUB_PUBLIC_ENCRYPTION_CERT_PRIMARY:-"/data/pki/hub_encryption_primary.crt"}
    name: someId
 
 secondaryPrivateEncryptionKeyConfiguration:
-  keyFile: /data/pki/hub_encryption_primary.pk8
+  type: ${KEY_TYPE:-"file"}
+  key: ${HUB_PRIVATE_ENCRYPTION_KEY_PRIMARY:-"/data/pki/hub_encryption_primary.pk8"}
 
 secondaryPublicEncryptionCert:
-   certFile: /data/pki/hub_encryption_primary.crt
+   type: ${CERT_TYPE:-"file"}
+   cert: ${HUB_PUBLIC_ENCRYPTION_CERT_PRIMARY:-"/data/pki/hub_encryption_primary.crt"}
    name: someId
 
+# this can't accept encoded truststores
 rpTrustStoreConfiguration:
   path: /data/pki/relying_parties.ts
-  password: marshmallow
+  password: ${TRUSTSTORE_PASSWORD:-"marshmallow"}
 
 authnRequestIdExpirationDuration: 60m
 
@@ -76,20 +83,21 @@ authnRequestValidityDuration: 5m
 
 metadata:
   uri: ${METADATA_URL}
-  trustStorePath: /data/pki/metadata.ts
-  trustStorePassword: marshmallow
   trustStore:
-    path: /data/pki/metadata.ts
-    password: marshmallow
+    type: ${TRUSTSTORE_TYPE:-"file"}
+    store: ${METADATA_TRUST_STORE:-"/data/pki/metadata.ts"}
+    password: ${METADATA_TRUST_STORE_PASSWORD:-"marshmallow"}
   hubTrustStore:
-    path: /data/pki/hub_federation.ts
-    password: marshmallow
+    type: ${TRUSTSTORE_TYPE:-"file"}
+    store: ${HUB_FEDERATION_TRUST_STORE:-"/data/pki/hub_federation.ts"}
+    password: ${HUB_FEDERATION_TRUST_STORE_PASSWORD:-"marshmallow"}
   idpTrustStore:
-    path: /data/pki/idp_federation.ts
-    password: marshmallow
+    type: ${TRUSTSTORE_TYPE:-"file"}
+    store: ${IDP_FEDERATION_TRUST_STORE:-"/data/pki/idp_federation.ts"}
+    password: ${IDP_FEDERATION_TRUST_STORE_PASSWORD:-"marshmallow"}
   minRefreshDelay: 60000
   maxRefreshDelay: 600000
-  expectedEntityId: https://dev-hub.local
+  expectedEntityId: ${METADATA_ENTITY_ID}
   jerseyClientName: verify-metadata-client
   client:
     timeout: 2s
@@ -110,8 +118,9 @@ country:
     trustAnchorUri: ${TRUST_ANCHOR_URL}
     metadataSourceUri: ${METADATA_SOURCE_URI}
     trustStore:
-      store: /data/pki/metadata.ts
-      password: marshmallow
+      type: ${TRUSTSTORE_TYPE:-"file"}
+      store: ${METADATA_TRUST_STORE:-"/data/pki/metadata.ts"}
+      password: ${METADATA_TRUST_STORE_PASSWORD:-"marshmallow"}
     minRefreshDelay: 5000
     maxRefreshDelay: 60000
     jerseyClientName: country-metadata-client
