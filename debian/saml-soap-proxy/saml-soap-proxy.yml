@@ -68,6 +68,15 @@ soapHttpClient:
     verifyHostname: true
     trustStorePath: /ida/truststore/ida_root_ca_truststore.ts
     trustStorePassword: ${KEYSTORE_PASSWORD}
+  retries: 3
+  retryBackoffPeriod: 1s
+  retryExceptionNames:
+    - java.net.SocketException
+    - java.net.SocketTimeoutException
+    - org.apache.http.NoHttpResponseException
+    - org.apache.http.conn.ConnectTimeoutException
+    - java.net.ConnectException
+    - org.apache.http.conn.HttpHostConnectException
 
 healthCheckSoapHttpClient:
   timeout: 2s

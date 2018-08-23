@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.configuration.JerseyClientWithRetryBackoffConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
 import uk.gov.ida.hub.samlsoapproxy.config.SamlConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
@@ -36,7 +37,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Valid
     @NotNull
     @JsonProperty
-    protected JerseyClientConfiguration soapHttpClient;
+    protected JerseyClientWithRetryBackoffConfiguration soapHttpClient;
 
     @Valid
     @NotNull
@@ -100,7 +101,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
         return matchingServiceExecutorConfiguration;
     }
 
-    public JerseyClientConfiguration getSoapJerseyClientConfiguration() {
+    public JerseyClientWithRetryBackoffConfiguration getSoapJerseyClientConfiguration() {
         return soapHttpClient;
     }
 
