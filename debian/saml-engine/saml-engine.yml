@@ -41,13 +41,6 @@ saml:
 
 enableRetryTimeOutConnections: true
 
-primaryPublicEncryptionCert:
-  name: hub_encryption_cert_1
-  certFile: ${PKI_PRIMARY_ENCRYPTION_CERT_PATH}
-secondaryPublicEncryptionCert:
-  name: hub_encryption_cert_2
-  certFile: ${PKI_SECONDARY_ENCRYPTION_CERT_PATH}
-
 httpClient:
   timeout: 60s
   timeToLive: 10m
