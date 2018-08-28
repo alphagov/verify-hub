@@ -30,19 +30,18 @@ def debian_package_filename(build_number, package_name)
 end
 
 def build_debian_package(build_number, service_path, service_name, package_name)
-  Dir.chdir("#{PROJECT_ROOT}/#{service_path}/build/output")
+  Dir.chdir("#{PROJECT_ROOT}/#{service_path}/build/install")
   FileUtils.rm_rf('deb/')
   FileUtils.mkdir_p("deb/ida/#{package_name}")
   FileUtils.mkdir_p("deb/opt/orch/#{service_name}")
   FileUtils.mkdir_p("deb/var/log/ida/debug")
   FileUtils.mkdir_p("deb/etc/logrotate.d")
-  FileUtils.cp("#{service_name}.jar", "deb/ida/#{package_name}/#{package_name}.jar")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/#{package_name}.yml", "deb/ida/#{package_name}/#{package_name}.yml")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/orch-deploy", "deb/opt/orch/#{service_name}/deploy")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/orch-ready", "deb/opt/orch/#{service_name}/ready")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/orch-restart", "deb/opt/orch/#{service_name}/restart")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/logrotate-console-log", "deb/etc/logrotate.d/#{service_name}")
-  FileUtils.cp_r('lib', "deb/ida/#{package_name}/")
+  FileUtils.cp_r(service_name, "deb/ida/")
 
   package_file_name = debian_package_filepath(build_number, package_name)
   system "bundle exec fpm -C deb -s dir -t deb -n '#{package_name}' -v #{build_number} --deb-no-default-config-files --deb-upstart #{PROJECT_ROOT}/debian/#{service_name}/upstart/#{service_name} --prefix=/ --after-install #{PROJECT_ROOT}/debian/#{package_name}/postinst.sh -p #{package_file_name} ."
@@ -53,9 +52,9 @@ def build_debian_package(build_number, service_path, service_name, package_name)
 end
 
 def verify_debian_package(package_file_path, package_identifier, install_prefix)
-  puts "looking for: #{install_prefix}/#{package_identifier}/#{package_identifier}.jar"
-  jar_exists = system %Q(dpkg -c #{package_file_path} | grep '#{install_prefix}/#{package_identifier}/#{package_identifier}\.jar$' > /dev/null)
-  unless jar_exists
+  puts "looking for: #{install_prefix}/#{package_identifier}/bin/#{package_identifier}"
+  install_script_exists = system %Q(dpkg -c #{package_file_path} | grep '#{install_prefix}/#{package_identifier}/bin/#{package_identifier}$' > /dev/null)
+  unless install_script_exists
     raise 'Invalid debian package structure.'
   end
 end

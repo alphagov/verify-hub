@@ -32,30 +32,26 @@ script
   if [ -r /etc/default/saml-engine ]; then
     . /etc/default/saml-engine
   fi
-  if [ -x ${JAVA_HOME}/bin/java ]; then
-    JAVA=${JAVA_HOME}/bin/java
-  else
-    JAVA=/usr/bin/java
-  fi
+
+  export JAVA_OPTS="-Dservice.name=saml-engine \
+                        -XX:HeapDumpPath=/var/log/ida/debug \
+                        -XX:+HeapDumpOnOutOfMemoryError \
+                        -Xms256m -Xmx256m \
+                        -Dhttp.proxyHost=${PROXY_HOST:-} \
+                        -Dhttp.proxyPort=${PROXY_PORT:-} \
+                        -Dhttps.proxyHost=${PROXY_HOST:-} \
+                        -Dhttps.proxyPort=${PROXY_PORT:-} \
+                        -Dhttp.nonProxyHosts=${NON_PROXY_HOSTS:-} \
+                        -Dnetworkaddress.cache.ttl=5
+                        -Dnetworkaddress.cache.negative.ttl=5"
+
   exec start-stop-daemon \
     --start \
     -c saml-engine \
     --make-pidfile \
     --pidfile "/var/run/saml-engine.pidfile" \
-    --exec ${JAVA} \
+    --exec /ida/saml-engine/bin/saml-engine \
     -- \
-    -Dservice.name=saml-engine \
-    -XX:HeapDumpPath=/var/log/ida/debug \
-    -XX:+HeapDumpOnOutOfMemoryError \
-    -Xms768m -Xmx768m \
-    -Dhttp.proxyHost=${PROXY_HOST:-} \
-    -Dhttp.proxyPort=${PROXY_PORT:-} \
-    -Dhttps.proxyHost=${PROXY_HOST:-} \
-    -Dhttps.proxyPort=${PROXY_PORT:-} \
-    -Dhttp.nonProxyHosts="${NON_PROXY_HOSTS:-}" \
-    -Dnetworkaddress.cache.ttl=5 \
-    -Dnetworkaddress.cache.negative.ttl=5 \
-    -jar /ida/saml-engine/saml-engine.jar \
     server /ida/saml-engine/saml-engine.yml \
     1>> /var/log/ida/saml-engine.console-log 2>&1 \
     4<${PKI_PRIMARY_PRIVATE_ENCRYPTION_KEY_PATH:-/ida/apps-home/keys/hub_encryption_primary.pk8} \
