@@ -35,24 +35,20 @@ script
   if [ -r /etc/default/saml-proxy ]; then
     . /etc/default/saml-proxy
   fi
-  if [ -x ${JAVA_HOME}/bin/java ]; then
-    JAVA=${JAVA_HOME}/bin/java
-  else
-    JAVA=/usr/bin/java
-  fi
-  exec ${JAVA} \
-    -Dservice.name=saml-proxy \
-    -XX:HeapDumpPath=/var/log/ida/debug \
-    -XX:+HeapDumpOnOutOfMemoryError \
-    -Xms384m -Xmx384m \
-    -Dhttp.proxyHost=${PROXY_HOST:-} \
-    -Dhttp.proxyPort=${PROXY_PORT:-} \
-    -Dhttps.proxyHost=${PROXY_HOST:-} \
-    -Dhttps.proxyPort=${PROXY_PORT:-} \
-    -Dhttp.nonProxyHosts="${NON_PROXY_HOSTS:-}" \
-    -Dnetworkaddress.cache.ttl=5 \
-    -Dnetworkaddress.cache.negative.ttl=5 \
-    -jar /ida/saml-proxy/saml-proxy.jar \
+
+  export JAVA_OPTS="-Dservice.name=saml-proxy \
+                        -XX:HeapDumpPath=/var/log/ida/debug \
+                        -XX:+HeapDumpOnOutOfMemoryError \
+                        -Xms256m -Xmx256m \
+                        -Dhttp.proxyHost=${PROXY_HOST:-} \
+                        -Dhttp.proxyPort=${PROXY_PORT:-} \
+                        -Dhttps.proxyHost=${PROXY_HOST:-} \
+                        -Dhttps.proxyPort=${PROXY_PORT:-} \
+                        -Dhttp.nonProxyHosts=${NON_PROXY_HOSTS:-} \
+                        -Dnetworkaddress.cache.ttl=5
+                        -Dnetworkaddress.cache.negative.ttl=5"
+
+  exec /ida/saml-proxy/bin/saml-proxy \
     server /ida/saml-proxy/saml-proxy.yml \
     1>> /var/log/ida/saml-proxy.console-log 2>&1
 end script

@@ -29,30 +29,27 @@ pre-stop script
 end script
 
 script
+
   if [ -r /etc/default/verify ]; then
     . /etc/default/verify
   fi
   if [ -r /etc/default/config ]; then
     . /etc/default/config
   fi
-  if [ -x ${JAVA_HOME}/bin/java ]; then
-    JAVA=${JAVA_HOME}/bin/java
-  else
-    JAVA=/usr/bin/java
-  fi
-  exec ${JAVA} \
-    -Dservice.name=config \
-    -XX:HeapDumpPath=/var/log/ida/debug \
-    -XX:+HeapDumpOnOutOfMemoryError \
-    -Xms256m -Xmx256m \
-    -Dhttp.proxyHost=${PROXY_HOST:-} \
-    -Dhttp.proxyPort=${PROXY_PORT:-} \
-    -Dhttps.proxyHost=${PROXY_HOST:-} \
-    -Dhttps.proxyPort=${PROXY_PORT:-} \
-    -Dhttp.nonProxyHosts="${NON_PROXY_HOSTS:-}" \
-    -Dnetworkaddress.cache.ttl=5 \
-    -Dnetworkaddress.cache.negative.ttl=5 \
-    -jar /ida/config/config.jar \
+
+  export JAVA_OPTS="-Dservice.name=config \
+                        -XX:HeapDumpPath=/var/log/ida/debug \
+                        -XX:+HeapDumpOnOutOfMemoryError \
+                        -Xms256m -Xmx256m \
+                        -Dhttp.proxyHost=${PROXY_HOST:-} \
+                        -Dhttp.proxyPort=${PROXY_PORT:-} \
+                        -Dhttps.proxyHost=${PROXY_HOST:-} \
+                        -Dhttps.proxyPort=${PROXY_PORT:-} \
+                        -Dhttp.nonProxyHosts=${NON_PROXY_HOSTS:-} \
+                        -Dnetworkaddress.cache.ttl=5
+                        -Dnetworkaddress.cache.negative.ttl=5"
+
+  exec /ida/config/bin/config \
     server /ida/config/config.yml \
     1>> /var/log/ida/config.console-log 2>&1
 end script
