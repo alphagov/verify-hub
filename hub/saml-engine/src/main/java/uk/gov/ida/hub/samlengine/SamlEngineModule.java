@@ -16,6 +16,7 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.encryption.Decrypter;
+import org.opensaml.security.crypto.KeySupport;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
@@ -23,8 +24,6 @@ import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
-import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
-import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.hub.samlengine.annotations.Config;
 import uk.gov.ida.hub.samlengine.attributequery.AttributeQueryGenerator;
 import uk.gov.ida.hub.samlengine.attributequery.HubAttributeQueryRequestBuilder;
@@ -32,6 +31,7 @@ import uk.gov.ida.hub.samlengine.attributequery.HubEidasAttributeQueryRequestBui
 import uk.gov.ida.hub.samlengine.config.ConfigServiceKeyStore;
 import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
 import uk.gov.ida.hub.samlengine.exceptions.InvalidConfigurationException;
+import uk.gov.ida.hub.samlengine.exceptions.KeyLoadingException;
 import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
 import uk.gov.ida.hub.samlengine.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlengine.factories.OutboundResponseFromHubToResponseTransformerFactory;
@@ -40,7 +40,6 @@ import uk.gov.ida.hub.samlengine.logging.IdpAssertionMetricsCollector;
 import uk.gov.ida.hub.samlengine.proxy.CountrySingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
-import uk.gov.ida.hub.samlengine.security.Crypto;
 import uk.gov.ida.hub.samlengine.security.PrivateKeyFileDescriptors;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnRequestGeneratorService;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnResponseTranslatorService;
@@ -133,10 +132,10 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.security.KeyException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
@@ -440,18 +439,21 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private IdaKeyStore getKeyStore(X509CertificateFactory certificateFactory, SamlEngineConfiguration configuration) {
+    private IdaKeyStore getKeyStore(SamlEngineConfiguration configuration) {
         Map<KeyPosition, PrivateKey> privateKeyStore = privateEncryptionKeys(configuration);
 
-        DeserializablePublicKeyConfiguration publicSigningKeyConfiguration = configuration.getPublicSigningCert();
-        String encodedSigningCertificate = publicSigningKeyConfiguration.getCert();
-        X509Certificate signingCertificate = encodedSigningCertificate != null ? certificateFactory.createCertificate(encodedSigningCertificate) : null;
+        try {
+            PrivateKey primaryEncryptionKey = privateKeyStore.get(KeyPosition.PRIMARY);
+            PrivateKey secondaryEncryptionKey = privateKeyStore.get(KeyPosition.SECONDARY);
 
-        KeyPair primaryEncryptionKeyPair = Crypto.keyPairFromPrivateKey(privateKeyStore.get(KeyPosition.PRIMARY));
-        KeyPair secondaryEncryptionKeyPair = Crypto.keyPairFromPrivateKey(privateKeyStore.get(KeyPosition.SECONDARY));
-        KeyPair signingKeyPair = Crypto.keyPairFromPrivateKey(privateSigningKey(configuration));
+            KeyPair primaryEncryptionKeyPair = new KeyPair(KeySupport.derivePublicKey(primaryEncryptionKey), primaryEncryptionKey);
+            KeyPair secondaryEncryptionKeyPair = new KeyPair(KeySupport.derivePublicKey(secondaryEncryptionKey), secondaryEncryptionKey);
+            KeyPair signingKeyPair = new KeyPair(KeySupport.derivePublicKey(privateSigningKey(configuration)), privateSigningKey(configuration));
 
-        return new IdaKeyStore(signingCertificate, signingKeyPair, asList(primaryEncryptionKeyPair, secondaryEncryptionKeyPair));
+            return new IdaKeyStore(signingKeyPair, asList(primaryEncryptionKeyPair, secondaryEncryptionKeyPair));
+        } catch (KeyException e) {
+            throw new KeyLoadingException(e);
+        }
     }
 
     @Provides
