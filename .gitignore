@@ -1,4 +1,4 @@
-.ruby-version
+.bundle/
 *.class
 build
 .DS_Store
@@ -14,8 +14,6 @@ out/
 *.log
 apps-home
 apps-local-data
-hub/frontend/src/main/resources/assets/stylesheets
-hub/frontend/.jruby/gems
 *.swp
 *~
 *#
