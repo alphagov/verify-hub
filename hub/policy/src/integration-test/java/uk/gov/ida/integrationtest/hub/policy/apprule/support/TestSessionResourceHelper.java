@@ -1,10 +1,12 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
+import uk.gov.ida.hub.policy.builder.state.CountryAuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
@@ -120,6 +122,27 @@ public class TestSessionResourceHelper {
                 null,
                 state.getAssertionConsumerServiceUri(),
                 Collections.emptyList(),
+                false,
+                state.getTransactionSupportsEidas());
+
+        return client.target(uri)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(testSessionDto));
+    }
+
+    public static Response createSessionInCountryAuthnFailedErrorState(SessionId sessionId, Client client, URI uri) {
+        CountryAuthnFailedErrorState state = CountryAuthnFailedErrorStateBuilder.aCountryAuthnFailedErrorState().build();
+        TestSessionDto testSessionDto = new TestSessionDto(
+                sessionId,
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp(),
+                state.getCountryEntityId(),
+                state.getRelayState().orNull(),
+                state.getRequestIssuerEntityId(),
+                null,
+                null,
+                state.getAssertionConsumerServiceUri(),
+                state.getLevelsOfAssurance(),
                 false,
                 state.getTransactionSupportsEidas());
 
