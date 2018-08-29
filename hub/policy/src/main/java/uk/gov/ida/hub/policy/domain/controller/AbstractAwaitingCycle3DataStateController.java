@@ -20,6 +20,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 public abstract class AbstractAwaitingCycle3DataStateController<S extends AbstractAttributeQueryRequestDto, T extends AbstractAwaitingCycle3DataState> implements StateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
+
     private final T state;
     private final HubEventLogger hubEventLogger;
     private final StateTransitionAction stateTransitionAction;

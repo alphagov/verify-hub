@@ -30,7 +30,9 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
+import static uk.gov.ida.hub.policy.builder.state.CountryAuthnFailedErrorStateBuilder.aCountryAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder.aCountrySelectedState;
+import static uk.gov.ida.hub.policy.builder.state.CountryUserAccountCreationFailedStateBuilder.aCountryUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateBuilder.aCycle3DataInputCancelledState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
@@ -103,14 +105,6 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(Cycle0And1MatchRequestSentStateController.class);
     }
 
-    @Deprecated
-    @Test
-    public void shouldCreateACycle0And1MatchRequestSentStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aCycle0And1MatchRequestSentState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(Cycle0And1MatchRequestSentStateController.class);
-    }
-
     @Test
     public void shouldCreateAnEidasCycle0And1MatchRequestSentStateController() {
         StateController stateController = stateControllerFactory.build(anEidasCycle0And1MatchRequestSentState().build(), stateTransitionAction);
@@ -167,14 +161,6 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(Cycle3MatchRequestSentStateController.class);
     }
 
-    @Deprecated
-    @Test
-    public void shouldCreateACycle3MatchRequestSentStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aCycle3MatchRequestSentState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(Cycle3MatchRequestSentStateController.class);
-    }
-
     @Test
     public void shouldCreateATimeoutStateController() {
         StateController controller = stateControllerFactory.build(aTimeoutState().build(),stateTransitionAction);
@@ -212,6 +198,13 @@ public class StateControllerFactoryTest {
     }
 
     @Test
+    public void shouldCreateACountryAuthnFailedErrorStateController() {
+        StateController controller = stateControllerFactory.build(aCountryAuthnFailedErrorState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(CountryAuthnFailedErrorStateController.class);
+    }
+
+    @Test
     public void shouldCreateAFraudEventDetectedStateController() {
         StateController controller = stateControllerFactory.build(aFraudEventDetectedState().build(), stateTransitionAction);
 
@@ -237,6 +230,13 @@ public class StateControllerFactoryTest {
         StateController controller = stateControllerFactory.build(aUserAccountCreationFailedState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(UserAccountCreationFailedStateController.class);
+    }
+
+    @Test
+    public void shouldCreateACountryUserAccountCreationFailedStateController() {
+        StateController controller = stateControllerFactory.build(aCountryUserAccountCreationFailedState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(CountryUserAccountCreationFailedStateController.class);
     }
 
     @Test

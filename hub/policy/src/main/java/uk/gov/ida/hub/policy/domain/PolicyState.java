@@ -2,8 +2,10 @@ package uk.gov.ida.hub.policy.domain;
 
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
+import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
@@ -45,10 +47,12 @@ public enum PolicyState {
     MATCHING_SERVICE_REQUEST_ERROR(MatchingServiceRequestErrorState.class),
     USER_ACCOUNT_CREATION_REQUEST_SENT(UserAccountCreationRequestSentState.class),
     AUTHN_FAILED_ERROR(AuthnFailedErrorState.class),
+    COUNTRY_AUTHN_FAILED_ERROR(CountryAuthnFailedErrorState.class),
     FRAUD_EVENT_DETECTED(FraudEventDetectedState.class),
     REQUESTER_ERROR(RequesterErrorState.class),
     CYCLE_3_DATA_INPUT_CANCELLED(Cycle3DataInputCancelledState.class),
-    USER_ACCOUNT_CREATION_FAILED(UserAccountCreationFailedState.class);
+    USER_ACCOUNT_CREATION_FAILED(UserAccountCreationFailedState.class),
+    COUNTRY_USER_ACCOUNT_CREATION_FAILED(CountryUserAccountCreationFailedState .class);
 
     private final Class<? extends State> stateClass;
 
