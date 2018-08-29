@@ -125,6 +125,5 @@ eventEmitterConfiguration:
   accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
   secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
   region: eu-west-2
-  queueAccountId: ${EVENT_EMITTER_SOURCE_QUEUE_NAME}
-  sourceQueueName: ${EVENT_EMITTER_SOURCE_QUEUE_NAME}
   encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
+  apiGatewayUrl: ${EVENT_EMITTER_API_GATEYWAY_URL:-http://not.used}

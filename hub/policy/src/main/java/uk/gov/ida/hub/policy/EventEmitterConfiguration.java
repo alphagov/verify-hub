@@ -5,21 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.eventemitter.Configuration;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.Base64;
 
 public class EventEmitterConfiguration implements Configuration {
-
     @Valid
     @JsonProperty
     private boolean enabled;
-
-    @Valid
-    @JsonProperty
-    private String queueAccountId;
-
-    @Valid
-    @JsonProperty
-    private String sourceQueueName;
 
     @Valid
     @JsonProperty
@@ -37,11 +29,11 @@ public class EventEmitterConfiguration implements Configuration {
     @JsonProperty
     private String encryptionKey;
 
-    private EventEmitterConfiguration() { }
+    @Valid
+    @JsonProperty
+    private URI apiGatewayUrl;
 
-    public EventEmitterConfiguration(String sourceQueueName) {
-        this.sourceQueueName = sourceQueueName;
-    }
+    private EventEmitterConfiguration() { }
 
     @Override
     public boolean isEnabled() { return enabled; }
@@ -62,17 +54,11 @@ public class EventEmitterConfiguration implements Configuration {
     }
 
     @Override
-    public String getSourceQueueName() {
-        return sourceQueueName;
-    }
-
-    @Override
-    public String getQueueAccountId() {
-        return queueAccountId;
-    }
-
-    @Override
     public byte[] getEncryptionKey() {
         return Base64.getDecoder().decode(encryptionKey);
     }
+
+    @Override
+    public URI getApiGatewayUrl() { return apiGatewayUrl; }
 }
+
