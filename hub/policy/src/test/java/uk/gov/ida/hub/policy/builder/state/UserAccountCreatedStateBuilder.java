@@ -57,8 +57,38 @@ public class UserAccountCreatedStateBuilder {
         return this;
     }
 
+    public UserAccountCreatedStateBuilder withRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+
     public UserAccountCreatedStateBuilder withSessionId(SessionId sessionId) {
         this.sessionId = sessionId;
+        return this;
+    }
+
+    public UserAccountCreatedStateBuilder withMatchingServiceAssertion(String matchingServiceAssertion) {
+        this.matchingServiceAssertion = matchingServiceAssertion;
+        return this;
+    }
+
+    public UserAccountCreatedStateBuilder withSessionExpiryTimestamp(DateTime sessionExpiryTimestamp) {
+        this.sessionExpiryTimestamp = sessionExpiryTimestamp;
+        return this;
+    }
+
+    public UserAccountCreatedStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
+        this.transactionSupportsEidas = transactionSupportsEidas;
+        return this;
+    }
+
+    public UserAccountCreatedStateBuilder withAssertionConsumerServiceUri(URI assertionConsumerServiceUri) {
+        this.assertionConsumerServiceUri = assertionConsumerServiceUri;
+        return this;
+    }
+
+    public UserAccountCreatedStateBuilder withRequestIssuerId(String requestIssuerId) {
+        this.requestIssuerId = requestIssuerId;
         return this;
     }
 }

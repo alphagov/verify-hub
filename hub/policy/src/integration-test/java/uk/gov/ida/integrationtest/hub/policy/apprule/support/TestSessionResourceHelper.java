@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
 
-import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.aEidasSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.SuccessfulMatchStateBuilder.aSuccessfulMatchState;
 
@@ -81,7 +81,7 @@ public class TestSessionResourceHelper {
     }
 
     public static Response createSessionInEidasSuccessfulMatchState(SessionId sessionId, String rpEntityId, String countryEntityId, Client client, URI uri) {
-        EidasSuccessfulMatchState eidasSuccessfulMatchState = aEidasSuccessfulMatchState().withRequestIssuerId(rpEntityId).withSessionId(sessionId).withIdentityProviderEntityId(countryEntityId).build();
+        EidasSuccessfulMatchState eidasSuccessfulMatchState = anEidasSuccessfulMatchState().withRequestIssuerId(rpEntityId).withSessionId(sessionId).withCountryEntityId(countryEntityId).build();
 
         TestSessionDto testSessionDto = createASuccessfulMatchStateTestSessionDto(eidasSuccessfulMatchState, sessionId);
 

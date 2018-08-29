@@ -13,6 +13,7 @@ import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
@@ -46,6 +47,7 @@ public enum PolicyState {
     TIMEOUT(TimeoutState.class),
     MATCHING_SERVICE_REQUEST_ERROR(MatchingServiceRequestErrorState.class),
     USER_ACCOUNT_CREATION_REQUEST_SENT(UserAccountCreationRequestSentState.class),
+    EIDAS_USER_ACCOUNT_CREATION_REQUEST_SENT(EidasUserAccountCreationRequestSentState.class),
     AUTHN_FAILED_ERROR(AuthnFailedErrorState.class),
     COUNTRY_AUTHN_FAILED_ERROR(CountryAuthnFailedErrorState.class),
     FRAUD_EVENT_DETECTED(FraudEventDetectedState.class),

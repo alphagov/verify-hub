@@ -38,7 +38,8 @@ import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateB
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBuilder.anEidasAwaitingCycle3DataState;
 import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
-import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.aEidasSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationRequestSentStateBuilder.anEidasUserAccountCreationRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.FraudEventDetectedStateBuilder.aFraudEventDetectedState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.MatchingServiceRequestErrorStateBuilder.aMatchingServiceRequestErrorState;
@@ -121,7 +122,7 @@ public class StateControllerFactoryTest {
 
     @Test
     public void shouldCreateAEidasSuccessfulMatchStateController() {
-        StateController controller = stateControllerFactory.build(aEidasSuccessfulMatchState().build(), stateTransitionAction);
+        StateController controller = stateControllerFactory.build(anEidasSuccessfulMatchState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);
     }
@@ -182,12 +183,11 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(UserAccountCreationRequestSentStateController.class);
     }
 
-    @Deprecated
     @Test
-    public void shouldCreateAUserAccountCreationRequestSentStateControllerFromTransitionalClass() {
-        StateController controller = stateControllerFactory.build(aUserAccountCreationRequestSentState().build(), stateTransitionAction);
+    public void shouldCreateAnEidasUserAccountCreationRequestSentStateController() {
+        StateController controller = stateControllerFactory.build(anEidasUserAccountCreationRequestSentState().build(), stateTransitionAction);
 
-        assertThat(controller).isInstanceOf(UserAccountCreationRequestSentStateController.class);
+        assertThat(controller).isInstanceOf(EidasUserAccountCreationRequestSentStateController.class);
     }
 
     @Test

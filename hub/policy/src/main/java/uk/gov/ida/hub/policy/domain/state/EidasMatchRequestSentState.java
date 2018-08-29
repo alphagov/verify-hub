@@ -3,7 +3,6 @@ package uk.gov.ida.hub.policy.domain.state;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
@@ -12,9 +11,6 @@ import java.util.Objects;
 public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSentState {
 
     private static final long serialVersionUID = -186027641698264989L;
-
-    private final String encryptedIdentityAssertion;
-    private final PersistentId persistentId;
 
     protected EidasMatchRequestSentState(
             final String requestId,
@@ -26,9 +22,7 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
             final String identityProviderEntityId,
             final String relayState,
             final LevelOfAssurance idpLevelOfAssurance,
-            final String matchingServiceAdapterEntityId,
-            final String encryptedIdentityAssertion,
-            final PersistentId persistentId) {
+            final String matchingServiceAdapterEntityId) {
 
         super(
                 requestId,
@@ -42,24 +36,11 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
                 idpLevelOfAssurance,
                 matchingServiceAdapterEntityId
         );
-
-        this.encryptedIdentityAssertion = encryptedIdentityAssertion;
-        this.persistentId = persistentId;
-    }
-
-    public String getEncryptedIdentityAssertion() {
-        return encryptedIdentityAssertion;
-    }
-
-    public PersistentId getPersistentId() {
-        return persistentId;
     }
 
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + "{");
-        sb.append("encryptedIdentityAssertion='").append(encryptedIdentityAssertion).append('\'');
-        sb.append(", persistentId=").append(persistentId);
         sb.append(", identityProviderEntityId='").append(getIdentityProviderEntityId()).append('\'');
         sb.append(", relayState=").append(getRelayState());
         sb.append(", requestSentTime=").append(getRequestSentTime());
@@ -87,9 +68,7 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
 
         EidasMatchRequestSentState that = (EidasMatchRequestSentState) o;
 
-        return Objects.equals(encryptedIdentityAssertion, that.getEncryptedIdentityAssertion()) &&
-                Objects.equals(persistentId, that.getPersistentId()) &&
-                getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
+        return getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
                 Objects.equals(getRequestId(), that.getRequestId()) &&
                 Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
                 Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
@@ -105,8 +84,6 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
     @Override
     public int hashCode() {
         return Objects.hash(
-                encryptedIdentityAssertion,
-                persistentId,
                 getTransactionSupportsEidas(),
                 getRequestId(),
                 getRequestIssuerEntityId(),

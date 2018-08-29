@@ -28,14 +28,13 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -100,7 +99,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
+    public void shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().build();
         EidasCycle3MatchRequestSentStateController controller =
                 new EidasCycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory,
@@ -116,8 +115,9 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextStateForNoMatch_shouldReturnUserAccountCreationRequestSentStateWhenAttributesArePresent() {
-        //Given
+    public void shouldReturnEidasUserAccountCreationRequestSentStateForNoMatchWhenAttributesArePresent() {
+        ArgumentCaptor<EidasUserAccountCreationRequestSentState> capturedState = ArgumentCaptor.forClass(EidasUserAccountCreationRequestSentState.class);
+        ArgumentCaptor<EventSinkHubEvent> eventSinkArgumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().build();
         ImmutableList<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of(UserAccountCreationAttribute.DATE_OF_BIRTH);
@@ -129,11 +129,8 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
                 new EidasCycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory,
                         attributeQueryService, transactionsConfigProxy, matchingServiceConfigProxy);
 
-        //When
-        State nextState = controller.getNextStateForNoMatch();
+        controller.transitionToNextStateForNoMatchResponse();
 
-        //Then
-        ArgumentCaptor<EventSinkHubEvent> eventSinkArgumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy, times(1)).logHubEvent(eventSinkArgumentCaptor.capture());
         assertThat(eventSinkArgumentCaptor.getValue().getEventType()).isEqualTo(EventSinkHubEventConstants.EventTypes.SESSION_EVENT);
         assertThat(eventSinkArgumentCaptor.getValue().getDetails().get(EventDetailsKey.session_event_type)).isEqualTo(USER_ACCOUNT_CREATION_REQUEST_SENT);
@@ -141,31 +138,35 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
         assertThat(eventSinkArgumentCaptor.getValue().getDetails().get(EventDetailsKey.request_id)).isEqualTo(state.getRequestId());
         assertThat(eventSinkArgumentCaptor.getValue().getOriginatingService()).isEqualTo(serviceInfo.getName());
 
-        verify(attributeQueryService).sendAttributeQueryRequest(eq(nextState.getSessionId()), attributeQueryRequestCaptor.capture());
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        verify(attributeQueryService).sendAttributeQueryRequest(eq(capturedState.getValue().getSessionId()), attributeQueryRequestCaptor.capture());
 
         EidasAttributeQueryRequestDto actualAttributeQueryRequestDto = attributeQueryRequestCaptor.getValue();
         assertThat(actualAttributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(userAccountCreationUri);
         assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.fromNullable(userAccountCreationAttributes));
         assertThat(actualAttributeQueryRequestDto.getEncryptedIdentityAssertion()).isEqualTo(state.getEncryptedIdentityAssertion());
 
-        assertThat(nextState).isInstanceOf(UserAccountCreationRequestSentState.class);
+        assertThat(capturedState.getValue()).isInstanceOf(EidasUserAccountCreationRequestSentState.class);
     }
 
     @Test
-    public void getNextStateForNoMatch_shouldReturnNoMatchWhenNoAttributesArePresent(){
+    public void shouldTransitionToNoMatchStateForNoMatchResponseWhenNoAttributesArePresent(){
+        ArgumentCaptor<NoMatchState> capturedState = ArgumentCaptor.forClass(NoMatchState.class);
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().build();
         ImmutableList<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of();
         when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(userAccountCreationAttributes);
         EidasCycle3MatchRequestSentStateController controller =
                 new EidasCycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory,
                         attributeQueryService, transactionsConfigProxy, matchingServiceConfigProxy);
-        State nextState = controller.getNextStateForNoMatch();
 
-        assertThat(nextState).isInstanceOf(NoMatchState.class);
+        controller.transitionToNextStateForNoMatchResponse();
+
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isInstanceOf(NoMatchState.class);
     }
 
     @Test
-    public void cycle3NoMatchResponseFromMatchingService_shouldLogCycle3NoMatchEventToEventSink() {
+    public void shouldLogCycle3NoMatchEventToEventSinkForCycle3NoMatchResponseFromMatchingService() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -187,7 +188,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle3SuccessfulMatchResponseFromMatchingService_shouldLogCycle3MatchEventToEventSink() {
+    public void shouldLogCycle3MatchEventToEventSinkForCycle3SuccessfulMatchResponseFromMatchingService() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -208,7 +209,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle3NoMatchResponseFromMatchingService_shouldNotLogCycle3MatchEventToEventSink() {
+    public void shouldNotLogCycle3MatchEventToEventSinkForCycle3NoMatchResponseFromMatchingService() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -239,7 +240,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
     }
 
     @Test(expected=StateProcessingValidationException.class)
-    public void responseFromMatchingService_shouldThrowExceptionWhenInResponseToDoesNotMatchFromCycle3MatchRequest() {
+    public void shouldThrowExceptionWhenInResponseToDoesNotMatchFromCycle3MatchRequestForMatchResponse() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -253,7 +254,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void statusShouldSendNoMatchResponseToTransaction_whenNoMatchResponseSentFromMatchingServiceCycle3Match() {
+    public void statusShouldSendNoMatchResponseToTransactionWhenNoMatchResponseSentFromMatchingServiceCycle3Match() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();

@@ -16,10 +16,9 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.state.AbstractMatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -33,14 +32,14 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMatchRequestSentStateController.class);
 
-    private final StateTransitionAction stateTransitionAction;
-    private final LevelOfAssuranceValidator validator;
     private final ResponseFromHubFactory responseFromHubFactory;
 
     protected final T state;
     protected final HubEventLogger hubEventLogger;
-    protected PolicyConfiguration policyConfiguration;
-    protected AttributeQueryService attributeQueryService;
+    protected final PolicyConfiguration policyConfiguration;
+    protected final LevelOfAssuranceValidator levelOfAssuranceValidator;
+    protected final AttributeQueryService attributeQueryService;
+    protected final StateTransitionAction stateTransitionAction;
     protected final TransactionsConfigProxy transactionsConfigProxy;
     protected final MatchingServiceConfigProxy matchingServiceConfigProxy;
 
@@ -58,7 +57,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
         this.state = state;
         this.stateTransitionAction = stateTransitionAction;
         this.hubEventLogger = hubEventLogger;
-        this.validator = validator;
+        this.levelOfAssuranceValidator = validator;
         this.responseFromHubFactory = responseFromHubFactory;
         this.policyConfiguration = policyConfiguration;
         this.attributeQueryService = attributeQueryService;
@@ -78,66 +77,6 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());
         stateTransitionAction.transitionTo(matchingServiceRequestErrorState);
-    }
-
-    protected U getSuccessfulMatchState(MatchFromMatchingService responseFromMatchingService) {
-        String matchingServiceAssertion = responseFromMatchingService.getMatchingServiceAssertion();
-        validator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
-        String requestIssuerId = state.getRequestIssuerEntityId();
-        return createSuccessfulMatchState(matchingServiceAssertion, requestIssuerId);
-    }
-
-    @Override
-    public final void handleMatchResponseFromMatchingService(MatchFromMatchingService responseFromMatchingService) {
-        validateResponse(responseFromMatchingService);
-
-        State nextState = getNextStateForMatch(responseFromMatchingService);
-
-        stateTransitionAction.transitionTo(nextState);
-    }
-
-    @Override
-    public final void handleNoMatchResponseFromMatchingService(NoMatchFromMatchingService responseFromMatchingService) {
-        validateResponse(responseFromMatchingService);
-
-        State nextState = getNextStateForNoMatch();
-
-        stateTransitionAction.transitionTo(nextState);
-    }
-
-
-    @Override
-    public final void handleUserAccountCreatedResponseFromMatchingService(UserAccountCreatedFromMatchingService userAccountCreatedResponseFromMatchingService) {
-        validateResponse(userAccountCreatedResponseFromMatchingService);
-
-        State nextState = getNextStateForUserAccountCreated(userAccountCreatedResponseFromMatchingService);
-
-        stateTransitionAction.transitionTo(nextState);
-    }
-
-    @Override
-    public final void handleUserAccountCreationFailedResponseFromMatchingService() {
-        stateTransitionAction.transitionTo(getNextStateForUserAccountCreationFailed());
-    }
-
-    protected abstract State getNextStateForUserAccountCreated(UserAccountCreatedFromMatchingService responseFromMatchingService);
-
-    protected abstract State getNextStateForUserAccountCreationFailed();
-
-    protected abstract State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService);
-
-    protected abstract State getNextStateForNoMatch();
-
-    protected abstract U createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId);
-
-    protected void validateResponse(ResponseFromMatchingService responseFromMatchingService) {
-        if (!responseFromMatchingService.getIssuer().equals(state.getMatchingServiceAdapterEntityId())) {
-            throw wrongResponseIssuer(state.getRequestId(), responseFromMatchingService.getIssuer(), state.getMatchingServiceAdapterEntityId());
-        }
-
-        if (!this.state.getRequestId().equals(responseFromMatchingService.getInResponseTo())) {
-            throw wrongInResponseTo(this.state.getRequestId(), responseFromMatchingService.getInResponseTo());
-        }
     }
 
     @Override
@@ -171,6 +110,67 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
         );
     }
 
+    @Override
+    public final void handleMatchResponseFromMatchingService(MatchFromMatchingService responseFromMatchingService) {
+        validateResponse(responseFromMatchingService);
+        levelOfAssuranceValidator.validate(responseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
+        transitionToNextStateForMatchResponse(responseFromMatchingService.getMatchingServiceAssertion());
+    }
+
+    @Override
+    public final void handleNoMatchResponseFromMatchingService(NoMatchFromMatchingService responseFromMatchingService) {
+        validateResponse(responseFromMatchingService);
+        transitionToNextStateForNoMatchResponse();
+    }
+
+    @Override
+    public final void handleUserAccountCreatedResponseFromMatchingService(UserAccountCreatedFromMatchingService userAccountCreatedResponseFromMatchingService) {
+        validateResponse(userAccountCreatedResponseFromMatchingService);
+        levelOfAssuranceValidator.validate(userAccountCreatedResponseFromMatchingService.getLevelOfAssurance(), state.getIdpLevelOfAssurance());
+        hubEventLogger.logUserAccountCreatedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
+        transitionToNextStateForUserAccountCreatedResponse(userAccountCreatedResponseFromMatchingService);
+    }
+
+    @Override
+    public final void handleUserAccountCreationFailedResponseFromMatchingService() {
+        hubEventLogger.logUserAccountCreationFailedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
+        transitionToNextStateForUserAccountCreationFailedResponse();
+    }
+
+    protected abstract U createSuccessfulMatchState(String matchingServiceAssertion);
+
+    protected abstract State createUserAccountCreationRequestSentState();
+
+    protected void transitionToNextStateForNoMatchResponse() { }
+
+    protected void transitionToNextStateForMatchResponse(String matchingServiceAssertion) { }
+
+    protected void transitionToNextStateForUserAccountCreatedResponse(UserAccountCreatedFromMatchingService responseFromMatchingService) { }
+
+    protected void transitionToNextStateForUserAccountCreationFailedResponse() { }
+
+    protected void validateResponse(ResponseFromMatchingService responseFromMatchingService) {
+        if (!responseFromMatchingService.getIssuer().equals(state.getMatchingServiceAdapterEntityId())) {
+            throw wrongResponseIssuer(state.getRequestId(), responseFromMatchingService.getIssuer(), state.getMatchingServiceAdapterEntityId());
+        }
+
+        if (!this.state.getRequestId().equals(responseFromMatchingService.getInResponseTo())) {
+            throw wrongInResponseTo(this.state.getRequestId(), responseFromMatchingService.getInResponseTo());
+        }
+    }
+
+    protected void transitionToUserAccountCreationRequestSentState(AbstractAttributeQueryRequestDto attributeQueryRequestDto) {
+        hubEventLogger.logMatchingServiceUserAccountCreationRequestSentEvent(
+                state.getSessionId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getRequestId());
+
+        attributeQueryService.sendAttributeQueryRequest(state.getSessionId(), attributeQueryRequestDto);
+
+        stateTransitionAction.transitionTo(createUserAccountCreationRequestSentState());
+    }
+
     private ResponseProcessingDetails createResponseProcessingDetailsForStatus(ResponseProcessingStatus responseProcessingStatus) {
         return new ResponseProcessingDetails(
                 state.getSessionId(),
@@ -183,7 +183,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
         return DateTime.now().isAfter(state.getRequestSentTime().plus(policyConfiguration.getMatchingServiceResponseWaitPeriod()));
     }
 
-    NoMatchState getNoMatchState() {
+    NoMatchState createNoMatchState() {
         return new NoMatchState(
                 state.getRequestId(),
                 state.getIdentityProviderEntityId(),
@@ -193,31 +193,5 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                 state.getRelayState(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());
-    }
-
-    State handleUserAccountCreationRequestAndGenerateState(
-            AbstractAttributeQueryRequestDto attributeQueryRequestDto,
-            boolean isRegistering) {
-        hubEventLogger.logMatchingServiceUserAccountCreationRequestSentEvent(
-                state.getSessionId(),
-                state.getRequestIssuerEntityId(),
-                state.getSessionExpiryTimestamp(),
-                state.getRequestId());
-
-        attributeQueryService.sendAttributeQueryRequest(state.getSessionId(), attributeQueryRequestDto);
-
-        return new UserAccountCreationRequestSentState(
-                state.getRequestId(),
-                state.getRequestIssuerEntityId(),
-                state.getSessionExpiryTimestamp(),
-                state.getAssertionConsumerServiceUri(),
-                state.getSessionId(),
-                state.getTransactionSupportsEidas(),
-                state.getIdentityProviderEntityId(),
-                state.getRelayState().orNull(),
-                state.getIdpLevelOfAssurance(),
-                isRegistering,
-                state.getMatchingServiceAdapterEntityId()
-        );
     }
 }

@@ -6,20 +6,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.MatchingProcess;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -29,7 +28,7 @@ import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.net.URI;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -94,16 +93,20 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
 
     @Test
     public void shouldReturnSuccessfulMatchState() {
+        final ArgumentCaptor<EidasSuccessfulMatchState> capturedState = ArgumentCaptor.forClass(EidasSuccessfulMatchState.class);
+
         MatchFromMatchingService matchFromMatchingService = new MatchFromMatchingService(
-            "issuer",
-            "inResponseTo",
+            state.getMatchingServiceAdapterEntityId(),
+            state.getRequestId(),
             "matchingServiceAssertion",
-            Optional.of(LevelOfAssurance.LEVEL_2));
+            Optional.of(state.getIdpLevelOfAssurance()));
+
         doNothing().when(hubEventLogger).logCycle01SuccessfulMatchEvent(
             state.getSessionId(),
             state.getRequestIssuerEntityId(),
             state.getRequestId(),
             state.getSessionExpiryTimestamp());
+
         EidasSuccessfulMatchState expectedState = new EidasSuccessfulMatchState(
             state.getRequestId(),
             state.getSessionExpiryTimestamp(),
@@ -117,19 +120,22 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getTransactionSupportsEidas()
         );
 
-        State actualState = eidasCycle0And1MatchRequestSentStateController.getNextStateForMatch(matchFromMatchingService);
+        eidasCycle0And1MatchRequestSentStateController.handleMatchResponseFromMatchingService(matchFromMatchingService);
 
-        assertThat(actualState).isEqualTo(expectedState);
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isEqualTo(expectedState);
     }
 
     @Test
     public void shouldReturnEidasAwaitingCycle3DataState() {
+        final ArgumentCaptor<EidasAwaitingCycle3DataState> capturedState = ArgumentCaptor.forClass(EidasAwaitingCycle3DataState.class);
         when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.of("cycle3AttributeName")));
         doNothing().when(hubEventLogger).logWaitingForCycle3AttributesEvent(
             state.getSessionId(),
             state.getRequestIssuerEntityId(),
             state.getRequestId(),
             state.getSessionExpiryTimestamp());
+
         EidasAwaitingCycle3DataState expectedState = new EidasAwaitingCycle3DataState(
             state.getRequestId(),
             state.getRequestIssuerEntityId(),
@@ -145,17 +151,19 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getEncryptedIdentityAssertion()
         );
 
-        State actualState = eidasCycle0And1MatchRequestSentStateController.getNextStateForNoMatch();
+        eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
 
-        assertThat(actualState).isEqualTo(expectedState);
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isEqualTo(expectedState);
     }
 
     @Test
-    public void shouldReturnUserAccountCreationStateWhenUserAccountCreationIsEnabled() {
+    public void shouldReturnEidasUserAccountCreationStateWhenUserAccountCreationIsEnabled() {
+        final ArgumentCaptor<EidasUserAccountCreationRequestSentState> capturedState = ArgumentCaptor.forClass(EidasUserAccountCreationRequestSentState.class);
         URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
 
         when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.absent()));
-        when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(asList(FIRST_NAME));
+        when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(singletonList(FIRST_NAME));
         when(matchingServiceConfigProxy.getMatchingService(anyString()))
                 .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
         doNothing().when(hubEventLogger).logMatchingServiceUserAccountCreationRequestSentEvent(
@@ -163,28 +171,29 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getRequestId());
-        UserAccountCreationRequestSentState expectedState = new UserAccountCreationRequestSentState(
+
+        EidasUserAccountCreationRequestSentState expectedState = new EidasUserAccountCreationRequestSentState(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
-                state.getTransactionSupportsEidas(),
                 state.getIdentityProviderEntityId(),
                 state.getRelayState().orNull(),
                 state.getIdpLevelOfAssurance(),
-                false,
-                state.getMatchingServiceAdapterEntityId()
-        );
+                state.getMatchingServiceAdapterEntityId());
 
-        State actualState = eidasCycle0And1MatchRequestSentStateController.getNextStateForNoMatch();
+        eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
+
         verify(attributeQueryService).sendAttributeQueryRequest(eq(state.getSessionId()), any());
-
-        assertThat(actualState).isEqualToComparingFieldByField(expectedState);
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
     }
 
     @Test
     public void shouldReturnNoMatchStateWhenUserAccountCreationIsDisabled() {
+        final ArgumentCaptor<NoMatchState> capturedState = ArgumentCaptor.forClass(NoMatchState.class);
+
         when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.absent()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(Lists.emptyList());
         doNothing().when(hubEventLogger).logCycle01NoMatchEvent(
@@ -192,6 +201,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getRequestIssuerEntityId(),
             state.getRequestId(),
             state.getSessionExpiryTimestamp());
+
         NoMatchState expectedState = new NoMatchState(
             state.getRequestId(),
             state.getIdentityProviderEntityId(),
@@ -203,8 +213,9 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getTransactionSupportsEidas()
         );
 
-        State actualState = eidasCycle0And1MatchRequestSentStateController.getNextStateForNoMatch();
+        eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
 
-        assertThat(actualState).isEqualTo(expectedState);
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isEqualTo(expectedState);
     }
 }

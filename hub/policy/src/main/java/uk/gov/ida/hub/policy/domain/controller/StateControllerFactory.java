@@ -20,6 +20,7 @@ import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
@@ -193,6 +194,18 @@ public class StateControllerFactory {
             case USER_ACCOUNT_CREATION_REQUEST_SENT:
                 return new UserAccountCreationRequestSentStateController(
                         (UserAccountCreationRequestSentState) state,
+                        stateTransitionAction,
+                        injector.getInstance(HubEventLogger.class),
+                        injector.getInstance(PolicyConfiguration.class),
+                        new LevelOfAssuranceValidator(),
+                        injector.getInstance(ResponseFromHubFactory.class),
+                        injector.getInstance(AttributeQueryService.class),
+                        injector.getInstance(TransactionsConfigProxy.class),
+                        injector.getInstance(MatchingServiceConfigProxy.class));
+
+            case EIDAS_USER_ACCOUNT_CREATION_REQUEST_SENT:
+                return new EidasUserAccountCreationRequestSentStateController(
+                        (EidasUserAccountCreationRequestSentState) state,
                         stateTransitionAction,
                         injector.getInstance(HubEventLogger.class),
                         injector.getInstance(PolicyConfiguration.class),

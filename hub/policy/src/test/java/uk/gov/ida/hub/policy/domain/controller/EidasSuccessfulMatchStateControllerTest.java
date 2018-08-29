@@ -14,11 +14,12 @@ import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.services.CountriesService;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.aEidasSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EidasSuccessfulMatchStateControllerTest {
@@ -35,21 +36,21 @@ public class EidasSuccessfulMatchStateControllerTest {
 
     @Before
     public void setUp(){
-        state = aEidasSuccessfulMatchState().withIdentityProviderEntityId("country-entity-id").build();
+        state = anEidasSuccessfulMatchState().withCountryEntityId("country-entity-id").build();
         controller = new EidasSuccessfulMatchStateController(state, responseFromHubFactory, countriesService);
     }
 
     @Test(expected = IdpDisabledException.class)
     public void getPreparedResponse_shouldThrowWhenCountryIsDisabled() {
         when(countriesService.getCountries(state.getSessionId()))
-                .thenReturn(Arrays.asList());
+                .thenReturn(emptyList());
 
         controller.getPreparedResponse();
     }
 
     @Test
-    public void getPreparedResponse_shouldReturnResponse(){
-        List<EidasCountryDto> enabledIdentityProviders = Arrays.asList(new EidasCountryDto("country-entity-id", "simple-id", true));
+    public void shouldReturnPreparedResponse(){
+        List<EidasCountryDto> enabledIdentityProviders = singletonList(new EidasCountryDto("country-entity-id", "simple-id", true));
         ResponseFromHub expectedResponseFromHub = ResponseFromHubBuilder.aResponseFromHubDto().build();
         when(countriesService.getCountries(state.getSessionId()))
                 .thenReturn(enabledIdentityProviders);
