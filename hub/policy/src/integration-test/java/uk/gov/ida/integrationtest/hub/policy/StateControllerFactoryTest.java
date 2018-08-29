@@ -202,7 +202,7 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateCountryAuthnFailedErrorStateController() {
+    public void shouldCreateCountryAuthnFailedErrorStateControllerOnBuild() {
         StateController controller = factory.build(aCountryAuthnFailedErrorState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(CountryAuthnFailedErrorStateController.class);
@@ -237,7 +237,7 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void build_shouldCreateCountryUserAccountCreationFailedStateController() {
+    public void shouldCreateCountryUserAccountCreationFailedStateControllerOnBuild() {
         StateController controller = factory.build(aCountryUserAccountCreationFailedState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(CountryUserAccountCreationFailedStateController.class);

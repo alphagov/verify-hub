@@ -34,7 +34,7 @@ public class CountryAuthnFailedErrorStateControllerTest {
     private ResponseFromHubFactory responseFromHubFactory;
 
     @Before
-    public void setup() {
+    public void setUp() {
         countryAuthnFailedErrorState = aCountryAuthnFailedErrorState().withRequestIssuerId(REQUEST_ISSUER_ID).build();
 
         controller = new CountryAuthnFailedErrorStateController(

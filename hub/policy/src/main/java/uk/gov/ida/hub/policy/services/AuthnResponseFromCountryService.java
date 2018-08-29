@@ -67,6 +67,7 @@ public class AuthnResponseFromCountryService {
                 break;
             default:
                 responseAction = handleOtherResponse(sessionId);
+                break;
         }
 
         return responseAction;

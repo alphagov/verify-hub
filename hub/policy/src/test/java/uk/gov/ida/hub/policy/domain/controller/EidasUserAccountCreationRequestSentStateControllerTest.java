@@ -60,7 +60,7 @@ public class EidasUserAccountCreationRequestSentStateControllerTest {
     private MatchingServiceConfigProxy matchingServiceConfigProxy;
 
     @Before
-    public void setup() {
+    public void setUp() {
         state = anEidasUserAccountCreationRequestSentState().build();
 
         controller = new EidasUserAccountCreationRequestSentStateController(

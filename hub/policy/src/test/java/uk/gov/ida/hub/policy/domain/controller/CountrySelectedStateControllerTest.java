@@ -40,6 +40,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.EidasAttributeQueryRequestDtoBuilder.anEidasAttributeQueryRequestDto;
 import static uk.gov.ida.hub.policy.builder.state.CountryAuthnFailedErrorStateBuilder.aCountryAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder.aCountrySelectedState;
+import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_1;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_COUNTRY_ONE;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
@@ -60,7 +61,7 @@ public class CountrySelectedStateControllerTest {
             STUB_COUNTRY_ONE,
             Optional.of(BLOB),
             Optional.of(PID),
-            Optional.of(LevelOfAssurance.LEVEL_2));
+            Optional.of(LEVEL_2));
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -170,7 +171,7 @@ public class CountrySelectedStateControllerTest {
         exception.expect(StateProcessingValidationException.class);
         exception.expectMessage(
                 String.format("Level of assurance in the response does not match level of assurance in the request. Was [%s] but expected [%s].",
-                        LevelOfAssurance.LEVEL_1, ImmutableList.of(LevelOfAssurance.LEVEL_2)));
+                        LEVEL_1, ImmutableList.of(LEVEL_2)));
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
                 IdpIdaStatus.Status.Success,
@@ -178,7 +179,7 @@ public class CountrySelectedStateControllerTest {
                 STUB_IDP_ONE,
                 Optional.of(BLOB),
                 Optional.of(PID),
-                Optional.of(LevelOfAssurance.LEVEL_1));
+                Optional.of(LEVEL_1));
 
         controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
     }
@@ -214,7 +215,7 @@ public class CountrySelectedStateControllerTest {
                 STUB_COUNTRY_ONE,
                 Optional.of(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
-                Optional.of(LevelOfAssurance.LEVEL_2));
+                Optional.of(LEVEL_2));
 
         controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
 

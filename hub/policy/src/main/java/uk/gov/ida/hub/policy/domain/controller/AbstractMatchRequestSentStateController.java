@@ -141,13 +141,21 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
 
     protected abstract State createUserAccountCreationRequestSentState();
 
-    protected void transitionToNextStateForNoMatchResponse() { }
+    protected void transitionToNextStateForNoMatchResponse() {
+        // Do nothing by default. Subclasses can override this method and provide logic for the transition.
+    }
 
-    protected void transitionToNextStateForMatchResponse(String matchingServiceAssertion) { }
+    protected void transitionToNextStateForMatchResponse(String matchingServiceAssertion) {
+        // Do nothing by default. Subclasses can override this method and provide logic for the transition.
+    }
 
-    protected void transitionToNextStateForUserAccountCreatedResponse(UserAccountCreatedFromMatchingService responseFromMatchingService) { }
+    protected void transitionToNextStateForUserAccountCreatedResponse(UserAccountCreatedFromMatchingService responseFromMatchingService) {
+        // Do nothing by default. Subclasses can override this method and provide logic for the transition.
+    }
 
-    protected void transitionToNextStateForUserAccountCreationFailedResponse() { }
+    protected void transitionToNextStateForUserAccountCreationFailedResponse() {
+        // Do nothing by default. Subclasses can override this method and provide logic for the transition.
+    }
 
     protected void validateResponse(ResponseFromMatchingService responseFromMatchingService) {
         if (!responseFromMatchingService.getIssuer().equals(state.getMatchingServiceAdapterEntityId())) {
@@ -183,7 +191,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
         return DateTime.now().isAfter(state.getRequestSentTime().plus(policyConfiguration.getMatchingServiceResponseWaitPeriod()));
     }
 
-    NoMatchState createNoMatchState() {
+    protected NoMatchState createNoMatchState() {
         return new NoMatchState(
                 state.getRequestId(),
                 state.getIdentityProviderEntityId(),
