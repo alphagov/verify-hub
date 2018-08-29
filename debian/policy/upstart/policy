@@ -40,14 +40,16 @@ script
                         -XX:HeapDumpPath=/var/log/ida/debug \
                         -XX:+HeapDumpOnOutOfMemoryError \
                         -Xms256m -Xmx256m \
-                        -Dhttp.proxyHost=${PROXY_HOST:-} \
-                        -Dhttp.proxyPort=${PROXY_PORT:-} \
-                        -Dhttps.proxyHost=${PROXY_HOST:-} \
-                        -Dhttps.proxyPort=${PROXY_PORT:-} \
-                        -Dhttp.nonProxyHosts=${NON_PROXY_HOSTS:-} \
+                        -Dhttp.proxyHost=\"${PROXY_HOST:-}\" \
+                        -Dhttp.proxyPort=\"${PROXY_PORT:-}\" \
+                        -Dhttps.proxyHost=\"${PROXY_HOST:-}\" \
+                        -Dhttps.proxyPort=\"${PROXY_PORT:-}\" \
+                        -Dhttp.nonProxyHosts=\"${NON_PROXY_HOSTS:-}\" \
                         -Dnetworkaddress.cache.ttl=5
                         -Dnetworkaddress.cache.negative.ttl=5
 
+  # JAVA_HOME is set wrong, but the `java` on the path is correct - unsetting this uses /usr/bin/java
+  unset JAVA_HOME
   exec /ida/policy/bin/policy \
     server /ida/policy/policy.yml \
     1>> /var/log/ida/policy.console-log 2>&1
