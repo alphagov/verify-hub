@@ -17,7 +17,9 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasUnsuccessfulJourneyStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
+import uk.gov.ida.hub.policy.domain.state.EidasUnsuccessfulJourneyState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -26,11 +28,11 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import java.net.URI;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthnRequestFromTransactionHandlerTest {
@@ -47,6 +49,8 @@ public class AuthnRequestFromTransactionHandlerTest {
     private PolicyConfiguration policyConfiguration;
     @Mock
     private TransactionsConfigProxy transactionsConfigProxy;
+    @Mock
+    private EidasUnsuccessfulJourneyStateController eidasUnsuccessfulJourneyStateController;
 
     private AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler;
 
@@ -85,6 +89,16 @@ public class AuthnRequestFromTransactionHandlerTest {
         assertThat(idpSelectingStateController.principalIpAddress()).isEqualTo(PRINCIPAL_IP_ADDRESS);
         assertThat(idpSelectingStateController.registering()).isEqualTo(REGISTERING);
         assertThat(idpSelectingStateController.getRequestedLoa()).isEqualTo(REQUESTED_LOA);
+    }
+
+    @Test
+    public void restartsEidasUnsuccessfulJourney() {
+        SessionId sessionId = new SessionId("sessionId");
+        when(sessionRepository.getStateController(sessionId, EidasUnsuccessfulJourneyState.class)).thenReturn(eidasUnsuccessfulJourneyStateController);
+
+        authnRequestFromTransactionHandler.restartEidasUnsuccessfulJourney(sessionId);
+
+        verify(eidasUnsuccessfulJourneyStateController).transitionToSessionStartedState();
     }
 
     private class IdpSelectingStateControllerSpy implements IdpSelectingStateController, StateController {

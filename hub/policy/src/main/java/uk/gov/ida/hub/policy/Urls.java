@@ -49,8 +49,8 @@ public interface Urls {
 
     interface PolicyUrls {
         String POLICY_ROOT = "/policy";
-        String AUTHN_REQUEST_FROM_TRANSACTION_ROOT = POLICY_ROOT + "/received-authn-request";
         String AUTHN_SESSION_ID_PATH = "/{sessionId}";
+        String AUTHN_REQUEST_FROM_TRANSACTION_ROOT = POLICY_ROOT + "/received-authn-request";
         String RESPONSE_FROM_IDP_ROOT = AUTHN_REQUEST_FROM_TRANSACTION_ROOT + AUTHN_SESSION_ID_PATH + "/response-from-idp";
 
         // Start of new saml-engine is a real microservice resources
@@ -83,6 +83,7 @@ public interface Urls {
 
         // End of new saml-engine is a real microservice resources
 
+        String AUTHN_REQUEST_RESTART_EIDAS_JOURNEY_PATH = AUTHN_SESSION_ID_PATH + "/restart-eidas-journey";
         String AUTHN_REQUEST_TRY_ANOTHER_IDP_PATH = AUTHN_SESSION_ID_PATH + "/try-another-idp";
 
         String AUTHN_REQUEST_SELECT_IDP_PATH    = AUTHN_SESSION_ID_PATH + "/select-identity-provider";
