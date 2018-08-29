@@ -46,7 +46,7 @@ script
                         -Dhttps.proxyPort=\"${PROXY_PORT:-}\" \
                         -Dhttp.nonProxyHosts=\"${NON_PROXY_HOSTS:-}\" \
                         -Dnetworkaddress.cache.ttl=5
-                        -Dnetworkaddress.cache.negative.ttl=5
+                        -Dnetworkaddress.cache.negative.ttl=5"
 
   # JAVA_HOME is set wrong, but the `java` on the path is correct - unsetting this uses /usr/bin/java
   unset JAVA_HOME
