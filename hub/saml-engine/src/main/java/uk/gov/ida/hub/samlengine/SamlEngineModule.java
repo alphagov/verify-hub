@@ -9,6 +9,7 @@ import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import org.joda.time.DateTime;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
@@ -24,8 +25,6 @@ import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
-import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
-import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.hub.samlengine.annotations.Config;
 import uk.gov.ida.hub.samlengine.attributequery.AttributeQueryGenerator;
 import uk.gov.ida.hub.samlengine.attributequery.HubAttributeQueryRequestBuilder;
@@ -39,6 +38,7 @@ import uk.gov.ida.hub.samlengine.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlengine.factories.OutboundResponseFromHubToResponseTransformerFactory;
 import uk.gov.ida.hub.samlengine.locators.AssignableEntityToEncryptForLocator;
 import uk.gov.ida.hub.samlengine.logging.IdpAssertionMetricsCollector;
+import uk.gov.ida.hub.samlengine.metadata.SigningCertFromMetadataExtractor;
 import uk.gov.ida.hub.samlengine.proxy.CountrySingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
@@ -143,6 +143,7 @@ import java.security.KeyException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Optional;
@@ -446,21 +447,20 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private IdaKeyStore getKeyStore(X509CertificateFactory certificateFactory, SamlEngineConfiguration configuration) {
+    private IdaKeyStore getKeyStore(SamlEngineConfiguration configuration, SigningCertFromMetadataExtractor signingCertExtractor) {
         Map<KeyPosition, PrivateKey> privateKeyStore = privateEncryptionKeys(configuration);
-
-        DeserializablePublicKeyConfiguration publicSigningKeyConfiguration = configuration.getPublicSigningCert();
-        String encodedSigningCertificate = publicSigningKeyConfiguration.getCert();
-        X509Certificate signingCertificate = encodedSigningCertificate != null ? certificateFactory.createCertificate(encodedSigningCertificate) : null;
 
         try {
             PrivateKey primaryEncryptionKey = privateKeyStore.get(KeyPosition.PRIMARY);
             PrivateKey secondaryEncryptionKey = privateKeyStore.get(KeyPosition.SECONDARY);
             PrivateKey signingKey = privateSigningKey(configuration);
+            PublicKey publicSigningKey = KeySupport.derivePublicKey(signingKey);
 
             KeyPair primaryEncryptionKeyPair = new KeyPair(KeySupport.derivePublicKey(primaryEncryptionKey), primaryEncryptionKey);
             KeyPair secondaryEncryptionKeyPair = new KeyPair(KeySupport.derivePublicKey(secondaryEncryptionKey), secondaryEncryptionKey);
-            KeyPair signingKeyPair = new KeyPair(KeySupport.derivePublicKey(signingKey), signingKey);
+            KeyPair signingKeyPair = new KeyPair(publicSigningKey, signingKey);
+
+            X509Certificate signingCertificate = signingCertExtractor.getSigningCertForCurrentSigningKey(publicSigningKey);
 
             return new IdaKeyStore(signingCertificate, signingKeyPair, asList(primaryEncryptionKeyPair, secondaryEncryptionKeyPair));
         } catch (KeyException e) {
@@ -657,9 +657,14 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @Singleton
+    private SigningCertFromMetadataExtractor getSigningCertFromMetadataExtractor(@Named(VERIFY_METADATA_RESOLVER) MetadataResolver metadataResolver, @Named("HubEntityId") String hubEntityId) throws ComponentInitializationException {
+        return new SigningCertFromMetadataExtractor(metadataResolver, hubEntityId);
+    }
+
+    @Provides
     @Named("EidasAssertionDecrypter")
-    private AssertionDecrypter getEidasAssertionDecrypter(IdaKeyStore keyStore) {
-        IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever = new IdaKeyStoreCredentialRetriever(keyStore);
+    private AssertionDecrypter getEidasAssertionDecrypter(IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever) {
         Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
         ImmutableSet<String> contentEncryptionAlgorithms = ImmutableSet.of(
                 EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128_GCM,
