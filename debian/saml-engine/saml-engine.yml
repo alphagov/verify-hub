@@ -41,6 +41,9 @@ saml:
 
 enableRetryTimeOutConnections: true
 
+publicSigningCert:
+  name: hub_signing_cert
+  certFile: ${PKI_PUBLIC_SIGNING_CERT_PATH}
 httpClient:
   timeout: 60s
   timeToLive: 10m

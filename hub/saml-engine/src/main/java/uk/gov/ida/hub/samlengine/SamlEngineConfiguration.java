@@ -6,6 +6,7 @@ import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
 import uk.gov.ida.common.shared.configuration.PrivateKeyConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
 import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
@@ -37,6 +38,11 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Valid
     @JsonProperty
     protected PrivateKeyConfiguration privateSigningKeyConfiguration;
+
+    @Valid
+    @NotNull
+    @JsonProperty
+    protected DeserializablePublicKeyConfiguration publicSigningCert;
 
     @Valid
     @JsonProperty
@@ -143,6 +149,10 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
 
     public MetadataResolverConfiguration getMetadataConfiguration() {
         return metadata;
+    }
+
+    public DeserializablePublicKeyConfiguration getPublicSigningCert() {
+        return publicSigningCert;
     }
 
     @Override

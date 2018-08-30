@@ -48,6 +48,10 @@ readKeysFromFileDescriptors: false
 privateSigningKeyConfiguration:
   keyFile: /data/pki/hub_signing_primary.pk8
 
+publicSigningCert:
+   certFile: /data/pki/hub_signing_primary.crt
+   name: someId
+
 primaryPrivateEncryptionKeyConfiguration:
   keyFile: /data/pki/hub_encryption_primary.pk8
 
