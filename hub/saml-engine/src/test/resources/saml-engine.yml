@@ -73,6 +73,11 @@ privateSigningKeyConfiguration:
   type: base64
   key: ${HUB_SIGNING_KEY}
 
+publicSigningCert:
+  type: x509
+  x509: ${HUB_SIGNING_CERT}
+  name: ${HUB_SIGNING_CERT_NAME}
+
 primaryPrivateEncryptionKeyConfiguration:
   type: base64
   key: ${HUB_PRIMARY_ENC_KEY}

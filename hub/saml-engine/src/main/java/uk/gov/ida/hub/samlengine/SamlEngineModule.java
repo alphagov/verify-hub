@@ -24,6 +24,8 @@ import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.common.shared.configuration.DeserializablePublicKeyConfiguration;
+import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.hub.samlengine.annotations.Config;
 import uk.gov.ida.hub.samlengine.attributequery.AttributeQueryGenerator;
 import uk.gov.ida.hub.samlengine.attributequery.HubAttributeQueryRequestBuilder;
@@ -136,6 +138,7 @@ import java.security.KeyException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
@@ -439,8 +442,12 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private IdaKeyStore getKeyStore(SamlEngineConfiguration configuration) {
+    private IdaKeyStore getKeyStore(X509CertificateFactory certificateFactory, SamlEngineConfiguration configuration) {
         Map<KeyPosition, PrivateKey> privateKeyStore = privateEncryptionKeys(configuration);
+
+        DeserializablePublicKeyConfiguration publicSigningKeyConfiguration = configuration.getPublicSigningCert();
+        String encodedSigningCertificate = publicSigningKeyConfiguration.getCert();
+        X509Certificate signingCertificate = encodedSigningCertificate != null ? certificateFactory.createCertificate(encodedSigningCertificate) : null;
 
         try {
             PrivateKey primaryEncryptionKey = privateKeyStore.get(KeyPosition.PRIMARY);
@@ -451,7 +458,7 @@ public class SamlEngineModule extends AbstractModule {
             KeyPair secondaryEncryptionKeyPair = new KeyPair(KeySupport.derivePublicKey(secondaryEncryptionKey), secondaryEncryptionKey);
             KeyPair signingKeyPair = new KeyPair(KeySupport.derivePublicKey(signingKey), signingKey);
 
-            return new IdaKeyStore(signingKeyPair, asList(primaryEncryptionKeyPair, secondaryEncryptionKeyPair));
+            return new IdaKeyStore(signingCertificate, signingKeyPair, asList(primaryEncryptionKeyPair, secondaryEncryptionKeyPair));
         } catch (KeyException e) {
             throw new KeyLoadingException(e);
         }
