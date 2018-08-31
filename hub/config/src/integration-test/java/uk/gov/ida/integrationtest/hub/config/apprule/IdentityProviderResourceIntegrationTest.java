@@ -53,6 +53,7 @@ public class IdentityProviderResourceIntegrationTest {
                 .build())
         .addIdp(anIdentityProviderConfigData()
                 .withEntityId(ENABLED_ALL_RP_IDP)
+                .withEnabledForSingleIdp(true)
                 .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
                 .build())
         .addTransaction(aTransactionConfigData()
@@ -227,6 +228,18 @@ public class IdentityProviderResourceIntegrationTest {
                 ONBOARDING_TO_LOA_1_IDP,
                 ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST
         );
+    }
+
+    @Test
+    public void getEnabledIdentityProviderEntityIdsForSingleIdp_returnsOkAndIdps() {
+        String entityId = "not-test-rp";
+        Response response = getIdpList(entityId, Urls.ConfigUrls.IDP_LIST_FOR_SINGLE_IDP_RESOURCE);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        List<IdpDto> returnedIdps = response.readEntity(new GenericType<List<IdpDto>>(){});
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(returnedIdps.size()).isEqualTo(1);
+        assertThat(returnedIdps).extracting("entityId").contains(ENABLED_ALL_RP_IDP);
     }
 
     private Response getIdpList(String entityId, String path) {

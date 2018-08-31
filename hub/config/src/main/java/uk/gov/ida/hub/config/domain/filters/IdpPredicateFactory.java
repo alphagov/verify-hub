@@ -36,4 +36,8 @@ public class IdpPredicateFactory {
     public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForSignIn(String transactionEntityId) {
         return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null));
     }
+
+    public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForSingleIdp(String transactionEntityId) {
+        return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null), new SingleIdpEnabledPredicate());
+    }
 }
