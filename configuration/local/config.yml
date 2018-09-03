@@ -19,6 +19,7 @@ serviceInfo:
   name: config
 
 rootDataDirectory: ${FED_CONFIG_PATH:-/data/stub-fed-config}
+translationsDirectory: ../display-locales/transactions
 
 clientTrustStoreConfiguration:
   path: /data/pki/hub.ts
