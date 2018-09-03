@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.config.domain;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 import uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder;
 
@@ -14,11 +15,80 @@ public class IdentityProviderConfigEntityDataTest {
 
     private final IdentityProviderConfigDataBuilder dataBuilder = anIdentityProviderConfigData();
 
+    private final DateTime expiredDatetime = DateTime.now().minusDays(1);
+    private final DateTime futureDatetime = DateTime.now().plusDays(1);
+
     @Test
     public void should_defaultSupportedLevelsOfAssuranceToOnlyIncludeLOA2() {
         IdentityProviderConfigEntityData data = dataBuilder.build();
 
         assertThat(data.getSupportedLevelsOfAssurance()).containsExactly(LevelOfAssurance.LEVEL_2);
+    }
+    
+    @Test
+    public void shouldReturnTrueForRegistrationEnabled_whenProvideRegistrationUntilHasNotBeenSpecified() {
+        IdentityProviderConfigEntityData data = dataBuilder.build();
+        data.provideRegistrationUntil = "";
+
+        assertThat(data.isRegistrationEnabled()).isEqualTo(true);
+    }
+    
+    @Test
+    public void shouldReturnTrueForRegistrationEnabled_whenProvideRegistrationUntilDateHasNotExpired() {
+        IdentityProviderConfigEntityData data = dataBuilder
+            .withProvideRegistrationUntil(futureDatetime)
+            .build();
+        
+        assertThat(data.isRegistrationEnabled()).isEqualTo(true);
+    }
+    
+    @Test
+    public void shouldReturnFalseForRegistrationEnabled_whenProvideRegistrationUntilDateHasExpired() {
+        IdentityProviderConfigEntityData data = dataBuilder
+            .withProvideRegistrationUntil(expiredDatetime)
+            .build();
+        
+        assertThat(data.isRegistrationEnabled()).isEqualTo(false);
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException.class)
+    public void shouldThrowInvalidFormatException_whenProvideRegistrationUntilHasBeenSpecifiedButIsInvalid() {
+        IdentityProviderConfigEntityData data = dataBuilder.build();
+        data.provideRegistrationUntil = "2020-09-09";
+        data.isRegistrationEnabled();
+    }
+
+    @Test
+    public void shouldReturnTrueForAuthenticationEnabled_whenProvideAuthenticationUntilHasNotBeenSpecified() {
+        IdentityProviderConfigEntityData data = dataBuilder.build();
+        data.provideAuthenticationUntil = "";
+
+        assertThat(data.isAuthenticationEnabled()).isEqualTo(true);
+    }
+    
+    @Test
+    public void shouldReturnTrueForAuthenticationEnabled_whenProvideAuthenticationUntilDateHasNotExpired() {
+        IdentityProviderConfigEntityData data = dataBuilder
+            .withProvideAuthenticationUntil(futureDatetime)
+            .build();
+        
+        assertThat(data.isAuthenticationEnabled()).isEqualTo(true);
+    }
+    
+    @Test
+    public void shouldReturnFalseForAuthenticationEnabled_whenProvideAuthenticationUntilDateHasExpired() {
+        IdentityProviderConfigEntityData data = dataBuilder
+            .withProvideAuthenticationUntil(expiredDatetime)
+            .build();
+        
+        assertThat(data.isAuthenticationEnabled()).isEqualTo(false);
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException.class)
+    public void shouldThrowInvalidFormatException_whenProvideAuthenticationUntilHasBeenSpecifiedButIsInvalid() {
+        IdentityProviderConfigEntityData data = dataBuilder.build();
+        data.provideAuthenticationUntil = "2020-09-09";
+        data.isAuthenticationEnabled();
     }
 
     @Test

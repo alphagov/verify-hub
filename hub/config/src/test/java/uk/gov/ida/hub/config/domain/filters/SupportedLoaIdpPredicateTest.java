@@ -18,7 +18,9 @@ public class SupportedLoaIdpPredicateTest {
 
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa1IdpOtherOnboardingEntity,
-                onboardingLoa2IdpOtherOnboardingEntity, onboardingAllLevelsIdpOtherOnboardingEntity};
+                onboardingLoa2IdpOtherOnboardingEntity, onboardingAllLevelsIdpOtherOnboardingEntity, 
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp, onboardingSoftDisconnectingIdp,
+                onboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }

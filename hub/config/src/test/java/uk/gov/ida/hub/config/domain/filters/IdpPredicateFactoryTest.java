@@ -30,11 +30,13 @@ public class IdpPredicateFactoryTest {
         Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
         Predicate<Predicate> findOnboarding = input -> input instanceof OnboardingIdpPredicate;
         Predicate<Predicate> supportedLoa = input -> input instanceof SupportedLoaIdpPredicate;
+        Predicate<Predicate> findNewUserIdp = input -> input instanceof NewUserIdpPredicate;
 
-        assertThat(predicates).hasSize(3);
+        assertThat(predicates).hasSize(4);
         assertThat(Collections2.filter(predicates, findEnabled)).hasSize(1);
         assertThat(Collections2.filter(predicates, findOnboarding)).hasSize(1);
         assertThat(Collections2.filter(predicates, supportedLoa)).hasSize(1);
+        assertThat(Collections2.filter(predicates, findNewUserIdp)).hasSize(1);
     }
 
     @Test

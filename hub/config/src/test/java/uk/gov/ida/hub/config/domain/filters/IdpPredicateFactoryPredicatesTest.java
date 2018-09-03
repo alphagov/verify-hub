@@ -49,7 +49,8 @@ public class IdpPredicateFactoryPredicatesTest {
 
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp,
                 nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp,
-                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity};
+                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity, 
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
@@ -64,9 +65,10 @@ public class IdpPredicateFactoryPredicatesTest {
 
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
                 nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp,
-                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity};
+                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity, 
+                onboardingSoftDisconnectingIdp, onboardingHardDisconnectingIdp,
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
-
 }

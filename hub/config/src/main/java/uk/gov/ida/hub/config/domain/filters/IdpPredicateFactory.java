@@ -30,7 +30,7 @@ public class IdpPredicateFactory {
     public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForTransactionEntityAndLoa(String transactionEntity,
                                                                                                        LevelOfAssurance levelOfAssurance) {
         return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntity, levelOfAssurance),
-                new SupportedLoaIdpPredicate(levelOfAssurance));
+                new SupportedLoaIdpPredicate(levelOfAssurance), new NewUserIdpPredicate());
     }
 
     public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForSignIn(String transactionEntityId) {
@@ -38,6 +38,6 @@ public class IdpPredicateFactory {
     }
 
     public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForSingleIdp(String transactionEntityId) {
-        return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null), new SingleIdpEnabledPredicate());
+        return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null), new SingleIdpEnabledPredicate(), new NewUserIdpPredicate());
     }
 }
