@@ -7,7 +7,6 @@ ENV GRADLE_USER_HOME ~/.gradle
 
 COPY build.gradle build.gradle
 COPY settings.gradle settings.gradle
-COPY shared.gradle shared.gradle
 COPY idea.gradle idea.gradle
 COPY inttest.gradle inttest.gradle
 
