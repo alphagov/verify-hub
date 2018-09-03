@@ -8,11 +8,10 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
-import java.io.Serializable;
 import java.net.URI;
 import java.util.Objects;
 
-public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataState implements ResponseProcessingState, Serializable {
+public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
 
     private static final long serialVersionUID = -9056285913241958733L;
 

@@ -14,11 +14,13 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.AuthnFailedErrorStateController;
 import uk.gov.ida.hub.policy.domain.controller.AuthnRequestCapableController;
+import uk.gov.ida.hub.policy.domain.controller.EidasUnsuccessfulJourneyStateController;
 import uk.gov.ida.hub.policy.domain.controller.ErrorResponsePreparedStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.controller.ResponsePreparedStateController;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUnsuccessfulJourneyState;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
@@ -77,6 +79,12 @@ public class AuthnRequestFromTransactionHandler {
         stateController.tryAnotherIdpResponse();
     }
 
+    public void restartEidasUnsuccessfulJourney(final SessionId sessionId) {
+        final EidasUnsuccessfulJourneyStateController stateController =
+                (EidasUnsuccessfulJourneyStateController) sessionRepository.getStateController(sessionId, EidasUnsuccessfulJourneyState.class);
+        stateController.transitionToSessionStartedState();
+    }
+
     public void selectIdpForGivenSessionId(SessionId sessionId, IdpSelected idpSelected) {
         IdpSelectingStateController stateController = (IdpSelectingStateController)
                 sessionRepository.getStateController(sessionId, IdpSelectingState.class);
@@ -101,7 +109,6 @@ public class AuthnRequestFromTransactionHandler {
                 sessionRepository.getStateController(sessionId, IdpSelectingState.class);
         return stateController.getRequestIssuerId();
     }
-
 
     public ResponseFromHub getResponseFromHub(SessionId sessionId) {
         ResponsePreparedStateController stateController = (ResponsePreparedStateController)

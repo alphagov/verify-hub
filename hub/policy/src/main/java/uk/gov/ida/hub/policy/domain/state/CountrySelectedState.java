@@ -8,7 +8,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 
 public class CountrySelectedState extends AbstractState implements CountrySelectingState, Serializable {
@@ -18,7 +17,7 @@ public class CountrySelectedState extends AbstractState implements CountrySelect
     // TODO: Record matching service entity id
     private String countryEntityId;
     private final Optional<String> relayState;
-    private List<LevelOfAssurance> levelsOfAssurance = Collections.EMPTY_LIST;
+    private List<LevelOfAssurance> levelsOfAssurance;
 
     public CountrySelectedState(String countryEntityId,
                                 Optional<String> relayState,

@@ -33,13 +33,15 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
+import static uk.gov.ida.hub.policy.builder.state.CountryAuthnFailedErrorStateBuilder.aCountryAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder.aCountrySelectedState;
+import static uk.gov.ida.hub.policy.builder.state.CountryUserAccountCreationFailedStateBuilder.aCountryUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateBuilder.aCycle3DataInputCancelledState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBuilder.anEidasAwaitingCycle3DataState;
 import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
-import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.aEidasSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
 import static uk.gov.ida.hub.policy.builder.state.FraudEventDetectedStateBuilder.aFraudEventDetectedState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.MatchingServiceRequestErrorStateBuilder.aMatchingServiceRequestErrorState;
@@ -130,7 +132,7 @@ public class StateControllerFactoryTest {
 
     @Test
     public void build_shouldCreateAEidasSuccessfulMatchController() {
-        StateController controller = factory.build(aEidasSuccessfulMatchState().build(), stateTransitionAction);
+        StateController controller = factory.build(anEidasSuccessfulMatchState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);
     }
@@ -200,6 +202,13 @@ public class StateControllerFactoryTest {
     }
 
     @Test
+    public void shouldCreateCountryAuthnFailedErrorStateControllerOnBuild() {
+        StateController controller = factory.build(aCountryAuthnFailedErrorState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(CountryAuthnFailedErrorStateController.class);
+    }
+
+    @Test
     public void shouldCreateAFraudEventDetectedStateController() {
         StateController controller = factory.build(aFraudEventDetectedState().build(), stateTransitionAction);
 
@@ -220,6 +229,20 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(Cycle3DataInputCancelledStateController.class);
     }
 
+    @Test
+    public void build_shouldCreateUserAccountCreationFailedStateController() {
+        StateController controller = factory.build(aUserAccountCreationFailedState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(UserAccountCreationFailedStateController.class);
+    }
+
+    @Test
+    public void shouldCreateCountryUserAccountCreationFailedStateControllerOnBuild() {
+        StateController controller = factory.build(aCountryUserAccountCreationFailedState().build(), stateTransitionAction);
+
+        assertThat(controller).isInstanceOf(CountryUserAccountCreationFailedStateController.class);
+    }
+
     @Test(expected = RuntimeException.class)
     public void build_shouldThrowRuntimeExceptionIfControllerNotFound() {
         factory.build(
@@ -231,12 +254,5 @@ public class StateControllerFactoryTest {
                 },
                 mock(StateTransitionAction.class)
         );
-    }
-
-    @Test
-    public void build_shouldCreateUserAccountCreationFailedStateController() {
-        StateController controller = factory.build(aUserAccountCreationFailedState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(UserAccountCreationFailedStateController.class);
     }
 }

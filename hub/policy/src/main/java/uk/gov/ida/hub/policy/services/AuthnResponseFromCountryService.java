@@ -1,69 +1,46 @@
 package uk.gov.ida.hub.policy.services;
 
-import com.google.common.base.Optional;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
-import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
-import uk.gov.ida.hub.policy.contracts.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
-import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
-import uk.gov.ida.hub.policy.domain.IdpIdaStatus;
+import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.CountrySelectedStateController;
-import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
-import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
 
 import javax.inject.Inject;
+import java.util.List;
 
 import static uk.gov.ida.hub.policy.domain.ResponseAction.other;
 
 public class AuthnResponseFromCountryService {
-
-    private static Logger LOG = LoggerFactory.getLogger(AuthnResponseFromCountryService.class);
 
     private final SamlEngineProxy samlEngineProxy;
     private final SamlSoapProxyProxy samlSoapProxyProxy;
     private final SamlAuthnResponseTranslatorDtoFactory samlAuthnResponseTranslatorDtoFactory;
     private final CountriesService countriesService;
     private final SessionRepository sessionRepository;
-    private final MatchingServiceConfigProxy matchingServiceConfigProxy;
-    private final PolicyConfiguration policyConfiguration;
-    private final AssertionRestrictionsFactory assertionRestrictionFactory;
-
 
     @Inject
     public AuthnResponseFromCountryService(SamlEngineProxy samlEngineProxy,
                                            SamlSoapProxyProxy samlSoapProxyProxy,
-                                           MatchingServiceConfigProxy matchingServiceConfigProxy,
-                                           PolicyConfiguration policyConfiguration,
                                            SessionRepository sessionRepository,
                                            SamlAuthnResponseTranslatorDtoFactory samlAuthnResponseTranslatorDtoFactory,
-                                           CountriesService countriesService,
-                                           AssertionRestrictionsFactory assertionRestrictionFactory) {
+                                           CountriesService countriesService) {
         this.samlEngineProxy = samlEngineProxy;
         this.samlSoapProxyProxy = samlSoapProxyProxy;
-        this.matchingServiceConfigProxy = matchingServiceConfigProxy;
-        this.policyConfiguration = policyConfiguration;
         this.sessionRepository = sessionRepository;
         this.samlAuthnResponseTranslatorDtoFactory = samlAuthnResponseTranslatorDtoFactory;
         this.countriesService = countriesService;
-        this.assertionRestrictionFactory = assertionRestrictionFactory;
     }
 
     public ResponseAction receiveAuthnResponseFromCountry(SessionId sessionId,
@@ -71,62 +48,57 @@ public class AuthnResponseFromCountryService {
 
         CountrySelectedStateController stateController = (CountrySelectedStateController) sessionRepository.getStateController(sessionId, CountrySelectedState.class);
         String matchingServiceEntityId = stateController.getMatchingServiceEntityId();
-        stateController.validateCountryIsIn(countriesService.getCountries(sessionId));
+        validateCountryIsIn(countriesService.getCountries(sessionId), stateController.getCountryEntityId());
 
         SamlAuthnResponseTranslatorDto responseToTranslate = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(responseFromCountry, matchingServiceEntityId);
         InboundResponseFromCountry translatedResponse = samlEngineProxy.translateAuthnResponseFromCountry(responseToTranslate);
 
-        if (translatedResponse.getStatus() != IdpIdaStatus.Status.Success) return other(sessionId, false);
+        return handleResponseFromCountry(translatedResponse, responseFromCountry, sessionId, stateController);
+    }
 
-        validateSuccessfulResponse(stateController, translatedResponse);
-        EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = getEidasAttributeQueryRequestDto(stateController, translatedResponse);
-        stateController.transitionToEidasCycle0And1MatchRequestSentState(eidasAttributeQueryRequestDto, responseFromCountry.getPrincipalIPAddressAsSeenByHub(), translatedResponse.getIssuer());
-        AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(eidasAttributeQueryRequestDto);
+    private ResponseAction handleResponseFromCountry(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, CountrySelectedStateController stateController) {
+        ResponseAction responseAction;
+        switch (translatedResponse.getStatus()) {
+            case Success:
+                responseAction = handleSuccessResponse(translatedResponse, responseFromCountry, sessionId, stateController);
+                break;
+            case AuthenticationFailed:
+                responseAction = handleAuthenticationFailedResponse(responseFromCountry, sessionId, stateController);
+                break;
+            default:
+                responseAction = handleOtherResponse(sessionId);
+                break;
+        }
+
+        return responseAction;
+    }
+
+    private ResponseAction handleSuccessResponse(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, CountrySelectedStateController stateController) {
+        stateController.handleSuccessResponseFromCountry(translatedResponse, responseFromCountry.getPrincipalIPAddressAsSeenByHub());
+
+        AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(stateController.getEidasAttributeQueryRequestDto(translatedResponse));
         samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr));
 
         return ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2);
+    }
+
+    private ResponseAction handleAuthenticationFailedResponse(SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, CountrySelectedStateController stateController) {
+        stateController.handleAuthenticationFailedResponseFromCountry(responseFromCountry.getPrincipalIPAddressAsSeenByHub());
+
+        return other(sessionId, false);
+    }
+
+    private ResponseAction handleOtherResponse(SessionId sessionId) {
+        return other(sessionId, false);
     }
 
     private AttributeQueryRequest getAttributeQueryRequest(AttributeQueryContainerDto aqr) {
         return new AttributeQueryRequest(aqr.getId(), aqr.getIssuer(), aqr.getSamlRequest(), aqr.getMatchingServiceUri(), aqr.getAttributeQueryClientTimeOut(), aqr.isOnboarding());
     }
 
-    private void validateSuccessfulResponse(CountrySelectedStateController controller, InboundResponseFromCountry dto) {
-        if (!dto.getPersistentId().isPresent()) {
-            throw StateProcessingValidationException.missingMandatoryAttribute(controller.getRequestId(), "persistentId");
+    private void validateCountryIsIn(List<EidasCountryDto> countries, String countryEntityId) {
+        if (countries.stream().noneMatch(c -> countryEntityId.equals(c.getEntityId()))) {
+            throw StateProcessingValidationException.eidasCountryNotEnabled(countryEntityId);
         }
-        if (!dto.getEncryptedIdentityAssertionBlob().isPresent()) {
-            throw StateProcessingValidationException.missingMandatoryAttribute(controller.getRequestId(), "encryptedIdentityAssertionBlob");
-        }
-
-        validateLoa(controller, dto);
-    }
-
-    private void validateLoa(CountrySelectedStateController controller, InboundResponseFromCountry dto) {
-        java.util.Optional<LevelOfAssurance> loa = dto.getLevelOfAssurance().toJavaUtil();
-        if (!loa.isPresent()) {
-            throw StateProcessingValidationException.missingMandatoryAttribute(controller.getRequestId(), "levelOfAssurance");
-        }
-        loa.ifPresent(controller::validateLevelOfAssurance);
-    }
-
-    private EidasAttributeQueryRequestDto getEidasAttributeQueryRequestDto(CountrySelectedStateController stateController, InboundResponseFromCountry response) {
-        final String matchingServiceEntityId = stateController.getMatchingServiceEntityId();
-        MatchingServiceConfigEntityDataDto matchingServiceConfig = matchingServiceConfigProxy.getMatchingService(matchingServiceEntityId);
-        return new EidasAttributeQueryRequestDto(
-            stateController.getRequestId(),
-            stateController.getRequestIssuerEntityId(),
-            stateController.getAssertionConsumerServiceUri(),
-            assertionRestrictionFactory.getAssertionExpiry(),
-            matchingServiceEntityId,
-            matchingServiceConfig.getUri(),
-            DateTime.now().plus(policyConfiguration.getMatchingServiceResponseWaitPeriod()),
-            matchingServiceConfig.isOnboarding(),
-            response.getLevelOfAssurance().get(),
-            new PersistentId(response.getPersistentId().get()),
-            Optional.absent(),
-            Optional.absent(),
-            response.getEncryptedIdentityAssertionBlob().get()
-        );
     }
 }

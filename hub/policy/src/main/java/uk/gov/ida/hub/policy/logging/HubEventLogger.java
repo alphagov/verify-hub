@@ -18,6 +18,7 @@ import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
@@ -234,6 +235,10 @@ public class HubEventLogger {
         details.put(minimum_level_of_assurance, levelsOfAssurance.get(0).name());
         details.put(required_level_of_assurance, levelsOfAssurance.get(levelsOfAssurance.size() - 1).name());
         logSessionEvent(idpSelectedState.getSessionId(), idpSelectedState.getRequestIssuerEntityId(), idpSelectedState.getSessionExpiryTimestamp(), idpSelectedState.getRequestId(), IDP_SELECTED, details);
+    }
+
+    public void logSessionMovedToStartStateEvent(SessionStartedState state) {
+        logSessionEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), SESSION_STARTED, new HashMap<>());
     }
 
     private void logSessionEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, String state, Map<EventDetailsKey, String> details) {

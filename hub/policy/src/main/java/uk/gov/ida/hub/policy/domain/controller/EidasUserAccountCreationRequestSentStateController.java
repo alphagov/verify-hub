@@ -4,19 +4,19 @@ import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
+import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
-public class UserAccountCreationRequestSentStateController extends MatchRequestSentStateController<UserAccountCreationRequestSentState> {
+public class EidasUserAccountCreationRequestSentStateController extends EidasMatchRequestSentStateController<EidasUserAccountCreationRequestSentState> {
 
-    public UserAccountCreationRequestSentStateController(
-            final UserAccountCreationRequestSentState state,
+    public EidasUserAccountCreationRequestSentStateController(
+            final EidasUserAccountCreationRequestSentState state,
             final StateTransitionAction stateTransitionAction,
             final HubEventLogger hubEventLogger,
             final PolicyConfiguration policyConfiguration,
@@ -41,7 +41,7 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
                 responseFromMatchingService.getMatchingServiceAssertion(),
                 state.getRelayState().orNull(),
                 state.getIdpLevelOfAssurance(),
-                state.isRegistering(),
+                false,
                 state.getTransactionSupportsEidas());
 
         stateTransitionAction.transitionTo(userAccountCreatedState);
@@ -49,16 +49,15 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
 
     @Override
     public void transitionToNextStateForUserAccountCreationFailedResponse() {
-        final UserAccountCreationFailedState userAccountCreationFailedState = new UserAccountCreationFailedState(
+        final CountryUserAccountCreationFailedState countryUserAccountCreationFailedState = new CountryUserAccountCreationFailedState(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
                 state.getRelayState(),
-                state.getSessionId(),
-                state.getTransactionSupportsEidas()
+                state.getSessionId()
         );
 
-        stateTransitionAction.transitionTo(userAccountCreationFailedState);
+        stateTransitionAction.transitionTo(countryUserAccountCreationFailedState);
     }
 }

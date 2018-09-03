@@ -29,7 +29,6 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
@@ -102,7 +101,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
+    public void shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
         Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().build();
         Cycle3MatchRequestSentStateController controller =
                 new Cycle3MatchRequestSentStateController(state, null, null, null, null, null, transactionsConfigProxy, null, null, null);
@@ -118,8 +117,9 @@ public class Cycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextStateForNoMatch_shouldReturnUserAccountCreationRequestSentStateWhenAttributesArePresent() {
-        //Given
+    public void shouldReturnUserAccountCreationRequestSentStateForNoMatchWhenAttributesArePresent() {
+        ArgumentCaptor<UserAccountCreationRequestSentState> capturedState = ArgumentCaptor.forClass(UserAccountCreationRequestSentState.class);
+        ArgumentCaptor<EventSinkHubEvent> eventSinkArgumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
         Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().build();
         ImmutableList<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of(UserAccountCreationAttribute.DATE_OF_BIRTH);
@@ -129,14 +129,11 @@ public class Cycle3MatchRequestSentStateControllerTest {
                 .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
 
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, hubEventLogger, null, policyConfiguration, null, null,
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, null, null,
                         transactionsConfigProxy, matchingServiceConfigProxy, assertionRestrictionFactory, attributeQueryService);
 
-        //When
-        State nextState = controller.getNextStateForNoMatch();
+        controller.transitionToNextStateForNoMatchResponse();
 
-        //Then
-        ArgumentCaptor<EventSinkHubEvent> eventSinkArgumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         verify(eventSinkProxy, times(1)).logHubEvent(eventSinkArgumentCaptor.capture());
         assertThat(eventSinkArgumentCaptor.getValue().getEventType()).isEqualTo(EventSinkHubEventConstants.EventTypes.SESSION_EVENT);
         assertThat(eventSinkArgumentCaptor.getValue().getDetails().get(EventDetailsKey.session_event_type)).isEqualTo(USER_ACCOUNT_CREATION_REQUEST_SENT);
@@ -144,31 +141,34 @@ public class Cycle3MatchRequestSentStateControllerTest {
         assertThat(eventSinkArgumentCaptor.getValue().getDetails().get(EventDetailsKey.request_id)).isEqualTo(state.getRequestId());
         assertThat(eventSinkArgumentCaptor.getValue().getOriginatingService()).isEqualTo(serviceInfo.getName());
 
-        verify(attributeQueryService).sendAttributeQueryRequest(eq(nextState.getSessionId()), attributeQueryRequestCaptor.capture());
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        verify(attributeQueryService).sendAttributeQueryRequest(eq(capturedState.getValue().getSessionId()), attributeQueryRequestCaptor.capture());
 
         AttributeQueryRequestDto actualAttributeQueryRequestDto = attributeQueryRequestCaptor.getValue();
         assertThat(actualAttributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(userAccountCreationUri);
         assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.fromNullable(userAccountCreationAttributes));
         assertThat(actualAttributeQueryRequestDto.getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
 
-        assertThat(nextState).isInstanceOf(UserAccountCreationRequestSentState.class);
+        assertThat(capturedState.getValue()).isInstanceOf(UserAccountCreationRequestSentState.class);
     }
 
     @Test
-    public void getNextStateForNoMatch_shouldReturnNoMatchWhenNoAttributesArePresent(){
+    public void shouldTransitonToNoMatchStateForNoMatchResponseWhenNoAttributesArePresent(){
+        ArgumentCaptor<NoMatchState> capturedState = ArgumentCaptor.forClass(NoMatchState.class);
         Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().build();
         ImmutableList<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of();
         when(transactionsConfigProxy.getUserAccountCreationAttributes("request issuer id")).thenReturn(userAccountCreationAttributes);
         Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, hubEventLogger, null, null, null, null, transactionsConfigProxy, null, null, null);
+                new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, null, null, null, transactionsConfigProxy, null, null, null);
 
-        State nextState = controller.getNextStateForNoMatch();
+        controller.transitionToNextStateForNoMatchResponse();
 
-        assertThat(nextState).isInstanceOf(NoMatchState.class);
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isInstanceOf(NoMatchState.class);
     }
 
     @Test
-    public void cycle3NoMatchResponseFromMatchingService_shouldLogCycle3NoMatchEventToEventSink() {
+    public void shouldLogCycle3NoMatchEventToEventSinkForCycle3NoMatchResponseFromMatchingService() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -190,7 +190,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle3SuccessfulMatchResponseFromMatchingService_shouldLogCycle3MatchEventToEventSink() {
+    public void shouldLogCycle3MatchEventToEventSinkForCycle3SuccessfulMatchResponseFromMatchingService() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -212,7 +212,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle3NoMatchResponseFromMatchingService_shouldNotLogCycle3MatchEventToEventSink() {
+    public void shouldNotLogCycle3MatchEventToEventSinkForCycle3NoMatchResponseFromMatchingService() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -245,7 +245,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
     }
 
     @Test(expected=StateProcessingValidationException.class)
-    public void responseFromMatchingService_shouldThrowExceptionWhenInResponseToDoesNotMatchFromCycle3MatchRequest() {
+    public void shouldThrowExceptionWhenInResponseToDoesNotMatchFromCycle3MatchRequestForMatchResponse() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -260,7 +260,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void statusShouldSendNoMatchResponseToTransaction_whenNoMatchResponseSentFromMatchingServiceCycle3Match() {
+    public void statusShouldSendNoMatchResponseToTransactionWhenNoMatchResponseReceivedFromMatchingServiceCycle3Match() {
         final String requestId = "requestId";
         final SessionId sessionId = SessionId.createNewSessionId();
         Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
@@ -323,5 +323,4 @@ public class Cycle3MatchRequestSentStateControllerTest {
         final ResponseFromHub responseFromHub = controller.getErrorResponse();
         assertThat(responseFromHub.getStatus()).isEqualTo(TransactionIdaStatus.NoAuthenticationContext);
     }
-
 }

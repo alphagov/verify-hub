@@ -7,9 +7,12 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 
-public final class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentState {
+public class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentState {
 
     private static final long serialVersionUID = -5585201555901105188L;
+
+    private final String encryptedIdentityAssertion;
+    private final PersistentId persistentId;
 
     public EidasCycle0And1MatchRequestSentState(
             final String requestId,
@@ -35,9 +38,17 @@ public final class EidasCycle0And1MatchRequestSentState extends EidasMatchReques
                 identityProviderEntityId,
                 relayState,
                 idpLevelOfAssurance,
-                matchingServiceAdapterEntityId,
-                encryptedIdentityAssertion,
-                persistentId
-        );
+                matchingServiceAdapterEntityId);
+
+        this.encryptedIdentityAssertion = encryptedIdentityAssertion;
+        this.persistentId = persistentId;
+    }
+
+    public String getEncryptedIdentityAssertion() {
+        return encryptedIdentityAssertion;
+    }
+
+    public PersistentId getPersistentId() {
+        return persistentId;
     }
 }

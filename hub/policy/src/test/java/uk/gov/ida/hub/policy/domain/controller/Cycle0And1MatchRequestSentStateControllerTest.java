@@ -21,7 +21,6 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
-import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
@@ -119,7 +118,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextState_shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
+    public void shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
         final String responseIssuerId = "wrong issuer";
         MatchFromMatchingService matchFromMatchingService =
                 aMatchFromMatchingService()
@@ -135,26 +134,26 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void getNextState_shouldReturnNoMatchStateWhenTransactionDoesNotSupportCycle3AndMatchingServiceReturnsNoMatchAndUserAccountCreationIsDisabled() throws Exception {
-        //Given
+    public void houldReturnNoMatchStateWhenTransactionDoesNotSupportCycle3AndMatchingServiceReturnsNoMatchAndUserAccountCreationIsDisabled() throws Exception {
+        final ArgumentCaptor<NoMatchState> capturedState = ArgumentCaptor.forClass(NoMatchState.class);
+
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID))
                 .thenReturn(new MatchingProcess(Optional.absent()));
 
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID))
                 .thenReturn(Collections.emptyList());
 
-        //When
-        final State nextState = controller.getNextStateForNoMatch();
+        controller.transitionToNextStateForNoMatchResponse();
 
-        //Then
-        assertThat(nextState).isInstanceOf(NoMatchState.class);
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isInstanceOf(NoMatchState.class);
     }
 
     @Test
-    public void getNextState_shouldReturnUserAccountCreationRequestSentStateWhenTransactionDoesNotSupportCycle3AndSupportsUserAccountCreation() {
-        //Given
+    public void shouldReturnUserAccountCreationRequestSentStateWhenNoMatchAndTransactionDoesNotSupportCycle3AndSupportsUserAccountCreation() {
         URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
         List<UserAccountCreationAttribute> userAccountCreationAttributes = singletonList(UserAccountCreationAttribute.DATE_OF_BIRTH);
+        final ArgumentCaptor<UserAccountCreationRequestSentState> capturedState = ArgumentCaptor.forClass(UserAccountCreationRequestSentState.class);
 
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID))
                 .thenReturn(new MatchingProcess(Optional.absent()));
@@ -163,38 +162,37 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         when(matchingServiceConfigProxy.getMatchingService(anyString()))
                 .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
 
-        //When
-        final State nextState = controller.getNextStateForNoMatch();
+        controller.transitionToNextStateForNoMatchResponse();
 
-        //Then
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
         verify(hubEventLogger).logMatchingServiceUserAccountCreationRequestSentEvent(
                 state.getSessionId(), TRANSACTION_ENTITY_ID, state.getSessionExpiryTimestamp(), state.getRequestId());
-        verify(attributeQueryService).sendAttributeQueryRequest(eq(nextState.getSessionId()), attributeQueryRequestCaptor.capture());
+        verify(attributeQueryService).sendAttributeQueryRequest(eq(capturedState.getValue().getSessionId()), attributeQueryRequestCaptor.capture());
 
         AttributeQueryRequestDto actualAttributeQueryRequestDto = attributeQueryRequestCaptor.getValue();
         assertThat(actualAttributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(userAccountCreationUri);
         assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.fromNullable(userAccountCreationAttributes));
 
-        assertThat(nextState).isInstanceOf(UserAccountCreationRequestSentState.class);
+        assertThat(capturedState.getValue()).isInstanceOf(UserAccountCreationRequestSentState.class);
     }
 
     @Test
-    public void getNextState_shouldGetAwaitingCycle3DataStateWhenTransactionSupportsCycle3() {
-        //Given
+    public void shouldGetAwaitingCycle3DataStateWhenNoMatchAndTransactionSupportsCycle3() {
+        final ArgumentCaptor<AwaitingCycle3DataState> capturedState = ArgumentCaptor.forClass(AwaitingCycle3DataState.class);
+
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(matchingProcess);
         when(matchingProcess.getAttributeName()).thenReturn(Optional.of("somestring"));
 
-        //When
-        final State nextState = controller.getNextStateForNoMatch();
+        controller.transitionToNextStateForNoMatchResponse();
 
-        //Then
-        assertThat(nextState).isInstanceOf(AwaitingCycle3DataState.class);
-        assertThat(((AwaitingCycle3DataState)nextState).getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isInstanceOf(AwaitingCycle3DataState.class);
+        assertThat((capturedState.getValue()).getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
                 verify(transactionsConfigProxy, times(0)).getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID);
     }
 
     @Test
-    public void cycle0And1NoMatchResponseFromMatchingService_shouldLogRelevantEvents() {
+    public void shouldLogRelevantEventsWhenReceivedCycle0And1NoMatchResponseFromMatchingService() {
         // Given
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.absent()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID)).thenReturn(emptyList());
@@ -209,7 +207,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle0And1SuccessfulMatchResponseFromMatchingService_shouldLogRelevantEvents() {
+    public void shouldLogRelevantEventsWhenReceivedCycle0And1SuccessfulMatchResponseFromMatchingService() {
         List<UserAccountCreationAttribute> userAccountCreationAttributes = singletonList(UserAccountCreationAttribute.DATE_OF_BIRTH);
 
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID))
@@ -225,7 +223,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle0And1NoMatchResponseFromMatchingServiceWhenC3Enabled_shouldLogRelevantEvents() {
+    public void shouldLogRelevantEventsWhenReceivedCycle0And1NoMatchResponseFromMatchingServiceAndC3Enabled() {
         MatchingProcess matchingProcess = mock(MatchingProcess.class);
         when(matchingProcess.getAttributeName()).thenReturn(Optional.of("BLOCKBUSTER_CARD"));
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(matchingProcess);
@@ -239,7 +237,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void cycle0And1NoMatchResponseFromMatchingServiceWhenC3NotEnabled_shouldNotLogWaitingForCycle3AttributesEventToEventSink() {
+    public void shouldNotLogWaitingForCycle3AttributesEventToEventSinkWhenReceivedCycle0And1NoMatchResponseAndC3NotEnabled() {
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.absent()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID)).thenReturn(emptyList());
 
@@ -263,7 +261,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void responseProcessingDetails_shouldReturnCompleteStatus_successResponseSentFromMatchingService() {
+    public void shouldReturnCompleteStatusWhenSuccessResponseReceivedFromMatchingService() {
         ArgumentCaptor<SuccessfulMatchState> argumentCaptor = ArgumentCaptor.forClass(SuccessfulMatchState.class);
         MatchFromMatchingService matchFromMatchingService = new MatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID, "assertionBlob", Optional.of(LevelOfAssurance.LEVEL_1));
 
@@ -280,7 +278,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void responseProcessingDetails_shouldReturnNoMatchStatus_noMatchResponseSentFromMatchingService() {
+    public void shouldReturnNoMatchStatusWhenNoMatchResponseReceivedFromMatchingService() {
         ArgumentCaptor<NoMatchState> argumentCaptor = ArgumentCaptor.forClass(NoMatchState.class);
         NoMatchFromMatchingService noMatchFromMatchingService = new NoMatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID);
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(new MatchingProcess(Optional.absent()));

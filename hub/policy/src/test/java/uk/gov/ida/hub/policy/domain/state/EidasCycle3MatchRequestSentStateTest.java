@@ -31,8 +31,6 @@ public class EidasCycle3MatchRequestSentStateTest {
     @Test
     public void testToString() {
         final StringBuffer sb = new StringBuffer("EidasCycle3MatchRequestSentState{");
-        sb.append("encryptedIdentityAssertion='").append(ENCRYPTED_IDENTITY_ASSERTION).append('\'');
-        sb.append(", persistentId=").append(PERSISTENT_ID);
         sb.append(", identityProviderEntityId='").append(state.getIdentityProviderEntityId()).append('\'');
         sb.append(", relayState=").append(state.getRelayState());
         sb.append(", requestSentTime=").append(state.getRequestSentTime());
@@ -51,6 +49,10 @@ public class EidasCycle3MatchRequestSentStateTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(EidasCycle3MatchRequestSentState.class).withRedefinedSuperclass().verify();
+        EqualsVerifier.forClass(EidasCycle3MatchRequestSentState.class)
+                .withIgnoredFields("encryptedIdentityAssertion", "persistentId")
+                .withRedefinedSuperclass()
+                .usingGetClass()
+                .verify();
     }
 }

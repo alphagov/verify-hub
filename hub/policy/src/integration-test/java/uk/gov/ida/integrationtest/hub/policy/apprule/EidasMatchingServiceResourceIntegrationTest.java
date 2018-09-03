@@ -28,11 +28,12 @@ import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
+import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
-import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
@@ -75,7 +76,6 @@ public class EidasMatchingServiceResourceIntegrationTest {
         ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
         ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()),
         ConfigOverride.config("eidas", "true"));
-
 
     private static Client client;
     private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
@@ -145,7 +145,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToUserAccountCreationStateWhenNoMatchIsReceivedForEidasCycle0And1WithCycle3DisabledAndUACEnabled() throws Exception {
+    public void shouldTransitionToEidasUserAccountCreationStateWhenNoMatchIsReceivedForEidasCycle0And1WithCycle3DisabledAndUACEnabled() throws Exception {
         final SessionId sessionId = aSessionIsCreated();
         aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
@@ -164,7 +164,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
         final Response response = postAttributeQueryResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(EidasUserAccountCreationRequestSentState.class.getName());
     }
 
     @Test
@@ -205,7 +205,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToUserAccountCreationStateWhenNoMatchIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
+    public void shouldTransitionToEidasUserAccountCreationSentStateWhenNoMatchIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
         SessionId sessionId = aSessionIsCreated();
         aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
@@ -222,7 +222,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
         Response response = postAttributeQueryResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreationRequestSentState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(EidasUserAccountCreationRequestSentState.class.getName());
     }
 
     @Test
@@ -246,6 +246,53 @@ public class EidasMatchingServiceResourceIntegrationTest {
         assertThat(getSessionStateName(sessionId)).isEqualTo(NoMatchState.class.getName());
     }
 
+    @Test
+    public void shouldTransitionToCountryUserAccountCreatedStateWhenUACreatedResponseIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
+        samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
+        postAuthnResponseToPolicy(sessionId);
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
+        configStub.setUpStubForEnteringAwaitingCycle3DataState(RP_ENTITY_ID);
+        configStub.setUpStubForUserAccountCreation(RP_ENTITY_ID, Collections.singletonList(UserAccountCreationAttribute.FIRST_NAME));
+
+        postAttributeQueryResponseToPolicy(sessionId);
+        postCycle3Data(sessionId, new Cycle3UserInput("test-value", "principal-ip-address-seen-by-hub"));
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
+        postAttributeQueryResponseToPolicy(sessionId);
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aUserAccountCreationFailedResponse());
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(CountryUserAccountCreationFailedState.class.getName());
+    }
+
+    @Test
+    public void shouldTransitionToCountryUserAccountCreationFailedStateWhenUACFailedResponseIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
+        samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
+        postAuthnResponseToPolicy(sessionId);
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
+        configStub.setUpStubForEnteringAwaitingCycle3DataState(RP_ENTITY_ID);
+        configStub.setUpStubForUserAccountCreation(RP_ENTITY_ID, Collections.singletonList(UserAccountCreationAttribute.FIRST_NAME));
+
+        postAttributeQueryResponseToPolicy(sessionId);
+        postCycle3Data(sessionId, new Cycle3UserInput("test-value", "principal-ip-address-seen-by-hub"));
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aNoMatchResponse());
+        postAttributeQueryResponseToPolicy(sessionId);
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aUserAccountCreatedResponse());
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreatedState.class.getName());
+    }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {
         configStub.setUpStubForAssertionConsumerServiceUri(RP_ENTITY_ID);
@@ -284,6 +331,24 @@ public class EidasMatchingServiceResourceIntegrationTest {
     private InboundResponseFromMatchingServiceDto aMatchResponse(){
         return new InboundResponseFromMatchingServiceDto(
                 MatchingServiceIdaStatus.MatchingServiceMatch,
+                translatedAuthnRequest.getId(),
+                MSA_ENTITY_ID,
+                Optional.of("assertionBlob"),
+                Optional.of(LevelOfAssurance.LEVEL_2));
+    }
+
+    private InboundResponseFromMatchingServiceDto aUserAccountCreatedResponse(){
+        return new InboundResponseFromMatchingServiceDto(
+                MatchingServiceIdaStatus.UserAccountCreated,
+                translatedAuthnRequest.getId(),
+                MSA_ENTITY_ID,
+                Optional.of("assertionBlob"),
+                Optional.of(LevelOfAssurance.LEVEL_2));
+    }
+
+    private InboundResponseFromMatchingServiceDto aUserAccountCreationFailedResponse(){
+        return new InboundResponseFromMatchingServiceDto(
+                MatchingServiceIdaStatus.UserAccountCreationFailed,
                 translatedAuthnRequest.getId(),
                 MSA_ENTITY_ID,
                 Optional.of("assertionBlob"),

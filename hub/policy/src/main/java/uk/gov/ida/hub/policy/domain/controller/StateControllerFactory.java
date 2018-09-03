@@ -10,7 +10,9 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
@@ -18,6 +20,7 @@ import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
@@ -68,8 +71,11 @@ public class StateControllerFactory {
                         (CountrySelectedState) state,
                         injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
+                        injector.getInstance(PolicyConfiguration.class),
                         injector.getInstance(TransactionsConfigProxy.class),
-                        injector.getInstance(ResponseFromHubFactory.class));
+                        injector.getInstance(MatchingServiceConfigProxy.class),
+                        injector.getInstance(ResponseFromHubFactory.class),
+                        injector.getInstance(AssertionRestrictionsFactory.class));
 
             case IDP_SELECTED:
                 return new IdpSelectedStateController(
@@ -200,6 +206,18 @@ public class StateControllerFactory {
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(MatchingServiceConfigProxy.class));
 
+            case EIDAS_USER_ACCOUNT_CREATION_REQUEST_SENT:
+                return new EidasUserAccountCreationRequestSentStateController(
+                        (EidasUserAccountCreationRequestSentState) state,
+                        stateTransitionAction,
+                        injector.getInstance(HubEventLogger.class),
+                        injector.getInstance(PolicyConfiguration.class),
+                        new LevelOfAssuranceValidator(),
+                        injector.getInstance(ResponseFromHubFactory.class),
+                        injector.getInstance(AttributeQueryService.class),
+                        injector.getInstance(TransactionsConfigProxy.class),
+                        injector.getInstance(MatchingServiceConfigProxy.class));
+
             case AUTHN_FAILED_ERROR:
                 return new AuthnFailedErrorStateController(
                         (AuthnFailedErrorState) state,
@@ -207,6 +225,13 @@ public class StateControllerFactory {
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class),
+                        injector.getInstance(HubEventLogger.class));
+
+            case COUNTRY_AUTHN_FAILED_ERROR:
+                return new CountryAuthnFailedErrorStateController(
+                        (CountryAuthnFailedErrorState) state,
+                        injector.getInstance(ResponseFromHubFactory.class),
+                        stateTransitionAction,
                         injector.getInstance(HubEventLogger.class));
 
             case FRAUD_EVENT_DETECTED:
@@ -236,6 +261,13 @@ public class StateControllerFactory {
                 return new UserAccountCreationFailedStateController(
                         (UserAccountCreationFailedState) state,
                         injector.getInstance(ResponseFromHubFactory.class));
+
+            case COUNTRY_USER_ACCOUNT_CREATION_FAILED:
+                return new CountryUserAccountCreationFailedStateController(
+                        (CountryUserAccountCreationFailedState) state,
+                        injector.getInstance(ResponseFromHubFactory.class),
+                        stateTransitionAction,
+                        injector.getInstance(HubEventLogger.class));
 
             default:
                 throw new IllegalStateException(format("Invalid state controller class for {0}", policyState));

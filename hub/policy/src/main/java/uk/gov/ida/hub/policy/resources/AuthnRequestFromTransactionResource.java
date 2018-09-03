@@ -49,6 +49,13 @@ public class AuthnRequestFromTransactionResource {
         authnRequestFromTransactionHandler.tryAnotherIdp(sessionId);
     }
 
+    @POST
+    @Path(Urls.PolicyUrls.AUTHN_REQUEST_RESTART_EIDAS_JOURNEY_PATH)
+    @Timed
+    public void restartEidasJourney(@PathParam(SESSION_ID_PARAM) SessionId sessionId) {
+        authnRequestFromTransactionHandler.restartEidasUnsuccessfulJourney(sessionId);
+    }
+
     @GET
     @Path(Urls.PolicyUrls.AUTHN_REQUEST_SIGN_IN_PROCESS_DETAILS_PATH)
     @Timed

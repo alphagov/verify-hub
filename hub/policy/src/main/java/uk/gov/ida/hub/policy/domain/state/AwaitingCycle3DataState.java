@@ -6,10 +6,9 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
-import java.io.Serializable;
 import java.net.URI;
 
-public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState implements ResponseProcessingState, Serializable {
+public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
 
     private static final long serialVersionUID = 2909622650570769370L;
 

@@ -1,20 +1,13 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
-import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
-import uk.gov.ida.hub.policy.contracts.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
-import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -54,28 +47,36 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
     }
 
     @Override
-    protected State getNextStateForMatch(MatchFromMatchingService responseFromMatchingService) {
+    protected void transitionToNextStateForMatchResponse(String matchingServiceAssertion) {
         hubEventLogger.logCycle01SuccessfulMatchEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp());
 
-        return getSuccessfulMatchState(responseFromMatchingService);
+        stateTransitionAction.transitionTo(createSuccessfulMatchState(matchingServiceAssertion));
     }
 
     @Override
-    protected State getNextStateForNoMatch() {
-        Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
+    protected void transitionToNextStateForNoMatchResponse() {
+        com.google.common.base.Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
         if (selfAssertedAttributeName.isPresent()) {
             hubEventLogger.logWaitingForCycle3AttributesEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
-            return getAwaitingCycle3DataState();
+            stateTransitionAction.transitionTo(createAwaitingCycle3DataState());
+            return;
         }
 
         List<UserAccountCreationAttribute> userAccountCreationAttributes = transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId());
         if(!userAccountCreationAttributes.isEmpty()) {
-            AttributeQueryRequestDto attributeQueryRequestDto = createAttributeQuery(userAccountCreationAttributes);
-            return handleUserAccountCreationRequestAndGenerateState(attributeQueryRequestDto, state.isRegistering());
+            AttributeQueryRequestDto attributeQueryRequestDto = createAttributeQuery(
+                    userAccountCreationAttributes,
+                    state.getEncryptedMatchingDatasetAssertion(),
+                    state.getAuthnStatementAssertion(),
+                    state.getPersistentId(),
+                    assertionRestrictionFactory.getAssertionExpiry());
+
+            transitionToUserAccountCreationRequestSentState(attributeQueryRequestDto);
+            return;
         }
 
         hubEventLogger.logCycle01NoMatchEvent(
@@ -84,37 +85,10 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 state.getRequestId(),
                 state.getSessionExpiryTimestamp());
 
-        return getNoMatchState();
+        stateTransitionAction.transitionTo(createNoMatchState());
     }
 
-    @Override
-    protected SuccessfulMatchState createSuccessfulMatchState(String matchingServiceAssertion, String requestIssuerId) {
-        return new SuccessfulMatchState(
-                state.getRequestId(),
-                state.getSessionExpiryTimestamp(),
-                state.getIdentityProviderEntityId(),
-                matchingServiceAssertion,
-                state.getRelayState().orNull(),
-                requestIssuerId,
-                state.getAssertionConsumerServiceUri(),
-                state.getSessionId(),
-                state.getIdpLevelOfAssurance(),
-                state.isRegistering(),
-                state.getTransactionSupportsEidas()
-        );
-    }
-
-    @Override
-    protected State getNextStateForUserAccountCreated(UserAccountCreatedFromMatchingService responseFromMatchingService) {
-        return null;
-    }
-
-    @Override
-    protected State getNextStateForUserAccountCreationFailed() {
-        return null;
-    }
-
-    private AwaitingCycle3DataState getAwaitingCycle3DataState() {
+    private AwaitingCycle3DataState createAwaitingCycle3DataState() {
         return new AwaitingCycle3DataState(
                 state.getRequestId(),
                 state.getIdentityProviderEntityId(),
@@ -130,26 +104,5 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 state.getIdpLevelOfAssurance(),
                 state.isRegistering(),
                 state.getTransactionSupportsEidas());
-    }
-
-    public AttributeQueryRequestDto createAttributeQuery(List<UserAccountCreationAttribute> userAccountCreationAttributes) {
-        MatchingServiceConfigEntityDataDto matchingServiceConfig = matchingServiceConfigProxy.getMatchingService(state.getMatchingServiceAdapterEntityId());
-
-        return AttributeQueryRequestDto.createUserAccountRequiredMatchingServiceRequest(
-                state.getRequestId(),
-                state.getEncryptedMatchingDatasetAssertion(),
-                state.getAuthnStatementAssertion(),
-                Optional.absent(),
-                state.getRequestIssuerEntityId(),
-                state.getAssertionConsumerServiceUri(),
-                state.getMatchingServiceAdapterEntityId(),
-                DateTime.now().plus(policyConfiguration.getMatchingServiceResponseWaitPeriod()),
-                state.getIdpLevelOfAssurance(),
-                userAccountCreationAttributes,
-                state.getPersistentId(),
-                assertionRestrictionFactory.getAssertionExpiry(),
-                matchingServiceConfig.getUserAccountCreationUri(),
-                matchingServiceConfig.isOnboarding());
-
     }
 }
