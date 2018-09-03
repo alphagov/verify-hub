@@ -125,6 +125,22 @@ public class TransactionsResource {
     }
 
     @GET
+    @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_TRANSACTIONS_LIST_PATH)
+    @Timed
+    public List<TransactionDetailedDisplayData> getSingleIDPEnabledServiceListTransactions(){
+        Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();
+        return allData.stream()
+                .filter(TransactionConfigEntityData::isEnabled)
+                .filter(TransactionConfigEntityData::isEnabledForSingleIdp)
+                .map(t -> new TransactionDetailedDisplayData(t.getSimpleId().orElse(null),
+                        t.getServiceHomepage(),
+                        t.getLevelsOfAssurance(),
+                        t.getEntityId())
+                )
+                .collect(Collectors.toList());
+    }
+
+    @GET
     @Path(Urls.ConfigUrls.TRANSLATIONS_LOCALE_PATH)
     @Timed
     public TranslationData.Translation getTranslation(@PathParam(Urls.SharedUrls.SIMPLE_ID_PARAM) String simpleId, @PathParam(Urls.SharedUrls.LOCALE_PARAM) String locale) {

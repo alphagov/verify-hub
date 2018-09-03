@@ -24,6 +24,7 @@ public class TransactionConfigEntityDataBuilder {
     private MatchingProcess matchingProcess;
     private List<LevelOfAssurance> levelsOfAssurance = Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
     private boolean enabled = true;
+    private boolean enabledForSingleIdp = false;
     private boolean shouldHubSignResponseMessages = true;
     private String otherWaysToCompleteTransaction = "default other ways to complete transaction";
     private String otherWaysDescription = "default other ways description";
@@ -56,6 +57,7 @@ public class TransactionConfigEntityDataBuilder {
                 serviceHomepage,
                 matchingProcess,
                 enabled,
+                enabledForSingleIdp,
                 eidasEnabled,
                 shouldHubSignResponseMessages,
                 levelsOfAssurance,
@@ -113,6 +115,11 @@ public class TransactionConfigEntityDataBuilder {
         return this;
     }
 
+    public TransactionConfigEntityDataBuilder withEnabledForSingleIdp(boolean singleIdpEnabled) {
+        this.enabledForSingleIdp = singleIdpEnabled;
+        return this;
+    }
+
     public TransactionConfigEntityDataBuilder withEidasEnabled(boolean eidasEnabled) {
         this.eidasEnabled = eidasEnabled;
         return this;
@@ -152,6 +159,7 @@ public class TransactionConfigEntityDataBuilder {
                 URI serviceHomepage,
                 MatchingProcess matchingProcess,
                 boolean enabled,
+                boolean enabledForSingleIdp,
                 boolean eidasEnabled,
                 boolean shouldHubSignResponseMessages,
                 List<LevelOfAssurance> levelsOfAssurance,
@@ -168,6 +176,7 @@ public class TransactionConfigEntityDataBuilder {
             this.userAccountCreationAttributes = userAccountCreationAttributes;
             this.matchingProcess = matchingProcess;
             this.enabled = enabled;
+            this.enabledForSingleIdp = enabledForSingleIdp;
             this.eidasEnabled = eidasEnabled;
             this.shouldHubSignResponseMessages = shouldHubSignResponseMessages;
             this.levelsOfAssurance = levelsOfAssurance;

@@ -37,6 +37,10 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     protected Boolean enabled;
 
     @Valid
+    @JsonProperty
+    protected Boolean enabledForSingleIdp = false;
+
+    @Valid
     @NotNull
     @JsonProperty
     protected X509CertificateConfiguration encryptionCertificate;
@@ -149,6 +153,10 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
 
     public Boolean isEnabled() {
         return enabled;
+    }
+
+    public Boolean isEnabledForSingleIdp() {
+        return enabledForSingleIdp;
     }
 
     public String getEntityId() {
