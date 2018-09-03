@@ -3,6 +3,7 @@ package uk.gov.ida.integrationtest.hub.config.apprule.support;
 import certificates.values.CACertificates;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableList;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.ResourceHelpers;
@@ -91,6 +92,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
     @Override
     protected void before() {
         mapper.registerModule(new Jdk8Module().configureAbsentsAsNulls(true));
+        mapper.registerModule(new JodaModule());
         clientTrustStore.create();
         rpTrustStore.create();
 

@@ -16,8 +16,12 @@ public class OnboardingIdpPredicateTest {
         final OnboardingIdpPredicate loa1Predicate = new OnboardingIdpPredicate(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);
         final Set<IdentityProviderConfigEntityData> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
 
+        // Doesn't need to contain the onboardingSoftDisconnectingIdp or onboardingHardDisconnectingIdp because these IDPs onboard at all levels,
+        // meaning that the second check in the OnboardingIdpPredicate's apply function will be evaluated (to false), excluding the IDP from the
+        // result set.
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
-                nonOnboardingAllLevelsIdp, onboardingLoa2Idp, onboardingLoa2IdpOtherOnboardingEntity};
+                nonOnboardingAllLevelsIdp, onboardingLoa2Idp, onboardingLoa2IdpOtherOnboardingEntity,
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
@@ -28,7 +32,9 @@ public class OnboardingIdpPredicateTest {
         final Set<IdentityProviderConfigEntityData> filteredIdps = getFilteredIdps(allIdps, loa1PredicateOnboarding);
 
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp,
-                onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa2IdpOtherOnboardingEntity};
+                onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa2IdpOtherOnboardingEntity,
+                onboardingSoftDisconnectingIdp, onboardingHardDisconnectingIdp, nonOnboardingSoftDisconnectingIdp,
+                nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
@@ -39,8 +45,12 @@ public class OnboardingIdpPredicateTest {
         final OnboardingIdpPredicate signInPredicateNonOnboarding = new OnboardingIdpPredicate(transactionEntityNonOnboarding, null);
         final Set<IdentityProviderConfigEntityData> filteredIdps = getFilteredIdps(allIdps, signInPredicateNonOnboarding);
 
+        // Doesn't need to contain the onboardingSoftDisconnectingIdp or onboardingHardDisconnectingIdp because these IDPs onboard at all levels,
+        // meaning that the second check in the OnboardingIdpPredicate's apply function will be evaluated (to false), excluding the IDP from the
+        // result set.
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp,
-                onboardingLoa1Idp, onboardingLoa2Idp, onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity};
+                onboardingLoa1Idp, onboardingLoa2Idp, onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
@@ -53,7 +63,9 @@ public class OnboardingIdpPredicateTest {
 
         final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
                 nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp,
-                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity};
+                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,
+                onboardingSoftDisconnectingIdp, onboardingHardDisconnectingIdp,
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
