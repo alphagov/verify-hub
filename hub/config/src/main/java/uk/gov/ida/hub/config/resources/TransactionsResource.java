@@ -108,22 +108,7 @@ public class TransactionsResource {
             .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance()))
             .collect(Collectors.toList());
     }
-
-    @GET
-    @Path(Urls.ConfigUrls.TRANSACTIONS_FOR_SERVICE_LIST_PATH)
-    @Timed
-    public List<TransactionDetailedDisplayData> getEnabledServiceListTransactions(){
-        Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();
-        return allData.stream()
-                .filter(TransactionConfigEntityData::isEnabled)
-                .map(t -> new TransactionDetailedDisplayData(t.getSimpleId().orElse(null),
-                        t.getServiceHomepage(),
-                        t.getLevelsOfAssurance(),
-                        t.getEntityId())
-                )
-                .collect(Collectors.toList());
-    }
-
+    
     @GET
     @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_TRANSACTIONS_LIST_PATH)
     @Timed

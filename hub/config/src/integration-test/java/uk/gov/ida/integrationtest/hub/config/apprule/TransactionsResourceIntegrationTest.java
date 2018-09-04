@@ -278,22 +278,6 @@ public class TransactionsResourceIntegrationTest {
     }
 
     @Test
-    public void getTransactionsForServiceList_returnsOkAndTransactionsForServiceList(){
-        URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.TRANSACTIONS_FOR_SERVICE_LIST_PATH).build();
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        List<TransactionDetailedDisplayData> transactionDisplayItems
-                = response.readEntity(new GenericType<List<TransactionDetailedDisplayData>>() {});
-        assertThat(transactionDisplayItems.size()).isEqualTo(2);
-        for (TransactionDetailedDisplayData transactionDisplayItem : transactionDisplayItems) {
-            List<LevelOfAssurance> loas = transactionDisplayItem.getLoaList();
-            assertThat(loas != null);
-            assertNotNull(transactionDisplayItem.getEntityId());
-            assertNotNull(transactionDisplayItem.getSimpleId());
-        }
-    }
-
-    @Test
     public void getSingleIDPEnabledServiceListTransactions_returnsOkAndEnabledAndSingleIdpEnabledTransactions() {
         URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_TRANSACTIONS_LIST_PATH).build();
         Response response = client.target(uri).request().get();
