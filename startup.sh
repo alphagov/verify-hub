@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 if test ! "$1" == "skip-build"; then
-    ./gradlew clean build copyToLib -x test
+    ./gradlew clean build installDist -x test
 fi
 
-pushd ../verify-local-startup >/dev/null
-    source lib/services.sh
-    source config/env.sh
+pushd ../ida-hub-acceptance-tests >/dev/null
+    source scripts/services.sh
+    source scripts/env.sh
 
     start_service stub-event-sink ../verify-hub/hub/stub-event-sink configuration/hub/stub-event-sink.yml $EVENT_SINK_PORT
     start_service config ../verify-hub/hub/config configuration/hub/config.yml $CONFIG_PORT

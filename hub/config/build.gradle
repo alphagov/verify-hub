@@ -13,15 +13,6 @@ apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.hub.config.ConfigApplication'
 mainClassName = ext.mainclass
 
-task copyToLib(dependsOn: jar, type: Copy) {
-    into "$buildDir/output/lib"
-    from configurations.runtime
-}
-
-task zip(dependsOn: copyToLib, type: Zip) {
-    from "$buildDir/output"
-}
-
 task jarTest (type: Jar) {
     from sourceSets.test.output
     classifier = 'test'
