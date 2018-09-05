@@ -108,9 +108,9 @@ public class TransactionsResource {
             .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance()))
             .collect(Collectors.toList());
     }
-    
+
     @GET
-    @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_TRANSACTIONS_LIST_PATH)
+    @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH)
     @Timed
     public List<TransactionDetailedDisplayData> getSingleIDPEnabledServiceListTransactions(){
         Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();

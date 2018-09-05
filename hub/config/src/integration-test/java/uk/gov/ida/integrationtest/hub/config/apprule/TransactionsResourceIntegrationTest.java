@@ -279,7 +279,7 @@ public class TransactionsResourceIntegrationTest {
 
     @Test
     public void getSingleIDPEnabledServiceListTransactions_returnsOkAndEnabledAndSingleIdpEnabledTransactions() {
-        URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_TRANSACTIONS_LIST_PATH).build();
+        URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH).build();
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<TransactionDetailedDisplayData> transactionDisplayItems
