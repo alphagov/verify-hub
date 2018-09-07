@@ -46,6 +46,10 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
     protected Boolean enabled;
 
     @Valid
+    @JsonProperty
+    protected Boolean enabledForSingleIdp = false;
+
+    @Valid
     @NotNull
     @JsonProperty
     protected List<LevelOfAssurance> supportedLevelsOfAssurance;
@@ -80,6 +84,10 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
 
     public Boolean isEnabled() {
         return enabled;
+    }
+
+    public Boolean isEnabledForSingleIdp() {
+        return enabledForSingleIdp;
     }
 
     public List<String> getOnboardingTransactionEntityIds() {

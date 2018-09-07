@@ -110,12 +110,13 @@ public class TransactionsResource {
     }
 
     @GET
-    @Path(Urls.ConfigUrls.TRANSACTIONS_FOR_SERVICE_LIST_PATH)
+    @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH)
     @Timed
-    public List<TransactionDetailedDisplayData> getEnabledServiceListTransactions(){
+    public List<TransactionDetailedDisplayData> getSingleIDPEnabledServiceListTransactions(){
         Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();
         return allData.stream()
                 .filter(TransactionConfigEntityData::isEnabled)
+                .filter(TransactionConfigEntityData::isEnabledForSingleIdp)
                 .map(t -> new TransactionDetailedDisplayData(t.getSimpleId().orElse(null),
                         t.getServiceHomepage(),
                         t.getLevelsOfAssurance(),

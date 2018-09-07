@@ -89,6 +89,20 @@ public class IdentityProviderResource {
     }
 
     @GET
+    @Path(Urls.ConfigUrls.IDP_LIST_FOR_SINGLE_IDP_PATH)
+    @Timed
+    public List<IdpDto> getIdpListForSingleIdp(@PathParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final String transactionEntityId) {
+        Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityDataForSingleIdp(transactionEntityId);
+        return matchingIdps.stream()
+                .map(configData ->
+                        new IdpDto(
+                                configData.getSimpleId(),
+                                configData.getEntityId(),
+                                configData.getSupportedLevelsOfAssurance()))
+                .collect(Collectors.toList());
+    }
+
+    @GET
     @Path(Urls.ConfigUrls.IDP_CONFIG_DATA)
     @Timed
     public IdpConfigDto getIdpConfig(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
@@ -168,6 +182,12 @@ public class IdentityProviderResource {
     private Set<IdentityProviderConfigEntityData> getIdentityProviderConfigEntityDataForSignIn(String transactionEntityId) {
         Set<Predicate<IdentityProviderConfigEntityData>> predicatesForTransactionEntity =
                 idpPredicateFactory.createPredicatesForSignIn(transactionEntityId);
+        return idpsFilteredBy(predicatesForTransactionEntity);
+    }
+
+    private Set<IdentityProviderConfigEntityData> getIdentityProviderConfigEntityDataForSingleIdp(String transactionEntityId) {
+        Set<Predicate<IdentityProviderConfigEntityData>> predicatesForTransactionEntity =
+                idpPredicateFactory.createPredicatesForSingleIdp(transactionEntityId);
         return idpsFilteredBy(predicatesForTransactionEntity);
     }
 

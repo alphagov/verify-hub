@@ -50,6 +50,7 @@ public class TransactionsResourceIntegrationTest {
         .addTransaction(aTransactionConfigData()
                 .withEntityId(ENTITY_ID)
                 .withSimpleId(SIMPLE_ID)
+                .withEnabledForSingleIdp(true)
                 .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
                 .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
                 .withMatchingProcess(aMatchingProcess().withCycle3AttributeName("NationalInsuranceNumber").build())
@@ -277,15 +278,15 @@ public class TransactionsResourceIntegrationTest {
     }
 
     @Test
-    public void getTransactionsForServiceList_returnsOkAndTransactionsForServiceList(){
-        URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.TRANSACTIONS_FOR_SERVICE_LIST_PATH).build();
+    public void getSingleIDPEnabledServiceListTransactions_returnsOkAndEnabledAndSingleIdpEnabledTransactions() {
+        URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH).build();
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<TransactionDetailedDisplayData> transactionDisplayItems
-                = response.readEntity(new GenericType<List<TransactionDetailedDisplayData>>() {});
+                = response.readEntity(new GenericType<List<TransactionDetailedDisplayData>>() {
+        });
+        assertThat(transactionDisplayItems.size()).isEqualTo(1);
         for (TransactionDetailedDisplayData transactionDisplayItem : transactionDisplayItems) {
-            List<LevelOfAssurance> loas = transactionDisplayItem.getLoaList();
-            assertThat(loas != null);
             assertNotNull(transactionDisplayItem.getEntityId());
             assertNotNull(transactionDisplayItem.getSimpleId());
         }

@@ -16,6 +16,7 @@ public class IdentityProviderConfigDataBuilder {
     private List<SignatureVerificationCertificate> signatureVerificationCertificates = new ArrayList<>();
     private String simpleId = "default-idp-simple-id";
     private Boolean enabled = true;
+    private Boolean enabledForSingleIdp = false;
     private List<String> transactionEntityIds = ImmutableList.of();
     private List<String> transactionEntityIdsTemp = ImmutableList.of();
     private List<LevelOfAssurance> onboardingLevelsOfAssurance = ImmutableList.of();
@@ -34,6 +35,7 @@ public class IdentityProviderConfigDataBuilder {
                 entityId,
                 simpleId,
                 enabled,
+                enabledForSingleIdp,
                 transactionEntityIds,
                 transactionEntityIdsTemp,
                 onboardingLevelsOfAssurance,
@@ -88,12 +90,18 @@ public class IdentityProviderConfigDataBuilder {
         return this;
     }
 
+    public IdentityProviderConfigDataBuilder withEnabledForSingleIdp(boolean enabledForSingleIdp) {
+        this.enabledForSingleIdp = enabledForSingleIdp;
+        return this;
+    }
+
     private static class TestIdentityProviderConfigEntityData extends IdentityProviderConfigEntityData {
 
         private TestIdentityProviderConfigEntityData(
                 String entityId,
                 String simpleId,
                 boolean enabled,
+                boolean enabledForSingleIdp,
                 List<String> transactionEntityIds,
                 List<String> transactionEntityIdsTemp,
                 List<LevelOfAssurance> onboardingLevelsOfAssurance,
@@ -103,6 +111,7 @@ public class IdentityProviderConfigDataBuilder {
             this.entityId = entityId;
             this.simpleId = simpleId;
             this.enabled = enabled;
+            this.enabledForSingleIdp = enabledForSingleIdp;
             this.onboardingTransactionEntityIds = transactionEntityIds;
             this.onboardingLevelsOfAssurance = onboardingLevelsOfAssurance;
             this.onboardingTransactionEntityIdsTemp = transactionEntityIdsTemp;
