@@ -749,7 +749,7 @@ public class SamlEngineModule extends AbstractModule {
             DigestAlgorithm digestAlgorithm) {
         return hubTransformersFactory.getEidasAuthnRequestFromHubToStringTransformer(
                 keyStore,
-                new SignatureRSASHA256(), //TODO: needs to be refactored once TT-71 is complete
+                new SignatureRSASHA256(),
                 digestAlgorithm
         );
     }
