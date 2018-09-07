@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
+import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -63,6 +64,7 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());
+        bootstrap.addBundle(new PrometheusBundle());
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
         final InfinispanBundle infinispanBundle = new InfinispanBundle();
         // the infinispan cache manager needs to be lazy loaded because it is not initialized at this point.

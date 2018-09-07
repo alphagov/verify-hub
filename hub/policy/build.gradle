@@ -9,7 +9,8 @@ dependencies {
             configurations.verify_event_emitter,
             configurations.common,
             configurations.dropwizard,
-            configurations.dropwizard_infinispan
+            configurations.dropwizard_infinispan,
+            configurations.prometheus
 }
 
 apply plugin: 'application'

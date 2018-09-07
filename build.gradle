@@ -89,6 +89,7 @@ subprojects {
         dev_pki
         trust_anchor
         saml_libs
+        prometheus
     }
 
     dependencies {
@@ -118,6 +119,8 @@ subprojects {
         dev_pki "uk.gov.ida:ida-dev-pki:$dependencyVersions.dev_pki"
 
         dropwizard_infinispan "uk.gov.ida:dropwizard-infinispan:$dependencyVersions.dropwizard_infinispan"
+
+        prometheus 'engineering.gds-reliability:gds-metrics-dropwizard:0.1.0'
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
              "uk.gov.ida:saml-metadata-bindings:$dependencyVersions.saml_libs",
