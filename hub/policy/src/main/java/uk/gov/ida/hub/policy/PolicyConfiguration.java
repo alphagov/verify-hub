@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import engineering.reliability.gds.metrics.config.PrometheusConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
@@ -17,7 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.net.URI;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PolicyConfiguration extends Configuration implements RestfulClientConfiguration, ServiceNameConfiguration, InfinispanServiceConfiguration, AssertionLifetimeConfiguration {
+public class PolicyConfiguration extends Configuration implements RestfulClientConfiguration, ServiceNameConfiguration, InfinispanServiceConfiguration, AssertionLifetimeConfiguration, PrometheusConfiguration {
 
     @Valid
     @JsonProperty
@@ -91,6 +92,10 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @JsonProperty
     public EventEmitterConfiguration eventEmitterConfiguration;
 
+    @Valid
+    @JsonProperty
+    protected Boolean prometheusEnabled = false;
+
     protected PolicyConfiguration() {}
 
     public URI getSamlSoapProxyUri() { return samlSoapProxyUri;  }
@@ -156,5 +161,10 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
 
     public EventEmitterConfiguration getEventEmitterConfiguration() {
         return eventEmitterConfiguration;
+    }
+
+    @Override
+    public boolean isPrometheusEnabled() {
+        return prometheusEnabled;
     }
 }
