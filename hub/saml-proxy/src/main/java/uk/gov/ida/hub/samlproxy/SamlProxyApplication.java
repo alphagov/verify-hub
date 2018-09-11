@@ -1,12 +1,16 @@
 package uk.gov.ida.hub.samlproxy;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.opensaml.saml.metadata.resolver.MetadataResolver;
+import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
@@ -20,6 +24,7 @@ import uk.gov.ida.hub.samlproxy.resources.HubMetadataResourceApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageReceiverApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageSenderApi;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;
 
 import javax.servlet.DispatcherType;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -32,6 +37,7 @@ import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
 public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
 
     private GuiceBundle<SamlProxyConfiguration> guiceBundle;
+    private MetadataResolverBundle<SamlProxyConfiguration> verifyMetadataBundle = new MetadataResolverBundle<>((SamlProxyConfiguration::getMetadataConfiguration));
 
     public static void main(String[] args) throws Exception {
         new SamlProxyApplication().run(args);
@@ -51,8 +57,9 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
                 )
         );
 
+        bootstrap.addBundle(verifyMetadataBundle);
         guiceBundle = defaultBuilder(SamlProxyConfiguration.class)
-                .modules(new SamlProxyModule(), new EventEmitterModule())
+                .modules(new SamlProxyModule(), new EventEmitterModule(), bindVerifyMetadata())
                 .build();
         bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
@@ -60,11 +67,28 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
         bootstrap.addBundle(new LoggingBundle());
     }
 
+    private AbstractModule bindVerifyMetadata() {
+        return new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(MetadataResolver.class)
+                        .annotatedWith(Names.named(SamlProxyModule.VERIFY_METADATA_RESOLVER))
+                        .toProvider(verifyMetadataBundle.getMetadataResolverProvider());
+
+                bind(ExplicitKeySignatureTrustEngine.class)
+                        .annotatedWith(Names.named(SamlProxyModule.VERIFY_METADATA_TRUST_ENGINE))
+                        .toProvider(verifyMetadataBundle.getSignatureTrustEngineProvider());
+            }
+        };
+    }
+
+
     @Override
     public void run(SamlProxyConfiguration configuration, Environment environment) throws Exception {
         environment.getObjectMapper().setDateFormat(new ISO8601DateFormat());
 
         IdaSamlBootstrap.bootstrap();
+
 
         for (Class klass : getResources()) {
             environment.jersey().register(klass);
