@@ -145,7 +145,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToEidasUserAccountCreationStateWhenNoMatchIsReceivedForEidasCycle0And1WithCycle3DisabledAndUACEnabled() throws Exception {
+    public void shouldTransitionToEidasUserAccountCreationRequestSentStateWhenNoMatchIsReceivedForEidasCycle0And1WithCycle3DisabledAndUACEnabled() throws Exception {
         final SessionId sessionId = aSessionIsCreated();
         aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
@@ -205,7 +205,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToEidasUserAccountCreationSentStateWhenNoMatchIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
+    public void shouldTransitionToEidasUserAccountCreationRequestSentStateWhenNoMatchIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
         SessionId sessionId = aSessionIsCreated();
         aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
@@ -247,7 +247,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToCountryUserAccountCreatedStateWhenUACreatedResponseIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
+    public void shouldTransitionToCountryUserAccountCreationFailedStateWhenUACFailedResponseIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
         SessionId sessionId = aSessionIsCreated();
         aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
@@ -271,7 +271,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToCountryUserAccountCreationFailedStateWhenUACFailedResponseIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
+    public void shouldTransitionToUserAccountCreatedStateWhenUACreatedResponseIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
         SessionId sessionId = aSessionIsCreated();
         aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
