@@ -34,16 +34,16 @@ script
   fi
 
   export JAVA_OPTS="-Dservice.name=saml-engine \
-                        -XX:HeapDumpPath=/var/log/ida/debug \
-                        -XX:+HeapDumpOnOutOfMemoryError \
-                        -Xms256m -Xmx256m \
-                        -Dhttp.proxyHost=\"${PROXY_HOST:-}\" \
-                        -Dhttp.proxyPort=\"${PROXY_PORT:-}\" \
-                        -Dhttps.proxyHost=\"${PROXY_HOST:-}\" \
-                        -Dhttps.proxyPort=\"${PROXY_PORT:-}\" \
-                        -Dhttp.nonProxyHosts=\"${NON_PROXY_HOSTS:-}\" \
-                        -Dnetworkaddress.cache.ttl=5
-                        -Dnetworkaddress.cache.negative.ttl=5"
+                      -XX:HeapDumpPath=/var/log/ida/debug \
+                      -XX:+HeapDumpOnOutOfMemoryError \
+                      -Dhttp.proxyHost=\"${PROXY_HOST:-}\" \
+                      -Dhttp.proxyPort=\"${PROXY_PORT:-}\" \
+                      -Dhttps.proxyHost=\"${PROXY_HOST:-}\" \
+                      -Dhttps.proxyPort=\"${PROXY_PORT:-}\" \
+                      -Dhttp.nonProxyHosts=\"${NON_PROXY_HOSTS:-}\" \
+                      -Dnetworkaddress.cache.ttl=5 \
+                      -Dnetworkaddress.cache.negative.ttl=5 \
+                      $EXTRA_JAVA_OPTS"
 
   # JAVA_HOME is set wrong, but the `java` on the path is correct - unsetting this uses /usr/bin/java
   unset JAVA_HOME
