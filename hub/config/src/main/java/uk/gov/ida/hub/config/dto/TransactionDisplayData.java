@@ -10,6 +10,7 @@ public class TransactionDisplayData {
     private String simpleId;
     private URI serviceHomepage;
     private List<LevelOfAssurance> loaList;
+    private URI headlessStartpage;
 
     // Needed by jaxb for integration test :(
     protected TransactionDisplayData() {
@@ -17,11 +18,13 @@ public class TransactionDisplayData {
 
     public TransactionDisplayData(String simpleId,
                                   URI serviceHomepage,
-                                  List<LevelOfAssurance> loaList) {
+                                  List<LevelOfAssurance> loaList,
+                                  URI headlessStartpage) {
 
         this.simpleId = simpleId;
         this.serviceHomepage = serviceHomepage;
         this.loaList = loaList;
+        this.headlessStartpage = headlessStartpage;
     }
 
     public URI getServiceHomepage() { return serviceHomepage; }
@@ -32,5 +35,9 @@ public class TransactionDisplayData {
 
     public List<LevelOfAssurance> getLoaList() {
         return loaList;
+    }
+
+    public URI getHeadlessStartpage() {
+        return headlessStartpage;
     }
 }
