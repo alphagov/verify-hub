@@ -5,8 +5,8 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.eventemitter.EventEmitter;
-import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.exceptions.ApplicationException;
@@ -14,7 +14,7 @@ import uk.gov.ida.exceptions.ApplicationException;
 import java.net.URI;
 
 import static uk.gov.ida.common.SessionId.NO_SESSION_CONTEXT_IN_ERROR;
-import static uk.gov.ida.eventsink.EventDetailsKey.downstream_uri;
+import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.ERROR_EVENT;
 
 public class HealthCheckEventLogger {

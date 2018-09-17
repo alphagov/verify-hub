@@ -4,8 +4,9 @@ import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.Event;
-import uk.gov.ida.eventsink.EventDetailsKey;
+import uk.gov.ida.eventemitter.EventDetailsKey;
 
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ public class EventSinkHubEvent implements Event {
     private final String originatingService;
     private final String sessionId;
     private final String eventType;
-    private final Map<EventDetailsKey, String> details;
+    private final EnumMap<EventDetailsKey, String> details;
 
     public EventSinkHubEvent(ServiceInfoConfiguration serviceInfo, SessionId sessionId, String eventType, Map<EventDetailsKey, String> details) {
         this.eventId = UUID.randomUUID();
@@ -46,7 +47,7 @@ public class EventSinkHubEvent implements Event {
         return eventType;
     }
 
-    public Map<EventDetailsKey, String> getDetails() {
+    public EnumMap<EventDetailsKey, String> getDetails() {
         return details;
     }
 }

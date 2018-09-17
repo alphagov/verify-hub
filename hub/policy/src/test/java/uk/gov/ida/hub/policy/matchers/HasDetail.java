@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.policy.matchers;
 
 import org.assertj.core.api.Condition;
-import uk.gov.ida.eventsink.EventDetailsKey;
+import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
 
 import java.util.Map;

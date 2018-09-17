@@ -10,7 +10,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.EventEmitter;
-import uk.gov.ida.eventsink.EventDetailsKey;
+import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.exceptions.ApplicationException;
@@ -23,8 +23,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.common.SessionId.NO_SESSION_CONTEXT_IN_ERROR;
-import static uk.gov.ida.eventsink.EventDetailsKey.downstream_uri;
-import static uk.gov.ida.eventsink.EventDetailsKey.message;
+import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
+import static uk.gov.ida.eventemitter.EventDetailsKey.message;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.ERROR_EVENT;
 
 @RunWith(MockitoJUnitRunner.class)

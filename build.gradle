@@ -29,7 +29,7 @@ ext {
 }
 
 def dependencyVersions = [
-            ida_utils:'345',
+            ida_utils:'346',
             dropwizard:"$dropwizard_version",
             dropwizard_infinispan:"$dropwizard_version-47",
             pact:'3.5.6',
@@ -108,7 +108,7 @@ subprojects {
 
         config 'commons-io:commons-io:2.1'
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-53"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-56"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils",

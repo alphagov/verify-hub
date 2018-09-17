@@ -1,16 +1,16 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
 import com.google.common.base.Optional;
-import javax.inject.Inject;
-import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventsink.EventDetails;
 import uk.gov.ida.eventsink.EventSinkMessageSender;
+import uk.gov.ida.exceptions.ApplicationException;
 
+import javax.inject.Inject;
 import java.net.URI;
 
 import static uk.gov.ida.common.SessionId.NO_SESSION_CONTEXT_IN_ERROR;
-import static uk.gov.ida.eventsink.EventDetailsKey.downstream_uri;
+import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 
 public class ExceptionAuditor {
     private final EventSinkMessageSender eventSinkMessageSender;
