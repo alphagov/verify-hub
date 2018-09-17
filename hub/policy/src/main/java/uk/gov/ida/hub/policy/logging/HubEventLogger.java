@@ -6,8 +6,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ServiceInfoConfiguration;
+import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.eventemitter.EventEmitter;
-import uk.gov.ida.eventsink.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
@@ -22,29 +22,31 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static uk.gov.ida.eventsink.EventDetailsKey.downstream_uri;
-import static uk.gov.ida.eventsink.EventDetailsKey.error_id;
-import static uk.gov.ida.eventsink.EventDetailsKey.gpg45_status;
-import static uk.gov.ida.eventsink.EventDetailsKey.hub_event_type;
-import static uk.gov.ida.eventsink.EventDetailsKey.idp_entity_id;
-import static uk.gov.ida.eventsink.EventDetailsKey.idp_fraud_event_id;
-import static uk.gov.ida.eventsink.EventDetailsKey.message;
-import static uk.gov.ida.eventsink.EventDetailsKey.message_id;
-import static uk.gov.ida.eventsink.EventDetailsKey.minimum_level_of_assurance;
-import static uk.gov.ida.eventsink.EventDetailsKey.pid;
-import static uk.gov.ida.eventsink.EventDetailsKey.principal_ip_address_as_seen_by_hub;
-import static uk.gov.ida.eventsink.EventDetailsKey.principal_ip_address_as_seen_by_idp;
-import static uk.gov.ida.eventsink.EventDetailsKey.provided_level_of_assurance;
-import static uk.gov.ida.eventsink.EventDetailsKey.request_id;
-import static uk.gov.ida.eventsink.EventDetailsKey.required_level_of_assurance;
-import static uk.gov.ida.eventsink.EventDetailsKey.session_event_type;
-import static uk.gov.ida.eventsink.EventDetailsKey.session_expiry_time;
-import static uk.gov.ida.eventsink.EventDetailsKey.transaction_entity_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.country_code;
+import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
+import static uk.gov.ida.eventemitter.EventDetailsKey.error_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.gpg45_status;
+import static uk.gov.ida.eventemitter.EventDetailsKey.hub_event_type;
+import static uk.gov.ida.eventemitter.EventDetailsKey.idp_entity_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.idp_fraud_event_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.message;
+import static uk.gov.ida.eventemitter.EventDetailsKey.message_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.minimum_level_of_assurance;
+import static uk.gov.ida.eventemitter.EventDetailsKey.pid;
+import static uk.gov.ida.eventemitter.EventDetailsKey.principal_ip_address_as_seen_by_hub;
+import static uk.gov.ida.eventemitter.EventDetailsKey.principal_ip_address_as_seen_by_idp;
+import static uk.gov.ida.eventemitter.EventDetailsKey.provided_level_of_assurance;
+import static uk.gov.ida.eventemitter.EventDetailsKey.request_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.required_level_of_assurance;
+import static uk.gov.ida.eventemitter.EventDetailsKey.session_event_type;
+import static uk.gov.ida.eventemitter.EventDetailsKey.session_expiry_time;
+import static uk.gov.ida.eventemitter.EventDetailsKey.transaction_entity_id;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.HUB_EVENT;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.SESSION_EVENT;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.HubEvents.RECEIVED_AUTHN_REQUEST_FROM_HUB;
@@ -168,7 +170,7 @@ public class HubEventLogger {
     }
 
     public void logIdpRequesterErrorEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, Optional<String> errorMessage, String principalIpAddressSeenByHub) {
-        Map<EventDetailsKey, String> details = new HashMap<>();
+        EnumMap<EventDetailsKey, String> details = new EnumMap<>(EventDetailsKey.class);
         if (errorMessage.isPresent()) {
             details.put(message, errorMessage.get());
         }
@@ -261,7 +263,7 @@ public class HubEventLogger {
     public void logCountrySelectedEvent(CountrySelectedState countrySelectedState) {
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(transaction_entity_id, countrySelectedState.getRequestIssuerEntityId());
-        details.put(EventDetailsKey.country_code, countrySelectedState.getCountryEntityId());
+        details.put(country_code, countrySelectedState.getCountryEntityId());
         logSessionEvent(countrySelectedState.getSessionId(), countrySelectedState.getRequestIssuerEntityId(), countrySelectedState.getSessionExpiryTimestamp(), countrySelectedState.getRequestId(), COUNTRY_SELECTED, details);
     }
 

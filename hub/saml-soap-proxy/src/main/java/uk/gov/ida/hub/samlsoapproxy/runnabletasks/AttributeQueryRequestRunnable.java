@@ -9,7 +9,7 @@ import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventemitter.EventEmitter;
-import uk.gov.ida.eventsink.EventDetailsKey;
+import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEvent;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.text.MessageFormat.format;
-import static uk.gov.ida.eventsink.EventDetailsKey.error_id;
-import static uk.gov.ida.eventsink.EventDetailsKey.idp_entity_id;
-import static uk.gov.ida.eventsink.EventDetailsKey.message;
+import static uk.gov.ida.eventemitter.EventDetailsKey.error_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.idp_entity_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.message;
 
 public class AttributeQueryRequestRunnable implements Runnable {
 

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.exceptions.ApplicationException.createAuditedException;
 import static uk.gov.ida.exceptions.ApplicationException.createUnauditedException;
-import static uk.gov.ida.eventsink.EventDetailsKey.downstream_uri;
+import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExceptionAuditorTest {

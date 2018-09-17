@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.EventEmitter;
-import uk.gov.ida.eventsink.EventDetailsKey;
+import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
