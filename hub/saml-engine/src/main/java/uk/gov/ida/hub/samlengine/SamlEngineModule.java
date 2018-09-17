@@ -99,7 +99,13 @@ import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappings
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.*;
+import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunctionSHA256;
+import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileOutboundResponseFromHubToSamlResponseTransformer;
+import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileTransactionIdaStatusMarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
@@ -172,7 +178,6 @@ public class SamlEngineModule extends AbstractModule {
         bind(RpErrorResponseGeneratorService.class);
         bind(TransactionsConfigProxy.class);
         bind(MatchingServiceHealthcheckRequestGeneratorService.class);
-        bind(ObjectMapper.class).toInstance(new ObjectMapper());
         bind(ExpiredCertificateMetadataFilter.class).toInstance(new ExpiredCertificateMetadataFilter());
         bind(new TypeLiteral<LevelLoggerFactory<SamlEngineExceptionMapper>>() {})
             .toInstance(new LevelLoggerFactory<>());
@@ -193,6 +198,13 @@ public class SamlEngineModule extends AbstractModule {
         bind(IdaAuthnRequestTranslator.class);
         bind(EidasAuthnRequestTranslator.class);
         bind(MatchingServiceHealthcheckResponseTranslatorService.class);
+    }
+
+    @Provides
+    @Singleton
+    @SuppressWarnings("unused")
+    private ObjectMapper getObjectMapper(Environment environment) {
+        return environment.getObjectMapper();
     }
 
     @Provides

@@ -81,7 +81,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.cert.CertificateException;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
@@ -110,7 +109,6 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(UrlConfigurationSourceProvider.class).toInstance(new UrlConfigurationSourceProvider());
         bind(TrustStoreForCertificateProvider.class);
         bind(JsonResponseProcessor.class);
-        bind(ObjectMapper.class).toInstance(new ObjectMapper());
         bind(X509CertificateFactory.class).toInstance(new X509CertificateFactory());
         bind(CertificateChainValidator.class);
         bind(CertificatesConfigProxy.class);
@@ -135,6 +133,13 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(IpAddressResolver.class).toInstance(new IpAddressResolver());
         bind(TimeoutEvaluator.class).toInstance(new TimeoutEvaluator());
         bind(MetadataHealthCheckRegistry.class).asEagerSingleton();
+    }
+
+    @Provides
+    @Singleton
+    @SuppressWarnings("unused")
+    private ObjectMapper getObjectMapper(Environment environment) {
+        return environment.getObjectMapper();
     }
 
     @Provides

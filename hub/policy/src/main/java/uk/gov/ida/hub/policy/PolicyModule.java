@@ -65,7 +65,6 @@ public class PolicyModule extends AbstractModule {
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
         bind(InfinispanStartupTasks.class).asEagerSingleton();
         bind(JsonResponseProcessor.class);
-        bind(ObjectMapper.class).toInstance(new ObjectMapper());
         bind(EventSinkProxy.class).to(EventSinkHttpProxy.class);
         bind(HubEventLogger.class);
         bind(SessionService.class);
@@ -88,6 +87,13 @@ public class PolicyModule extends AbstractModule {
         bind(Cycle3Service.class);
         bind(MatchingServiceResponseService.class);
         bind(ResponseFromIdpHandler.class);
+    }
+
+    @Provides
+    @Singleton
+    @SuppressWarnings("unused")
+    private ObjectMapper getObjectMapper(Environment environment) {
+        return environment.getObjectMapper();
     }
 
     @Provides
