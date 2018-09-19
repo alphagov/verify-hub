@@ -18,8 +18,8 @@ import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
+import uk.gov.ida.hub.policy.domain.CountryAuthenticationStatus.Status;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
-import uk.gov.ida.hub.policy.domain.IdpIdaStatus.Status;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
@@ -44,6 +44,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
@@ -181,9 +182,23 @@ public class AuthnResponseFromCountryServiceTest {
     }
 
     @Test
-    public void shouldReturnOtherResponseIfTranslationResponseFromSamlEngineNotSuccess() {
+    public void shouldReturnSuccessResponseIfTranslationResponseFromSamlEngineIsSuccessful() {
+        final InboundResponseFromCountry inboundResponseFromCountry =
+                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2));
+
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
-            .thenReturn(new InboundResponseFromCountry(Status.AuthenticationFailed, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2)));
+                .thenReturn(inboundResponseFromCountry);
+
+        ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
+
+        verify(stateController).handleSuccessResponseFromCountry(inboundResponseFromCountry, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub());
+        assertThat(responseAction.getResult()).isEqualTo(SUCCESS);
+    }
+
+    @Test
+    public void shouldReturnOtherResponseIfTranslationResponseFromSamlEngineIsFailure() {
+        when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
+            .thenReturn(new InboundResponseFromCountry(Status.Failure, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2)));
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 

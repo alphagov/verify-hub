@@ -14,8 +14,8 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
+import uk.gov.ida.hub.policy.domain.CountryAuthenticationStatus;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
-import uk.gov.ida.hub.policy.domain.IdpIdaStatus;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
@@ -38,7 +38,6 @@ import java.util.Arrays;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_SELECTED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
@@ -200,13 +199,13 @@ public class EidasSessionResourceIntegrationTest {
 
     private void stubSamlEngineTranslationLOAForCountry(LevelOfAssurance loa, EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(IdpIdaStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa));
+        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa));
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 
     private void stubSamlEngineTranslationToFailForCountry(EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(IdpIdaStatus.Status.RequesterError, Optional.absent(), country.getEntityId(), Optional.absent(), Optional.absent(), Optional.absent());
+        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Failure, Optional.absent(), country.getEntityId(), Optional.absent(), Optional.absent(), Optional.absent());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 

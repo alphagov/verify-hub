@@ -20,10 +20,7 @@ import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncryp
 import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
-import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
-import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
-import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
@@ -76,7 +73,6 @@ public class CountryAuthnResponseTranslatorServiceTest {
         service = new CountryAuthnResponseTranslatorService(
                 stringToOpenSamlResponseTransformer,
                 responseFromCountryValidator,
-                new IdpIdaStatusUnmarshaller(new IdpIdaStatus.IdpIdaStatusFactory(), new SamlStatusToIdpIdaStatusMappingsFactory()),
                 responseAssertionsFromCountryValidator,
                 validateSamlResponseIssuedByIdpDestination,
                 assertionDecrypter,

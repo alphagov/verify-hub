@@ -6,14 +6,14 @@ import com.google.common.base.Optional;
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InboundResponseFromCountry {
-    private IdpIdaStatus.Status status;
+    private CountryAuthenticationStatus.Status status;
     private String issuer;
     private Optional<String> persistentId;
     private Optional<String> statusMessage;
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
 
-    public InboundResponseFromCountry(IdpIdaStatus.Status status, Optional<String> statusMessage, String issuer, Optional<String> encryptedIdentityAssertionBlob, Optional<String> persistentId, Optional<LevelOfAssurance> levelOfAssurance) {
+    public InboundResponseFromCountry(CountryAuthenticationStatus.Status status, Optional<String> statusMessage, String issuer, Optional<String> encryptedIdentityAssertionBlob, Optional<String> persistentId, Optional<LevelOfAssurance> levelOfAssurance) {
         this.status = status;
         this.statusMessage = statusMessage;
         this.issuer = issuer;
@@ -25,7 +25,7 @@ public class InboundResponseFromCountry {
     protected InboundResponseFromCountry() {
     }
 
-    public IdpIdaStatus.Status getStatus() {
+    public CountryAuthenticationStatus.Status getStatus() {
         return status;
     }
 
@@ -49,4 +49,3 @@ public class InboundResponseFromCountry {
         return encryptedIdentityAssertionBlob;
     }
 }
-

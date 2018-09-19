@@ -18,7 +18,7 @@ import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
-import uk.gov.ida.hub.policy.domain.IdpIdaStatus;
+import uk.gov.ida.hub.policy.domain.CountryAuthenticationStatus;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
@@ -56,7 +56,7 @@ public class CountrySelectedStateControllerTest {
     private static final String SELECTED_COUNTRY = STUB_COUNTRY_ONE;
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY  = new InboundResponseFromCountry(
-            IdpIdaStatus.Status.Success,
+            CountryAuthenticationStatus.Status.Success,
             Optional.absent(),
             STUB_COUNTRY_ONE,
             Optional.of(BLOB),
@@ -124,7 +124,7 @@ public class CountrySelectedStateControllerTest {
         exception.expectMessage(String.format("Authn translation for request %s failed with missing mandatory attribute %s", state.getRequestId(), "persistentId"));
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
-                IdpIdaStatus.Status.Success,
+                CountryAuthenticationStatus.Status.Success,
                 Optional.absent(),
                 STUB_COUNTRY_ONE,
                 Optional.of(BLOB),
@@ -140,7 +140,7 @@ public class CountrySelectedStateControllerTest {
         exception.expectMessage(String.format("Authn translation for request %s failed with missing mandatory attribute %s", state.getRequestId(), "encryptedIdentityAssertionBlob"));
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
-                IdpIdaStatus.Status.Success,
+                CountryAuthenticationStatus.Status.Success,
                 Optional.absent(),
                 STUB_COUNTRY_ONE,
                 Optional.absent(),
@@ -156,7 +156,7 @@ public class CountrySelectedStateControllerTest {
         exception.expectMessage("No level of assurance in the response.");
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
-                IdpIdaStatus.Status.Success,
+                CountryAuthenticationStatus.Status.Success,
                 Optional.absent(),
                 STUB_COUNTRY_ONE,
                 Optional.of(BLOB),
@@ -174,7 +174,7 @@ public class CountrySelectedStateControllerTest {
                         LEVEL_1, ImmutableList.of(LEVEL_2)));
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
-                IdpIdaStatus.Status.Success,
+                CountryAuthenticationStatus.Status.Success,
                 Optional.absent(),
                 STUB_IDP_ONE,
                 Optional.of(BLOB),
@@ -210,7 +210,7 @@ public class CountrySelectedStateControllerTest {
         );
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
-                IdpIdaStatus.Status.Success,
+                CountryAuthenticationStatus.Status.Success,
                 Optional.absent(),
                 STUB_COUNTRY_ONE,
                 Optional.of(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),

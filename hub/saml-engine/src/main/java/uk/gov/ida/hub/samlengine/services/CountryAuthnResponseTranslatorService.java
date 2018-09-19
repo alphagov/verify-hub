@@ -16,8 +16,8 @@ import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
-import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
-import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
+import uk.gov.ida.saml.hub.domain.CountryAuthenticationStatus;
+import uk.gov.ida.saml.hub.transformers.inbound.CountryAuthenticationStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
@@ -33,7 +33,6 @@ public class CountryAuthnResponseTranslatorService {
     private final StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer;
     private final ResponseFromCountryValidator responseFromCountryValidator;
     private final DestinationValidator responseFromCountryDestinationValidator;
-    private final IdpIdaStatusUnmarshaller statusUnmarshaller;
     private final AssertionDecrypter assertionDecrypter;
     private final AssertionBlobEncrypter assertionBlobEncrypter;
     private final PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller;
@@ -43,7 +42,6 @@ public class CountryAuthnResponseTranslatorService {
     @Inject
     public CountryAuthnResponseTranslatorService(StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer,
                                                  ResponseFromCountryValidator responseFromCountryValidator,
-                                                 IdpIdaStatusUnmarshaller idpIdaStatusUnmarshaller,
                                                  ResponseAssertionsFromCountryValidator responseAssertionFromCountryValidator,
                                                  DestinationValidator validateSamlResponseIssuedByIdpDestination,
                                                  AssertionDecrypter assertionDecrypter,
@@ -54,7 +52,6 @@ public class CountryAuthnResponseTranslatorService {
         this.responseFromCountryValidator = responseFromCountryValidator;
         this.responseAssertionFromCountryValidator = responseAssertionFromCountryValidator;
         this.responseFromCountryDestinationValidator = validateSamlResponseIssuedByIdpDestination;
-        this.statusUnmarshaller = idpIdaStatusUnmarshaller;
         this.assertionDecrypter = assertionDecrypter;
         this.assertionBlobEncrypter = assertionBlobEncrypter;
         this.eidasValidatorFactory = eidasValidatorFactory;
@@ -93,17 +90,17 @@ public class CountryAuthnResponseTranslatorService {
         Optional<PassthroughAssertion> passthroughAssertion = validatedIdentityAssertionOptional.map(validatedIdentityAssertion -> passthroughAssertionUnmarshaller.fromAssertion(validatedIdentityAssertion, true));
 
         Optional<LevelOfAssurance> levelOfAssurance = passthroughAssertion
-                .flatMap(assertion -> assertion.getAuthnContext())
+                .flatMap(PassthroughAssertion::getAuthnContext)
                 .map(AuthnContext::name)
                 .filter(string -> !isNullOrEmpty(string))
                 .map(LevelOfAssurance::valueOf);
 
-        IdpIdaStatus status = statusUnmarshaller.fromSaml(response.getStatus());
+        CountryAuthenticationStatus status = CountryAuthenticationStatusUnmarshaller.fromSaml(response.getStatus());
 
         return new InboundResponseFromCountry(
             response.getIssuer().getValue(),
             validatedIdentityAssertionOptional.map(Assertion::getSubject).map(Subject::getNameID).map(NameID::getValue),
-            Optional.ofNullable(status).map(IdpIdaStatus::getStatusCode).map(IdpIdaStatus.Status::name),
+            Optional.ofNullable(status).map(CountryAuthenticationStatus::getStatusCode).map(CountryAuthenticationStatus.Status::name),
             status.getMessage(),
             passthroughAssertion.map(assertion -> assertionBlobEncrypter.encryptAssertionBlob(matchingServiceEntityId, assertion.getUnderlyingAssertionBlob())),
             levelOfAssurance);
