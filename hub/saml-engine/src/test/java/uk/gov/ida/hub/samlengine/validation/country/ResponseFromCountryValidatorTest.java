@@ -40,15 +40,15 @@ public class ResponseFromCountryValidatorTest {
     private ResponseFromCountryValidator validator = new ResponseFromCountryValidator(new SamlStatusToIdpIdaStatusMappingsFactory());
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(response.getStatus()).thenReturn(status);
         when(status.getStatusCode()).thenReturn(statusCode);
         when(statusCode.getValue()).thenReturn(StatusCode.SUCCESS);
         when(response.getAssertions()).thenReturn(Collections.emptyList());
     }
 
-    @Test()
-    public void shouldThrowIfResponseHasUnencryptedAssertions() {
+    @Test
+    public void shouldThrowIfResponseIsSuccessfulAndHasUnencryptedAssertions() {
         exception.expect(SamlTransformationErrorException.class);
         exception.expectMessage("Response has unencrypted assertion.");
         when(response.getAssertions()).thenReturn(ImmutableList.of(assertion));
@@ -56,7 +56,15 @@ public class ResponseFromCountryValidatorTest {
         validator.validateAssertionPresence(response);
     }
 
-    @Test()
+    @Test
+    public void shouldNotThrowIfResponseIsNotSuccessfulAndHasUnencryptedAssertions() {
+        when(statusCode.getValue()).thenReturn(StatusCode.AUTHN_FAILED);
+        when(response.getAssertions()).thenReturn(ImmutableList.of(assertion));
+
+        validator.validateAssertionPresence(response);
+    }
+
+    @Test
     public void shouldThrowIfResponseIsSuccessfulButHasNoEncryptedAssertions() {
         exception.expect(SamlTransformationErrorException.class);
         exception.expectMessage("Success response has no unencrypted assertions.");
@@ -75,7 +83,7 @@ public class ResponseFromCountryValidatorTest {
         validator.validateAssertionPresence(response);
     }
 
-    @Test()
+    @Test
     public void shouldThrowIfResponseIsSuccessfulButHasMultipleEncryptedAssertions() {
         exception.expect(SamlTransformationErrorException.class);
         exception.expectMessage("Response expected to contain 1 assertions. 2 assertion(s) found.");
@@ -83,5 +91,4 @@ public class ResponseFromCountryValidatorTest {
 
         validator.validateAssertionPresence(response);
     }
-
 }
