@@ -1,11 +1,10 @@
 package uk.gov.ida.hub.samlengine.resources.translators;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
-import uk.gov.ida.hub.samlengine.services.CountryAuthnResponseTranslatorService;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
+import uk.gov.ida.hub.samlengine.services.CountryAuthnResponseTranslatorService;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -30,10 +29,9 @@ public class CountryAuthnResponseTranslatorResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Response translate(@Valid SamlAuthnResponseTranslatorDto samlResponseDto) throws JsonProcessingException {
+    public Response translate(@Valid SamlAuthnResponseTranslatorDto samlResponseDto) {
         InboundResponseFromCountry translated = countryAuthnResponseTranslatorService.translate(samlResponseDto);
 
         return Response.ok().entity(translated).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 }
-

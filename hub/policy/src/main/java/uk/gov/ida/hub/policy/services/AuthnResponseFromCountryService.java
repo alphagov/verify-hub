@@ -62,7 +62,7 @@ public class AuthnResponseFromCountryService {
             case Success:
                 responseAction = handleSuccessResponse(translatedResponse, responseFromCountry, sessionId, stateController);
                 break;
-            case AuthenticationFailed:
+            case Failure:
                 responseAction = handleAuthenticationFailedResponse(responseFromCountry, sessionId, stateController);
                 break;
             default:

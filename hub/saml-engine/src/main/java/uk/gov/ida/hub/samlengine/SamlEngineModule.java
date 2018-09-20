@@ -99,7 +99,13 @@ import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappings
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.*;
+import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunctionSHA256;
+import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileOutboundResponseFromHubToSamlResponseTransformer;
+import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileTransactionIdaStatusMarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
@@ -247,7 +253,6 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     private CountryAuthnResponseTranslatorService getCountryAuthnResponseTranslatorService(StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer,
                                                                                            ResponseFromCountryValidator responseFromCountryValidator,
-                                                                                           IdpIdaStatusUnmarshaller idpIdaStatusUnmarshaller,
                                                                                            @Named("ResponseAssertionsFromCountryValidator") Optional<ResponseAssertionsFromCountryValidator> responseAssertionFromCountryValidator,
                                                                                            Optional<DestinationValidator> validateSamlResponseIssuedByIdpDestination,
                                                                                            @Named("EidasAssertionDecrypter") AssertionDecrypter assertionDecrypter,
@@ -259,7 +264,6 @@ public class SamlEngineModule extends AbstractModule {
         }
         return new CountryAuthnResponseTranslatorService(stringToOpenSamlResponseTransformer,
                 responseFromCountryValidator,
-                idpIdaStatusUnmarshaller,
                 responseAssertionFromCountryValidator.get(),
                 validateSamlResponseIssuedByIdpDestination.get(),
                 assertionDecrypter,

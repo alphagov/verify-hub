@@ -19,9 +19,9 @@ import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
+import uk.gov.ida.hub.policy.domain.CountryAuthenticationStatus;
 import uk.gov.ida.hub.policy.domain.Cycle3UserInput;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
-import uk.gov.ida.hub.policy.domain.IdpIdaStatus;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
@@ -391,7 +391,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
 
     private void stubSamlEngineTranslationLOAForCountry(final LevelOfAssurance loa, final EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        InboundResponseFromCountry translationDto = new InboundResponseFromCountry(IdpIdaStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa));
+        InboundResponseFromCountry translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa));
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 
