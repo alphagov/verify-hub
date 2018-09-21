@@ -1,23 +1,32 @@
 package uk.gov.ida.saml.hub.validators.response.idp.components;
 
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
-import org.opensaml.xmlsec.signature.support.SignatureException;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
+import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
+import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdaStatusCodeMapper;
 
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.*;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.emptyIssuer;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.illegalIssuerFormat;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidStatusCode;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidSubStatusCode;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingId;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingIssueInstant;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingIssuer;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSignature;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nestedSubStatusCodesBreached;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nonSuccessHasUnEncryptedAssertions;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.signatureNotSigned;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unexpectedNumberOfAssertions;
 import static uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper.validateFail;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
@@ -30,11 +39,11 @@ import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorT
 @RunWith(OpenSAMLMockitoRunner.class)
 public class EncryptedResponseFromIdpValidatorTest {
 
-    private EncryptedResponseFromIdpValidator validator;
+    private EncryptedResponseFromIdpValidator<IdpIdaStatus.Status> validator;
 
     @Before
     public void setup() {
-        validator = new EncryptedResponseFromIdpValidator();
+        validator = new EncryptedResponseFromIdpValidator<>(new SamlStatusToIdaStatusCodeMapper());
     }
 
     @Test
@@ -167,6 +176,14 @@ public class EncryptedResponseFromIdpValidatorTest {
         Response response = aResponse().withStatus(status).withNoDefaultAssertion().build();
 
         validator.validate(response);
+    }
+
+    @Test
+    public void validateStatus_shouldThrowExceptionIfStatusIsResponderWithNoSubStatus() throws Exception {
+        Status status = createStatus(StatusCode.RESPONDER);
+        Response response = aResponse().withStatus(status).withNoDefaultAssertion().build();
+
+        assertValidationFailure(response, invalidStatusCode(StatusCode.RESPONDER));
     }
 
     @Test

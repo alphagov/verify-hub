@@ -30,11 +30,13 @@ public class CountryAuthenticationStatusUnmarshallerTest {
 
     private OpenSamlXmlObjectFactory samlObjectFactory;
     private StringToOpenSamlObjectTransformer<Response> stringToOpenSamlObjectTransformer;
+    private CountryAuthenticationStatusUnmarshaller countryAuthenticationStatusUnmarshaller;
 
     @Before
     public void setUp() throws Exception {
         samlObjectFactory = new OpenSamlXmlObjectFactory();
         stringToOpenSamlObjectTransformer = new CoreTransformersFactory().getStringtoOpenSamlObjectTransformer(input -> {});
+        countryAuthenticationStatusUnmarshaller = new CountryAuthenticationStatusUnmarshaller();
     }
 
     @Test
@@ -44,7 +46,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         successStatusCode.setValue(StatusCode.SUCCESS);
         originalStatus.setStatusCode(successStatusCode);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(originalStatus);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(originalStatus);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.success());
     }
@@ -59,7 +61,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         originalStatus.setStatusCode(successStatusCode);
         originalStatus.setStatusMessage(statusMessage);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(originalStatus);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(originalStatus);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.success());
         assertThat(transformedStatus.getMessage().isPresent()).isEqualTo(false);
@@ -75,7 +77,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         topLevelStatusCode.setStatusCode(subStatusCode);
         originalStatus.setStatusCode(topLevelStatusCode);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(originalStatus);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(originalStatus);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
     }
@@ -90,7 +92,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         subStatusCode.setValue(StatusCode.AUTHN_FAILED);
         topLevelStatusCode.setStatusCode(subStatusCode);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
     }
@@ -104,7 +106,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
                 .withMessage(aStatusMessage().withMessage(message).build())
                 .build();
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
         assertThat(transformedStatus.getMessage().isPresent()).isEqualTo(true);
@@ -120,7 +122,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
                 .withMessage(aStatusMessage().withMessage(message).build())
                 .build();
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
         assertThat(transformedStatus.getMessage().isPresent()).isEqualTo(true);
@@ -134,7 +136,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         topLevelStatusCode.setValue(StatusCode.REQUESTER);
         status.setStatusCode(topLevelStatusCode);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
         assertThat(transformedStatus.getMessage().isPresent()).isEqualTo(false);
@@ -150,7 +152,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
                 .withMessage(aStatusMessage().withMessage(message).build())
                 .build();
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
         assertThat(transformedStatus.getMessage().isPresent()).isEqualTo(true);
@@ -166,7 +168,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         subStatusCode.setValue(StatusCode.REQUEST_DENIED);
         status.setStatusCode(topLevelStatusCode);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
     }
@@ -178,7 +180,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         topLevelStatusCode.setValue(StatusCode.RESPONDER);
         status.setStatusCode(topLevelStatusCode);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
         assertThat(transformedStatus.getMessage().isPresent()).isEqualTo(false);
@@ -194,7 +196,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
                 .withMessage(aStatusMessage().withMessage(message).build())
                 .build();
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
         assertThat(transformedStatus.getMessage().isPresent()).isEqualTo(true);
@@ -210,7 +212,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         subStatusCode.setValue("Canceled");
         status.setStatusCode(topLevelStatusCode);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(status);
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(status);
 
         assertThat(transformedStatus).isEqualTo(CountryAuthenticationStatus.failure());
     }
@@ -220,7 +222,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         String cancelXml = readXmlFile("status-cancel.xml");
         Response cancelResponse = stringToOpenSamlObjectTransformer.apply(cancelXml);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(cancelResponse.getStatus());
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(cancelResponse.getStatus());
 
         assertThat(transformedStatus.getStatusCode()).isEqualTo(CountryAuthenticationStatus.Status.Failure);
     }
@@ -230,7 +232,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         String pendingXml = readXmlFile("status-pending.xml");
         Response pendingResponse = stringToOpenSamlObjectTransformer.apply(pendingXml);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(pendingResponse.getStatus());
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(pendingResponse.getStatus());
 
         assertThat(transformedStatus.getStatusCode()).isEqualTo(CountryAuthenticationStatus.Status.Failure);
     }
@@ -240,7 +242,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         String successWithCancelXml = readXmlFile("status-success-with-cancel.xml");
         Response cancelResponse = stringToOpenSamlObjectTransformer.apply(successWithCancelXml);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(cancelResponse.getStatus());
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(cancelResponse.getStatus());
 
         assertThat(transformedStatus.getStatusCode()).isEqualTo(CountryAuthenticationStatus.Status.Success);
     }
@@ -250,7 +252,7 @@ public class CountryAuthenticationStatusUnmarshallerTest {
         String successWithCancelXml = readXmlFile("status-noauthncontext.xml");
         Response cancelResponse = stringToOpenSamlObjectTransformer.apply(successWithCancelXml);
 
-        final CountryAuthenticationStatus transformedStatus = CountryAuthenticationStatusUnmarshaller.fromSaml(cancelResponse.getStatus());
+        final CountryAuthenticationStatus transformedStatus = countryAuthenticationStatusUnmarshaller.fromSaml(cancelResponse.getStatus());
 
         assertThat(transformedStatus.getStatusCode()).isEqualTo(CountryAuthenticationStatus.Status.Failure);
     }

@@ -7,9 +7,8 @@ import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.xmlsec.signature.Signature;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.exception.SamlValidationException;
-import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdaStatusCodeMapper;
+import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToAuthenticationStatusCodeMapper;
 import uk.gov.ida.saml.hub.validators.response.common.IssuerValidator;
 import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
 
@@ -29,12 +28,12 @@ import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unencry
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unexpectedNumberOfAssertions;
 import static uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil.isSignaturePresent;
 
-public class EncryptedResponseFromIdpValidator {
+public class EncryptedResponseFromIdpValidator<T extends Enum> {
     private static final int SUB_STATUS_CODE_LIMIT = 1;
-    private SamlStatusToIdaStatusCodeMapper statusCodeMapper;
+    private SamlStatusToAuthenticationStatusCodeMapper<T> statusCodeMapper;
 
-    public EncryptedResponseFromIdpValidator() {
-        this.statusCodeMapper = new SamlStatusToIdaStatusCodeMapper();
+    public EncryptedResponseFromIdpValidator(final SamlStatusToAuthenticationStatusCodeMapper<T> statusCodeMapper) {
+        this.statusCodeMapper = statusCodeMapper;
     }
 
     protected void validateAssertionPresence(Response response) {
@@ -77,7 +76,7 @@ public class EncryptedResponseFromIdpValidator {
     private void validateStatus(Status status) {
         validateStatusCode(status.getStatusCode(), 0);
 
-        Optional<IdpIdaStatus.Status> mappedStatus = statusCodeMapper.map(status);
+        Optional<T> mappedStatus = statusCodeMapper.map(status);
         if (!mappedStatus.isPresent()) fail(status);
     }
 

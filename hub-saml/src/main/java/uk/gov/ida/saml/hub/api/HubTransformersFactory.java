@@ -56,6 +56,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.InboundHealthCheckResponseFromMa
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromMatchingServiceUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
+import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdaStatusCodeMapper;
 import uk.gov.ida.saml.hub.transformers.inbound.decorators.AuthnRequestSizeValidator;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
@@ -414,7 +415,7 @@ public class HubTransformersFactory {
         IdpResponseValidator validator = new IdpResponseValidator(this.getSamlResponseSignatureValidator(idpSignatureValidator),
             this.getSamlResponseAssertionDecrypter(keyStore),
                 getSamlAssertionsSignatureValidator(idpSignatureValidator),
-                new EncryptedResponseFromIdpValidator(),
+                new EncryptedResponseFromIdpValidator<>(new SamlStatusToIdaStatusCodeMapper()),
             new DestinationValidator(expectedDestinationHost, expectedEndpoint),
             getResponseAssertionsFromIdpValidator(assertionIdCache, hubEntityId));
 
