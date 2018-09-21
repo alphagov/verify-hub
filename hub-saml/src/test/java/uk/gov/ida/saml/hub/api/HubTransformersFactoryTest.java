@@ -29,6 +29,7 @@ import uk.gov.ida.saml.security.IdaKeyStore;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,7 @@ public class HubTransformersFactoryTest {
 
     private final SignatureAlgorithm signatureAlgorithm = new SignatureRSASHA256();
     private final DigestAlgorithm digestAlgorithm = new DigestSHA256();
+    private final X509Certificate hubSigningCert = new X509CertificateFactory().createCertificate(TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT);
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -52,9 +54,9 @@ public class HubTransformersFactoryTest {
     }
 
     @Test
-    public void getIdaAuthnRequestFromHubToStringTransformer_testDoesNotContainKeyInfo() throws Exception {
+    public void shouldNotContainKeyInfoInIdaAuthnRequest() throws Exception {
         Function<IdaAuthnRequestFromHub, String> eidasTransformer = new HubTransformersFactory().getIdaAuthnRequestFromHubToStringTransformer(
-            getKeyStore(true),
+            getKeyStore(hubSigningCert),
             signatureAlgorithm,
             digestAlgorithm
         );
@@ -72,9 +74,9 @@ public class HubTransformersFactoryTest {
     }
 
     @Test
-    public void getEidasAuthnRequestFromHubToStringTransformer_testContainsKeyInfo() throws Exception {
+    public void shouldContainKeyInfoInEidasAuthnRequestWhenHubSignCertIsPresent() throws Exception {
         Function<EidasAuthnRequestFromHub, String> eidasTransformer = new HubTransformersFactory().getEidasAuthnRequestFromHubToStringTransformer(
-            getKeyStore(true),
+            getKeyStore(hubSigningCert),
             signatureAlgorithm,
             digestAlgorithm
         );
@@ -96,7 +98,7 @@ public class HubTransformersFactoryTest {
         expectedException.expectMessage("Unable to generate key info without a signing certificate");
 
         Function<EidasAuthnRequestFromHub, String> eidasTransformer = new HubTransformersFactory().getEidasAuthnRequestFromHubToStringTransformer(
-                getKeyStore(false),
+                getKeyStore(null),
                 signatureAlgorithm,
                 digestAlgorithm
         );
@@ -107,7 +109,7 @@ public class HubTransformersFactoryTest {
         eidasTransformer.apply(eidasAuthnRequestFromHub);
     }
 
-    private static IdaKeyStore getKeyStore(boolean includeSigningCert) throws Base64DecodingException {
+    private static IdaKeyStore getKeyStore(X509Certificate hubSigningCert) throws Base64DecodingException {
         List<KeyPair> encryptionKeyPairs = new ArrayList<>();
         PublicKeyFactory publicKeyFactory = new PublicKeyFactory(new X509CertificateFactory());
         PrivateKeyFactory privateKeyFactory = new PrivateKeyFactory();
@@ -118,10 +120,6 @@ public class HubTransformersFactoryTest {
         PrivateKey privateSigningKey = privateKeyFactory.createPrivateKey(Base64.decode(TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY.getBytes()));
         KeyPair signingKeyPair = new KeyPair(publicSigningKey, privateSigningKey);
 
-        if (includeSigningCert){
-            return new IdaKeyStore(new X509CertificateFactory().createCertificate(TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT), signingKeyPair, encryptionKeyPairs);
-        } else {
-            return new IdaKeyStore(signingKeyPair, encryptionKeyPairs);
-        }
+        return new IdaKeyStore(hubSigningCert, signingKeyPair, encryptionKeyPairs);
     }
 }
