@@ -99,6 +99,10 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     @JsonProperty
     protected List<UserAccountCreationAttribute> userAccountCreationAttributes;
 
+    @Valid
+    @JsonProperty
+    protected URI headlessStartpage;
+
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfigEntityData() {
     }
@@ -212,5 +216,9 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
 
     public Optional<List<String>> getEidasCountries() {
         return ofNullable(eidasCountries);
+    }
+
+    public URI getHeadlessStartpage() {
+        return headlessStartpage;
     }
 }

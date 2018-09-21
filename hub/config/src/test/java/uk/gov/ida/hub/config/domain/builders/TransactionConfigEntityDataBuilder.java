@@ -32,6 +32,7 @@ public class TransactionConfigEntityDataBuilder {
     private String rpName = "Default RP name";
     private boolean eidasEnabled = false;
     private boolean shouldSignWithSHA1 = true;
+    private URI headlessStartPage = URI.create("/headless-start-uri");
 
     public static TransactionConfigEntityDataBuilder aTransactionConfigData() {
         return new TransactionConfigEntityDataBuilder();
@@ -61,7 +62,8 @@ public class TransactionConfigEntityDataBuilder {
                 eidasEnabled,
                 shouldHubSignResponseMessages,
                 levelsOfAssurance,
-                shouldSignWithSHA1
+                shouldSignWithSHA1,
+                headlessStartPage
         );
     }
 
@@ -145,6 +147,11 @@ public class TransactionConfigEntityDataBuilder {
         return this;
     }
 
+    public TransactionConfigEntityDataBuilder withHeadlessStartPage(final URI headlessStartPage) {
+        this.headlessStartPage = headlessStartPage;
+        return this;
+    }
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class TestTransactionConfigEntityData extends TransactionConfigEntityData {
 
@@ -163,7 +170,8 @@ public class TransactionConfigEntityDataBuilder {
                 boolean eidasEnabled,
                 boolean shouldHubSignResponseMessages,
                 List<LevelOfAssurance> levelsOfAssurance,
-                boolean shouldSignWithSHA1) {
+                boolean shouldSignWithSHA1,
+                URI headlessStartPage) {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
             this.simpleId = simpleId;
@@ -181,6 +189,7 @@ public class TransactionConfigEntityDataBuilder {
             this.shouldHubSignResponseMessages = shouldHubSignResponseMessages;
             this.levelsOfAssurance = levelsOfAssurance;
             this.shouldSignWithSHA1 = shouldSignWithSHA1;
+            this.headlessStartpage = headlessStartPage;
         }
     }
 }

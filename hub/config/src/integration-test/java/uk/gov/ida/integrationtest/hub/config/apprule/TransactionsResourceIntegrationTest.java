@@ -44,6 +44,7 @@ public class TransactionsResourceIntegrationTest {
     private static final String NO_EIDAS_MS_ENTITY_ID = "no-eidas-ms-entity-id";
     private static final String TEST_URI = "http://foo.bar/test-uri";
     private static final String SERVICE_HOMEPAGE = "http://foo.bar/service-homepage";
+    private static final String HEADLESS_STARTPAGE = "http://foo.bar/service-headless-start-page";
 
     @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule()
@@ -65,6 +66,7 @@ public class TransactionsResourceIntegrationTest {
                 )
                 .withMatchingServiceEntityId(MS_ENTITY_ID)
                 .withShouldSignWithSHA1(false)
+                .withHeadlessStartPage(URI.create(HEADLESS_STARTPAGE))
                 .build())
         .addTransaction(aTransactionConfigData()
                 .withEntityId(NO_EIDAS_ENTITY_ID)
@@ -116,7 +118,8 @@ public class TransactionsResourceIntegrationTest {
         TransactionDisplayData expected = new TransactionDisplayData(
             SIMPLE_ID,
             URI.create(SERVICE_HOMEPAGE),
-            Collections.singletonList(LevelOfAssurance.LEVEL_2)
+            Collections.singletonList(LevelOfAssurance.LEVEL_2),
+            URI.create(HEADLESS_STARTPAGE)
         );
         assertThat(response.readEntity(TransactionDisplayData.class)).isEqualToIgnoringGivenFields(expected, "otherWaysToCompleteTransaction");
     }

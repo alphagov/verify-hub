@@ -80,7 +80,8 @@ public class TransactionsResource {
         return new TransactionDisplayData(
                 configData.getSimpleId().orElse(null),
                 configData.getServiceHomepage(),
-                configData.getLevelsOfAssurance());
+                configData.getLevelsOfAssurance(),
+                configData.getHeadlessStartpage());
     }
 
     @GET
@@ -105,7 +106,7 @@ public class TransactionsResource {
         Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();
         return allData.stream()
             .filter(TransactionConfigEntityData::isEnabled)
-            .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance()))
+            .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance(), t.getHeadlessStartpage()))
             .collect(Collectors.toList());
     }
 
