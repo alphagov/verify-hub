@@ -9,16 +9,19 @@ import java.util.Optional;
 
 public class CountryAuthenticationStatusUnmarshaller {
 
+    private static final CountryAuthenticationStatusFactory authenticationStatusFactory = new CountryAuthenticationStatusFactory();
+    private static final SamlStatusToCountryAuthenticationStatusCodeMapper statusMapper = new SamlStatusToCountryAuthenticationStatusCodeMapper();
+
     private CountryAuthenticationStatusUnmarshaller() { }
 
     public static CountryAuthenticationStatus fromSaml(final Status samlStatus) {
         final CountryAuthenticationStatus.Status status = getStatus(samlStatus);
         final String message = getStatusMessage(samlStatus).orElse(null);
-        return CountryAuthenticationStatusFactory.create(status, message);
+        return authenticationStatusFactory.create(status, message);
     }
 
     private static CountryAuthenticationStatus.Status getStatus(final Status samlStatus) {
-        return SamlStatusToCountryAuthenticationStatusCodeMapper.map(samlStatus);
+        return statusMapper.map(samlStatus).get();
     }
 
     private static Optional<String> getStatusMessage(final Status samlStatus) {

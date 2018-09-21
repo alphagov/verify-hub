@@ -34,7 +34,7 @@ public class EncryptedResponseFromIdpValidatorTest {
 
     @Before
     public void setup() {
-        validator = new EncryptedResponseFromIdpValidator(new SamlStatusToIdpIdaStatusMappingsFactory());
+        validator = new EncryptedResponseFromIdpValidator();
     }
 
     @Test

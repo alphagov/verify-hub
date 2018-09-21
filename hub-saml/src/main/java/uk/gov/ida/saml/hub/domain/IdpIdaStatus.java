@@ -79,16 +79,16 @@ public final class IdpIdaStatus implements IdaStatus {
             '}';
     }
 
-    public static class IdpIdaStatusFactory {
+    public static class IdpIdaStatusFactory implements AuthenticationStatusFactory<Status, IdpIdaStatus> {
         public IdpIdaStatus create(
                 final IdpIdaStatus.Status statusCode,
-                final Optional<String> message) {
+                final String message) {
 
             if (!statusCode.equals(Status.RequesterError)) {
                 return new IdpIdaStatus(statusCode);
             }
 
-            return new IdpIdaStatus(statusCode, message);
+            return new IdpIdaStatus(statusCode, Optional.ofNullable(message));
         }
     }
 }

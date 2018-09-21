@@ -28,22 +28,16 @@ import static uk.gov.ida.saml.core.test.builders.StatusMessageBuilder.aStatusMes
 public class IdpIdaStatusUnmarshallerTest {
 
     private IdpIdaStatusUnmarshaller unmarshaller;
-    private SamlStatusToIdpIdaStatusMappingsFactory statusMappingsFactory;
-    private StringToOpenSamlObjectTransformer<Response> stringtoOpenSamlObjectTransformer;
+    private StringToOpenSamlObjectTransformer<Response> stringToOpenSamlObjectTransformer;
 
     @Before
     public void setUp() throws Exception {
-        unmarshaller = new IdpIdaStatusUnmarshaller(
-                new IdpIdaStatus.IdpIdaStatusFactory(),
-                new SamlStatusToIdpIdaStatusMappingsFactory()
-        );
-        CoreTransformersFactory coreTransformersFactory = new CoreTransformersFactory();
-        stringtoOpenSamlObjectTransformer = coreTransformersFactory.
-                getStringtoOpenSamlObjectTransformer(input -> {});
+        unmarshaller = new IdpIdaStatusUnmarshaller();
+        stringToOpenSamlObjectTransformer = new CoreTransformersFactory().getStringtoOpenSamlObjectTransformer(input -> {});
     }
 
     @Test
-    public void transform_shouldTransformSuccessWithNoSubCode() throws Exception {
+    public void transform_shouldTransformSuccessWithNoSubCode() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status originalStatus = samlObjectFactory.createStatus();
         StatusCode successStatusCode = samlObjectFactory.createStatusCode();
@@ -56,7 +50,7 @@ public class IdpIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformNoAuthenticationContext() throws Exception {
+    public void transform_shouldTransformNoAuthenticationContext() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status originalStatus = samlObjectFactory.createStatus();
         StatusCode topLevelStatusCode = samlObjectFactory.createStatusCode();
@@ -72,7 +66,7 @@ public class IdpIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformAuthnFailed() throws Exception {
+    public void transform_shouldTransformAuthnFailed() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status status = samlObjectFactory.createStatus();
         StatusCode topLevelStatusCode = samlObjectFactory.createStatusCode();
@@ -87,7 +81,7 @@ public class IdpIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformRequesterErrorWithoutMessage() throws Exception {
+    public void transform_shouldTransformRequesterErrorWithoutMessage() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
 
         Status status = samlObjectFactory.createStatus();
@@ -101,7 +95,7 @@ public class IdpIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformRequesterErrorWithRequestDeniedSubstatus() throws Exception {
+    public void transform_shouldTransformRequesterErrorWithRequestDeniedSubstatus() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
 
         Status status = samlObjectFactory.createStatus();
@@ -118,7 +112,7 @@ public class IdpIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformRequesterErrorWithMessage() throws Exception {
+    public void transform_shouldTransformRequesterErrorWithMessage() {
         String message = "some message";
 
         StatusCode topLevelStatusCode = aStatusCode().withValue(StatusCode.REQUESTER).build();
@@ -137,7 +131,7 @@ public class IdpIdaStatusUnmarshallerTest {
     @Test
     public void shouldMapSamlStatusDetailOfAuthnCancelToAuthenticationCancelled() throws Exception {
         String cancelXml = readXmlFile("status-cancel.xml");
-        Response cancelResponse = stringtoOpenSamlObjectTransformer.apply(cancelXml);
+        Response cancelResponse = stringToOpenSamlObjectTransformer.apply(cancelXml);
 
         IdpIdaStatus idpIdaStatus = getStatusFrom(cancelResponse);
 
@@ -147,7 +141,7 @@ public class IdpIdaStatusUnmarshallerTest {
     @Test
     public void shouldMapSamlStatusDetailOfLoaPendingToAuthenticationPending() throws Exception {
         String pendingXml = readXmlFile("status-pending.xml");
-        Response pendingResponse = stringtoOpenSamlObjectTransformer.apply(pendingXml);
+        Response pendingResponse = stringToOpenSamlObjectTransformer.apply(pendingXml);
 
         IdpIdaStatus idpIdaStatus = getStatusFrom(pendingResponse);
 
@@ -157,7 +151,7 @@ public class IdpIdaStatusUnmarshallerTest {
     @Test
     public void shouldRemainSuccessEvenIfStatusDetailCancelReturned() throws Exception {
         String successWithCancelXml = readXmlFile("status-success-with-cancel.xml");
-        Response cancelResponse = stringtoOpenSamlObjectTransformer.apply(successWithCancelXml);
+        Response cancelResponse = stringToOpenSamlObjectTransformer.apply(successWithCancelXml);
 
         IdpIdaStatus idpIdaStatus = getStatusFrom(cancelResponse);
 
@@ -167,7 +161,7 @@ public class IdpIdaStatusUnmarshallerTest {
     @Test
     public void shouldRemainNoAuthnContextIfStatusDetailAbsent() throws Exception {
         String successWithCancelXml = readXmlFile("status-noauthncontext.xml");
-        Response cancelResponse = stringtoOpenSamlObjectTransformer.apply(successWithCancelXml);
+        Response cancelResponse = stringToOpenSamlObjectTransformer.apply(successWithCancelXml);
 
         IdpIdaStatus idpIdaStatus = getStatusFrom(cancelResponse);
 
@@ -182,8 +176,7 @@ public class IdpIdaStatusUnmarshallerTest {
     }
 
     private IdpIdaStatus getStatusFrom(Response pendingResponse) {
-        statusMappingsFactory = new SamlStatusToIdpIdaStatusMappingsFactory();
-        IdpIdaStatusUnmarshaller idpIdaStatusUnmarshaller = new IdpIdaStatusUnmarshaller(new IdpIdaStatus.IdpIdaStatusFactory(), statusMappingsFactory);
+        IdpIdaStatusUnmarshaller idpIdaStatusUnmarshaller = new IdpIdaStatusUnmarshaller();
         return idpIdaStatusUnmarshaller.fromSaml(pendingResponse.getStatus());
     }
 }
