@@ -35,7 +35,7 @@ import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.a
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
 import static uk.gov.ida.hub.policy.builder.state.CountryAuthnFailedErrorStateBuilder.aCountryAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder.aCountrySelectedState;
-import static uk.gov.ida.hub.policy.builder.state.CountryUserAccountCreationFailedStateBuilder.aCountryUserAccountCreationFailedState;
+import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateBuilder.aCycle3DataInputCancelledState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
@@ -237,10 +237,10 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateCountryUserAccountCreationFailedStateControllerOnBuild() {
-        StateController controller = factory.build(aCountryUserAccountCreationFailedState().build(), stateTransitionAction);
+    public void shouldCreateEidasUserAccountCreationFailedStateControllerOnBuild() {
+        StateController controller = factory.build(aEidasUserAccountCreationFailedState().build(), stateTransitionAction);
 
-        assertThat(controller).isInstanceOf(CountryUserAccountCreationFailedStateController.class);
+        assertThat(controller).isInstanceOf(EidasUserAccountCreationFailedStateController.class);
     }
 
     @Test(expected = RuntimeException.class)

@@ -14,7 +14,7 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.ida.hub.policy.builder.state.CountryUserAccountCreationFailedStateBuilder.aCountryUserAccountCreationFailedState;
+import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
 import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationRequestSentStateBuilder.anEidasUserAccountCreationRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreatedStateBuilder.aUserAccountCreatedState;
@@ -160,10 +160,10 @@ public class EidasUserAccountCreationRequestSentStateControllerTest {
     }
 
     @Test
-    public void shouldLogAndTransitionToCountryUserAccountCreationFailedStateWhenReceivedUserAccountCreationFailedResponse() {
-        final ArgumentCaptor<CountryUserAccountCreationFailedState> capturedState = ArgumentCaptor.forClass(CountryUserAccountCreationFailedState.class);
+    public void shouldLogAndTransitionToEidasUserAccountCreationFailedStateWhenReceivedUserAccountCreationFailedResponse() {
+        final ArgumentCaptor<EidasUserAccountCreationFailedState> capturedState = ArgumentCaptor.forClass(EidasUserAccountCreationFailedState.class);
 
-        final CountryUserAccountCreationFailedState expectedState = aCountryUserAccountCreationFailedState()
+        final EidasUserAccountCreationFailedState expectedState = aEidasUserAccountCreationFailedState()
                 .withSessionExpiryTimestamp(state.getSessionExpiryTimestamp())
                 .withRequestIssuerId(state.getRequestIssuerEntityId())
                 .withRequestid(state.getRequestId())
@@ -176,7 +176,7 @@ public class EidasUserAccountCreationRequestSentStateControllerTest {
         verify(hubEventLogger, times(1)).logUserAccountCreationFailedEvent(
                 state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
 
-        assertThat(capturedState.getValue()).isInstanceOf(CountryUserAccountCreationFailedState.class);
+        assertThat(capturedState.getValue()).isInstanceOf(EidasUserAccountCreationFailedState.class);
         assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
     }
 }

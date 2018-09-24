@@ -12,7 +12,7 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
@@ -262,9 +262,9 @@ public class StateControllerFactory {
                         (UserAccountCreationFailedState) state,
                         injector.getInstance(ResponseFromHubFactory.class));
 
-            case COUNTRY_USER_ACCOUNT_CREATION_FAILED:
-                return new CountryUserAccountCreationFailedStateController(
-                        (CountryUserAccountCreationFailedState) state,
+            case EIDAS_USER_ACCOUNT_CREATION_FAILED:
+                return new EidasUserAccountCreationFailedStateController(
+                        (EidasUserAccountCreationFailedState) state,
                         injector.getInstance(ResponseFromHubFactory.class),
                         stateTransitionAction,
                         injector.getInstance(HubEventLogger.class));

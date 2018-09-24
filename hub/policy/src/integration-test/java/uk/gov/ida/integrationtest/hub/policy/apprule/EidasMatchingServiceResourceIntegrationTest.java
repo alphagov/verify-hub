@@ -28,7 +28,7 @@ import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
-import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
@@ -247,7 +247,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     @Test
-    public void shouldTransitionToCountryUserAccountCreationFailedStateWhenUACFailedResponseIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
+    public void shouldTransitionToEidasUserAccountCreationFailedStateWhenUACFailedResponseIsReceivedForEidasCycle3WhenUACEnabled() throws Exception {
         SessionId sessionId = aSessionIsCreated();
         aCountryWasSelected(sessionId, NETHERLANDS);
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
@@ -267,7 +267,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
         Response response = postAttributeQueryResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(getSessionStateName(sessionId)).isEqualTo(CountryUserAccountCreationFailedState.class.getName());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(EidasUserAccountCreationFailedState.class.getName());
     }
 
     @Test
