@@ -7,7 +7,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
@@ -83,7 +83,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
 
     @Override
     public void selectCountry(String countryEntityId) {
-        CountrySelectedState countrySelectedState = new CountrySelectedState(
+        EidasCountrySelectedState eidasCountrySelectedState = new EidasCountrySelectedState(
                 countryEntityId,
                 state.getRelayState(),
                 state.getRequestId(),
@@ -94,7 +94,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
                 state.getTransactionSupportsEidas(),
                 Collections.singletonList(LevelOfAssurance.LEVEL_2) // TODO: EID-154 will plug in a real LOA
         );
-        stateTransitionAction.transitionTo(countrySelectedState);
-        hubEventLogger.logCountrySelectedEvent(countrySelectedState);
+        stateTransitionAction.transitionTo(eidasCountrySelectedState);
+        hubEventLogger.logCountrySelectedEvent(eidasCountrySelectedState);
     }
 }

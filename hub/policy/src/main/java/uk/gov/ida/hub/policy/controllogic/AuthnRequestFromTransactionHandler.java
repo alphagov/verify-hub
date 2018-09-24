@@ -19,7 +19,7 @@ import uk.gov.ida.hub.policy.domain.controller.ErrorResponsePreparedStateControl
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.controller.ResponsePreparedStateController;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasUnsuccessfulJourneyState;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
@@ -92,7 +92,7 @@ public class AuthnRequestFromTransactionHandler {
     }
 
     public AuthnRequestFromHub getIdaAuthnRequestFromHub(SessionId sessionId) {
-        Class currentState = sessionRepository.isSessionInState(sessionId, CountrySelectedState.class) ? CountrySelectedState.class : IdpSelectedState.class;
+        Class currentState = sessionRepository.isSessionInState(sessionId, EidasCountrySelectedState.class) ? EidasCountrySelectedState.class : IdpSelectedState.class;
         AuthnRequestCapableController stateController = (AuthnRequestCapableController)
                 sessionRepository.getStateController(sessionId, currentState);
         return stateController.getRequestFromHub();

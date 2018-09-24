@@ -25,9 +25,9 @@ import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
-import uk.gov.ida.hub.policy.domain.controller.CountrySelectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectedStateController;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
@@ -123,7 +123,7 @@ public class AuthnResponseFromCountryServiceTest {
     private SamlSoapProxyProxy samlSoapProxyProxy;
 
     @Mock
-    private CountrySelectedStateController stateController;
+    private EidasCountrySelectedStateController stateController;
 
     @Mock
     private SessionRepository sessionRepository;
@@ -140,7 +140,7 @@ public class AuthnResponseFromCountryServiceTest {
             sessionRepository,
             samlAuthnResponseTranslatorDtoFactory,
             countriesService);
-        when(sessionRepository.getStateController(SESSION_ID, CountrySelectedState.class)).thenReturn(stateController);
+        when(sessionRepository.getStateController(SESSION_ID, EidasCountrySelectedState.class)).thenReturn(stateController);
         when(stateController.getMatchingServiceEntityId()).thenReturn(TEST_RP_MS);
         when(stateController.getCountryEntityId()).thenReturn(COUNTRY_ENTITY_ID);
         when(stateController.getEidasAttributeQueryRequestDto(any())).thenReturn(EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO);
@@ -159,7 +159,7 @@ public class AuthnResponseFromCountryServiceTest {
     public void shouldCheckAnEidasResponseIsExpectedWhenSuccessfulResponseIsReceived() {
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 
-        verify(sessionRepository).getStateController(SESSION_ID, CountrySelectedState.class);
+        verify(sessionRepository).getStateController(SESSION_ID, EidasCountrySelectedState.class);
         verify(samlAuthnResponseTranslatorDtoFactory).fromSamlAuthnResponseContainerDto(SAML_AUTHN_RESPONSE_CONTAINER_DTO, TEST_RP_MS);
         verify(samlEngineProxy).generateEidasAttributeQuery(EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO);
         verify(stateController).handleSuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub());
@@ -170,7 +170,7 @@ public class AuthnResponseFromCountryServiceTest {
 
     @Test(expected = InvalidSessionStateException.class)
     public void shouldThrowAnExceptionWhenSuccessfulResponseIsReceivedAndIsInInvalidState() {
-        when(sessionRepository.getStateController(SESSION_ID, CountrySelectedState.class)).thenThrow(InvalidSessionStateException.class);
+        when(sessionRepository.getStateController(SESSION_ID, EidasCountrySelectedState.class)).thenThrow(InvalidSessionStateException.class);
         service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
     }
 

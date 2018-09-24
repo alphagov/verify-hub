@@ -42,7 +42,7 @@ public class TestSessionResource {
     public static final String SUCCESSFUL_MATCH_STATE = "/successful-match-state";
     public static final String EIDAS_SUCCESSFUL_MATCH_STATE = "/eidas-successful-match-state";
     public static final String IDP_SELECTED_STATE = "/idp-selected-state";
-    public static final String COUNTRY_SELECTED_STATE = "/country-selected-state";
+    public static final String EIDAS_COUNTRY_SELECTED_STATE = "/eidas-country-selected-state";
     public static final String AWAITING_CYCLE_3_DATA_STATE = "/awaiting-cycle-3-data-state";
     public static final String EIDAS_AWAITING_CYCLE_3_DATA_STATE = "/eidas-awaiting-cycle-3-data-state";
     public static final String GET_SESSION_STATE_NAME = "/session-state-name" + SESSION_ID_PARAM_PATH;
@@ -120,7 +120,7 @@ public class TestSessionResource {
         return Response.ok().build();
     }
 
-    @Path(COUNTRY_SELECTED_STATE)
+    @Path(EIDAS_COUNTRY_SELECTED_STATE)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createSessionInCountrySelectingState(TestSessionDto testSessionDto) {

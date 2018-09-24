@@ -27,8 +27,8 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -38,15 +38,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.EidasAttributeQueryRequestDtoBuilder.anEidasAttributeQueryRequestDto;
-import static uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder.aCountrySelectedState;
 import static uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState;
+import static uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder.anEidasCountrySelectedState;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_1;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_COUNTRY_ONE;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CountrySelectedStateControllerTest {
+public class EidasCountrySelectedStateControllerTest {
 
     private static final String MSA_ID = "msa-id";
     private static final DateTime NOW = DateTime.now(DateTimeZone.UTC);
@@ -84,17 +84,17 @@ public class CountrySelectedStateControllerTest {
     @Mock
     private MatchingServiceConfigProxy matchingServiceConfigProxy;
 
-    private CountrySelectedState state = aCountrySelectedState()
+    private EidasCountrySelectedState state = anEidasCountrySelectedState()
             .withSelectedCountry(SELECTED_COUNTRY)
             .withLevelOfAssurance(ImmutableList.of(LevelOfAssurance.LEVEL_2))
             .build();
 
-    private CountrySelectedStateController controller;
+    private EidasCountrySelectedStateController controller;
 
     @Before
     public void setUp() {
         DateTimeUtils.setCurrentMillisFixed(NOW.getMillis());
-        controller = new CountrySelectedStateController(
+        controller = new EidasCountrySelectedStateController(
                 state,
                 hubEventLogger,
                 stateTransitionAction,

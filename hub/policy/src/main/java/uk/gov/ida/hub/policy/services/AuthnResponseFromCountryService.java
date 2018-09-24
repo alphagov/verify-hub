@@ -9,9 +9,9 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
-import uk.gov.ida.hub.policy.domain.controller.CountrySelectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectedStateController;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
@@ -46,7 +46,7 @@ public class AuthnResponseFromCountryService {
     public ResponseAction receiveAuthnResponseFromCountry(SessionId sessionId,
                                                           SamlAuthnResponseContainerDto responseFromCountry) {
 
-        CountrySelectedStateController stateController = (CountrySelectedStateController) sessionRepository.getStateController(sessionId, CountrySelectedState.class);
+        EidasCountrySelectedStateController stateController = (EidasCountrySelectedStateController) sessionRepository.getStateController(sessionId, EidasCountrySelectedState.class);
         String matchingServiceEntityId = stateController.getMatchingServiceEntityId();
         validateCountryIsIn(countriesService.getCountries(sessionId), stateController.getCountryEntityId());
 
@@ -56,7 +56,7 @@ public class AuthnResponseFromCountryService {
         return handleResponseFromCountry(translatedResponse, responseFromCountry, sessionId, stateController);
     }
 
-    private ResponseAction handleResponseFromCountry(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, CountrySelectedStateController stateController) {
+    private ResponseAction handleResponseFromCountry(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, EidasCountrySelectedStateController stateController) {
         ResponseAction responseAction;
         switch (translatedResponse.getStatus()) {
             case Success:
@@ -73,7 +73,7 @@ public class AuthnResponseFromCountryService {
         return responseAction;
     }
 
-    private ResponseAction handleSuccessResponse(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, CountrySelectedStateController stateController) {
+    private ResponseAction handleSuccessResponse(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, EidasCountrySelectedStateController stateController) {
         stateController.handleSuccessResponseFromCountry(translatedResponse, responseFromCountry.getPrincipalIPAddressAsSeenByHub());
 
         AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(stateController.getEidasAttributeQueryRequestDto(translatedResponse));
@@ -82,7 +82,7 @@ public class AuthnResponseFromCountryService {
         return ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2);
     }
 
-    private ResponseAction handleAuthenticationFailedResponse(SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, CountrySelectedStateController stateController) {
+    private ResponseAction handleAuthenticationFailedResponse(SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, EidasCountrySelectedStateController stateController) {
         stateController.handleAuthenticationFailedResponseFromCountry(responseFromCountry.getPrincipalIPAddressAsSeenByHub());
 
         return other(sessionId, false);

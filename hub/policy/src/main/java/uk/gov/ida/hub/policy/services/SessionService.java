@@ -17,7 +17,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureException;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -89,7 +89,7 @@ public class SessionService {
                 request.getUseExactComparisonType(),
                 request.getOverriddenSsoUrl());
 
-        boolean countryIdentityProvider = sessionRepository.isSessionInState(sessionId, CountrySelectedState.class);
+        boolean countryIdentityProvider = sessionRepository.isSessionInState(sessionId, EidasCountrySelectedState.class);
         final SamlRequestDto samlRequest = countryIdentityProvider ? samlEngineProxy.generateCountryAuthnRequestFromHub(authnRequestFromHub) :
                 samlEngineProxy.generateIdpAuthnRequestFromHub(authnRequestFromHub);
 

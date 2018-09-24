@@ -27,7 +27,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureException;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
@@ -159,7 +159,7 @@ public class SessionServiceTest {
         // Given
         SessionId sessionId = createNewSessionId();
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
-        when(sessionRepository.isSessionInState(sessionId, CountrySelectedState.class)).thenReturn(true);
+        when(sessionRepository.isSessionInState(sessionId, EidasCountrySelectedState.class)).thenReturn(true);
         AuthnRequestFromHub authnRequestFromHub = anAuthnRequestFromHub().withSsoUrl(URI.create("/theSsoUri")).build();
         when(authnRequestHandler.getIdaAuthnRequestFromHub(sessionId)).thenReturn(authnRequestFromHub);
         URI ssoUri = UriBuilder.fromUri(UUID.randomUUID().toString()).build();

@@ -2,7 +2,7 @@ package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder;
-import uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder;
+import uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
@@ -159,7 +159,7 @@ public class TestSessionResourceHelper {
     }
 
     public static Response createSessionInCountrySelectingState(SessionId sessionId, Client client, URI uri, String rpEntityId, boolean transactionSupportsEidas) {
-        CountrySelectingState countrySelectedState = CountrySelectedStateBuilder.aCountrySelectedState()
+        CountrySelectingState countrySelectedState = EidasCountrySelectedStateBuilder.anEidasCountrySelectedState()
                 .withSessionId(sessionId)
                 .withRequestIssuerEntityId(rpEntityId)
                 .withTransactionSupportsEidas(transactionSupportsEidas)

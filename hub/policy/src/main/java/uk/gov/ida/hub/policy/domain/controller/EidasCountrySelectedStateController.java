@@ -18,7 +18,7 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
@@ -26,9 +26,9 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.Optional;
 
-public class CountrySelectedStateController implements StateController, ErrorResponsePreparedStateController, CountrySelectingStateController, AuthnRequestCapableController {
+public class EidasCountrySelectedStateController implements StateController, ErrorResponsePreparedStateController, CountrySelectingStateController, AuthnRequestCapableController {
 
-    private final CountrySelectedState state;
+    private final EidasCountrySelectedState state;
     private final HubEventLogger hubEventLogger;
     private final StateTransitionAction stateTransitionAction;
     private final PolicyConfiguration policyConfiguration;
@@ -37,8 +37,8 @@ public class CountrySelectedStateController implements StateController, ErrorRes
     private final ResponseFromHubFactory responseFromHubFactory;
     private final AssertionRestrictionsFactory assertionRestrictionFactory;
 
-    public CountrySelectedStateController(
-            final CountrySelectedState state,
+    public EidasCountrySelectedStateController(
+            final EidasCountrySelectedState state,
             final HubEventLogger hubEventLogger,
             final StateTransitionAction stateTransitionAction,
             final PolicyConfiguration policyConfiguration,
@@ -117,7 +117,7 @@ public class CountrySelectedStateController implements StateController, ErrorRes
 
     @Override
     public void selectCountry(String countryEntityId) {
-        CountrySelectedState countrySelectedState = new CountrySelectedState(
+        EidasCountrySelectedState countrySelectedState = new EidasCountrySelectedState(
                 countryEntityId,
                 state.getRelayState(),
                 state.getRequestId(),
@@ -160,7 +160,7 @@ public class CountrySelectedStateController implements StateController, ErrorRes
                 state.getRequestId(),
                 principalIpAddressAsSeenByHub);
 
-        stateTransitionAction.transitionTo(createCountryAuthnFailedErrorState());
+        stateTransitionAction.transitionTo(createEidasAuthnFailedErrorState());
     }
 
     private void validateSuccessfulResponse(InboundResponseFromCountry translatedResponse) {
@@ -203,7 +203,7 @@ public class CountrySelectedStateController implements StateController, ErrorRes
         );
     }
 
-    private State createCountryAuthnFailedErrorState() {
+    private State createEidasAuthnFailedErrorState() {
         return new EidasAuthnFailedErrorState(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),

@@ -3,7 +3,7 @@ package uk.gov.ida.hub.policy.domain;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
@@ -32,7 +32,7 @@ import static java.util.Arrays.stream;
 public enum PolicyState {
     SESSION_STARTED(SessionStartedState.class),
     COUNTRY_SELECTING(CountrySelectingState.class),
-    COUNTRY_SELECTED(CountrySelectedState.class),
+    EIDAS_COUNTRY_SELECTED(EidasCountrySelectedState.class),
     IDP_SELECTED(IdpSelectedState.class),
     CYCLE_0_AND_1_MATCH_REQUEST_SENT(Cycle0And1MatchRequestSentState.class),
     EIDAS_CYCLE_0_AND_1_MATCH_REQUEST_SENT(EidasCycle0And1MatchRequestSentState.class),

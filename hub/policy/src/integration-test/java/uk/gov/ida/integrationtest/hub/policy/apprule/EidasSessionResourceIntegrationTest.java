@@ -39,7 +39,7 @@ import java.util.Arrays;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_SELECTED_STATE;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.EIDAS_COUNTRY_SELECTED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
 
 public class EidasSessionResourceIntegrationTest {
@@ -167,7 +167,7 @@ public class EidasSessionResourceIntegrationTest {
 
     private SessionId createSessionInCountrySelectingState() {
         SessionId sessionId = SessionId.createNewSessionId();
-        URI uri = policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + COUNTRY_SELECTED_STATE).build().toASCIIString());
+        URI uri = policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + EIDAS_COUNTRY_SELECTED_STATE).build().toASCIIString());
         TestSessionResourceHelper.createSessionInCountrySelectingState(
                 sessionId,
                 client,
