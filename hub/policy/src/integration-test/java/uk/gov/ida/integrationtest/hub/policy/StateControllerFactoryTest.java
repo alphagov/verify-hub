@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
-import static uk.gov.ida.hub.policy.builder.state.CountryAuthnFailedErrorStateBuilder.aCountryAuthnFailedErrorState;
+import static uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder.aCountrySelectedState;
 import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
@@ -202,10 +202,10 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateCountryAuthnFailedErrorStateControllerOnBuild() {
-        StateController controller = factory.build(aCountryAuthnFailedErrorState().build(), stateTransitionAction);
+    public void shouldCreateEidasAuthnFailedErrorStateControllerOnBuild() {
+        StateController controller = factory.build(anEidasAuthnFailedErrorState().build(), stateTransitionAction);
 
-        assertThat(controller).isInstanceOf(CountryAuthnFailedErrorStateController.class);
+        assertThat(controller).isInstanceOf(EidasAuthnFailedErrorStateController.class);
     }
 
     @Test

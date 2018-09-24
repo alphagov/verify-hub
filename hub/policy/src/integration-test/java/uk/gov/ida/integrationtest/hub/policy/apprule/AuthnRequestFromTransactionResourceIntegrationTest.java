@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.AUTHN_FAILED_STATE;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_AUTHN_FAILED_STATE;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.EIDAS_AUTHN_FAILED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.IDP_SELECTED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.SUCCESSFUL_MATCH_STATE;
@@ -178,7 +178,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     @Test
     public void shouldRestartEidasJourney() {
         sessionId = SessionId.createNewSessionId();
-        TestSessionResourceHelper.createSessionInCountryAuthnFailedErrorState(sessionId, client, buildUriForTestSession(COUNTRY_AUTHN_FAILED_STATE, sessionId));
+        TestSessionResourceHelper.createSessionInEidasAuthnFailedErrorState(sessionId, client, buildUriForTestSession(EIDAS_AUTHN_FAILED_STATE, sessionId));
 
         URI uri = UriBuilder.fromPath("/policy/received-authn-request" + Urls.PolicyUrls.AUTHN_REQUEST_RESTART_EIDAS_JOURNEY_PATH).build(sessionId);
         Response response = client.target(policy.uri(uri.toASCIIString())).request().post(null);

@@ -17,7 +17,7 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
@@ -204,7 +204,7 @@ public class CountrySelectedStateController implements StateController, ErrorRes
     }
 
     private State createCountryAuthnFailedErrorState() {
-        return new CountryAuthnFailedErrorState(
+        return new EidasAuthnFailedErrorState(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),

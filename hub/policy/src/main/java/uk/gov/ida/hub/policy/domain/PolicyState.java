@@ -2,7 +2,7 @@ package uk.gov.ida.hub.policy.domain;
 
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
@@ -49,7 +49,7 @@ public enum PolicyState {
     USER_ACCOUNT_CREATION_REQUEST_SENT(UserAccountCreationRequestSentState.class),
     EIDAS_USER_ACCOUNT_CREATION_REQUEST_SENT(EidasUserAccountCreationRequestSentState.class),
     AUTHN_FAILED_ERROR(AuthnFailedErrorState.class),
-    COUNTRY_AUTHN_FAILED_ERROR(CountryAuthnFailedErrorState.class),
+    EIDAS_AUTHN_FAILED_ERROR(EidasAuthnFailedErrorState.class),
     FRAUD_EVENT_DETECTED(FraudEventDetectedState.class),
     REQUESTER_ERROR(RequesterErrorState.class),
     CYCLE_3_DATA_INPUT_CANCELLED(Cycle3DataInputCancelledState.class),

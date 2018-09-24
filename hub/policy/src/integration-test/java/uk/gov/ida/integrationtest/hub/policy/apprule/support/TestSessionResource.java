@@ -5,7 +5,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
@@ -47,7 +47,7 @@ public class TestSessionResource {
     public static final String EIDAS_AWAITING_CYCLE_3_DATA_STATE = "/eidas-awaiting-cycle-3-data-state";
     public static final String GET_SESSION_STATE_NAME = "/session-state-name" + SESSION_ID_PARAM_PATH;
     public static final String AUTHN_FAILED_STATE = "/session-authn-failed-state";
-    public static final String COUNTRY_AUTHN_FAILED_STATE = "/session-country-authn-failed-state";
+    public static final String EIDAS_AUTHN_FAILED_STATE = "/session-eidas-authn-failed-state";
 
     private TestSessionRepository testSessionRepository;
 
@@ -204,12 +204,12 @@ public class TestSessionResource {
         return Response.ok().build();
     }
 
-    @Path(COUNTRY_AUTHN_FAILED_STATE)
+    @Path(EIDAS_AUTHN_FAILED_STATE)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createSessionInCountryAuthnFailedState(TestSessionDto testSessionDto) {
+    public Response createSessionInEidasAuthnFailedState(TestSessionDto testSessionDto) {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
-                new CountryAuthnFailedErrorState(
+                new EidasAuthnFailedErrorState(
                         testSessionDto.getRequestId(),
                         testSessionDto.getRequestIssuerId(),
                         testSessionDto.getSessionExpiryTimestamp(),
