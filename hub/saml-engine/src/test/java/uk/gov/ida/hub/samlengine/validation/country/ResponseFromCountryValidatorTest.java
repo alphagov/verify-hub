@@ -37,7 +37,7 @@ public class ResponseFromCountryValidatorTest {
     @Mock
     private EncryptedAssertion encryptedAssertion;
 
-    private ResponseFromCountryValidator validator = new ResponseFromCountryValidator(new SamlStatusToIdpIdaStatusMappingsFactory());
+    private ResponseFromCountryValidator validator = new ResponseFromCountryValidator();
 
     @Before
     public void setUp() {

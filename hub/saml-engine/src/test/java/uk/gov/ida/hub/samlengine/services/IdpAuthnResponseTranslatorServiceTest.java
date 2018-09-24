@@ -87,7 +87,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
 
     private IdpIdaStatus.Status statusCode = IdpIdaStatus.Status.Success;
     private String statusMessage = "status message";
-    private IdpIdaStatus status = new IdpIdaStatus.IdpIdaStatusFactory().create(statusCode, of(statusMessage));
+    private IdpIdaStatus status = new IdpIdaStatus.IdpIdaStatusFactory().create(statusCode, statusMessage);
     private String saml = "some saml";
     private String principalIpAddressSeenByIdp = "ip address";
     private String persistentIdName = "id name";

@@ -5,22 +5,31 @@ import org.opensaml.saml.saml2.core.Status;
 import uk.gov.ida.saml.hub.domain.CountryAuthenticationStatus;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToCountryAuthenticationStatusMappingsFactory.SamlStatusDefinitions;
 
-public class SamlStatusToCountryAuthenticationStatusCodeMapper {
+import java.util.Optional;
 
-    private static final ImmutableMap<SamlStatusDefinitions, CountryAuthenticationStatus.Status> STATUS_MAPPINGS =
-            SamlStatusToCountryAuthenticationStatusMappingsFactory.getSamlToCountryAuthenticationStatusMappings();
+public class SamlStatusToCountryAuthenticationStatusCodeMapper implements SamlStatusToAuthenticationStatusCodeMapper<CountryAuthenticationStatus.Status> {
 
-    public static CountryAuthenticationStatus.Status map(Status samlStatus) {
-        final String statusCodeValue = getStatusCodeValue(samlStatus);
+    private final ImmutableMap<SamlStatusDefinitions, CountryAuthenticationStatus.Status> statusMappings;
 
-        return STATUS_MAPPINGS.keySet().stream()
-                .filter(k -> k.matches(statusCodeValue))
-                .findFirst()
-                .map(STATUS_MAPPINGS::get)
-                .orElse(CountryAuthenticationStatus.Status.Failure);
+    public SamlStatusToCountryAuthenticationStatusCodeMapper() {
+        this.statusMappings = SamlStatusToCountryAuthenticationStatusMappingsFactory.getSamlToCountryAuthenticationStatusMappings();
     }
 
-    private static String getStatusCodeValue(final Status status) {
+    @Override
+    public Optional<CountryAuthenticationStatus.Status> map(Status samlStatus) {
+        final String statusCodeValue = getStatusCodeValue(samlStatus);
+
+        final CountryAuthenticationStatus.Status mappedStatus =
+                statusMappings.keySet().stream()
+                        .filter(k -> k.matches(statusCodeValue))
+                        .findFirst()
+                        .map(statusMappings::get)
+                        .orElse(CountryAuthenticationStatus.Status.Failure);
+
+        return Optional.of(mappedStatus);
+    }
+
+    private String getStatusCodeValue(final Status status) {
         return status.getStatusCode().getValue();
     }
 }

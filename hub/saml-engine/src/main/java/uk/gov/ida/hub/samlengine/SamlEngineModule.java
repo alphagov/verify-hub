@@ -284,7 +284,7 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     public IdpIdaStatusUnmarshaller getIdpIdaStatusUnmarshaller() {
-        return new IdpIdaStatusUnmarshaller(new IdpIdaStatus.IdpIdaStatusFactory(), new SamlStatusToIdpIdaStatusMappingsFactory());
+        return new IdpIdaStatusUnmarshaller();
     }
 
     @Provides
@@ -414,7 +414,7 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Singleton
     private ResponseFromCountryValidator getResponseFromCountryValidator() {
-        return new ResponseFromCountryValidator(new SamlStatusToIdpIdaStatusMappingsFactory());
+        return new ResponseFromCountryValidator();
     }
 
     @Provides

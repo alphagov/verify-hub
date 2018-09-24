@@ -10,24 +10,31 @@ import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.exception.SamlValidationException;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdaStatusCodeMapper;
-import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
 import uk.gov.ida.saml.hub.validators.response.common.IssuerValidator;
 import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
 
 import java.util.List;
 import java.util.Optional;
 
-import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.*;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidStatusCode;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidSubStatusCode;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingId;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingIssueInstant;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSignature;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSuccessUnEncryptedAssertions;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nestedSubStatusCodesBreached;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.nonSuccessHasUnEncryptedAssertions;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.signatureNotSigned;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unencryptedAssertion;
+import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unexpectedNumberOfAssertions;
 import static uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil.isSignaturePresent;
 
 public class EncryptedResponseFromIdpValidator {
     private static final int SUB_STATUS_CODE_LIMIT = 1;
     private SamlStatusToIdaStatusCodeMapper statusCodeMapper;
 
-    public EncryptedResponseFromIdpValidator(final SamlStatusToIdpIdaStatusMappingsFactory statusMappingsFactory) {
-        this.statusCodeMapper = new SamlStatusToIdaStatusCodeMapper(
-            statusMappingsFactory.getSamlToIdpIdaStatusMappings()
-        );
+    public EncryptedResponseFromIdpValidator() {
+        this.statusCodeMapper = new SamlStatusToIdaStatusCodeMapper();
     }
 
     protected void validateAssertionPresence(Response response) {

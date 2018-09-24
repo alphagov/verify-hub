@@ -14,15 +14,15 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
-public class SamlStatusToIdaStatusCodeMapper {
+public class SamlStatusToIdaStatusCodeMapper implements SamlStatusToAuthenticationStatusCodeMapper<IdpIdaStatus.Status> {
 
     private final ImmutableMap<SamlStatusToIdpIdaStatusMappingsFactory.SamlStatusDefinitions, IdpIdaStatus.Status> statusMappings;
 
-    public SamlStatusToIdaStatusCodeMapper(
-            final ImmutableMap<SamlStatusToIdpIdaStatusMappingsFactory.SamlStatusDefinitions, IdpIdaStatus.Status> statusMappings) {
-        this.statusMappings = statusMappings;
+    public SamlStatusToIdaStatusCodeMapper() {
+        this.statusMappings = SamlStatusToIdpIdaStatusMappingsFactory.getSamlToIdpIdaStatusMappings();
     }
 
+    @Override
     public Optional<IdpIdaStatus.Status> map(Status samlStatus) {
         final String statusCodeValue = getStatusCodeValue(samlStatus);
         final Optional<String> subStatusCodeValue = getSubStatusCodeValue(samlStatus);

@@ -35,7 +35,7 @@ public class SamlStatusToIdpIdaStatusMappingsFactory {
         }
     }
 
-    public ImmutableMap<SamlStatusDefinitions, IdpIdaStatus.Status> getSamlToIdpIdaStatusMappings() {
+    public static ImmutableMap<SamlStatusDefinitions, IdpIdaStatus.Status> getSamlToIdpIdaStatusMappings() {
         // Matching SAML statuses to their IdpIdaStatus counterparts is dependent on the ordering of these put()
         // statements. There must be a better way of doing this.
         return ImmutableMap.<SamlStatusDefinitions, IdpIdaStatus.Status>builder()
