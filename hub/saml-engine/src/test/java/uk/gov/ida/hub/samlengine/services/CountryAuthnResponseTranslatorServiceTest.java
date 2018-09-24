@@ -20,6 +20,7 @@ import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncryp
 import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
+import uk.gov.ida.saml.hub.transformers.inbound.CountryAuthenticationStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
@@ -78,7 +79,8 @@ public class CountryAuthnResponseTranslatorServiceTest {
                 assertionDecrypter,
                 assertionBlobEncrypter,
                 eidasValidatorFactory,
-                new PassthroughAssertionUnmarshaller(new XmlObjectToBase64EncodedStringTransformer<>(), new AuthnContextFactory()));
+                new PassthroughAssertionUnmarshaller(new XmlObjectToBase64EncodedStringTransformer<>(), new AuthnContextFactory()),
+                new CountryAuthenticationStatusUnmarshaller());
 
         Response eidasSAMLResponse = (Response) buildResponseFromFile();
         ValidatedResponse validateEIDASSAMLResponse = new ValidatedResponse(eidasSAMLResponse);

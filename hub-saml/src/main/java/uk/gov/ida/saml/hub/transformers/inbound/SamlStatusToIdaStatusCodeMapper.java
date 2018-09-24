@@ -14,7 +14,7 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
-public class SamlStatusToIdaStatusCodeMapper implements SamlStatusToAuthenticationStatusCodeMapper<IdpIdaStatus.Status> {
+public class SamlStatusToIdaStatusCodeMapper extends SamlStatusToAuthenticationStatusCodeMapper<IdpIdaStatus.Status> {
 
     private final ImmutableMap<SamlStatusToIdpIdaStatusMappingsFactory.SamlStatusDefinitions, IdpIdaStatus.Status> statusMappings;
 
@@ -32,10 +32,6 @@ public class SamlStatusToIdaStatusCodeMapper implements SamlStatusToAuthenticati
                 .filter(k -> k.matches(statusCodeValue, subStatusCodeValue, statusDetailValues))
                 .findFirst()
                 .map(statusMappings::get);
-    }
-
-    private String getStatusCodeValue(final Status status) {
-        return status.getStatusCode().getValue();
     }
 
     private Optional<String> getSubStatusCodeValue(final Status status) {

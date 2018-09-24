@@ -38,6 +38,7 @@ public class CountryAuthnResponseTranslatorService {
     private final PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller;
     private final ResponseAssertionsFromCountryValidator responseAssertionFromCountryValidator;
     private final EidasValidatorFactory eidasValidatorFactory;
+    private final CountryAuthenticationStatusUnmarshaller countryAuthenticationStatusUnmarshaller;
 
     @Inject
     public CountryAuthnResponseTranslatorService(StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer,
@@ -47,7 +48,8 @@ public class CountryAuthnResponseTranslatorService {
                                                  AssertionDecrypter assertionDecrypter,
                                                  AssertionBlobEncrypter assertionBlobEncrypter,
                                                  EidasValidatorFactory eidasValidatorFactory,
-                                                 PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller) {
+                                                 PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller,
+                                                 CountryAuthenticationStatusUnmarshaller countryAuthenticationStatusUnmarshaller) {
         this.stringToOpenSamlResponseTransformer = stringToOpenSamlResponseTransformer;
         this.responseFromCountryValidator = responseFromCountryValidator;
         this.responseAssertionFromCountryValidator = responseAssertionFromCountryValidator;
@@ -56,6 +58,7 @@ public class CountryAuthnResponseTranslatorService {
         this.assertionBlobEncrypter = assertionBlobEncrypter;
         this.eidasValidatorFactory = eidasValidatorFactory;
         this.passthroughAssertionUnmarshaller = passthroughAssertionUnmarshaller;
+        this.countryAuthenticationStatusUnmarshaller = countryAuthenticationStatusUnmarshaller;
     }
 
     public InboundResponseFromCountry translate(SamlAuthnResponseTranslatorDto samlResponseDto) {
@@ -95,7 +98,7 @@ public class CountryAuthnResponseTranslatorService {
                 .filter(string -> !isNullOrEmpty(string))
                 .map(LevelOfAssurance::valueOf);
 
-        CountryAuthenticationStatus status = CountryAuthenticationStatusUnmarshaller.fromSaml(response.getStatus());
+        CountryAuthenticationStatus status = countryAuthenticationStatusUnmarshaller.fromSaml(response.getStatus());
 
         return new InboundResponseFromCountry(
             response.getIssuer().getValue(),

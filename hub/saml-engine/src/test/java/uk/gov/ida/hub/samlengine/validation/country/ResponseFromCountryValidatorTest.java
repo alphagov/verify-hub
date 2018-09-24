@@ -7,20 +7,23 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
-import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdpIdaStatusMappingsFactory;
+import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToCountryAuthenticationStatusCodeMapper;
 
 import java.util.Collections;
 
 import static org.mockito.Mockito.when;
+import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
+import static uk.gov.ida.saml.core.test.builders.StatusBuilder.aStatus;
+import static uk.gov.ida.saml.core.test.builders.StatusCodeBuilder.aStatusCode;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class ResponseFromCountryValidatorTest {
 
     @Rule
@@ -37,7 +40,7 @@ public class ResponseFromCountryValidatorTest {
     @Mock
     private EncryptedAssertion encryptedAssertion;
 
-    private ResponseFromCountryValidator validator = new ResponseFromCountryValidator();
+    private ResponseFromCountryValidator validator = new ResponseFromCountryValidator(new SamlStatusToCountryAuthenticationStatusCodeMapper());
 
     @Before
     public void setUp() {
@@ -90,5 +93,13 @@ public class ResponseFromCountryValidatorTest {
         when(response.getEncryptedAssertions()).thenReturn(ImmutableList.of(encryptedAssertion, encryptedAssertion));
 
         validator.validateAssertionPresence(response);
+    }
+
+    @Test
+    public void validateStatus_shouldNotThrowIfStatusIsResponderWithNoSubStatus() throws Exception {
+        Status status = aStatus().withStatusCode(aStatusCode().withValue(StatusCode.RESPONDER).build()).build();
+        Response response = aResponse().withStatus(status).withNoDefaultAssertion().build();
+
+        validator.validate(response);
     }
 }

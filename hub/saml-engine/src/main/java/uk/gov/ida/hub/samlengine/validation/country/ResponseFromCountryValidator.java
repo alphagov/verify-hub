@@ -5,11 +5,15 @@ import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
+import uk.gov.ida.saml.hub.domain.CountryAuthenticationStatus;
+import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToCountryAuthenticationStatusCodeMapper;
 import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
 
-public class ResponseFromCountryValidator extends EncryptedResponseFromIdpValidator {
+public class ResponseFromCountryValidator extends EncryptedResponseFromIdpValidator<CountryAuthenticationStatus.Status> {
 
-    public ResponseFromCountryValidator() { }
+    public ResponseFromCountryValidator(SamlStatusToCountryAuthenticationStatusCodeMapper samlStatusToCountryAuthenticationStatusCodeMapper) {
+        super(samlStatusToCountryAuthenticationStatusCodeMapper);
+    }
 
     protected void validateAssertionPresence(Response response) {
         boolean responseWasSuccessful = response.getStatus().getStatusCode().getValue().equals(StatusCode.SUCCESS);

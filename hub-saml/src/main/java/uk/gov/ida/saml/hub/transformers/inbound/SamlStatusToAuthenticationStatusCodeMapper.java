@@ -4,6 +4,11 @@ import org.opensaml.saml.saml2.core.Status;
 
 import java.util.Optional;
 
-public interface SamlStatusToAuthenticationStatusCodeMapper<T extends Enum> {
-    Optional<T> map(Status samlStatus);
+public abstract class SamlStatusToAuthenticationStatusCodeMapper<T extends Enum> {
+
+    public abstract Optional<T> map(Status samlStatus);
+
+    protected String getStatusCodeValue(final Status status) {
+        return status.getStatusCode().getValue();
+    }
 }
