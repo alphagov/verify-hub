@@ -7,7 +7,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToCountryAuthenticatio
 
 import java.util.Optional;
 
-public class SamlStatusToCountryAuthenticationStatusCodeMapper implements SamlStatusToAuthenticationStatusCodeMapper<CountryAuthenticationStatus.Status> {
+public class SamlStatusToCountryAuthenticationStatusCodeMapper extends SamlStatusToAuthenticationStatusCodeMapper<CountryAuthenticationStatus.Status> {
 
     private final ImmutableMap<SamlStatusDefinitions, CountryAuthenticationStatus.Status> statusMappings;
 
@@ -27,9 +27,5 @@ public class SamlStatusToCountryAuthenticationStatusCodeMapper implements SamlSt
                         .orElse(CountryAuthenticationStatus.Status.Failure);
 
         return Optional.of(mappedStatus);
-    }
-
-    private String getStatusCodeValue(final Status status) {
-        return status.getStatusCode().getValue();
     }
 }

@@ -92,7 +92,6 @@ import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.MatchingServiceHealthCheckRequest;
 import uk.gov.ida.saml.hub.transformers.inbound.AuthnRequestToIdaRequestFromRelyingPartyTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.CountryAuthenticationStatusUnmarshaller;
-import uk.gov.ida.saml.hub.transformers.inbound.IdpIdaStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToCountryAuthenticationStatusCodeMapper;
@@ -258,8 +257,7 @@ public class SamlEngineModule extends AbstractModule {
                                                                                            @Named("EidasAssertionDecrypter") AssertionDecrypter assertionDecrypter,
                                                                                            AssertionBlobEncrypter assertionBlobEncrypter,
                                                                                            Optional<EidasValidatorFactory> eidasValidatorFactory,
-                                                                                           PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller,
-                                                                                           CountryAuthenticationStatusUnmarshaller countryAuthenticationStatusUnmarshaller) {
+                                                                                           PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller) {
         if (!responseAssertionFromCountryValidator.isPresent() || !validateSamlResponseIssuedByIdpDestination.isPresent() || !eidasValidatorFactory.isPresent()) {
             throw new InvalidConfigurationException("Eidas not configured correctly");
         }
@@ -271,7 +269,7 @@ public class SamlEngineModule extends AbstractModule {
                 assertionBlobEncrypter,
                 eidasValidatorFactory.get(),
                 passthroughAssertionUnmarshaller,
-                countryAuthenticationStatusUnmarshaller);
+                new CountryAuthenticationStatusUnmarshaller());
     }
 
     @Provides
@@ -282,16 +280,6 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     public Optional<DestinationValidator> getValidateSamlResponseIssuedByIdpDestination(@Named("ExpectedEidasDestination") Optional<URI> expectedDestination) {
         return expectedDestination.map(d -> new DestinationValidator(d, Urls.FrontendUrls.SAML2_SSO_EIDAS_RESPONSE_ENDPOINT));
-    }
-
-    @Provides
-    public CountryAuthenticationStatusUnmarshaller getCountryAuthenticationStatusUnmarshaller() {
-        return new CountryAuthenticationStatusUnmarshaller();
-    }
-
-    @Provides
-    public IdpIdaStatusUnmarshaller getIdpIdaStatusUnmarshaller() {
-        return new IdpIdaStatusUnmarshaller();
     }
 
     @Provides
@@ -319,7 +307,6 @@ public class SamlEngineModule extends AbstractModule {
         environment.admin().addTask(task);
         return task;
     }
-
 
     @Provides
     @Singleton
