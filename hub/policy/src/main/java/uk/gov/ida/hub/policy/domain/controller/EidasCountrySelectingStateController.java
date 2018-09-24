@@ -1,5 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-public interface CountrySelectingStateController {
+public interface EidasCountrySelectingStateController {
     void selectCountry(final String countryEntityId);
 }

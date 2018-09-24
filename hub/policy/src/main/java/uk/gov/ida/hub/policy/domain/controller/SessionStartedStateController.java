@@ -16,7 +16,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.Collections;
 
-public class SessionStartedStateController implements IdpSelectingStateController, CountrySelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
+public class SessionStartedStateController implements IdpSelectingStateController, EidasCountrySelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
     private final SessionStartedState state;
     private final HubEventLogger hubEventLogger;

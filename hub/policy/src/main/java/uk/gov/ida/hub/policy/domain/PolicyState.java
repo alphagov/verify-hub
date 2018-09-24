@@ -4,7 +4,7 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
@@ -31,7 +31,7 @@ import static java.util.Arrays.stream;
 
 public enum PolicyState {
     SESSION_STARTED(SessionStartedState.class),
-    COUNTRY_SELECTING(CountrySelectingState.class),
+    EIDAS_COUNTRY_SELECTING(EidasCountrySelectingState.class),
     EIDAS_COUNTRY_SELECTED(EidasCountrySelectedState.class),
     IDP_SELECTED(IdpSelectedState.class),
     CYCLE_0_AND_1_MATCH_REQUEST_SENT(Cycle0And1MatchRequestSentState.class),

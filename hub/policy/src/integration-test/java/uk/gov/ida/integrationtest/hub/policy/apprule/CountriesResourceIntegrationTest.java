@@ -79,7 +79,7 @@ public class CountriesResourceIntegrationTest {
     public void setUp() throws Exception {
         eventSinkStub.setupStubForLogging();
         sessionId = SessionId.createNewSessionId();
-        createSessionInCountrySelectingState(sessionId, true);
+        createSessionInEidasCountrySelectingState(sessionId, true);
     }
 
     @After
@@ -167,7 +167,7 @@ public class CountriesResourceIntegrationTest {
     public void shouldReturnBadRequestWhenCountryIsSelectedAndSessionDoesNotSupportEidas() throws Exception {
         setEidasCountries(NETHERLANDS, SPAIN);
         setEidasCountriesForRp(NETHERLANDS, SPAIN);
-        createSessionInCountrySelectingState(sessionId, false);
+        createSessionInEidasCountrySelectingState(sessionId, false);
 
         Response response = selectCountry(NETHERLANDS);
 
@@ -210,9 +210,9 @@ public class CountriesResourceIntegrationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    private void createSessionInCountrySelectingState(SessionId sessionId, boolean transactionSupportsEidas) {
+    private void createSessionInEidasCountrySelectingState(SessionId sessionId, boolean transactionSupportsEidas) {
         URI uri = policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + EIDAS_COUNTRY_SELECTED_STATE).build().toASCIIString());
-        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInCountrySelectingState(
+        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInEidasCountrySelectingState(
                 sessionId,
                 client,
                 uri,

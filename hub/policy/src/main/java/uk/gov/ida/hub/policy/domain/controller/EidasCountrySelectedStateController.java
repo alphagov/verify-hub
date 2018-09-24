@@ -26,7 +26,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.Optional;
 
-public class EidasCountrySelectedStateController implements StateController, ErrorResponsePreparedStateController, CountrySelectingStateController, AuthnRequestCapableController {
+public class EidasCountrySelectedStateController implements StateController, ErrorResponsePreparedStateController, EidasCountrySelectingStateController, AuthnRequestCapableController {
 
     private final EidasCountrySelectedState state;
     private final HubEventLogger hubEventLogger;

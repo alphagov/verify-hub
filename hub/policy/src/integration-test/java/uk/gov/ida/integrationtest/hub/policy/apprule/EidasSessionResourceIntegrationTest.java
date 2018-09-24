@@ -165,10 +165,10 @@ public class EidasSessionResourceIntegrationTest {
         policy.getSessionState(sessionId, state);
     }
 
-    private SessionId createSessionInCountrySelectingState() {
+    private SessionId createSessionInEidasCountrySelectingState() {
         SessionId sessionId = SessionId.createNewSessionId();
         URI uri = policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + EIDAS_COUNTRY_SELECTED_STATE).build().toASCIIString());
-        TestSessionResourceHelper.createSessionInCountrySelectingState(
+        TestSessionResourceHelper.createSessionInEidasCountrySelectingState(
                 sessionId,
                 client,
                 uri,
@@ -186,7 +186,7 @@ public class EidasSessionResourceIntegrationTest {
     }
 
     private SessionId selectACountry(EidasCountryDto dto) {
-        SessionId sessionId = createSessionInCountrySelectingState();
+        SessionId sessionId = createSessionInEidasCountrySelectingState();
         TestSessionResourceHelper.selectCountryInSession(
                 sessionId,
                 client,

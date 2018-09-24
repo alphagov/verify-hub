@@ -7,7 +7,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.net.URI;
 import java.util.List;
 
-public class EidasAuthnFailedErrorState extends AbstractAuthnFailedErrorState implements CountrySelectingState, EidasUnsuccessfulJourneyState {
+public class EidasAuthnFailedErrorState extends AbstractAuthnFailedErrorState implements EidasCountrySelectingState, EidasUnsuccessfulJourneyState {
 
     private static final long serialVersionUID = -6087079428518232137L;
 
