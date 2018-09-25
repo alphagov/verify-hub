@@ -1,13 +1,13 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
-import uk.gov.ida.hub.policy.builder.state.CountryAuthnFailedErrorStateBuilder;
-import uk.gov.ida.hub.policy.builder.state.CountrySelectedStateBuilder;
+import uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder;
+import uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
@@ -130,8 +130,8 @@ public class TestSessionResourceHelper {
                 .post(Entity.json(testSessionDto));
     }
 
-    public static Response createSessionInCountryAuthnFailedErrorState(SessionId sessionId, Client client, URI uri) {
-        CountryAuthnFailedErrorState state = CountryAuthnFailedErrorStateBuilder.aCountryAuthnFailedErrorState().build();
+    public static Response createSessionInEidasAuthnFailedErrorState(SessionId sessionId, Client client, URI uri) {
+        EidasAuthnFailedErrorState state = EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState().build();
         TestSessionDto testSessionDto = new TestSessionDto(
                 sessionId,
                 state.getRequestId(),
@@ -158,8 +158,8 @@ public class TestSessionResourceHelper {
                 .post(Entity.text(""));
     }
 
-    public static Response createSessionInCountrySelectingState(SessionId sessionId, Client client, URI uri, String rpEntityId, boolean transactionSupportsEidas) {
-        CountrySelectingState countrySelectedState = CountrySelectedStateBuilder.aCountrySelectedState()
+    public static Response createSessionInEidasCountrySelectingState(SessionId sessionId, Client client, URI uri, String rpEntityId, boolean transactionSupportsEidas) {
+        EidasCountrySelectingState countrySelectedState = EidasCountrySelectedStateBuilder.anEidasCountrySelectedState()
                 .withSessionId(sessionId)
                 .withRequestIssuerEntityId(rpEntityId)
                 .withTransactionSupportsEidas(transactionSupportsEidas)

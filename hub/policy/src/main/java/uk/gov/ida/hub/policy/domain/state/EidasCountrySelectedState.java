@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 
-public class CountrySelectedState extends AbstractState implements CountrySelectingState, Serializable {
+public class EidasCountrySelectedState extends AbstractState implements EidasCountrySelectingState, Serializable {
 
     private static final long serialVersionUID = -285602589000108606L;
 
@@ -19,7 +19,7 @@ public class CountrySelectedState extends AbstractState implements CountrySelect
     private final Optional<String> relayState;
     private List<LevelOfAssurance> levelsOfAssurance;
 
-    public CountrySelectedState(String countryEntityId,
+    public EidasCountrySelectedState(String countryEntityId,
                                 Optional<String> relayState,
                                 String requestId,
                                 String requestIssuerId,

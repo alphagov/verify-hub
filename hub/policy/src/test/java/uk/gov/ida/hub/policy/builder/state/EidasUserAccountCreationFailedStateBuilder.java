@@ -5,11 +5,11 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 
 import java.net.URI;
 
-public class CountryUserAccountCreationFailedStateBuilder {
+public class EidasUserAccountCreationFailedStateBuilder {
 
     private String requestId = "requestId";
     private String requestIssuerId = "requestIssuerId";
@@ -17,12 +17,12 @@ public class CountryUserAccountCreationFailedStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
 
-    public static CountryUserAccountCreationFailedStateBuilder aCountryUserAccountCreationFailedState() {
-        return new CountryUserAccountCreationFailedStateBuilder();
+    public static EidasUserAccountCreationFailedStateBuilder aEidasUserAccountCreationFailedState() {
+        return new EidasUserAccountCreationFailedStateBuilder();
     }
 
-    public CountryUserAccountCreationFailedState build() {
-        return new CountryUserAccountCreationFailedState(
+    public EidasUserAccountCreationFailedState build() {
+        return new EidasUserAccountCreationFailedState(
                 requestId,
                 requestIssuerId,
                 sessionExpiryTimestamp,
@@ -32,22 +32,22 @@ public class CountryUserAccountCreationFailedStateBuilder {
         );
     }
 
-    public CountryUserAccountCreationFailedStateBuilder withRequestIssuerId(String requestIssuerId) {
+    public EidasUserAccountCreationFailedStateBuilder withRequestIssuerId(String requestIssuerId) {
         this.requestIssuerId = requestIssuerId;
         return this;
     }
 
-    public CountryUserAccountCreationFailedStateBuilder withSessionId(SessionId sessionId) {
+    public EidasUserAccountCreationFailedStateBuilder withSessionId(SessionId sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
-    public CountryUserAccountCreationFailedStateBuilder withRequestid(String requestId) {
+    public EidasUserAccountCreationFailedStateBuilder withRequestid(String requestId) {
         this.requestId = requestId;
         return this;
     }
 
-    public CountryUserAccountCreationFailedStateBuilder withSessionExpiryTimestamp(DateTime sessionExpiryTimestamp) {
+    public EidasUserAccountCreationFailedStateBuilder withSessionExpiryTimestamp(DateTime sessionExpiryTimestamp) {
         this.sessionExpiryTimestamp = sessionExpiryTimestamp;
         return this;
     }

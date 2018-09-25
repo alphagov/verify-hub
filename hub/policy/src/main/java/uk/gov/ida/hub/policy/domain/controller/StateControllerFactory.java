@@ -10,9 +10,9 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
@@ -66,9 +66,9 @@ public class StateControllerFactory {
                         injector.getInstance(ResponseFromHubFactory.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class));
 
-            case COUNTRY_SELECTED:
-                return new CountrySelectedStateController(
-                        (CountrySelectedState) state,
+            case EIDAS_COUNTRY_SELECTED:
+                return new EidasCountrySelectedStateController(
+                        (EidasCountrySelectedState) state,
                         injector.getInstance(HubEventLogger.class),
                         stateTransitionAction,
                         injector.getInstance(PolicyConfiguration.class),
@@ -227,9 +227,9 @@ public class StateControllerFactory {
                         injector.getInstance(IdentityProvidersConfigProxy.class),
                         injector.getInstance(HubEventLogger.class));
 
-            case COUNTRY_AUTHN_FAILED_ERROR:
-                return new CountryAuthnFailedErrorStateController(
-                        (CountryAuthnFailedErrorState) state,
+            case EIDAS_AUTHN_FAILED_ERROR:
+                return new EidasAuthnFailedErrorStateController(
+                        (EidasAuthnFailedErrorState) state,
                         injector.getInstance(ResponseFromHubFactory.class),
                         stateTransitionAction,
                         injector.getInstance(HubEventLogger.class));
@@ -262,9 +262,9 @@ public class StateControllerFactory {
                         (UserAccountCreationFailedState) state,
                         injector.getInstance(ResponseFromHubFactory.class));
 
-            case COUNTRY_USER_ACCOUNT_CREATION_FAILED:
-                return new CountryUserAccountCreationFailedStateController(
-                        (CountryUserAccountCreationFailedState) state,
+            case EIDAS_USER_ACCOUNT_CREATION_FAILED:
+                return new EidasUserAccountCreationFailedStateController(
+                        (EidasUserAccountCreationFailedState) state,
                         injector.getInstance(ResponseFromHubFactory.class),
                         stateTransitionAction,
                         injector.getInstance(HubEventLogger.class));

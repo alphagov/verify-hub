@@ -4,8 +4,8 @@ import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.State;
-import uk.gov.ida.hub.policy.domain.controller.CountrySelectingStateController;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectingStateController;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.exception.EidasCountryNotSupportedException;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -51,12 +51,12 @@ public class CountriesService {
         }
 
         Class<? extends State> expectedStateClass = SessionStartedState.class;
-        if (sessionRepository.isSessionInState(sessionId, CountrySelectedState.class)) {
-            expectedStateClass = CountrySelectedState.class;
+        if (sessionRepository.isSessionInState(sessionId, EidasCountrySelectedState.class)) {
+            expectedStateClass = EidasCountrySelectedState.class;
         }
 
-        CountrySelectingStateController countrySelectingStateController = (CountrySelectingStateController) sessionRepository.getStateController(sessionId, expectedStateClass);
-        countrySelectingStateController.selectCountry(selectedCountry.get().getEntityId());
+        EidasCountrySelectingStateController eidasCountrySelectingStateController = (EidasCountrySelectingStateController) sessionRepository.getStateController(sessionId, expectedStateClass);
+        eidasCountrySelectingStateController.selectCountry(selectedCountry.get().getEntityId());
     }
 
     private void ensureTransactionSupportsEidas(uk.gov.ida.hub.policy.domain.SessionId sessionId) {

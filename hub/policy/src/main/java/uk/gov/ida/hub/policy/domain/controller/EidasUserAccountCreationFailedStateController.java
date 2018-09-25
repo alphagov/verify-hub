@@ -2,17 +2,17 @@ package uk.gov.ida.hub.policy.domain.controller;
 
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
-public class CountryUserAccountCreationFailedStateController extends AbstractUserAccountCreationFailedStateController<CountryUserAccountCreationFailedState> implements EidasUnsuccessfulJourneyStateController {
+public class EidasUserAccountCreationFailedStateController extends AbstractUserAccountCreationFailedStateController<EidasUserAccountCreationFailedState> implements EidasUnsuccessfulJourneyStateController {
 
     private StateTransitionAction stateTransitionAction;
     private HubEventLogger hubEventLogger;
 
-    public CountryUserAccountCreationFailedStateController(
-            final CountryUserAccountCreationFailedState state,
+    public EidasUserAccountCreationFailedStateController(
+            final EidasUserAccountCreationFailedState state,
             final ResponseFromHubFactory responseFromHubFactory,
             final StateTransitionAction stateTransitionAction,
             HubEventLogger hubEventLogger) {

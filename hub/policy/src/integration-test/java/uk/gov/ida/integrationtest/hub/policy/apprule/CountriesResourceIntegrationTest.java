@@ -34,7 +34,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.COUNTRY_SELECTED_STATE;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.EIDAS_COUNTRY_SELECTED_STATE;
 
 public class CountriesResourceIntegrationTest {
 
@@ -79,7 +79,7 @@ public class CountriesResourceIntegrationTest {
     public void setUp() throws Exception {
         eventSinkStub.setupStubForLogging();
         sessionId = SessionId.createNewSessionId();
-        createSessionInCountrySelectingState(sessionId, true);
+        createSessionInEidasCountrySelectingState(sessionId, true);
     }
 
     @After
@@ -167,7 +167,7 @@ public class CountriesResourceIntegrationTest {
     public void shouldReturnBadRequestWhenCountryIsSelectedAndSessionDoesNotSupportEidas() throws Exception {
         setEidasCountries(NETHERLANDS, SPAIN);
         setEidasCountriesForRp(NETHERLANDS, SPAIN);
-        createSessionInCountrySelectingState(sessionId, false);
+        createSessionInEidasCountrySelectingState(sessionId, false);
 
         Response response = selectCountry(NETHERLANDS);
 
@@ -210,9 +210,9 @@ public class CountriesResourceIntegrationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    private void createSessionInCountrySelectingState(SessionId sessionId, boolean transactionSupportsEidas) {
-        URI uri = policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + COUNTRY_SELECTED_STATE).build().toASCIIString());
-        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInCountrySelectingState(
+    private void createSessionInEidasCountrySelectingState(SessionId sessionId, boolean transactionSupportsEidas) {
+        URI uri = policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + EIDAS_COUNTRY_SELECTED_STATE).build().toASCIIString());
+        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInEidasCountrySelectingState(
                 sessionId,
                 client,
                 uri,

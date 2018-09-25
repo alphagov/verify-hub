@@ -4,7 +4,7 @@ import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
-import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
@@ -49,7 +49,7 @@ public class EidasUserAccountCreationRequestSentStateController extends EidasMat
 
     @Override
     public void transitionToNextStateForUserAccountCreationFailedResponse() {
-        final CountryUserAccountCreationFailedState countryUserAccountCreationFailedState = new CountryUserAccountCreationFailedState(
+        final EidasUserAccountCreationFailedState eidasUserAccountCreationFailedState = new EidasUserAccountCreationFailedState(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -58,6 +58,6 @@ public class EidasUserAccountCreationRequestSentStateController extends EidasMat
                 state.getSessionId()
         );
 
-        stateTransitionAction.transitionTo(countryUserAccountCreationFailedState);
+        stateTransitionAction.transitionTo(eidasUserAccountCreationFailedState);
     }
 }

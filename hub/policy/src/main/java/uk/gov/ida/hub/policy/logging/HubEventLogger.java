@@ -16,7 +16,7 @@ import uk.gov.ida.hub.policy.domain.FraudDetectedDetails;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 
@@ -260,11 +260,11 @@ public class HubEventLogger {
         eventEmitter.record(sessionHubEvent);
     }
 
-    public void logCountrySelectedEvent(CountrySelectedState countrySelectedState) {
+    public void logCountrySelectedEvent(EidasCountrySelectedState eidasCountrySelectedState) {
         Map<EventDetailsKey, String> details = new HashMap<>();
-        details.put(transaction_entity_id, countrySelectedState.getRequestIssuerEntityId());
-        details.put(country_code, countrySelectedState.getCountryEntityId());
-        logSessionEvent(countrySelectedState.getSessionId(), countrySelectedState.getRequestIssuerEntityId(), countrySelectedState.getSessionExpiryTimestamp(), countrySelectedState.getRequestId(), COUNTRY_SELECTED, details);
+        details.put(transaction_entity_id, eidasCountrySelectedState.getRequestIssuerEntityId());
+        details.put(country_code, eidasCountrySelectedState.getCountryEntityId());
+        logSessionEvent(eidasCountrySelectedState.getSessionId(), eidasCountrySelectedState.getRequestIssuerEntityId(), eidasCountrySelectedState.getSessionExpiryTimestamp(), eidasCountrySelectedState.getRequestId(), COUNTRY_SELECTED, details);
     }
 
     public void logErrorEvent(final UUID errorId, final SessionId sessionId, final String errorMessage) {

@@ -2,10 +2,10 @@ package uk.gov.ida.hub.policy.domain;
 
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.CountryAuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.CountrySelectingState;
-import uk.gov.ida.hub.policy.domain.state.CountryUserAccountCreationFailedState;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
@@ -31,8 +31,8 @@ import static java.util.Arrays.stream;
 
 public enum PolicyState {
     SESSION_STARTED(SessionStartedState.class),
-    COUNTRY_SELECTING(CountrySelectingState.class),
-    COUNTRY_SELECTED(CountrySelectedState.class),
+    EIDAS_COUNTRY_SELECTING(EidasCountrySelectingState.class),
+    EIDAS_COUNTRY_SELECTED(EidasCountrySelectedState.class),
     IDP_SELECTED(IdpSelectedState.class),
     CYCLE_0_AND_1_MATCH_REQUEST_SENT(Cycle0And1MatchRequestSentState.class),
     EIDAS_CYCLE_0_AND_1_MATCH_REQUEST_SENT(EidasCycle0And1MatchRequestSentState.class),
@@ -49,12 +49,12 @@ public enum PolicyState {
     USER_ACCOUNT_CREATION_REQUEST_SENT(UserAccountCreationRequestSentState.class),
     EIDAS_USER_ACCOUNT_CREATION_REQUEST_SENT(EidasUserAccountCreationRequestSentState.class),
     AUTHN_FAILED_ERROR(AuthnFailedErrorState.class),
-    COUNTRY_AUTHN_FAILED_ERROR(CountryAuthnFailedErrorState.class),
+    EIDAS_AUTHN_FAILED_ERROR(EidasAuthnFailedErrorState.class),
     FRAUD_EVENT_DETECTED(FraudEventDetectedState.class),
     REQUESTER_ERROR(RequesterErrorState.class),
     CYCLE_3_DATA_INPUT_CANCELLED(Cycle3DataInputCancelledState.class),
     USER_ACCOUNT_CREATION_FAILED(UserAccountCreationFailedState.class),
-    COUNTRY_USER_ACCOUNT_CREATION_FAILED(CountryUserAccountCreationFailedState .class);
+    EIDAS_USER_ACCOUNT_CREATION_FAILED(EidasUserAccountCreationFailedState .class);
 
     private final Class<? extends State> stateClass;
 
