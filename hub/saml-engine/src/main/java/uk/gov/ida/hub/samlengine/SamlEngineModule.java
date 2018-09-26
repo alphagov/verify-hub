@@ -177,7 +177,6 @@ public class SamlEngineModule extends AbstractModule {
         bind(RpErrorResponseGeneratorService.class);
         bind(TransactionsConfigProxy.class);
         bind(MatchingServiceHealthcheckRequestGeneratorService.class);
-        bind(ObjectMapper.class).toInstance(new ObjectMapper());
         bind(ExpiredCertificateMetadataFilter.class).toInstance(new ExpiredCertificateMetadataFilter());
         bind(new TypeLiteral<LevelLoggerFactory<SamlEngineExceptionMapper>>() {})
             .toInstance(new LevelLoggerFactory<>());
@@ -198,6 +197,13 @@ public class SamlEngineModule extends AbstractModule {
         bind(IdaAuthnRequestTranslator.class);
         bind(EidasAuthnRequestTranslator.class);
         bind(MatchingServiceHealthcheckResponseTranslatorService.class);
+    }
+
+    @Provides
+    @Singleton
+    @SuppressWarnings("unused")
+    private ObjectMapper getObjectMapper(Environment environment) {
+        return environment.getObjectMapper();
     }
 
     @Provides

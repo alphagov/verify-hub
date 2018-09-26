@@ -1,12 +1,12 @@
 package uk.gov.ida.hub.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import io.dropwizard.configuration.ConfigurationFactoryFactory;
 import io.dropwizard.configuration.DefaultConfigurationFactoryFactory;
+import io.dropwizard.setup.Environment;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
@@ -43,6 +43,7 @@ import uk.gov.ida.truststore.KeyStoreLoader;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 public class ConfigModule extends AbstractModule {
 
@@ -73,7 +74,6 @@ public class ConfigModule extends AbstractModule {
         bind(new TypeLiteral<ConfigEntityDataRepository<CountriesConfigEntityData>>(){}).asEagerSingleton();
         bind(new TypeLiteral<ConfigEntityDataRepository<MatchingServiceConfigEntityData>>(){}).asEagerSingleton();
         bind(new TypeLiteral<ConfigEntityDataRepository<IdentityProviderConfigEntityData>>(){}).asEagerSingleton();
-        bind(ObjectMapper.class).toInstance(new ObjectMapper().registerModule(new GuavaModule()));
         bind(LevelsOfAssuranceConfigValidator.class).toInstance(new LevelsOfAssuranceConfigValidator());
         bind(CertificateChainValidator.class);
         bind(TrustStoreForCertificateProvider.class);
@@ -89,6 +89,13 @@ public class ConfigModule extends AbstractModule {
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(CertificateService.class);
         bind(MatchingServiceAdapterService.class);
+    }
+
+    @Provides
+    @Singleton
+    @SuppressWarnings("unused")
+    private ObjectMapper getObjectMapper(Environment environment) {
+        return environment.getObjectMapper();
     }
 
     @Provides

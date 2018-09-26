@@ -121,7 +121,6 @@ public class SamlProxyModule extends AbstractModule {
         bind(TrustStoreForCertificateProvider.class);
         bind(StringSizeValidator.class).toInstance(new StringSizeValidator());
         bind(JsonResponseProcessor.class);
-        bind(ObjectMapper.class).toInstance(new ObjectMapper());
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(RelayStateValidator.class).toInstance(new RelayStateValidator());
         bind(ProtectiveMonitoringLogFormatter.class).toInstance(new ProtectiveMonitoringLogFormatter());
@@ -137,6 +136,13 @@ public class SamlProxyModule extends AbstractModule {
         bind(SamlMessageSenderHandler.class);
         bind(ExternalCommunicationEventLogger.class);
         bind(IpAddressResolver.class).toInstance(new IpAddressResolver());
+    }
+
+    @Provides
+    @Singleton
+    @SuppressWarnings("unused")
+    private ObjectMapper getObjectMapper(Environment environment) {
+        return environment.getObjectMapper();
     }
 
     @Provides
