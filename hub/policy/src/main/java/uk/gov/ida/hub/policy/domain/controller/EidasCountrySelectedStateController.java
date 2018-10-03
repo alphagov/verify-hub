@@ -14,19 +14,19 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
-import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.Optional;
 
-public class EidasCountrySelectedStateController implements StateController, ErrorResponsePreparedStateController, EidasCountrySelectingStateController, AuthnRequestCapableController {
+public class EidasCountrySelectedStateController implements ErrorResponsePreparedStateController, EidasCountrySelectingStateController, AuthnRequestCapableController, RestartJourneyStateController {
 
     private final EidasCountrySelectedState state;
     private final HubEventLogger hubEventLogger;
@@ -216,5 +216,24 @@ public class EidasCountrySelectedStateController implements StateController, Err
                 state.getCountryEntityId(),
                 state.getLevelsOfAssurance(),
                 state.getForceAuthentication().orNull());
+    }
+
+    @Override
+    public void transitionToSessionStartedState() {
+        final SessionStartedState sessionStartedState = createSessionStartedState();
+        hubEventLogger.logSessionMovedToStartStateEvent(sessionStartedState);
+        stateTransitionAction.transitionTo(sessionStartedState);
+    }
+
+    private SessionStartedState createSessionStartedState() {
+        return new SessionStartedState(
+                state.getRequestId(),
+                state.getRelayState().orNull(),
+                state.getRequestIssuerEntityId(),
+                state.getAssertionConsumerServiceUri(),
+                state.getForceAuthentication().orNull(),
+                state.getSessionExpiryTimestamp(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas());
     }
 }

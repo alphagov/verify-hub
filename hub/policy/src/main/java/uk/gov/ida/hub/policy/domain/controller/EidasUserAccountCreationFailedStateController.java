@@ -6,7 +6,7 @@ import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
-public class EidasUserAccountCreationFailedStateController extends AbstractUserAccountCreationFailedStateController<EidasUserAccountCreationFailedState> implements EidasUnsuccessfulJourneyStateController {
+public class EidasUserAccountCreationFailedStateController extends AbstractUserAccountCreationFailedStateController<EidasUserAccountCreationFailedState> implements RestartJourneyStateController {
 
     private StateTransitionAction stateTransitionAction;
     private HubEventLogger hubEventLogger;

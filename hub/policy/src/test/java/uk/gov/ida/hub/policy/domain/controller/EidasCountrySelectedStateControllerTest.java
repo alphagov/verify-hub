@@ -30,11 +30,13 @@ import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.EidasAttributeQueryRequestDtoBuilder.anEidasAttributeQueryRequestDto;
@@ -87,6 +89,7 @@ public class EidasCountrySelectedStateControllerTest {
     private EidasCountrySelectedState state = anEidasCountrySelectedState()
             .withSelectedCountry(SELECTED_COUNTRY)
             .withLevelOfAssurance(ImmutableList.of(LevelOfAssurance.LEVEL_2))
+            .withTransactionSupportsEidas(true)
             .withForceAuthentication(false)
             .build();
 
@@ -273,5 +276,19 @@ public class EidasCountrySelectedStateControllerTest {
         verify(stateTransitionAction).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue()).isInstanceOf(EidasAuthnFailedErrorState.class);
         assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
+    }
+
+    @Test
+    public void shouldTransitionToSessionStartedStateAndLogEvent() {
+        controller.transitionToSessionStartedState();
+        ArgumentCaptor<SessionStartedState> capturedState = ArgumentCaptor.forClass(SessionStartedState.class);
+
+        verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
+        verify(hubEventLogger, times(1)).logSessionMovedToStartStateEvent(capturedState.getValue());
+
+        assertThat(capturedState.getValue().getSessionId()).isEqualTo(state.getSessionId());
+        assertThat(capturedState.getValue().getRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
+        assertThat(capturedState.getValue().getTransactionSupportsEidas()).isEqualTo(true);
+        assertThat(capturedState.getValue().getForceAuthentication().orNull()).isEqualTo(false);
     }
 }

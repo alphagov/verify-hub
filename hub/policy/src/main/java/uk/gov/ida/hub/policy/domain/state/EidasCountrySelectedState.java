@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 
-public class EidasCountrySelectedState extends AbstractState implements EidasCountrySelectingState, Serializable {
+public class EidasCountrySelectedState extends AbstractState implements EidasCountrySelectingState, Serializable, RestartJourneyState {
 
     private static final long serialVersionUID = -285602589000108606L;
 
