@@ -176,11 +176,11 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     }
 
     @Test
-    public void shouldRestartEidasJourney() {
+    public void shouldRestartIdpJourney() {
         sessionId = SessionId.createNewSessionId();
-        TestSessionResourceHelper.createSessionInEidasAuthnFailedErrorState(sessionId, client, buildUriForTestSession(EIDAS_AUTHN_FAILED_STATE, sessionId));
+        TestSessionResourceHelper.createSessionInIdpSelectedState(sessionId, samlResponse.getIssuer(), idpEntityId, client, buildUriForTestSession(IDP_SELECTED_STATE, sessionId));
 
-        URI uri = UriBuilder.fromPath("/policy/received-authn-request" + Urls.PolicyUrls.AUTHN_REQUEST_RESTART_EIDAS_JOURNEY_PATH).build(sessionId);
+        URI uri = UriBuilder.fromPath("/policy/received-authn-request" + Urls.PolicyUrls.AUTHN_REQUEST_RESTART_JOURNEY_PATH).build(sessionId);
         Response response = client.target(policy.uri(uri.toASCIIString())).request().post(null);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
@@ -190,7 +190,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     }
 
     @Test
-    public void shouldRestartJourney() {
+    public void shouldRestartEidasJourney() {
         sessionId = SessionId.createNewSessionId();
         TestSessionResourceHelper.createSessionInEidasAuthnFailedErrorState(sessionId, client, buildUriForTestSession(EIDAS_AUTHN_FAILED_STATE, sessionId));
 

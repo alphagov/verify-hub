@@ -49,14 +49,6 @@ public class AuthnRequestFromTransactionResource {
         authnRequestFromTransactionHandler.tryAnotherIdp(sessionId);
     }
 
-    // TODO: Remove after a frontend release for ZDD
-    @POST
-    @Path(Urls.PolicyUrls.AUTHN_REQUEST_RESTART_EIDAS_JOURNEY_PATH)
-    @Timed
-    public void restartEidasJourney(@PathParam(SESSION_ID_PARAM) SessionId sessionId) {
-        authnRequestFromTransactionHandler.restartJourney(sessionId);
-    }
-
     @POST
     @Path(Urls.PolicyUrls.AUTHN_REQUEST_RESTART_JOURNEY_PATH)
     @Timed
