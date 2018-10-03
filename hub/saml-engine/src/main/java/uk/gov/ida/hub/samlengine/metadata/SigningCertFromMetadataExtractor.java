@@ -48,7 +48,10 @@ public class SigningCertFromMetadataExtractor {
         try {
             Credential credential = credentialResolver.resolveSingle(criteriaSet);
             if (credential instanceof X509Credential) {
-                return ((X509Credential)credential).getEntityCertificate();
+                X509Certificate x509Cert = ((X509Credential)credential).getEntityCertificate();
+                if (x509Cert.getPublicKey().equals(publicSigningKey)){
+                    return x509Cert;
+                }
             }
 
         } catch (ResolverException e) {
