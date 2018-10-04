@@ -4,6 +4,7 @@ import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
+import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -21,12 +22,13 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
 
 public class IdentityProviderResourceIntegrationTest {
     private static Client client;
@@ -41,6 +43,11 @@ public class IdentityProviderResourceIntegrationTest {
     private static final String DEFAULT_MS = "default-ms-entity-id";
     private static final String ONBOARDING_MS = "onboarding-ms-entity-id";
     private static final String LOA_1_MS = "loa-1-rp-ms-entity-id";
+    private static final String SOFT_DISCONNECTING_IDP = "soft-disconnecting-idp";
+    private static final String HARD_DISCONNECTING_IDP = "hard-disconnecting-idp";
+    
+    private static final DateTime expiredDatetime = DateTime.now().minusDays(1);
+    private static final DateTime futureDatetime = DateTime.now().plusDays(1);
 
     @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule()
@@ -91,6 +98,18 @@ public class IdentityProviderResourceIntegrationTest {
         .addIdp(anIdentityProviderConfigData()
                 .withEntityId(DISABLED_IDP)
                 .withEnabled(false)
+                .build())
+        .addIdp(anIdentityProviderConfigData()
+                .withEntityId(SOFT_DISCONNECTING_IDP)
+                .withEnabled(true)
+                .withProvideRegistrationUntil(expiredDatetime)
+                .withProvideAuthenticationUntil(futureDatetime)
+                .build())
+        .addIdp(anIdentityProviderConfigData()
+                .withEntityId(HARD_DISCONNECTING_IDP)
+                .withEnabled(true)
+                .withProvideRegistrationUntil(expiredDatetime)
+                .withProvideAuthenticationUntil(expiredDatetime)
                 .build());
 
     @BeforeClass
@@ -129,7 +148,7 @@ public class IdentityProviderResourceIntegrationTest {
 
     @Test
     public void anyRpAtLevel2_getIdpList_ReturnsOnboardingIdp() {
-        Response response = getIdpListForLoA("any-rp", LevelOfAssurance.LEVEL_2,  Urls.ConfigUrls.IDP_LIST_FOR_TRANSACTION_AND_LOA_RESOURCE);
+        Response response = getIdpListForLoA("any-rp", LevelOfAssurance.LEVEL_2, Urls.ConfigUrls.IDP_LIST_FOR_TRANSACTION_AND_LOA_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -153,8 +172,29 @@ public class IdentityProviderResourceIntegrationTest {
         assertThat(idps).extracting("entityId").containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ONBOARDING_TO_LOA_1_IDP,
-                ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST
+                ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST,
+                SOFT_DISCONNECTING_IDP,
+                HARD_DISCONNECTING_IDP
         );
+    }
+    
+    @Test
+    public void anyRp_getIdpList_returnsDisconnectingIdpsForSignIn_withAuthenticationEnabledSetToFalse() {
+        String transactionId = "any-rp";
+        
+        Response response = getIdpList(transactionId, Urls.ConfigUrls.IDP_LIST_FOR_SIGN_IN_RESOURCE);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        List<IdpDto> idpsFromResponse = response.readEntity(new GenericType<List<IdpDto>>(){});
+
+        List<IdpDto> disconnectingIdps = idpsFromResponse
+            .stream()
+            .filter(idp -> !idp.isAuthenticationEnabled())
+            .collect(Collectors.toList());
+
+        assertThat(disconnectingIdps.size()).isEqualTo(1);
+        assertThat(disconnectingIdps).extracting("entityId").containsOnly(HARD_DISCONNECTING_IDP);
     }
 
     @Test
@@ -226,7 +266,9 @@ public class IdentityProviderResourceIntegrationTest {
         assertThat(providerEntityIds).containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ONBOARDING_TO_LOA_1_IDP,
-                ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST
+                ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST,
+                SOFT_DISCONNECTING_IDP,
+                HARD_DISCONNECTING_IDP
         );
     }
 

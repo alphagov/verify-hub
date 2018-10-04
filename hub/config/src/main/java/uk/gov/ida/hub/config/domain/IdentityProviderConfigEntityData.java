@@ -2,8 +2,11 @@ package uk.gov.ida.hub.config.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections.ListUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import uk.gov.ida.hub.config.ConfigEntityData;
 
 import javax.validation.Valid;
@@ -50,6 +53,14 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
     protected Boolean enabledForSingleIdp = false;
 
     @Valid
+    @JsonProperty
+    protected String provideRegistrationUntil;
+    
+    @Valid
+    @JsonProperty
+    protected String provideAuthenticationUntil;
+    
+    @Valid
     @NotNull
     @JsonProperty
     protected List<LevelOfAssurance> supportedLevelsOfAssurance;
@@ -84,6 +95,27 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
 
     public Boolean isEnabled() {
         return enabled;
+    }
+    
+    public Boolean isRegistrationEnabled() {
+        if (Strings.isNullOrEmpty(provideRegistrationUntil)) {
+            return true;
+        }
+        
+        DateTime provideRegistrationUntilDate = DateTime.parse(provideRegistrationUntil, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ"));
+        
+        return provideRegistrationUntilDate.isAfterNow();
+    }
+    
+    @JsonProperty("authenticationEnabled")
+    public Boolean isAuthenticationEnabled() {
+        if (Strings.isNullOrEmpty(provideAuthenticationUntil)) {
+            return true;
+        }
+
+        DateTime provideAuthenticationUntilDate = DateTime.parse(provideAuthenticationUntil, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ"));
+        
+        return provideAuthenticationUntilDate.isAfterNow();
     }
 
     public Boolean isEnabledForSingleIdp() {

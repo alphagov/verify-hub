@@ -2,6 +2,7 @@ package uk.gov.ida.hub.config.domain.builders;
 
 
 import com.google.common.collect.ImmutableList;
+import org.joda.time.DateTime;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
@@ -22,6 +23,9 @@ public class IdentityProviderConfigDataBuilder {
     private List<LevelOfAssurance> onboardingLevelsOfAssurance = ImmutableList.of();
     private List<LevelOfAssurance> supportedLevelsOfAssurance = ImmutableList.of(LevelOfAssurance.LEVEL_2);
     private boolean useExactComparisonType = false;
+    private String provideRegistrationUntil;
+    private String provideAuthenticationUntil;
+
     public static IdentityProviderConfigDataBuilder anIdentityProviderConfigData() {
         return new IdentityProviderConfigDataBuilder();
     }
@@ -40,7 +44,9 @@ public class IdentityProviderConfigDataBuilder {
                 transactionEntityIdsTemp,
                 onboardingLevelsOfAssurance,
                 supportedLevelsOfAssurance,
-                useExactComparisonType
+                useExactComparisonType,
+                provideRegistrationUntil,
+                provideAuthenticationUntil
         );
     }
 
@@ -61,6 +67,16 @@ public class IdentityProviderConfigDataBuilder {
 
     public IdentityProviderConfigDataBuilder withEnabled(boolean enabled) {
         this.enabled = enabled;
+        return this;
+    }
+    
+    public IdentityProviderConfigDataBuilder withProvideRegistrationUntil(DateTime provideRegistrationUntil) {
+        this.provideRegistrationUntil = provideRegistrationUntil.toString("yyyy-MM-dd'T'HH:mm:ssZZ");
+        return this;
+    }
+    
+    public IdentityProviderConfigDataBuilder withProvideAuthenticationUntil(DateTime provideAuthenticationUntil) {
+        this.provideAuthenticationUntil = provideAuthenticationUntil.toString("yyyy-MM-dd'T'HH:mm:ssZZ");
         return this;
     }
 
@@ -106,7 +122,9 @@ public class IdentityProviderConfigDataBuilder {
                 List<String> transactionEntityIdsTemp,
                 List<LevelOfAssurance> onboardingLevelsOfAssurance,
                 List<LevelOfAssurance> supportedLevelsOfAssurance,
-                boolean useExactComparisonType) {
+                boolean useExactComparisonType,
+                String provideRegistrationUntil,
+                String provideAuthenticationUntil) {
 
             this.entityId = entityId;
             this.simpleId = simpleId;
@@ -117,6 +135,8 @@ public class IdentityProviderConfigDataBuilder {
             this.onboardingTransactionEntityIdsTemp = transactionEntityIdsTemp;
             this.supportedLevelsOfAssurance = supportedLevelsOfAssurance;
             this.useExactComparisonType = useExactComparisonType;
+            this.provideRegistrationUntil = provideRegistrationUntil;
+            this.provideAuthenticationUntil = provideAuthenticationUntil;
         }
     }
 }
