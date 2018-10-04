@@ -15,8 +15,7 @@ import org.opensaml.security.credential.UsageType;
 import org.opensaml.security.credential.criteria.impl.EvaluablePublicKeyCredentialCriterion;
 import org.opensaml.security.criteria.UsageCriterion;
 import org.opensaml.security.x509.X509Credential;
-import uk.gov.ida.hub.samlengine.exceptions.CertificateForCurrentPrivateSigningKeyNotFoundInMetadataException;
-import uk.gov.ida.hub.samlengine.exceptions.UnableToResolveSigningCertsForHubException;
+import uk.gov.ida.hub.samlengine.exceptions.SigningKeyExtractionException;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -53,10 +52,9 @@ public class SigningCertFromMetadataExtractor {
                     return x509Cert;
                 }
             }
-
         } catch (ResolverException e) {
-            throw new UnableToResolveSigningCertsForHubException(e);
+            throw new SigningKeyExtractionException("Unable to resolve metadata.", e);
         }
-        throw new CertificateForCurrentPrivateSigningKeyNotFoundInMetadataException();
+        throw new SigningKeyExtractionException("Certificate for public signing key not found in metadata.");
     }
 }
