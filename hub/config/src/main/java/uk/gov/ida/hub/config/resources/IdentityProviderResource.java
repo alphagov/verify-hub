@@ -56,7 +56,7 @@ public class IdentityProviderResource {
 
         Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityData(transactionEntityId);
         return matchingIdps.stream().map(configData ->
-                new IdpDto(configData.getSimpleId(), configData.getEntityId(), configData.getSupportedLevelsOfAssurance())).collect(Collectors.toList());
+                new IdpDto(configData.getSimpleId(), configData.getEntityId(), configData.getSupportedLevelsOfAssurance(), configData.isAuthenticationEnabled())).collect(Collectors.toList());
     }
 
     @GET
@@ -70,7 +70,8 @@ public class IdentityProviderResource {
                         new IdpDto(
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
-                                configData.getSupportedLevelsOfAssurance()))
+                                configData.getSupportedLevelsOfAssurance(),
+                                configData.isAuthenticationEnabled()))
                 .collect(Collectors.toList());
     }
 
@@ -84,7 +85,8 @@ public class IdentityProviderResource {
                         new IdpDto(
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
-                                configData.getSupportedLevelsOfAssurance()))
+                                configData.getSupportedLevelsOfAssurance(),
+                                configData.isAuthenticationEnabled()))
                 .collect(Collectors.toList());
     }
 
@@ -98,7 +100,8 @@ public class IdentityProviderResource {
                         new IdpDto(
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
-                                configData.getSupportedLevelsOfAssurance()))
+                                configData.getSupportedLevelsOfAssurance(),
+                                configData.isAuthenticationEnabled()))
                 .collect(Collectors.toList());
     }
 
