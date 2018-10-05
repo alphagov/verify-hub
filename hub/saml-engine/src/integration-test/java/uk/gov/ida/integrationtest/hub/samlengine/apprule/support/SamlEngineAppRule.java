@@ -97,7 +97,6 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
                 config("server.adminConnectors[0].port", "0"),
                 config("privateSigningKeyConfiguration.key", HUB_TEST_PRIVATE_SIGNING_KEY),
                 config("privateSigningKeyConfiguration.type", "encoded"),
-                config("publicSigningCert.x509", HUB_TEST_PUBLIC_SIGNING_CERT),
                 config("primaryPrivateEncryptionKeyConfiguration.key", HUB_TEST_PRIVATE_ENCRYPTION_KEY),
                 config("primaryPrivateEncryptionKeyConfiguration.type", "encoded"),
                 config("secondaryPrivateEncryptionKeyConfiguration.key", TEST_PRIVATE_KEY),
