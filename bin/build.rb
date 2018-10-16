@@ -44,7 +44,7 @@ def build_debian_package(build_number, service_path, service_name, package_name)
   FileUtils.cp_r(service_name, "deb/ida/")
 
   package_file_name = debian_package_filepath(build_number, package_name)
-  system "bundle exec fpm -C deb -s dir -t deb -n '#{package_name}' -v #{build_number} --deb-no-default-config-files --deb-upstart #{PROJECT_ROOT}/debian/#{service_name}/upstart/#{service_name} --prefix=/ --after-install #{PROJECT_ROOT}/debian/#{package_name}/postinst.sh -p #{package_file_name} ."
+  system "bundle exec fpm -C deb -s dir -t deb -n '#{package_name}' -v #{build_number} --deb-no-default-config-files --deb-upstart #{PROJECT_ROOT}/debian/#{service_name}/upstart/#{service_name} --prefix=/ --after-install #{PROJECT_ROOT}/debian/#{package_name}/postinst.sh --depends python-httplib2 -p #{package_file_name} ."
 
   unless $? == 0
     raise 'fpm encountered an error'
