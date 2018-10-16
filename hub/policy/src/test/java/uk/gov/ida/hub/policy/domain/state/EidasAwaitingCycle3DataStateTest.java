@@ -31,7 +31,8 @@ public class EidasAwaitingCycle3DataStateTest {
             Optional.of("relayState"),
             new PersistentId("persistentId"),
             LevelOfAssurance.LEVEL_2,
-            ENCRYPTED_IDENTITY_ASSERTION
+            ENCRYPTED_IDENTITY_ASSERTION,
+                false
         );
     }
 
@@ -55,6 +56,7 @@ public class EidasAwaitingCycle3DataStateTest {
         sb.append(",assertionConsumerServiceUri=").append(state.getAssertionConsumerServiceUri());
         sb.append(",sessionId=").append(state.getSessionId());
         sb.append(",transactionSupportsEidas=").append(state.getTransactionSupportsEidas());
+        sb.append(",forceAuthentication=").append(state.getForceAuthentication().orNull());
         sb.append(']');
 
         assertThat(state.toString()).isEqualTo(sb.toString());

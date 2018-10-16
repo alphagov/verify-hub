@@ -16,8 +16,12 @@ public class EidasUserAccountCreationFailedState extends AbstractUserAccountCrea
         DateTime sessionExpiryTimestamp,
         URI assertionConsumerServiceUri,
         Optional<String> relayState,
-        SessionId sessionId) {
+        SessionId sessionId,
+        Boolean forceAuthentication) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, true);
+        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, true, forceAuthentication);
+
     }
+
+
 }

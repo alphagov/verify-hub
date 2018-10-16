@@ -87,6 +87,7 @@ public class EidasCountrySelectedStateControllerTest {
     private EidasCountrySelectedState state = anEidasCountrySelectedState()
             .withSelectedCountry(SELECTED_COUNTRY)
             .withLevelOfAssurance(ImmutableList.of(LevelOfAssurance.LEVEL_2))
+            .withForceAuthentication(false)
             .build();
 
     private EidasCountrySelectedStateController controller;
@@ -206,7 +207,8 @@ public class EidasCountrySelectedStateControllerTest {
             eidasAttributeQueryRequestDto.getLevelOfAssurance(),
             MSA_ID,
             eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion(),
-            eidasAttributeQueryRequestDto.getPersistentId()
+            eidasAttributeQueryRequestDto.getPersistentId(),
+                false
         );
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
@@ -256,6 +258,7 @@ public class EidasCountrySelectedStateControllerTest {
                 .withRequestId(state.getRequestId())
                 .withRequestIssuerId(state.getRequestIssuerEntityId())
                 .withCountryEntityId(SELECTED_COUNTRY)
+                .withForceAuthentication(false)
                 .build();
 
         controller.handleAuthenticationFailedResponseFromCountry(IP_ADDRESS);

@@ -17,6 +17,7 @@ public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3Da
 
     private final String encryptedIdentityAssertion;
 
+
     public EidasAwaitingCycle3DataState(
         final String requestId,
         final String requestIssuerId,
@@ -29,7 +30,8 @@ public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3Da
         final Optional<String> relayState,
         final PersistentId persistentId,
         final LevelOfAssurance levelOfAssurance,
-        final String encryptedIdentityAssertion) {
+        final String encryptedIdentityAssertion,
+        final Boolean forceAuthentication) {
 
         super(
             requestId,
@@ -42,7 +44,9 @@ public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3Da
             matchingServiceAdapterEntityId,
             relayState,
             persistentId,
-            levelOfAssurance);
+            levelOfAssurance,
+            forceAuthentication
+        );
 
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
     }
@@ -70,7 +74,7 @@ public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3Da
 
         EidasAwaitingCycle3DataState that = (EidasAwaitingCycle3DataState) o;
 
-        return Objects.equals(encryptedIdentityAssertion, that.encryptedIdentityAssertion) &&
+        return Objects.equals(getEncryptedIdentityAssertion(), that.getEncryptedIdentityAssertion()) &&
             Objects.equals(getIdentityProviderEntityId(), that.getIdentityProviderEntityId()) &&
             Objects.equals(getMatchingServiceEntityId(), that.getMatchingServiceEntityId()) &&
             Objects.equals(getRelayState(), that.getRelayState()) &&
@@ -81,13 +85,14 @@ public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3Da
             Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
             Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
             Objects.equals(getAssertionConsumerServiceUri(), that.getAssertionConsumerServiceUri()) &&
-            Objects.equals(getSessionId(), that.getSessionId());
+            Objects.equals(getSessionId(), that.getSessionId()) &&
+            Objects.equals(getForceAuthentication(), that.getForceAuthentication());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-            encryptedIdentityAssertion,
+            getEncryptedIdentityAssertion(),
             getIdentityProviderEntityId(),
             getMatchingServiceEntityId(),
             getRelayState(),
@@ -98,6 +103,7 @@ public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3Da
             getRequestIssuerEntityId(),
             getSessionExpiryTimestamp(),
             getAssertionConsumerServiceUri(),
-            getSessionId());
+            getSessionId(),
+            getForceAuthentication());
     }
 }

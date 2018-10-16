@@ -10,7 +10,6 @@ import java.net.URI;
 public abstract class AbstractAuthnFailedErrorState extends AbstractState implements ResponsePreparedState {
 
     private static final long serialVersionUID = 8101005936409595481L;
-
     private String relayState;
 
     public AbstractAuthnFailedErrorState(
@@ -20,9 +19,10 @@ public abstract class AbstractAuthnFailedErrorState extends AbstractState implem
             URI assertionConsumerServiceUri,
             String relayState,
             SessionId sessionId,
-            boolean transactionSupportsEidas) {
+            boolean transactionSupportsEidas,
+            Boolean forceAuthentication) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, forceAuthentication);
 
         this.relayState = relayState;
     }

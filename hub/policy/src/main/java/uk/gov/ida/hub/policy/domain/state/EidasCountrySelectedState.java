@@ -27,13 +27,17 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
                                 URI assertionConsumerServiceUri,
                                 SessionId sessionId,
                                 boolean transactionSupportsEidas,
-                                List<LevelOfAssurance> levelsOfAssurance) {
-        super(requestId,
+                                List<LevelOfAssurance> levelsOfAssurance,
+                                Boolean forceAuthentication) {
+        super(
+            requestId,
             requestIssuerId,
             sessionExpiryTimestamp,
             assertionConsumerServiceUri,
             sessionId,
-            transactionSupportsEidas);
+            transactionSupportsEidas,
+            forceAuthentication
+        );
         this.relayState = relayState;
         this.countryEntityId = countryEntityId;
         this.levelsOfAssurance = levelsOfAssurance;

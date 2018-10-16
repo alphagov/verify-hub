@@ -12,6 +12,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
@@ -21,6 +22,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -55,6 +57,7 @@ public class SessionStartedStateControllerTest {
     public void setup() {
         sessionStartedState = aSessionStartedState()
             .withTransactionSupportsEidas(true)
+            .withForceAuthentication(false)
             .build();
         when(transactionsConfigProxy.getLevelsOfAssurance(sessionStartedState.getRequestIssuerEntityId()))
                 .thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
@@ -94,5 +97,17 @@ public class SessionStartedStateControllerTest {
                             .getSessionId().getSessionId() + "] not found for entity ID [notExist].");
             verify(hubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedState.class), eq("some-ip-address"));
         }
+    }
+
+    @Test
+    public void selectCountry_shouldTransitionStateAndLogEvent() {
+        controller.selectCountry("DE");
+        ArgumentCaptor<EidasCountrySelectedState> capturedState = ArgumentCaptor.forClass(EidasCountrySelectedState.class);
+
+        verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue().getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_2);
+        assertTrue(capturedState.getValue().getTransactionSupportsEidas());
+        assertFalse(capturedState.getValue().getForceAuthentication().orNull());
+        verify(hubEventLogger, times(1)).logCountrySelectedEvent(capturedState.getValue());
     }
 }

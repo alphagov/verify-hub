@@ -23,6 +23,7 @@ public class EidasCountrySelectedStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private List<LevelOfAssurance> levelOfAssurance;
+    private Boolean forceAuthentication;
 
     private String countryCode;
 
@@ -45,7 +46,8 @@ public class EidasCountrySelectedStateBuilder {
             assertionConsumerServiceUri,
             sessionId,
             transactionSupportsEidas,
-            levelOfAssurance);
+            levelOfAssurance,
+            forceAuthentication);
     }
 
     public EidasCountrySelectedStateBuilder withRequestId(String requestId) {
@@ -75,6 +77,11 @@ public class EidasCountrySelectedStateBuilder {
 
     public EidasCountrySelectedStateBuilder withLevelOfAssurance(List<LevelOfAssurance> levelOfAssurance) {
         this.levelOfAssurance = levelOfAssurance;
+        return this;
+    }
+
+    public EidasCountrySelectedStateBuilder withForceAuthentication(Boolean forceAuthentication) {
+        this.forceAuthentication = forceAuthentication;
         return this;
     }
 }

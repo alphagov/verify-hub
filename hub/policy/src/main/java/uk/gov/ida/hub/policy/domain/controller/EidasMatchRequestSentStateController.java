@@ -73,7 +73,8 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
                 state.getIdentityProviderEntityId(),
                 state.getRelayState().orNull(),
                 state.getIdpLevelOfAssurance(),
-                state.getMatchingServiceAdapterEntityId());
+                state.getMatchingServiceAdapterEntityId(),
+                state.getForceAuthentication().orNull());
     }
 
     public EidasAttributeQueryRequestDto createAttributeQuery(

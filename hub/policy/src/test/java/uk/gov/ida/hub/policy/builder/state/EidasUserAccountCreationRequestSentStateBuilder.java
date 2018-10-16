@@ -36,7 +36,8 @@ public class EidasUserAccountCreationRequestSentStateBuilder {
                 identityProviderEntityId,
                 relayState,
                 levelOfAssurance,
-                "matchingServiceEntityId");
+                "matchingServiceEntityId",
+                null);
     }
 
     public EidasUserAccountCreationRequestSentStateBuilder withRelayState(String relayState) {

@@ -31,9 +31,18 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
         final String matchingServiceEntityId,
         final Optional<String> relayState,
         final PersistentId persistentId,
-        final LevelOfAssurance levelOfAssurance) {
+        final LevelOfAssurance levelOfAssurance,
+        final Boolean forceAuthentication) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                forceAuthentication
+        );
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceEntityId = matchingServiceEntityId;

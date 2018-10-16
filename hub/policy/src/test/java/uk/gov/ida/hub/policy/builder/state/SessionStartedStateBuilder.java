@@ -6,6 +6,8 @@ import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 
+import java.net.URI;
+
 public class SessionStartedStateBuilder {
 
     private String requestId = "requestId";
@@ -13,6 +15,8 @@ public class SessionStartedStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusDays(5);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private boolean transactionSupportsEidas = false;
+    private Boolean forceAuthentication;
+    private URI assertonConsumerServiceUri;
 
     public static SessionStartedStateBuilder aSessionStartedState() {
         return new SessionStartedStateBuilder();
@@ -23,8 +27,8 @@ public class SessionStartedStateBuilder {
                 requestId,
                 null,
                 requestIssuerId,
-                null,
-                null,
+                assertonConsumerServiceUri,
+                forceAuthentication,
                 sessionExpiryTimestamp,
                 sessionId,
                 transactionSupportsEidas);
@@ -47,6 +51,16 @@ public class SessionStartedStateBuilder {
 
     public SessionStartedStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
         this.transactionSupportsEidas = transactionSupportsEidas;
+        return this;
+    }
+
+    public SessionStartedStateBuilder withForceAuthentication(Boolean forceAuthentication) {
+        this.forceAuthentication = forceAuthentication;
+        return this;
+    }
+
+    public SessionStartedStateBuilder withAssertionConsumerServiceUri(URI assertionConsumerServiceUri) {
+        this.assertonConsumerServiceUri = assertionConsumerServiceUri;
         return this;
     }
 }

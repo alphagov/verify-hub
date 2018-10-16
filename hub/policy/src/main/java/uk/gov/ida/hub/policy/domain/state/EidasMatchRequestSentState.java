@@ -12,29 +12,32 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
 
     private static final long serialVersionUID = -186027641698264989L;
 
+
     protected EidasMatchRequestSentState(
-            final String requestId,
-            final String requestIssuerEntityId,
-            final DateTime sessionExpiryTimestamp,
-            final URI assertionConsumerServiceUri,
-            final SessionId sessionId,
-            final boolean transactionSupportsEidas,
-            final String identityProviderEntityId,
-            final String relayState,
-            final LevelOfAssurance idpLevelOfAssurance,
-            final String matchingServiceAdapterEntityId) {
+        final String requestId,
+        final String requestIssuerEntityId,
+        final DateTime sessionExpiryTimestamp,
+        final URI assertionConsumerServiceUri,
+        final SessionId sessionId,
+        final boolean transactionSupportsEidas,
+        final String identityProviderEntityId,
+        final String relayState,
+        final LevelOfAssurance idpLevelOfAssurance,
+        final String matchingServiceAdapterEntityId,
+        final Boolean forceAuthentication) {
 
         super(
-                requestId,
-                requestIssuerEntityId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceUri,
-                sessionId,
-                transactionSupportsEidas,
-                identityProviderEntityId,
-                Optional.fromNullable(relayState),
-                idpLevelOfAssurance,
-                matchingServiceAdapterEntityId
+            requestId,
+            requestIssuerEntityId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            identityProviderEntityId,
+            Optional.fromNullable(relayState),
+            idpLevelOfAssurance,
+            matchingServiceAdapterEntityId,
+            forceAuthentication
         );
     }
 
@@ -52,6 +55,7 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
         sb.append(", sessionExpiryTimestamp=").append(getSessionExpiryTimestamp());
         sb.append(", assertionConsumerServiceUri=").append(getAssertionConsumerServiceUri());
         sb.append(", transactionSupportsEidas=").append(getTransactionSupportsEidas());
+        sb.append(", forceAuthentication=").append(getForceAuthentication().orNull());
         sb.append('}');
         return sb.toString();
     }
@@ -69,31 +73,33 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
         EidasMatchRequestSentState that = (EidasMatchRequestSentState) o;
 
         return getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
-                Objects.equals(getRequestId(), that.getRequestId()) &&
-                Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
-                Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
-                Objects.equals(getAssertionConsumerServiceUri(), that.getAssertionConsumerServiceUri()) &&
-                Objects.equals(getSessionId(), that.getSessionId()) &&
-                Objects.equals(getIdentityProviderEntityId(), that.getIdentityProviderEntityId()) &&
-                Objects.equals(getRelayState(), that.getRelayState()) &&
-                Objects.equals(getRequestSentTime(), that.getRequestSentTime()) &&
-                getIdpLevelOfAssurance() == that.getIdpLevelOfAssurance() &&
-                Objects.equals(getMatchingServiceAdapterEntityId(), that.getMatchingServiceAdapterEntityId());
+            Objects.equals(getRequestId(), that.getRequestId()) &&
+            Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
+            Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
+            Objects.equals(getAssertionConsumerServiceUri(), that.getAssertionConsumerServiceUri()) &&
+            Objects.equals(getSessionId(), that.getSessionId()) &&
+            Objects.equals(getIdentityProviderEntityId(), that.getIdentityProviderEntityId()) &&
+            Objects.equals(getRelayState(), that.getRelayState()) &&
+            Objects.equals(getRequestSentTime(), that.getRequestSentTime()) &&
+            getIdpLevelOfAssurance() == that.getIdpLevelOfAssurance() &&
+            Objects.equals(getMatchingServiceAdapterEntityId(), that.getMatchingServiceAdapterEntityId()) &&
+            Objects.equals(getForceAuthentication(), that.getForceAuthentication());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                getTransactionSupportsEidas(),
-                getRequestId(),
-                getRequestIssuerEntityId(),
-                getSessionExpiryTimestamp(),
-                getAssertionConsumerServiceUri(),
-                getSessionId(),
-                getIdentityProviderEntityId(),
-                getRelayState(),
-                getRequestSentTime(),
-                getIdpLevelOfAssurance(),
-                getMatchingServiceAdapterEntityId());
+            getTransactionSupportsEidas(),
+            getRequestId(),
+            getRequestIssuerEntityId(),
+            getSessionExpiryTimestamp(),
+            getAssertionConsumerServiceUri(),
+            getSessionId(),
+            getIdentityProviderEntityId(),
+            getRelayState(),
+            getRequestSentTime(),
+            getIdpLevelOfAssurance(),
+            getMatchingServiceAdapterEntityId(),
+            getForceAuthentication());
     }
 }

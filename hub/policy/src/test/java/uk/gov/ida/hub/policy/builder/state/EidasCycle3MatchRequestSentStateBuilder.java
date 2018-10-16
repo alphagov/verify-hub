@@ -17,6 +17,7 @@ public class EidasCycle3MatchRequestSentStateBuilder {
     private PersistentId persistentId = aPersistentId().build();
     private SessionId sessionId = new SessionId("sessionId");
     private String requestId = "requestId";
+    private Boolean forceAuthentication;
 
     public static EidasCycle3MatchRequestSentStateBuilder anEidasCycle3MatchRequestSentState() {
         return new EidasCycle3MatchRequestSentStateBuilder();
@@ -35,7 +36,8 @@ public class EidasCycle3MatchRequestSentStateBuilder {
             LevelOfAssurance.LEVEL_2,
             "matchingServiceAdapterEntityId",
             encryptedIdentityAssertion,
-            persistentId
+            persistentId,
+            forceAuthentication
         );
     }
 
@@ -56,6 +58,11 @@ public class EidasCycle3MatchRequestSentStateBuilder {
 
     public EidasCycle3MatchRequestSentStateBuilder withRequestId(String requestId) {
         this.requestId = requestId;
+        return this;
+    }
+
+    public EidasCycle3MatchRequestSentStateBuilder withForceAuthentication(Boolean forceAuthentication) {
+        this.forceAuthentication = forceAuthentication;
         return this;
     }
 }

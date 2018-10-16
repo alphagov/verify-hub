@@ -20,7 +20,8 @@ public class EidasUserAccountCreationRequestSentState extends EidasMatchRequestS
             final String identityProviderEntityId,
             final String relayState,
             final LevelOfAssurance idpLevelOfAssurance,
-            final String matchingServiceAdapterEntityId) {
+            final String matchingServiceAdapterEntityId,
+            final Boolean forceAuthentication) {
 
         super(
                 requestId,
@@ -32,7 +33,8 @@ public class EidasUserAccountCreationRequestSentState extends EidasMatchRequestS
                 identityProviderEntityId,
                 relayState,
                 idpLevelOfAssurance,
-                matchingServiceAdapterEntityId
+                matchingServiceAdapterEntityId,
+                forceAuthentication
         );
     }
 }

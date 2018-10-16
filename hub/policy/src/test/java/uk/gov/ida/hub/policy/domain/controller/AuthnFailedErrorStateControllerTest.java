@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,9 +16,12 @@ import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+
+import java.net.URI;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -28,12 +33,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
+import static uk.gov.ida.hub.policy.builder.state.SessionStartedStateBuilder.aSessionStartedState;
+import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthnFailedErrorStateControllerTest {
 
     private static final String IDP_ENTITY_ID = "anIdp";
     private static final boolean REGISTERING = false;
+    private static final DateTime NOW = DateTime.now(DateTimeZone.UTC);
 
     private AuthnFailedErrorState authnFailedErrorState;
 
@@ -54,6 +62,9 @@ public class AuthnFailedErrorStateControllerTest {
     public void setup() {
         authnFailedErrorState = anAuthnFailedErrorState()
             .withTransactionSupportsEidas(true)
+            .withRequestId("requestId")
+            .withSessionId(aSessionId().with("sessionId").build())
+            .withSessionExpiryTimestamp(NOW)
             .build();
         when(transactionsConfigProxy.getLevelsOfAssurance(authnFailedErrorState.getRequestIssuerEntityId()))
                 .thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
@@ -99,5 +110,24 @@ public class AuthnFailedErrorStateControllerTest {
         AuthnRequestSignInProcess signInProcessDetails = controller.getSignInProcessDetails();
         assertThat(signInProcessDetails.getTransactionSupportsEidas()).isEqualTo(true);
         assertThat(signInProcessDetails.getRequestIssuerId()).isEqualTo("requestIssuerId");
+    }
+
+    @Test
+    public void tryAnotherIdpResponse_shouldTransitionToSessionStartedState() {
+        ArgumentCaptor<SessionStartedState> capturedState = ArgumentCaptor.forClass(SessionStartedState.class);
+        SessionStartedState expectedState = aSessionStartedState().
+                withSessionId(aSessionId().with("sessionId").build())
+                .withForceAuthentication(true)
+                .withTransactionSupportsEidas(true)
+                .withSessionExpiryTimestamp(NOW)
+                .withAssertionConsumerServiceUri(URI.create("/default-service-index"))
+                .build();
+
+        controller.tryAnotherIdpResponse();
+
+        verify(stateTransitionAction).transitionTo(capturedState.capture());
+        assertThat(capturedState.getValue()).isInstanceOf(SessionStartedState.class);
+        assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
+
     }
 }

@@ -23,7 +23,8 @@ public final class EidasCycle3MatchRequestSentState extends EidasCycle0And1Match
             final LevelOfAssurance idpLevelOfAssurance,
             final String matchingServiceAdapterEntityId,
             final String encryptedIdentityAssertion,
-            final PersistentId persistentId) {
+            final PersistentId persistentId,
+            final Boolean forceAuthentication) {
 
         super(
                 requestId,
@@ -37,7 +38,8 @@ public final class EidasCycle3MatchRequestSentState extends EidasCycle0And1Match
                 idpLevelOfAssurance,
                 matchingServiceAdapterEntityId,
                 encryptedIdentityAssertion,
-                persistentId
+                persistentId,
+                forceAuthentication
         );
     }
 }

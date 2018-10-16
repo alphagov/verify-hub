@@ -92,7 +92,8 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas(),
-                Collections.singletonList(LevelOfAssurance.LEVEL_2) // TODO: EID-154 will plug in a real LOA
+                Collections.singletonList(LevelOfAssurance.LEVEL_2), // TODO: EID-154 will plug in a real LOA
+                state.getForceAuthentication().orNull()
         );
         stateTransitionAction.transitionTo(eidasCountrySelectedState);
         hubEventLogger.logCountrySelectedEvent(eidasCountrySelectedState);

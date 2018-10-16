@@ -55,5 +55,7 @@ public class EidasUserAccountCreationFailedStateControllerTest {
         assertThat(capturedState.getValue().getSessionId()).isEqualTo(eidasUserAccountCreationFailedState.getSessionId());
         assertThat(capturedState.getValue().getRequestIssuerEntityId()).isEqualTo(REQUEST_ISSUER_ID);
         assertThat(capturedState.getValue().getTransactionSupportsEidas()).isEqualTo(true);
+        assertThat(capturedState.getValue().getForceAuthentication().orNull()).isEqualTo(false);
+
     }
 }

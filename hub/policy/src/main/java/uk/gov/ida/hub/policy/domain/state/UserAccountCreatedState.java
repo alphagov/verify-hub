@@ -31,7 +31,17 @@ public class UserAccountCreatedState extends AbstractState implements ResponsePr
             LevelOfAssurance levelOfAssurance,
             boolean registering,
             boolean transactionSupportsEidas) {
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+
+        super(
+            requestId,
+            requestIssuerId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            null
+        );
+
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceAssertion = matchingServiceAssertion;
         this.relayState = relayState;

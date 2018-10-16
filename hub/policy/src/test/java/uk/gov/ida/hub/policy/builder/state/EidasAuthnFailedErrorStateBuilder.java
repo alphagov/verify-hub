@@ -24,6 +24,7 @@ public class EidasAuthnFailedErrorStateBuilder {
     private SessionId sessionId = aSessionId().build();
     private String countryEntityId = STUB_COUNTRY_ONE;
     private List<LevelOfAssurance> levelsOfAssurance = singletonList(LevelOfAssurance.LEVEL_2);
+    private Boolean forceAuthentication;
 
     public static EidasAuthnFailedErrorStateBuilder anEidasAuthnFailedErrorState() {
         return new EidasAuthnFailedErrorStateBuilder();
@@ -38,7 +39,8 @@ public class EidasAuthnFailedErrorStateBuilder {
                 relayState,
                 sessionId,
                 countryEntityId,
-                levelsOfAssurance);
+                levelsOfAssurance,
+                forceAuthentication);
     }
 
     public EidasAuthnFailedErrorStateBuilder withRequestIssuerId(String requestIssuerId) {
@@ -63,6 +65,11 @@ public class EidasAuthnFailedErrorStateBuilder {
 
     public EidasAuthnFailedErrorStateBuilder withSessionExpiryTimestamp(DateTime sessionExpiryTimestamp) {
         this.sessionExpiryTimestamp = sessionExpiryTimestamp;
+        return this;
+    }
+
+    public EidasAuthnFailedErrorStateBuilder withForceAuthentication(Boolean forceAuthentication) {
+        this.forceAuthentication = forceAuthentication;
         return this;
     }
 }

@@ -20,9 +20,18 @@ public abstract class AbstractUserAccountCreationFailedState extends AbstractSta
         URI assertionConsumerServiceUri,
         Optional<String> relayState,
         SessionId sessionId,
-        boolean transactionSupportsEidas) {
+        boolean transactionSupportsEidas,
+        Boolean forceAuthentication) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(
+            requestId,
+            authnRequestIssuerEntityId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            forceAuthentication
+        );
 
         this.relayState = relayState;
     }

@@ -12,7 +12,6 @@ public class AuthnFailedErrorState extends AbstractAuthnFailedErrorState impleme
 
     private String idpEntityId;
     private String relayState;
-    private Boolean forceAuthentication;
 
     public AuthnFailedErrorState(
             String requestId,
@@ -25,16 +24,10 @@ public class AuthnFailedErrorState extends AbstractAuthnFailedErrorState impleme
             Boolean forceAuthentication,
             boolean transactionSupportsEidas) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, transactionSupportsEidas);
+        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, transactionSupportsEidas, forceAuthentication);
 
         this.idpEntityId = idpEntityId;
         this.relayState = relayState;
-        this.forceAuthentication = forceAuthentication;
-    }
-
-    @Override
-    public Optional<Boolean> getForceAuthentication() {
-        return Optional.fromNullable(forceAuthentication);
     }
 
     // Keep this for now to make deserialization with the previous version of FraudEventDetectedState compatible

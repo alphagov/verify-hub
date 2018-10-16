@@ -256,7 +256,7 @@ public class StateControllerFactoryTest {
 
     private class UnknownState extends AbstractState {
         public UnknownState(String requestId, String requestIssuerId, DateTime sessionExpiryTimestamp, URI assertionConsumerServiceUri, SessionId sessionId, boolean transactionSupportsEidas) {
-            super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+            super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
         }
 
         @Override
