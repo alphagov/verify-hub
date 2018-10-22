@@ -25,7 +25,7 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
             SessionId sessionId,
             boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.relayState = relayState;

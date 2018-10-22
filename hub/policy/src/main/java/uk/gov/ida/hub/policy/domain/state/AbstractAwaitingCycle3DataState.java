@@ -33,7 +33,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
         final PersistentId persistentId,
         final LevelOfAssurance levelOfAssurance) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceEntityId = matchingServiceEntityId;

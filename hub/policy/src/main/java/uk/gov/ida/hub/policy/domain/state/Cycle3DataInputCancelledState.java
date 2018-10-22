@@ -24,7 +24,7 @@ public final class Cycle3DataInputCancelledState extends AbstractState implement
         final SessionId sessionId,
         final boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
 
         this.relayState = relayState;
     }

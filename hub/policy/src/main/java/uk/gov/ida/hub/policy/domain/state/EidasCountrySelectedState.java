@@ -33,7 +33,8 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
             sessionExpiryTimestamp,
             assertionConsumerServiceUri,
             sessionId,
-            transactionSupportsEidas);
+            transactionSupportsEidas,
+                null);
         this.relayState = relayState;
         this.countryEntityId = countryEntityId;
         this.levelsOfAssurance = levelsOfAssurance;

@@ -24,7 +24,7 @@ public class RequesterErrorState extends AbstractState implements IdpSelectingSt
             Boolean forceAuthentication,
             boolean transactionSupportsEidas) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
 
         this.relayState = relayState;
         this.forceAuthentication = forceAuthentication;

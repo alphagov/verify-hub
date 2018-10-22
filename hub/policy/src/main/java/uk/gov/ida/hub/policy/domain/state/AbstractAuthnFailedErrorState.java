@@ -22,7 +22,7 @@ public abstract class AbstractAuthnFailedErrorState extends AbstractState implem
             SessionId sessionId,
             boolean transactionSupportsEidas) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
 
         this.relayState = relayState;
     }

@@ -20,7 +20,7 @@ public class TimeoutState extends AbstractState implements Serializable {
             SessionId sessionId,
             boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
     }
 
     @Override

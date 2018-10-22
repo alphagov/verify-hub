@@ -37,7 +37,8 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas
+                transactionSupportsEidas,
+                null
         );
 
         this.identityProviderEntityId = identityProviderEntityId;

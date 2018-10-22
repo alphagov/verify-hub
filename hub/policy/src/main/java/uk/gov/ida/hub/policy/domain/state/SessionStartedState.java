@@ -13,7 +13,6 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
     private static final long serialVersionUID = -2890730003642035273L;
 
     private final String relayState;
-    private final Boolean forceAuthentication;
 
     private final Boolean testNullableProp;
 
@@ -28,19 +27,14 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
             boolean transactionSupportsEidas,
             Boolean testNullableProp) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, forceAuthentication);
 
         this.relayState = relayState;
-        this.forceAuthentication = forceAuthentication;
         this.testNullableProp = testNullableProp;
     }
 
     public Optional<String> getRelayState() {
         return Optional.fromNullable(relayState);
-    }
-
-    public Optional<Boolean> getForceAuthentication() {
-        return Optional.fromNullable(forceAuthentication);
     }
 
     public Boolean getTestNullableProp() {

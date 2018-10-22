@@ -192,7 +192,7 @@ public class SessionRepositoryTest {
 
     private class TestState extends AbstractState implements ResponsePreparedState {
         protected TestState() {
-            super("smile", "requestIssuerId", defaultSessionExpiry, URI.create("/test-service-index"), aSessionId().build(), false);
+            super("smile", "requestIssuerId", defaultSessionExpiry, URI.create("/test-service-index"), aSessionId().build(), false, null);
         }
 
         @Override

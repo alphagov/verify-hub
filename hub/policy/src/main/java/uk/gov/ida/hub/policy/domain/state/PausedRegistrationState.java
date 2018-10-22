@@ -21,7 +21,7 @@ public class PausedRegistrationState extends AbstractState implements State {
                                    SessionId sessionId,
                                    boolean transactionSupportsEidas,
                                    Optional<String> relayState) {
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
         this.relayState = relayState;
     }
 

@@ -33,7 +33,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
             LevelOfAssurance levelOfAssurance,
             boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceAssertion = matchingServiceAssertion;

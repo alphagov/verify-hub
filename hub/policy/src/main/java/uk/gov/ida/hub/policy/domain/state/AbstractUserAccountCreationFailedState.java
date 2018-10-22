@@ -22,7 +22,7 @@ public abstract class AbstractUserAccountCreationFailedState extends AbstractSta
         SessionId sessionId,
         boolean transactionSupportsEidas) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
 
         this.relayState = relayState;
     }

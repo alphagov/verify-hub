@@ -246,7 +246,7 @@ public class StateControllerFactoryTest {
     @Test(expected = RuntimeException.class)
     public void build_shouldThrowRuntimeExceptionIfControllerNotFound() {
         factory.build(
-                new AbstractState("requestId", "requestIssuerId", DateTime.now(), URI.create("/some-ac-service-uri"), aSessionId().build(), false) {
+                new AbstractState("requestId", "requestIssuerId", DateTime.now(), URI.create("/some-ac-service-uri"), aSessionId().build(), false, null) {
                     @Override
                     public Optional<String> getRelayState() {
                         return absent();
