@@ -50,7 +50,7 @@ public class EidasCycle0And1MatchRequestSentStateTest {
     @Test
     public void equalsContract() {
         EqualsVerifier.forClass(EidasCycle0And1MatchRequestSentState.class)
-                .withIgnoredFields("encryptedIdentityAssertion", "persistentId")
+                .withIgnoredFields("encryptedIdentityAssertion", "persistentId", "forceAuthentication")
                 .withRedefinedSuperclass()
                 .usingGetClass()
                 .verify();

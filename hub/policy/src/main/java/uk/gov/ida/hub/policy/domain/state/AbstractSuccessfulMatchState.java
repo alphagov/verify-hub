@@ -100,6 +100,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
                 getRequestIssuerEntityId(),
                 getSessionExpiryTimestamp(),
                 getAssertionConsumerServiceUri(),
-                getSessionId());
+                getSessionId(),
+                getForceAuthentication());
     }
 }

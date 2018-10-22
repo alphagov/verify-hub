@@ -55,6 +55,7 @@ public class EidasAwaitingCycle3DataStateTest {
         sb.append(",assertionConsumerServiceUri=").append(state.getAssertionConsumerServiceUri());
         sb.append(",sessionId=").append(state.getSessionId());
         sb.append(",transactionSupportsEidas=").append(state.getTransactionSupportsEidas());
+        sb.append(",forceAuthentication=<null>");
         sb.append(']');
 
         assertThat(state.toString()).isEqualTo(sb.toString());
@@ -62,6 +63,6 @@ public class EidasAwaitingCycle3DataStateTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(EidasAwaitingCycle3DataState.class).verify();
+        EqualsVerifier.forClass(EidasAwaitingCycle3DataState.class).withIgnoredFields("forceAuthentication").verify();
     }
 }

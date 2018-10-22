@@ -76,6 +76,7 @@ public class SuccessfulMatchStateTest {
         sb.append(",assertionConsumerServiceUri=").append(state.getAssertionConsumerServiceUri());
         sb.append(",sessionId=").append(state.getSessionId());
         sb.append(",transactionSupportsEidas=").append(state.getTransactionSupportsEidas());
+        sb.append(",forceAuthentication=<null>");
         sb.append(']');
 
         assertThat(state.toString()).isEqualTo(sb.toString());

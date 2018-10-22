@@ -46,6 +46,6 @@ public class NoMatchStateTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(NoMatchState.class).verify();
+        EqualsVerifier.forClass(NoMatchState.class).withIgnoredFields("forceAuthentication").verify();
     }
 }

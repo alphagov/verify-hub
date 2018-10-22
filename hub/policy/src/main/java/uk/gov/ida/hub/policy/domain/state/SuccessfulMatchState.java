@@ -58,7 +58,9 @@ public final class SuccessfulMatchState extends AbstractSuccessfulMatchState {
 
         SuccessfulMatchState that = (SuccessfulMatchState) o;
 
-        return Objects.equals(isRegistering, that.isRegistering) && super.equals(o);
+        return Objects.equals(isRegistering, that.isRegistering)
+                && Objects.equals(getForceAuthentication(), that.getForceAuthentication())
+                && super.equals(o);
     }
 
     @Override

@@ -50,6 +50,6 @@ public class Cycle3DataInputCancelledStateTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(Cycle3DataInputCancelledState.class).verify();
+        EqualsVerifier.forClass(Cycle3DataInputCancelledState.class).withIgnoredFields("forceAuthentication").verify();
     }
 }
