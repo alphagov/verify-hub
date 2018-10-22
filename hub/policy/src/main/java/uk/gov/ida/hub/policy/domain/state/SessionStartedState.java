@@ -5,7 +5,6 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.net.URI;
 
@@ -16,7 +15,6 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
     private final String relayState;
     private final Boolean forceAuthentication;
 
-    @Nullable
     private final Boolean testNullableProp;
 
     public SessionStartedState(
