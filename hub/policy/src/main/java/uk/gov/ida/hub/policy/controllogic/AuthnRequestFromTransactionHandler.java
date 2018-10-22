@@ -65,7 +65,8 @@ public class AuthnRequestFromTransactionHandler {
                 samlResponse.getForceAuthentication().orNull(),
                 sessionExpiryTimestamp,
                 sessionId,
-                transactionSupportsEidas);
+                transactionSupportsEidas,
+                true);
         final List<LevelOfAssurance> transactionLevelsOfAssurance = transactionsConfigProxy.getLevelsOfAssurance(samlResponse.getIssuer());
 
         hubEventLogger.logSessionStartedEvent(samlResponse, ipAddress, sessionExpiryTimestamp, sessionId, transactionLevelsOfAssurance.get(0), transactionLevelsOfAssurance.get(transactionLevelsOfAssurance.size() -1));

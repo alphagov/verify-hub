@@ -27,7 +27,8 @@ public class SessionStartedStateBuilder {
                 null,
                 sessionExpiryTimestamp,
                 sessionId,
-                transactionSupportsEidas);
+                transactionSupportsEidas,
+                null);
     }
 
     public SessionStartedStateBuilder withRequestId(String requestId) {

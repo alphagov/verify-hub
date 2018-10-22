@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.net.URI;
 
@@ -15,6 +16,9 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
     private final String relayState;
     private final Boolean forceAuthentication;
 
+    @Nullable
+    private final Boolean testNullableProp;
+
     public SessionStartedState(
             String requestId,
             String relayState,
@@ -23,12 +27,14 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
             Boolean forceAuthentication,
             DateTime sessionExpiryTimestamp,
             SessionId sessionId,
-            boolean transactionSupportsEidas) {
+            boolean transactionSupportsEidas,
+            Boolean testNullableProp) {
 
         super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
 
         this.relayState = relayState;
         this.forceAuthentication = forceAuthentication;
+        this.testNullableProp = testNullableProp;
     }
 
     public Optional<String> getRelayState() {
@@ -37,5 +43,9 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
 
     public Optional<Boolean> getForceAuthentication() {
         return Optional.fromNullable(forceAuthentication);
+    }
+
+    public Boolean getTestNullableProp() {
+        return testNullableProp;
     }
 }

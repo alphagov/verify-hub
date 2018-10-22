@@ -39,6 +39,7 @@ public class EidasUserAccountCreationFailedStateController extends AbstractUserA
                 null,
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                true);
     }
 }

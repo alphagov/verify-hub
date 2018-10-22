@@ -215,7 +215,8 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
                 state.getForceAuthentication().orNull(),
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                true);
     }
 
     private State createAuthnFailedErrorState() {

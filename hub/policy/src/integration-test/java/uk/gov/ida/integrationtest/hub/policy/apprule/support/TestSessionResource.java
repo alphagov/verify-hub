@@ -133,7 +133,8 @@ public class TestSessionResource {
                         null,
                         testSessionDto.getSessionExpiryTimestamp(),
                         testSessionDto.getSessionId(),
-                        testSessionDto.getTransactionSupportsEidas()));
+                        testSessionDto.getTransactionSupportsEidas(),
+                        true));
         return Response.ok().build();
     }
 
