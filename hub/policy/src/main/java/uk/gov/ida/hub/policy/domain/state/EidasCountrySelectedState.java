@@ -38,6 +38,7 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
             transactionSupportsEidas,
             forceAuthentication
         );
+
         this.relayState = relayState;
         this.countryEntityId = countryEntityId;
         this.levelsOfAssurance = levelsOfAssurance;

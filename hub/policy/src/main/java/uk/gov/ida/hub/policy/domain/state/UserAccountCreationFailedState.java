@@ -10,8 +10,6 @@ public class UserAccountCreationFailedState extends AbstractUserAccountCreationF
 
     private static final long serialVersionUID = 3462121540778040610L;
 
-    private final Optional<String> relayState;
-
     public UserAccountCreationFailedState(
         String requestId,
         String authnRequestIssuerEntityId,
@@ -31,14 +29,5 @@ public class UserAccountCreationFailedState extends AbstractUserAccountCreationF
             transactionSupportsEidas,
             null
         );
-
-        this.relayState = relayState;
-    }
-
-    // Keep this for now to make deserialization with the previous version of UserAccountCreationFailedState compatible
-    // TODO: After this version has been released, remove the relayState property from this class
-    @Override
-    public Optional<String> getRelayState() {
-        return relayState;
     }
 }

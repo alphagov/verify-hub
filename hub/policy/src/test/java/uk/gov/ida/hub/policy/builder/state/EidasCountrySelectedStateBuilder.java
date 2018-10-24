@@ -23,7 +23,7 @@ public class EidasCountrySelectedStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private List<LevelOfAssurance> levelOfAssurance;
-    private Boolean forceAuthentication;
+    private Boolean forceAuthentication = false;
 
     private String countryCode;
 

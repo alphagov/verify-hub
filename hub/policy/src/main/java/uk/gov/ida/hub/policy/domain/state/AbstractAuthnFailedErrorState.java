@@ -10,6 +10,7 @@ import java.net.URI;
 public abstract class AbstractAuthnFailedErrorState extends AbstractState implements ResponsePreparedState {
 
     private static final long serialVersionUID = 8101005936409595481L;
+
     private String relayState;
 
     public AbstractAuthnFailedErrorState(

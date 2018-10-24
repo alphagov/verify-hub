@@ -12,7 +12,6 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
 
     private static final long serialVersionUID = -186027641698264989L;
 
-
     protected EidasMatchRequestSentState(
         final String requestId,
         final String requestIssuerEntityId,

@@ -16,7 +16,7 @@ public class FraudEventDetectedStateBuilder {
     private SessionId sessionId = SessionId.createNewSessionId();
     private String relayState = "relayState";
     private String idpEntityId = "idpEntityId";
-    private Boolean forceAuthentication;
+    private Boolean forceAuthentication = false;
 
     public static FraudEventDetectedStateBuilder aFraudEventDetectedState() {
         return new FraudEventDetectedStateBuilder();
@@ -38,5 +38,10 @@ public class FraudEventDetectedStateBuilder {
                 idpEntityId,
                 forceAuthentication,
                 false);
+    }
+
+    public FraudEventDetectedStateBuilder withForceAuthentication(Boolean forceAuthentication) {
+        this.forceAuthentication = forceAuthentication;
+        return this;
     }
 }

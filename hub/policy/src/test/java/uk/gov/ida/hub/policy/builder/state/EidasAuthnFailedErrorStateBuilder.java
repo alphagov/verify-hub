@@ -24,7 +24,7 @@ public class EidasAuthnFailedErrorStateBuilder {
     private SessionId sessionId = aSessionId().build();
     private String countryEntityId = STUB_COUNTRY_ONE;
     private List<LevelOfAssurance> levelsOfAssurance = singletonList(LevelOfAssurance.LEVEL_2);
-    private Boolean forceAuthentication;
+    private Boolean forceAuthentication = false;
 
     public static EidasAuthnFailedErrorStateBuilder anEidasAuthnFailedErrorState() {
         return new EidasAuthnFailedErrorStateBuilder();
