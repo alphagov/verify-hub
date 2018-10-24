@@ -15,8 +15,8 @@ public class SessionStartedStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusDays(5);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private boolean transactionSupportsEidas = false;
-    private Boolean forceAuthentication;
-    private URI assertonConsumerServiceUri;
+    private Boolean forceAuthentication = false;
+    private URI assertionConsumerServiceUri;
 
     public static SessionStartedStateBuilder aSessionStartedState() {
         return new SessionStartedStateBuilder();
@@ -27,7 +27,7 @@ public class SessionStartedStateBuilder {
                 requestId,
                 null,
                 requestIssuerId,
-                assertonConsumerServiceUri,
+                assertionConsumerServiceUri,
                 forceAuthentication,
                 sessionExpiryTimestamp,
                 sessionId,
@@ -60,7 +60,7 @@ public class SessionStartedStateBuilder {
     }
 
     public SessionStartedStateBuilder withAssertionConsumerServiceUri(URI assertionConsumerServiceUri) {
-        this.assertonConsumerServiceUri = assertionConsumerServiceUri;
+        this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         return this;
     }
 }

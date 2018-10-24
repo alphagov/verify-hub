@@ -16,6 +16,7 @@ public class UserAccountCreationFailedStateBuilder {
     private URI assertionConsumerServiceUri = URI.create("/default-service-index");
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
+    private String relayState = "relayState";
     private boolean transactionSupportsEidas = false;
 
     public static UserAccountCreationFailedStateBuilder aUserAccountCreationFailedState() {
@@ -28,7 +29,7 @@ public class UserAccountCreationFailedStateBuilder {
                 requestIssuerId,
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
-                Optional.absent(),
+                Optional.fromNullable(relayState),
                 sessionId,
                 transactionSupportsEidas
         );

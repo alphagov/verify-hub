@@ -17,7 +17,6 @@ public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3Da
 
     private final String encryptedIdentityAssertion;
 
-
     public EidasAwaitingCycle3DataState(
         final String requestId,
         final String requestIssuerId,

@@ -43,7 +43,6 @@ public class EidasCycle3MatchRequestSentStateTest {
         sb.append(", assertionConsumerServiceUri=").append(state.getAssertionConsumerServiceUri());
         sb.append(", transactionSupportsEidas=").append(state.getTransactionSupportsEidas());
         sb.append(", forceAuthentication=").append(state.getForceAuthentication().orNull());
-
         sb.append('}');
 
         assertThat(state.toString()).isEqualTo(sb.toString());

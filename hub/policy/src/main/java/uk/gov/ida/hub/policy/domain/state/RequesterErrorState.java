@@ -12,7 +12,6 @@ public class RequesterErrorState extends AbstractState implements IdpSelectingSt
     private static final long serialVersionUID = -1738587884705979267L;
 
     private String relayState;
-    private Boolean forceAuthentication;
 
     public RequesterErrorState(
             String requestId,
@@ -24,15 +23,9 @@ public class RequesterErrorState extends AbstractState implements IdpSelectingSt
             Boolean forceAuthentication,
             boolean transactionSupportsEidas) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
+        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, forceAuthentication);
 
         this.relayState = relayState;
-        this.forceAuthentication = forceAuthentication;
-    }
-
-    @Override
-    public Optional<Boolean> getForceAuthentication() {
-        return Optional.fromNullable(forceAuthentication);
     }
 
     public Optional<String> getRelayState() {

@@ -19,7 +19,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
 
     private Boolean useExactComparisonType;
     private List<LevelOfAssurance> levelsOfAssurance;
-    private final Boolean forceAuthentication;
     private final String relayState;
     private final boolean registering;
     private final LevelOfAssurance requestedLoa;
@@ -49,14 +48,13 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             assertionConsumerServiceUri,
             sessionId,
             transactionSupportsEidas,
-            null
+            forceAuthentication
         );
 
         this.idpEntityId = idpEntityId;
         this.matchingServiceEntityId = matchingServiceEntityId;
         this.levelsOfAssurance = levelsOfAssurance;
         this.useExactComparisonType = useExactComparisonType;
-        this.forceAuthentication = forceAuthentication;
         this.relayState = relayState;
         this.registering = registering;
         this.requestedLoa = requestedLoa;
@@ -65,10 +63,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
 
     public String getIdpEntityId() {
         return idpEntityId;
-    }
-
-    public Optional<Boolean> getForceAuthentication() {
-        return Optional.fromNullable(forceAuthentication);
     }
 
     public Optional<String> getRelayState() {

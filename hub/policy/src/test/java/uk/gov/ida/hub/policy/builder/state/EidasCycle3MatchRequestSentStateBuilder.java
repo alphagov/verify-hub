@@ -17,7 +17,7 @@ public class EidasCycle3MatchRequestSentStateBuilder {
     private PersistentId persistentId = aPersistentId().build();
     private SessionId sessionId = new SessionId("sessionId");
     private String requestId = "requestId";
-    private Boolean forceAuthentication;
+    private Boolean forceAuthentication = false;
 
     public static EidasCycle3MatchRequestSentStateBuilder anEidasCycle3MatchRequestSentState() {
         return new EidasCycle3MatchRequestSentStateBuilder();
