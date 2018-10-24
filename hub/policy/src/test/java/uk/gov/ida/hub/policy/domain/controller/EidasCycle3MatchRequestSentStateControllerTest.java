@@ -119,7 +119,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
         ArgumentCaptor<EidasUserAccountCreationRequestSentState> capturedState = ArgumentCaptor.forClass(EidasUserAccountCreationRequestSentState.class);
         ArgumentCaptor<EventSinkHubEvent> eventSinkArgumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
-        EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().build();
+        EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().withForceAuthentication(false).build();
         ImmutableList<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of(UserAccountCreationAttribute.DATE_OF_BIRTH);
         when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(userAccountCreationAttributes);
         when(matchingServiceConfigProxy.getMatchingService(anyString()))
@@ -147,6 +147,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
         assertThat(actualAttributeQueryRequestDto.getEncryptedIdentityAssertion()).isEqualTo(state.getEncryptedIdentityAssertion());
 
         assertThat(capturedState.getValue()).isInstanceOf(EidasUserAccountCreationRequestSentState.class);
+        assertThat(capturedState.getValue().getForceAuthentication().orNull()).isEqualTo(false);
     }
 
     @Test

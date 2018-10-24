@@ -36,7 +36,8 @@ public class EidasAwaitingCycle3DataStateBuilder {
             Optional.of("relayState"),
             new PersistentId("nameId"),
             LevelOfAssurance.LEVEL_2,
-            "encryptedIdentityAssertion"
+            "encryptedIdentityAssertion",
+            null
         );
     }
 }

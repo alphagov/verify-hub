@@ -16,6 +16,7 @@ public class EidasUserAccountCreationFailedStateBuilder {
     private URI assertionConsumerServiceUri = URI.create("/default-service-index");
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
+    private Boolean forceAuthentication = false;
 
     public static EidasUserAccountCreationFailedStateBuilder aEidasUserAccountCreationFailedState() {
         return new EidasUserAccountCreationFailedStateBuilder();
@@ -28,7 +29,8 @@ public class EidasUserAccountCreationFailedStateBuilder {
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 Optional.absent(),
-                sessionId
+                sessionId,
+                forceAuthentication
         );
     }
 
@@ -49,6 +51,11 @@ public class EidasUserAccountCreationFailedStateBuilder {
 
     public EidasUserAccountCreationFailedStateBuilder withSessionExpiryTimestamp(DateTime sessionExpiryTimestamp) {
         this.sessionExpiryTimestamp = sessionExpiryTimestamp;
+        return this;
+    }
+
+    public EidasUserAccountCreationFailedStateBuilder withForceAuthentication(Boolean forceAuthentication) {
+        this.forceAuthentication = forceAuthentication;
         return this;
     }
 }

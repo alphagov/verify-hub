@@ -168,6 +168,7 @@ public class EidasUserAccountCreationRequestSentStateControllerTest {
                 .withRequestIssuerId(state.getRequestIssuerEntityId())
                 .withRequestid(state.getRequestId())
                 .withSessionId(state.getSessionId())
+                .withForceAuthentication(state.getForceAuthentication().orNull())
                 .build();
 
         controller.handleUserAccountCreationFailedResponseFromMatchingService();

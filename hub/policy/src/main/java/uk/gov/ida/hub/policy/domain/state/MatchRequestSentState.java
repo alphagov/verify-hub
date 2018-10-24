@@ -14,29 +14,30 @@ public abstract class MatchRequestSentState extends AbstractMatchRequestSentStat
     private final boolean registering;
 
     protected MatchRequestSentState(
-            final String requestId,
-            final String requestIssuerEntityId,
-            final DateTime sessionExpiryTimestamp,
-            final URI assertionConsumerServiceUri,
-            final SessionId sessionId,
-            final boolean transactionSupportsEidas,
-            final String identityProviderEntityId,
-            final String relayState,
-            final LevelOfAssurance idpLevelOfAssurance,
-            final boolean registering,
-            final String matchingServiceAdapterEntityId) {
+        final String requestId,
+        final String requestIssuerEntityId,
+        final DateTime sessionExpiryTimestamp,
+        final URI assertionConsumerServiceUri,
+        final SessionId sessionId,
+        final boolean transactionSupportsEidas,
+        final String identityProviderEntityId,
+        final String relayState,
+        final LevelOfAssurance idpLevelOfAssurance,
+        final boolean registering,
+        final String matchingServiceAdapterEntityId) {
 
         super(
-                requestId,
-                requestIssuerEntityId,
-                sessionExpiryTimestamp,
-                assertionConsumerServiceUri,
-                sessionId,
-                transactionSupportsEidas,
-                identityProviderEntityId,
-                Optional.fromNullable(relayState),
-                idpLevelOfAssurance,
-                matchingServiceAdapterEntityId
+            requestId,
+            requestIssuerEntityId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            identityProviderEntityId,
+            Optional.fromNullable(relayState),
+            idpLevelOfAssurance,
+            matchingServiceAdapterEntityId,
+            null
         );
 
         this.registering = registering;

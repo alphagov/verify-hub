@@ -22,9 +22,19 @@ public class EidasAuthnFailedErrorState extends AbstractAuthnFailedErrorState im
             String relayState,
             SessionId sessionId,
             String countryEntityId,
-            List<LevelOfAssurance> levelsOfAssurance) {
+            List<LevelOfAssurance> levelsOfAssurance,
+            Boolean forceAuthentication) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, true);
+        super(
+            requestId,
+            authnRequestIssuerEntityId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            relayState,
+            sessionId,
+            true,
+            forceAuthentication
+        );
 
         this.countryEntityId = countryEntityId;
         this.levelsOfAssurance = levelsOfAssurance;

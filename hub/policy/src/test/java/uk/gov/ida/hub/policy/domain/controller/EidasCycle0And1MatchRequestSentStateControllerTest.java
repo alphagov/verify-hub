@@ -148,7 +148,8 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getRelayState(),
             state.getPersistentId(),
             state.getIdpLevelOfAssurance(),
-            state.getEncryptedIdentityAssertion()
+            state.getEncryptedIdentityAssertion(),
+            state.getForceAuthentication().orNull()
         );
 
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
@@ -181,7 +182,8 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
                 state.getIdentityProviderEntityId(),
                 state.getRelayState().orNull(),
                 state.getIdpLevelOfAssurance(),
-                state.getMatchingServiceAdapterEntityId());
+                state.getMatchingServiceAdapterEntityId(),
+                state.getForceAuthentication().orNull());
 
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
 

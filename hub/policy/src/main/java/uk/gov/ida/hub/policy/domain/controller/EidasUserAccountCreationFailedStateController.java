@@ -36,7 +36,7 @@ public class EidasUserAccountCreationFailedStateController extends AbstractUserA
                 state.getRelayState().orNull(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
-                null,
+                state.getForceAuthentication().orNull(),
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());

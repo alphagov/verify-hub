@@ -21,7 +21,16 @@ public class UserAccountCreationFailedState extends AbstractUserAccountCreationF
         SessionId sessionId,
         boolean transactionSupportsEidas) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, transactionSupportsEidas);
+        super(
+            requestId,
+            authnRequestIssuerEntityId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            relayState,
+            sessionId,
+            transactionSupportsEidas,
+            null
+        );
 
         this.relayState = relayState;
     }

@@ -33,7 +33,15 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
             LevelOfAssurance levelOfAssurance,
             boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                null
+        );
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceAssertion = matchingServiceAssertion;
@@ -85,6 +93,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
                 Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
                 Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
                 Objects.equals(getAssertionConsumerServiceUri(), that.getAssertionConsumerServiceUri()) &&
+                Objects.equals(getForceAuthentication(), that.getForceAuthentication()) &&
                 Objects.equals(getSessionId(), that.getSessionId());
     }
 
@@ -100,6 +109,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
                 getRequestIssuerEntityId(),
                 getSessionExpiryTimestamp(),
                 getAssertionConsumerServiceUri(),
+                getForceAuthentication(),
                 getSessionId());
     }
 }

@@ -35,7 +35,9 @@ public class EidasAuthnFailedErrorStateControllerTest {
 
     @Before
     public void setUp() {
-        eidasAuthnFailedErrorState = anEidasAuthnFailedErrorState().withRequestIssuerId(REQUEST_ISSUER_ID).build();
+        eidasAuthnFailedErrorState = anEidasAuthnFailedErrorState()
+                .withForceAuthentication(true)
+                .withRequestIssuerId(REQUEST_ISSUER_ID).build();
 
         controller = new EidasAuthnFailedErrorStateController(
                 eidasAuthnFailedErrorState,
@@ -55,5 +57,6 @@ public class EidasAuthnFailedErrorStateControllerTest {
         assertThat(capturedState.getValue().getSessionId()).isEqualTo(eidasAuthnFailedErrorState.getSessionId());
         assertThat(capturedState.getValue().getRequestIssuerEntityId()).isEqualTo(REQUEST_ISSUER_ID);
         assertThat(capturedState.getValue().getTransactionSupportsEidas()).isEqualTo(true);
+        assertThat(capturedState.getValue().getForceAuthentication().orNull()).isEqualTo(true);
     }
 }

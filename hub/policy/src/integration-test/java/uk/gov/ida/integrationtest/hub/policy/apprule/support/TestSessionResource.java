@@ -179,7 +179,8 @@ public class TestSessionResource {
                 dto.getRelayState(),
                 dto.getPersistentId(),
                 dto.getLevelOfAssurance(),
-                dto.getEncryptedIdentityAssertion()
+                dto.getEncryptedIdentityAssertion(),
+                null
             )
         );
 
@@ -217,7 +218,8 @@ public class TestSessionResource {
                         testSessionDto.getRelayState().orNull(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getIdentityProviderEntityId(),
-                        testSessionDto.getLevelsOfAssurance())
+                        testSessionDto.getLevelsOfAssurance(),
+                        null)
         );
         return Response.ok().build();
     }

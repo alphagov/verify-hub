@@ -42,7 +42,15 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             List<String> availableIdentityProviders,
             boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(
+            requestId,
+            requestIssuerId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            null
+        );
 
         this.idpEntityId = idpEntityId;
         this.matchingServiceEntityId = matchingServiceEntityId;

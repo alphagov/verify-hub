@@ -23,4 +23,16 @@ public class EidasAuthnFailedErrorStateController extends AbstractAuthnFailedErr
         hubEventLogger.logSessionMovedToStartStateEvent(sessionStartedState);
         stateTransitionAction.transitionTo(sessionStartedState);
     }
+
+    protected SessionStartedState createSessionStartedState() {
+        return new SessionStartedState(
+                state.getRequestId(),
+                state.getRelayState().orNull(),
+                state.getRequestIssuerEntityId(),
+                state.getAssertionConsumerServiceUri(),
+                state.getForceAuthentication().orNull(),
+                state.getSessionExpiryTimestamp(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas());
+    }
 }

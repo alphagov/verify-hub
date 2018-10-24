@@ -55,7 +55,8 @@ public class EidasUserAccountCreationRequestSentStateController extends EidasMat
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
                 state.getRelayState(),
-                state.getSessionId()
+                state.getSessionId(),
+                state.getForceAuthentication().orNull()
         );
 
         stateTransitionAction.transitionTo(eidasUserAccountCreationFailedState);

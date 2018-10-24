@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain;
 
+import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 
@@ -16,6 +17,7 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
     private final URI assertionConsumerServiceUri;
     private final SessionId sessionId;
     private final boolean transactionSupportsEidas;
+    private final Boolean forceAuthentication;
 
     protected AbstractState(
         final String requestId,
@@ -23,7 +25,8 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
         final DateTime sessionExpiryTimestamp,
         final URI assertionConsumerServiceUri,
         final SessionId sessionId,
-        final boolean transactionSupportsEidas) {
+        final boolean transactionSupportsEidas,
+        final Boolean forceAuthentication) {
 
         this.requestId = requestId;
         this.requestIssuerEntityId = requestIssuerEntityId;
@@ -31,6 +34,7 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         this.sessionId = sessionId;
         this.transactionSupportsEidas = transactionSupportsEidas;
+        this.forceAuthentication = forceAuthentication;
     }
 
     @Override
@@ -65,4 +69,7 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
     public boolean getTransactionSupportsEidas() {
         return transactionSupportsEidas;
     }
+
+    @Override
+    public Optional<Boolean> getForceAuthentication() { return Optional.fromNullable(forceAuthentication); }
 }

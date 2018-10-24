@@ -206,7 +206,8 @@ public class EidasAwaitingCycle3DataStateControllerTest {
             state.getLevelOfAssurance(),
             state.getMatchingServiceEntityId(),
             state.getEncryptedIdentityAssertion(),
-            state.getPersistentId()
+            state.getPersistentId(),
+            state.getForceAuthentication().orNull()
         );
 
         controller.handleCycle3DataSubmitted(principalIpAddressAsSeenByHub);

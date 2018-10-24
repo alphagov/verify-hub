@@ -67,22 +67,22 @@ public class StateControllerFactoryTest {
     @Before
     public void setup() {
         Injector injector = Guice.createInjector(
-                Modules.override(new PolicyModule()
-                ).with(new AbstractModule() {
-                    @Override
-                    protected void configure() {
-                        bind(EventSinkProxy.class).toInstance(mock(EventSinkProxy.class));
-                        bind(IdentityProvidersConfigProxy.class).toInstance(mock(IdentityProvidersConfigProxy.class));
-                        bind(Client.class).toInstance(mock(Client.class));
-                        bind(Environment.class).toInstance(mock(Environment.class));
-                        bind(PolicyConfiguration.class).toInstance(aPolicyConfiguration().build());
-                        InfinispanCacheManager infinispanCacheManager = anInfinispanCacheManager().build(InfinispanJunitRunner.EMBEDDED_CACHE_MANAGER);
-                        bind(InfinispanCacheManager.class).toInstance(infinispanCacheManager);
-                        bind(HubEventLogger.class).toInstance(mock(HubEventLogger.class));
-                        bind(JsonClient.class).annotatedWith(Names.named("samlSoapProxyClient")).toInstance(mock(JsonClient.class));
-                        bind(JsonClient.class).toInstance(mock(JsonClient.class));
-                    }
-                })
+            Modules.override(new PolicyModule()
+            ).with(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(EventSinkProxy.class).toInstance(mock(EventSinkProxy.class));
+                    bind(IdentityProvidersConfigProxy.class).toInstance(mock(IdentityProvidersConfigProxy.class));
+                    bind(Client.class).toInstance(mock(Client.class));
+                    bind(Environment.class).toInstance(mock(Environment.class));
+                    bind(PolicyConfiguration.class).toInstance(aPolicyConfiguration().build());
+                    InfinispanCacheManager infinispanCacheManager = anInfinispanCacheManager().build(InfinispanJunitRunner.EMBEDDED_CACHE_MANAGER);
+                    bind(InfinispanCacheManager.class).toInstance(infinispanCacheManager);
+                    bind(HubEventLogger.class).toInstance(mock(HubEventLogger.class));
+                    bind(JsonClient.class).annotatedWith(Names.named("samlSoapProxyClient")).toInstance(mock(JsonClient.class));
+                    bind(JsonClient.class).toInstance(mock(JsonClient.class));
+                }
+            })
         );
 
         factory = new StateControllerFactory(injector);
@@ -139,9 +139,9 @@ public class StateControllerFactoryTest {
 
     @Test
     public void build_shouldCreateANoMatchController() {
-    StateController controller = factory.build(aNoMatchState().build(), stateTransitionAction);
+        StateController controller = factory.build(aNoMatchState().build(), stateTransitionAction);
 
-    assertThat(controller).isInstanceOf(NoMatchStateController.class);
+        assertThat(controller).isInstanceOf(NoMatchStateController.class);
 
     }
 
@@ -246,13 +246,21 @@ public class StateControllerFactoryTest {
     @Test(expected = RuntimeException.class)
     public void build_shouldThrowRuntimeExceptionIfControllerNotFound() {
         factory.build(
-                new AbstractState("requestId", "requestIssuerId", DateTime.now(), URI.create("/some-ac-service-uri"), aSessionId().build(), false) {
-                    @Override
-                    public Optional<String> getRelayState() {
-                        return absent();
-                    }
-                },
-                mock(StateTransitionAction.class)
+            new AbstractState(
+                "requestId",
+                "requestIssuerId",
+                DateTime.now(),
+                URI.create("/some-ac-service-uri"),
+                aSessionId().build(),
+                false,
+                null
+            ) {
+                @Override
+                public Optional<String> getRelayState() {
+                    return absent();
+                }
+            },
+            mock(StateTransitionAction.class)
         );
     }
 }

@@ -53,4 +53,14 @@ public class AuthnFailedErrorStateBuilder {
         this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
     }
+
+    public AuthnFailedErrorStateBuilder withSessionExpiryTimestamp(DateTime sessionExpiryTimestamp) {
+        this.sessionExpiryTimestamp = sessionExpiryTimestamp;
+        return this;
+    }
+
+    public AuthnFailedErrorStateBuilder withForceAuthentication(Boolean forceAuthentication) {
+        this.forceAuthentication = forceAuthentication;
+        return this;
+    }
 }

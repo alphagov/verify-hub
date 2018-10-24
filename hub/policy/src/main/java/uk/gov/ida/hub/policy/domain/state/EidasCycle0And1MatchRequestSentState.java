@@ -26,7 +26,8 @@ public class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentS
             final LevelOfAssurance idpLevelOfAssurance,
             final String matchingServiceAdapterEntityId,
             final String encryptedIdentityAssertion,
-            final PersistentId persistentId) {
+            final PersistentId persistentId,
+            final Boolean forceAuthentication) {
 
         super(
                 requestId,
@@ -38,7 +39,8 @@ public class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentS
                 identityProviderEntityId,
                 relayState,
                 idpLevelOfAssurance,
-                matchingServiceAdapterEntityId);
+                matchingServiceAdapterEntityId,
+                forceAuthentication);
 
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
         this.persistentId = persistentId;

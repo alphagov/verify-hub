@@ -29,7 +29,8 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
             final String identityProviderEntityId,
             final Optional<String> relayState,
             final LevelOfAssurance idpLevelOfAssurance,
-            final String matchingServiceAdapterEntityId) {
+            final String matchingServiceAdapterEntityId,
+            final Boolean forceAuthentication) {
 
         super(
                 requestId,
@@ -37,7 +38,8 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas
+                transactionSupportsEidas,
+                forceAuthentication
         );
 
         this.identityProviderEntityId = identityProviderEntityId;

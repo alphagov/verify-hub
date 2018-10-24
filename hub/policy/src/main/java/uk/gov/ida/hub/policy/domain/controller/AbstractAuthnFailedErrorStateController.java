@@ -47,16 +47,4 @@ public abstract class AbstractAuthnFailedErrorStateController<S extends Abstract
                 state.getAssertionConsumerServiceUri()
         );
     }
-
-    protected SessionStartedState createSessionStartedState() {
-        return new SessionStartedState(
-                state.getRequestId(),
-                state.getRelayState().orNull(),
-                state.getRequestIssuerEntityId(),
-                state.getAssertionConsumerServiceUri(),
-                null,
-                state.getSessionExpiryTimestamp(),
-                state.getSessionId(),
-                state.getTransactionSupportsEidas());
-    }
 }

@@ -126,7 +126,8 @@ public class EidasCountrySelectedStateController implements StateController, Err
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas(),
-                state.getLevelsOfAssurance()
+                state.getLevelsOfAssurance(),
+                state.getForceAuthentication().orNull()
         );
 
         stateTransitionAction.transitionTo(countrySelectedState);
@@ -199,7 +200,8 @@ public class EidasCountrySelectedStateController implements StateController, Err
                 translatedResponse.getLevelOfAssurance().get(),
                 getMatchingServiceEntityId(),
                 translatedResponse.getEncryptedIdentityAssertionBlob().get(),
-                new PersistentId(translatedResponse.getPersistentId().get())
+                new PersistentId(translatedResponse.getPersistentId().get()),
+                state.getForceAuthentication().orNull()
         );
     }
 
@@ -212,6 +214,7 @@ public class EidasCountrySelectedStateController implements StateController, Err
                 state.getRelayState().orNull(),
                 state.getSessionId(),
                 state.getCountryEntityId(),
-                state.getLevelsOfAssurance());
+                state.getLevelsOfAssurance(),
+                state.getForceAuthentication().orNull());
     }
 }

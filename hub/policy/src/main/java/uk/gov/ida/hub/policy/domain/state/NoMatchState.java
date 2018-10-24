@@ -17,16 +17,24 @@ public final class NoMatchState extends AbstractState implements ResponseProcess
     private final Optional<String> relayState;
 
     public NoMatchState(
-            String requestId,
-            String identityProviderEntityId,
-            String requestIssuerId,
-            DateTime sessionExpiryTimestamp,
-            URI assertionConsumerServiceUri,
-            Optional<String> relayState,
-            SessionId sessionId,
-            boolean transactionSupportsEidas) {
+        String requestId,
+        String identityProviderEntityId,
+        String requestIssuerId,
+        DateTime sessionExpiryTimestamp,
+        URI assertionConsumerServiceUri,
+        Optional<String> relayState,
+        SessionId sessionId,
+        boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(
+            requestId,
+            requestIssuerId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            null
+        );
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.relayState = relayState;
@@ -74,6 +82,7 @@ public final class NoMatchState extends AbstractState implements ResponseProcess
             Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
             Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
             Objects.equals(getAssertionConsumerServiceUri(), that.getAssertionConsumerServiceUri()) &&
+            Objects.equals(getForceAuthentication(), that.getForceAuthentication()) &&
             Objects.equals(getSessionId(), that.getSessionId());
     }
 
@@ -87,6 +96,7 @@ public final class NoMatchState extends AbstractState implements ResponseProcess
             getRequestIssuerEntityId(),
             getSessionExpiryTimestamp(),
             getAssertionConsumerServiceUri(),
+            getForceAuthentication(),
             getSessionId());
     }
 }

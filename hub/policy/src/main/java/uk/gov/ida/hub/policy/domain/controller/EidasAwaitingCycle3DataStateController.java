@@ -84,7 +84,8 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
             getState().getLevelOfAssurance(),
             getState().getMatchingServiceEntityId(),
             getState().getEncryptedIdentityAssertion(),
-            getState().getPersistentId()
+            getState().getPersistentId(),
+            getState().getForceAuthentication().orNull()
         );
 
         getStateTransitionAction().transitionTo(eidasCycle3MatchRequestSentState);

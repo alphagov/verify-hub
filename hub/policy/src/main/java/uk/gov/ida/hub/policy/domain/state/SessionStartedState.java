@@ -13,29 +13,31 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
     private static final long serialVersionUID = -2890730003642035273L;
 
     private final String relayState;
-    private final Boolean forceAuthentication;
 
     public SessionStartedState(
-            String requestId,
-            String relayState,
-            String requestIssuerId,
-            URI assertionConsumerServiceUri,
-            Boolean forceAuthentication,
-            DateTime sessionExpiryTimestamp,
-            SessionId sessionId,
-            boolean transactionSupportsEidas) {
+        String requestId,
+        String relayState,
+        String requestIssuerId,
+        URI assertionConsumerServiceUri,
+        Boolean forceAuthentication,
+        DateTime sessionExpiryTimestamp,
+        SessionId sessionId,
+        boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(
+            requestId,
+            requestIssuerId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            forceAuthentication
+        );
 
         this.relayState = relayState;
-        this.forceAuthentication = forceAuthentication;
     }
 
     public Optional<String> getRelayState() {
         return Optional.fromNullable(relayState);
-    }
-
-    public Optional<Boolean> getForceAuthentication() {
-        return Optional.fromNullable(forceAuthentication);
     }
 }

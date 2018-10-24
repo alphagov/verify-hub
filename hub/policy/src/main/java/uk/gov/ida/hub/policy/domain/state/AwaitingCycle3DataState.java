@@ -43,7 +43,9 @@ public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
                 matchingServiceEntityId,
                 Optional.fromNullable(relayState),
                 persistentId,
-                levelOfAssurance);
+                levelOfAssurance,
+                null
+        );
 
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
         this.authnStatementAssertion = authnStatementAssertion;

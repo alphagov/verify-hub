@@ -24,7 +24,14 @@ public final class Cycle3DataInputCancelledState extends AbstractState implement
         final SessionId sessionId,
         final boolean transactionSupportsEidas) {
 
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        super(
+            requestId,
+            requestIssuerId,
+            sessionExpiryTimestamp,
+            assertionConsumerServiceUri,
+            sessionId,
+            transactionSupportsEidas,
+            null);
 
         this.relayState = relayState;
     }
@@ -65,6 +72,7 @@ public final class Cycle3DataInputCancelledState extends AbstractState implement
             Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
             Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
             Objects.equals(getAssertionConsumerServiceUri(), that.getAssertionConsumerServiceUri()) &&
+            Objects.equals(getForceAuthentication(), that.getForceAuthentication()) &&
             Objects.equals(getSessionId(), that.getSessionId());
     }
 
@@ -77,6 +85,7 @@ public final class Cycle3DataInputCancelledState extends AbstractState implement
             getRequestIssuerEntityId(),
             getSessionExpiryTimestamp(),
             getAssertionConsumerServiceUri(),
-            getSessionId());
+            getSessionId(),
+            getForceAuthentication());
     }
 }
