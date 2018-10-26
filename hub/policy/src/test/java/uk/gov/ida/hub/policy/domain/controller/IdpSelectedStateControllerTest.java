@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto;
@@ -191,6 +192,19 @@ public class IdpSelectedStateControllerTest {
         ArgumentCaptor<State> stateArgumentCaptor = ArgumentCaptor.forClass(State.class);
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
         assertThat(stateArgumentCaptor.getValue()).isInstanceOf(PausedRegistrationState.class);
+    }
+
+    @Test
+    public void shouldTransitionToSessionStartedStateAndLogEvent() {
+        controller.transitionToSessionStartedState();
+        ArgumentCaptor<SessionStartedState> capturedState = ArgumentCaptor.forClass(SessionStartedState.class);
+
+        verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
+        verify(hubEventLogger, times(1)).logSessionMovedToStartStateEvent(capturedState.getValue());
+
+        assertThat(capturedState.getValue().getSessionId()).isEqualTo(idpSelectedState.getSessionId());
+        assertThat(capturedState.getValue().getRequestIssuerEntityId()).isEqualTo(idpSelectedState.getRequestIssuerEntityId());
+        assertThat(capturedState.getValue().getForceAuthentication()).isEqualTo(idpSelectedState.getForceAuthentication());
     }
 
     @Test(expected = IdpDisabledException.class)

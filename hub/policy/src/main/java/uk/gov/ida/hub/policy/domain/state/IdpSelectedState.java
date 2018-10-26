@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 
-public class IdpSelectedState extends AbstractState implements IdpSelectingState, Serializable {
+public class IdpSelectedState extends AbstractState implements IdpSelectingState, RestartJourneyState, Serializable {
 
     private static final long serialVersionUID = -2851353851977677375L;
 

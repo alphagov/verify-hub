@@ -37,7 +37,7 @@ import java.util.Optional;
 
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.wrongResponseIssuer;
 
-public class IdpSelectedStateController implements StateController, ErrorResponsePreparedStateController, IdpSelectingStateController, AuthnRequestCapableController {
+public class IdpSelectedStateController implements ErrorResponsePreparedStateController, IdpSelectingStateController, AuthnRequestCapableController, RestartJourneyStateController {
 
     private final IdpSelectedState state;
     private final HubEventLogger hubEventLogger;
@@ -323,5 +323,12 @@ public class IdpSelectedStateController implements StateController, ErrorRespons
         return new AuthnRequestSignInProcess(
                 state.getRequestIssuerEntityId(),
                 state.getTransactionSupportsEidas());
+    }
+
+    @Override
+    public void transitionToSessionStartedState() {
+        final SessionStartedState sessionStartedState = createSessionStartedState();
+        stateTransitionAction.transitionTo(sessionStartedState);
+        hubEventLogger.logSessionMovedToStartStateEvent(sessionStartedState);
     }
 }
