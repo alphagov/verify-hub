@@ -17,9 +17,9 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasUnsuccessfulJourneyStateController;
+import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
-import uk.gov.ida.hub.policy.domain.state.EidasUnsuccessfulJourneyState;
+import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -50,7 +50,7 @@ public class AuthnRequestFromTransactionHandlerTest {
     @Mock
     private TransactionsConfigProxy transactionsConfigProxy;
     @Mock
-    private EidasUnsuccessfulJourneyStateController eidasUnsuccessfulJourneyStateController;
+    private RestartJourneyStateController restartJourneyStateController;
 
     private AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler;
 
@@ -92,13 +92,13 @@ public class AuthnRequestFromTransactionHandlerTest {
     }
 
     @Test
-    public void restartsEidasUnsuccessfulJourney() {
+    public void restartsJourney() {
         SessionId sessionId = new SessionId("sessionId");
-        when(sessionRepository.getStateController(sessionId, EidasUnsuccessfulJourneyState.class)).thenReturn(eidasUnsuccessfulJourneyStateController);
+        when(sessionRepository.getStateController(sessionId, RestartJourneyState.class)).thenReturn(restartJourneyStateController);
 
-        authnRequestFromTransactionHandler.restartEidasUnsuccessfulJourney(sessionId);
+        authnRequestFromTransactionHandler.restartJourney(sessionId);
 
-        verify(eidasUnsuccessfulJourneyStateController).transitionToSessionStartedState();
+        verify(restartJourneyStateController).transitionToSessionStartedState();
     }
 
     private class IdpSelectingStateControllerSpy implements IdpSelectingStateController, StateController {

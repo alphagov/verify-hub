@@ -14,13 +14,13 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.AuthnFailedErrorStateController;
 import uk.gov.ida.hub.policy.domain.controller.AuthnRequestCapableController;
-import uk.gov.ida.hub.policy.domain.controller.EidasUnsuccessfulJourneyStateController;
+import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.controller.ErrorResponsePreparedStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.controller.ResponsePreparedStateController;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.EidasUnsuccessfulJourneyState;
+import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
@@ -79,9 +79,9 @@ public class AuthnRequestFromTransactionHandler {
         stateController.tryAnotherIdpResponse();
     }
 
-    public void restartEidasUnsuccessfulJourney(final SessionId sessionId) {
-        final EidasUnsuccessfulJourneyStateController stateController =
-                (EidasUnsuccessfulJourneyStateController) sessionRepository.getStateController(sessionId, EidasUnsuccessfulJourneyState.class);
+    public void restartJourney(final SessionId sessionId) {
+        final RestartJourneyStateController stateController =
+                (RestartJourneyStateController) sessionRepository.getStateController(sessionId, RestartJourneyState.class);
         stateController.transitionToSessionStartedState();
     }
 

@@ -83,7 +83,10 @@ public interface Urls {
 
         // End of new saml-engine is a real microservice resources
 
+        // TODO: Remove after a frontend release for ZDD
         String AUTHN_REQUEST_RESTART_EIDAS_JOURNEY_PATH = AUTHN_SESSION_ID_PATH + "/restart-eidas-journey";
+
+        String AUTHN_REQUEST_RESTART_JOURNEY_PATH = AUTHN_SESSION_ID_PATH + "/restart-journey";
         String AUTHN_REQUEST_TRY_ANOTHER_IDP_PATH = AUTHN_SESSION_ID_PATH + "/try-another-idp";
 
         String AUTHN_REQUEST_SELECT_IDP_PATH    = AUTHN_SESSION_ID_PATH + "/select-identity-provider";

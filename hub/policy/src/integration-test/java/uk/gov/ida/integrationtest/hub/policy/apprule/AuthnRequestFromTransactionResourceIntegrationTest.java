@@ -190,6 +190,20 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     }
 
     @Test
+    public void shouldRestartJourney() {
+        sessionId = SessionId.createNewSessionId();
+        TestSessionResourceHelper.createSessionInEidasAuthnFailedErrorState(sessionId, client, buildUriForTestSession(EIDAS_AUTHN_FAILED_STATE, sessionId));
+
+        URI uri = UriBuilder.fromPath("/policy/received-authn-request" + Urls.PolicyUrls.AUTHN_REQUEST_RESTART_JOURNEY_PATH).build(sessionId);
+        Response response = client.target(policy.uri(uri.toASCIIString())).request().post(null);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+
+        Response checkStateChanged = client.target(buildUriForTestSession(GET_SESSION_STATE_NAME, sessionId)).request().get();
+        assertThat(checkStateChanged.readEntity(String.class)).isEqualTo(SessionStartedState.class.getName());
+    }
+
+    @Test
     public void getSignInProcessDto_shouldReturnSignInDetailsDto(){
         SessionId session = SessionId.createNewSessionId();
         TestSessionResourceHelper.createSessionInIdpSelectedState(session, samlResponse.getIssuer(), idpEntityId, client,

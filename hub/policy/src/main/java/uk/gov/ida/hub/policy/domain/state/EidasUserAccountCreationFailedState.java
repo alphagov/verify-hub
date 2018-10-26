@@ -6,7 +6,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 
-public class EidasUserAccountCreationFailedState extends AbstractUserAccountCreationFailedState implements EidasUnsuccessfulJourneyState {
+public class EidasUserAccountCreationFailedState extends AbstractUserAccountCreationFailedState implements RestartJourneyState {
 
     private static final long serialVersionUID = -2561859918430555052L;
 
