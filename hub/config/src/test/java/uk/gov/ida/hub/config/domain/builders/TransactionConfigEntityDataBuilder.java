@@ -33,6 +33,8 @@ public class TransactionConfigEntityDataBuilder {
     private boolean eidasEnabled = false;
     private boolean shouldSignWithSHA1 = true;
     private URI headlessStartPage = URI.create("/headless-start-uri");
+    private URI singleIdpStartPage;
+
 
     public static TransactionConfigEntityDataBuilder aTransactionConfigData() {
         return new TransactionConfigEntityDataBuilder();
@@ -63,7 +65,8 @@ public class TransactionConfigEntityDataBuilder {
                 shouldHubSignResponseMessages,
                 levelsOfAssurance,
                 shouldSignWithSHA1,
-                headlessStartPage
+                headlessStartPage,
+                singleIdpStartPage
         );
     }
 
@@ -152,6 +155,11 @@ public class TransactionConfigEntityDataBuilder {
         return this;
     }
 
+    public TransactionConfigEntityDataBuilder withSingleIdpStartPage(final URI singleIdpStartPage) {
+        this.singleIdpStartPage = singleIdpStartPage;
+        return this;
+    }
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class TestTransactionConfigEntityData extends TransactionConfigEntityData {
 
@@ -171,7 +179,8 @@ public class TransactionConfigEntityDataBuilder {
                 boolean shouldHubSignResponseMessages,
                 List<LevelOfAssurance> levelsOfAssurance,
                 boolean shouldSignWithSHA1,
-                URI headlessStartPage) {
+                URI headlessStartPage,
+                URI singleIdpStartPage) {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
             this.simpleId = simpleId;
@@ -190,6 +199,7 @@ public class TransactionConfigEntityDataBuilder {
             this.levelsOfAssurance = levelsOfAssurance;
             this.shouldSignWithSHA1 = shouldSignWithSHA1;
             this.headlessStartpage = headlessStartPage;
+            this.singleIdpStartpage = singleIdpStartPage;
         }
     }
 }

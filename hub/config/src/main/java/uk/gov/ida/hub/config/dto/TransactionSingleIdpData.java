@@ -6,28 +6,28 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-public class TransactionDetailedDisplayData {
+public class TransactionSingleIdpData {
     private String simpleId;
-    private URI serviceHomepage;
+    private URI redirectUrl;
     private List<LevelOfAssurance> loaList;
     private String entityId;
 
     // Needed by jaxb for integration test :(
-    protected TransactionDetailedDisplayData() {
+    protected TransactionSingleIdpData() {
     }
 
-    public TransactionDetailedDisplayData(String simpleId,
-                                          URI serviceHomepage,
-                                          List<LevelOfAssurance> loaList,
-                                          String entityId) {
+    public TransactionSingleIdpData(String simpleId,
+                                    URI redirectUrl,
+                                    List<LevelOfAssurance> loaList,
+                                    String entityId) {
 
         this.simpleId = simpleId;
-        this.serviceHomepage = serviceHomepage;
+        this.redirectUrl = redirectUrl;
         this.loaList = loaList;
         this.entityId = entityId;
     }
 
-    public URI getServiceHomepage() { return serviceHomepage; }
+    public URI getRedirectUrl() { return redirectUrl; }
 
     public Optional<String> getSimpleId() {
         return Optional.ofNullable(simpleId);
