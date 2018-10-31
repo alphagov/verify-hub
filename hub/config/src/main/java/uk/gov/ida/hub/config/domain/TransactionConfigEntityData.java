@@ -103,6 +103,10 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     @JsonProperty
     protected URI headlessStartpage;
 
+    @Valid
+    @JsonProperty
+    protected URI singleIdpStartpage;
+
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfigEntityData() {
     }
@@ -220,5 +224,9 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
 
     public URI getHeadlessStartpage() {
         return headlessStartpage;
+    }
+
+    public Optional<URI> getSingleIdpStartPage() {
+        return ofNullable(singleIdpStartpage);
     }
 }

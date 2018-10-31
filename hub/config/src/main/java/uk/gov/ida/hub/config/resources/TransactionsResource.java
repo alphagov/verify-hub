@@ -10,7 +10,7 @@ import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.config.dto.MatchingProcessDto;
 import uk.gov.ida.hub.config.dto.ResourceLocationDto;
-import uk.gov.ida.hub.config.dto.TransactionDetailedDisplayData;
+import uk.gov.ida.hub.config.dto.TransactionSingleIdpData;
 import uk.gov.ida.hub.config.dto.TransactionDisplayData;
 import uk.gov.ida.hub.config.exceptions.ExceptionFactory;
 
@@ -113,13 +113,13 @@ public class TransactionsResource {
     @GET
     @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH)
     @Timed
-    public List<TransactionDetailedDisplayData> getSingleIDPEnabledServiceListTransactions(){
+    public List<TransactionSingleIdpData> getSingleIDPEnabledServiceListTransactions(){
         Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();
         return allData.stream()
                 .filter(TransactionConfigEntityData::isEnabled)
                 .filter(TransactionConfigEntityData::isEnabledForSingleIdp)
-                .map(t -> new TransactionDetailedDisplayData(t.getSimpleId().orElse(null),
-                        t.getServiceHomepage(),
+                .map(t -> new TransactionSingleIdpData(t.getSimpleId().orElse(null),
+                        t.getSingleIdpStartPage().orElse(t.getServiceHomepage()),
                         t.getLevelsOfAssurance(),
                         t.getEntityId())
                 )

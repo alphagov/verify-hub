@@ -12,7 +12,7 @@ import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.config.dto.MatchingProcessDto;
 import uk.gov.ida.hub.config.dto.ResourceLocationDto;
-import uk.gov.ida.hub.config.dto.TransactionDetailedDisplayData;
+import uk.gov.ida.hub.config.dto.TransactionSingleIdpData;
 import uk.gov.ida.hub.config.dto.TransactionDisplayData;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
 import uk.gov.ida.shared.utils.string.StringEncoding;
@@ -27,7 +27,6 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
@@ -45,6 +44,9 @@ public class TransactionsResourceIntegrationTest {
     private static final String TEST_URI = "http://foo.bar/test-uri";
     private static final String SERVICE_HOMEPAGE = "http://foo.bar/service-homepage";
     private static final String HEADLESS_STARTPAGE = "http://foo.bar/service-headless-start-page";
+    private static final String SINGLE_IDP_STARTPAGE = "http://foo.bar/service-single-idp-start-page";
+    private static final String ANOTHER_ENTITY_ID = "another-test-entity-id";
+    private static final String ANOTHER_SIMPLE_ID = "another-test-simple-id";
 
     @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule()
@@ -67,6 +69,15 @@ public class TransactionsResourceIntegrationTest {
                 .withMatchingServiceEntityId(MS_ENTITY_ID)
                 .withShouldSignWithSHA1(false)
                 .withHeadlessStartPage(URI.create(HEADLESS_STARTPAGE))
+                .withSingleIdpStartPage(URI.create(SINGLE_IDP_STARTPAGE))
+                .build())
+        .addTransaction(aTransactionConfigData()
+                .withEntityId(ANOTHER_ENTITY_ID)
+                .withSimpleId(ANOTHER_SIMPLE_ID)
+                .withEnabledForSingleIdp(true)
+                .withMatchingServiceEntityId(MS_ENTITY_ID)
+                .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
+                .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
                 .build())
         .addTransaction(aTransactionConfigData()
                 .withEntityId(NO_EIDAS_ENTITY_ID)
@@ -285,13 +296,19 @@ public class TransactionsResourceIntegrationTest {
         URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH).build();
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        List<TransactionDetailedDisplayData> transactionDisplayItems
-                = response.readEntity(new GenericType<List<TransactionDetailedDisplayData>>() {
+        List<TransactionSingleIdpData> transactionDisplayItems
+                = response.readEntity(new GenericType<List<TransactionSingleIdpData>>() {
         });
-        assertThat(transactionDisplayItems.size()).isEqualTo(1);
-        for (TransactionDetailedDisplayData transactionDisplayItem : transactionDisplayItems) {
-            assertNotNull(transactionDisplayItem.getEntityId());
-            assertNotNull(transactionDisplayItem.getSimpleId());
+        assertThat(transactionDisplayItems.size()).isEqualTo(2);
+        for (TransactionSingleIdpData transactionDisplayItem : transactionDisplayItems) {
+            if ( transactionDisplayItem.getEntityId().equals(ENTITY_ID)) {
+                assertThat(transactionDisplayItem.getSimpleId().get()).isEqualTo(SIMPLE_ID);
+                assertThat(transactionDisplayItem.getRedirectUrl()).isEqualTo(URI.create(SINGLE_IDP_STARTPAGE));
+            }else{
+                assertThat(transactionDisplayItem.getEntityId()).isEqualTo(ANOTHER_ENTITY_ID);
+                assertThat(transactionDisplayItem.getSimpleId().get()).isEqualTo(ANOTHER_SIMPLE_ID);
+                assertThat(transactionDisplayItem.getRedirectUrl()).isEqualTo(URI.create(SERVICE_HOMEPAGE));
+            }
         }
     }
 }
