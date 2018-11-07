@@ -10,6 +10,7 @@ import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectedStateController;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.exception.EidasCountryNotSupportedException;
 import uk.gov.ida.hub.policy.exception.EidasNotSupportedException;
@@ -42,7 +43,7 @@ public class CountriesServiceTest {
     private static final EidasCountryDto DISABLED_COUNTRY = new EidasCountryDto("id3", "country3", false);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         service = new CountriesService(sessionRepository, configProxy);
         sessionId = SessionIdBuilder.aSessionId().with("coffee-pasta").build();
         when(sessionRepository.getTransactionSupportsEidas(sessionId)).thenReturn(true);
@@ -78,7 +79,7 @@ public class CountriesServiceTest {
     @Test
     public void shouldSetSelectedCountry() {
         EidasCountrySelectedStateController mockEidasCountrySelectedStateController = mock(EidasCountrySelectedStateController.class);
-        when(sessionRepository.getStateController(sessionId, SessionStartedState.class)).thenReturn(mockEidasCountrySelectedStateController);
+        when(sessionRepository.getStateController(sessionId, EidasCountrySelectingState.class)).thenReturn(mockEidasCountrySelectedStateController);
         setSystemWideCountries(COUNTRY_1);
 
         service.setSelectedCountry(sessionId, COUNTRY_1.getSimpleId());
