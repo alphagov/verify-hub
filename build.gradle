@@ -54,6 +54,7 @@ subprojects {
         }
         else {
           maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
+            mavenLocal()
         }
     }
 
@@ -130,7 +131,7 @@ subprojects {
 
         saml_test project(":hub-saml-test-utils")
 
-        saml_libs "uk.gov.ida:saml-utils:$dependencyVersions.saml_libs",
+        saml_libs "uk.gov.ida:saml-utils:3.3.0-SNAPSHOT",
                 "uk.gov.ida:saml-extensions:$dependencyVersions.saml_libs"
 
         pact_test "au.com.dius:pact-jvm-consumer-junit_2.11:$dependencyVersions.pact",

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.StandardToStringStyle;
 
 import javax.annotation.concurrent.Immutable;
 import java.net.URI;
+import java.util.List;
 import java.util.Objects;
 
 @Immutable
@@ -14,7 +15,7 @@ public final class ResponseFromHub {
     private String responseId;
     private String inResponseTo;
     private TransactionIdaStatus status;
-    private Optional<String> matchingServiceAssertion;
+    private List<String> assertions;
     private Optional<String> relayState;
     private URI assertionConsumerServiceUri;
 
@@ -26,7 +27,7 @@ public final class ResponseFromHub {
             String responseId,
             String inResponseTo,
             String authnRequestIssuerEntityId,
-            Optional<String> matchingServiceAssertion,
+            List<String> assertions,
             Optional<String> relayState,
             URI assertionConsumerServiceUri,
             TransactionIdaStatus status) {
@@ -34,7 +35,7 @@ public final class ResponseFromHub {
         this.authnRequestIssuerEntityId = authnRequestIssuerEntityId;
         this.responseId = responseId;
         this.inResponseTo = inResponseTo;
-        this.matchingServiceAssertion = matchingServiceAssertion;
+        this.assertions = assertions;
         this.relayState = relayState;
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         this.status = status;
@@ -52,8 +53,8 @@ public final class ResponseFromHub {
         return inResponseTo;
     }
 
-    public Optional<String> getMatchingServiceAssertion() {
-        return matchingServiceAssertion;
+    public List<String> getAssertions() {
+        return assertions;
     }
 
     public Optional<String> getRelayState() {
@@ -91,13 +92,13 @@ public final class ResponseFromHub {
             Objects.equals(responseId, that.responseId) &&
             Objects.equals(inResponseTo, that.inResponseTo) &&
             status == that.status &&
-            Objects.equals(matchingServiceAssertion, that.matchingServiceAssertion) &&
+            Objects.equals(assertions, that.assertions) &&
             Objects.equals(relayState, that.relayState) &&
             Objects.equals(assertionConsumerServiceUri, that.assertionConsumerServiceUri);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(authnRequestIssuerEntityId, responseId, inResponseTo, status, matchingServiceAssertion, relayState, assertionConsumerServiceUri);
+        return Objects.hash(authnRequestIssuerEntityId, responseId, inResponseTo, status, assertions, relayState, assertionConsumerServiceUri);
     }
 }

@@ -29,11 +29,10 @@ public class SimpleProfileOutboundResponseFromHubToSamlResponseTransformer exten
 
     @Override
     protected void transformAssertions(OutboundResponseFromHub originalResponse, Response transformedResponse) {
-        Optional<String> matchingServiceAssertion = originalResponse.getMatchingServiceAssertion();
-        if (matchingServiceAssertion.isPresent()) {
-            Assertion transformedAssertion = assertionTransformer.transform(matchingServiceAssertion.get());
-            transformedResponse.getAssertions().add(transformedAssertion);
-        }
+        originalResponse.getAssertions()
+                .stream()
+                .map(assertionTransformer::transform)
+                .forEach(transformedResponse.getAssertions()::add);
     }
 
     @Override

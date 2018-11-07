@@ -18,6 +18,7 @@ import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingRequestReceivedState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
@@ -34,6 +35,7 @@ public enum PolicyState {
     EIDAS_COUNTRY_SELECTING(EidasCountrySelectingState.class),
     EIDAS_COUNTRY_SELECTED(EidasCountrySelectedState.class),
     IDP_SELECTED(IdpSelectedState.class),
+    NON_MATCHING_REQUEST_RECEIVED(NonMatchingRequestReceivedState.class),
     CYCLE_0_AND_1_MATCH_REQUEST_SENT(Cycle0And1MatchRequestSentState.class),
     EIDAS_CYCLE_0_AND_1_MATCH_REQUEST_SENT(EidasCycle0And1MatchRequestSentState.class),
     EIDAS_CYCLE_3_MATCH_REQUEST_SENT(EidasCycle3MatchRequestSentState.class),

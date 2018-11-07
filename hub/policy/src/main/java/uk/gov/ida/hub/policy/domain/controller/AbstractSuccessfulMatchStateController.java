@@ -7,6 +7,10 @@ import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 
+import java.util.Collections;
+
+import static java.util.Collections.singletonList;
+
 public abstract class AbstractSuccessfulMatchStateController<T extends AbstractSuccessfulMatchState> implements StateController, ResponseProcessingStateController, ResponsePreparedStateController, ErrorResponsePreparedStateController {
 
     protected final T state;
@@ -44,7 +48,7 @@ public abstract class AbstractSuccessfulMatchStateController<T extends AbstractS
     protected ResponseFromHub getResponse() {
         return responseFromHubFactory.createSuccessResponseFromHub(
                 state.getRequestId(),
-                state.getMatchingServiceAssertion(),
+                singletonList(state.getMatchingServiceAssertion()),
                 state.getRelayState(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri()

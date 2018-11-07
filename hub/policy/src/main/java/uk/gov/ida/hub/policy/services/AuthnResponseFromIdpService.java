@@ -23,6 +23,7 @@ import javax.inject.Inject;
 
 import static uk.gov.ida.hub.policy.domain.ResponseAction.cancel;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.failedUplift;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.identityVerified;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.other;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.pending;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.success;
@@ -112,11 +113,16 @@ public class AuthnResponseFromIdpService {
                 principalIPAddressAsSeenByHub,
                 inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp());
 
-        AttributeQueryRequestDto attributeQuery = idpSelectedStateController.createAttributeQuery(successFromIdp);
+        if (idpSelectedStateController.isRpMatching()) {
+            AttributeQueryRequestDto attributeQuery = idpSelectedStateController.createAttributeQuery(successFromIdp);
 
-        idpSelectedStateController.handleSuccessResponseFromIdp(successFromIdp);
-        attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
-        return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
+            idpSelectedStateController.handleSuccessResponseFromIdp(successFromIdp);
+            attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
+            return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
+        } else {
+            idpSelectedStateController.handleOptionalMatchingSuccessResponseFromIdp(successFromIdp);
+            return identityVerified(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
+        }
     }
 
     private ResponseAction handleRequesterError(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {

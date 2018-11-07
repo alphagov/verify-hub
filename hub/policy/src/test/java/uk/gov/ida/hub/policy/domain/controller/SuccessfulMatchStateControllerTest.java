@@ -60,7 +60,7 @@ public class SuccessfulMatchStateControllerTest {
                 .thenReturn(enabledIdentityProviders);
         when(responseFromHubFactory.createSuccessResponseFromHub(
                 state.getRequestId(),
-                state.getMatchingServiceAssertion(),
+                singletonList(state.getMatchingServiceAssertion()),
                 state.getRelayState(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri()))

@@ -10,6 +10,9 @@ import uk.gov.ida.hub.policy.exception.IdpDisabledException;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 
 import java.util.Collection;
+import java.util.Collections;
+
+import static java.util.Collections.singletonList;
 
 public class UserAccountCreatedStateController implements StateController, ResponseProcessingStateController, ResponsePreparedStateController, ErrorResponsePreparedStateController {
     private final IdentityProvidersConfigProxy identityProvidersConfigProxy;
@@ -37,7 +40,7 @@ public class UserAccountCreatedStateController implements StateController, Respo
     public ResponseFromHub getPreparedResponse() {
         return responseFromHubFactory.createSuccessResponseFromHub(
                 state.getRequestId(),
-                state.getMatchingServiceAssertion(),
+                singletonList(state.getMatchingServiceAssertion()),
                 state.getRelayState(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri()

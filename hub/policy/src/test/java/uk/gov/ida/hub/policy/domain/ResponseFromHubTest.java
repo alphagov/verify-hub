@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,7 +14,7 @@ public class ResponseFromHubTest {
     private static final String RESPONSE_ID = "responseId";
     private static final String IN_RESPONSE_TO = "inResponseTo";
     private static final String AUTHN_REQUEST_ISSUER_ENTITY_ID = "authnRequestIssuerEntityId";
-    private static final Optional<String> MATCHING_SERVICE_ASSERTION = Optional.of("matchingServiceAssertion");
+    private static final String MATCHING_SERVICE_ASSERTION = "matchingServiceAssertion";
     private static final Optional<String> RELAY_STATE = Optional.of("relayState");
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("assertionConsumerServiceUri");
     private ResponseFromHub responseFromHub;
@@ -24,7 +25,7 @@ public class ResponseFromHubTest {
             RESPONSE_ID,
             IN_RESPONSE_TO,
             AUTHN_REQUEST_ISSUER_ENTITY_ID,
-            MATCHING_SERVICE_ASSERTION,
+            Collections.singletonList(MATCHING_SERVICE_ASSERTION),
             RELAY_STATE,
             ASSERTION_CONSUMER_SERVICE_URI,
             TransactionIdaStatus.Success
@@ -48,7 +49,7 @@ public class ResponseFromHubTest {
 
     @Test
     public void getMatchingServiceAssertion() {
-        assertThat(responseFromHub.getMatchingServiceAssertion()).isEqualTo(MATCHING_SERVICE_ASSERTION);
+        assertThat(responseFromHub.getAssertions()).isEqualTo(MATCHING_SERVICE_ASSERTION);
     }
 
     @Test
@@ -73,7 +74,7 @@ public class ResponseFromHubTest {
         sb.append(",responseId=").append(responseFromHub.getResponseId());
         sb.append(",inResponseTo=").append(responseFromHub.getInResponseTo());
         sb.append(",status=").append(responseFromHub.getStatus());
-        sb.append(",matchingServiceAssertion=").append(responseFromHub.getMatchingServiceAssertion());
+        sb.append(",matchingServiceAssertion=").append(responseFromHub.getAssertions());
         sb.append(",relayState=").append(responseFromHub.getRelayState());
         sb.append(",assertionConsumerServiceUri=").append(responseFromHub.getAssertionConsumerServiceUri());
         sb.append(']');

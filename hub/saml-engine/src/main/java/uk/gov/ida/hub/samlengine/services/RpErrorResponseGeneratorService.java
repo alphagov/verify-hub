@@ -12,6 +12,8 @@ import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import java.util.Collections;
+
 import static java.util.Optional.empty;
 
 public class RpErrorResponseGeneratorService {
@@ -36,7 +38,7 @@ public class RpErrorResponseGeneratorService {
                     hubEntityId,
                     DateTime.now(),
                     TransactionIdaStatus.valueOf(requestForErrorResponseFromHubDto.getStatus().name()),
-                    empty(),
+                    Collections.emptyList(),
                     requestForErrorResponseFromHubDto.getAssertionConsumerServiceUri());
 
             final String errorResponse = outboundResponseFromHubToResponseTransformerFactory.get(requestForErrorResponseFromHubDto.getAuthnRequestIssuerEntityId()).apply(response);

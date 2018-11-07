@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
@@ -9,30 +8,33 @@ import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 import uk.gov.ida.saml.core.transformers.outbound.IdaResponseToSamlResponseTransformer;
 import uk.gov.ida.saml.core.transformers.outbound.IdaStatusMarshaller;
 
-import java.util.Optional;
-
 public class OutboundResponseFromHubToSamlResponseTransformer extends IdaResponseToSamlResponseTransformer<OutboundResponseFromHub> {
 
     private final IdaStatusMarshaller<TransactionIdaStatus> statusMarshaller;
     private final AssertionFromIdpToAssertionTransformer assertionTransformer;
+    private final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
 
     public OutboundResponseFromHubToSamlResponseTransformer(
             IdaStatusMarshaller<TransactionIdaStatus> statusMarshaller,
             OpenSamlXmlObjectFactory openSamlXmlObjectFactory,
-            AssertionFromIdpToAssertionTransformer assertionTransformer) {
+            AssertionFromIdpToAssertionTransformer assertionTransformer,
+            EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller) {
 
         super(openSamlXmlObjectFactory);
 
         this.statusMarshaller = statusMarshaller;
         this.assertionTransformer = assertionTransformer;
+        this.encryptedAssertionUnmarshaller = encryptedAssertionUnmarshaller;
     }
 
     @Override
     protected void transformAssertions(OutboundResponseFromHub originalResponse, Response transformedResponse) {
-        Optional<String> matchingServiceAssertion = originalResponse.getMatchingServiceAssertion();
-        if (matchingServiceAssertion.isPresent()) {
-            Assertion transformedAssertion = assertionTransformer.transform(matchingServiceAssertion.get());
-            transformedResponse.getAssertions().add(transformedAssertion);
+        for (String assertionString: originalResponse.getAssertions()) {
+            try {
+                transformedResponse.getAssertions().add(assertionTransformer.transform(assertionString));
+            } catch (ClassCastException ex) {
+                transformedResponse.getEncryptedAssertions().add(encryptedAssertionUnmarshaller.transform(assertionString));
+            }
         }
     }
 

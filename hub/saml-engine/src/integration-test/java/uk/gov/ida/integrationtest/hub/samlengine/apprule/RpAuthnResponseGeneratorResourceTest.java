@@ -35,8 +35,11 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
 
 import static io.dropwizard.testing.ConfigOverride.config;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.samlengine.builders.ResponseFromHubDtoBuilder.aResponseFromHubDto;
 
@@ -97,6 +100,44 @@ public class RpAuthnResponseGeneratorResourceTest {
         assertThat(response.getID()).isEqualTo(responseFromHubDto.getResponseId());
         assertThat(response.getInResponseTo()).isEqualTo(responseFromHubDto.getInResponseTo());
         assertThat(response.getIssuer().getValue()).isEqualTo(TestEntityIds.HUB_ENTITY_ID);
+    }
+
+    @Test
+    public void shouldGenerateRpAuthnResponseForMultipleAssertions() throws Exception {
+        // Given
+        String assertion1 = new XmlObjectToBase64EncodedStringTransformer<>().apply(AssertionBuilder.anEidasAssertion().buildUnencrypted());
+        String assertion2 = createAssertionString();
+
+        ResponseFromHubDto responseFromHubDto = new ResponseFromHubDto(
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                TestEntityIds.TEST_RP,
+                asList(assertion1, assertion2),
+                Optional.empty(),
+                URI.create("/default-index"),
+                TransactionIdaStatus.Success
+        );
+
+        configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+
+        // When
+        URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
+        Response rpAuthnResponse = client.target(generateAuthnResponseEndpoint).request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+
+        // Then
+        assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        AuthnResponseFromHubContainerDto actualResult = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
+                .class);
+
+        org.opensaml.saml.saml2.core.Response response = extractResponse(actualResult);
+
+        assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(response.getEncryptedAssertions()).isNotEmpty();
+        assertThat(response.getID()).isEqualTo(responseFromHubDto.getResponseId());
+        assertThat(response.getInResponseTo()).isEqualTo(responseFromHubDto.getInResponseTo());
+        assertThat(response.getIssuer().getValue()).isEqualTo(TestEntityIds.HUB_ENTITY_ID);
+        assertThat(response.getSignature()).isNotNull();
     }
 
     @Test

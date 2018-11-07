@@ -4,6 +4,7 @@ import uk.gov.ida.hub.samlengine.contracts.ResponseFromHubDto;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class ResponseFromHubDtoBuilder {
                 responseId,
                 inResponseTo,
                 authnRequestIssuerEntityId,
-                assertion,
+                Collections.singletonList(assertion.orElse("")),
                 relayState,
                 assertionConsumerServiceUri,
                 status

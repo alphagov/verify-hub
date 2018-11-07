@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.CANCEL;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.FAILED_UPLIFT;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.IDENTITY_VERIFIED;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.PENDING;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
@@ -13,7 +14,7 @@ import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
 // however, it appears Infinispan does not like it: (@JsonIgnoreProperties(ignoreUnknown = true))
 public final class ResponseAction {
     public enum IdpResult {
-        SUCCESS, CANCEL, FAILED_UPLIFT, PENDING, OTHER
+        SUCCESS, IDENTITY_VERIFIED, CANCEL, FAILED_UPLIFT, PENDING, OTHER
     }
     
     private SessionId sessionId;
@@ -32,6 +33,9 @@ public final class ResponseAction {
 
     @JsonIgnore
     public static ResponseAction success(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved) { return new ResponseAction(sessionId, SUCCESS, isRegistration, loaAchieved); }
+
+    @JsonIgnore
+    public static ResponseAction identityVerified(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved) { return new ResponseAction(sessionId, IDENTITY_VERIFIED, isRegistration, loaAchieved); }
 
     @JsonIgnore
     public static ResponseAction pending(SessionId sessionId) { return new ResponseAction(sessionId, PENDING, true, null); }

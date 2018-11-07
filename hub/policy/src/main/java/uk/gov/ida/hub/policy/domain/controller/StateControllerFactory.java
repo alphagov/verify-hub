@@ -25,6 +25,7 @@ import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingRequestReceivedState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
@@ -88,6 +89,13 @@ public class StateControllerFactory {
                         injector.getInstance(PolicyConfiguration.class),
                         injector.getInstance(AssertionRestrictionsFactory.class),
                         injector.getInstance(MatchingServiceConfigProxy.class));
+
+            case NON_MATCHING_REQUEST_RECEIVED:
+                return new NonMatchingRequestReceivedStateController(
+                        (NonMatchingRequestReceivedState) state,
+                       injector.getInstance(ResponseFromHubFactory.class),
+                       injector.getInstance(IdentityProvidersConfigProxy.class)
+                );
 
             case CYCLE_0_AND_1_MATCH_REQUEST_SENT:
                 return new Cycle0And1MatchRequestSentStateController(

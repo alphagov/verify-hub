@@ -455,16 +455,16 @@ public class HubTransformersFactory {
         return new OutboundResponseFromHubToSamlResponseTransformer(
                 new TransactionIdaStatusMarshaller(new OpenSamlXmlObjectFactory()),
                 new OpenSamlXmlObjectFactory(),
-                new AssertionFromIdpToAssertionTransformer(getStringToAssertionTransformer())
-        );
+                new AssertionFromIdpToAssertionTransformer(getStringToAssertionTransformer()),
+                new EncryptedAssertionUnmarshaller(getStringToEncryptedAssertionTransformer()));
     }
 
     private OutboundResponseFromHubToSamlResponseTransformer getSamlProfileOutboundResponseFromHubToSamlResponseTransformer() {
         return new OutboundResponseFromHubToSamlResponseTransformer(
                 new SamlProfileTransactionIdaStatusMarshaller(new OpenSamlXmlObjectFactory()),
                 new OpenSamlXmlObjectFactory(),
-                new AssertionFromIdpToAssertionTransformer(getStringToAssertionTransformer())
-        );
+                new AssertionFromIdpToAssertionTransformer(getStringToAssertionTransformer()),
+                new EncryptedAssertionUnmarshaller(getStringToEncryptedAssertionTransformer()));
     }
 
     private HubIdentityProviderMetadataDtoToEntityDescriptorTransformer getHubIdentityProviderMetadataDtoToEntityDescriptorTransformer() {

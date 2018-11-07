@@ -23,12 +23,14 @@ public class OutboundResponseFromHubToSamlResponseTransformerTest {
     private TransactionIdaStatusMarshaller statusMarshaller = null;
     @Mock
     private AssertionFromIdpToAssertionTransformer assertionTransformer = null;
+    @Mock
+    private EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller = null;
     private OutboundResponseFromHubToSamlResponseTransformer transformer;
 
     @Before
     public void setup() {
         OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
-        transformer = new OutboundResponseFromHubToSamlResponseTransformer(statusMarshaller, openSamlXmlObjectFactory, assertionTransformer);
+        transformer = new OutboundResponseFromHubToSamlResponseTransformer(statusMarshaller, openSamlXmlObjectFactory, assertionTransformer, encryptedAssertionUnmarshaller);
     }
 
     @Test

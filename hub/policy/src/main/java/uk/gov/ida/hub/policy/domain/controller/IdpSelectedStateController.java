@@ -23,6 +23,7 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingRequestReceivedState;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
@@ -35,6 +36,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.wrongResponseIssuer;
 
 public class IdpSelectedStateController implements ErrorResponsePreparedStateController, IdpSelectingStateController, AuthnRequestCapableController, RestartJourneyStateController {
@@ -145,6 +147,26 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
         stateTransitionAction.transitionTo(createRequesterErrorState());
     }
 
+    public void handleOptionalMatchingSuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
+        validateIdpIsEnabledAndWasIssuedWithRequest(successFromIdp.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
+        validateIdpLevelOfAssuranceIsInAcceptedLevels(successFromIdp.getLevelOfAssurance(), state.getLevelsOfAssurance());
+        validateReturnedLevelOfAssuranceFromIdpIsConsistentWithIdpConfig(successFromIdp.getLevelOfAssurance(), successFromIdp.getIssuer(), state.getRequestId());
+        hubEventLogger.logIdpAuthnSucceededEvent(
+                state.getSessionId(),
+                state.getSessionExpiryTimestamp(),
+                state.getIdpEntityId(),
+                state.getRequestIssuerEntityId(),
+                successFromIdp.getPersistentId(),
+                state.getRequestId(),
+                state.getLevelsOfAssurance().get(0),
+                state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
+                successFromIdp.getLevelOfAssurance(),
+                successFromIdp.getPrincipalIpAddressAsSeenByIdp(),
+                successFromIdp.getPrincipalIpAddressAsSeenByHub());
+
+        stateTransitionAction.transitionTo(createNonMatchingRequestReceivedState(successFromIdp));
+    }
+
     public void handleSuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
         validateIdpIsEnabledAndWasIssuedWithRequest(successFromIdp.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
         validateIdpLevelOfAssuranceIsInAcceptedLevels(successFromIdp.getLevelOfAssurance(), state.getLevelsOfAssurance());
@@ -242,6 +264,22 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getRelayState());
     }
 
+    private State createNonMatchingRequestReceivedState(SuccessFromIdp successFromIdp) {
+        return new NonMatchingRequestReceivedState(
+                state.getRequestId(),
+                state.getSessionExpiryTimestamp(),
+                successFromIdp.getIssuer(),
+                asList(successFromIdp.getAuthnStatementAssertion(), successFromIdp.getEncryptedMatchingDatasetAssertion()),
+                state.getRelayState().orNull(),
+                state.getRequestIssuerEntityId(),
+                state.getAssertionConsumerServiceUri(),
+                new SessionId(state.getSessionId().getSessionId()),
+                successFromIdp.getLevelOfAssurance(),
+                state.isRegistering(),
+                state.getTransactionSupportsEidas()
+        );
+    }
+
     private State createCycle0And1MatchRequestSentState(SuccessFromIdp successFromIdp) {
         String authnStatementAssertion = successFromIdp.getAuthnStatementAssertion();
 
@@ -301,9 +339,17 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
     }
 
     public String getMatchingServiceEntityId() {
+        if (!isRpMatching()) {
+            return state.getRequestIssuerEntityId();
+        }
         return Optional
                 .ofNullable(state.getMatchingServiceEntityId())
                 .orElse(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId()));
+    }
+
+    public boolean isRpMatching() {
+        //return transactionsConfigProxy.isRpUsingNonMatching(state.getRequestIssuerEntityId());
+        return !state.getRequestIssuerEntityId().equals("http://www.test-rp-noc3.gov.uk/SAML2/MD");
     }
 
     @Override
