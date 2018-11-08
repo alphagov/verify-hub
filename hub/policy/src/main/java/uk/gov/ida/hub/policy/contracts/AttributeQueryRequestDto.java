@@ -21,7 +21,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
 
     @NotNull
     private final String encryptedMatchingDatasetAssertion;
-    private final String authnStatementAssertion;
+    private final String encryptedAuthnAssertion;
 
     public AttributeQueryRequestDto(
         final String requestId,
@@ -37,7 +37,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
         final Optional<Cycle3Dataset> cycle3Dataset,
         final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
         final String encryptedMatchingDatasetAssertion,
-        final String authnStatementAssertion) {
+        final String encryptedAuthnAssertion) {
 
         super(
             requestId,
@@ -53,13 +53,13 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             cycle3Dataset,
             userAccountCreationAttributes);
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
-        this.authnStatementAssertion = authnStatementAssertion;
+        this.encryptedAuthnAssertion = encryptedAuthnAssertion;
     }
 
     public static AttributeQueryRequestDto createCycle3MatchingServiceRequest(
             String requestId,
             String encryptedMatchingDatasetAssertion,
-            String authnStatementAssertion,
+            String encryptedAuthnAssertion,
             Cycle3Dataset cycle3Assertion,
             String authnRequestIssuerEntityId,
             URI assertionConsumerServiceUri,
@@ -85,14 +85,14 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             Optional.fromNullable(cycle3Assertion),
             userAccountCreationAttributes,
             encryptedMatchingDatasetAssertion,
-            authnStatementAssertion
+            encryptedAuthnAssertion
         );
     }
 
     public static AttributeQueryRequestDto createCycle01MatchingServiceRequest(
             String requestId,
             String encryptedMatchingDatasetAssertion,
-            String authnStatementAssertion,
+            String encryptedAuthnAssertion,
             String authnRequestIssuerEntityId,
             URI assertionConsumerServiceUri,
             String matchingServiceEntityId,
@@ -117,7 +117,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             Optional.absent(),
             Optional.absent(),
             encryptedMatchingDatasetAssertion,
-            authnStatementAssertion
+            encryptedAuthnAssertion
         );
     }
 
@@ -155,8 +155,8 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
         );
     }
 
-    public String getAuthnStatementAssertion() {
-        return authnStatementAssertion;
+    public String getEncryptedAuthnAssertion() {
+        return encryptedAuthnAssertion;
     }
 
     @Nullable
@@ -194,7 +194,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             Objects.equals(getCycle3Dataset(), that.getCycle3Dataset()) &&
             Objects.equals(getUserAccountCreationAttributes(), that.getUserAccountCreationAttributes()) &&
             Objects.equals(encryptedMatchingDatasetAssertion, that.encryptedMatchingDatasetAssertion) &&
-            Objects.equals(authnStatementAssertion, that.authnStatementAssertion);
+            Objects.equals(encryptedAuthnAssertion, that.encryptedAuthnAssertion);
     }
 
     @Override
@@ -213,6 +213,6 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             getCycle3Dataset(),
             getUserAccountCreationAttributes(),
             encryptedMatchingDatasetAssertion,
-            authnStatementAssertion);
+                encryptedAuthnAssertion);
     }
 }

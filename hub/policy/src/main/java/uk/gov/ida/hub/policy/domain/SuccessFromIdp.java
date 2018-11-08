@@ -6,7 +6,7 @@ public class SuccessFromIdp {
 
     private String issuer;
     private String encryptedMatchingDatasetAssertion;
-    private String authnStatementAssertion;
+    private String encryptedAuthnAssertion;
     private PersistentId persistentId;
     private LevelOfAssurance levelOfAssurance;
     private String principalIpAddressAsSeenByHub;
@@ -19,7 +19,7 @@ public class SuccessFromIdp {
     public SuccessFromIdp(
             String issuer,
             String encryptedMatchingDatasetAssertion,
-            String authnStatementAssertion,
+            String encryptedAuthnAssertion,
             PersistentId persistentId,
             LevelOfAssurance levelOfAssurance,
             String principalIpAddressAsSeenByHub,
@@ -27,7 +27,7 @@ public class SuccessFromIdp {
 
         this.issuer = issuer;
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
-        this.authnStatementAssertion = authnStatementAssertion;
+        this.encryptedAuthnAssertion = encryptedAuthnAssertion;
         this.persistentId = persistentId;
         this.levelOfAssurance = levelOfAssurance;
         this.principalIpAddressAsSeenByHub = principalIpAddressAsSeenByHub;
@@ -38,8 +38,8 @@ public class SuccessFromIdp {
         return issuer;
     }
 
-    public String getAuthnStatementAssertion() {
-        return authnStatementAssertion;
+    public String getEncryptedAuthnAssertion() {
+        return encryptedAuthnAssertion;
     }
 
     public PersistentId getPersistentId() {

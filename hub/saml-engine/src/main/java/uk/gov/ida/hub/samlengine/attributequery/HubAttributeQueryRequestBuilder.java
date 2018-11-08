@@ -33,7 +33,7 @@ public class HubAttributeQueryRequestBuilder {
                 attributeQueryRequestDto.getRequestId(),
                 new PersistentId(attributeQueryRequestDto.getPersistentId().getNameId()),
                 attributeQueryRequestDto.getEncryptedMatchingDatasetAssertion(),
-                attributeQueryRequestDto.getAuthnStatementAssertion(),
+                attributeQueryRequestDto.getEncryptedAuthnAssertion(),
                 cycle3AttributeAssertion,
                 attributeQueryRequestDto.getUserAccountCreationAttributes(),
                 DateTime.now(),
