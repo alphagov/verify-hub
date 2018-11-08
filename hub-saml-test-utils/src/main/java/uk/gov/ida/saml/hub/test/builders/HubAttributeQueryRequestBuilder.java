@@ -19,7 +19,7 @@ public class HubAttributeQueryRequestBuilder {
 
     private String id = "id";
     private PersistentId persistentId = new PersistentId("default-name-id");
-    private String authnStatementAssertion = "aPassthroughAssertion().buildAuthnStatementAssertion()";
+    private String encryptedAuthnAssertion = "aPassthroughAssertion().buildAuthnStatementAssertion()";
     private Optional<HubAssertion> cycle3AttributeAssertion = absent();
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes = absent();
     private URI assertionConsumerServiceUrl = URI.create("http://transaction.com");
@@ -37,7 +37,7 @@ public class HubAttributeQueryRequestBuilder {
                 id,
                 persistentId,
                 encryptedMathcingDatasetAssertion,
-                authnStatementAssertion,
+                encryptedAuthnAssertion,
                 cycle3AttributeAssertion,
                 userAccountCreationAttributes,
                 DateTime.now(),
@@ -63,8 +63,8 @@ public class HubAttributeQueryRequestBuilder {
         return this;
     }
 
-    public HubAttributeQueryRequestBuilder withAuthnStatementAssertion(String authnStatementAssertion) {
-        this.authnStatementAssertion = authnStatementAssertion;
+    public HubAttributeQueryRequestBuilder withEncryptedAuthnAssertion(String authnStatementAssertion) {
+        this.encryptedAuthnAssertion = authnStatementAssertion;
         return this;
     }
 

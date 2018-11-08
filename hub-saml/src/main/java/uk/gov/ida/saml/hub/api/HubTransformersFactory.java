@@ -491,9 +491,6 @@ public class HubTransformersFactory {
                         new OpenSamlXmlObjectFactory(),
                         new AttributeFactory_1_1(new OpenSamlXmlObjectFactory()),
                         new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory())),
-                new AssertionFromIdpToAssertionTransformer(
-                        getStringToAssertionTransformer()
-                ),
                 new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory()),
                 new EncryptedAssertionUnmarshaller(getStringToEncryptedAssertionTransformer()));
     }

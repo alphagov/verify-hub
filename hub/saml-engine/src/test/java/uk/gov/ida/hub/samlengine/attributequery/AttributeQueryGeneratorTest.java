@@ -81,7 +81,7 @@ public class AttributeQueryGeneratorTest {
         HubAttributeQueryRequest request = hubAttributeQueryRequestCaptor.getValue();
 
         assertThat(request.getId()).isEqualTo(hubAttributeQueryRequest.getId());
-        assertThat(request.getAuthnStatementAssertion()).isEqualTo(hubAttributeQueryRequest.getAuthnStatementAssertion());
+        assertThat(request.getEncryptedAuthnAssertion()).isEqualTo(hubAttributeQueryRequest.getEncryptedAuthnAssertion());
         assertThat(request.getCycle3AttributeAssertion()).isAbsent();
         assertThat(request.getIssueInstant()).isEqualTo(DateTime.now());
         assertThat(request.getAssertionConsumerServiceUrl()).isEqualTo(hubAttributeQueryRequest.getAssertionConsumerServiceUrl());

@@ -11,7 +11,7 @@ import java.net.URI;
 import java.util.List;
 
 public class HubAttributeQueryRequest extends BaseHubAttributeQueryRequest {
-    private String authnStatementAssertion;
+    private String encryptedAuthnAssertion;
     private Optional<HubAssertion> cycle3AttributeAssertion;
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes;
     private AuthnContext authnContext;
@@ -22,7 +22,7 @@ public class HubAttributeQueryRequest extends BaseHubAttributeQueryRequest {
             String id,
             PersistentId persistentId,
             String encryptedMatchingDatasetAssertion,
-            String authnStatementAssertion,
+            String encryptedAuthnAssertion,
             Optional<HubAssertion> cycle3AttributeAssertion,
             Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
             DateTime issueInstant,
@@ -31,7 +31,7 @@ public class HubAttributeQueryRequest extends BaseHubAttributeQueryRequest {
             AuthnContext authnContext,
             String hubEntityId) {
         super(id, hubEntityId, issueInstant, null, persistentId, assertionConsumerServiceUrl, authnRequestIssuerEntityId);
-        this.authnStatementAssertion = authnStatementAssertion;
+        this.encryptedAuthnAssertion = encryptedAuthnAssertion;
         this.cycle3AttributeAssertion = cycle3AttributeAssertion;
         this.userAccountCreationAttributes = userAccountCreationAttributes;
         this.authnContext = authnContext;
@@ -47,8 +47,8 @@ public class HubAttributeQueryRequest extends BaseHubAttributeQueryRequest {
         return userAccountCreationAttributes;
     }
 
-    public String getAuthnStatementAssertion() {
-        return authnStatementAssertion;
+    public String getEncryptedAuthnAssertion() {
+        return encryptedAuthnAssertion;
     }
 
     public AuthnContext getAuthnContext() {
