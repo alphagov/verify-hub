@@ -46,6 +46,8 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -93,6 +95,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
     private String persistentIdName = "id name";
     private String responseIssuer = "responseIssuer";
     private String authStatementUnderlyingAssertionBlob = "some more saml";
+    private String encryptedAuthnAssertion = "some encrypted saml";
     private String matchingDatasetUnderlyingAssertionBlob = "blob";
     private IdpAuthnResponseTranslatorService service;
 
@@ -134,6 +137,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
                 .buildUnencrypted();
 
         when(responseContainer.getSamlResponse()).thenReturn(saml);
+        when(assertionBlobEncrypter.encryptAssertionBlob(any(), eq(authStatementUnderlyingAssertionBlob))).thenReturn(encryptedAuthnAssertion);
         when(stringToOpenSamlResponseTransformer.apply(saml)).thenReturn(samlResponse);
         when(samlResponseToIdaResponseIssuedByIdpTransformer.apply(samlResponse)).thenReturn(responseFromIdp);
         when(authStatementAssertion.getUnderlyingAssertionBlob()).thenReturn(authStatementUnderlyingAssertionBlob);
@@ -203,7 +207,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
     public void shouldHandleNoAssertions() {
         InboundResponseFromIdpDto result = translateAndCheckCommonFields();
 
-        assertThat(result.getAuthnStatementAssertionBlob().isPresent()).isFalse();
+        assertThat(result.getEncryptedAuthnAssertion().isPresent()).isFalse();
         assertThat(result.getEncryptedMatchingDatasetAssertion().isPresent()).isFalse();
         assertThat(result.getLevelOfAssurance().isPresent()).isFalse();
         assertThat(result.getPersistentId().isPresent()).isFalse();
@@ -250,7 +254,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
     }
 
     private void checkAuthnStatementValues(InboundResponseFromIdpDto result) {
-        assert(result.getAuthnStatementAssertionBlob().get()).equals(authStatementUnderlyingAssertionBlob);
+        assert(result.getEncryptedAuthnAssertion().get()).equals(encryptedAuthnAssertion);
         assert(result.getPrincipalIpAddressAsSeenByIdp().get()).equals(principalIpAddressSeenByIdp);
         assert(result.getPersistentId().get()).equals(persistentIdName);
     }

@@ -289,7 +289,7 @@ public class AuthnResponseFromIdpServiceTest {
         SuccessFromIdp expectedSuccessFromIdp = SuccessFromIdpBuilder.aSuccessFromIdp()
                 .withIssuerId(successResponseFromIdp.getIssuer())
                 .withEncryptedMatchingDatasetAssertion(successResponseFromIdp.getEncryptedMatchingDatasetAssertion().get())
-                .withAuthnStatementAssertion(successResponseFromIdp.getAuthnStatementAssertionBlob().get())
+                .withAuthnStatementAssertion(successResponseFromIdp.getEncryptedAuthnAssertion().get())
                 .withPersistentId(persistentId)
                 .withLevelOfAssurance(successResponseFromIdp.getLevelOfAssurance().get())
                 .withPrincipalIpAddressAsSeenByHub(samlAuthnResponseContainerDto.getPrincipalIPAddressAsSeenByHub())
