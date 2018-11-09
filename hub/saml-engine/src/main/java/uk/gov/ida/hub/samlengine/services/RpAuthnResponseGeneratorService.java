@@ -52,7 +52,7 @@ public class RpAuthnResponseGeneratorService {
                 hubEntityId,
                 DateTime.now(),
                 TransactionIdaStatus.valueOf(responseFromHub.getStatus().name()),
-                responseFromHub.getMatchingServiceAssertion(),
+                responseFromHub.getEncryptedMatchingServiceAssertion(),
                 responseFromHub.getAssertionConsumerServiceUri());
 
         String samlMessage = outboundResponseFromHubToResponseTransformerFactory.get(authnRequestIssuerEntityId).apply(response);

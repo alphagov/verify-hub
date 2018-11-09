@@ -99,6 +99,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseT
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
+import uk.gov.ida.saml.hub.transformers.outbound.EncryptedAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
@@ -187,6 +188,7 @@ public class SamlEngineModule extends AbstractModule {
         bind(ResponseToUnsignedStringTransformer.class);
         bind(ResponseAssertionSigner.class);
         bind(SimpleProfileTransactionIdaStatusMarshaller.class);
+        bind(EncryptedAssertionUnmarshaller.class).toInstance(hubTransformersFactory.getEncryptedAssertionUnmarshaller());
         bind(IdpAuthnResponseTranslatorService.class);
         bind(InboundResponseFromIdpDataGenerator.class);
         bind(MatchingServiceRequestGeneratorService.class);

@@ -1,39 +1,36 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import javax.inject.Inject;
-import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.transformers.outbound.IdaResponseToSamlResponseTransformer;
 
-import java.util.Optional;
+import javax.inject.Inject;
 
 public class SimpleProfileOutboundResponseFromHubToSamlResponseTransformer extends IdaResponseToSamlResponseTransformer<OutboundResponseFromHub> {
 
     private final SimpleProfileTransactionIdaStatusMarshaller statusMarshaller;
-    private final AssertionFromIdpToAssertionTransformer assertionTransformer;
+    private final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
 
     @Inject
     public SimpleProfileOutboundResponseFromHubToSamlResponseTransformer(
             SimpleProfileTransactionIdaStatusMarshaller statusMarshaller,
             OpenSamlXmlObjectFactory openSamlXmlObjectFactory,
-            AssertionFromIdpToAssertionTransformer assertionTransformer) {
+            EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller) {
 
         super(openSamlXmlObjectFactory);
 
         this.statusMarshaller = statusMarshaller;
-        this.assertionTransformer = assertionTransformer;
+        this.encryptedAssertionUnmarshaller = encryptedAssertionUnmarshaller;
     }
 
     @Override
     protected void transformAssertions(OutboundResponseFromHub originalResponse, Response transformedResponse) {
-        Optional<String> matchingServiceAssertion = originalResponse.getMatchingServiceAssertion();
-        if (matchingServiceAssertion.isPresent()) {
-            Assertion transformedAssertion = assertionTransformer.transform(matchingServiceAssertion.get());
-            transformedResponse.getAssertions().add(transformedAssertion);
-        }
+        originalResponse
+                .getMatchingServiceAssertion()
+                .map(encryptedAssertionUnmarshaller::transform)
+                .map(transformedResponse.getEncryptedAssertions()::add);
     }
 
     @Override

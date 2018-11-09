@@ -11,7 +11,7 @@ public class ResponseFromHubDto {
     private String responseId;
     private String inResponseTo;
     private TransactionIdaStatus status;
-    private Optional<String> matchingServiceAssertion;
+    private Optional<String> encryptedMatchingServiceAssertion;
     private Optional<String> relayState;
     private URI assertionConsumerServiceUri;
 
@@ -23,7 +23,7 @@ public class ResponseFromHubDto {
             String responseId,
             String inResponseTo,
             String authnRequestIssuerEntityId,
-            Optional<String> matchingServiceAssertion,
+            Optional<String> encryptedMatchingServiceAssertion,
             Optional<String> relayState,
             URI assertionConsumerServiceUri,
             TransactionIdaStatus status) {
@@ -31,7 +31,7 @@ public class ResponseFromHubDto {
         this.authnRequestIssuerEntityId = authnRequestIssuerEntityId;
         this.responseId = responseId;
         this.inResponseTo = inResponseTo;
-        this.matchingServiceAssertion = matchingServiceAssertion;
+        this.encryptedMatchingServiceAssertion = encryptedMatchingServiceAssertion;
         this.relayState = relayState;
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         this.status = status;
@@ -49,8 +49,8 @@ public class ResponseFromHubDto {
         return inResponseTo;
     }
 
-    public Optional<String> getMatchingServiceAssertion() {
-        return matchingServiceAssertion;
+    public Optional<String> getEncryptedMatchingServiceAssertion() {
+        return encryptedMatchingServiceAssertion;
     }
 
     public Optional<String> getRelayState() {
