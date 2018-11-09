@@ -5,9 +5,9 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
-
-import static com.google.common.base.Optional.absent;
 
 public class ResponseFromHubBuilder {
 
@@ -15,7 +15,7 @@ public class ResponseFromHubBuilder {
     private String responseId = UUID.randomUUID().toString();
     private String inResponseTo = UUID.randomUUID().toString();
     private uk.gov.ida.hub.policy.domain.TransactionIdaStatus status = TransactionIdaStatus.Success;
-    private Optional<String> matchingDatasetAssertion = absent();
+    private List<String> encryptedAssertions = new ArrayList<>();
     private Optional<String> relayState = Optional.absent();
     private URI assertionConsumerServiceUri = URI.create("/default-index");
 
@@ -33,7 +33,7 @@ public class ResponseFromHubBuilder {
                 responseId,
                 inResponseTo,
                 authnRequestIssuerEntityId,
-                matchingDatasetAssertion,
+                encryptedAssertions,
                 relayState,
                 assertionConsumerServiceUri,
                 status

@@ -5,8 +5,11 @@ import uk.gov.ida.common.shared.security.IdGenerator;
 
 import javax.inject.Inject;
 import java.net.URI;
+import java.util.Collections;
 
 import static com.google.common.base.Optional.fromNullable;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 public class ResponseFromHubFactory {
 
@@ -28,7 +31,7 @@ public class ResponseFromHubFactory {
                 idGenerator.getId(),
                 inResponseTo,
                 authnRequestIssuerEntityId,
-                fromNullable(matchingServiceAssertion),
+                singletonList(matchingServiceAssertion),
                 relayState,
                 assertionConsumerServiceUri,
                 TransactionIdaStatus.Success
@@ -45,7 +48,7 @@ public class ResponseFromHubFactory {
                 idGenerator.getId(),
                 inResponseTo,
                 authnRequestIssuerEntityId,
-                Optional.<String>absent(),
+                emptyList(),
                 relayState,
                 assertionConsumerServiceUri,
                 TransactionIdaStatus.NoAuthenticationContext
@@ -62,7 +65,7 @@ public class ResponseFromHubFactory {
                 idGenerator.getId(),
                 inResponseTo,
                 authnRequestIssuerEntityId,
-                Optional.<String>absent(),
+                emptyList(),
                 relayState,
                 assertionConsumerServiceUri,
                 TransactionIdaStatus.NoMatchingServiceMatchFromHub
@@ -79,7 +82,7 @@ public class ResponseFromHubFactory {
                 idGenerator.getId(),
                 inResponseTo,
                 authnRequestIssuerEntityId,
-                Optional.<String>absent(),
+                emptyList(),
                 relayState,
                 assertionConsumerServiceUri,
                 TransactionIdaStatus.AuthenticationFailed
@@ -96,7 +99,7 @@ public class ResponseFromHubFactory {
             idGenerator.getId(),
             requestId,
             requestIssuerId,
-            Optional.<String>absent(),
+            emptyList(),
             relayState,
             assertionConsumerServiceUri,
             TransactionIdaStatus.RequesterError

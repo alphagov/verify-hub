@@ -26,10 +26,10 @@ public class OutboundResponseFromHubToSamlResponseTransformer extends IdaRespons
 
     @Override
     protected void transformAssertions(OutboundResponseFromHub originalResponse, Response transformedResponse) {
-        originalResponse
-                .getMatchingServiceAssertion()
+        originalResponse.getEncryptedAssertions()
+                .stream()
                 .map(encryptedAssertionUnmarshaller::transform)
-                .map(transformedResponse.getEncryptedAssertions()::add);
+                .forEach(transformedResponse.getEncryptedAssertions()::add);
     }
 
     @Override

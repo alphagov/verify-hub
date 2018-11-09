@@ -6,7 +6,6 @@ import uk.gov.ida.hub.samlengine.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.samlengine.contracts.ResponseFromHubDto;
 import uk.gov.ida.hub.samlengine.exceptions.UnableToGenerateSamlException;
 import uk.gov.ida.hub.samlengine.factories.OutboundResponseFromHubToResponseTransformerFactory;
-import uk.gov.ida.hub.samlengine.locators.AssignableEntityToEncryptForLocator;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 
@@ -42,7 +41,7 @@ public class RpAuthnResponseGeneratorService {
                 hubEntityId,
                 DateTime.now(),
                 TransactionIdaStatus.valueOf(responseFromHub.getStatus().name()),
-                responseFromHub.getEncryptedMatchingServiceAssertion(),
+                responseFromHub.getEncryptedAssertions(),
                 responseFromHub.getAssertionConsumerServiceUri());
 
         String samlMessage = outboundResponseFromHubToResponseTransformerFactory.get(authnRequestIssuerEntityId).apply(response);

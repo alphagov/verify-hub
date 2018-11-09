@@ -77,7 +77,7 @@ public class RpAuthnResponseGeneratorResourceTest {
         ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
                 .withStatus(TransactionIdaStatus.NoMatchingServiceMatchFromHub)
                 .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
-                .withAssertion(createAssertionString())
+                .addEncryptedAssertion(createAssertionString())
                 .build();
         configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
         configStub.signResponsesAndUseLegacyStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
@@ -106,7 +106,7 @@ public class RpAuthnResponseGeneratorResourceTest {
 
         ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
                 .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
-                .withAssertion(assertion)
+                .addEncryptedAssertion(assertion)
                 .withStatus(TransactionIdaStatus.Success)
                 .build();
 
@@ -139,7 +139,7 @@ public class RpAuthnResponseGeneratorResourceTest {
 
         ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
                 .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
-                .withAssertion(assertion)
+                .addEncryptedAssertion(assertion)
                 .withStatus(TransactionIdaStatus.Success)
                 .build();
 
