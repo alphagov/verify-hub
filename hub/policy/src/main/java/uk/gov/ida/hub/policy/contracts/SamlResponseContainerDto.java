@@ -15,4 +15,8 @@ public class SamlResponseContainerDto {
     public String getSamlResponse() {
         return samlResponse;
     }
+
+    public String getAuthnRequestIssuerId() {
+        return authnRequestIssuerId;
+    }
 }

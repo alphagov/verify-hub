@@ -10,7 +10,6 @@ public class SamlResponseContainerDto {
     }
 
     protected SamlResponseContainerDto() {
-
     }
 
     public String getSamlResponse() {
