@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import org.apache.log4j.Logger;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
+import uk.gov.ida.hub.policy.contracts.SamlResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.NoMatchFromMatchingService;
@@ -42,8 +43,14 @@ public class MatchingServiceResponseService {
 
     public void handleSuccessResponse(SessionId sessionId, SamlResponseDto samlResponse) {
         getSessionIfItExists(sessionId);
+
+        SamlResponseContainerDto samlResponseContainer = new SamlResponseContainerDto(
+            samlResponse.getSamlResponse(),
+            sessionRepository.getRequestIssuerEntityId(sessionId)
+        );
+
         try {
-            InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = samlEngineProxy.translateMatchingServiceResponse(samlResponse);
+            InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = samlEngineProxy.translateMatchingServiceResponse(samlResponseContainer);
             updateSessionState(sessionId, inboundResponseFromMatchingServiceDto);
         } catch(ApplicationException e) {
             // this is not ideal but if the call to saml-proxy fails we want to log the failure

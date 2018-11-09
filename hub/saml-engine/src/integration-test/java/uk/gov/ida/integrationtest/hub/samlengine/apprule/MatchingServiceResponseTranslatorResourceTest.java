@@ -24,7 +24,7 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
-import uk.gov.ida.hub.samlengine.domain.SamlResponseDto;
+import uk.gov.ida.hub.samlengine.domain.SamlResponseContainerDto;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
@@ -48,8 +48,10 @@ import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PRIVAT
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC_ENCRYPTION_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC_SIGNING_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PRIVATE_SIGNING_KEY;
+import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PUBLIC_ENCRYPTION_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PUBLIC_SIGNING_CERT;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
+import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder.anAuthnStatement;
@@ -90,6 +92,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
     @Before
     public void beforeEach() throws Exception {
         configStub.setupCertificatesForEntity(TEST_RP_MS, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
+        configStub.setupCertificatesForEntity(TEST_RP, TEST_RP_PUBLIC_SIGNING_CERT, TEST_RP_PUBLIC_ENCRYPTION_CERT);
     }
 
     @After
@@ -103,9 +106,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(SUCCESS).build()).build();
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status)));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status)), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = clientResponse.readEntity(InboundResponseFromMatchingServiceDto.class);
@@ -122,9 +125,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.NO_MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(RESPONDER).build()).build();
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingService(requestId, status, TEST_RP_MS)));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingService(requestId, status, TEST_RP_MS)), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = clientResponse.readEntity(InboundResponseFromMatchingServiceDto.class);
@@ -140,9 +143,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = StatusCode.NO_AUTHN_CONTEXT;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(REQUESTER).build()).build();
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingService(requestId, status, TEST_RP_MS)));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingService(requestId, status, TEST_RP_MS)), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = clientResponse.readEntity(InboundResponseFromMatchingServiceDto.class);
@@ -158,9 +161,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.CREATED;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(SUCCESS).build()).build();
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status)));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status)), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = clientResponse.readEntity(InboundResponseFromMatchingServiceDto.class);
@@ -172,11 +175,11 @@ public class MatchingServiceResponseTranslatorResourceTest {
         assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
     }
 
-    private Response postToSamlEngine(SamlResponseDto samlResponseDto) {
+    private Response postToSamlEngine(SamlResponseContainerDto samlResponseContainerDto) {
         return client
                     .target(samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_MATCHING_SERVICE_RESPONSE_RESOURCE))
                     .request()
-                    .post(Entity.json(samlResponseDto));
+                    .post(Entity.json(samlResponseContainerDto));
     }
 
     @Test
@@ -184,9 +187,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(SUCCESS).build()).build();
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(Base64.encodeAsString(aValidMatchResponseFromMatchingServiceWithMissingData(requestId, status, TEST_RP_MS)));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidMatchResponseFromMatchingServiceWithMissingData(requestId, status, TEST_RP_MS)), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto errorStatusDto = clientResponse.readEntity(ErrorStatusDto.class);
@@ -199,9 +202,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.NO_MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(RESPONDER).build()).build();
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingServiceisBadlySigned(requestId, status, TEST_RP_MS)));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingServiceisBadlySigned(requestId, status, TEST_RP_MS)), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto errorStatusDto = clientResponse.readEntity(ErrorStatusDto.class);
@@ -211,9 +214,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
     @Test
     public void shouldNotReturnADtoWhenResponseIs_bad() throws Exception {
         final String requestId = "requestId";
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(Base64.encodeAsString(anInvalidAMatchingServiceSamlResponse(requestId)));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(anInvalidAMatchingServiceSamlResponse(requestId)), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto errorStatusDto = clientResponse.readEntity(ErrorStatusDto.class);
@@ -222,9 +225,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
 
     @Test
     public void shouldNotReturnADtoWhenResponseIs_Nonsense() {
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(StringUtils.rightPad("test", 2000, "x"));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(StringUtils.rightPad("test", 2000, "x"), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto errorStatusDto = clientResponse.readEntity(ErrorStatusDto.class);
@@ -236,9 +239,9 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(SUCCESS).build()).build();
-        final SamlResponseDto samlResponseDto = new SamlResponseDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status, DateTime.now().minusDays(1))));
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status, DateTime.now().minusDays(1))), TEST_RP);
 
-        Response clientResponse = postToSamlEngine(samlResponseDto);
+        Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto errorStatusDto = clientResponse.readEntity(ErrorStatusDto.class);

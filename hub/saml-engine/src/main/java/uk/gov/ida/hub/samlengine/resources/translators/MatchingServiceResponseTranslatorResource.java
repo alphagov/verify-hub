@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.InboundResponseFromMatchingServiceDto;
-import uk.gov.ida.hub.samlengine.domain.SamlResponseDto;
+import uk.gov.ida.hub.samlengine.domain.SamlResponseContainerDto;
 import uk.gov.ida.hub.samlengine.services.MatchingServiceResponseTranslatorService;
 
 import javax.ws.rs.Consumes;
@@ -29,8 +29,8 @@ public class MatchingServiceResponseTranslatorResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Response translate(SamlResponseDto samlResponseDto) throws JsonProcessingException {
-        InboundResponseFromMatchingServiceDto translated = matchingServiceResponseTranslatorService.translate(samlResponseDto);
+    public Response translate(SamlResponseContainerDto samlResponseContainerDto) throws JsonProcessingException {
+        InboundResponseFromMatchingServiceDto translated = matchingServiceResponseTranslatorService.translate(samlResponseContainerDto);
 
         return Response.ok().entity(translated).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
