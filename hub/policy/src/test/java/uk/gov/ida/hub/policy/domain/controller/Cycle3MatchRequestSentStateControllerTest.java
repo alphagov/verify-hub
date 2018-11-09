@@ -147,7 +147,8 @@ public class Cycle3MatchRequestSentStateControllerTest {
         AttributeQueryRequestDto actualAttributeQueryRequestDto = attributeQueryRequestCaptor.getValue();
         assertThat(actualAttributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(userAccountCreationUri);
         assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.fromNullable(userAccountCreationAttributes));
-        assertThat(actualAttributeQueryRequestDto.getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
+        assertThat(actualAttributeQueryRequestDto.getEncryptedAssertions()).contains(state.getEncryptedMatchingDatasetAssertion());
+        assertThat(actualAttributeQueryRequestDto.getEncryptedAssertions()).contains(state.getAuthnStatementAssertion());
 
         assertThat(capturedState.getValue()).isInstanceOf(UserAccountCreationRequestSentState.class);
     }

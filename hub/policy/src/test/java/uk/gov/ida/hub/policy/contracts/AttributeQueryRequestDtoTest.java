@@ -18,6 +18,7 @@ import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import java.net.URI;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto;
@@ -26,12 +27,12 @@ import static uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder.an
 public class AttributeQueryRequestDtoTest {
 
     private static final AttributeQueryContainerDto ATTRIBUTE_QUERY_CONTAINER_DTO = anAttributeQueryContainerDto().build();
-    private static final String AUTHN_STATEMENT_ASSERTION = "authnStatementAssertion";
     @Mock
     private SamlEngineProxy samlEngineProxy;
 
     private static final String REQUEST_ID = "requestId";
     private static final String ENCRYPTED_MATCHING_DATASET_ASSERTION = "encryptedIdentityAssertion";
+    private static final String ENCRYPTED_AUTHN_ASSERTION = "encryptedAuthnAssertion";
     private static final String NAME_ID = "nameId";
     private static final PersistentId PERSISTENT_ID = new PersistentId(NAME_ID);
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("assertionConsumerServiceUri");
@@ -60,79 +61,8 @@ public class AttributeQueryRequestDtoTest {
             PERSISTENT_ID,
             CYCLE_3_DATASET,
             USER_ACCOUNT_CREATION_ATTRIBUTES,
-            ENCRYPTED_MATCHING_DATASET_ASSERTION,
-            AUTHN_STATEMENT_ASSERTION
+            asList(ENCRYPTED_MATCHING_DATASET_ASSERTION, ENCRYPTED_AUTHN_ASSERTION)
         );
-    }
-
-    @Test
-    public void getRequestId() throws Exception {
-        assertThat(attributeQueryRequestDto.getRequestId()).isEqualTo(REQUEST_ID);
-    }
-
-    @Test
-    public void getPersistentId() throws Exception {
-        assertThat(attributeQueryRequestDto.getPersistentId()).isEqualTo(PERSISTENT_ID);
-    }
-
-    @Test
-    public void getEncryptedMatchingDataSetAssertion() throws Exception {
-        assertThat(attributeQueryRequestDto.getEncryptedMatchingDatasetAssertion()).isEqualTo(ENCRYPTED_MATCHING_DATASET_ASSERTION);
-    }
-
-    @Test
-    public void getAuthnStatementAssertion() throws Exception {
-        assertThat(attributeQueryRequestDto.getEncryptedAuthnAssertion()).isEqualTo(AUTHN_STATEMENT_ASSERTION);
-    }
-
-    @Test
-    public void getAssertionConsumerServiceUri() throws Exception {
-        assertThat(attributeQueryRequestDto.getAssertionConsumerServiceUri()).isEqualTo(ASSERTION_CONSUMER_SERVICE_URI);
-    }
-
-    @Test
-    public void getAuthnRequestIssuerEntityId() throws Exception {
-        assertThat(attributeQueryRequestDto.getAuthnRequestIssuerEntityId()).isEqualTo(AUTHN_REQUEST_ISSUER_ENTITY_ID);
-    }
-
-    @Test
-    public void getLevelOfAssurance() throws Exception {
-        assertThat(attributeQueryRequestDto.getLevelOfAssurance()).isEqualTo(LevelOfAssurance.LEVEL_2);
-    }
-
-    @Test
-    public void getAttributeQueryUri() throws Exception {
-        assertThat(attributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(MATCHING_SERVICE_ADAPTER_URI);
-    }
-
-    @Test
-    public void getMatchingServiceEntityId() throws Exception {
-        assertThat(attributeQueryRequestDto.getMatchingServiceEntityId()).isEqualTo(MATCHING_SERVICE_ADAPTER_ENTITY_ID);
-    }
-
-    @Test
-    public void getMatchingServiceRequestTimeOut() throws Exception {
-        assertThat(attributeQueryRequestDto.getMatchingServiceRequestTimeOut()).isEqualTo(MATCHING_SERVICE_REQUEST_TIME_OUT);
-    }
-
-    @Test
-    public void isOnboarding() throws Exception {
-        assertThat(attributeQueryRequestDto.isOnboarding()).isTrue();
-    }
-
-    @Test
-    public void getCycle3Dataset() throws Exception {
-        assertThat(attributeQueryRequestDto.getCycle3Dataset()).isEqualTo(CYCLE_3_DATASET);
-    }
-
-    @Test
-    public void getUserAccountCreationAttributes() throws Exception {
-        assertThat(attributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(USER_ACCOUNT_CREATION_ATTRIBUTES);
-    }
-
-    @Test
-    public void getAssertionExpiry() throws Exception {
-        assertThat(attributeQueryRequestDto.getAssertionExpiry()).isEqualTo(ASSERTION_EXPIRY);
     }
 
     @Test
@@ -159,14 +89,13 @@ public class AttributeQueryRequestDtoTest {
             PERSISTENT_ID,
             Optional.absent(),
             USER_ACCOUNT_CREATION_ATTRIBUTES,
-            ENCRYPTED_MATCHING_DATASET_ASSERTION,
-            AUTHN_STATEMENT_ASSERTION
+            asList(ENCRYPTED_MATCHING_DATASET_ASSERTION, ENCRYPTED_AUTHN_ASSERTION)
         );
 
         AttributeQueryRequestDto actual = AttributeQueryRequestDto.createCycle01MatchingServiceRequest(
             REQUEST_ID,
             ENCRYPTED_MATCHING_DATASET_ASSERTION,
-            AUTHN_STATEMENT_ASSERTION,
+                ENCRYPTED_AUTHN_ASSERTION,
             AUTHN_REQUEST_ISSUER_ENTITY_ID,
             ASSERTION_CONSUMER_SERVICE_URI,
             MATCHING_SERVICE_ADAPTER_ENTITY_ID,
@@ -186,7 +115,7 @@ public class AttributeQueryRequestDtoTest {
         AttributeQueryRequestDto actual = AttributeQueryRequestDto.createCycle3MatchingServiceRequest(
             REQUEST_ID,
             ENCRYPTED_MATCHING_DATASET_ASSERTION,
-            AUTHN_STATEMENT_ASSERTION,
+                ENCRYPTED_AUTHN_ASSERTION,
             CYCLE_3_DATASET.get(),
             AUTHN_REQUEST_ISSUER_ENTITY_ID,
             ASSERTION_CONSUMER_SERVICE_URI,
@@ -219,14 +148,13 @@ public class AttributeQueryRequestDtoTest {
             PERSISTENT_ID,
             CYCLE_3_DATASET,
             Optional.of(userAccountCreationAttributes),
-            ENCRYPTED_MATCHING_DATASET_ASSERTION,
-            AUTHN_STATEMENT_ASSERTION
+            asList(ENCRYPTED_MATCHING_DATASET_ASSERTION, ENCRYPTED_AUTHN_ASSERTION)
         );
 
         AttributeQueryRequestDto actual = AttributeQueryRequestDto.createUserAccountRequiredMatchingServiceRequest(
             REQUEST_ID,
             ENCRYPTED_MATCHING_DATASET_ASSERTION,
-            AUTHN_STATEMENT_ASSERTION,
+                ENCRYPTED_AUTHN_ASSERTION,
             CYCLE_3_DATASET,
             AUTHN_REQUEST_ISSUER_ENTITY_ID,
             ASSERTION_CONSUMER_SERVICE_URI,

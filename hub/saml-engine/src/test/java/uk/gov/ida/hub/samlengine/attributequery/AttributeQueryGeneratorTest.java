@@ -21,6 +21,7 @@ import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -81,7 +82,7 @@ public class AttributeQueryGeneratorTest {
         HubAttributeQueryRequest request = hubAttributeQueryRequestCaptor.getValue();
 
         assertThat(request.getId()).isEqualTo(hubAttributeQueryRequest.getId());
-        assertThat(request.getEncryptedAuthnAssertion()).isEqualTo(hubAttributeQueryRequest.getEncryptedAuthnAssertion());
+        assertThat(request.getEncryptedAssertions()).containsExactlyElementsOf(hubAttributeQueryRequest.getEncryptedAssertions());
         assertThat(request.getCycle3AttributeAssertion()).isAbsent();
         assertThat(request.getIssueInstant()).isEqualTo(DateTime.now());
         assertThat(request.getAssertionConsumerServiceUrl()).isEqualTo(hubAttributeQueryRequest.getAssertionConsumerServiceUrl());
@@ -122,8 +123,7 @@ public class AttributeQueryGeneratorTest {
         return new HubAttributeQueryRequest(
                 "",
                 null,
-                "",
-                "",
+                Collections.emptyList(),
                 Optional.<HubAssertion>absent(),
                 Optional.<List<UserAccountCreationAttribute>>absent(),
                 DateTime.now(),

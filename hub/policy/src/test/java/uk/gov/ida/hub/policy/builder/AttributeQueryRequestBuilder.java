@@ -13,6 +13,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static java.util.Arrays.asList;
+
 public class AttributeQueryRequestBuilder {
 
     private String requestId = UUID.randomUUID().toString();
@@ -46,8 +48,7 @@ public class AttributeQueryRequestBuilder {
             persistentId,
             Optional.<Cycle3Dataset>absent(),
             Optional.<List<UserAccountCreationAttribute>>absent(),
-            encryptedMatchingDataSetAssertion,
-            authnStatementAssertion
+            asList(encryptedMatchingDataSetAssertion, authnStatementAssertion)
         );
     }
 }

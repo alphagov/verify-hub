@@ -10,19 +10,18 @@ import uk.gov.ida.saml.core.domain.PersistentId;
 import java.net.URI;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 public class HubAttributeQueryRequest extends BaseHubAttributeQueryRequest {
-    private String encryptedAuthnAssertion;
+    private List<String> encryptedAssertions;
     private Optional<HubAssertion> cycle3AttributeAssertion;
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes;
     private AuthnContext authnContext;
-    @NotNull
-    private String encryptedMatchingDatasetAssertion;
 
     public HubAttributeQueryRequest(
             String id,
             PersistentId persistentId,
-            String encryptedMatchingDatasetAssertion,
-            String encryptedAuthnAssertion,
+            List<String> encryptedAssertions,
             Optional<HubAssertion> cycle3AttributeAssertion,
             Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
             DateTime issueInstant,
@@ -31,11 +30,10 @@ public class HubAttributeQueryRequest extends BaseHubAttributeQueryRequest {
             AuthnContext authnContext,
             String hubEntityId) {
         super(id, hubEntityId, issueInstant, null, persistentId, assertionConsumerServiceUrl, authnRequestIssuerEntityId);
-        this.encryptedAuthnAssertion = encryptedAuthnAssertion;
         this.cycle3AttributeAssertion = cycle3AttributeAssertion;
         this.userAccountCreationAttributes = userAccountCreationAttributes;
         this.authnContext = authnContext;
-        this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
+        this.encryptedAssertions = encryptedAssertions;
     }
 
 
@@ -47,15 +45,11 @@ public class HubAttributeQueryRequest extends BaseHubAttributeQueryRequest {
         return userAccountCreationAttributes;
     }
 
-    public String getEncryptedAuthnAssertion() {
-        return encryptedAuthnAssertion;
-    }
-
     public AuthnContext getAuthnContext() {
         return authnContext;
     }
 
-    public String getEncryptedMatchingDatasetAssertion() {
-        return encryptedMatchingDatasetAssertion;
+    public List<String> getEncryptedAssertions() {
+        return encryptedAssertions;
     }
 }

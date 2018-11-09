@@ -13,6 +13,7 @@ import java.util.List;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
+import static java.util.Arrays.asList;
 import static uk.gov.ida.hub.samlengine.builders.PersistentIdBuilder.aPersistentId;
 
 public class HubMatchingServiceRequestDtoBuilder {
@@ -47,8 +48,8 @@ public class HubMatchingServiceRequestDtoBuilder {
             persistentId,
             cycle3AttributeAssertion,
             userAccountCreationAttributes,
-            encryptedMatchingDatasetAssertion,
-            encryptedAuthnAssertion);
+            asList(encryptedMatchingDatasetAssertion, encryptedAuthnAssertion)
+        );
     }
 
     public HubMatchingServiceRequestDtoBuilder withId(String id) {

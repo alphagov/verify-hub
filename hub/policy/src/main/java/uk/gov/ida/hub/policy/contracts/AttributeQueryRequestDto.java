@@ -15,13 +15,13 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.Arrays.asList;
+
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class AttributeQueryRequestDto extends AbstractAttributeQueryRequestDto {
 
-    @NotNull
-    private final String encryptedMatchingDatasetAssertion;
-    private final String encryptedAuthnAssertion;
+    private final List<String> encryptedAssertions;
 
     public AttributeQueryRequestDto(
         final String requestId,
@@ -36,8 +36,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
         final PersistentId persistentId,
         final Optional<Cycle3Dataset> cycle3Dataset,
         final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
-        final String encryptedMatchingDatasetAssertion,
-        final String encryptedAuthnAssertion) {
+        final List<String> encryptedAssertions) {
 
         super(
             requestId,
@@ -52,8 +51,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             persistentId,
             cycle3Dataset,
             userAccountCreationAttributes);
-        this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
-        this.encryptedAuthnAssertion = encryptedAuthnAssertion;
+        this.encryptedAssertions = encryptedAssertions;
     }
 
     public static AttributeQueryRequestDto createCycle3MatchingServiceRequest(
@@ -84,8 +82,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             persistentId,
             Optional.fromNullable(cycle3Assertion),
             userAccountCreationAttributes,
-            encryptedMatchingDatasetAssertion,
-            encryptedAuthnAssertion
+            asList(encryptedMatchingDatasetAssertion, encryptedAuthnAssertion)
         );
     }
 
@@ -116,15 +113,14 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             persistentId,
             Optional.absent(),
             Optional.absent(),
-            encryptedMatchingDatasetAssertion,
-            encryptedAuthnAssertion
+            asList(encryptedMatchingDatasetAssertion, encryptedAuthnAssertion)
         );
     }
 
     public static AttributeQueryRequestDto createUserAccountRequiredMatchingServiceRequest(
             String requestId,
             String encryptedMatchingDatasetAssertion,
-            String authnStatementAssertion,
+            String encryptedAuthnAssertion,
             Optional<Cycle3Dataset> cycle3Assertion,
             String authnRequestIssuerEntityId,
             URI assertionConsumerServiceUri,
@@ -150,18 +146,12 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             persistentId,
             cycle3Assertion,
             Optional.fromNullable(userAccountCreationAttributes),
-            encryptedMatchingDatasetAssertion,
-            authnStatementAssertion
+            asList(encryptedMatchingDatasetAssertion, encryptedAuthnAssertion)
         );
     }
 
-    public String getEncryptedAuthnAssertion() {
-        return encryptedAuthnAssertion;
-    }
-
-    @Nullable
-    public String getEncryptedMatchingDatasetAssertion() {
-        return encryptedMatchingDatasetAssertion;
+    public List<String> getEncryptedAssertions() {
+        return encryptedAssertions;
     }
 
     @Override
@@ -193,8 +183,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             Objects.equals(getPersistentId(), that.getPersistentId()) &&
             Objects.equals(getCycle3Dataset(), that.getCycle3Dataset()) &&
             Objects.equals(getUserAccountCreationAttributes(), that.getUserAccountCreationAttributes()) &&
-            Objects.equals(encryptedMatchingDatasetAssertion, that.encryptedMatchingDatasetAssertion) &&
-            Objects.equals(encryptedAuthnAssertion, that.encryptedAuthnAssertion);
+            Objects.equals(getEncryptedAssertions(), that.getEncryptedAssertions());
     }
 
     @Override
@@ -212,7 +201,6 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
             getPersistentId(),
             getCycle3Dataset(),
             getUserAccountCreationAttributes(),
-            encryptedMatchingDatasetAssertion,
-                encryptedAuthnAssertion);
+            getEncryptedAssertions());
     }
 }

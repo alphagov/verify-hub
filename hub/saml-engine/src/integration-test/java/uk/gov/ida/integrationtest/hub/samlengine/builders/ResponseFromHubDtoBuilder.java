@@ -4,6 +4,8 @@ import uk.gov.ida.hub.samlengine.contracts.ResponseFromHubDto;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,7 +15,7 @@ public class ResponseFromHubDtoBuilder {
     private String responseId = UUID.randomUUID().toString();
     private String inResponseTo = UUID.randomUUID().toString();
     private TransactionIdaStatus status = TransactionIdaStatus.Success;
-    private Optional<String> assertion = Optional.empty();
+    private List<String> encryptedAssertions = new ArrayList<>();
     private Optional<String> relayState = Optional.empty();
     private URI assertionConsumerServiceUri = URI.create("/default-index");
 
@@ -26,7 +28,7 @@ public class ResponseFromHubDtoBuilder {
                 responseId,
                 inResponseTo,
                 authnRequestIssuerEntityId,
-                assertion,
+                encryptedAssertions,
                 relayState,
                 assertionConsumerServiceUri,
                 status
@@ -38,8 +40,8 @@ public class ResponseFromHubDtoBuilder {
         return this;
     }
 
-    public ResponseFromHubDtoBuilder withAssertion(String assertion) {
-        this.assertion = Optional.of(assertion);
+    public ResponseFromHubDtoBuilder addEncryptedAssertion(String assertion) {
+        this.encryptedAssertions.add(assertion);
         return this;
     }
 

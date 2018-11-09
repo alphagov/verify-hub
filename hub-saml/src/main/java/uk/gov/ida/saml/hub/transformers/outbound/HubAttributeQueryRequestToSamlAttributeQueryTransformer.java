@@ -64,7 +64,8 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformer implements 
         SubjectConfirmation subjectConfirmation = samlObjectFactory.createSubjectConfirmation();
         SubjectConfirmationData subjectConfirmationData = samlObjectFactory.createSubjectConfirmationData();
 
-        Stream.of(originalQuery.getEncryptedMatchingDatasetAssertion(), originalQuery.getEncryptedAuthnAssertion())
+        originalQuery.getEncryptedAssertions()
+                .stream()
                 .map(encryptedAssertionUnmarshaller::transform)
                 .forEach(subjectConfirmationData.getUnknownXMLObjects(EncryptedAssertion.DEFAULT_ELEMENT_NAME)::add);
 

@@ -6,22 +6,22 @@ import org.joda.time.DateTime;
 import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.net.URI;
 import java.util.List;
 
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AttributeQueryRequestDto {
+    @Size(min = 1)
+    private List<String> encryptedAssertions;
+
     protected String requestId;
     protected String authnRequestIssuerEntityId;
     protected URI assertionConsumerServiceUri;
     protected String matchingServiceEntityId;
     private DateTime matchingServiceRequestTimeOut;
     private LevelOfAssurance levelOfAssurance;
-    @NotNull
-    private String encryptedMatchingDatasetAssertion;
-
-    private String encryptedAuthnAssertion;
     private Optional<Cycle3Dataset> cycle3Dataset;
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes;
     private PersistentId persistentId;
@@ -46,8 +46,7 @@ public class AttributeQueryRequestDto {
         final PersistentId persistentId,
         final Optional<Cycle3Dataset> cycle3Dataset,
         final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
-        final String encryptedMatchingDatasetAssertion,
-        final String encryptedAuthnAssertion) {
+        final List<String> encryptedAssertions) {
 
         this.requestId = requestId;
         this.authnRequestIssuerEntityId = authnRequestIssuerEntityId;
@@ -61,8 +60,7 @@ public class AttributeQueryRequestDto {
         this.persistentId = persistentId;
         this.cycle3Dataset = cycle3Dataset;
         this.userAccountCreationAttributes = userAccountCreationAttributes;
-        this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
-        this.encryptedAuthnAssertion = encryptedAuthnAssertion;
+        this.encryptedAssertions = encryptedAssertions;
     }
 
     public String getAuthnRequestIssuerEntityId() {
@@ -79,8 +77,8 @@ public class AttributeQueryRequestDto {
 
     public DateTime getMatchingServiceRequestTimeOut() { return matchingServiceRequestTimeOut;}
 
-    public String getEncryptedAuthnAssertion() {
-        return encryptedAuthnAssertion;
+    public List<String> getEncryptedAssertions() {
+        return encryptedAssertions;
     }
 
     public Optional<Cycle3Dataset> getCycle3Dataset() {
@@ -114,9 +112,5 @@ public class AttributeQueryRequestDto {
 
     public boolean isOnboarding() {
         return onboarding;
-    }
-
-    public String getEncryptedMatchingDatasetAssertion() {
-        return encryptedMatchingDatasetAssertion;
     }
 }

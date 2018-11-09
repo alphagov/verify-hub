@@ -14,6 +14,7 @@ import java.util.List;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
+import static java.util.Arrays.asList;
 
 public class HubAttributeQueryRequestBuilder {
 
@@ -25,7 +26,7 @@ public class HubAttributeQueryRequestBuilder {
     private URI assertionConsumerServiceUrl = URI.create("http://transaction.com");
     private String authnRequestIssuerEntityId = "issuer-id";
     private AuthnContext authnContext = AuthnContext.LEVEL_1;
-    private String encryptedMathcingDatasetAssertion = "aPassthroughAssertion().buildEncryptedMatchingDatasetAssertion()";
+    private String encryptedMatchingDatasetAssertion = "aPassthroughAssertion().buildEncryptedMatchingDatasetAssertion()";
     private String hubEntityId = "hubEntityId";
 
     public static HubAttributeQueryRequestBuilder aHubAttributeQueryRequest() {
@@ -36,8 +37,7 @@ public class HubAttributeQueryRequestBuilder {
         return new HubAttributeQueryRequest(
                 id,
                 persistentId,
-                encryptedMathcingDatasetAssertion,
-                encryptedAuthnAssertion,
+                asList(encryptedMatchingDatasetAssertion, encryptedAuthnAssertion),
                 cycle3AttributeAssertion,
                 userAccountCreationAttributes,
                 DateTime.now(),
@@ -59,7 +59,7 @@ public class HubAttributeQueryRequestBuilder {
     }
 
     public HubAttributeQueryRequestBuilder withEncryptedMatchingDatasetAssertion(String assertion) {
-        this.encryptedMathcingDatasetAssertion = assertion;
+        this.encryptedMatchingDatasetAssertion = assertion;
         return this;
     }
 
