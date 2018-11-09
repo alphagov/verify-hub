@@ -25,15 +25,6 @@ test {
     }
 }
 
-task copyToLib(dependsOn: jar, type: Copy) {
-    into "$buildDir/output/lib"
-    from configurations.runtime
-}
-
-task zip(dependsOn: copyToLib, type: Zip) {
-    from "$buildDir/output"
-}
-
 apply from: "${rootDir}/inttest.gradle"
 
 tasks.check.dependsOn(intTest)

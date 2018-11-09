@@ -150,10 +150,10 @@ To spin up hub services to test on your local machine
 ./startup.sh
 ```
 
-To spin up all services in the Verify federation, clone [verify-local-startup](https://github.com/alphagov/verify-local-startup) as a sibling of verify-hub
+To spin up all services in the Verify federation, clone [ida-hub-acceptance-tests](https://github.com/alphagov/ida-hub-acceptance-tests) as a sibling of verify-hub
 ```
-cd ../verify-local-startup
-./startup.sh
+cd ../ida-hub-acceptance-tests
+./hub-startup.sh
 ```
 
 ## Support and raising issues
