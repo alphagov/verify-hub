@@ -114,7 +114,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         assertThat(inboundResponseFromMatchingServiceDto.getStatus().name()).isEqualTo(MatchingServiceIdaStatus.MatchingServiceMatch.name());
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().get()).isEqualTo(LevelOfAssurance.LEVEL_2);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isTrue();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
     }
 
     @Test
@@ -132,7 +132,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(requestId);
         assertThat(inboundResponseFromMatchingServiceDto.getStatus().name()).isEqualTo(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService.name());
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isFalse();
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isFalse();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isFalse();
     }
 
     @Test
@@ -150,7 +150,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(requestId);
         assertThat(inboundResponseFromMatchingServiceDto.getStatus().name()).isEqualTo(MatchingServiceIdaStatus.RequesterError.name());
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isFalse();
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isFalse();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isFalse();
     }
 
     @Test
@@ -169,7 +169,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         assertThat(inboundResponseFromMatchingServiceDto.getStatus().name()).isEqualTo(MatchingServiceIdaStatus.UserAccountCreated.name());
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().get()).isEqualTo(LevelOfAssurance.LEVEL_2);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isTrue();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
     }
 
     private Response postToSamlEngine(SamlResponseDto samlResponseDto) {

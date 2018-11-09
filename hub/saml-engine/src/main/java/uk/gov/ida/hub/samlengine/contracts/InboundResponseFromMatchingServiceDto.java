@@ -10,7 +10,7 @@ public class InboundResponseFromMatchingServiceDto {
     private MatchingServiceIdaStatus status;
     private String inResponseTo;
     private String issuer;
-    private Optional<String> underlyingMatchingServiceAssertionBlob;
+    private Optional<String> encryptedMatchingServiceAssertion;
     private Optional<LevelOfAssurance> levelOfAssurance;
 
     protected InboundResponseFromMatchingServiceDto() {}
@@ -18,12 +18,12 @@ public class InboundResponseFromMatchingServiceDto {
     public InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus status,
                                                  String inResponseTo,
                                                  String issuer,
-                                                 Optional<String> underlyingMatchingServiceAssertionBlob,
+                                                 Optional<String> encryptedMatchingServiceAssertion,
                                                  Optional<LevelOfAssurance> levelOfAssurance) {
         this.status = status;
         this.inResponseTo = inResponseTo;
         this.issuer = issuer;
-        this.underlyingMatchingServiceAssertionBlob = underlyingMatchingServiceAssertionBlob;
+        this.encryptedMatchingServiceAssertion = encryptedMatchingServiceAssertion;
         this.levelOfAssurance = levelOfAssurance;
     }
 
@@ -39,8 +39,8 @@ public class InboundResponseFromMatchingServiceDto {
         return issuer;
     }
 
-    public Optional<String> getUnderlyingMatchingServiceAssertionBlob() {
-        return underlyingMatchingServiceAssertionBlob;
+    public Optional<String> getEncryptedMatchingServiceAssertion() {
+        return encryptedMatchingServiceAssertion;
     }
 
     public Optional<LevelOfAssurance> getLevelOfAssurance() {

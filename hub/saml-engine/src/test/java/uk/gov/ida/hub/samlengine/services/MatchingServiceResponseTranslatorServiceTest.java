@@ -64,8 +64,8 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isTrue();
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().get()).isEqualTo(underlyingAssertionBlob);
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().get()).isEqualTo(underlyingAssertionBlob);
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().get().name()).isEqualTo(authnContext.get().name());
@@ -86,8 +86,8 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isTrue();
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().get()).isEqualTo(underlyingAssertionBlob);
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().get()).isEqualTo(underlyingAssertionBlob);
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().get().name()).isEqualTo(authnContext.get().name());
@@ -108,7 +108,7 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isFalse();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isFalse();
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isFalse();
         assertThat(inboundResponseFromMatchingServiceDto.getStatus()).isEqualTo(status);
@@ -128,8 +128,8 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isTrue();
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().get()).isEqualTo(underlyingAssertionBlob);
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().get()).isEqualTo(underlyingAssertionBlob);
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().get().name()).isEqualTo(authnContext.get().name());

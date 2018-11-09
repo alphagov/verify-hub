@@ -104,7 +104,7 @@ public class MatchingServiceResponseService {
                 new MatchFromMatchingService(
                         inboundResponseFromMatchingServiceDto.getIssuer(),
                         inboundResponseFromMatchingServiceDto.getInResponseTo(),
-                        inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().get(),
+                        inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().get(),
                         inboundResponseFromMatchingServiceDto.getLevelOfAssurance());
 
         WaitingForMatchingServiceResponseStateController stateController = (WaitingForMatchingServiceResponseStateController) sessionRepository.getStateController(sessionId, WaitingForMatchingServiceResponseState.class);
@@ -135,7 +135,7 @@ public class MatchingServiceResponseService {
                 new UserAccountCreatedFromMatchingService(
                         inboundResponseFromMatchingServiceDto.getIssuer(),
                         inboundResponseFromMatchingServiceDto.getInResponseTo(),
-                        inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().get(),
+                        inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().get(),
                         inboundResponseFromMatchingServiceDto.getLevelOfAssurance());
 
         WaitingForMatchingServiceResponseStateController stateController = (WaitingForMatchingServiceResponseStateController) sessionRepository.getStateController(sessionId, WaitingForMatchingServiceResponseState.class);
