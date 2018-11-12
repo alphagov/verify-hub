@@ -203,7 +203,13 @@ public class TransactionsResource {
         final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
         return configData.getShouldSignWithSHA1();
     }
-
+    @GET
+    @Path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_PATH)
+    @Timed
+    public boolean isUsingMatching(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
+        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        return configData.isUsingMatching();
+    }
     private TransactionConfigEntityData getTransactionConfigData(String entityId) {
         final Optional<TransactionConfigEntityData> configData = transactionConfigEntityDataRepository.getData(entityId);
         if (!configData.isPresent()) {

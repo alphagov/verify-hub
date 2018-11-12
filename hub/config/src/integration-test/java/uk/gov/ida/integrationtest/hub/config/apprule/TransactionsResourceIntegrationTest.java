@@ -290,6 +290,15 @@ public class TransactionsResourceIntegrationTest {
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
+    @Test
+    public void getShouldReturnIsUsingMatching() {
+        String entityId = ENTITY_ID;
+        URI uri = configAppRule.getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertTrue(response.readEntity(boolean.class));
+    }
 
     @Test
     public void getSingleIDPEnabledServiceListTransactions_returnsOkAndEnabledAndSingleIdpEnabledTransactions() {
