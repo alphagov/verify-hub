@@ -34,6 +34,8 @@ public class TransactionConfigEntityDataBuilder {
     private boolean shouldSignWithSHA1 = true;
     private URI headlessStartPage = URI.create("/headless-start-uri");
     private URI singleIdpStartPage;
+    private boolean usingMatching;
+
 
 
     public static TransactionConfigEntityDataBuilder aTransactionConfigData() {
@@ -66,7 +68,8 @@ public class TransactionConfigEntityDataBuilder {
                 levelsOfAssurance,
                 shouldSignWithSHA1,
                 headlessStartPage,
-                singleIdpStartPage
+                singleIdpStartPage,
+                usingMatching
         );
     }
 
@@ -150,6 +153,11 @@ public class TransactionConfigEntityDataBuilder {
         return this;
     }
 
+    public TransactionConfigEntityDataBuilder withUsingMatching(boolean usingMatching) {
+        this.usingMatching = usingMatching;
+        return this;
+    }
+
     public TransactionConfigEntityDataBuilder withHeadlessStartPage(final URI headlessStartPage) {
         this.headlessStartPage = headlessStartPage;
         return this;
@@ -180,7 +188,9 @@ public class TransactionConfigEntityDataBuilder {
                 List<LevelOfAssurance> levelsOfAssurance,
                 boolean shouldSignWithSHA1,
                 URI headlessStartPage,
-                URI singleIdpStartPage) {
+                URI singleIdpStartPage,
+                boolean usingMatching
+                ) {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
             this.simpleId = simpleId;
@@ -200,6 +210,8 @@ public class TransactionConfigEntityDataBuilder {
             this.shouldSignWithSHA1 = shouldSignWithSHA1;
             this.headlessStartpage = headlessStartPage;
             this.singleIdpStartpage = singleIdpStartPage;
+            this.usingMatching = usingMatching;
+
         }
     }
 }

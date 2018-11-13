@@ -4,6 +4,7 @@ import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -67,6 +68,7 @@ public class TransactionsResourceIntegrationTest {
                         .build()
                 )
                 .withMatchingServiceEntityId(MS_ENTITY_ID)
+                .withUsingMatching(true)
                 .withShouldSignWithSHA1(false)
                 .withHeadlessStartPage(URI.create(HEADLESS_STARTPAGE))
                 .withSingleIdpStartPage(URI.create(SINGLE_IDP_STARTPAGE))
@@ -75,6 +77,7 @@ public class TransactionsResourceIntegrationTest {
                 .withEntityId(ANOTHER_ENTITY_ID)
                 .withSimpleId(ANOTHER_SIMPLE_ID)
                 .withEnabledForSingleIdp(true)
+                .withUsingMatching(false)
                 .withMatchingServiceEntityId(MS_ENTITY_ID)
                 .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
                 .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
@@ -290,14 +293,37 @@ public class TransactionsResourceIntegrationTest {
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
+
     @Test
-    public void getShouldReturnIsUsingMatching() {
+    public void getShouldReturnOkWhenUsingMatchingIsTrue() {
         String entityId = ENTITY_ID;
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
+        URI uri = configAppRule
+                .getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
                 .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertTrue(response.readEntity(boolean.class));
+    }
+
+    @Test
+    public void getShouldReturnOkWhenUsingMatchingIsFalse() {
+        String entityId = ANOTHER_ENTITY_ID;
+        URI uri = configAppRule
+                .getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertFalse(response.readEntity(boolean.class));
+    }
+
+    @Test
+    public void getShouldReturnNotFoundUsingMatchingWhenEntityIdDoesNotExist(){
+        String entityId = "not-found";
+        URI uri = configAppRule
+                .getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
