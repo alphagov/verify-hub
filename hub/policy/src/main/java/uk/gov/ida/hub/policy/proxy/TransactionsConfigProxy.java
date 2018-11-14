@@ -90,6 +90,15 @@ public class TransactionsConfigProxy {
     }
 
     @Timed
+    public boolean isUsingMatching( String entityId ) {
+       return  getConfigItem(
+                entityId,
+                Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE,
+                boolean.class,
+                ImmutableMap.of());
+    }
+
+    @Timed
     public List<LevelOfAssurance> getLevelsOfAssurance(String entityId) {
         final URI uriBuilder = getEncodedUri(Urls.ConfigUrls.LEVELS_OF_ASSURANCE_RESOURCE, ImmutableMap.of(), entityId);
         return jsonClient.get(uriBuilder, new GenericType<List<LevelOfAssurance>>() {});
@@ -148,4 +157,5 @@ public class TransactionsConfigProxy {
                 },
                 ImmutableMap.of());
     }
+
 }
