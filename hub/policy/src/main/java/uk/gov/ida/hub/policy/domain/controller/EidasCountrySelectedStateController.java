@@ -16,6 +16,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
@@ -150,7 +151,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 com.google.common.base.Optional.absent(),
                 principalIpAddressAsSeenByHub);
 
-        stateTransitionAction.transitionTo(createEidasCycle0And1MatchRequestSentState(translatedResponse));
+        stateTransitionAction.transitionTo(createCycle0And1MatchRequestSentState(translatedResponse));
     }
 
     public void handleAuthenticationFailedResponseFromCountry(String principalIpAddressAsSeenByHub) {
@@ -187,21 +188,22 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
         }
     }
 
-    private State createEidasCycle0And1MatchRequestSentState(final InboundResponseFromCountry translatedResponse) {
-        return new EidasCycle0And1MatchRequestSentState(
+    private State createCycle0And1MatchRequestSentState(final InboundResponseFromCountry translatedResponse) {
+        return new Cycle0And1MatchRequestSentState(
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                new SessionId(state.getSessionId().getSessionId()),
+                state.getSessionId(),
                 state.getTransactionSupportsEidas(),
+                false,
                 translatedResponse.getIssuer(),
                 state.getRelayState().orNull(),
                 translatedResponse.getLevelOfAssurance().get(),
                 getMatchingServiceEntityId(),
                 translatedResponse.getEncryptedIdentityAssertionBlob().get(),
-                new PersistentId(translatedResponse.getPersistentId().get()),
-                state.getForceAuthentication().orNull()
+                null,
+                new PersistentId(translatedResponse.getPersistentId().get())
         );
     }
 

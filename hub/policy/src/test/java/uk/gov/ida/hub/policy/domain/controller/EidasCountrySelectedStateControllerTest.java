@@ -27,15 +27,16 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.TransactionIdaStatus;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -194,24 +195,25 @@ public class EidasCountrySelectedStateControllerTest {
     }
 
     @Test
-    public void shouldTransitionToEidasCycle0And1MatchRequestSentState() {
+    public void shouldTransitionToCycle0And1MatchRequestSentState() {
         when(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId())).thenReturn(MSA_ID);
         EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = anEidasAttributeQueryRequestDto().build();
 
-        EidasCycle0And1MatchRequestSentState eidasCycle0And1MatchRequestSentState = new EidasCycle0And1MatchRequestSentState(
+        Cycle0And1MatchRequestSentState cycle0And1MatchRequestSentState = new Cycle0And1MatchRequestSentState(
             state.getRequestId(),
             state.getRequestIssuerEntityId(),
             state.getSessionExpiryTimestamp(),
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),
             state.getTransactionSupportsEidas(),
+            false,
             STUB_COUNTRY_ONE,
             state.getRelayState().orNull(),
             eidasAttributeQueryRequestDto.getLevelOfAssurance(),
             MSA_ID,
             eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion(),
-            eidasAttributeQueryRequestDto.getPersistentId(),
-                false
+            null,
+            eidasAttributeQueryRequestDto.getPersistentId()
         );
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
@@ -237,7 +239,7 @@ public class EidasCountrySelectedStateControllerTest {
             com.google.common.base.Optional.absent(),
             IP_ADDRESS);
 
-        verify(stateTransitionAction).transitionTo(eidasCycle0And1MatchRequestSentState);
+        verify(stateTransitionAction).transitionTo(refEq(cycle0And1MatchRequestSentState));
     }
 
     @Test

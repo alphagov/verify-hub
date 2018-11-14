@@ -14,8 +14,10 @@ import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -151,7 +153,7 @@ public final class AttributeQueryRequestDto extends AbstractAttributeQueryReques
     }
 
     public List<String> getEncryptedAssertions() {
-        return encryptedAssertions;
+        return encryptedAssertions.stream().filter(Objects::nonNull).collect(toList());
     }
 
     @Override

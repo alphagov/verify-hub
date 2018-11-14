@@ -20,7 +20,7 @@ import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
@@ -105,7 +105,7 @@ public class EidasSessionResourceIntegrationTest {
         ResponseAction expectedResult = ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2);
         assertThat(response.readEntity(ResponseAction.class)).isEqualToComparingFieldByField(expectedResult);
 
-        assertThatCurrentStateForSesssionIs(sessionId, EidasCycle0And1MatchRequestSentState.class);
+        assertThatCurrentStateForSesssionIs(sessionId, Cycle0And1MatchRequestSentState.class);
     }
 
     @Test
