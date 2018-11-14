@@ -107,6 +107,10 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     @JsonProperty
     protected URI singleIdpStartpage;
 
+    @Valid
+    @JsonProperty
+    protected boolean usingMatching = true;
+
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfigEntityData() {
     }
@@ -228,5 +232,10 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
 
     public Optional<URI> getSingleIdpStartPage() {
         return ofNullable(singleIdpStartpage);
+    }
+
+
+    public boolean isUsingMatching() {
+        return usingMatching;
     }
 }
