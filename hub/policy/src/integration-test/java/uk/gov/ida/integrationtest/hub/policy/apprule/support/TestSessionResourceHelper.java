@@ -8,6 +8,7 @@ import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
+import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
 
+import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.SuccessfulMatchStateBuilder.aSuccessfulMatchState;
@@ -86,6 +88,28 @@ public class TestSessionResourceHelper {
         EidasSuccessfulMatchState eidasSuccessfulMatchState = anEidasSuccessfulMatchState().withRequestIssuerId(rpEntityId).withSessionId(sessionId).withCountryEntityId(countryEntityId).build();
 
         TestSessionDto testSessionDto = createASuccessfulMatchStateTestSessionDto(eidasSuccessfulMatchState, sessionId);
+
+        return client.target(uri)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(testSessionDto));
+    }
+
+    public static Response createSessionInEidasCycle01MatchRequestSentState(SessionId sessionId, String requestId, String requestIssuerId, String msaEntityId, Client client, URI uri) {
+        EidasCycle0And1MatchRequestSentState state = anEidasCycle0And1MatchRequestSentState().build();
+        TestSessionDto testSessionDto = new TestSessionDto(
+                sessionId,
+                requestId,
+                state.getSessionExpiryTimestamp(),
+                state.getIdentityProviderEntityId(),
+                state.getRelayState().orNull(),
+                requestIssuerId,
+                msaEntityId,
+                state.getEncryptedIdentityAssertion(),
+                state.getAssertionConsumerServiceUri(),
+                Collections.singletonList(state.getIdpLevelOfAssurance()),
+                false,
+                true
+        );
 
         return client.target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)

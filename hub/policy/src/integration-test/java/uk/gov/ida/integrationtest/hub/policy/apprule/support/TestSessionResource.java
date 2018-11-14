@@ -1,12 +1,14 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import uk.gov.ida.hub.policy.Urls;
+import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
@@ -23,6 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM;
 import static uk.gov.ida.hub.policy.Urls.SharedUrls.SESSION_ID_PARAM_PATH;
@@ -44,6 +47,7 @@ public class TestSessionResource {
     public static final String IDP_SELECTED_STATE = "/idp-selected-state";
     public static final String EIDAS_COUNTRY_SELECTED_STATE = "/eidas-country-selected-state";
     public static final String AWAITING_CYCLE_3_DATA_STATE = "/awaiting-cycle-3-data-state";
+    public static final String EIDAS_CYCLE_0_1_MATCHING_STATE = "/eidas-0-1-matching-state";
     public static final String EIDAS_AWAITING_CYCLE_3_DATA_STATE = "/eidas-awaiting-cycle-3-data-state";
     public static final String GET_SESSION_STATE_NAME = "/session-state-name" + SESSION_ID_PARAM_PATH;
     public static final String AUTHN_FAILED_STATE = "/session-authn-failed-state";
@@ -157,6 +161,32 @@ public class TestSessionResource {
                         dto.getLevelOfAssurance(),
                         dto.isRegistering(),
                         dto.getTransactionSupportsEidas()));
+
+        return Response.ok().build();
+    }
+
+    @Path(EIDAS_CYCLE_0_1_MATCHING_STATE)
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createSessionInEidasCycle01MatchingState(TestSessionDto dto) {
+        testSessionRepository.createSession(
+                dto.getSessionId(),
+                new EidasCycle0And1MatchRequestSentState(
+                        dto.getRequestId(),
+                        dto.getRequestIssuerId(),
+                        dto.getSessionExpiryTimestamp(),
+                        dto.getAssertionConsumerServiceUri(),
+                        dto.getSessionId(),
+                        dto.getTransactionSupportsEidas(),
+                        dto.getIdentityProviderEntityId(),
+                        dto.getRelayState().orNull(),
+                        dto.getLevelsOfAssurance().get(0),
+                        dto.getMatchingServiceEntityId(),
+                        dto.getMatchingServiceAssertion(),
+                        new PersistentId(UUID.randomUUID().toString()),
+                        null
+                )
+        );
 
         return Response.ok().build();
     }
