@@ -263,7 +263,7 @@ public class ErrorStateControllerTests {
     @Test
     public void shouldReturnErrorResponseWhenAskedAndUserAccountCreationFailedState() {
         UserAccountCreationFailedState state = UserAccountCreationFailedStateBuilder.aUserAccountCreationFailedState().build();
-        StateController stateController = new UserAccountCreationFailedStateController(state, responseFromHubFactory);
+        StateController stateController = new UserAccountCreationFailedStateController(state, responseFromHubFactory, stateTransitionAction, hubEventLogger);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
         ResponseFromHub responseFromHub = authnRequestFromTransactionHandler.getErrorResponseFromHub(sessionId);

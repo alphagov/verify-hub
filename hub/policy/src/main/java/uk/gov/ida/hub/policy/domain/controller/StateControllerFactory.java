@@ -259,7 +259,9 @@ public class StateControllerFactory {
             case USER_ACCOUNT_CREATION_FAILED:
                 return new UserAccountCreationFailedStateController(
                         (UserAccountCreationFailedState) state,
-                        injector.getInstance(ResponseFromHubFactory.class));
+                        injector.getInstance(ResponseFromHubFactory.class),
+                        stateTransitionAction,
+                        injector.getInstance(HubEventLogger.class));
 
             case EIDAS_USER_ACCOUNT_CREATION_FAILED:
                 return new EidasUserAccountCreationFailedStateController(
