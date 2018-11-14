@@ -117,8 +117,7 @@ public class StateControllerFactory {
             case SUCCESSFUL_MATCH:
                 return new SuccessfulMatchStateController(
                         (SuccessfulMatchState) state,
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(IdentityProvidersConfigProxy.class));
+                        injector.getInstance(ResponseFromHubFactory.class));
 
             case EIDAS_SUCCESSFUL_MATCH:
                 return new EidasSuccessfulMatchStateController(

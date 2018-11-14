@@ -267,10 +267,9 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
 
         controller.handleMatchResponseFromMatchingService(matchFromMatchingService);
 
-        IdentityProvidersConfigProxy identityProvidersConfigProxy = mock(IdentityProvidersConfigProxy.class);
         verify(stateTransitionAction, times(1)).transitionTo(argumentCaptor.capture());
 
-        SuccessfulMatchStateController successfulMatchStateController = new SuccessfulMatchStateController(argumentCaptor.getValue(), responseFromHubFactory, identityProvidersConfigProxy);
+        SuccessfulMatchStateController successfulMatchStateController = new SuccessfulMatchStateController(argumentCaptor.getValue(), responseFromHubFactory);
         final ResponseProcessingDetails responseProcessingDetails = successfulMatchStateController.getResponseProcessingDetails();
 
         assertThat(responseProcessingDetails.getResponseProcessingStatus()).isEqualTo(ResponseProcessingStatus.SEND_SUCCESSFUL_MATCH_RESPONSE_TO_TRANSACTION);

@@ -175,7 +175,7 @@ public class ErrorStateControllerTests {
     @Test
     public void shouldReturnErrorResponseWhenAskedAndInSuccessfulMatchState() {
         SuccessfulMatchState state = SuccessfulMatchStateBuilder.aSuccessfulMatchState().build();
-        StateController stateController = new SuccessfulMatchStateController(state, responseFromHubFactory, identityProvidersConfigProxy);
+        StateController stateController = new SuccessfulMatchStateController(state, responseFromHubFactory);
         when(sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class)).thenReturn(stateController);
 
         ResponseFromHub responseFromHub = authnRequestFromTransactionHandler.getErrorResponseFromHub(sessionId);
