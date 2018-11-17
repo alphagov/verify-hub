@@ -1,0 +1,15 @@
+# Ubuntu systemd file
+
+[Unit]
+Description=Policy Service
+
+[Service]
+User=deployer
+Environment=CLASSPATH=/ida/policy/lib
+ExecStart=/ida/policy/policy.sh start
+ExecStop=/ida/policy/policy.sh stop
+KillSignal=TERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

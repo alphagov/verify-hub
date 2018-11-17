@@ -1,0 +1,15 @@
+# Ubuntu systemd file
+
+[Unit]
+Description=SAML Engine Service
+
+[Service]
+User=deployer
+Environment=CLASSPATH=/ida/saml-engine/lib
+ExecStart=/ida/saml-engine/saml-engine.sh start
+ExecStop=/ida/saml-engine/saml-engine.sh stop
+KillSignal=TERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
