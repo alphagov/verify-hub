@@ -291,7 +291,7 @@ public class SessionResourceIntegrationTest {
         samlEngineStub.setupStubForIdpAuthnResponseTranslate(InboundResponseFromIdpDtoBuilder.successResponse(idpEntityId, loaAchieved));
         samlEngineStub.setupStubForAttributeQueryRequest(anAttributeQueryContainerDto().build());
 
-        configStub.setUpStubForMatchingServiceRequest(idpEntityId, IdpSelectedStateBuilder.anIdpSelectedState().build().getMatchingServiceEntityId());
+        configStub.setUpStubForMatchingServiceRequest(rpEntityId, IdpSelectedStateBuilder.anIdpSelectedState().build().getMatchingServiceEntityId());
 
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
 
