@@ -22,6 +22,7 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
@@ -31,8 +32,11 @@ import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.wrongResponseIssuer;
 
@@ -144,7 +148,17 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
         stateTransitionAction.transitionTo(createRequesterErrorState());
     }
 
-    public void handleSuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
+    public void handleMatchingJourneySuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
+        handleSuccessResponseFromIdp(successFromIdp);
+        stateTransitionAction.transitionTo(createCycle0And1MatchRequestSentState(successFromIdp));
+    }
+
+    public void handleNonMatchingJourneySuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
+        handleSuccessResponseFromIdp(successFromIdp);
+        stateTransitionAction.transitionTo(createNonMatchingJourneySuccessState(successFromIdp));
+    }
+
+    private void handleSuccessResponseFromIdp(SuccessFromIdp successFromIdp) {
         validateIdpIsEnabledAndWasIssuedWithRequest(successFromIdp.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
         validateIdpLevelOfAssuranceIsInAcceptedLevels(successFromIdp.getLevelOfAssurance(), state.getLevelsOfAssurance());
         validateReturnedLevelOfAssuranceFromIdpIsConsistentWithIdpConfig(successFromIdp.getLevelOfAssurance(), successFromIdp.getIssuer(), state.getRequestId());
@@ -160,8 +174,6 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 successFromIdp.getLevelOfAssurance(),
                 successFromIdp.getPrincipalIpAddressAsSeenByIdp(),
                 successFromIdp.getPrincipalIpAddressAsSeenByHub());
-
-        stateTransitionAction.transitionTo(createCycle0And1MatchRequestSentState(successFromIdp));
     }
 
     public void handleFraudResponseFromIdp(FraudFromIdp fraudFromIdp) {
@@ -260,6 +272,24 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
         );
     }
 
+    private State createNonMatchingJourneySuccessState(SuccessFromIdp successFromIdp) {
+        Set<String> encryptedAssertions = new HashSet<>(Arrays.asList(
+            successFromIdp.getEncryptedMatchingDatasetAssertion(),
+            successFromIdp.getEncryptedAuthnAssertion()
+        ));
+
+        return new NonMatchingJourneySuccessState(
+            state.getRequestId(),
+            state.getRequestIssuerEntityId(),
+            state.getSessionExpiryTimestamp(),
+            state.getAssertionConsumerServiceUri(),
+            new SessionId(state.getSessionId().getSessionId()),
+            state.getTransactionSupportsEidas(),
+            state.getRelayState(),
+            encryptedAssertions
+        );
+    }
+
     public AttributeQueryRequestDto createAttributeQuery(SuccessFromIdp successFromIdp) {
 
         String matchingServiceEntityId = getMatchingServiceEntityId();
@@ -297,6 +327,10 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
         return Optional
                 .ofNullable(state.getMatchingServiceEntityId())
                 .orElse(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId()));
+    }
+
+    public boolean isMatchingJourney() {
+        return transactionsConfigProxy.isUsingMatching(state.getRequestIssuerEntityId());
     }
 
     @Override

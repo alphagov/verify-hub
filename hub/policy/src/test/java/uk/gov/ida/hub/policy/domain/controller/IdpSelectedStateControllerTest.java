@@ -27,6 +27,7 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.PausedRegistrationState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.exception.IdpDisabledException;
@@ -36,7 +37,10 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
@@ -212,7 +216,7 @@ public class IdpSelectedStateControllerTest {
         SuccessFromIdp successFromIdp = aSuccessFromIdp().build();
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
                 .thenReturn(emptyList());
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
     }
 
     @Test(expected = StateProcessingValidationException.class)
@@ -230,7 +234,7 @@ public class IdpSelectedStateControllerTest {
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(LEVELS_OF_ASSURANCE).build());
 
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
     }
 
     @Test(expected = IdpDisabledException.class)
@@ -293,7 +297,7 @@ public class IdpSelectedStateControllerTest {
     }
 
     @Test
-    public void handleSuccessResponseFromIdp_shouldTransitionToCycle0And1MatchRequestSentState() {
+    public void handleMatchingJourneySuccessResponseFromIdp_shouldTransitionToCycle0And1MatchRequestSentState() {
         ArgumentCaptor<Cycle0And1MatchRequestSentState> stateArgumentCaptor = ArgumentCaptor.forClass(Cycle0And1MatchRequestSentState.class);
         PersistentId persistentId = aPersistentId().withNameId("idname").build();
         final String encryptedMatchingDatasetAssertion = "blah";
@@ -310,11 +314,39 @@ public class IdpSelectedStateControllerTest {
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(LEVELS_OF_ASSURANCE).build());
 
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
 
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
         assertThat(stateArgumentCaptor.getValue()).isInstanceOf(Cycle0And1MatchRequestSentState.class);
         assertThat(stateArgumentCaptor.getValue().getEncryptedMatchingDatasetAssertion()).isEqualTo(encryptedMatchingDatasetAssertion);
+    }
+
+    @Test
+    public void handleNonMatchingJourneySuccessResponseFromIdp_shouldTransitionToNonMatchingJourneySuccessState() {
+        ArgumentCaptor<NonMatchingJourneySuccessState> stateArgumentCaptor = ArgumentCaptor.forClass(NonMatchingJourneySuccessState.class);
+        PersistentId persistentId = aPersistentId().withNameId("idname").build();
+        final String encryptedMatchingDatasetAssertion = "blah";
+        final String authnStatementAssertion = "blah2";
+        SuccessFromIdp successFromIdp = aSuccessFromIdp()
+            .withIssuerId(IDP_ENTITY_ID)
+            .withPersistentId(persistentId)
+            .withPrincipalIpAddressSeenByIdp(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP)
+            .withPrincipalIpAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB)
+            .withLevelOfAssurance(PROVIDED_LOA)
+            .withEncryptedMatchingDatasetAssertion(encryptedMatchingDatasetAssertion)
+            .withAuthnStatementAssertion(authnStatementAssertion)
+            .build();
+        when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+            .thenReturn(singletonList(IDP_ENTITY_ID));
+        when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
+        when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(LEVELS_OF_ASSURANCE).build());
+
+        controller.handleNonMatchingJourneySuccessResponseFromIdp(successFromIdp);
+
+        verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
+        assertThat(stateArgumentCaptor.getValue()).isInstanceOf(NonMatchingJourneySuccessState.class);
+        Set<String> expectedAssertions = new HashSet<>(Arrays.asList(encryptedMatchingDatasetAssertion, authnStatementAssertion));
+        assertThat(stateArgumentCaptor.getValue().getEncryptedAssertions()).isEqualTo(expectedAssertions);
     }
 
     @Test
@@ -331,7 +363,7 @@ public class IdpSelectedStateControllerTest {
                 .thenReturn(singletonList(IDP_ENTITY_ID));
         when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new org.joda.time.Duration(600L));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(anIdpConfigDto().withLevelsOfAssurance(LEVELS_OF_ASSURANCE).build());
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
         verify(hubEventLogger).logIdpAuthnSucceededEvent(
                 NEW_SESSION_ID,
                 SESSION_EXPIRY_TIMESTAMP,
@@ -440,6 +472,6 @@ public class IdpSelectedStateControllerTest {
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
                 .thenReturn(asList(IDP_ENTITY_ID, "differentIDP"));
 
-        controller.handleSuccessResponseFromIdp(successFromIdp);
+        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
     }
 }

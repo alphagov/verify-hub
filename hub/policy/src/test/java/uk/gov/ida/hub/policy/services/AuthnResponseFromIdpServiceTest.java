@@ -75,12 +75,13 @@ public class AuthnResponseFromIdpServiceTest {
     }
 
     @Test
-    public void shouldSendRequestToMatchingServiceViaAttributeQueryServiceAndUpdateSessionStateWhenSuccessfulResponseIsReceived() {
+    public void shouldSendRequestToMatchingServiceViaAttributeQueryServiceAndUpdateSessionStateWhenSuccessfulResponseIsReceivedForAServiceWithMatching() {
         // Given
         final String msaEntityId = "a-msa-entity-id";
         LevelOfAssurance loaAchieved = LevelOfAssurance.LEVEL_2;
         stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         when(idpSelectedStateController.getMatchingServiceEntityId()).thenReturn(msaEntityId);
+        when(idpSelectedStateController.isMatchingJourney()).thenReturn(true);
         InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), loaAchieved);
         SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
         when(samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlAuthnResponseContainerDto, msaEntityId)).thenReturn(samlAuthnResponseTranslatorDto);
@@ -96,8 +97,26 @@ public class AuthnResponseFromIdpServiceTest {
         // Then
         verify(samlAuthnResponseTranslatorDtoFactory).fromSamlAuthnResponseContainerDto(samlAuthnResponseContainerDto, msaEntityId);
         verify(attributeQueryService).sendAttributeQueryRequest(sessionId, attributeQueryRequestDto);
-        verifyIdpStateControllerIsCalledWithRightDataOnSuccess(successResponseFromIdp);
+        verifyIdpStateControllerIsCalledWithRightDataOnSuccess(successResponseFromIdp, true);
         ResponseAction expectedResponseAction = ResponseAction.success(sessionId, REGISTERING, loaAchieved);
+        assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
+    }
+
+    @Test
+    public void shouldReturnNonMatchingJourneySuccessWhenSuccessfulResponseIsReceivedForAServiceWithNonMatching() {
+        // Given
+        LevelOfAssurance loaAchieved = LevelOfAssurance.LEVEL_2;
+        stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
+        when(idpSelectedStateController.isMatchingJourney()).thenReturn(false);
+        InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), loaAchieved);
+        stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(successResponseFromIdp);
+
+        // When
+        ResponseAction responseAction = service.receiveAuthnResponseFromIdp(sessionId, samlAuthnResponseContainerDto);
+
+        // Then
+        verifyIdpStateControllerIsCalledWithRightDataOnSuccess(successResponseFromIdp, false);
+        ResponseAction expectedResponseAction = ResponseAction.nonMatchingJourneySuccess(sessionId, REGISTERING, loaAchieved);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
     }
 
@@ -282,7 +301,7 @@ public class AuthnResponseFromIdpServiceTest {
         assertThat(actualAuthenticationErrorResponse).isEqualToIgnoringGivenFields(expectedAuthenticationErrorResponse);
     }
 
-    private void verifyIdpStateControllerIsCalledWithRightDataOnSuccess(InboundResponseFromIdpDto successResponseFromIdp) {
+    private void verifyIdpStateControllerIsCalledWithRightDataOnSuccess(InboundResponseFromIdpDto successResponseFromIdp, boolean forMatchingJourney) {
         ArgumentCaptor<SuccessFromIdp> captor = ArgumentCaptor.forClass(SuccessFromIdp.class);
 
         PersistentId persistentId = PersistentIdBuilder.aPersistentId().withNameId(successResponseFromIdp.getPersistentId().get()).build();
@@ -295,7 +314,13 @@ public class AuthnResponseFromIdpServiceTest {
                 .withPrincipalIpAddressAsSeenByHub(samlAuthnResponseContainerDto.getPrincipalIPAddressAsSeenByHub())
                 .withPrincipalIpAddressSeenByIdp(successResponseFromIdp.getPrincipalIpAddressAsSeenByIdp().get())
                 .build();
-        verify(idpSelectedStateController).handleSuccessResponseFromIdp(captor.capture());
+
+        if (forMatchingJourney) {
+            verify(idpSelectedStateController).handleMatchingJourneySuccessResponseFromIdp(captor.capture());
+        } else {
+            verify(idpSelectedStateController).handleNonMatchingJourneySuccessResponseFromIdp(captor.capture());
+        }
+
         SuccessFromIdp actualSuccessFromIdp = captor.getValue();
         assertThat(actualSuccessFromIdp).isEqualToIgnoringGivenFields(expectedSuccessFromIdp, "persistentId");
         assertThat(actualSuccessFromIdp.getPersistentId().getNameId()).isEqualTo(persistentId.getNameId());

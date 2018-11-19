@@ -26,6 +26,7 @@ import static uk.gov.ida.hub.policy.domain.ResponseAction.failedUplift;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.other;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.pending;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.success;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.nonMatchingJourneySuccess;
 
 
 public class AuthnResponseFromIdpService {
@@ -112,11 +113,15 @@ public class AuthnResponseFromIdpService {
                 principalIPAddressAsSeenByHub,
                 inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp());
 
-        AttributeQueryRequestDto attributeQuery = idpSelectedStateController.createAttributeQuery(successFromIdp);
-
-        idpSelectedStateController.handleSuccessResponseFromIdp(successFromIdp);
-        attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
-        return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
+        if (idpSelectedStateController.isMatchingJourney()) {
+            idpSelectedStateController.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
+            AttributeQueryRequestDto attributeQuery = idpSelectedStateController.createAttributeQuery(successFromIdp);
+            attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
+            return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
+        } else {
+            idpSelectedStateController.handleNonMatchingJourneySuccessResponseFromIdp(successFromIdp);
+            return nonMatchingJourneySuccess(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
+        }
     }
 
     private ResponseAction handleRequesterError(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.CANCEL;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.FAILED_UPLIFT;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.MATCHING_JOURNEY_SUCCESS;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.NON_MATCHING_JOURNEY_SUCCESS;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.PENDING;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
@@ -13,7 +15,7 @@ import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
 // however, it appears Infinispan does not like it: (@JsonIgnoreProperties(ignoreUnknown = true))
 public final class ResponseAction {
     public enum IdpResult {
-        SUCCESS, CANCEL, FAILED_UPLIFT, PENDING, OTHER
+        SUCCESS, MATCHING_JOURNEY_SUCCESS, NON_MATCHING_JOURNEY_SUCCESS, CANCEL, FAILED_UPLIFT, PENDING, OTHER
     }
     
     private SessionId sessionId;
@@ -32,6 +34,12 @@ public final class ResponseAction {
 
     @JsonIgnore
     public static ResponseAction success(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved) { return new ResponseAction(sessionId, SUCCESS, isRegistration, loaAchieved); }
+
+    @JsonIgnore
+    public static ResponseAction matchingJourneySuccess(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved) { return new ResponseAction(sessionId, MATCHING_JOURNEY_SUCCESS, isRegistration, loaAchieved); }
+
+    @JsonIgnore
+    public static ResponseAction nonMatchingJourneySuccess(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved) { return new ResponseAction(sessionId, NON_MATCHING_JOURNEY_SUCCESS, isRegistration, loaAchieved); }
 
     @JsonIgnore
     public static ResponseAction pending(SessionId sessionId) { return new ResponseAction(sessionId, PENDING, true, null); }
