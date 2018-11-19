@@ -145,7 +145,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
         assertThat(inboundResponseFromIdpDto.getIdpFraudEventId().isPresent()).isFalse();
 
         // TODO consider checking the actual values of the fields below, rather than just their presence
-        assertThat(inboundResponseFromIdpDto.getAuthnStatementAssertionBlob().isPresent()).isTrue();
+        assertThat(inboundResponseFromIdpDto.getEncryptedAuthnAssertion().isPresent()).isTrue();
         assertThat(inboundResponseFromIdpDto.getEncryptedMatchingDatasetAssertion().isPresent()).isTrue();
         assertThat(inboundResponseFromIdpDto.getPersistentId().isPresent()).isTrue();
         assertThat(inboundResponseFromIdpDto.getLevelOfAssurance().isPresent()).isTrue();
@@ -283,7 +283,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
         assertThat(inboundResponseFromIdpDto.getStatus()).isEqualTo(IdpIdaStatus.Status.Success);
         assertThat(inboundResponseFromIdpDto.getIssuer()).isEqualTo(samlAuthnResponse.getIssuer().getValue());
         // TODO consider checking the values of the ones we've checked presence of below
-        assertThat(inboundResponseFromIdpDto.getAuthnStatementAssertionBlob().isPresent()).isTrue();
+        assertThat(inboundResponseFromIdpDto.getEncryptedAuthnAssertion().isPresent()).isTrue();
         assertThat(inboundResponseFromIdpDto.getEncryptedMatchingDatasetAssertion().isPresent()).isTrue();
         assertThat(inboundResponseFromIdpDto.getPersistentId().get()).isEqualTo(persistentId);
         assertThat(inboundResponseFromIdpDto.getLevelOfAssurance().get()).isEqualTo(LevelOfAssurance.LEVEL_X);
@@ -646,7 +646,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
     }
 
     private void checkFieldsForUnsuccessfulResponseDTO(InboundResponseFromIdpDto inboundResponseFromIdpDto) {
-        assertThat(inboundResponseFromIdpDto.getAuthnStatementAssertionBlob().isPresent()).isFalse();
+        assertThat(inboundResponseFromIdpDto.getEncryptedAuthnAssertion().isPresent()).isFalse();
         assertThat(inboundResponseFromIdpDto.getEncryptedMatchingDatasetAssertion().isPresent()).isFalse();
         assertThat(inboundResponseFromIdpDto.getPersistentId().isPresent()).isFalse();
         assertThat(inboundResponseFromIdpDto.getLevelOfAssurance().isPresent()).isFalse();

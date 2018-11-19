@@ -48,7 +48,7 @@ public class ResponseFromHubTest {
 
     @Test
     public void getMatchingServiceAssertion() {
-        assertThat(responseFromHub.getMatchingServiceAssertion()).isEqualTo(MATCHING_SERVICE_ASSERTION);
+        assertThat(responseFromHub.getEncryptedMatchingServiceAssertion()).isEqualTo(MATCHING_SERVICE_ASSERTION);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class ResponseFromHubTest {
         sb.append(",responseId=").append(responseFromHub.getResponseId());
         sb.append(",inResponseTo=").append(responseFromHub.getInResponseTo());
         sb.append(",status=").append(responseFromHub.getStatus());
-        sb.append(",matchingServiceAssertion=").append(responseFromHub.getMatchingServiceAssertion());
+        sb.append(",encryptedMatchingServiceAssertion=").append(responseFromHub.getEncryptedMatchingServiceAssertion());
         sb.append(",relayState=").append(responseFromHub.getRelayState());
         sb.append(",assertionConsumerServiceUri=").append(responseFromHub.getAssertionConsumerServiceUri());
         sb.append(']');

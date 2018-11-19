@@ -82,7 +82,7 @@ public class AttributeQueryRequestDtoTest {
 
     @Test
     public void getAuthnStatementAssertion() throws Exception {
-        assertThat(attributeQueryRequestDto.getAuthnStatementAssertion()).isEqualTo(AUTHN_STATEMENT_ASSERTION);
+        assertThat(attributeQueryRequestDto.getEncryptedAuthnAssertion()).isEqualTo(AUTHN_STATEMENT_ASSERTION);
     }
 
     @Test

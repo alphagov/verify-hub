@@ -82,7 +82,7 @@ public class IdpAuthnResponseTranslatorService {
                     inboundResponseFromIdpData.getStatus(),
                     inboundResponseFromIdpData.getStatusMessage(),
                     inboundResponseFromIdpData.getIssuer(),
-                    inboundResponseFromIdpData.getAuthnStatementAssertionBlob(),
+                    inboundResponseFromIdpData.getEncryptedAuthnAssertion(),
                     inboundResponseFromIdpData.getEncryptedMatchingDatasetAssertion(),
                     inboundResponseFromIdpData.getPersistentId(),
                     inboundResponseFromIdpData.getPrincipalIpAddressAsSeenByIdp(),

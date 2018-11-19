@@ -106,7 +106,7 @@ public class AuthnResponseFromIdpService {
         SuccessFromIdp successFromIdp = new SuccessFromIdp(
                 inboundResponseFromIdpDto.getIssuer(),
                 inboundResponseFromIdpDto.getEncryptedMatchingDatasetAssertion().get(),
-                inboundResponseFromIdpDto.getAuthnStatementAssertionBlob().get(),
+                inboundResponseFromIdpDto.getEncryptedAuthnAssertion().get(),
                 new PersistentId(inboundResponseFromIdpDto.getPersistentId().get()),
                 loaAchieved,
                 principalIPAddressAsSeenByHub,

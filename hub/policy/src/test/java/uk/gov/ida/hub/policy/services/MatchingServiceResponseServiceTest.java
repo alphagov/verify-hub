@@ -10,6 +10,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
+import uk.gov.ida.hub.policy.contracts.SamlResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
@@ -27,9 +28,11 @@ import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import java.util.UUID;
 
 import static java.text.MessageFormat.format;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MatchingServiceResponseServiceTest {
@@ -55,6 +58,7 @@ public class MatchingServiceResponseServiceTest {
         sessionId = SessionId.createNewSessionId();
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
         when(sessionRepository.getStateController(sessionId, WaitingForMatchingServiceResponseState.class)).thenReturn(waitingForMatchingServiceResponseStateController);
+        when(sessionRepository.getRequestIssuerEntityId(sessionId)).thenReturn(TEST_RP);
     }
 
     @Test(expected = SessionNotFoundException.class)
@@ -79,7 +83,7 @@ public class MatchingServiceResponseServiceTest {
                         "issuer",
                         Optional.of("assertionBlob"),
                         Optional.of(LevelOfAssurance.LEVEL_2));
-        when(samlEngineProxy.translateMatchingServiceResponse(samlResponseDto)).thenReturn(inboundResponseFromMatchingServiceDto);
+        when(samlEngineProxy.translateMatchingServiceResponse(any())).thenReturn(inboundResponseFromMatchingServiceDto);
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
 
@@ -94,7 +98,7 @@ public class MatchingServiceResponseServiceTest {
                         "issuer",
                         Optional.<String>absent(),
                         Optional.<LevelOfAssurance>absent());
-        when(samlEngineProxy.translateMatchingServiceResponse(samlResponseDto)).thenReturn(inboundResponseFromMatchingServiceDto);
+        when(samlEngineProxy.translateMatchingServiceResponse(any())).thenReturn(inboundResponseFromMatchingServiceDto);
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
 
@@ -109,7 +113,7 @@ public class MatchingServiceResponseServiceTest {
                         "issuer",
                         Optional.of("assertionBlob"),
                         Optional.of(LevelOfAssurance.LEVEL_2));
-        when(samlEngineProxy.translateMatchingServiceResponse(samlResponseDto)).thenReturn(inboundResponseFromMatchingServiceDto);
+        when(samlEngineProxy.translateMatchingServiceResponse(any())).thenReturn(inboundResponseFromMatchingServiceDto);
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
 
@@ -124,7 +128,7 @@ public class MatchingServiceResponseServiceTest {
                         "issuer",
                         Optional.<String>absent(),
                         Optional.<LevelOfAssurance>absent());
-        when(samlEngineProxy.translateMatchingServiceResponse(samlResponseDto)).thenReturn(inboundResponseFromMatchingServiceDto);
+        when(samlEngineProxy.translateMatchingServiceResponse(any())).thenReturn(inboundResponseFromMatchingServiceDto);
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
 
@@ -142,7 +146,7 @@ public class MatchingServiceResponseServiceTest {
 
     @Test
     public void handle_shouldUpdateStateWhenSamlProxyCannotProcessSaml() {
-        when(samlEngineProxy.translateMatchingServiceResponse(samlResponseDto)).thenThrow(ApplicationException.createAuditedException(ExceptionType.INVALID_SAML, UUID.randomUUID()));
+        when(samlEngineProxy.translateMatchingServiceResponse(any())).thenThrow(ApplicationException.createAuditedException(ExceptionType.INVALID_SAML, UUID.randomUUID()));
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
 

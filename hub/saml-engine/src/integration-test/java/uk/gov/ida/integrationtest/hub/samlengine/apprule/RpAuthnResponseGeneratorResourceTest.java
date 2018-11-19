@@ -166,7 +166,7 @@ public class RpAuthnResponseGeneratorResourceTest {
     }
 
     private String createAssertionString() {
-        return new XmlObjectToBase64EncodedStringTransformer<>().apply(AssertionBuilder.anAssertion().buildUnencrypted());
+        return new XmlObjectToBase64EncodedStringTransformer<>().apply(AssertionBuilder.anAssertion().build());
     }
 
     private org.opensaml.saml.saml2.core.Response extractResponse(AuthnResponseFromHubContainerDto actualResult) throws org.opensaml.core.xml.io.UnmarshallingException, IOException, SAXException, ParserConfigurationException, XMLParserException {

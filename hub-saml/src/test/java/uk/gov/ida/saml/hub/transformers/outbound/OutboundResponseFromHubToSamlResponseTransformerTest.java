@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
@@ -22,25 +22,25 @@ public class OutboundResponseFromHubToSamlResponseTransformerTest {
     @Mock
     private TransactionIdaStatusMarshaller statusMarshaller = null;
     @Mock
-    private AssertionFromIdpToAssertionTransformer assertionTransformer = null;
+    private EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
     private OutboundResponseFromHubToSamlResponseTransformer transformer;
 
     @Before
     public void setup() {
         OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
-        transformer = new OutboundResponseFromHubToSamlResponseTransformer(statusMarshaller, openSamlXmlObjectFactory, assertionTransformer);
+        transformer = new OutboundResponseFromHubToSamlResponseTransformer(statusMarshaller, openSamlXmlObjectFactory, encryptedAssertionUnmarshaller);
     }
 
     @Test
     public void transformAssertions_shouldTransformMatchingServiceAssertions() throws Exception {
         PassthroughAssertion matchingServiceAssertion = aPassthroughAssertion().buildMatchingServiceAssertion();
-        Response transformedResponse = aResponse().build();
-        Assertion transformedMatchingDatasetAssertion = anAssertion().buildUnencrypted();
-        when(assertionTransformer.transform(matchingServiceAssertion.getUnderlyingAssertionBlob())).thenReturn(transformedMatchingDatasetAssertion);
+        Response transformedResponse = aResponse().withNoDefaultAssertion().build();
+        EncryptedAssertion transformedMatchingDatasetAssertion = anAssertion().build();
+        when(encryptedAssertionUnmarshaller.transform(matchingServiceAssertion.getUnderlyingAssertionBlob())).thenReturn(transformedMatchingDatasetAssertion);
 
         transformer.transformAssertions(anAuthnResponse().withMatchingServiceAssertion(matchingServiceAssertion.getUnderlyingAssertionBlob()).buildOutboundResponseFromHub(), transformedResponse);
 
-        assertThat(transformedResponse.getAssertions().size()).isEqualTo(1);
-        assertThat(transformedResponse.getAssertions().get(0)).isEqualTo(transformedMatchingDatasetAssertion);
+        assertThat(transformedResponse.getEncryptedAssertions().size()).isEqualTo(1);
+        assertThat(transformedResponse.getEncryptedAssertions().get(0)).isEqualTo(transformedMatchingDatasetAssertion);
     }
 }

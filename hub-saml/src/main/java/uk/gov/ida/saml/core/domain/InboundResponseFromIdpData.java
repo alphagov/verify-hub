@@ -9,7 +9,7 @@ public class InboundResponseFromIdpData {
     private String issuer;
     private Optional<String> persistentId;
     private Optional<String> statusMessage;
-    private Optional<String> authnStatementAssertionBlob;
+    private Optional<String> encryptedAuthnAssertion;
     private Optional<String> encryptedMatchingDatasetAssertion;
     private Optional<String> principalIpAddressAsSeenByIdp;
     private String levelOfAssurance;
@@ -20,7 +20,7 @@ public class InboundResponseFromIdpData {
             IdpIdaStatus.Status status,
             Optional<String> statusMessage,
             String issuer,
-            Optional<String> authnStatementAssertionBlob,
+            Optional<String> encryptedAuthnAssertion,
             Optional<String> encryptedMatchingDatasetAssertion,
             Optional<String> persistentId,
             Optional<String> principalIpAddressAsSeenByIdp,
@@ -30,7 +30,7 @@ public class InboundResponseFromIdpData {
         this.status = status;
         this.statusMessage = statusMessage;
         this.issuer = issuer;
-        this.authnStatementAssertionBlob = authnStatementAssertionBlob;
+        this.encryptedAuthnAssertion = encryptedAuthnAssertion;
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
         this.principalIpAddressAsSeenByIdp = principalIpAddressAsSeenByIdp;
         this.persistentId = persistentId;
@@ -41,8 +41,8 @@ public class InboundResponseFromIdpData {
 
     protected InboundResponseFromIdpData() {}
 
-    public Optional<String> getAuthnStatementAssertionBlob() {
-        return authnStatementAssertionBlob;
+    public Optional<String> getEncryptedAuthnAssertion() {
+        return encryptedAuthnAssertion;
     }
 
     public IdpIdaStatus.Status getStatus() {

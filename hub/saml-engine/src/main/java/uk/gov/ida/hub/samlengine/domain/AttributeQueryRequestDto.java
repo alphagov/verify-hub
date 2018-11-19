@@ -21,7 +21,7 @@ public class AttributeQueryRequestDto {
     @NotNull
     private String encryptedMatchingDatasetAssertion;
 
-    private String authnStatementAssertion;
+    private String encryptedAuthnAssertion;
     private Optional<Cycle3Dataset> cycle3Dataset;
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes;
     private PersistentId persistentId;
@@ -47,7 +47,7 @@ public class AttributeQueryRequestDto {
         final Optional<Cycle3Dataset> cycle3Dataset,
         final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
         final String encryptedMatchingDatasetAssertion,
-        final String authnStatementAssertion) {
+        final String encryptedAuthnAssertion) {
 
         this.requestId = requestId;
         this.authnRequestIssuerEntityId = authnRequestIssuerEntityId;
@@ -62,7 +62,7 @@ public class AttributeQueryRequestDto {
         this.cycle3Dataset = cycle3Dataset;
         this.userAccountCreationAttributes = userAccountCreationAttributes;
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
-        this.authnStatementAssertion = authnStatementAssertion;
+        this.encryptedAuthnAssertion = encryptedAuthnAssertion;
     }
 
     public String getAuthnRequestIssuerEntityId() {
@@ -79,8 +79,8 @@ public class AttributeQueryRequestDto {
 
     public DateTime getMatchingServiceRequestTimeOut() { return matchingServiceRequestTimeOut;}
 
-    public String getAuthnStatementAssertion() {
-        return authnStatementAssertion;
+    public String getEncryptedAuthnAssertion() {
+        return encryptedAuthnAssertion;
     }
 
     public Optional<Cycle3Dataset> getCycle3Dataset() {

@@ -16,29 +16,28 @@ import uk.gov.ida.saml.core.domain.HubAssertion;
 import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;
 import uk.gov.ida.saml.hub.factories.AttributeQueryAttributeFactory;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class HubAttributeQueryRequestToSamlAttributeQueryTransformer implements Function<HubAttributeQueryRequest,AttributeQuery> {
 
     private final OpenSamlXmlObjectFactory samlObjectFactory;
     private final HubAssertionMarshaller hubAssertionMarshaller;
-    private final AssertionFromIdpToAssertionTransformer assertionFromIdpTransformer;
     private final AttributeQueryAttributeFactory attributeQueryAttributeFactory;
     private final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
 
     public HubAttributeQueryRequestToSamlAttributeQueryTransformer(
             final OpenSamlXmlObjectFactory samlObjectFactory,
             final HubAssertionMarshaller hubAssertionMarshaller,
-            final AssertionFromIdpToAssertionTransformer assertionFromIdpTransformer,
             final AttributeQueryAttributeFactory attributeQueryAttributeFactory,
             final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller) {
 
         this.samlObjectFactory = samlObjectFactory;
         this.hubAssertionMarshaller = hubAssertionMarshaller;
-        this.assertionFromIdpTransformer = assertionFromIdpTransformer;
         this.attributeQueryAttributeFactory = attributeQueryAttributeFactory;
         this.encryptedAssertionUnmarshaller = encryptedAssertionUnmarshaller;
     }
@@ -65,13 +64,9 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformer implements 
         SubjectConfirmation subjectConfirmation = samlObjectFactory.createSubjectConfirmation();
         SubjectConfirmationData subjectConfirmationData = samlObjectFactory.createSubjectConfirmationData();
 
-        final String encryptedMatchingDatasetAssertion = originalQuery.getEncryptedMatchingDatasetAssertion();
-        EncryptedAssertion encryptedAssertion = encryptedAssertionUnmarshaller.transform(encryptedMatchingDatasetAssertion);
-        subjectConfirmationData.getUnknownXMLObjects(EncryptedAssertion.DEFAULT_ELEMENT_NAME).add(encryptedAssertion);
-
-        final String authnStatementAssertion = originalQuery.getAuthnStatementAssertion();
-        Assertion transformedAuthnStatementAssertion = assertionFromIdpTransformer.transform(authnStatementAssertion);
-        subjectConfirmationData.getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).add(transformedAuthnStatementAssertion);
+        Stream.of(originalQuery.getEncryptedMatchingDatasetAssertion(), originalQuery.getEncryptedAuthnAssertion())
+                .map(encryptedAssertionUnmarshaller::transform)
+                .forEach(subjectConfirmationData.getUnknownXMLObjects(EncryptedAssertion.DEFAULT_ELEMENT_NAME)::add);
 
         final Optional<HubAssertion> cycle3DatasetAssertion = originalQuery.getCycle3AttributeAssertion();
         if (cycle3DatasetAssertion.isPresent()) {

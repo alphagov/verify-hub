@@ -17,7 +17,7 @@ import static uk.gov.ida.hub.samlengine.builders.PersistentIdBuilder.aPersistent
 
 public class HubMatchingServiceRequestDtoBuilder {
     private String id = "id";
-    private String authnStatementAssertion = "aPassthroughAssertion().buildAuthnStatementAssertion()";
+    private String encryptedAuthnAssertion = "aPassthroughAssertion().buildAuthnStatementAssertion()";
     private Optional<Cycle3Dataset> cycle3AttributeAssertion = absent();
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes = absent();
     private String authnRequestIssuerEntityId = "default-auth-request-issuer-id-from-builder";
@@ -48,7 +48,7 @@ public class HubMatchingServiceRequestDtoBuilder {
             cycle3AttributeAssertion,
             userAccountCreationAttributes,
             encryptedMatchingDatasetAssertion,
-            authnStatementAssertion);
+            encryptedAuthnAssertion);
     }
 
     public HubMatchingServiceRequestDtoBuilder withId(String id) {
@@ -61,8 +61,8 @@ public class HubMatchingServiceRequestDtoBuilder {
         return this;
     }
 
-    public HubMatchingServiceRequestDtoBuilder withAuthnStatementAssertion(String authnStatementAssertion) {
-        this.authnStatementAssertion = authnStatementAssertion;
+    public HubMatchingServiceRequestDtoBuilder withEncryptedAuthnAssertion(String encryptedAssertion) {
+        this.encryptedAuthnAssertion = encryptedAssertion;
         return this;
     }
 

@@ -455,16 +455,14 @@ public class HubTransformersFactory {
         return new OutboundResponseFromHubToSamlResponseTransformer(
                 new TransactionIdaStatusMarshaller(new OpenSamlXmlObjectFactory()),
                 new OpenSamlXmlObjectFactory(),
-                new AssertionFromIdpToAssertionTransformer(getStringToAssertionTransformer())
-        );
+                getEncryptedAssertionUnmarshaller());
     }
 
     private OutboundResponseFromHubToSamlResponseTransformer getSamlProfileOutboundResponseFromHubToSamlResponseTransformer() {
         return new OutboundResponseFromHubToSamlResponseTransformer(
                 new SamlProfileTransactionIdaStatusMarshaller(new OpenSamlXmlObjectFactory()),
                 new OpenSamlXmlObjectFactory(),
-                new AssertionFromIdpToAssertionTransformer(getStringToAssertionTransformer())
-        );
+                getEncryptedAssertionUnmarshaller());
     }
 
     private HubIdentityProviderMetadataDtoToEntityDescriptorTransformer getHubIdentityProviderMetadataDtoToEntityDescriptorTransformer() {
@@ -491,11 +489,8 @@ public class HubTransformersFactory {
                         new OpenSamlXmlObjectFactory(),
                         new AttributeFactory_1_1(new OpenSamlXmlObjectFactory()),
                         new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory())),
-                new AssertionFromIdpToAssertionTransformer(
-                        getStringToAssertionTransformer()
-                ),
                 new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory()),
-                new EncryptedAssertionUnmarshaller(getStringToEncryptedAssertionTransformer()));
+                getEncryptedAssertionUnmarshaller());
     }
 
     private HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer() {
@@ -509,7 +504,11 @@ public class HubTransformersFactory {
                         getStringToAssertionTransformer()
                 ),
                 new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory()),
-                new EncryptedAssertionUnmarshaller(getStringToEncryptedAssertionTransformer()));
+                getEncryptedAssertionUnmarshaller());
+    }
+
+    public EncryptedAssertionUnmarshaller getEncryptedAssertionUnmarshaller() {
+        return new EncryptedAssertionUnmarshaller(getStringToEncryptedAssertionTransformer());
     }
 
     private StringToOpenSamlObjectTransformer<EncryptedAssertion> getStringToEncryptedAssertionTransformer() {

@@ -15,32 +15,22 @@ import javax.inject.Named;
 
 public class RpAuthnResponseGeneratorService {
 
-    private final AssignableEntityToEncryptForLocator assignableEntityToEncryptForLocator;
     private final OutboundResponseFromHubToResponseTransformerFactory outboundResponseFromHubToResponseTransformerFactory;
     private final String hubEntityId;
 
     @Inject
-    public RpAuthnResponseGeneratorService(AssignableEntityToEncryptForLocator assignableEntityToEncryptForLocator,
-                                           OutboundResponseFromHubToResponseTransformerFactory outboundResponseFromHubToResponseTransformerFactory,
+    public RpAuthnResponseGeneratorService(OutboundResponseFromHubToResponseTransformerFactory outboundResponseFromHubToResponseTransformerFactory,
                                            @Named("HubEntityId") String hubEntityId) {
-
-        this.assignableEntityToEncryptForLocator = assignableEntityToEncryptForLocator;
         this.outboundResponseFromHubToResponseTransformerFactory = outboundResponseFromHubToResponseTransformerFactory;
         this.hubEntityId = hubEntityId;
     }
 
     public AuthnResponseFromHubContainerDto generate(ResponseFromHubDto responseFromHub) {
-        String entityIdForEncryption = responseFromHub.getAuthnRequestIssuerEntityId();
-        String originalRequestId = responseFromHub.getInResponseTo();
         try{
-            assignableEntityToEncryptForLocator.addEntityIdForRequestId(originalRequestId, entityIdForEncryption);
             return createSuccessResponse(responseFromHub);
         } catch (Exception e) {
             throw new UnableToGenerateSamlException("Unable to generate RP authn response", e, Level.ERROR);
-        } finally {
-            assignableEntityToEncryptForLocator.removeEntityIdForRequestId(originalRequestId);
         }
-
     }
 
     private AuthnResponseFromHubContainerDto createSuccessResponse(final ResponseFromHubDto responseFromHub) {
@@ -52,7 +42,7 @@ public class RpAuthnResponseGeneratorService {
                 hubEntityId,
                 DateTime.now(),
                 TransactionIdaStatus.valueOf(responseFromHub.getStatus().name()),
-                responseFromHub.getMatchingServiceAssertion(),
+                responseFromHub.getEncryptedMatchingServiceAssertion(),
                 responseFromHub.getAssertionConsumerServiceUri());
 
         String samlMessage = outboundResponseFromHubToResponseTransformerFactory.get(authnRequestIssuerEntityId).apply(response);

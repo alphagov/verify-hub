@@ -10,11 +10,12 @@ import org.opensaml.saml.saml2.core.Response;
 import org.slf4j.event.Level;
 import uk.gov.ida.hub.samlengine.builders.InboundResponseFromMatchingServiceBuilder;
 import uk.gov.ida.hub.samlengine.contracts.InboundResponseFromMatchingServiceDto;
-import uk.gov.ida.hub.samlengine.domain.SamlResponseDto;
+import uk.gov.ida.hub.samlengine.domain.SamlResponseContainerDto;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.FraudDetectedDetails;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.domain.PersistentId;
+import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
@@ -24,8 +25,11 @@ import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseT
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MatchingServiceResponseTranslatorServiceTest {
@@ -34,17 +38,19 @@ public class MatchingServiceResponseTranslatorServiceTest {
     private StringToOpenSamlObjectTransformer<Response> responseUnmarshaller;
     @Mock
     private DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer responseToInboundResponseFromMatchingServiceTransformer;
+    @Mock
+    private AssertionBlobEncrypter assertionBlobEncrypter;
 
     private MatchingServiceResponseTranslatorService matchingServiceResponseTranslatorService;
 
     @Before
     public void setUp() {
-        matchingServiceResponseTranslatorService = new MatchingServiceResponseTranslatorService(responseUnmarshaller, responseToInboundResponseFromMatchingServiceTransformer);
+        matchingServiceResponseTranslatorService = new MatchingServiceResponseTranslatorService(responseUnmarshaller, responseToInboundResponseFromMatchingServiceTransformer, assertionBlobEncrypter);
     }
 
     @Test(expected=SamlTransformationErrorException.class)
     public void handle_shouldNotifyPolicyWhenSamlStringCannotBeConvertedToAnElement() throws Exception {
-        final SamlResponseDto samlResponse = new SamlResponseDto("Woooo!");
+        final SamlResponseContainerDto samlResponse = new SamlResponseContainerDto("Woooo!", TEST_RP);
         when(responseUnmarshaller.apply(samlResponse.getSamlResponse())).thenThrow(new SamlTransformationErrorException("not xml", Level.ERROR));
         matchingServiceResponseTranslatorService.translate(samlResponse);
         // event sink logging is tested in SamlTransformationErrorExceptionMapperTest
@@ -56,16 +62,16 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final String issuer = "issuer";
         final Optional<AuthnContext> authnContext = Optional.of(AuthnContext.LEVEL_2);
         final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
-        final String underlyingAssertionBlob = "underlyingAssertionBlob";
+        final String encryptedAssertion = "encryptedAssertion";
         final MatchingServiceIdaStatus status = MatchingServiceIdaStatus.MatchingServiceMatch;
-        final SamlResponseDto samlResponse = new SamlResponseDto("saml");
-        setUpForTranslate(authnContext, fraudDetectedDetails, underlyingAssertionBlob, inResponseTo, issuer, samlResponse.getSamlResponse(), status);
+        final SamlResponseContainerDto samlResponse = new SamlResponseContainerDto("saml", TEST_RP);
+        setUpForTranslate(authnContext, fraudDetectedDetails, encryptedAssertion, inResponseTo, issuer, samlResponse.getSamlResponse(), status);
 
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isTrue();
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().get()).isEqualTo(underlyingAssertionBlob);
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().get()).isEqualTo(encryptedAssertion);
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().get().name()).isEqualTo(authnContext.get().name());
@@ -80,14 +86,14 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
         final String underlyingAssertionBlob = "underlyingAssertionBlob";
         final MatchingServiceIdaStatus status = MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService;
-        final SamlResponseDto samlResponse = new SamlResponseDto("saml");
+        final SamlResponseContainerDto samlResponse = new SamlResponseContainerDto("saml", TEST_RP);
         setUpForTranslate(authnContext, fraudDetectedDetails, underlyingAssertionBlob, inResponseTo, issuer, samlResponse.getSamlResponse(), status);
 
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isTrue();
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().get()).isEqualTo(underlyingAssertionBlob);
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().get()).isEqualTo(underlyingAssertionBlob);
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().get().name()).isEqualTo(authnContext.get().name());
@@ -102,13 +108,13 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
         final String underlyingAssertionBlob = null;
         final MatchingServiceIdaStatus status = MatchingServiceIdaStatus.RequesterError;
-        final SamlResponseDto samlResponse = new SamlResponseDto("saml");
+        final SamlResponseContainerDto samlResponse = new SamlResponseContainerDto("saml", TEST_RP);
         setUpForTranslate(authnContext, fraudDetectedDetails, underlyingAssertionBlob, inResponseTo, issuer, samlResponse.getSamlResponse(), status);
 
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isFalse();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isFalse();
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isFalse();
         assertThat(inboundResponseFromMatchingServiceDto.getStatus()).isEqualTo(status);
@@ -122,24 +128,24 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final Optional<FraudDetectedDetails> fraudDetectedDetails = Optional.empty();
         final String underlyingAssertionBlob = "underlyingAssertionBlob";
         final MatchingServiceIdaStatus status = MatchingServiceIdaStatus.UserAccountCreated;
-        final SamlResponseDto samlResponse = new SamlResponseDto("saml");
+        final SamlResponseContainerDto samlResponse = new SamlResponseContainerDto("saml", TEST_RP);
         setUpForTranslate(authnContext, fraudDetectedDetails, underlyingAssertionBlob, inResponseTo, issuer, samlResponse.getSamlResponse(), status);
 
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().isPresent()).isTrue();
-        assertThat(inboundResponseFromMatchingServiceDto.getUnderlyingMatchingServiceAssertionBlob().get()).isEqualTo(underlyingAssertionBlob);
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isTrue();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().get()).isEqualTo(underlyingAssertionBlob);
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().get().name()).isEqualTo(authnContext.get().name());
         assertThat(inboundResponseFromMatchingServiceDto.getStatus()).isEqualTo(status);
     }
 
-    private void setUpForTranslate(Optional<AuthnContext> authnContext, Optional<FraudDetectedDetails> fraudDetectedDetails, String underlyingAssertionBlob, String inResponseTo, String issuer, String samlResponse, MatchingServiceIdaStatus status) {
+    private void setUpForTranslate(Optional<AuthnContext> authnContext, Optional<FraudDetectedDetails> fraudDetectedDetails, String encryptedAssertion, String inResponseTo, String issuer, String samlResponse, MatchingServiceIdaStatus status) {
         final PassthroughAssertion assertion = new PassthroughAssertion(new PersistentId("persistentId"),
                 authnContext,
-                underlyingAssertionBlob,
+                encryptedAssertion,
                 fraudDetectedDetails,
                 Optional.of("principalIpAddressAsSeenByIdp"));
         final InboundResponseFromMatchingService inboundResponseFromMatchingService = InboundResponseFromMatchingServiceBuilder
@@ -154,6 +160,7 @@ public class MatchingServiceResponseTranslatorServiceTest {
         when(response.getIssuer()).thenReturn(responseIssuer);
         when(responseUnmarshaller.apply(samlResponse)).thenReturn(response);
         when(responseToInboundResponseFromMatchingServiceTransformer.transform(response)).thenReturn(inboundResponseFromMatchingService);
+        when(assertionBlobEncrypter.encryptAssertionBlob(eq(TEST_RP), any())).thenReturn(encryptedAssertion);
     }
 
 }

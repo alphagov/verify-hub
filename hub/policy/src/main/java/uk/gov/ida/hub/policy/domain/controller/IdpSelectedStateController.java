@@ -15,7 +15,6 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
-import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
@@ -243,10 +242,6 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
     }
 
     private State createCycle0And1MatchRequestSentState(SuccessFromIdp successFromIdp) {
-        String authnStatementAssertion = successFromIdp.getAuthnStatementAssertion();
-
-        String matchingServiceEntityId = getMatchingServiceEntityId();
-
         return new Cycle0And1MatchRequestSentState(
             state.getRequestId(),
             state.getRequestIssuerEntityId(),
@@ -258,23 +253,21 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
             successFromIdp.getIssuer(),
             state.getRelayState().orNull(),
             successFromIdp.getLevelOfAssurance(),
-            matchingServiceEntityId,
+            getMatchingServiceEntityId(),
             successFromIdp.getEncryptedMatchingDatasetAssertion(),
-            authnStatementAssertion,
+            successFromIdp.getEncryptedAuthnAssertion(),
             successFromIdp.getPersistentId()
         );
     }
 
     public AttributeQueryRequestDto createAttributeQuery(SuccessFromIdp successFromIdp) {
-        String authnStatementAssertion = successFromIdp.getAuthnStatementAssertion();
-        final String encryptedMatchingDatasetAssertion = successFromIdp.getEncryptedMatchingDatasetAssertion();
 
         String matchingServiceEntityId = getMatchingServiceEntityId();
         MatchingServiceConfigEntityDataDto matchingServiceConfig = matchingServiceConfigProxy.getMatchingService(matchingServiceEntityId);
         return AttributeQueryRequestDto.createCycle01MatchingServiceRequest(
                 state.getRequestId(),
-                encryptedMatchingDatasetAssertion,
-                authnStatementAssertion,
+                successFromIdp.getEncryptedMatchingDatasetAssertion(),
+                successFromIdp.getEncryptedAuthnAssertion(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
                 matchingServiceEntityId,

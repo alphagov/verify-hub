@@ -12,6 +12,7 @@ import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.policy.contracts.SamlMessageDto;
 import uk.gov.ida.hub.policy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlRequestWithAuthnRequestInformationDto;
+import uk.gov.ida.hub.policy.contracts.SamlResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.IdaAuthnRequestFromHubDto;
@@ -103,7 +104,7 @@ public class SamlEngineProxy {
         return jsonClient.post(eidasAttributeQueryRequestDto, uri, AttributeQueryContainerDto.class);
     }
 
-    public InboundResponseFromMatchingServiceDto translateMatchingServiceResponse(SamlResponseDto samlResponse) {
+    public InboundResponseFromMatchingServiceDto translateMatchingServiceResponse(SamlResponseContainerDto samlResponse) {
         URI uri = UriBuilder
                 .fromUri(samlEngineUri)
                 .path(Urls.SamlEngineUrls.TRANSLATE_MATCHING_SERVICE_RESPONSE_RESOURCE)

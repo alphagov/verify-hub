@@ -24,8 +24,8 @@ public class AttributeQueryRequestBuilder {
             authnStatementAssertionId, String requestId) {
         XmlObjectToBase64EncodedStringTransformer<XMLObject> toBase64EncodedStringTransformer = new XmlObjectToBase64EncodedStringTransformer<>();
         final PersistentId persistentId = aPersistentId().withNameId(persistentIdName).buildSamlEnginePersistentId();
-        Assertion authnStatementAssertion = AssertionBuilder.anAssertion().withId(authnStatementAssertionId).buildUnencrypted();
-        String authnStatementAssertionString = toBase64EncodedStringTransformer.apply(authnStatementAssertion);
+        EncryptedAssertion encryptedAuthnAssertion = AssertionBuilder.anAssertion().withId(authnStatementAssertionId).build();
+        String encryptedAuthnAssertionString = toBase64EncodedStringTransformer.apply(encryptedAuthnAssertion);
         EncryptedAssertion encryptedMdsAssertion = AssertionBuilder.anAssertion().withId(matchingDatasetAssertionId).build();
         String encryptedMdsAssertionString = toBase64EncodedStringTransformer.apply(encryptedMdsAssertion);
 
@@ -35,7 +35,7 @@ public class AttributeQueryRequestBuilder {
                 .withMatchingServiceEntityId(TestEntityIds.TEST_RP_MS)
                 .withPersistentId(persistentId)
                 .withEncryptedMatchingDatasetAssertion(encryptedMdsAssertionString)
-                .withAuthnStatementAssertion(authnStatementAssertionString)
+                .withEncryptedAuthnAssertion(encryptedAuthnAssertionString)
                 .build();
     }
 
