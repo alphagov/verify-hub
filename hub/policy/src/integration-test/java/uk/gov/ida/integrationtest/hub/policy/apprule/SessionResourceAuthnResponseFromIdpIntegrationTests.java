@@ -177,7 +177,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         samlEngineStub.setupStubForAttributeQueryRequest(AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto().build());
         samlSoapProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
         Response response = postIdpResponse(sessionId, samlResponseDto);
-        ResponseAction expected = ResponseAction.success(sessionId, true, loaAchieved);
+        ResponseAction expected = ResponseAction.success(sessionId, true, loaAchieved, null);
         ResponseAction actualResponseAction = response.readEntity(ResponseAction.class);
         assertThat(actualResponseAction).isEqualToComparingFieldByField(expected);
 

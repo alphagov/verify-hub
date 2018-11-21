@@ -43,7 +43,7 @@ public class PolicyStubRule extends HttpStubRule {
 
     public void receiveAuthnResponseFromIdp(String sessionId, LevelOfAssurance loaAchieved) throws JsonProcessingException {
         String locationUri = getAuthnResponseFromIdpLocation(sessionId);
-        ResponseActionDto responseActionDto = ResponseActionDto.success(new SessionId(sessionId), false, loaAchieved);
+        ResponseActionDto responseActionDto = ResponseActionDto.success(new SessionId(sessionId), false, loaAchieved, null);
         register(locationUri, Status.OK.getStatusCode(), responseActionDto);
     }
 
@@ -88,7 +88,7 @@ public class PolicyStubRule extends HttpStubRule {
 
     public void receiveAuthnResponseFromCountry(String sessionId, LevelOfAssurance loaAchieved) throws JsonProcessingException {
         String locationUri = getAuthnResponseFromCountryLocation(sessionId);
-        ResponseActionDto responseActionDto = ResponseActionDto.success(new SessionId(sessionId), false, loaAchieved);
+        ResponseActionDto responseActionDto = ResponseActionDto.success(new SessionId(sessionId), false, loaAchieved, null);
         register(locationUri, Status.OK.getStatusCode(), responseActionDto);
     }
 

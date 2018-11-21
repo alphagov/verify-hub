@@ -10,33 +10,52 @@ public class InboundResponseFromIdpDtoBuilder {
         return buildDTO(IdpIdaStatus.Status.Success,
                 idpEntityId,
                 Optional.of(levelOfAssurance),
-                Optional.<String>absent());
+                Optional.<String>absent(),
+                Optional.absent());
+    }
+
+    public static InboundResponseFromIdpDto successResponse(String idpEntityId, LevelOfAssurance levelOfAssurance, String notOnOrAfter) {
+        return buildDTO(IdpIdaStatus.Status.Success,
+                idpEntityId,
+                Optional.of(levelOfAssurance),
+                Optional.<String>absent(),
+                Optional.of(notOnOrAfter));
     }
 
     public static InboundResponseFromIdpDto errorResponse(String idpEntityId, IdpIdaStatus.Status status) {
         return buildDTO(status, idpEntityId,
                 Optional.of(LevelOfAssurance.LEVEL_2),
+                Optional.<String>absent(),
                 Optional.<String>absent());
     }
 
     public static InboundResponseFromIdpDto fraudResponse(String idpEntityId) {
-        return buildDTO(IdpIdaStatus.Status.RequesterError, idpEntityId,
+        return buildDTO(IdpIdaStatus.Status.RequesterError,
+                idpEntityId,
                 Optional.of(LevelOfAssurance.LEVEL_X),
-                Optional.of("fraudIndicator"));
+                Optional.of("fraudIndicator"),
+                Optional.<String>absent());
     }
 
     public static InboundResponseFromIdpDto failedResponse(String idpEntityId) {
-        return buildDTO(IdpIdaStatus.Status.AuthenticationFailed, idpEntityId, Optional.of(LevelOfAssurance.LEVEL_2), Optional.<String>absent());
+        return buildDTO(IdpIdaStatus.Status.AuthenticationFailed,
+                idpEntityId, Optional.of(LevelOfAssurance.LEVEL_2),
+                Optional.<String>absent(),
+                Optional.<String>absent());
     }
 
     public static InboundResponseFromIdpDto noAuthnContextResponse(String idpEntityId) {
-        return buildDTO(IdpIdaStatus.Status.NoAuthenticationContext, idpEntityId, Optional.<LevelOfAssurance>absent(),
+        return buildDTO(IdpIdaStatus.Status.NoAuthenticationContext,
+                idpEntityId,
+                Optional.<LevelOfAssurance>absent(),
+                Optional.<String>absent(),
                 Optional.<String>absent());
     }
 
     private static InboundResponseFromIdpDto buildDTO(IdpIdaStatus.Status status, String idpEntityId,
                                                       Optional<LevelOfAssurance> levelOfAssurance,
-                                                      Optional<String> fraudText) {
+                                                      Optional<String> fraudText,
+                                                      Optional<String> notOnOrAfter) {
         return new InboundResponseFromIdpDto(
                 status,
                 Optional.fromNullable("message"),
@@ -47,6 +66,7 @@ public class InboundResponseFromIdpDtoBuilder {
                 Optional.fromNullable("pid"),
                 levelOfAssurance,
                 fraudText,
-                fraudText);
+                fraudText,
+                notOnOrAfter);
     }
 }

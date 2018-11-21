@@ -71,6 +71,7 @@ public class UnknownMethodAlgorithmLoggerTest {
     private static final String ISSUER_IDP = TestEntityIds.STUB_IDP_ONE;
     private static final String ISSUER_SP = TestEntityIds.TEST_RP;
     private static final DateTime ISSUE_INSTANT = new DateTime();
+    private static final Optional<DateTime> NOT_ON_OR_AFTER = Optional.empty();
     private static final IdpIdaStatus STATUS = IdpIdaStatus.success();
     private static final Optional<PassthroughAssertion> AUTHN_STATEMENT_ASSERTION = Optional.empty();
     private static final Optional<PassthroughAssertion> MATCHING_DATASET_ASSERTION = Optional.empty();
@@ -135,6 +136,7 @@ public class UnknownMethodAlgorithmLoggerTest {
                 IN_RESPONSE_TO,
                 ISSUER_IDP,
                 ISSUE_INSTANT,
+                NOT_ON_OR_AFTER,
                 STATUS,
                 signature,
                 MATCHING_DATASET_ASSERTION,
@@ -152,6 +154,7 @@ public class UnknownMethodAlgorithmLoggerTest {
                 IN_RESPONSE_TO,
                 ISSUER_IDP,
                 ISSUE_INSTANT,
+                NOT_ON_OR_AFTER,
                 STATUS,
                 signatureWithUnknownSignatureAlgorithm,
                 MATCHING_DATASET_ASSERTION,
@@ -172,6 +175,7 @@ public class UnknownMethodAlgorithmLoggerTest {
                 IN_RESPONSE_TO,
                 ISSUER_IDP,
                 ISSUE_INSTANT,
+                NOT_ON_OR_AFTER,
                 STATUS,
                 signatureWithUnknownDigestAlgorithm,
                 MATCHING_DATASET_ASSERTION,
@@ -192,6 +196,7 @@ public class UnknownMethodAlgorithmLoggerTest {
                 IN_RESPONSE_TO,
                 ISSUER_IDP,
                 ISSUE_INSTANT,
+                NOT_ON_OR_AFTER,
                 STATUS,
                 signatureWithUnknownSignatureAndDigestAlgorithms,
                 MATCHING_DATASET_ASSERTION,

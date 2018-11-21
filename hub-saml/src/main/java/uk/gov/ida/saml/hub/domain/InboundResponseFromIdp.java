@@ -19,6 +19,7 @@ public class InboundResponseFromIdp extends IdaSamlResponse {
             String inResponseTo,
             String issuer,
             DateTime issueInstant,
+            Optional<DateTime> notOnOrAfter,
             IdpIdaStatus status,
             Optional<Signature> signature,
             Optional<PassthroughAssertion> matchingDatasetAssertion,

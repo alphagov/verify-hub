@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.samlengine.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.joda.time.DateTime;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 
 import java.util.Optional;
@@ -20,8 +21,9 @@ public class InboundResponseFromIdpDto {
     private Optional<LevelOfAssurance> levelOfAssurance;
     private Optional<String> idpFraudEventId;
     private Optional<String> fraudIndicator;
+    private Optional<DateTime> notOnOrAfter;
 
-    public InboundResponseFromIdpDto(IdpIdaStatus.Status status, Optional<String> statusMessage, String issuer, Optional<String> encryptedAuthnAssertion, Optional<String> encryptedMatchingDatasetAssertion, Optional<String> persistentId, Optional<String> principalIpAddressAsSeenByIdp, Optional<LevelOfAssurance> levelOfAssurance, Optional<String> idpFraudEventId, Optional<String> fraudIndicator) {
+    public InboundResponseFromIdpDto(IdpIdaStatus.Status status, Optional<String> statusMessage, String issuer, Optional<String> encryptedAuthnAssertion, Optional<String> encryptedMatchingDatasetAssertion, Optional<String> persistentId, Optional<String> principalIpAddressAsSeenByIdp, Optional<LevelOfAssurance> levelOfAssurance, Optional<String> idpFraudEventId, Optional<String> fraudIndicator, Optional<DateTime> notOnOrAfter) {
         this.status = status;
         this.statusMessage = statusMessage;
         this.issuer = issuer;
@@ -32,6 +34,7 @@ public class InboundResponseFromIdpDto {
         this.levelOfAssurance = levelOfAssurance;
         this.idpFraudEventId = idpFraudEventId;
         this.fraudIndicator = fraudIndicator;
+        this.notOnOrAfter = notOnOrAfter;
     }
 
     protected InboundResponseFromIdpDto() {
@@ -77,4 +80,9 @@ public class InboundResponseFromIdpDto {
     public Optional<String> getEncryptedMatchingDatasetAssertion() {
         return encryptedMatchingDatasetAssertion;
     }
+
+    public Optional<DateTime> getNotOnOrAfter() {
+        return notOnOrAfter;
+    }
+
 }

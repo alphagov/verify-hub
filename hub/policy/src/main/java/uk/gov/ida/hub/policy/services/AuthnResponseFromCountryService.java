@@ -79,7 +79,7 @@ public class AuthnResponseFromCountryService {
         AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(stateController.getEidasAttributeQueryRequestDto(translatedResponse));
         samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr));
 
-        return ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2);
+        return ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2, null);
     }
 
     private ResponseAction handleAuthenticationFailedResponse(SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, EidasCountrySelectedStateController stateController) {

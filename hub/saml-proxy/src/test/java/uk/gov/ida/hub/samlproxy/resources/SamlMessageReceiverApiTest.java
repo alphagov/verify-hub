@@ -120,7 +120,7 @@ public class SamlMessageReceiverApiTest {
 
     @Test
     public void handleResponsePost_shouldReturnActionDtoOnSuccessfulRegistration() throws MarshallingException, SignatureException {
-        ResponseActionDto responseActionDto = ResponseActionDto.success(SESSION_ID, true, LevelOfAssurance.LEVEL_2);
+        ResponseActionDto responseActionDto = ResponseActionDto.success(SESSION_ID, true, LevelOfAssurance.LEVEL_2, null);
         when(stringSamlResponseTransformer.apply(SAML_REQUEST)).thenReturn(validSamlResponse);
         when(samlMessageSignatureValidator.validate(any(org.opensaml.saml.saml2.core.Response.class), any(QName.class))).thenReturn(SamlValidationResponse.aValidResponse());
         when(sessionProxy.receiveAuthnResponseFromIdp(any(SamlAuthnResponseContainerDto.class), eq(SESSION_ID))).thenReturn(responseActionDto);

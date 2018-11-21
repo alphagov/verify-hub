@@ -36,6 +36,7 @@ public class IdaResponseFromIdpUnmarshaller {
                 validatedResponse.getInResponseTo(),
                 validatedResponse.getIssuer().getValue(),
                 validatedResponse.getIssueInstant(),
+                validatedAssertions.getMatchingDatasetAssertion().flatMap(a -> Optional.ofNullable(a.getConditions().getNotOnOrAfter())),
                 transformedStatus,
                 Optional.ofNullable(validatedResponse.getSignature()),
                 matchingDatasetAssertion,

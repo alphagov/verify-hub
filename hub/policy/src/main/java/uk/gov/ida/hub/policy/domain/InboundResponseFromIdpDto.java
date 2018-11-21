@@ -16,18 +16,20 @@ public class InboundResponseFromIdpDto {
     private Optional<LevelOfAssurance> levelOfAssurance;
     private Optional<String> idpFraudEventId;
     private Optional<String> fraudIndicator;
+    private Optional<String> notOnOrAfter;
 
-    public InboundResponseFromIdpDto(IdpIdaStatus.Status status, Optional<String> statusMessage, String issuer, Optional<String> encryptedAuthnAssertion, Optional<String> encryptedMatchingDatasetAssertion, Optional<String> persistentId, Optional<String> principalIpAddressAsSeenByIdp, Optional<LevelOfAssurance> levelOfAssurance, Optional<String> idpFraudEventId, Optional<String> fraudIndicator) {
+    public InboundResponseFromIdpDto(IdpIdaStatus.Status status, Optional<String> statusMessage, String issuer, Optional<String> encryptedAuthnAssertion, Optional<String> encryptedMatchingDatasetAssertion, Optional<String> persistentId, Optional<String> principalIpAddressAsSeenByIdp, Optional<LevelOfAssurance> levelOfAssurance, Optional<String> idpFraudEventId, Optional<String> fraudIndicator, Optional<String> notOnOrAfter) {
         this.status = status;
         this.statusMessage = statusMessage;
         this.issuer = issuer;
         this.encryptedAuthnAssertion = encryptedAuthnAssertion;
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
-        this.principalIpAddressAsSeenByIdp = principalIpAddressAsSeenByIdp;
         this.persistentId = persistentId;
+        this.principalIpAddressAsSeenByIdp = principalIpAddressAsSeenByIdp;
         this.levelOfAssurance = levelOfAssurance;
         this.idpFraudEventId = idpFraudEventId;
         this.fraudIndicator = fraudIndicator;
+        this.notOnOrAfter = notOnOrAfter;
     }
 
     protected InboundResponseFromIdpDto() {
@@ -72,5 +74,9 @@ public class InboundResponseFromIdpDto {
 
     public Optional<String> getEncryptedMatchingDatasetAssertion() {
         return encryptedMatchingDatasetAssertion;
+    }
+
+    public Optional<String> getNotOnOrAfter(){
+        return notOnOrAfter;
     }
 }

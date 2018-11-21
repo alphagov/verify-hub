@@ -62,7 +62,7 @@ public class MetadataConsumerTests {
     @Test
     public void shouldAllowRequestsWhenMetadataIsAvailableAndValid() throws Exception {
         SessionId sessionId = SessionId.createNewSessionId();
-        policyStubRule.register(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath(), 200, ResponseActionDto.success(sessionId, true, LEVEL_2));
+        policyStubRule.register(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath(), 200, ResponseActionDto.success(sessionId, true, LEVEL_2, null));
         org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp(
                 TestEntityIds.STUB_IDP_ONE,
                 STUB_IDP_PUBLIC_PRIMARY_CERT,
@@ -83,7 +83,7 @@ public class MetadataConsumerTests {
     public void shouldReturnBadRequestWhenEntityIdCannotBeFoundInMetadata() throws Exception {
         SessionId sessionId = SessionId.createNewSessionId();
 
-        policyStubRule.register(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath(), 200, ResponseActionDto.success(sessionId, true, LEVEL_2));
+        policyStubRule.register(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath(), 200, ResponseActionDto.success(sessionId, true, LEVEL_2, null));
         org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp(
                 "non-existent-entity-id",
                 STUB_IDP_PUBLIC_PRIMARY_CERT,

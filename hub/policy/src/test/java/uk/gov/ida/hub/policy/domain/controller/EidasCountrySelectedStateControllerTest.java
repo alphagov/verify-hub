@@ -63,7 +63,8 @@ public class EidasCountrySelectedStateControllerTest {
             STUB_COUNTRY_ONE,
             Optional.of(BLOB),
             Optional.of(PID),
-            Optional.of(LEVEL_2));
+            Optional.of(LEVEL_2),
+            Optional.absent());
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -133,7 +134,8 @@ public class EidasCountrySelectedStateControllerTest {
                 STUB_COUNTRY_ONE,
                 Optional.of(BLOB),
                 Optional.absent(),
-                Optional.of(LEVEL_2));
+                Optional.of(LEVEL_2),
+                Optional.absent());
 
         controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
     }
@@ -149,7 +151,8 @@ public class EidasCountrySelectedStateControllerTest {
                 STUB_COUNTRY_ONE,
                 Optional.absent(),
                 Optional.of(PID),
-                Optional.of(LEVEL_2));
+                Optional.of(LEVEL_2),
+                Optional.absent());
 
         controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
     }
@@ -165,6 +168,7 @@ public class EidasCountrySelectedStateControllerTest {
                 STUB_COUNTRY_ONE,
                 Optional.of(BLOB),
                 Optional.of(PID),
+                Optional.absent(),
                 Optional.absent());
 
         controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
@@ -183,7 +187,8 @@ public class EidasCountrySelectedStateControllerTest {
                 STUB_IDP_ONE,
                 Optional.of(BLOB),
                 Optional.of(PID),
-                Optional.of(LEVEL_1));
+                Optional.of(LEVEL_1),
+                Optional.absent());
 
         controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
     }
@@ -220,7 +225,8 @@ public class EidasCountrySelectedStateControllerTest {
                 STUB_COUNTRY_ONE,
                 Optional.of(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
-                Optional.of(LEVEL_2));
+                Optional.of(LEVEL_2),
+                Optional.absent());
 
         controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
 

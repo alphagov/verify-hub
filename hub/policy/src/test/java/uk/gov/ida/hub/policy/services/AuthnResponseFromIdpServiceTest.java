@@ -82,7 +82,7 @@ public class AuthnResponseFromIdpServiceTest {
         stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         when(idpSelectedStateController.getMatchingServiceEntityId()).thenReturn(msaEntityId);
         when(idpSelectedStateController.isMatchingJourney()).thenReturn(true);
-        InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), loaAchieved);
+        InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), loaAchieved, null);
         SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
         when(samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlAuthnResponseContainerDto, msaEntityId)).thenReturn(samlAuthnResponseTranslatorDto);
         stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(successResponseFromIdp);
@@ -98,7 +98,7 @@ public class AuthnResponseFromIdpServiceTest {
         verify(samlAuthnResponseTranslatorDtoFactory).fromSamlAuthnResponseContainerDto(samlAuthnResponseContainerDto, msaEntityId);
         verify(attributeQueryService).sendAttributeQueryRequest(sessionId, attributeQueryRequestDto);
         verifyIdpStateControllerIsCalledWithRightDataOnSuccess(successResponseFromIdp, true);
-        ResponseAction expectedResponseAction = ResponseAction.success(sessionId, REGISTERING, loaAchieved);
+        ResponseAction expectedResponseAction = ResponseAction.success(sessionId, REGISTERING, loaAchieved, null);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
     }
 
@@ -108,7 +108,7 @@ public class AuthnResponseFromIdpServiceTest {
         LevelOfAssurance loaAchieved = LevelOfAssurance.LEVEL_2;
         stub(idpSelectedStateController.isRegistrationContext()).toReturn(REGISTERING);
         when(idpSelectedStateController.isMatchingJourney()).thenReturn(false);
-        InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), loaAchieved);
+        InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), loaAchieved, null);
         stub(samlEngineProxy.translateAuthnResponseFromIdp(any(SamlAuthnResponseTranslatorDto.class))).toReturn(successResponseFromIdp);
 
         // When
@@ -116,7 +116,7 @@ public class AuthnResponseFromIdpServiceTest {
 
         // Then
         verifyIdpStateControllerIsCalledWithRightDataOnSuccess(successResponseFromIdp, false);
-        ResponseAction expectedResponseAction = ResponseAction.nonMatchingJourneySuccess(sessionId, REGISTERING, loaAchieved);
+        ResponseAction expectedResponseAction = ResponseAction.nonMatchingJourneySuccess(sessionId, REGISTERING, loaAchieved, null);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
     }
 

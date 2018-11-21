@@ -102,7 +102,7 @@ public class EidasSessionResourceIntegrationTest {
         Response response = postAuthnResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        ResponseAction expectedResult = ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2);
+        ResponseAction expectedResult = ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2, null);
         assertThat(response.readEntity(ResponseAction.class)).isEqualToComparingFieldByField(expectedResult);
 
         assertThatCurrentStateForSesssionIs(sessionId, EidasCycle0And1MatchRequestSentState.class);
@@ -199,13 +199,13 @@ public class EidasSessionResourceIntegrationTest {
 
     private void stubSamlEngineTranslationLOAForCountry(LevelOfAssurance loa, EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa));
+        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.absent());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 
     private void stubSamlEngineTranslationToFailForCountry(EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Failure, Optional.absent(), country.getEntityId(), Optional.absent(), Optional.absent(), Optional.absent());
+        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Failure, Optional.absent(), country.getEntityId(), Optional.absent(), Optional.absent(), Optional.absent(), Optional.absent());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 
