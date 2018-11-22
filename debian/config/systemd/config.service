@@ -1,0 +1,15 @@
+# Ubuntu systemd file
+
+[Unit]
+Description=Config Service
+
+[Service]
+User=deployer
+Environment=CLASSPATH=/ida/config/lib
+ExecStart=/ida/config/config.sh start
+ExecStop=/ida/config/config.sh stop
+KillSignal=TERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

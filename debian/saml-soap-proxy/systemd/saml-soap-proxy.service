@@ -1,0 +1,15 @@
+# Ubuntu systemd file
+
+[Unit]
+Description=SAML SOAP Proxy Service
+
+[Service]
+User=deployer
+Environment=CLASSPATH=/ida/saml-soap-proxy/lib
+ExecStart=/ida/saml-soap-proxy/saml-soap-proxy.sh start
+ExecStop=/ida/saml-soap-proxy/saml-soap-proxy.sh stop
+KillSignal=TERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
