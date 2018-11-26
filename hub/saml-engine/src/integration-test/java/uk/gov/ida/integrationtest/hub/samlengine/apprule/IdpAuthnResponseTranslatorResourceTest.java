@@ -149,6 +149,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
         assertThat(inboundResponseFromIdpDto.getEncryptedMatchingDatasetAssertion().isPresent()).isTrue();
         assertThat(inboundResponseFromIdpDto.getPersistentId().isPresent()).isTrue();
         assertThat(inboundResponseFromIdpDto.getLevelOfAssurance().isPresent()).isTrue();
+        assertThat(inboundResponseFromIdpDto.getNotOnOrAfter().isPresent()).isTrue();
     }
 
     @Test

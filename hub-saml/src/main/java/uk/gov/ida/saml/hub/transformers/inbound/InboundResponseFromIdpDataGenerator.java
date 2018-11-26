@@ -58,6 +58,6 @@ public class InboundResponseFromIdpDataGenerator {
                 levelOfAssurance,
                 idpFraudEventId,
                 fraudIndicator,
-                Optional.empty());
+                idaResponseFromIdp.getNotOnOrAfter());
     }
 }

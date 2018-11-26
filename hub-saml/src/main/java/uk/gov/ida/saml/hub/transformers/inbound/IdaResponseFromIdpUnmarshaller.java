@@ -30,7 +30,6 @@ public class IdaResponseFromIdpUnmarshaller {
         IdpIdaStatus transformedStatus = statusUnmarshaller.fromSaml(validatedResponse.getStatus());
         URI destination = URI.create(validatedResponse.getDestination());
 
-
         return new InboundResponseFromIdp(
                 validatedResponse.getID(),
                 validatedResponse.getInResponseTo(),
