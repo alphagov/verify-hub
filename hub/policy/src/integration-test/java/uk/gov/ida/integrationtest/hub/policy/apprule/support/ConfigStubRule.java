@@ -100,6 +100,16 @@ public class ConfigStubRule extends HttpStubRule {
 
         register(uri, OK, ContentType.TEXT_PLAIN.toString(), matchingServiceEntityId);
 
+
+        String isUsingMatchingUri = UriBuilder
+            .fromPath(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
+            .buildFromEncoded(StringEncoding.urlEncode(rpEntityId)
+            .replace("+", "%20"))
+            .getPath();
+
+        register(isUsingMatchingUri, OK, ContentType.APPLICATION_JSON.toString(), "true");
+
+
         String msaUri = UriBuilder.fromPath(Urls.ConfigUrls.MATCHING_SERVICE_RESOURCE)
             .build(StringEncoding.urlEncode(matchingServiceEntityId).replace("+", "%20"))
             .getPath();
