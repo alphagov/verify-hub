@@ -2,9 +2,11 @@ package uk.gov.ida.hub.samlproxy.exceptions;
 
 import com.google.inject.Provider;
 import org.slf4j.event.Level;
+
+import uk.gov.ida.common.ErrorStatusDto;
+import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventsink.EventSinkMessageSender;
-import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.saml.metadata.exceptions.NoKeyConfiguredForEntityException;
 import uk.gov.ida.shared.utils.logging.LevelLogger;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
@@ -12,14 +14,11 @@ import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import java.util.Optional;
 import java.util.UUID;
 
-public class NoKeyConfiguredForEntityExceptionMapper implements ExceptionMapper<NoKeyConfiguredForEntityException> {
+public class NoKeyConfiguredForEntityExceptionMapper extends AbstractContextExceptionMapper<NoKeyConfiguredForEntityException> {
 
     private final LevelLogger levelLogger;
-    private Provider<HttpServletRequest> context;
     private final EventSinkMessageSender eventSinkMessageSender;
 
     @Inject
@@ -27,18 +26,19 @@ public class NoKeyConfiguredForEntityExceptionMapper implements ExceptionMapper<
             final Provider<HttpServletRequest> context,
             final LevelLoggerFactory<NoKeyConfiguredForEntityExceptionMapper> levelLoggerFactory,
             final EventSinkMessageSender eventSinkMessageSender) {
-        this.context = context;
+        super(context);
         this.eventSinkMessageSender = eventSinkMessageSender;
         this.levelLogger = levelLoggerFactory.createLevelLogger(NoKeyConfiguredForEntityExceptionMapper.class);
     }
 
     @Override
-    public Response toResponse(NoKeyConfiguredForEntityException exception) {
+    public Response handleException(NoKeyConfiguredForEntityException exception) {
+        UUID errorId = UUID.randomUUID();
         levelLogger.log(Level.ERROR, exception);
-        final Optional<SessionId> sessionId = Optional
-                .ofNullable(context.get().getParameter(Urls.SharedUrls.SESSION_ID_PARAM))
-                .map(SessionId::new);
-        eventSinkMessageSender.audit(exception, UUID.randomUUID(), sessionId.orElse(SessionId.NO_SESSION_CONTEXT_IN_ERROR));
-        return Response.status(Response.Status.BAD_REQUEST).build();
+        eventSinkMessageSender.audit(exception, errorId, getSessionId().or(SessionId.NO_SESSION_CONTEXT_IN_ERROR));
+
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(ErrorStatusDto.createAuditedErrorStatus(errorId, ExceptionType.NO_KEY_CONFIGURED_FOR_ENTITY))
+            .build();
     }
 }
