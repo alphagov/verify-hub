@@ -38,7 +38,7 @@ public class DuplicateAssertionValidatorTest {
         duplicateIds.put("duplicate", DateTime.now().plusMinutes(5));
         duplicateIds.put("expired-duplicate", DateTime.now().minusMinutes(2));
 
-        duplicateAssertionValidator = new DuplicateAssertionValidator(duplicateIds);
+        duplicateAssertionValidator = new DuplicateAssertionValidatorImpl(duplicateIds);
     }
 
     @Test

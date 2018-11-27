@@ -76,7 +76,7 @@ import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseAssertionSi
 import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.core.validators.assertion.AssertionAttributeStatementValidator;
 import uk.gov.ida.saml.core.validators.assertion.AuthnStatementAssertionValidator;
-import uk.gov.ida.saml.core.validators.assertion.DuplicateAssertionValidator;
+import uk.gov.ida.saml.core.validators.assertion.DuplicateAssertionValidatorImpl;
 import uk.gov.ida.saml.core.validators.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.subject.AssertionSubjectValidator;
 import uk.gov.ida.saml.core.validators.subjectconfirmation.AssertionSubjectConfirmationValidator;
@@ -695,7 +695,7 @@ public class SamlEngineModule extends AbstractModule {
                 ),
                 new EidasAttributeStatementAssertionValidator(),
                 new AuthnStatementAssertionValidator(
-                        new DuplicateAssertionValidator(assertionIdCache)
+                        new DuplicateAssertionValidatorImpl(assertionIdCache)
                 ),
                 new EidasAuthnResponseIssuerValidator(),
                 destination.toString())

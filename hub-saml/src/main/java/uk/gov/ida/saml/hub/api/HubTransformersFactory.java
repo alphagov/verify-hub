@@ -27,7 +27,7 @@ import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.core.validators.assertion.AssertionAttributeStatementValidator;
 import uk.gov.ida.saml.core.validators.assertion.AssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.AuthnStatementAssertionValidator;
-import uk.gov.ida.saml.core.validators.assertion.DuplicateAssertionValidator;
+import uk.gov.ida.saml.core.validators.assertion.DuplicateAssertionValidatorImpl;
 import uk.gov.ida.saml.core.validators.assertion.IPAddressValidator;
 import uk.gov.ida.saml.core.validators.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.MatchingDatasetAssertionValidator;
@@ -549,9 +549,9 @@ public class HubTransformersFactory {
                         new AssertionAttributeStatementValidator(),
                         new AssertionSubjectConfirmationValidator()
                 ),
-                new MatchingDatasetAssertionValidator(new DuplicateAssertionValidator(assertionIdCache)),
+                new MatchingDatasetAssertionValidator(new DuplicateAssertionValidatorImpl(assertionIdCache)),
                 new AuthnStatementAssertionValidator(
-                        new DuplicateAssertionValidator(assertionIdCache)
+                        new DuplicateAssertionValidatorImpl(assertionIdCache)
                 ),
                 new IPAddressValidator(),
                 hubEntityId
