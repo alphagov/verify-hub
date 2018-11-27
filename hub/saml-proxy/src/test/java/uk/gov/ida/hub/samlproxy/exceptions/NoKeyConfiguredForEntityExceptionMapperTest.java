@@ -1,19 +1,27 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
 import com.google.inject.Provider;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.event.Level;
+
+import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventsink.EventSinkMessageSender;
+import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.saml.metadata.exceptions.NoKeyConfiguredForEntityException;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 import java.util.UUID;
 
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,16 +40,31 @@ public class NoKeyConfiguredForEntityExceptionMapperTest {
     @Mock
     private javax.servlet.http.HttpServletRequest httpServletRequest;
 
-    @Test
-    public void assertThatLogIsCreatedAtErrorLevelAndAuditIsSentToEventSink() throws Exception {
+    NoKeyConfiguredForEntityExceptionMapper mapper;
+    NoKeyConfiguredForEntityException exception;
+
+    @Before
+    public void setup() {
         when(context.get()).thenReturn(httpServletRequest);
+        when(httpServletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("sessionId");
         when(levelLoggerFactory.createLevelLogger(NoKeyConfiguredForEntityExceptionMapper.class)).thenReturn(levelLogger);
 
-        NoKeyConfiguredForEntityExceptionMapper mapper = new NoKeyConfiguredForEntityExceptionMapper(context, levelLoggerFactory, eventSinkMessageSender);
+        mapper = new NoKeyConfiguredForEntityExceptionMapper(context, levelLoggerFactory, eventSinkMessageSender);
+        exception = new NoKeyConfiguredForEntityException("entityId");
+    }
 
-        NoKeyConfiguredForEntityException exception = new NoKeyConfiguredForEntityException("entityId");
+    @Test
+    public void assertThatLogIsCreatedAtErrorLevelAndAuditIsSentToEventSink() {
         mapper.toResponse(exception);
+
         verify(levelLogger).log(Level.ERROR, exception);
         verify(eventSinkMessageSender).audit(any(NoKeyConfiguredForEntityException.class), any(UUID.class), any(SessionId.class));
+    }
+
+    @Test
+    public void assertThatResponseIsInCorrectFormat() {
+        Response response = mapper.toResponse(exception);
+
+        assertThat(response.getEntity(), instanceOf(ErrorStatusDto.class));
     }
 }
