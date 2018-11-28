@@ -35,6 +35,8 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -184,5 +186,103 @@ public class RpAuthnResponseGeneratorResourceTest {
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto errorStatusDto = rpAuthnResponse.readEntity(ErrorStatusDto.class);
         assertThat(errorStatusDto.getExceptionType()).isEqualTo(ExceptionType.INVALID_INPUT);
+    }
+
+    @Test
+    public void shouldUseEncryptedAssertionsFromListIfNonEmpty() throws Exception {
+        // Given
+        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
+            .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
+            .withAssertions(Arrays.asList(createAssertionString(), createAssertionString()))
+            .build();
+        configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+
+        // When
+        URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
+        Response rpAuthnResponse = client.target(generateAuthnResponseEndpoint).request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+
+        // Then
+        assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        AuthnResponseFromHubContainerDto result = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
+            .class);
+
+        org.opensaml.saml.saml2.core.Response response = extractResponse(result);
+        assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(response.getEncryptedAssertions().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldIgnoreMatchingServiceAssertionIfEncryptedAssertionsListNonEmpty() throws Exception {
+        // Given
+        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
+            .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
+            .withAssertions(Arrays.asList(createAssertionString(), createAssertionString()))
+            .withAssertion(createAssertionString())
+            .build();
+        configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+
+        // When
+        URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
+        Response rpAuthnResponse = client.target(generateAuthnResponseEndpoint).request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+
+        // Then
+        assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        AuthnResponseFromHubContainerDto result = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
+            .class);
+
+        org.opensaml.saml.saml2.core.Response response = extractResponse(result);
+        assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(response.getEncryptedAssertions().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldFallBackToMatchingServiceAssertionIfEncryptedAssertionsListIsEmpty() throws Exception {
+        // Given
+        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
+            .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
+            .withAssertions(Collections.emptyList())
+            .withAssertion(createAssertionString())
+            .build();
+        configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+
+        // When
+        URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
+        Response rpAuthnResponse = client.target(generateAuthnResponseEndpoint).request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+
+        // Then
+        assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        AuthnResponseFromHubContainerDto result = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
+            .class);
+
+        org.opensaml.saml.saml2.core.Response response = extractResponse(result);
+        assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(response.getEncryptedAssertions().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldReturnAResponseWithNoAssertionsIfNoAssertionsProvided() throws Exception {
+        // Given
+        ResponseFromHubDto responseFromHubDto = aResponseFromHubDto()
+            .withAuthnRequestIssuerEntityId(TestEntityIds.TEST_RP)
+            .withAssertions(Collections.emptyList())
+            .build();
+        configStub.setupCertificatesForEntity(responseFromHubDto.getAuthnRequestIssuerEntityId());
+        configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
+
+        // When
+        URI generateAuthnResponseEndpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE);
+        Response rpAuthnResponse = client.target(generateAuthnResponseEndpoint).request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+
+        // Then
+        assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        AuthnResponseFromHubContainerDto result = rpAuthnResponse.readEntity(AuthnResponseFromHubContainerDto
+            .class);
+
+        org.opensaml.saml.saml2.core.Response response = extractResponse(result);
+        assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+        assertThat(response.getEncryptedAssertions()).isEmpty();
     }
 }

@@ -28,9 +28,9 @@ public class SimpleProfileOutboundResponseFromHubToSamlResponseTransformer exten
     @Override
     protected void transformAssertions(OutboundResponseFromHub originalResponse, Response transformedResponse) {
         originalResponse
-                .getMatchingServiceAssertion()
+                .getEncryptedAssertions().stream()
                 .map(encryptedAssertionUnmarshaller::transform)
-                .map(transformedResponse.getEncryptedAssertions()::add);
+                .forEach(transformedResponse.getEncryptedAssertions()::add);
     }
 
     @Override

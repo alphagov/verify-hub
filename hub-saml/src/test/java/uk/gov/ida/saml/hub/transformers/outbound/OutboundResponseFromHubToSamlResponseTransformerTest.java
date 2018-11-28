@@ -10,6 +10,9 @@ import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
@@ -38,7 +41,8 @@ public class OutboundResponseFromHubToSamlResponseTransformerTest {
         EncryptedAssertion transformedMatchingDatasetAssertion = anAssertion().build();
         when(encryptedAssertionUnmarshaller.transform(matchingServiceAssertion.getUnderlyingAssertionBlob())).thenReturn(transformedMatchingDatasetAssertion);
 
-        transformer.transformAssertions(anAuthnResponse().withMatchingServiceAssertion(matchingServiceAssertion.getUnderlyingAssertionBlob()).buildOutboundResponseFromHub(), transformedResponse);
+        String encryptedMatchingServiceAssertion = matchingServiceAssertion.getUnderlyingAssertionBlob();
+        transformer.transformAssertions(anAuthnResponse().withEncryptedAssertions(Arrays.asList(encryptedMatchingServiceAssertion)).buildOutboundResponseFromHub(), transformedResponse);
 
         assertThat(transformedResponse.getEncryptedAssertions().size()).isEqualTo(1);
         assertThat(transformedResponse.getEncryptedAssertions().get(0)).isEqualTo(transformedMatchingDatasetAssertion);
