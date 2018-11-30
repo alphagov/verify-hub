@@ -3,6 +3,7 @@ package uk.gov.ida.hub.samlengine.contracts;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 public class ResponseFromHubDto {
@@ -12,6 +13,7 @@ public class ResponseFromHubDto {
     private String inResponseTo;
     private TransactionIdaStatus status;
     private Optional<String> encryptedMatchingServiceAssertion;
+    private List<String> encryptedAssertions;
     private Optional<String> relayState;
     private URI assertionConsumerServiceUri;
 
@@ -24,6 +26,7 @@ public class ResponseFromHubDto {
             String inResponseTo,
             String authnRequestIssuerEntityId,
             Optional<String> encryptedMatchingServiceAssertion,
+            List<String> encryptedAssertions,
             Optional<String> relayState,
             URI assertionConsumerServiceUri,
             TransactionIdaStatus status) {
@@ -32,6 +35,7 @@ public class ResponseFromHubDto {
         this.responseId = responseId;
         this.inResponseTo = inResponseTo;
         this.encryptedMatchingServiceAssertion = encryptedMatchingServiceAssertion;
+        this.encryptedAssertions = encryptedAssertions;
         this.relayState = relayState;
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         this.status = status;
@@ -51,6 +55,10 @@ public class ResponseFromHubDto {
 
     public Optional<String> getEncryptedMatchingServiceAssertion() {
         return encryptedMatchingServiceAssertion;
+    }
+
+    public List<String> getEncryptedAssertions() {
+        return encryptedAssertions;
     }
 
     public Optional<String> getRelayState() {

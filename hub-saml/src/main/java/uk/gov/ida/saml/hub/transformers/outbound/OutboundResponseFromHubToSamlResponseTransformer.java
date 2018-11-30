@@ -1,5 +1,6 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
+import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
@@ -7,6 +8,9 @@ import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 import uk.gov.ida.saml.core.transformers.outbound.IdaResponseToSamlResponseTransformer;
 import uk.gov.ida.saml.core.transformers.outbound.IdaStatusMarshaller;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class OutboundResponseFromHubToSamlResponseTransformer extends IdaResponseToSamlResponseTransformer<OutboundResponseFromHub> {
 
@@ -27,9 +31,9 @@ public class OutboundResponseFromHubToSamlResponseTransformer extends IdaRespons
     @Override
     protected void transformAssertions(OutboundResponseFromHub originalResponse, Response transformedResponse) {
         originalResponse
-                .getMatchingServiceAssertion()
+                .getEncryptedAssertions().stream()
                 .map(encryptedAssertionUnmarshaller::transform)
-                .map(transformedResponse.getEncryptedAssertions()::add);
+                .forEach(transformedResponse.getEncryptedAssertions()::add);
     }
 
     @Override
