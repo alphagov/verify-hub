@@ -36,12 +36,9 @@ public class IdpSelector {
         final List<LevelOfAssurance> idpLevelsOfAssurance = idpConfig.getSupportedLevelsOfAssurance();
         List<LevelOfAssurance> levelsOfAssuranceForTransactionSupportedByIdp = levelsOfAssuranceForTransaction.stream().filter(idpLevelsOfAssurance::contains).collect(Collectors.toList());
 
-        String matchingServiceEntityId = transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId());
-
         return new IdpSelectedState(
                 state.getRequestId(),
                 idpEntityId,
-                matchingServiceEntityId,
                 levelsOfAssuranceForTransactionSupportedByIdp,
                 idpConfig.getUseExactComparisonType(),
                 state.getForceAuthentication().orNull(),

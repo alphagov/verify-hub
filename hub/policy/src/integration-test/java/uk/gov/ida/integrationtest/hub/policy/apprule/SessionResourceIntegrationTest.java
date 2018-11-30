@@ -184,7 +184,7 @@ public class SessionResourceIntegrationTest {
         //Then
         assertThat(result).isEqualToComparingFieldByField(expectedResult);
         IdpSelectedState sessionState = policy.getSessionState(sessionId, IdpSelectedState.class);
-        assertThat(sessionState.getMatchingServiceEntityId()).isEqualTo(msEntityId);
+        assertThat(sessionState.getIdpEntityId()).isEqualTo(idpEntityId);
     }
 
     @Test
@@ -291,7 +291,7 @@ public class SessionResourceIntegrationTest {
         samlEngineStub.setupStubForIdpAuthnResponseTranslate(InboundResponseFromIdpDtoBuilder.successResponse(idpEntityId, loaAchieved));
         samlEngineStub.setupStubForAttributeQueryRequest(anAttributeQueryContainerDto().build());
 
-        configStub.setUpStubForMatchingServiceRequest(rpEntityId, IdpSelectedStateBuilder.anIdpSelectedState().build().getMatchingServiceEntityId());
+        configStub.setUpStubForMatchingServiceRequest(rpEntityId, msEntityId);
 
         samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
 

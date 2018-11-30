@@ -15,7 +15,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     private static final long serialVersionUID = -2851353851977677375L;
 
     private final String idpEntityId;
-    private final String matchingServiceEntityId;
 
     private Boolean useExactComparisonType;
     private List<LevelOfAssurance> levelsOfAssurance;
@@ -27,7 +26,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     public IdpSelectedState(
             String requestId,
             String idpEntityId,
-            String matchingServiceEntityId,
             List<LevelOfAssurance> levelsOfAssurance,
             Boolean useExactComparisonType,
             Boolean forceAuthentication,
@@ -52,7 +50,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         );
 
         this.idpEntityId = idpEntityId;
-        this.matchingServiceEntityId = matchingServiceEntityId;
         this.levelsOfAssurance = levelsOfAssurance;
         this.useExactComparisonType = useExactComparisonType;
         this.relayState = relayState;
@@ -79,10 +76,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
 
     public LevelOfAssurance getRequestedLoa() {
         return requestedLoa;
-    }
-
-    public String getMatchingServiceEntityId() {
-        return matchingServiceEntityId;
     }
 
     public Boolean getUseExactComparisonType() {

@@ -19,7 +19,6 @@ public class TestSessionDto {
     private String matchingServiceAssertion;
     private String relayState;
     private String requestIssuerId;
-    private String matchingServiceEntityId;
     private URI assertionConsumerServiceUri;
     private List<LevelOfAssurance> levelsOfAssurance;
     private Boolean useExactComparisonType;
@@ -39,7 +38,6 @@ public class TestSessionDto {
                           String identityProviderEntityId,
                           String relayState,
                           String requestIssuerId,
-                          String matchingServiceEntityId,
                           String matchingServiceAssertion,
                           URI assertionConsumerServiceUri,
                           List<LevelOfAssurance> levelsOfAssurance,
@@ -53,7 +51,6 @@ public class TestSessionDto {
                 matchingServiceAssertion,
                 relayState,
                 requestIssuerId,
-                matchingServiceEntityId,
                 assertionConsumerServiceUri,
                 levelsOfAssurance,
                 useExactComparisonType,
@@ -72,7 +69,6 @@ public class TestSessionDto {
             String matchingServiceAssertion,
             String relayState,
             String requestIssuerId,
-            String matchingServiceEntityId,
             URI assertionConsumerServiceUri,
             List<LevelOfAssurance> levelsOfAssurance,
             Boolean useExactComparisonType,
@@ -89,7 +85,6 @@ public class TestSessionDto {
         this.matchingServiceAssertion = matchingServiceAssertion;
         this.relayState = relayState;
         this.requestIssuerId = requestIssuerId;
-        this.matchingServiceEntityId = matchingServiceEntityId;
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         this.levelsOfAssurance = levelsOfAssurance;
         this.useExactComparisonType = useExactComparisonType;
@@ -142,10 +137,6 @@ public class TestSessionDto {
 
     public LevelOfAssurance getRequestedLoa() {
         return requestedLoa;
-    }
-
-    public String getMatchingServiceEntityId() {
-        return matchingServiceEntityId;
     }
 
     public List<String> getAvailableIdentityProviders() {

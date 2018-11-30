@@ -324,9 +324,7 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
     }
 
     public String getMatchingServiceEntityId() {
-        return Optional
-                .ofNullable(state.getMatchingServiceEntityId())
-                .orElse(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId()));
+        return transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId());
     }
 
     public boolean isMatchingJourney() {
