@@ -34,6 +34,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -112,7 +113,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
             RESPONSE_ID,
             state.getRequestId(),
             state.getRequestIssuerEntityId(),
-            Optional.absent(),
+            emptyList(),
             Optional.of("relayState"),
             URI.create("assertionConsumerServiceUri"),
             TransactionIdaStatus.NoAuthenticationContext
