@@ -26,6 +26,10 @@ public final class ConfigValidationException extends RuntimeException {
         return new ConfigValidationException(format("Duplicate entity id found: {0}", entityId));
     }
 
+    public static ConfigValidationException createMissingMatchingEntityIdException(String transactionEntityId) {
+        return new ConfigValidationException(format("Matching entity id not found for transaction {0}", transactionEntityId));
+    }
+
     public static ConfigValidationException createAbsentMatchingServiceConfigException(String matchingServiceEntityId, String transactionEntityId) {
         return new ConfigValidationException(format("Matching service configuration for {0} not found, used by transaction {1}", matchingServiceEntityId, transactionEntityId));
     }

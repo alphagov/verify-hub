@@ -34,7 +34,7 @@ public class TransactionConfigEntityDataBuilder {
     private boolean shouldSignWithSHA1 = true;
     private URI headlessStartPage = URI.create("/headless-start-uri");
     private URI singleIdpStartPage;
-    private boolean usingMatching;
+    private boolean usingMatching = true;
 
 
 
