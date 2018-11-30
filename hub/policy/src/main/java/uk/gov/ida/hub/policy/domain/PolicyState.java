@@ -2,22 +2,23 @@ package uk.gov.ida.hub.policy.domain;
 
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
-import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
@@ -39,6 +40,7 @@ public enum PolicyState {
     EIDAS_CYCLE_3_MATCH_REQUEST_SENT(EidasCycle3MatchRequestSentState.class),
     SUCCESSFUL_MATCH(SuccessfulMatchState.class),
     EIDAS_SUCCESSFUL_MATCH(EidasSuccessfulMatchState.class),
+    NON_MATCHING_JOURNEY_SUCCESS(NonMatchingJourneySuccessState.class),
     NO_MATCH(NoMatchState.class),
     USER_ACCOUNT_CREATED(UserAccountCreatedState.class),
     AWAITING_CYCLE3_DATA(AwaitingCycle3DataState.class),

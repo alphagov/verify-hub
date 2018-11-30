@@ -104,4 +104,22 @@ public class ResponseFromHubFactory {
             TransactionIdaStatus.RequesterError
         );
     }
+
+    public ResponseFromHub createNonMatchingSuccessResponseFromHub(
+            String requestId,
+            Optional<String> relayState,
+            String requestIssuerEntityId,
+            List<String> encryptedAssertions,
+            URI assertionConsumerServiceUri) {
+
+        return new ResponseFromHub(
+            idGenerator.getId(),
+            requestId,
+            requestIssuerEntityId,
+            encryptedAssertions,
+            relayState,
+            assertionConsumerServiceUri,
+            TransactionIdaStatus.Success
+        );
+    }
 }
