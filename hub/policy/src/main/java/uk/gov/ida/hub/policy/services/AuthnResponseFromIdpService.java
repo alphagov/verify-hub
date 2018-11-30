@@ -51,8 +51,9 @@ public class AuthnResponseFromIdpService {
 
         IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
 
-        String matchingServiceEntityId = idpSelectedController.getMatchingServiceEntityId();
-        final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, matchingServiceEntityId);
+        boolean matchingJourney = idpSelectedController.isMatchingJourney();
+        String entityToEncryptFor = matchingJourney ? idpSelectedController.getMatchingServiceEntityId() : idpSelectedController.getRequestIssuerId();
+        final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, entityToEncryptFor);
         final InboundResponseFromIdpDto idaResponseFromIdpDto = samlEngineProxy.translateAuthnResponseFromIdp(samlAuthnResponseTranslatorDto);
         final String principalIPAddressAsSeenByHub = samlResponseDto.getPrincipalIPAddressAsSeenByHub();
 
@@ -61,7 +62,7 @@ public class AuthnResponseFromIdpService {
         if (isFraudulent(idaResponseFromIdpDto)) {
             responseAction = handleFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
         } else {
-            responseAction = handleNonFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+            responseAction = handleNonFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, matchingJourney, idpSelectedController);
         }
         return responseAction;
     }
@@ -71,7 +72,11 @@ public class AuthnResponseFromIdpService {
                 idaResponseFromIdpDto.getLevelOfAssurance().get().equals(LevelOfAssurance.LEVEL_X);
     }
 
-    private ResponseAction handleNonFraudResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedController) {
+    private ResponseAction handleNonFraudResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto,
+                                                  SessionId sessionId,
+                                                  String principalIPAddressAsSeenByHub,
+                                                  boolean matchingJourney,
+                                                  IdpSelectedStateController idpSelectedController) {
         ResponseAction responseAction;
         switch (inboundResponseFromIdpDto.getStatus()) {
             case NoAuthenticationContext:
@@ -90,7 +95,7 @@ public class AuthnResponseFromIdpService {
                 responseAction = handleUpliftFailed(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
                 break;
             case Success:
-                responseAction = handleSuccessResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+                responseAction = handleSuccessResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, matchingJourney, idpSelectedController);
                 break;
             case AuthenticationPending:
                 responseAction = handlePendingResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
@@ -101,8 +106,11 @@ public class AuthnResponseFromIdpService {
         return responseAction;
     }
 
-    private ResponseAction handleSuccessResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId,
-                                                 String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {
+    private ResponseAction handleSuccessResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto,
+                                                 SessionId sessionId,
+                                                 String principalIPAddressAsSeenByHub,
+                                                 boolean matchingJourney,
+                                                 IdpSelectedStateController idpSelectedStateController) {
         LevelOfAssurance loaAchieved = inboundResponseFromIdpDto.getLevelOfAssurance().get();
         SuccessFromIdp successFromIdp = new SuccessFromIdp(
                 inboundResponseFromIdpDto.getIssuer(),
@@ -113,7 +121,7 @@ public class AuthnResponseFromIdpService {
                 principalIPAddressAsSeenByHub,
                 inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp());
 
-        if (idpSelectedStateController.isMatchingJourney()) {
+        if (matchingJourney) {
             idpSelectedStateController.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
             AttributeQueryRequestDto attributeQuery = idpSelectedStateController.createAttributeQuery(successFromIdp);
             attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
