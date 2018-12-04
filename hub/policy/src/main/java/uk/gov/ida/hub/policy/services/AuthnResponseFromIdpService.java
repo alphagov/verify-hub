@@ -117,10 +117,10 @@ public class AuthnResponseFromIdpService {
             idpSelectedStateController.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
             AttributeQueryRequestDto attributeQuery = idpSelectedStateController.createAttributeQuery(successFromIdp);
             attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
-            return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
+            return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved, inboundResponseFromIdpDto.getNotOnOrAfter().orNull());
         } else {
             idpSelectedStateController.handleNonMatchingJourneySuccessResponseFromIdp(successFromIdp);
-            return nonMatchingJourneySuccess(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved);
+            return nonMatchingJourneySuccess(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved, inboundResponseFromIdpDto.getNotOnOrAfter().orNull());
         }
     }
 

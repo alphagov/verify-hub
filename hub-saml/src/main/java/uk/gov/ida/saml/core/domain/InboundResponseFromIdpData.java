@@ -1,8 +1,9 @@
 package uk.gov.ida.saml.core.domain;
 
-import java.util.Optional;
-
+import org.joda.time.DateTime;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
+
+import java.util.Optional;
 
 public class InboundResponseFromIdpData {
     private IdpIdaStatus.Status status;
@@ -15,6 +16,7 @@ public class InboundResponseFromIdpData {
     private String levelOfAssurance;
     private Optional<String> idpFraudEventId;
     private Optional<String> fraudIndicator;
+    private Optional<DateTime> notOnOrAfter;
 
     public InboundResponseFromIdpData(
             IdpIdaStatus.Status status,
@@ -26,7 +28,8 @@ public class InboundResponseFromIdpData {
             Optional<String> principalIpAddressAsSeenByIdp,
             String levelOfAssurance,
             Optional<String> idpFraudEventId,
-            Optional<String> fraudIndicator) {
+            Optional<String> fraudIndicator,
+            Optional<DateTime> notOnOrAfter) {
         this.status = status;
         this.statusMessage = statusMessage;
         this.issuer = issuer;
@@ -37,6 +40,8 @@ public class InboundResponseFromIdpData {
         this.levelOfAssurance = levelOfAssurance;
         this.idpFraudEventId = idpFraudEventId;
         this.fraudIndicator = fraudIndicator;
+        this.notOnOrAfter = notOnOrAfter;
+
     }
 
     protected InboundResponseFromIdpData() {}
@@ -80,4 +85,9 @@ public class InboundResponseFromIdpData {
     public Optional<String> getEncryptedMatchingDatasetAssertion() {
         return encryptedMatchingDatasetAssertion;
     }
+
+    public Optional<DateTime> getNotOnOrAfter() {
+        return notOnOrAfter;
+    }
+
 }

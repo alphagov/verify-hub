@@ -22,37 +22,39 @@ public final class ResponseAction {
     private IdpResult result;
     private boolean isRegistration;
     private LevelOfAssurance loaAchieved;
+    private String notOnOrAfter;
 
     @JsonIgnore
-    public static ResponseAction cancel(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, CANCEL, isRegistration, null); }
+    public static ResponseAction cancel(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, CANCEL, isRegistration, null, null); }
 
     @JsonIgnore
-    public static ResponseAction other(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, OTHER, isRegistration, null); }
+    public static ResponseAction other(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, OTHER, isRegistration, null, null); }
 
     @JsonIgnore
-    public static ResponseAction failedUplift(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, FAILED_UPLIFT, isRegistration, null); }
+    public static ResponseAction failedUplift(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, FAILED_UPLIFT, isRegistration, null, null); }
 
     @JsonIgnore
-    public static ResponseAction success(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved) { return new ResponseAction(sessionId, SUCCESS, isRegistration, loaAchieved); }
+    public static ResponseAction success(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved, String notOnOrAfter) { return new ResponseAction(sessionId, SUCCESS, isRegistration, loaAchieved, notOnOrAfter); }
 
     @JsonIgnore
-    public static ResponseAction matchingJourneySuccess(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved) { return new ResponseAction(sessionId, MATCHING_JOURNEY_SUCCESS, isRegistration, loaAchieved); }
+    public static ResponseAction matchingJourneySuccess(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved, String notOnOrAfter) { return new ResponseAction(sessionId, MATCHING_JOURNEY_SUCCESS, isRegistration, loaAchieved, notOnOrAfter); }
 
     @JsonIgnore
-    public static ResponseAction nonMatchingJourneySuccess(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved) { return new ResponseAction(sessionId, NON_MATCHING_JOURNEY_SUCCESS, isRegistration, loaAchieved); }
+    public static ResponseAction nonMatchingJourneySuccess(SessionId sessionId, boolean isRegistration, LevelOfAssurance loaAchieved, String notOnOrAfter) { return new ResponseAction(sessionId, NON_MATCHING_JOURNEY_SUCCESS, isRegistration, loaAchieved, notOnOrAfter); }
 
     @JsonIgnore
-    public static ResponseAction pending(SessionId sessionId) { return new ResponseAction(sessionId, PENDING, true, null); }
+    public static ResponseAction pending(SessionId sessionId) { return new ResponseAction(sessionId, PENDING, true, null, null); }
 
     @SuppressWarnings("unused")//Needed by JAXB
     private ResponseAction() {
     }
 
-    private ResponseAction(SessionId sessionId, IdpResult result, boolean isRegistration, LevelOfAssurance loaAchieved) {
+    private ResponseAction(SessionId sessionId, IdpResult result, boolean isRegistration, LevelOfAssurance loaAchieved, String notOnOrAfter) {
         this.sessionId = sessionId;
         this.result = result;
         this.isRegistration = isRegistration;
         this.loaAchieved = loaAchieved;
+        this.notOnOrAfter = notOnOrAfter;
     }
 
     public SessionId getSessionId() {
@@ -71,5 +73,9 @@ public final class ResponseAction {
 
     public LevelOfAssurance getLoaAchieved() {
         return loaAchieved;
+    }
+
+    public String getNotOnOrAfter() {
+        return notOnOrAfter;
     }
 }

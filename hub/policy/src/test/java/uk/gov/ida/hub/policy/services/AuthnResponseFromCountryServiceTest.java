@@ -74,7 +74,8 @@ public class AuthnResponseFromCountryServiceTest {
         STUB_IDP_ONE,
         Optional.of(BLOB),
         Optional.of(PID),
-        Optional.of(LEVEL_2));
+        Optional.of(LEVEL_2),
+        Optional.absent());
 
     private static final EidasAttributeQueryRequestDto EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO = new EidasAttributeQueryRequestDto(
         REQUEST_ID,
@@ -164,7 +165,7 @@ public class AuthnResponseFromCountryServiceTest {
         verify(samlEngineProxy).generateEidasAttributeQuery(EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO);
         verify(stateController).handleSuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub());
         verify(samlSoapProxyProxy).sendHubMatchingServiceRequest(SESSION_ID, ATTRIBUTE_QUERY_REQUEST);
-        ResponseAction expectedResponseAction = ResponseAction.success(SESSION_ID, false, LEVEL_2);
+        ResponseAction expectedResponseAction = ResponseAction.success(SESSION_ID, false, LEVEL_2, null);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
     }
 
@@ -184,7 +185,7 @@ public class AuthnResponseFromCountryServiceTest {
     @Test
     public void shouldReturnSuccessResponseIfTranslationResponseFromSamlEngineIsSuccessful() {
         final InboundResponseFromCountry inboundResponseFromCountry =
-                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2));
+                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.absent());
 
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
                 .thenReturn(inboundResponseFromCountry);
@@ -198,7 +199,7 @@ public class AuthnResponseFromCountryServiceTest {
     @Test
     public void shouldReturnOtherResponseIfTranslationResponseFromSamlEngineIsFailure() {
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
-            .thenReturn(new InboundResponseFromCountry(Status.Failure, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2)));
+            .thenReturn(new InboundResponseFromCountry(Status.Failure, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.absent()));
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 

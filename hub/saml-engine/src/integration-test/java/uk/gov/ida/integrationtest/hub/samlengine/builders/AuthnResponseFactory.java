@@ -3,7 +3,9 @@ package uk.gov.ida.integrationtest.hub.samlengine.builders;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
@@ -19,6 +21,7 @@ import uk.gov.ida.saml.core.test.builders.AssertionBuilder;
 import uk.gov.ida.saml.core.test.builders.AuthnContextBuilder;
 import uk.gov.ida.saml.core.test.builders.AuthnContextClassRefBuilder;
 import uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder;
+import uk.gov.ida.saml.core.test.builders.ConditionsBuilder;
 import uk.gov.ida.saml.core.test.builders.Gpg45StatusAttributeBuilder;
 import uk.gov.ida.saml.core.test.builders.IdpFraudEventIdAttributeBuilder;
 import uk.gov.ida.saml.core.test.builders.IssuerBuilder;
@@ -156,6 +159,7 @@ public class AuthnResponseFactory {
                                 .build())
                         .build())
                 .build();
+        final Conditions mdsAssertionConditions = ConditionsBuilder.aConditions().validFor(new Duration(1000*60*60)).build();
         final AttributeStatement matchingDatasetAttributeStatement = MatchingDatasetAttributeStatementBuilder_1_1.aMatchingDatasetAttributeStatement_1_1().build();
         final Credential encryptingCredential;
         if(basicCredential.isPresent()) {
@@ -167,6 +171,7 @@ public class AuthnResponseFactory {
         final AssertionBuilder mdsAssertion = AssertionBuilder.anAssertion().withId(generateId())
                 .withIssuer(IssuerBuilder.anIssuer().withIssuerId(mdsAssertionIssuer).build())
                 .withSubject(mdsAssertionSubject)
+                .withConditions(mdsAssertionConditions)
                 .withId(mdsStatementAssertionId)
                 .addAttributeStatement(matchingDatasetAttributeStatement);
         final AssertionBuilder authnAssertion = AssertionBuilder.anAssertion().withId(generateId())

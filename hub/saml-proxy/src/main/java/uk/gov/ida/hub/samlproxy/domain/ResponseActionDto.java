@@ -13,21 +13,23 @@ public final class ResponseActionDto {
     private IdpResult result;
     private boolean isRegistration;
     private LevelOfAssurance loaAchieved;
+    private String notOnOrAfter;
 
     @SuppressWarnings("unused") // needed by jaxb
     private ResponseActionDto() {
     }
 
-    private ResponseActionDto(SessionId sessionId, IdpResult result, final boolean isRegistration, LevelOfAssurance loaAchieved) {
+    private ResponseActionDto(SessionId sessionId, IdpResult result, final boolean isRegistration, LevelOfAssurance loaAchieved, String notOnOrAfter) {
         this.sessionId = sessionId;
         this.result = result;
         this.isRegistration = isRegistration;
         this.loaAchieved = loaAchieved;
+        this.notOnOrAfter = notOnOrAfter;
     }
 
     @JsonIgnore
-    public static ResponseActionDto success(SessionId sessionId, boolean registrationContext, LevelOfAssurance loaAchieved) {
-        return new ResponseActionDto(sessionId, SUCCESS, registrationContext, loaAchieved);
+    public static ResponseActionDto success(SessionId sessionId, boolean registrationContext, LevelOfAssurance loaAchieved, String notOnOrAfter) {
+        return new ResponseActionDto(sessionId, SUCCESS, registrationContext, loaAchieved, notOnOrAfter);
     }
 
     public SessionId getSessionId() {
@@ -45,6 +47,10 @@ public final class ResponseActionDto {
 
     public LevelOfAssurance getLoaAchieved() {
         return loaAchieved;
+    }
+
+    public String getNotOnOrAfter(){
+        return notOnOrAfter;
     }
 }
 

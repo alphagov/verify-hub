@@ -391,7 +391,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
 
     private void stubSamlEngineTranslationLOAForCountry(final LevelOfAssurance loa, final EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        InboundResponseFromCountry translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa));
+        InboundResponseFromCountry translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.absent());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 

@@ -1,5 +1,6 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
+import org.joda.time.DateTime;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
@@ -29,6 +30,9 @@ public class IdaResponseFromIdpUnmarshaller {
 
         IdpIdaStatus transformedStatus = statusUnmarshaller.fromSaml(validatedResponse.getStatus());
         URI destination = URI.create(validatedResponse.getDestination());
+        Optional<DateTime> notOnOrAfter = validatedAssertions.getMatchingDatasetAssertion()
+                .flatMap(a -> Optional.ofNullable(a.getConditions()))
+                .flatMap(c -> Optional.ofNullable(c.getNotOnOrAfter()));
 
 
         return new InboundResponseFromIdp(
@@ -36,6 +40,7 @@ public class IdaResponseFromIdpUnmarshaller {
                 validatedResponse.getInResponseTo(),
                 validatedResponse.getIssuer().getValue(),
                 validatedResponse.getIssueInstant(),
+                notOnOrAfter,
                 transformedStatus,
                 Optional.ofNullable(validatedResponse.getSignature()),
                 matchingDatasetAssertion,

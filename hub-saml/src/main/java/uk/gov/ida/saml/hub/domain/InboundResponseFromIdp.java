@@ -11,6 +11,7 @@ import java.util.Optional;
 public class InboundResponseFromIdp extends IdaSamlResponse {
     private Optional<PassthroughAssertion> matchingDatasetAssertion;
     private Optional<PassthroughAssertion> authnStatementAssertion;
+    private Optional<DateTime> notOnOrAfter;
     private Optional<Signature> signature;
     private IdpIdaStatus status;
 
@@ -19,12 +20,14 @@ public class InboundResponseFromIdp extends IdaSamlResponse {
             String inResponseTo,
             String issuer,
             DateTime issueInstant,
+            Optional<DateTime> notOnOrAfter,
             IdpIdaStatus status,
             Optional<Signature> signature,
             Optional<PassthroughAssertion> matchingDatasetAssertion,
             URI destination,
             Optional<PassthroughAssertion> authnStatementAssertion) {
         super(id, issueInstant, inResponseTo, issuer, destination);
+        this.notOnOrAfter = notOnOrAfter;
         this.signature = signature;
         this.matchingDatasetAssertion = matchingDatasetAssertion;
         this.authnStatementAssertion = authnStatementAssertion;
@@ -47,4 +50,7 @@ public class InboundResponseFromIdp extends IdaSamlResponse {
         return status;
     }
 
+    public Optional<DateTime> getNotOnOrAfter() {
+        return notOnOrAfter;
+    }
 }

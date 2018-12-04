@@ -303,7 +303,7 @@ public class SessionResourceIntegrationTest {
                 .post(Entity.json(aSamlAuthnResponseContainerDto().withSessionId(sessionId).build()));
 
         //Then
-        ResponseAction expectedResult = ResponseAction.success(sessionId, true, loaAchieved);
+        ResponseAction expectedResult = ResponseAction.success(sessionId, true, loaAchieved, null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseAction actualResult = response.readEntity(ResponseAction.class);
         assertThat(actualResult).isEqualToComparingFieldByField(expectedResult);

@@ -88,7 +88,8 @@ public class IdpAuthnResponseTranslatorService {
                     inboundResponseFromIdpData.getPrincipalIpAddressAsSeenByIdp(),
                     levelOfAssurance,
                     inboundResponseFromIdpData.getIdpFraudEventId(),
-                    inboundResponseFromIdpData.getFraudIndicator());
+                    inboundResponseFromIdpData.getFraudIndicator(),
+                    inboundResponseFromIdpData.getNotOnOrAfter());
         } catch (SamlTransformationErrorException e) {
             throw new SamlContextException(response.getID(), response.getIssuer().getValue(), e);
         }

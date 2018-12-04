@@ -57,6 +57,7 @@ public class InboundResponseFromIdpDataGenerator {
                 principalIpAddressFromIdp,
                 levelOfAssurance,
                 idpFraudEventId,
-                fraudIndicator);
+                fraudIndicator,
+                idaResponseFromIdp.getNotOnOrAfter());
     }
 }
