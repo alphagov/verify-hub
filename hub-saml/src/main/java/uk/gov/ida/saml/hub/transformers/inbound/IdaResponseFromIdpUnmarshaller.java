@@ -31,9 +31,8 @@ public class IdaResponseFromIdpUnmarshaller {
         IdpIdaStatus transformedStatus = statusUnmarshaller.fromSaml(validatedResponse.getStatus());
         URI destination = URI.create(validatedResponse.getDestination());
         Optional<DateTime> notOnOrAfter = validatedAssertions.getMatchingDatasetAssertion()
-                .flatMap(a -> Optional.ofNullable(a.getConditions()))
-                .flatMap(c -> Optional.ofNullable(c.getNotOnOrAfter()));
-
+                .flatMap(a -> Optional.ofNullable(a.getSubject()))
+                .flatMap(s -> Optional.ofNullable(s.getSubjectConfirmations().get(0).getSubjectConfirmationData().getNotOnOrAfter()));
 
         return new InboundResponseFromIdp(
                 validatedResponse.getID(),
