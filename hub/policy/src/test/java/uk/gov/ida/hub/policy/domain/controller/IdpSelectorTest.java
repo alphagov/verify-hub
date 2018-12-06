@@ -44,7 +44,6 @@ public class IdpSelectorTest {
         IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().withRelayState("relay-state").withIdpEntityId(IDP_ENTITY_ID)
                 .withRegistration(true).withAvailableIdentityProviders(ImmutableList.of(IDP_ENTITY_ID)).withRegistration(true).build();
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
-        when(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId())).thenReturn(state.getMatchingServiceEntityId());
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(state.getRequestIssuerEntityId(), state.isRegistering(), REQUESTED_LOA)).thenReturn(singletonList(IDP_ENTITY_ID));
 
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, REQUESTED_LOA, transactionsConfigProxy, identityProvidersConfigProxy);
@@ -59,7 +58,6 @@ public class IdpSelectorTest {
         IdpConfigDto idpConfigDto = new IdpConfigDto(IDP_ENTITY_ID, true, ImmutableList.of(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1));
         when(identityProvidersConfigProxy.getIdpConfig("idp-b")).thenReturn(idpConfigDto);
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
-        when(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId())).thenReturn(state.getMatchingServiceEntityId());
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(state.getRequestIssuerEntityId(), state.isRegistering(), REQUESTED_LOA)).thenReturn(asList(IDP_ENTITY_ID, OTHER_IDP_ENTITY_ID));
 
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, "idp-b", true, REQUESTED_LOA, transactionsConfigProxy, identityProvidersConfigProxy);
@@ -80,7 +78,6 @@ public class IdpSelectorTest {
         assertThat(idpSelectedState.getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
         assertThat(idpSelectedState.getRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
         assertThat(idpSelectedState.getAvailableIdentityProviderEntityIds()).isEqualTo(singletonList(IDP_ENTITY_ID));
-        assertThat(idpSelectedState.getMatchingServiceEntityId()).isEqualTo("matching-service-id");
         assertThat(idpSelectedState.getForceAuthentication()).isEqualTo(state.getForceAuthentication());
         assertThat(idpSelectedState.getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
         assertThat(idpSelectedState.getSessionExpiryTimestamp()).isEqualTo(state.getSessionExpiryTimestamp());

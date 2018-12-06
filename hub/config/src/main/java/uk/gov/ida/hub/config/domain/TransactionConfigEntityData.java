@@ -59,7 +59,6 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     protected MatchingProcess matchingProcess;
 
     @Valid
-    @NotNull
     @JsonProperty
     protected String matchingServiceEntityId;
 

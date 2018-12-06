@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createAbsentMatchingServiceConfigException;
+import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createMissingMatchingEntityIdException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionConfigMatchingServiceValidatorTest {
@@ -27,7 +28,7 @@ public class TransactionConfigMatchingServiceValidatorTest {
     private ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceConfigEntityDataRepository;
 
     @Test
-    public void matchingServiceEntityId_shouldHaveCorrespondingConfiguration() throws Exception {
+    public void matchingServiceEntityId_shouldHaveCorrespondingConfigurationWhenUsingMatching() throws Exception {
         final String matchingServiceEntityId = "matching-service-entity-id";
         TransactionConfigEntityData transactionConfig = aTransactionConfigData()
                 .withMatchingServiceEntityId(matchingServiceEntityId)
@@ -39,6 +40,32 @@ public class TransactionConfigMatchingServiceValidatorTest {
         when(matchingServiceConfigEntityDataRepository.getData(matchingServiceEntityId)).thenReturn(Optional.ofNullable(matchingServiceConfigData));
 
         validator.validate(transactionConfig, matchingServiceConfigEntityDataRepository);
+    }
+
+    @Test
+    public void matchingServiceEntityId_doesNotNeedCorrespondingConfigurationWhenNotUsingMatching() throws Exception {
+        final String matchingServiceEntityId = "matching-service-entity-id";
+        TransactionConfigEntityData transactionConfig = aTransactionConfigData()
+                .withMatchingServiceEntityId(matchingServiceEntityId)
+                .withUsingMatching(false)
+                .build();
+
+        validator.validate(transactionConfig, matchingServiceConfigEntityDataRepository);
+    }
+
+    @Test
+    public void validator_shouldThrowExceptionWhenMatchingEntityIdIsAbsentIfUsingMatching() throws Exception {
+        TransactionConfigEntityData transactionConfig = aTransactionConfigData()
+                .withMatchingServiceEntityId(null)
+                .build();
+
+        try {
+            validator.validate(transactionConfig, matchingServiceConfigEntityDataRepository);
+            fail("fail");
+        } catch(ConfigValidationException configValidationException) {
+            final ConfigValidationException expectedException = createMissingMatchingEntityIdException(transactionConfig.getEntityId());
+            assertThat(configValidationException.getMessage()).isEqualTo(expectedException.getMessage());
+        }
     }
 
     @Test

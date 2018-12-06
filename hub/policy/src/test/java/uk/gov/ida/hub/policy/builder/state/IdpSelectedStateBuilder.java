@@ -16,7 +16,6 @@ import java.util.UUID;
 public class IdpSelectedStateBuilder {
     private String requestId = UUID.randomUUID().toString();
     private String idpEntityId = "idp-entity-id";
-    private String matchingServiceEntityId = "matching-service-entity-id";
     private List<LevelOfAssurance> levelsOfAssurance = Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
     private Boolean useExactComparisonType = false;
     private Boolean forceAuthentication = null;
@@ -38,7 +37,6 @@ public class IdpSelectedStateBuilder {
         return new IdpSelectedState(
                 requestId,
                 idpEntityId,
-                matchingServiceEntityId,
                 levelsOfAssurance,
                 useExactComparisonType,
                 forceAuthentication,
@@ -95,11 +93,6 @@ public class IdpSelectedStateBuilder {
 
     public IdpSelectedStateBuilder withRequestIssuerEntityId(String requestIssuerEntityId) {
         this.requestIssuerId = requestIssuerEntityId;
-        return this;
-    }
-
-    public IdpSelectedStateBuilder withMatchingServiceEntityId(String matchingServiceEntityId) {
-        this.matchingServiceEntityId = matchingServiceEntityId;
         return this;
     }
 

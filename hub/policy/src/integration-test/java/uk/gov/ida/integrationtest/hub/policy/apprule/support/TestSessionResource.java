@@ -103,7 +103,6 @@ public class TestSessionResource {
         testSessionRepository.createSession(testSessionDto.getSessionId(),
                 new IdpSelectedState(testSessionDto.getRequestId(),
                         testSessionDto.getIdentityProviderEntityId(),
-                        testSessionDto.getMatchingServiceEntityId(),
                         testSessionDto.getLevelsOfAssurance(),
                         testSessionDto.getUseExactComparisonType(),
                         testSessionDto.getForceAuthentication().orNull(),
