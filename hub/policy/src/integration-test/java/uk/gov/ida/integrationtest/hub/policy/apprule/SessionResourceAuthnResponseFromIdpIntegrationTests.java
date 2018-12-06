@@ -33,6 +33,7 @@ import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
+import uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -106,7 +107,14 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         sessionId = aSessionIsCreated();
         anIdpIsSelectedForRegistration(sessionId, idpEntityId);
         anAuthnRequestHasBeenSentToAnIdp(sessionId);
-        samlResponseDto = new SamlAuthnResponseContainerDto("a-saml-response", sessionId, "an-ip-address");
+        samlResponseDto = SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto()
+                                                              .withSamlResponse("a-saml-response")
+                                                              .withSessionId(new SessionId(sessionId.getSessionId()))
+                                                              .withPrincipalIPAddressAsSeenByHub("principal-ip-address")
+                                                              .withAnalyticsSessionId("this-is-an-analytics-session-id")
+                                                              .withJourneyType("this-is-a-journey-type")
+                                                              .build();
+
     }
 
     @Test
@@ -231,7 +239,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
 
         client.target(policyUri).request()
-                .post(Entity.entity(new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA), MediaType
+                .post(Entity.entity(new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type"), MediaType
                         .APPLICATION_JSON_TYPE));
     }
 

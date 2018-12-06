@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static uk.gov.ida.eventemitter.EventDetailsKey.analytics_session_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.country_code;
 import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 import static uk.gov.ida.eventemitter.EventDetailsKey.error_id;
@@ -35,6 +36,7 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.gpg45_status;
 import static uk.gov.ida.eventemitter.EventDetailsKey.hub_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.idp_entity_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.idp_fraud_event_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.journey_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.minimum_level_of_assurance;
@@ -98,9 +100,17 @@ public class HubEventLogger {
         logSessionEvent(sessionId, samlResponse.getIssuer(), sessionExpiryTimestamp, samlResponse.getId(), SESSION_STARTED, details);
     }
 
-    public void logIdpAuthnFailedEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, String principalIpAddressSeenByHub) {
+    public void logIdpAuthnFailedEvent(SessionId sessionId,
+                                       String transactionEntityId,
+                                       DateTime sessionExpiryTimestamp,
+                                       String requestId,
+                                       String principalIpAddressSeenByHub,
+                                       String analyticsSessionId,
+                                       String journeyType) {
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(principal_ip_address_as_seen_by_hub, principalIpAddressSeenByHub);
+        details.put(analytics_session_id, analyticsSessionId);
+        details.put(journey_type, journeyType);
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, IDP_AUTHN_FAILED, details);
     }
 
@@ -128,25 +138,32 @@ public class HubEventLogger {
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, USER_ACCOUNT_CREATION_FAILED, new HashMap<>());
     }
 
-    public void logNoAuthnContextEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, String principalIpAddressAsSeenByHub) {
+    public void logNoAuthnContextEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, String principalIpAddressAsSeenByHub, String analyticsSessionId, String journeyType) {
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(principal_ip_address_as_seen_by_hub, principalIpAddressAsSeenByHub);
+        details.put(analytics_session_id, analyticsSessionId);
+        details.put(journey_type, journeyType);
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, NO_AUTHN_CONTEXT, details);
     }
 
-    public void logPausedRegistrationEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, String principalIdAsSeenByHub) {
+    public void logPausedRegistrationEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, String principalIdAsSeenByHub, String analyticsSessionId, String journeyType) {
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(principal_ip_address_as_seen_by_hub, principalIdAsSeenByHub);
+        details.put(analytics_session_id, analyticsSessionId);
+        details.put(journey_type, journeyType);
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, IDP_AUTHN_PENDING, details);
     }
 
     public void logIdpFraudEvent(SessionId sessionId, String transactionEntityId, String idpEntityId, PersistentId persistentId, DateTime sessionExpiryTimestamp, FraudDetectedDetails fraudDetectedDetails,
-                                 Optional<String> principalIpAddressSeenByIdp, String principalIpAddressSeenByHub, String requestId) {
+                                 Optional<String> principalIpAddressSeenByIdp, String principalIpAddressSeenByHub, String requestId, String analyticsSessionId, String journeyType) {
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(idp_entity_id, transactionEntityId);
         details.put(pid, persistentId.getNameId());
         details.put(idp_fraud_event_id, fraudDetectedDetails.getIdpFraudEventId());
         details.put(gpg45_status, fraudDetectedDetails.getFraudIndicator());
+        details.put(analytics_session_id, analyticsSessionId);
+        details.put(journey_type, journeyType);
+
         if (principalIpAddressSeenByIdp.isPresent()) {
             details.put(principal_ip_address_as_seen_by_idp, principalIpAddressSeenByIdp.get());
         }
@@ -169,16 +186,31 @@ public class HubEventLogger {
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, CYCLE3_CANCEL, new HashMap<>());
     }
 
-    public void logIdpRequesterErrorEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, Optional<String> errorMessage, String principalIpAddressSeenByHub) {
+    public void logIdpRequesterErrorEvent(SessionId sessionId, String transactionEntityId, DateTime sessionExpiryTimestamp, String requestId, Optional<String> errorMessage, String principalIpAddressSeenByHub, String analyticsSessionId, String journeyType) {
         EnumMap<EventDetailsKey, String> details = new EnumMap<>(EventDetailsKey.class);
         if (errorMessage.isPresent()) {
             details.put(message, errorMessage.get());
         }
         details.put(principal_ip_address_as_seen_by_hub, principalIpAddressSeenByHub);
+        details.put(analytics_session_id, analyticsSessionId);
+        details.put(journey_type, journeyType);
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, REQUESTER_ERROR, details);
     }
 
-    public void logIdpAuthnSucceededEvent(SessionId sessionId, DateTime sessionExpiryTimestamp, String idpEntityId, String transactionEntityId, PersistentId persistentId, String requestId, LevelOfAssurance minimumLevelOfAssurance, LevelOfAssurance requiredLevelOfAssurance, LevelOfAssurance providedLevelOfAssurance, Optional<String> principalIpAddress, String principalIpAddressAsSeenByHub) {
+    public void logIdpAuthnSucceededEvent(SessionId sessionId,
+                                          DateTime sessionExpiryTimestamp,
+                                          String idpEntityId,
+                                          String transactionEntityId,
+                                          PersistentId persistentId,
+                                          String requestId,
+                                          LevelOfAssurance minimumLevelOfAssurance,
+                                          LevelOfAssurance requiredLevelOfAssurance,
+                                          LevelOfAssurance providedLevelOfAssurance,
+                                          Optional<String> principalIpAddress,
+                                          String principalIpAddressAsSeenByHub,
+                                          String analyticsSessionId,
+                                          String journeyType) {
+
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(idp_entity_id, idpEntityId);
         details.put(pid, persistentId.getNameId());
@@ -189,6 +221,8 @@ public class HubEventLogger {
             details.put(principal_ip_address_as_seen_by_idp, principalIpAddress.get());
         }
         details.put(principal_ip_address_as_seen_by_hub, principalIpAddressAsSeenByHub);
+        details.put(analytics_session_id, analyticsSessionId);
+        details.put(journey_type, journeyType);
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, IDP_AUTHN_SUCCEEDED, details);
     }
 
@@ -229,13 +263,16 @@ public class HubEventLogger {
     }
 
 
-    public void logIdpSelectedEvent(IdpSelectedState idpSelectedState, String principalIpAddress) {
+    public void logIdpSelectedEvent(IdpSelectedState idpSelectedState, String principalIpAddress, String analyticsSessionId, String journeyType) {
         List<LevelOfAssurance> levelsOfAssurance = idpSelectedState.getLevelsOfAssurance();
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(idp_entity_id, idpSelectedState.getIdpEntityId());
         details.put(principal_ip_address_as_seen_by_hub, principalIpAddress);
         details.put(minimum_level_of_assurance, levelsOfAssurance.get(0).name());
         details.put(required_level_of_assurance, levelsOfAssurance.get(levelsOfAssurance.size() - 1).name());
+        details.put(analytics_session_id, analyticsSessionId);
+        details.put(journey_type, journeyType);
+
         logSessionEvent(idpSelectedState.getSessionId(), idpSelectedState.getRequestIssuerEntityId(), idpSelectedState.getSessionExpiryTimestamp(), idpSelectedState.getRequestId(), IDP_SELECTED, details);
     }
 

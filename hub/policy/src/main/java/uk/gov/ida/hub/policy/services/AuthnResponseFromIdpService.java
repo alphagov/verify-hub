@@ -60,9 +60,9 @@ public class AuthnResponseFromIdpService {
         ResponseAction responseAction;
 
         if (isFraudulent(idaResponseFromIdpDto)) {
-            responseAction = handleFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+            responseAction = handleFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, samlResponseDto.getAnalyticsSessionId(), samlResponseDto.getJourneyType());
         } else {
-            responseAction = handleNonFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, matchingJourney, idpSelectedController);
+            responseAction = handleNonFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, matchingJourney, idpSelectedController, samlResponseDto.getAnalyticsSessionId(), samlResponseDto.getJourneyType());
         }
         return responseAction;
     }
@@ -76,29 +76,31 @@ public class AuthnResponseFromIdpService {
                                                   SessionId sessionId,
                                                   String principalIPAddressAsSeenByHub,
                                                   boolean matchingJourney,
-                                                  IdpSelectedStateController idpSelectedController) {
+                                                  IdpSelectedStateController idpSelectedController,
+                                                  String analyticsSessionId,
+                                                  String journeyType) {
         ResponseAction responseAction;
         switch (inboundResponseFromIdpDto.getStatus()) {
             case NoAuthenticationContext:
-                responseAction = handleNoAuthnContextResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+                responseAction = handleNoAuthnContextResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, analyticsSessionId, journeyType);
                 break;
             case AuthenticationCancelled:
-                responseAction = handleCancelResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+                responseAction = handleCancelResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, analyticsSessionId, journeyType);
                 break;
             case AuthenticationFailed:
-                responseAction = handleAuthnFailedResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+                responseAction = handleAuthnFailedResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, analyticsSessionId, journeyType);
                 break;
             case RequesterError:
-                responseAction = handleRequesterError(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+                responseAction = handleRequesterError(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, analyticsSessionId, journeyType);
                 break;
             case UpliftFailed:
-                responseAction = handleUpliftFailed(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+                responseAction = handleUpliftFailed(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, analyticsSessionId, journeyType);
                 break;
             case Success:
-                responseAction = handleSuccessResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, matchingJourney, idpSelectedController);
+                responseAction = handleSuccessResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, matchingJourney, idpSelectedController, analyticsSessionId, journeyType);
                 break;
             case AuthenticationPending:
-                responseAction = handlePendingResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController);
+                responseAction = handlePendingResponse(inboundResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, analyticsSessionId, journeyType);
                 break;
             default:
                 throw new UnsupportedOperationException("We don't support any of the other response types - should probably fix this");
@@ -110,7 +112,9 @@ public class AuthnResponseFromIdpService {
                                                  SessionId sessionId,
                                                  String principalIPAddressAsSeenByHub,
                                                  boolean matchingJourney,
-                                                 IdpSelectedStateController idpSelectedStateController) {
+                                                 IdpSelectedStateController idpSelectedStateController,
+                                                 String analyticsSessionId,
+                                                 String journeyType) {
         LevelOfAssurance loaAchieved = inboundResponseFromIdpDto.getLevelOfAssurance().get();
         SuccessFromIdp successFromIdp = new SuccessFromIdp(
                 inboundResponseFromIdpDto.getIssuer(),
@@ -119,7 +123,9 @@ public class AuthnResponseFromIdpService {
                 new PersistentId(inboundResponseFromIdpDto.getPersistentId().get()),
                 loaAchieved,
                 principalIPAddressAsSeenByHub,
-                inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp());
+                inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp(),
+                analyticsSessionId,
+                journeyType);
 
         if (matchingJourney) {
             idpSelectedStateController.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
@@ -132,54 +138,57 @@ public class AuthnResponseFromIdpService {
         }
     }
 
-    private ResponseAction handleRequesterError(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {
+    private ResponseAction handleRequesterError(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController, String analyticsSessionId, String journeyType) {
         RequesterErrorResponse requesterErrorResponse =
-                new RequesterErrorResponse(idaResponseFromIdp.getIssuer(), idaResponseFromIdp.getStatusMessage(), principalIPAddressAsSeenByHub);
+                new RequesterErrorResponse(idaResponseFromIdp.getIssuer(), idaResponseFromIdp.getStatusMessage(), principalIPAddressAsSeenByHub, analyticsSessionId, journeyType);
         idpSelectedStateController.handleRequesterErrorResponseFromIdp(requesterErrorResponse);
         return other(sessionId, idpSelectedStateController.isRegistrationContext());
     }
 
-    private ResponseAction handleAuthnFailedResponse(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {
+    private ResponseAction handleAuthnFailedResponse(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController, String analyticsSessionId, String journeyType) {
         AuthenticationErrorResponse authenticationErrorResponse =
-                new AuthenticationErrorResponse(idaResponseFromIdp.getIssuer(), principalIPAddressAsSeenByHub);
+                new AuthenticationErrorResponse(idaResponseFromIdp.getIssuer(), principalIPAddressAsSeenByHub, analyticsSessionId, journeyType);
         idpSelectedStateController.handleAuthenticationFailedResponseFromIdp(authenticationErrorResponse);
         return other(sessionId, idpSelectedStateController.isRegistrationContext());
     }
 
-    private ResponseAction handleNoAuthnContextResponse(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {
+    private ResponseAction handleNoAuthnContextResponse(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController, String analyticsSessionId, String journeyType) {
         AuthenticationErrorResponse noAuthenticationContextErrorResponse =
-                new AuthenticationErrorResponse(idaResponseFromIdp.getIssuer(), principalIPAddressAsSeenByHub);
+                new AuthenticationErrorResponse(idaResponseFromIdp.getIssuer(), principalIPAddressAsSeenByHub, analyticsSessionId, journeyType);
         idpSelectedStateController.handleNoAuthenticationContextResponseFromIdp(noAuthenticationContextErrorResponse);
         return other(sessionId, idpSelectedStateController.isRegistrationContext());
     }
 
-    private ResponseAction handleCancelResponse(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {
+    private ResponseAction handleCancelResponse(InboundResponseFromIdpDto idaResponseFromIdp, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController, String analyticsSessionId, String journeyType) {
         AuthenticationErrorResponse noAuthenticationContextErrorResponse =
-                new AuthenticationErrorResponse(idaResponseFromIdp.getIssuer(), principalIPAddressAsSeenByHub);
+                new AuthenticationErrorResponse(idaResponseFromIdp.getIssuer(), principalIPAddressAsSeenByHub, analyticsSessionId, journeyType);
         idpSelectedStateController.handleNoAuthenticationContextResponseFromIdp(noAuthenticationContextErrorResponse);
         return cancel(sessionId, idpSelectedStateController.isRegistrationContext());
     }
 
-    private ResponseAction handleFraudResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {
+    private ResponseAction handleFraudResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController, String analyticsSessionId, String journeyType) {
         FraudFromIdp fraudFromIdp = new FraudFromIdp(
                         inboundResponseFromIdpDto.getIssuer(),
                         principalIPAddressAsSeenByHub,
                         new PersistentId(inboundResponseFromIdpDto.getPersistentId().get()),
                         new FraudDetectedDetails(inboundResponseFromIdpDto.getIdpFraudEventId().get(), inboundResponseFromIdpDto.getFraudIndicator().get()),
-                        inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp());
+                        inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp(),
+                        analyticsSessionId,
+                        journeyType
+                    );
         idpSelectedStateController.handleFraudResponseFromIdp(fraudFromIdp);
         return other(sessionId, idpSelectedStateController.isRegistrationContext());
     }
 
-    private ResponseAction handleUpliftFailed(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedController) {
+    private ResponseAction handleUpliftFailed(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedController, String analyticsSessionId, String journeyType) {
         AuthenticationErrorResponse noAuthenticationContextErrorResponse =
-                new AuthenticationErrorResponse(inboundResponseFromIdpDto.getIssuer(), principalIPAddressAsSeenByHub);
+                new AuthenticationErrorResponse(inboundResponseFromIdpDto.getIssuer(), principalIPAddressAsSeenByHub, analyticsSessionId, journeyType);
         idpSelectedController.handleNoAuthenticationContextResponseFromIdp(noAuthenticationContextErrorResponse);
         return failedUplift(sessionId, idpSelectedController.isRegistrationContext());
     }
 
-    private ResponseAction handlePendingResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIpAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController) {
-        idpSelectedStateController.handlePausedRegistrationResponseFromIdp(inboundResponseFromIdpDto.getIssuer(), principalIpAddressAsSeenByHub, inboundResponseFromIdpDto.getLevelOfAssurance().toJavaUtil());
+    private ResponseAction handlePendingResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIpAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController, String analyticsSessionId, String journeyType) {
+        idpSelectedStateController.handlePausedRegistrationResponseFromIdp(inboundResponseFromIdpDto.getIssuer(), principalIpAddressAsSeenByHub, inboundResponseFromIdpDto.getLevelOfAssurance().toJavaUtil(), analyticsSessionId, journeyType);
         return pending(sessionId);
     }
 }

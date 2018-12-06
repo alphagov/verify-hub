@@ -330,7 +330,7 @@ public class SessionResourceIntegrationTest {
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
-        post(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA));
+        post(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type"));
     }
 
     private void anIdpIsSelectedForSignIn(SessionId sessionId, String idpEntityId) {
@@ -338,7 +338,7 @@ public class SessionResourceIntegrationTest {
 
         client.target(policyUri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(new IdpSelected(idpEntityId, "this-is-an-ip-address", SIGNING_IN, REQUESTED_LOA)));
+                .post(Entity.json(new IdpSelected(idpEntityId, "this-is-an-ip-address", SIGNING_IN, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type")));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {

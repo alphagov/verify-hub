@@ -76,6 +76,8 @@ public class IdpSelectedStateControllerTest {
     private static final DateTime SESSION_EXPIRY_TIMESTAMP = DateTime.now().plusMinutes(15);
     private static final String REQUEST_ID = UUID.randomUUID().toString();
     private static final URI ATTRIBUTE_QUERY_URI = URI.create("/attribute-query-uri");
+    private static final String ANALYTICS_SESSION_ID = "some-analytics-session-id";
+    private static final String JOURNEY_TYPE = "some-journey-type";
 
     @Mock
     private StateTransitionAction stateTransitionAction;
@@ -164,11 +166,25 @@ public class IdpSelectedStateControllerTest {
                 .withFraudDetectedDetails(idpFraudDetectedDetails)
                 .withPrincipalIpAddressSeenByIdp(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP)
                 .withPrincipalIpAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB)
+                .withAnalyticsSessionId(ANALYTICS_SESSION_ID)
+                .withJourneyType(JOURNEY_TYPE)
                 .build();
 
         controller.handleFraudResponseFromIdp(fraudFromIdp);
 
-        verify(hubEventLogger).logIdpFraudEvent(NEW_SESSION_ID, IDP_ENTITY_ID, TRANSACTION_ENTITY_ID, fraudFromIdp.getPersistentId(), SESSION_EXPIRY_TIMESTAMP, idpFraudDetectedDetails, Optional.fromNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP), PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, REQUEST_ID);
+        verify(hubEventLogger).logIdpFraudEvent(
+                NEW_SESSION_ID,
+                IDP_ENTITY_ID,
+                TRANSACTION_ENTITY_ID,
+                fraudFromIdp.getPersistentId(),
+                SESSION_EXPIRY_TIMESTAMP,
+                idpFraudDetectedDetails,
+                Optional.fromNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP),
+                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
+                REQUEST_ID,
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE
+        );
     }
 
     @Test
@@ -191,7 +207,7 @@ public class IdpSelectedStateControllerTest {
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
                 .thenReturn(singletonList(IDP_ENTITY_ID));
 
-        controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA));
+        controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         ArgumentCaptor<State> stateArgumentCaptor = ArgumentCaptor.forClass(State.class);
         verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
@@ -293,7 +309,7 @@ public class IdpSelectedStateControllerTest {
     public void handleRequesterPendingResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() {
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
                 .thenReturn(emptyList());
-        controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA));
+        controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
 
     @Test
@@ -358,6 +374,8 @@ public class IdpSelectedStateControllerTest {
                 .withPrincipalIpAddressSeenByIdp(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP)
                 .withPrincipalIpAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB)
                 .withLevelOfAssurance(PROVIDED_LOA)
+                .withAnalyticsSessionId(ANALYTICS_SESSION_ID)
+                .withJourneyType(JOURNEY_TYPE)
                 .build();
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
                 .thenReturn(singletonList(IDP_ENTITY_ID));
@@ -375,7 +393,9 @@ public class IdpSelectedStateControllerTest {
                 LEVELS_OF_ASSURANCE.get(1),
                 PROVIDED_LOA,
                 Optional.fromNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP),
-                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB);
+                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE);
     }
 
     @Test
@@ -383,14 +403,16 @@ public class IdpSelectedStateControllerTest {
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
                 .thenReturn(singletonList(IDP_ENTITY_ID));
 
-        controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA));
+        controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         verify(hubEventLogger).logPausedRegistrationEvent(
                 NEW_SESSION_ID,
                 TRANSACTION_ENTITY_ID,
                 SESSION_EXPIRY_TIMESTAMP,
                 REQUEST_ID,
-                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB);
+                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE);
     }
 
     @Test
@@ -412,7 +434,9 @@ public class IdpSelectedStateControllerTest {
                 SESSION_EXPIRY_TIMESTAMP,
                 REQUEST_ID,
                 Optional.fromNullable(errorMessage),
-                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB);
+                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE);
     }
 
     @Test
@@ -431,7 +455,9 @@ public class IdpSelectedStateControllerTest {
                 TRANSACTION_ENTITY_ID,
                 SESSION_EXPIRY_TIMESTAMP,
                 REQUEST_ID,
-                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB);
+                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE);
     }
 
     @Test
@@ -450,7 +476,9 @@ public class IdpSelectedStateControllerTest {
                 TRANSACTION_ENTITY_ID,
                 SESSION_EXPIRY_TIMESTAMP,
                 REQUEST_ID,
-                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB);
+                PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE);
     }
 
     @Test

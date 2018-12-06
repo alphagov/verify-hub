@@ -11,6 +11,8 @@ public class SuccessFromIdp {
     private LevelOfAssurance levelOfAssurance;
     private String principalIpAddressAsSeenByHub;
     private Optional<String> principalIpAddressAsSeenByIdp;
+    private String analyticSessionId;
+    private String journeyType;
 
     @SuppressWarnings("unused")//Needed by JAXB
     private SuccessFromIdp() {
@@ -23,7 +25,9 @@ public class SuccessFromIdp {
             PersistentId persistentId,
             LevelOfAssurance levelOfAssurance,
             String principalIpAddressAsSeenByHub,
-            Optional<String> principalIpAddressAsSeenByIdp) {
+            Optional<String> principalIpAddressAsSeenByIdp,
+            String analyticsSessionId,
+            String journeyType) {
 
         this.issuer = issuer;
         this.encryptedMatchingDatasetAssertion = encryptedMatchingDatasetAssertion;
@@ -32,6 +36,8 @@ public class SuccessFromIdp {
         this.levelOfAssurance = levelOfAssurance;
         this.principalIpAddressAsSeenByHub = principalIpAddressAsSeenByHub;
         this.principalIpAddressAsSeenByIdp = principalIpAddressAsSeenByIdp;
+        this.analyticSessionId = analyticsSessionId;
+        this.journeyType = journeyType;
     }
 
     public String getIssuer() {
@@ -60,5 +66,13 @@ public class SuccessFromIdp {
 
     public String getEncryptedMatchingDatasetAssertion() {
         return encryptedMatchingDatasetAssertion;
+    }
+
+    public String getAnalyticSessionId() {
+        return analyticSessionId;
+    }
+
+    public String getJourneyType() {
+        return journeyType;
     }
 }

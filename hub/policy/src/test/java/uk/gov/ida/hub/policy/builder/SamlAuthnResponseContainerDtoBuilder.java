@@ -11,14 +11,15 @@ public class SamlAuthnResponseContainerDtoBuilder {
     private String samlResponse = StringEncoding.toBase64Encoded("blah");
     private SessionId sessionId = new SessionId(UUID.randomUUID().toString());
     private String principalIPAddressAsSeenByHub = "NOT SET IN BUILDER";
-
+    private String analyticsSessionId = UUID.randomUUID().toString();
+    private String journeyType = "some-journey-type";
 
     public static SamlAuthnResponseContainerDtoBuilder aSamlAuthnResponseContainerDto() {
         return new SamlAuthnResponseContainerDtoBuilder();
     }
 
     public SamlAuthnResponseContainerDto build() {
-        return new SamlAuthnResponseContainerDto(samlResponse, sessionId, principalIPAddressAsSeenByHub);
+        return new SamlAuthnResponseContainerDto(samlResponse, sessionId, principalIPAddressAsSeenByHub, analyticsSessionId, journeyType);
     }
 
     public SamlAuthnResponseContainerDtoBuilder withSessionId(SessionId sessionId) {
@@ -36,4 +37,13 @@ public class SamlAuthnResponseContainerDtoBuilder {
         return this;
     }
 
+    public SamlAuthnResponseContainerDtoBuilder withAnalyticsSessionId(String analyticsSessionId) {
+        this.analyticsSessionId = analyticsSessionId;
+        return this;
+    }
+
+    public SamlAuthnResponseContainerDtoBuilder withJourneyType(String journeyType) {
+        this.journeyType = journeyType;
+        return this;
+    }
 }

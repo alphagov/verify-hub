@@ -134,7 +134,10 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
         hubEventLogger.logCountrySelectedEvent(countrySelectedState);
     }
 
-    public void handleSuccessResponseFromCountry(InboundResponseFromCountry translatedResponse, String principalIpAddressAsSeenByHub) {
+    public void handleSuccessResponseFromCountry(InboundResponseFromCountry translatedResponse,
+                                                 String principalIpAddressAsSeenByHub,
+                                                 String analyticsSessionId,
+                                                 String journeyType) {
         validateSuccessfulResponse(translatedResponse);
 
         hubEventLogger.logIdpAuthnSucceededEvent(
@@ -148,18 +151,25 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
                 translatedResponse.getLevelOfAssurance().get(),
                 com.google.common.base.Optional.absent(),
-                principalIpAddressAsSeenByHub);
+                principalIpAddressAsSeenByHub,
+                analyticsSessionId,
+                journeyType);
 
         stateTransitionAction.transitionTo(createEidasCycle0And1MatchRequestSentState(translatedResponse));
     }
 
-    public void handleAuthenticationFailedResponseFromCountry(String principalIpAddressAsSeenByHub) {
+    public void handleAuthenticationFailedResponseFromCountry(String principalIpAddressAsSeenByHub,
+                                                              String analyticsSessionId,
+                                                              String journeyType) {
         hubEventLogger.logIdpAuthnFailedEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getRequestId(),
-                principalIpAddressAsSeenByHub);
+                principalIpAddressAsSeenByHub,
+                analyticsSessionId,
+                journeyType
+        );
 
         stateTransitionAction.transitionTo(createEidasAuthnFailedErrorState());
     }
