@@ -5,7 +5,9 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 
-public class NonMatchingJourneySuccessStateController implements StateController {
+import java.util.ArrayList;
+
+public class NonMatchingJourneySuccessStateController implements StateController, ResponsePreparedStateController {
 
     private final NonMatchingJourneySuccessState state;
     private final ResponseFromHubFactory responseFromHubFactory;
@@ -16,5 +18,16 @@ public class NonMatchingJourneySuccessStateController implements StateController
 
         this.state = state;
         this.responseFromHubFactory = responseFromHubFactory;
+    }
+
+    @Override
+    public ResponseFromHub getPreparedResponse() {
+        return responseFromHubFactory.createNonMatchingSuccessResponseFromHub(
+                state.getRequestId(),
+                state.getRelayState(),
+                state.getRequestIssuerEntityId(),
+                new ArrayList<>(state.getEncryptedAssertions()),
+                state.getAssertionConsumerServiceUri()
+        );
     }
 }
