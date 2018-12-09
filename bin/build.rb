@@ -37,8 +37,6 @@ def build_debian_package(build_number, service_path, service_name, package_name)
   FileUtils.mkdir_p("deb/var/log/ida/debug")
   FileUtils.mkdir_p("deb/etc/logrotate.d")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/#{package_name}.yml", "deb/ida/#{package_name}/#{package_name}.yml")
-  FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/#{service_name}.sh", "deb/ida/#{package_name}/#{service_name}.sh")
-  FileUtils.chmod("u=wrx,go=rx", "deb/ida/#{package_name}/#{service_name}.sh")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/orch-deploy", "deb/opt/orch/#{service_name}/deploy")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/orch-ready", "deb/opt/orch/#{service_name}/ready")
   FileUtils.cp("#{PROJECT_ROOT}/debian/#{package_name}/orch-restart", "deb/opt/orch/#{service_name}/restart")
@@ -46,7 +44,7 @@ def build_debian_package(build_number, service_path, service_name, package_name)
   FileUtils.cp_r(service_name, "deb/ida/")
 
   package_file_name = debian_package_filepath(build_number, package_name)
-  system "bundle exec fpm -C deb -s dir -t deb -n '#{package_name}' -v #{build_number} --deb-no-default-config-files --deb-systemd #{PROJECT_ROOT}/debian/#{service_name}/systemd/#{service_name}.service --deb-upstart #{PROJECT_ROOT}/debian/#{service_name}/upstart/#{service_name} --prefix=/ --after-install #{PROJECT_ROOT}/debian/#{package_name}/postinst.sh --depends python-httplib2 -p #{package_file_name} ."
+  system "bundle exec fpm -C deb -s dir -t deb -n '#{package_name}' -v #{build_number} --deb-no-default-config-files --deb-upstart #{PROJECT_ROOT}/debian/#{service_name}/upstart/#{service_name} --prefix=/ --after-install #{PROJECT_ROOT}/debian/#{package_name}/postinst.sh --depends python-httplib2 -p #{package_file_name} ."
 
   unless $? == 0
     raise 'fpm encountered an error'
