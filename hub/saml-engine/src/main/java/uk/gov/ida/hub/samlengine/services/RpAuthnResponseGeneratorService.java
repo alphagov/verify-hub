@@ -41,7 +41,7 @@ public class RpAuthnResponseGeneratorService {
         String authnRequestIssuerEntityId = responseFromHub.getAuthnRequestIssuerEntityId();
 
         List<String> encryptedAssertions = responseFromHub.getEncryptedAssertions();
-        if (encryptedAssertions.isEmpty()) {
+        if (encryptedAssertions == null || encryptedAssertions.isEmpty()) {
             encryptedAssertions = responseFromHub.getEncryptedMatchingServiceAssertion()
                 .map(Collections::singletonList)
                 .orElse(Collections.emptyList());
