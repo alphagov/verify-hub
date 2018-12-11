@@ -19,12 +19,16 @@ import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException
 import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
+import java.util.Collections;
 import java.util.Optional;
+
+import static java.util.Collections.emptySet;
 
 public class EidasCountrySelectedStateController implements ErrorResponsePreparedStateController, EidasCountrySelectingStateController, AuthnRequestCapableController, RestartJourneyStateController {
 
@@ -56,9 +60,16 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
         this.assertionRestrictionFactory = assertionRestrictionFactory;
     }
 
-    // TODO: Add to check if state has matching service entity id
     public String getMatchingServiceEntityId() {
         return transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId());
+    }
+
+    public String getRequestIssuerId() {
+        return state.getRequestIssuerEntityId();
+    }
+
+    public boolean isMatchingJourney() {
+        return transactionsConfigProxy.isUsingMatching(state.getRequestIssuerEntityId());
     }
 
     public String getCountryEntityId() {
@@ -134,10 +145,10 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
         hubEventLogger.logCountrySelectedEvent(countrySelectedState);
     }
 
-    public void handleSuccessResponseFromCountry(InboundResponseFromCountry translatedResponse,
-                                                 String principalIpAddressAsSeenByHub,
-                                                 String analyticsSessionId,
-                                                 String journeyType) {
+    private void handleSuccessResponseFromCountry(InboundResponseFromCountry translatedResponse,
+                                                  String principalIpAddressAsSeenByHub,
+                                                  String analyticsSessionId,
+                                                  String journeyType) {
         validateSuccessfulResponse(translatedResponse);
 
         hubEventLogger.logIdpAuthnSucceededEvent(
@@ -154,8 +165,22 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 principalIpAddressAsSeenByHub,
                 analyticsSessionId,
                 journeyType);
+    }
 
+    public void handleMatchingJourneySuccessResponseFromCountry(InboundResponseFromCountry translatedResponse,
+                                                                String principalIpAddressAsSeenByHub,
+                                                                String analyticsSessionId,
+                                                                String journeyType) {
+        handleSuccessResponseFromCountry(translatedResponse, principalIpAddressAsSeenByHub, analyticsSessionId, journeyType);
         stateTransitionAction.transitionTo(createEidasCycle0And1MatchRequestSentState(translatedResponse));
+    }
+
+    public void handleNonMatchingJourneySuccessResponseFromCountry(InboundResponseFromCountry translatedResponse,
+                                                                   String principalIpAddressAsSeenByHub,
+                                                                   String analyticsSessionId,
+                                                                   String journeyType) {
+        handleSuccessResponseFromCountry(translatedResponse, principalIpAddressAsSeenByHub, analyticsSessionId, journeyType);
+        stateTransitionAction.transitionTo(createNonMatchingJourneySuccessState(translatedResponse));
     }
 
     public void handleAuthenticationFailedResponseFromCountry(String principalIpAddressAsSeenByHub,
@@ -185,8 +210,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
 
         if (!translatedResponse.getLevelOfAssurance().isPresent()) {
             throw StateProcessingValidationException.noLevelOfAssurance();
-        }
-        else {
+        } else {
             validateLevelOfAssurance(translatedResponse.getLevelOfAssurance().get());
         }
     }
@@ -212,6 +236,19 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 translatedResponse.getEncryptedIdentityAssertionBlob().get(),
                 new PersistentId(translatedResponse.getPersistentId().get()),
                 state.getForceAuthentication().orNull()
+        );
+    }
+
+    private State createNonMatchingJourneySuccessState(final InboundResponseFromCountry translatedResponse) {
+        return new NonMatchingJourneySuccessState(
+                state.getRequestId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getAssertionConsumerServiceUri(),
+                new SessionId(state.getSessionId().getSessionId()),
+                state.getTransactionSupportsEidas(),
+                state.getRelayState(),
+                translatedResponse.getEncryptedIdentityAssertionBlob().transform(Collections::singleton).or(emptySet())
         );
     }
 
