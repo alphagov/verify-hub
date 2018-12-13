@@ -3,35 +3,23 @@ verify-hub
 
 [![Build Status](https://travis-ci.org/alphagov/verify-hub.svg?branch=master)](https://travis-ci.org/alphagov/verify-hub)
 
-The goal of the Verify Hub Architecture is to provide a long term flexible and scalable solution for GOV.UK Verify. In order to achieve this, the system is a Service Oriented Architecture(SOA) using REST and principles borrowed from the concept of microservices.
-
-The system is divided into logical microservices – with one or more services that provide the functionality required to implement the Hub SAML Profile. Some of the separation is due to logical differences between the components, while other separation is base on security aspects of the service. The eventual goal for this system is for each of these components to be independently deployable and live in separate code bases.
-
-1. Frontend Services: [verify-frontend](https://www.github.com/alphagov/verify-frontend/)
-2. Proxy Services: saml-proxy, saml-soap-proxy
-3. Business Services: config, saml-engine, policy
-4. Stub Services: stub-idp, test-rp,
-5. Private Beta Support: token-service
-6. Hub Support Services: event-sink, audit, billing
-7. Relying Party Support: matching-service-adapter (MSA), verify-service-provider (VSP)
-
-# Architectural Descision Records and documentation
-
-We record our architectural decisions in `doc/adr`. We use [adr-tools](https://github.com/npryce/adr-tools) to help manage these decisions.
-
-**Answers to some questions can be found on the [hub wiki](https://github.com/alphagov/verify-hub/wiki)**
-
-## Microservices
-
-This repository contains the core Verify Hub microservices (README files for each are linked below):
-
+Verify-hub contains the source code for some of the core  components of the 
+GOV.UK Verify Hub:
 * [policy](hub/policy/README.md)
 * [config](hub/config/README.md)
 * [saml-proxy](hub/saml-proxy/README.md)
 * [saml-soap-proxy](hub/saml-soap-proxy/README.md)
 * [config](hub/config/README.md)
 
-When running hub locally [stub-event-sink](stub-event-sink/README.md) is used in place of event-sink in `ida-hub-support`
+The frontend is located [here](https://github.com/alphagov/verify-frontend/).
+
+An technical overview of the Hub is available [here](doc/overview.md).
+
+## Architectural Descision Records and documentation
+
+We record our architectural decisions in `doc/adr`. We use [adr-tools](https://github.com/npryce/adr-tools) to help manage these decisions.
+
+**Answers to some questions can be found on the [hub wiki](https://github.com/alphagov/verify-hub/wiki)**
 
 ## Prerequisites
 The following software is required (installation notes follow)
@@ -120,9 +108,9 @@ rbenv global 2.4.2
 
 ### Gradle
 
-The hub build.gradle runs a parallel build. The number of parallel forks used when running integration tests can be configured by setting the environment variable ```ORG_GRADLE_PROJECT_IDA_HUB_MAX_PARALLEL_FORKS``` (defaults to number of cores if not set). For example:
+The hub build.gradle runs a parallel build. The number of parallel forks used when running integration tests can be configured by setting the environment variable `ORG_GRADLE_PROJECT_IDA_HUB_MAX_PARALLEL_FORKS` (defaults to number of cores if not set). For example:
 
-```export ORG_GRADLE_PROJECT_IDA_HUB_MAX_PARALLEL_FORKS=4```
+`export ORG_GRADLE_PROJECT_IDA_HUB_MAX_PARALLEL_FORKS=4`
 
 ## Start Development
 From root core hub directory:
