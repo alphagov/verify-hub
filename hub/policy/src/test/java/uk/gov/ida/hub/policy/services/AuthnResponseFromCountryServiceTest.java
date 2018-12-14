@@ -56,8 +56,6 @@ public class AuthnResponseFromCountryServiceTest {
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("assertion-consumer-service-uri");
     private static final SessionId SESSION_ID = SessionIdBuilder.aSessionId().build();
     private static final String REQUEST_ID = "requestId";
-    private static final SamlAuthnResponseContainerDto SAML_AUTHN_RESPONSE_CONTAINER_DTO = aSamlAuthnResponseContainerDto().withSessionId(SESSION_ID).withPrincipalIPAddressAsSeenByHub("1.1.1.1").build();
-    private static final SamlAuthnResponseTranslatorDto SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
     private static final String PID = "pid";
     private static final String BLOB = "blob";
     private static final String SAML_REQUEST = "SAML";
@@ -67,6 +65,10 @@ public class AuthnResponseFromCountryServiceTest {
     private static final Duration ASSERTION_EXPIRY = Duration.standardMinutes(60);
     private static final String COUNTRY_ENTITY_ID = "country_entity_id";
     private static final EidasCountryDto EIDAS_COUNTRY_DTO = new EidasCountryDto(COUNTRY_ENTITY_ID, "country_x", true);
+    private static final String ANALYTICS_SESSION_ID = "some-session-id";
+    private static final String JOURNEY_TYPE = "some-journey-type";
+    private static final SamlAuthnResponseContainerDto SAML_AUTHN_RESPONSE_CONTAINER_DTO = aSamlAuthnResponseContainerDto().withSessionId(SESSION_ID).withPrincipalIPAddressAsSeenByHub("1.1.1.1").withAnalyticsSessionId(ANALYTICS_SESSION_ID).withJourneyType(JOURNEY_TYPE).build();
+    private static final SamlAuthnResponseTranslatorDto SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY = new InboundResponseFromCountry(
         Status.Success,
@@ -163,7 +165,7 @@ public class AuthnResponseFromCountryServiceTest {
         verify(sessionRepository).getStateController(SESSION_ID, EidasCountrySelectedState.class);
         verify(samlAuthnResponseTranslatorDtoFactory).fromSamlAuthnResponseContainerDto(SAML_AUTHN_RESPONSE_CONTAINER_DTO, TEST_RP_MS);
         verify(samlEngineProxy).generateEidasAttributeQuery(EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO);
-        verify(stateController).handleSuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub());
+        verify(stateController).handleSuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
         verify(samlSoapProxyProxy).sendHubMatchingServiceRequest(SESSION_ID, ATTRIBUTE_QUERY_REQUEST);
         ResponseAction expectedResponseAction = ResponseAction.success(SESSION_ID, false, LEVEL_2, null);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
@@ -185,25 +187,37 @@ public class AuthnResponseFromCountryServiceTest {
     @Test
     public void shouldReturnSuccessResponseIfTranslationResponseFromSamlEngineIsSuccessful() {
         final InboundResponseFromCountry inboundResponseFromCountry =
-                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.absent());
+                new InboundResponseFromCountry(Status.Success,
+                                               Optional.of("status"),
+                                               "issuer",
+                                               Optional.of("blob"),
+                                               Optional.of("pid"),
+                                               Optional.of(LEVEL_2),
+                                               Optional.absent());
 
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
                 .thenReturn(inboundResponseFromCountry);
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 
-        verify(stateController).handleSuccessResponseFromCountry(inboundResponseFromCountry, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub());
+        verify(stateController).handleSuccessResponseFromCountry(inboundResponseFromCountry, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
         assertThat(responseAction.getResult()).isEqualTo(SUCCESS);
     }
 
     @Test
     public void shouldReturnOtherResponseIfTranslationResponseFromSamlEngineIsFailure() {
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
-            .thenReturn(new InboundResponseFromCountry(Status.Failure, Optional.of("status"), "issuer", Optional.of("blob"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.absent()));
+                .thenReturn(new InboundResponseFromCountry(Status.Failure,
+                                                           Optional.of("status"),
+                                                           "issuer",
+                                                           Optional.of("blob"),
+                                                           Optional.of("pid"),
+                                                           Optional.of(LEVEL_2),
+                                                           Optional.absent()));
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 
-        verify(stateController).handleAuthenticationFailedResponseFromCountry(SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub());
+        verify(stateController).handleAuthenticationFailedResponseFromCountry(SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
         assertThat(responseAction.getResult()).isEqualTo(OTHER);
     }
 }

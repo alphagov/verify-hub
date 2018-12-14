@@ -110,7 +110,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     @Test
     public void badEntityResponseThrown_WhenMandatoryFieldsAreMissing() throws Exception {
         sessionId = aSessionIsCreated();
-        Response response = postIdpSelected(new IdpSelected(null, null, null, null));
+        Response response = postIdpSelected(new IdpSelected(null, null, null, null, null, null));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
 
@@ -125,7 +125,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     @Test
     public void selectIdp_shouldReturnSuccessResponseAndAudit() throws JsonProcessingException {
         sessionId = aSessionIsCreated();
-        Response response = postIdpSelected(new IdpSelected(idpEntityId, principalIpAddress, REGISTERING, LEVEL_2));
+        Response response = postIdpSelected(new IdpSelected(idpEntityId, principalIpAddress, REGISTERING, LEVEL_2, "this-is-an-analytics-session-id", "this-is-a-journey-type"));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(eventSinkStub.getRecordedRequest()).hasSize(2); // one session started event, one idp selected event
@@ -141,7 +141,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void idpSelected_shouldThrowIfIdpIsNotAvailable() throws JsonProcessingException {
         sessionId = aSessionIsCreated();
 
-        IdpSelected idpSelected = new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, LEVEL_2);
+        IdpSelected idpSelected = new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, LEVEL_2, "this-is-an-analytics-session-id", "this-is-a-journey-type");
         Response response = postIdpSelected(idpSelected);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -154,7 +154,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         sessionId = SessionId.createNewSessionId();
         TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, transactionEntityId, idpEntityId, client, buildUriForTestSession(SUCCESSFUL_MATCH_STATE, sessionId));
 
-        Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, LEVEL_2));
+        Response response = postIdpSelected(new IdpSelected("does-not-exist", principalIpAddress, REGISTERING, LEVEL_2, "this-is-an-analytics-session-id", "this-is-a-journey-type"));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto error = response.readEntity(ErrorStatusDto.class);

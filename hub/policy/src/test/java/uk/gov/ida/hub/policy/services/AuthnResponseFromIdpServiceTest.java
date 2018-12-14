@@ -65,11 +65,14 @@ public class AuthnResponseFromIdpServiceTest {
     private SessionId sessionId;
     private static final String PRINCIPAL_IP_ADDRESS = "1.1.1.1";
     private static final boolean REGISTERING = true;
+    private static final String ANALYTICS_SESSION_ID = "some-analytics-session-id";
+    private static final String JOURNEY_TYPE = "some-journey-type";
 
     @Before
     public void setup() {
         sessionId = SessionIdBuilder.aSessionId().build();
-        samlAuthnResponseContainerDto = aSamlAuthnResponseContainerDto().withSessionId(sessionId).withPrincipalIPAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS).build();
+        samlAuthnResponseContainerDto = aSamlAuthnResponseContainerDto().withSessionId(sessionId).withPrincipalIPAddressAsSeenByHub(
+                PRINCIPAL_IP_ADDRESS).withAnalyticsSessionId(ANALYTICS_SESSION_ID).withJourneyType(JOURNEY_TYPE).build();
         service = new AuthnResponseFromIdpService(samlEngineProxy, attributeQueryService, sessionRepository, samlAuthnResponseTranslatorDtoFactory);
         when(sessionRepository.getStateController(sessionId, IdpSelectedState.class)).thenReturn(idpSelectedStateController);
     }
@@ -168,7 +171,7 @@ public class AuthnResponseFromIdpServiceTest {
         ResponseAction responseAction = service.receiveAuthnResponseFromIdp(sessionId, samlAuthnResponseContainerDto);
 
         // Then
-        verify(idpSelectedStateController).handlePausedRegistrationResponseFromIdp(entityId, PRINCIPAL_IP_ADDRESS, authnPendingResponse.getLevelOfAssurance().toJavaUtil());
+        verify(idpSelectedStateController).handlePausedRegistrationResponseFromIdp(entityId, PRINCIPAL_IP_ADDRESS, authnPendingResponse.getLevelOfAssurance().toJavaUtil(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
         ResponseAction expectedResponseAction = ResponseAction.pending(sessionId);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
     }
@@ -267,7 +270,9 @@ public class AuthnResponseFromIdpServiceTest {
                 samlAuthnResponseContainerDto.getPrincipalIPAddressAsSeenByHub(),
                 new PersistentId(persistentIdName),
                 expectedFraudDetectedDetails,
-                fraudResponseFromIdp.getPrincipalIpAddressAsSeenByIdp());
+                fraudResponseFromIdp.getPrincipalIpAddressAsSeenByIdp(),
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE);
 
         verify(idpSelectedStateController).handleFraudResponseFromIdp(captor.capture());
         FraudFromIdp actualFraudFromIdp = captor.getValue();
@@ -294,7 +299,10 @@ public class AuthnResponseFromIdpServiceTest {
 
         AuthenticationErrorResponse expectedAuthenticationErrorResponse = anAuthenticationErrorResponse()
                 .withIssuerId(authenticationFailedResponse.getIssuer())
-                .withPrincipalIpAddressAsSeenByHub(samlAuthnResponseContainerDto.getPrincipalIPAddressAsSeenByHub()).build();
+                .withPrincipalIpAddressAsSeenByHub(samlAuthnResponseContainerDto.getPrincipalIPAddressAsSeenByHub())
+                .withAnalyticsSessionId(ANALYTICS_SESSION_ID)
+                .withJourneyType(JOURNEY_TYPE)
+                .build();
 
         verify(idpSelectedStateController).handleAuthenticationFailedResponseFromIdp(captor.capture());
         AuthenticationErrorResponse actualAuthenticationErrorResponse = captor.getValue();
@@ -313,6 +321,8 @@ public class AuthnResponseFromIdpServiceTest {
                 .withLevelOfAssurance(successResponseFromIdp.getLevelOfAssurance().get())
                 .withPrincipalIpAddressAsSeenByHub(samlAuthnResponseContainerDto.getPrincipalIPAddressAsSeenByHub())
                 .withPrincipalIpAddressSeenByIdp(successResponseFromIdp.getPrincipalIpAddressAsSeenByIdp().get())
+                .withAnalyticsSessionId(ANALYTICS_SESSION_ID)
+                .withJourneyType(JOURNEY_TYPE)
                 .build();
 
         if (forMatchingJourney) {

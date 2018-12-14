@@ -15,16 +15,22 @@ public class IdpSelected {
     @NotNull
     private LevelOfAssurance requestedLoa;
 
+    private String analyticsSessionId;
+
+    private String journeyType;
+
     // Required for JAXB
     @SuppressWarnings("unused")
     private IdpSelected() {
     }
 
-    public IdpSelected(String selectedIdpEntityId, String principalIpAddress, Boolean registration, LevelOfAssurance requestedLoa) {
+    public IdpSelected(String selectedIdpEntityId, String principalIpAddress, Boolean registration, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType) {
         this.selectedIdpEntityId = selectedIdpEntityId;
         this.principalIpAddress = principalIpAddress;
         this.registration = registration;
         this.requestedLoa = requestedLoa;
+        this.analyticsSessionId = analyticsSessionId;
+        this.journeyType = journeyType;
     }
 
     public String getSelectedIdpEntityId() {
@@ -35,7 +41,19 @@ public class IdpSelected {
         return principalIpAddress;
     }
 
-    public Boolean isRegistration() { return registration; }
+    public String getAnalyticsSessionId() {
+        return analyticsSessionId;
+    }
 
-    public LevelOfAssurance getRequestedLoa() { return requestedLoa; }
+    public String getJourneyType() {
+        return journeyType;
+    }
+
+    public Boolean isRegistration() {
+        return registration;
+    }
+
+    public LevelOfAssurance getRequestedLoa() {
+        return requestedLoa;
+    }
 }

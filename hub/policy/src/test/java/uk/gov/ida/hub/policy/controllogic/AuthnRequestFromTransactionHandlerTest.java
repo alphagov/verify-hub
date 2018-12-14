@@ -40,6 +40,8 @@ public class AuthnRequestFromTransactionHandlerTest {
     private static final String PRINCIPAL_IP_ADDRESS = "aPrincipalIpAddress";
     private static final boolean REGISTERING = true;
     private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
+    private static final String ANALYTICS_SESSION_ID = "anAnalyticsSessionId";
+    private static final String JOURNEY_TYPE = "aJourneyType";
 
     @Mock
     private SessionRepository sessionRepository;
@@ -78,7 +80,7 @@ public class AuthnRequestFromTransactionHandlerTest {
     @Test
     public void stateControllerInvokedFromSessionRepositoryForselectedIdp() {
         SessionId sessionId = new SessionId("aSessionId");
-        IdpSelected idpSelected = new IdpSelected(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS, REGISTERING, REQUESTED_LOA);
+        IdpSelected idpSelected = new IdpSelected(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS, REGISTERING, REQUESTED_LOA, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         IdpSelectingStateControllerSpy idpSelectingStateController = new IdpSelectingStateControllerSpy();
         when(sessionRepository.getStateController(sessionId, IdpSelectingState.class)).thenReturn((idpSelectingStateController));
@@ -106,13 +108,18 @@ public class AuthnRequestFromTransactionHandlerTest {
         private String principalIpAddress = null;
         private boolean registering = false;
         private LevelOfAssurance requestedLoa = null;
+        private String analyticsSessionId = null;
+        private String journeyType = null;
+
 
         @Override
-        public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa) {
+        public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType) {
             this.idpEntityId= idpEntityId;
             this.principalIpAddress = principalIpAddress;
             this.registering = registering;
             this.requestedLoa = requestedLoa;
+            this.analyticsSessionId = analyticsSessionId;
+            this.journeyType = journeyType;
         }
 
         @Override

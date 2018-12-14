@@ -73,8 +73,15 @@ public class AuthnResponseFromCountryService {
         return responseAction;
     }
 
-    private ResponseAction handleSuccessResponse(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, EidasCountrySelectedStateController stateController) {
-        stateController.handleSuccessResponseFromCountry(translatedResponse, responseFromCountry.getPrincipalIPAddressAsSeenByHub());
+    private ResponseAction handleSuccessResponse(InboundResponseFromCountry translatedResponse,
+                                                 SamlAuthnResponseContainerDto responseFromCountry,
+                                                 SessionId sessionId,
+                                                 EidasCountrySelectedStateController stateController
+    ) {
+        stateController.handleSuccessResponseFromCountry(translatedResponse,
+                                                         responseFromCountry.getPrincipalIPAddressAsSeenByHub(),
+                                                         responseFromCountry.getAnalyticsSessionId(),
+                                                         responseFromCountry.getJourneyType());
 
         AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(stateController.getEidasAttributeQueryRequestDto(translatedResponse));
         samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr));
@@ -82,8 +89,10 @@ public class AuthnResponseFromCountryService {
         return ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2, null);
     }
 
-    private ResponseAction handleAuthenticationFailedResponse(SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, EidasCountrySelectedStateController stateController) {
-        stateController.handleAuthenticationFailedResponseFromCountry(responseFromCountry.getPrincipalIPAddressAsSeenByHub());
+    private ResponseAction handleAuthenticationFailedResponse(SamlAuthnResponseContainerDto responseFromCountry,
+                                                              SessionId sessionId,
+                                                              EidasCountrySelectedStateController stateController) {
+        stateController.handleAuthenticationFailedResponseFromCountry(responseFromCountry.getPrincipalIPAddressAsSeenByHub(), responseFromCountry.getAnalyticsSessionId(), responseFromCountry.getJourneyType());
 
         return other(sessionId, false);
     }

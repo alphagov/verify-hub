@@ -56,6 +56,8 @@ public class EidasCountrySelectedStateControllerTest {
     private static final String BLOB = "blob";
     private static final String IP_ADDRESS = "ip-address";
     private static final String SELECTED_COUNTRY = STUB_COUNTRY_ONE;
+    private static final String ANALYTICS_SESSION_ID = "some-session-id";
+    private static final String JOURNEY_TYPE = "some-journey-type";
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY  = new InboundResponseFromCountry(
             CountryAuthenticationStatus.Status.Success,
@@ -137,7 +139,8 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(LEVEL_2),
                 Optional.absent());
 
-        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
+        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID,
+                                                    JOURNEY_TYPE);
     }
 
     @Test
@@ -154,7 +157,8 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(LEVEL_2),
                 Optional.absent());
 
-        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
+        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID,
+                                                    JOURNEY_TYPE);
     }
 
     @Test
@@ -171,7 +175,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.absent(),
                 Optional.absent());
 
-        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
+        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
 
     @Test
@@ -190,12 +194,14 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(LEVEL_1),
                 Optional.absent());
 
-        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
+        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID,
+                                                    JOURNEY_TYPE);
     }
 
     @Test
     public void shouldNotThrowWhenValidatingCorrectLoa() {
-        controller.handleSuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, IP_ADDRESS);
+        controller.handleSuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, IP_ADDRESS, ANALYTICS_SESSION_ID,
+                                                    JOURNEY_TYPE);
     }
 
     @Test
@@ -228,7 +234,8 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(LEVEL_2),
                 Optional.absent());
 
-        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS);
+        controller.handleSuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID,
+                                                    JOURNEY_TYPE);
 
         verify(hubEventLogger).logIdpAuthnSucceededEvent(
             state.getSessionId(),
@@ -241,7 +248,10 @@ public class EidasCountrySelectedStateControllerTest {
             state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
             eidasAttributeQueryRequestDto.getLevelOfAssurance(),
             com.google.common.base.Optional.absent(),
-            IP_ADDRESS);
+            IP_ADDRESS,
+            ANALYTICS_SESSION_ID,
+            JOURNEY_TYPE
+    );
 
         verify(stateTransitionAction).transitionTo(eidasCycle0And1MatchRequestSentState);
     }
@@ -270,14 +280,16 @@ public class EidasCountrySelectedStateControllerTest {
                 .withForceAuthentication(false)
                 .build();
 
-        controller.handleAuthenticationFailedResponseFromCountry(IP_ADDRESS);
+        controller.handleAuthenticationFailedResponseFromCountry(IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         verify(hubEventLogger).logIdpAuthnFailedEvent(
                 state.getSessionId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getRequestId(),
-                IP_ADDRESS);
+                IP_ADDRESS,
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE);
 
         verify(stateTransitionAction).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue()).isInstanceOf(EidasAuthnFailedErrorState.class);

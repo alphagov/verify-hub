@@ -83,25 +83,25 @@ public class AuthnFailedErrorStateControllerTest {
 
     @Test
     public void handleIdpSelect_shouldTransitionStateAndLogEvent() {
-        controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", false, LevelOfAssurance.LEVEL_2);
+        controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", false, LevelOfAssurance.LEVEL_2, "some-analytics-session-id", "some-journey-type");
         ArgumentCaptor<IdpSelectedState> capturedState = ArgumentCaptor.forClass(IdpSelectedState.class);
 
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue().getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
         assertThat(capturedState.getValue().getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
-        verify(hubEventLogger, times(1)).logIdpSelectedEvent(capturedState.getValue(), "some-ip-address");
+        verify(hubEventLogger, times(1)).logIdpSelectedEvent(capturedState.getValue(), "some-ip-address", "some-analytics-session-id", "some-journey-type");
     }
 
     @Test
     public void idpSelect_shouldThrowWhenIdentityProviderInvalid() {
         try {
-            controller.handleIdpSelected("notExist", "some-ip-address", REGISTERING, LevelOfAssurance.LEVEL_2);
+            controller.handleIdpSelected("notExist", "some-ip-address", REGISTERING, LevelOfAssurance.LEVEL_2, "some-analytics-session-id", "some-journey-type");
             fail("Should throw StateProcessingValidationException");
         }
         catch(StateProcessingValidationException e) {
             assertThat(e.getMessage()).contains("Available Identity Provider for session ID [" + authnFailedErrorState
                     .getSessionId().getSessionId() + "] not found for entity ID [notExist].");
-            verify(hubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedState.class), eq("some-ip-address"));
+            verify(hubEventLogger, times(0)).logIdpSelectedEvent(any(IdpSelectedState.class), eq("some-ip-address"), eq("some-analytics-session-id"), eq("some-journey-type"));
         }
     }
 

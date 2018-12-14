@@ -49,6 +49,7 @@ import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
+import uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import javax.ws.rs.client.Client;
@@ -563,7 +564,14 @@ public class MatchingServiceResourcesIntegrationTest {
     private void anAuthnResponseFromIdpWasReceivedAndMatchingRequestSent(SessionId sessionId) throws JsonProcessingException {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath());
 
-        SamlAuthnResponseContainerDto samlAuthnResponseContainerDto = new SamlAuthnResponseContainerDto("saml-response", new SessionId(sessionId.getSessionId()), "principal-ip-address");
+        SamlAuthnResponseContainerDto samlAuthnResponseContainerDto = SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto()
+                                                                                                        .withSamlResponse("saml-response")
+                                                                                                        .withSessionId(new SessionId(sessionId.getSessionId()))
+                                                                                                        .withPrincipalIPAddressAsSeenByHub("principal-ip-address")
+                                                                                                        .withAnalyticsSessionId("this-is-an-analytics-session-id")
+                                                                                                        .withJourneyType("this-is-a-journey-type")
+                                                                                                        .build();
+
         InboundResponseFromIdpDto inboundResponseFromIdpDto = InboundResponseFromIdpDtoBuilder.successResponse(idpEntityId, LEVEL_2);
         configStub.setUpStubForMatchingServiceRequest(rpEntityId, msaEntityId);
         samlEngineStub.setupStubForAttributeQueryRequest(AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto().build());
@@ -575,7 +583,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
-        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, LEVEL_2));
+        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, LEVEL_2, "this-is-an-analytics-session-id", "this-is-a-journey-type"));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {
