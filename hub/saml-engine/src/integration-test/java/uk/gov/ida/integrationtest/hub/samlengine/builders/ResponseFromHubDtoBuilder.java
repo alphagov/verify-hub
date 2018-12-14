@@ -15,7 +15,6 @@ public class ResponseFromHubDtoBuilder {
     private String responseId = UUID.randomUUID().toString();
     private String inResponseTo = UUID.randomUUID().toString();
     private TransactionIdaStatus status = TransactionIdaStatus.Success;
-    private Optional<String> assertion = Optional.empty();
     private List<String> encryptedAssertions = Collections.emptyList();
     private Optional<String> relayState = Optional.empty();
     private URI assertionConsumerServiceUri = URI.create("/default-index");
@@ -29,7 +28,6 @@ public class ResponseFromHubDtoBuilder {
                 responseId,
                 inResponseTo,
                 authnRequestIssuerEntityId,
-                assertion,
                 encryptedAssertions,
                 relayState,
                 assertionConsumerServiceUri,
@@ -39,11 +37,6 @@ public class ResponseFromHubDtoBuilder {
 
     public ResponseFromHubDtoBuilder withRelayState(String relayState) {
         this.relayState = Optional.ofNullable(relayState);
-        return this;
-    }
-
-    public ResponseFromHubDtoBuilder withAssertion(String assertion) {
-        this.assertion = Optional.of(assertion);
         return this;
     }
 

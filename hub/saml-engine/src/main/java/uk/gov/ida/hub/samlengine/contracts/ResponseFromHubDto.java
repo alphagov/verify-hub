@@ -12,7 +12,6 @@ public class ResponseFromHubDto {
     private String responseId;
     private String inResponseTo;
     private TransactionIdaStatus status;
-    private Optional<String> encryptedMatchingServiceAssertion;
     private List<String> encryptedAssertions;
     private Optional<String> relayState;
     private URI assertionConsumerServiceUri;
@@ -25,7 +24,6 @@ public class ResponseFromHubDto {
             String responseId,
             String inResponseTo,
             String authnRequestIssuerEntityId,
-            Optional<String> encryptedMatchingServiceAssertion,
             List<String> encryptedAssertions,
             Optional<String> relayState,
             URI assertionConsumerServiceUri,
@@ -34,7 +32,6 @@ public class ResponseFromHubDto {
         this.authnRequestIssuerEntityId = authnRequestIssuerEntityId;
         this.responseId = responseId;
         this.inResponseTo = inResponseTo;
-        this.encryptedMatchingServiceAssertion = encryptedMatchingServiceAssertion;
         this.encryptedAssertions = encryptedAssertions;
         this.relayState = relayState;
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
@@ -51,10 +48,6 @@ public class ResponseFromHubDto {
 
     public String getInResponseTo() {
         return inResponseTo;
-    }
-
-    public Optional<String> getEncryptedMatchingServiceAssertion() {
-        return encryptedMatchingServiceAssertion;
     }
 
     public List<String> getEncryptedAssertions() {

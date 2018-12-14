@@ -40,20 +40,13 @@ public class RpAuthnResponseGeneratorService {
     private AuthnResponseFromHubContainerDto createSuccessResponse(final ResponseFromHubDto responseFromHub) {
         String authnRequestIssuerEntityId = responseFromHub.getAuthnRequestIssuerEntityId();
 
-        List<String> encryptedAssertions = responseFromHub.getEncryptedAssertions();
-        if (encryptedAssertions.isEmpty()) {
-            encryptedAssertions = responseFromHub.getEncryptedMatchingServiceAssertion()
-                .map(Collections::singletonList)
-                .orElse(Collections.emptyList());
-        }
-
         final OutboundResponseFromHub response = new OutboundResponseFromHub(
                 responseFromHub.getResponseId(),
                 responseFromHub.getInResponseTo(),
                 hubEntityId,
                 DateTime.now(),
                 TransactionIdaStatus.valueOf(responseFromHub.getStatus().name()),
-                encryptedAssertions,
+                responseFromHub.getEncryptedAssertions(),
                 responseFromHub.getAssertionConsumerServiceUri());
 
         String samlMessage = outboundResponseFromHubToResponseTransformerFactory.get(authnRequestIssuerEntityId).apply(response);
