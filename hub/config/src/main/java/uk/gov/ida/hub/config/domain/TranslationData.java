@@ -103,6 +103,14 @@ public class TranslationData implements ConfigEntityData {
         @JsonProperty
         protected String customFailContactDetailsIntro;
 
+        @Valid
+        @JsonProperty
+        protected String singleIdpStartPageTitle;
+
+        @Valid
+        @JsonProperty
+        protected String singleIdpStartPageContent;
+
         public Translation setLocale(String locale) {
             this.locale = locale;
             return this;
