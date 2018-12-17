@@ -31,9 +31,9 @@ import java.io.IOException;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -103,7 +103,7 @@ public class AttributeQueryRequestRunnableTest {
     }
 
     @Test
-    public void run_shouldLogToAudit_ButShouldNotNotifySamlEngine_RequestHasTimedOut_AndWhenMessageFromSamlEngineValidationFailsWithUnexpectedException() throws Exception {
+    public void run_shouldLogToAudit_ButShouldNotNotifySamlEngine_RequestHasTimedOut_AndWhenMessageFromSamlEngineValidationFailsWithUnexpectedException() {
         when(executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto))
                 .thenThrow(new InvalidSamlRequestInAttributeQueryException("Attribute Query had invalid XML.",new RuntimeException("test exception")));
 
@@ -152,11 +152,7 @@ public class AttributeQueryRequestRunnableTest {
     }
 
     @Test
-    public void run_shouldSayIfTimeoutWasBeforeSendingMessage() throws Exception {
-        final Element matchingServiceResponse = XmlUtils.convertToElement("<someResponse/>");
-        when(executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto))
-                .thenReturn(matchingServiceResponse);
-
+    public void run_shouldSayIfTimeoutWasBeforeSendingMessage() {
         doThrow(new AttributeQueryTimeoutException()).when(timeoutEvaluator).hasAttributeQueryTimedOut(attributeQueryContainerDto);
 
         attributeQueryRequestRunnable.run();
@@ -170,7 +166,7 @@ public class AttributeQueryRequestRunnableTest {
     }
 
     @Test
-    public void run_shouldLogToAuditAndReturnToSamlEngineWhenInboundMessageValidationFailsWithUnexpectedException() throws Exception {
+    public void run_shouldLogToAuditAndReturnToSamlEngineWhenInboundMessageValidationFailsWithUnexpectedException() {
         when(executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto))
                 .thenThrow(new RuntimeException("Uh-oh, something unexpected happened!"));
 
@@ -226,7 +222,7 @@ public class AttributeQueryRequestRunnableTest {
     }
 
     @Test
-    public void run_shouldNotifySamlEngineAndLogErrorWhenACertificateCannotBeChainedToThoseInTheTrustStore() throws IOException, SAXException, ParserConfigurationException {
+    public void run_shouldNotifySamlEngineAndLogErrorWhenACertificateCannotBeChainedToThoseInTheTrustStore() {
         when(executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto))
                 .thenThrow(new CertificateChainValidationException("cert chain validation error", new Exception()));
 

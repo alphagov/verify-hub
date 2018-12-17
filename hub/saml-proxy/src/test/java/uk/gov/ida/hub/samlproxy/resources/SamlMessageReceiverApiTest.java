@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.xmlsec.signature.support.SignatureException;
-import uk.gov.ida.common.IpFromXForwardedForHeader;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.samlproxy.domain.LevelOfAssurance;
@@ -28,17 +27,14 @@ import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.namespace.QName;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AuthnRequestBuilder.anAuthnRequest;
@@ -65,18 +61,6 @@ public class SamlMessageReceiverApiTest {
 
     @Mock
     private ProtectiveMonitoringLogger protectiveMonitoringLogger;
-
-    @Mock
-    private IpFromXForwardedForHeader ipFromXForwardedForHeader;
-
-    @Mock
-    private HttpServletRequest httpServletRequest;
-
-    @Mock
-    private StringToOpenSamlObjectTransformer<AuthnRequest> authnRequestTransformer; //TODO duplicate of line 52?
-
-    @Mock
-    private Function<String, org.opensaml.saml.saml2.core.Response> responseTransformer;
 
     @Mock
     private SessionProxy sessionProxy;
@@ -106,7 +90,7 @@ public class SamlMessageReceiverApiTest {
     }
 
     @Test
-    public void handleRequestPost_shouldReturnSessionId() throws Exception {
+    public void handleRequestPost_shouldReturnSessionId() {
         AuthnRequest authnRequest = anAuthnRequest().withIssuer(anIssuer().withIssuerId(ISSUER_ID).build()).build();
         when(stringSamlAuthnRequestTransformer.apply(SAML_REQUEST)).thenReturn(authnRequest);
         when(samlMessageSignatureValidator.validate(any(AuthnRequest.class), any(QName.class))).thenReturn(SamlValidationResponse.aValidResponse());
@@ -119,7 +103,7 @@ public class SamlMessageReceiverApiTest {
     }
 
     @Test
-    public void handleResponsePost_shouldReturnActionDtoOnSuccessfulRegistration() throws MarshallingException, SignatureException {
+    public void handleResponsePost_shouldReturnActionDtoOnSuccessfulRegistration() {
         ResponseActionDto responseActionDto = ResponseActionDto.success(SESSION_ID, true, LevelOfAssurance.LEVEL_2, null);
         when(stringSamlResponseTransformer.apply(SAML_REQUEST)).thenReturn(validSamlResponse);
         when(samlMessageSignatureValidator.validate(any(org.opensaml.saml.saml2.core.Response.class), any(QName.class))).thenReturn(SamlValidationResponse.aValidResponse());
@@ -132,10 +116,9 @@ public class SamlMessageReceiverApiTest {
     }
 
     @Test
-    public void handleRequestPost_shouldValidateSignatureOfMessage() throws Exception {
+    public void handleRequestPost_shouldValidateSignatureOfMessage() {
         AuthnRequest authnRequest = anAuthnRequest().withIssuer(anIssuer().withIssuerId(ISSUER_ID).build()).build();
 
-        when(authnRequestTransformer.apply(SAML_REQUEST)).thenReturn(authnRequest);
         when(sessionProxy.createSession(any(SamlAuthnRequestContainerDto.class))).thenReturn(SESSION_ID);
         when(samlMessageSignatureValidator.validate(any(AuthnRequest.class), any(QName.class))).thenReturn(SamlValidationResponse.aValidResponse());
         when(stringSamlAuthnRequestTransformer.apply(SAML_REQUEST)).thenReturn(authnRequest);
@@ -147,13 +130,8 @@ public class SamlMessageReceiverApiTest {
 
     @Test
     public void handleResponsePost_shouldReportPrincipalIpAddress() throws Exception {
-        AuthnRequest authnRequest = anAuthnRequest().withIssuer(anIssuer().withIssuerId(ISSUER_ID).build()).build();
-
-        when(stringSamlAuthnRequestTransformer.apply(SAML_REQUEST)).thenReturn(authnRequest);
         when(stringSamlResponseTransformer.apply(SAML_REQUEST)).thenReturn(aResponse().build());
         when(samlMessageSignatureValidator.validate(any(org.opensaml.saml.saml2.core.Response.class), any(QName.class))).thenReturn(SamlValidationResponse.aValidResponse());
-        when(sessionProxy.createSession(any(SamlAuthnRequestContainerDto.class))).thenReturn(SESSION_ID);
-        when(responseTransformer.apply(anyString())).thenReturn(aResponse().build());
 
         samlMessageReceiverApi.handleResponsePost(SAML_REQUEST_DTO);
 
@@ -164,12 +142,11 @@ public class SamlMessageReceiverApiTest {
     }
 
     @Test
-    public void handleRequestPost_shouldLogSamlRequestInCorrectFormat() throws Exception {
+    public void handleRequestPost_shouldLogSamlRequestInCorrectFormat() {
         AuthnRequest authnRequest = anAuthnRequest().withIssuer(anIssuer().withIssuerId(ISSUER_ID).build()).withDestination(DESTINATION).build();
 
         when(samlMessageSignatureValidator.validate(any(AuthnRequest.class), any(QName.class))).thenReturn(SamlValidationResponse.aValidResponse());
         when(stringSamlAuthnRequestTransformer.apply(SAML_REQUEST)).thenReturn(authnRequest);
-        when(authnRequestTransformer.apply(SAML_REQUEST)).thenReturn(authnRequest);
         when(sessionProxy.createSession(any(SamlAuthnRequestContainerDto.class))).thenReturn(SESSION_ID);
 
         samlMessageReceiverApi.handleRequestPost(SAML_REQUEST_DTO);
@@ -178,7 +155,7 @@ public class SamlMessageReceiverApiTest {
     }
 
     @Test
-    public void handleResponsePost_shouldLogSamlResponseInCorrectFormat() throws Exception {
+    public void handleResponsePost_shouldLogSamlResponseInCorrectFormat() {
         when(stringSamlResponseTransformer.apply(SAML_REQUEST)).thenReturn(validSamlResponse);
         when(samlMessageSignatureValidator.validate(any(org.opensaml.saml.saml2.core.Response.class), any(QName.class))).thenReturn(SamlValidationResponse.aValidResponse());
 
@@ -192,7 +169,7 @@ public class SamlMessageReceiverApiTest {
     }
 
     @Test
-    public void handleResponsePost_shouldValidateSignatureOfIncomingSamlMessage() throws Exception {
+    public void handleResponsePost_shouldValidateSignatureOfIncomingSamlMessage() {
         when(stringSamlResponseTransformer.apply(SAML_REQUEST)).thenReturn(validSamlResponse);
         when(samlMessageSignatureValidator.validate(eq(validSamlResponse), any(QName.class))).thenReturn(SamlValidationResponse.aValidResponse());
 
@@ -202,7 +179,7 @@ public class SamlMessageReceiverApiTest {
     }
 
     @Test
-    public void handleEidasResponsePost_shouldValidateSignatureOfIncomingSamlMessage() throws Exception {
+    public void handleEidasResponsePost_shouldValidateSignatureOfIncomingSamlMessage() {
         when(stringSamlResponseTransformer.apply(SAML_REQUEST)).thenReturn(validSamlResponse);
         ValidatedResponse validatedResponse = new ValidatedResponse(validSamlResponse);
         when(eidasValidatorFactory.getValidatedResponse(validSamlResponse)).thenReturn(validatedResponse);

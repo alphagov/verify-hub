@@ -26,9 +26,7 @@ import java.net.URI;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.HubAssertionBuilder.aHubAssertion;
 import static uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute.CURRENT_ADDRESS;
 import static uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute.DATE_OF_BIRTH;
@@ -59,12 +57,10 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     private EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
         HubAssertionMarshaller assertionTransformer = new HubAssertionMarshaller(openSamlXmlObjectFactory, attributeFactory, outboundAssertionToSubjectTransformer);
         AssertionFromIdpToAssertionTransformer assertionFromIdpAssertionTransformer = new AssertionFromIdpToAssertionTransformer(stringAssertionTransformer);
-
-        when(stringAssertionTransformer.apply(anyString())).thenReturn(anAssertion().buildUnencrypted());
 
         transformer = new HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
             openSamlXmlObjectFactory,
@@ -75,7 +71,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void shouldTransformProperly() throws Exception {
+    public void shouldTransformProperly() {
         PersistentId persistentId = new PersistentId("default-name-id");
         HubEidasAttributeQueryRequest hubEidasAttributeQueryRequest = aHubEidasAttributeQueryRequest()
             .withId("originalId")
@@ -91,7 +87,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void shouldIncludeCycle3Assertion() throws Exception {
+    public void shouldIncludeCycle3Assertion() {
         final HubAssertion cycle3DataAssertion = aHubAssertion().build();
 
         HubEidasAttributeQueryRequest hubEidasAttributeQueryRequest = aHubEidasAttributeQueryRequest()
@@ -106,7 +102,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void shouldIncludeEncryptedIdentityAssertionOnly() throws Exception {
+    public void shouldIncludeEncryptedIdentityAssertionOnly() {
         HubEidasAttributeQueryRequest hubEidasAttributeQueryRequest = aHubEidasAttributeQueryRequest()
             .withEncryptedIdentityAssertion(ENCRYPTED_IDENTITY_ASSERTION)
             .build();
@@ -126,7 +122,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void shouldIncludeEncryptedIdentityAssertionAndCycle3Assertion() throws Exception {
+    public void shouldIncludeEncryptedIdentityAssertionAndCycle3Assertion() {
         final HubAssertion cycle3DataAssertion = aHubAssertion().build();
 
         HubEidasAttributeQueryRequest hubEidasAttributeQueryRequest = aHubEidasAttributeQueryRequest()
@@ -150,7 +146,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void shouldSetTheSPNameQualifierAndNameQualifierToValuesThatShouldntBeThereButCurrentlyHaveNoWhereBetterToBe() throws Exception {
+    public void shouldSetTheSPNameQualifierAndNameQualifierToValuesThatShouldntBeThereButCurrentlyHaveNoWhereBetterToBe() {
         final HubAssertion cycle3DataAssertion = aHubAssertion().build();
 
         HubEidasAttributeQueryRequest hubEidasAttributeQueryRequest = aHubEidasAttributeQueryRequest()

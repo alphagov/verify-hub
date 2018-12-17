@@ -6,9 +6,9 @@ import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
@@ -29,7 +29,8 @@ import java.net.URI;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,7 +74,7 @@ public class AuthnRequestFromTransactionHandlerTest {
 
         authnRequestFromTransactionHandler.handleRequestFromTransaction(samlResponseWithAuthnRequestInformationDto, relayState, ipAddress, assertionConsumerServiceUri, false);
 
-        verify(hubEventLogger, times(1)).logSessionStartedEvent(Matchers.<SamlResponseWithAuthnRequestInformationDto>any(), anyString(), Matchers.<DateTime>any(), Matchers.<SessionId>any(), Matchers.<LevelOfAssurance>any(), Matchers.<LevelOfAssurance>any());
+        verify(hubEventLogger, times(1)).logSessionStartedEvent(any(), anyString(), ArgumentMatchers.<DateTime>any(), ArgumentMatchers.<SessionId>any(), ArgumentMatchers.<LevelOfAssurance>any(), ArgumentMatchers.<LevelOfAssurance>any());
 
     }
 

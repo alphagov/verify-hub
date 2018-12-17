@@ -3,7 +3,7 @@ package uk.gov.ida.hub.samlengine.proxy;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;

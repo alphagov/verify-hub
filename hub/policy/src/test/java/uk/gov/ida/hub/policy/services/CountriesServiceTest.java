@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -19,10 +19,11 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,8 @@ public class CountriesServiceTest {
     private CountriesService service;
 
     private SessionId sessionId;
+
+    private static final String RELYING_PARTY_ID = "relyingPartyId";
 
     private static final EidasCountryDto COUNTRY_1 = new EidasCountryDto("id1", "country1", true);
     private static final EidasCountryDto COUNTRY_2 = new EidasCountryDto("id2", "country2", true);
@@ -58,8 +61,7 @@ public class CountriesServiceTest {
 
     @Test
     public void shouldReturnEnabledSystemWideCountriesWhenRpHasNoExplicitlyEnabledCountries() {
-        setSystemWideCountries(COUNTRY_1, COUNTRY_2, DISABLED_COUNTRY);
-        setCountriesForRp();
+        setSystemWideCountries(asList(COUNTRY_1, COUNTRY_2, DISABLED_COUNTRY));
 
         List<EidasCountryDto> countries = service.getCountries(sessionId);
 
@@ -68,9 +70,9 @@ public class CountriesServiceTest {
 
     @Test
     public void shouldReturnIntersectionOfEnabledSystemWideCountriesAndRPConfiguredCountries() {
-        setSystemWideCountries(COUNTRY_1, COUNTRY_2, DISABLED_COUNTRY);
-        setCountriesForRp(COUNTRY_2);
-
+        setSystemWideCountries(asList(COUNTRY_1, COUNTRY_2, DISABLED_COUNTRY));
+        when(sessionRepository.getRequestIssuerEntityId(sessionId)).thenReturn(RELYING_PARTY_ID);
+        when(configProxy.getEidasSupportedCountriesForRP(RELYING_PARTY_ID)).thenReturn(asList(COUNTRY_2.getEntityId()));
         List<EidasCountryDto> countries = service.getCountries(sessionId);
 
         assertThat(countries, equalTo(Arrays.asList(COUNTRY_2)));
@@ -80,7 +82,7 @@ public class CountriesServiceTest {
     public void shouldSetSelectedCountry() {
         EidasCountrySelectedStateController mockEidasCountrySelectedStateController = mock(EidasCountrySelectedStateController.class);
         when(sessionRepository.getStateController(sessionId, EidasCountrySelectingState.class)).thenReturn(mockEidasCountrySelectedStateController);
-        setSystemWideCountries(COUNTRY_1);
+        setSystemWideCountries(asList(COUNTRY_1));
 
         service.setSelectedCountry(sessionId, COUNTRY_1.getSimpleId());
 
@@ -89,9 +91,7 @@ public class CountriesServiceTest {
 
     @Test(expected = EidasCountryNotSupportedException.class)
     public void shouldReturnErrorWhenAnInvalidCountryIsSelected() {
-        EidasCountrySelectedStateController mockEidasCountrySelectedStateController = mock(EidasCountrySelectedStateController.class);
-        when(sessionRepository.getStateController(sessionId, SessionStartedState.class)).thenReturn(mockEidasCountrySelectedStateController);
-        setSystemWideCountries(COUNTRY_1);
+        setSystemWideCountries(asList(COUNTRY_1));
 
         service.setSelectedCountry(sessionId, "not-a-valid-country-code");
     }
@@ -103,11 +103,7 @@ public class CountriesServiceTest {
         service.setSelectedCountry(sessionId, "NL");
     }
 
-    private void setSystemWideCountries(EidasCountryDto... countries) {
-        when(configProxy.getEidasSupportedCountries()).thenReturn(Arrays.asList(countries));
-    }
-
-    private void setCountriesForRp(EidasCountryDto... countries) {
-        when(configProxy.getEidasSupportedCountriesForRP(anyString())).thenReturn(Arrays.stream(countries).map(EidasCountryDto::getEntityId).collect(toList()));
+    private void setSystemWideCountries(List<EidasCountryDto> countryList) {
+        when(configProxy.getEidasSupportedCountries()).thenReturn(countryList);
     }
 }

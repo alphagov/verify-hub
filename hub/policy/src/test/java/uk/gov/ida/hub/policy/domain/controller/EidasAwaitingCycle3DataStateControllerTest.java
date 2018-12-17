@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
@@ -73,7 +73,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
     private EidasAwaitingCycle3DataState state;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         DateTimeUtils.setCurrentMillisFixed(NOW.getMillis());
         ResponseFromHubFactory responseFromHubFactory = new ResponseFromHubFactory(idGenerator);
         state = anEidasAwaitingCycle3DataState().build();
@@ -94,7 +94,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
     }
 
     @Test
-    public void getResponseProcessingDetails() throws Exception {
+    public void getResponseProcessingDetails() {
         ResponseProcessingDetails expectedResponse = new ResponseProcessingDetails(
             state.getSessionId(),
             ResponseProcessingStatus.GET_C3_DATA,
@@ -107,7 +107,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
     }
 
     @Test
-    public void getErrorResponse() throws Exception {
+    public void getErrorResponse() {
         when(idGenerator.getId()).thenReturn(RESPONSE_ID);
         ResponseFromHub expectedResponse = new ResponseFromHub(
             RESPONSE_ID,

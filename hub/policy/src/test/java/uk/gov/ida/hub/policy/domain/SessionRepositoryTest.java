@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
@@ -25,8 +25,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import static com.google.common.base.Optional.absent;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.SessionStartedStateBuilder.aSessionStartedState;
@@ -84,7 +84,7 @@ public class SessionRepositoryTest {
         TestState state = new TestState();
         stateTransitionActionArgumentCaptor.getValue().transitionTo(state);
 
-        assertThat(dataStore.get(sessionId)).isEqualTo((State) state);
+        assertThat(dataStore.get(sessionId)).isEqualTo(state);
     }
 
     @Test

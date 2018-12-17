@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
@@ -15,8 +15,8 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,7 +42,7 @@ public class SessionNotFoundExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_shouldReturnUnauditedErrorStatus() throws Exception {
+    public void toResponse_shouldReturnUnauditedErrorStatus() {
         SessionNotFoundException exception = new SessionNotFoundException(aSessionId().with(SESSION_ID).build());
 
         Response response = mapper.toResponse(exception);

@@ -68,7 +68,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
     );
 
     @BeforeClass
-    public static void setup() throws Exception {
+    public static void setup() {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder
                 .aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration)
@@ -102,7 +102,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
     }
 
     @Test
-    public void should_shouldReturnErrorStatusDtoWhenThereIsAProblem() throws Exception {
+    public void should_shouldReturnErrorStatusDtoWhenThereIsAProblem() {
         Response response = postResponseForTranslation(new SamlMessageDto(Base64.encodeAsString("<saml/>")));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());

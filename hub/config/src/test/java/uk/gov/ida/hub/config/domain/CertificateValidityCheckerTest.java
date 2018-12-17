@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.CertificateValidity;
 import uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder;
@@ -42,7 +42,7 @@ public class CertificateValidityCheckerTest {
     }
 
     @Test
-    public void getsInvalidCertificates() throws Exception {
+    public void getsInvalidCertificates() {
         String description = "Certificate invalid";
         CertPathValidatorException certPathValidatorException = new CertPathValidatorException(description);
 
@@ -56,7 +56,7 @@ public class CertificateValidityCheckerTest {
     }
 
     @Test
-    public void getsEmptyListWhenAllCertificatesAreValid() throws Exception {
+    public void getsEmptyListWhenAllCertificatesAreValid() {
         when(certificateChainValidator.validate(certificateDetails.getX509(), trustStore)).thenReturn(CertificateValidity.valid());
 
         ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificateDetails));
@@ -65,7 +65,7 @@ public class CertificateValidityCheckerTest {
     }
 
     @Test
-    public void determinesWhenSingleCertificateIsValid() throws Exception {
+    public void determinesWhenSingleCertificateIsValid() {
         when(certificateChainValidator.validate(certificateDetails.getX509(), trustStore)).thenReturn(CertificateValidity.valid());
 
         Boolean isCertificateValid = certificateValidityChecker.isValid(certificateDetails);
@@ -74,7 +74,7 @@ public class CertificateValidityCheckerTest {
     }
 
     @Test
-    public void determinesWhenCertificateIsInValid() throws Exception {
+    public void determinesWhenCertificateIsInValid() {
         when(certificateChainValidator.validate(certificateDetails.getX509(), trustStore)).thenReturn(CertificateValidity.invalid(new CertPathValidatorException()));
 
         Boolean isCertificateValid = certificateValidityChecker.isValid(certificateDetails);

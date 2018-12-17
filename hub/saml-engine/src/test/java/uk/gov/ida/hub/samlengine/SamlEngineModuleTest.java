@@ -7,7 +7,7 @@ import com.google.inject.binder.ScopedBindingBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import static org.mockito.Matchers.any;

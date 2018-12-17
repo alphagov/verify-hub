@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.common.SessionId;
@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.eventemitter.EventDetailsKey.external_communication_type;
@@ -76,7 +76,7 @@ public class ExternalCommunicationEventLoggerTest {
         details.put(external_communication_type, MATCHING_SERVICE_REQUEST);
         details.put(message_id, MESSAGE_ID);
         details.put(external_endpoint, ENDPOINT_URL.toString());
-        details.put(external_ip_address, ENDPOINT_IP_ADDRESS.toString());
+        details.put(external_ip_address, ENDPOINT_IP_ADDRESS);
 
         final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
             SERVICE_INFO,
@@ -131,7 +131,7 @@ public class ExternalCommunicationEventLoggerTest {
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
-    private class EventMatching extends ArgumentMatcher<EventSinkHubEvent> {
+    private class EventMatching implements ArgumentMatcher<EventSinkHubEvent> {
 
         private EventSinkHubEvent expectedEvent;
 
@@ -140,17 +140,16 @@ public class ExternalCommunicationEventLoggerTest {
         }
 
         @Override
-        public boolean matches(Object other) {
-            if (other == null || expectedEvent.getClass() != other.getClass()) {
+        public boolean matches(EventSinkHubEvent argument) {
+            if (argument == null || expectedEvent.getClass() != argument.getClass()) {
                 return false;
             }
-            EventSinkHubEvent actualEvent = (EventSinkHubEvent) other;
-            return !actualEvent.getEventId().toString().isEmpty() &&
-                Objects.equals(expectedEvent.getTimestamp(), actualEvent.getTimestamp()) &&
-                Objects.equals(expectedEvent.getOriginatingService(), actualEvent.getOriginatingService()) &&
-                Objects.equals(expectedEvent.getSessionId(), actualEvent.getSessionId()) &&
-                Objects.equals(expectedEvent.getEventType(), actualEvent.getEventType()) &&
-                Objects.equals(expectedEvent.getDetails(), actualEvent.getDetails());
+            return !argument.getEventId().toString().isEmpty() &&
+                Objects.equals(expectedEvent.getTimestamp(), argument.getTimestamp()) &&
+                Objects.equals(expectedEvent.getOriginatingService(), argument.getOriginatingService()) &&
+                Objects.equals(expectedEvent.getSessionId(), argument.getSessionId()) &&
+                Objects.equals(expectedEvent.getEventType(), argument.getEventType()) &&
+                Objects.equals(expectedEvent.getDetails(), argument.getDetails());
         }
     }
 }

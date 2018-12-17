@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
@@ -47,8 +47,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -134,7 +134,7 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     }
 
     @Test
-    public void houldReturnNoMatchStateWhenTransactionDoesNotSupportCycle3AndMatchingServiceReturnsNoMatchAndUserAccountCreationIsDisabled() throws Exception {
+    public void houldReturnNoMatchStateWhenTransactionDoesNotSupportCycle3AndMatchingServiceReturnsNoMatchAndUserAccountCreationIsDisabled() {
         final ArgumentCaptor<NoMatchState> capturedState = ArgumentCaptor.forClass(NoMatchState.class);
 
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID))
@@ -210,11 +210,6 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
     public void shouldLogRelevantEventsWhenReceivedCycle0And1SuccessfulMatchResponseFromMatchingService() {
         List<UserAccountCreationAttribute> userAccountCreationAttributes = singletonList(UserAccountCreationAttribute.DATE_OF_BIRTH);
 
-        when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID))
-                .thenReturn(new MatchingProcess(Optional.absent()));
-        when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID))
-                .thenReturn(userAccountCreationAttributes);
-
         MatchFromMatchingService matchFromMatchingService = new MatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID, "assertionBlob", Optional.of(LevelOfAssurance.LEVEL_1));
         controller.handleMatchResponseFromMatchingService(matchFromMatchingService);
 
@@ -227,7 +222,6 @@ public class Cycle0And1MatchRequestSentStateControllerTest {
         MatchingProcess matchingProcess = mock(MatchingProcess.class);
         when(matchingProcess.getAttributeName()).thenReturn(Optional.of("BLOCKBUSTER_CARD"));
         when(transactionsConfigProxy.getMatchingProcess(TRANSACTION_ENTITY_ID)).thenReturn(matchingProcess);
-        when(transactionsConfigProxy.getUserAccountCreationAttributes(TRANSACTION_ENTITY_ID)).thenReturn(emptyList());
 
         NoMatchFromMatchingService noMatchFromMatchingService = new NoMatchFromMatchingService(MATCHING_SERVICE_ENTITY_ID, REQUEST_ID);
         controller.handleNoMatchResponseFromMatchingService(noMatchFromMatchingService);

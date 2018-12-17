@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
@@ -30,24 +30,24 @@ public class PolicyExceptionMapperTest {
     private TestExceptionMapper mapper;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mapper = new TestExceptionMapper();
         mapper.setHttpServletRequest(servletRequest);
         mapper.setUriInfo(uriInfo);
     }
 
     @Test
-    public void shouldDelegateToExceptionMapperForNewSessionResourceWithoutSessionId() throws Exception {
+    public void shouldDelegateToExceptionMapperForNewSessionResourceWithoutSessionId() {
         assertDelegateExceptionMapperIsUsedForNoContextUri(Urls.PolicyUrls.NEW_SESSION_RESOURCE);
     }
 
     @Test
-    public void shouldDelegateToExceptionMapperForServiceNameRootWithoutSessionId() throws Exception {
+    public void shouldDelegateToExceptionMapperForServiceNameRootWithoutSessionId() {
         assertDelegateExceptionMapperIsUsedForNoContextUri(Urls.SharedUrls.SERVICE_NAME_ROOT);
     }
 
     @Test
-    public void shouldDelegateToExceptionMapperWhenSessionIdIsInPath() throws Exception {
+    public void shouldDelegateToExceptionMapperWhenSessionIdIsInPath() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
         when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
 
@@ -55,7 +55,6 @@ public class PolicyExceptionMapperTest {
 
         pathParams.add(Urls.SharedUrls.SESSION_ID_PARAM, SessionId.createNewSessionId().getSessionId());
         when(uriInfo.getPathParameters()).thenReturn(pathParams);
-        when(servletRequest.getRequestURI()).thenReturn(Urls.PolicyUrls.SESSION_RESOURCE + Urls.PolicyUrls.IDP_AUTHN_REQUEST_PATH);
 
         String expectedMessage = "Expected message";
         Response response = mapper.toResponse(new RuntimeException(expectedMessage));
@@ -65,10 +64,10 @@ public class PolicyExceptionMapperTest {
     }
 
     @Test
-    public void shouldReturnInternalServerErrorWhenThereIsNoSessionIdAndTheRequestUriIsNotAKnownNoContextPath() throws Exception {
+    public void shouldReturnInternalServerErrorWhenThereIsNoSessionIdAndTheRequestUriIsNotAKnownNoContextPath() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
         when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
-        when(uriInfo.getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<String>());
+        when(uriInfo.getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<>());
         String unknownUri = UUID.randomUUID().toString();
         when(servletRequest.getRequestURI()).thenReturn(unknownUri);
 
@@ -78,7 +77,7 @@ public class PolicyExceptionMapperTest {
     }
 
     @Test
-    public void shouldReturnResponseStatusOfNotFoundWhenANotFoundExceptionIsThrown() throws Exception {
+    public void shouldReturnResponseStatusOfNotFoundWhenANotFoundExceptionIsThrown() {
         Response response = mapper.toResponse(new NotFoundException());
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -87,7 +86,7 @@ public class PolicyExceptionMapperTest {
     private void assertDelegateExceptionMapperIsUsedForNoContextUri(final String noContextUri) {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
         when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
-        when(uriInfo.getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<String>());
+        when(uriInfo.getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<>());
         when(servletRequest.getRequestURI()).thenReturn(noContextUri);
 
         String expectedMessage = "Expected message";

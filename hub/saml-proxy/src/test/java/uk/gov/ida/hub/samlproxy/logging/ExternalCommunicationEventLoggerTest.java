@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventemitter.EventEmitter;
@@ -133,7 +133,7 @@ public class ExternalCommunicationEventLoggerTest {
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
-    private class EventMatching extends ArgumentMatcher<EventSinkHubEvent> {
+    private class EventMatching implements ArgumentMatcher<EventSinkHubEvent> {
 
         private EventSinkHubEvent expectedEvent;
 
@@ -142,11 +142,10 @@ public class ExternalCommunicationEventLoggerTest {
         }
 
         @Override
-        public boolean matches(Object other) {
-            if (other == null || expectedEvent.getClass() != other.getClass()) {
+        public boolean matches(EventSinkHubEvent actualEvent) {
+            if (actualEvent == null || expectedEvent.getClass() != actualEvent.getClass()) {
                 return false;
             }
-            EventSinkHubEvent actualEvent = (EventSinkHubEvent) other;
             return !actualEvent.getEventId().toString().isEmpty() &&
                 Objects.equals(expectedEvent.getTimestamp(), actualEvent.getTimestamp()) &&
                 Objects.equals(expectedEvent.getOriginatingService(), actualEvent.getOriginatingService()) &&

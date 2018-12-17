@@ -9,6 +9,7 @@ import uk.gov.ida.hub.samlengine.domain.SamlRequestDto;
 import uk.gov.ida.hub.samlengine.proxy.CountrySingleSignOnServiceHelper;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
+import uk.gov.ida.saml.hub.test.builders.EidasAuthnRequestBuilder;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -16,16 +17,15 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-
 @RunWith(OpenSAMLMockitoRunner.class)
 public class CountryAuthnRequestGeneratorServiceTest {
 
-    public static final String HUB_ENTITY_ID = "HUB_ENTITY_ID";
+    private static final String HUB_ENTITY_ID = "HUB_ENTITY_ID";
     private CountryAuthnRequestGeneratorService service;
 
     @Mock
@@ -50,10 +50,11 @@ public class CountryAuthnRequestGeneratorServiceTest {
 
         URI ssoUri = UriBuilder.fromPath("/the-sso-uri").build();
         String samlRequest = "samlRequest";
+        EidasAuthnRequestFromHub eidasAuthnRequestFromHub = new EidasAuthnRequestBuilder().buildFromHub();
 
         when(eidasAuthnRequestFromHubStringTransformer.apply(any())).thenReturn(samlRequest);
         when(countrySingleSignOnServiceHelper.getSingleSignOn(theCountryEntityId)).thenReturn(ssoUri);
-        when(eidasAuthnRequestTranslator.getEidasAuthnRequestFromHub(dto, ssoUri, HUB_ENTITY_ID)).thenReturn(null);
+        when(eidasAuthnRequestTranslator.getEidasAuthnRequestFromHub(dto, ssoUri, HUB_ENTITY_ID)).thenReturn(eidasAuthnRequestFromHub);
 
         // When
         final SamlRequestDto output = service.generateSaml(dto);
@@ -74,11 +75,9 @@ public class CountryAuthnRequestGeneratorServiceTest {
         URI overriddenSsoURI = URI.create("http://overridden.foo.bar");
         IdaAuthnRequestFromHubDto dto = new IdaAuthnRequestFromHubDto("1", null, Optional.of(false), null, theCountryEntityId, false, overriddenSsoURI);
 
-        URI ssoUri = UriBuilder.fromPath("/the-sso-uri").build();
         String samlRequest = "samlRequest";
 
         when(eidasAuthnRequestFromHubStringTransformer.apply(any())).thenReturn(samlRequest);
-        when(eidasAuthnRequestTranslator.getEidasAuthnRequestFromHub(dto, ssoUri, HUB_ENTITY_ID)).thenReturn(null);
 
         // When
         final SamlRequestDto output = service.generateSaml(dto);

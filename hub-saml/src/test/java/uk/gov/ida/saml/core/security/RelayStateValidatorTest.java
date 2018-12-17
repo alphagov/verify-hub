@@ -3,7 +3,7 @@ package uk.gov.ida.saml.core.security;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import static java.util.Arrays.asList;

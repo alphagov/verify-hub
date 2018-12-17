@@ -2,7 +2,7 @@ package uk.gov.ida.hub.config.domain.filters;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
 
 import static org.assertj.core.api.Assertions.assertThat;

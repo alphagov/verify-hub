@@ -6,7 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.ConfigEntityData;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateType;
@@ -22,7 +22,6 @@ import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
 import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
 
 import java.security.cert.CertPathValidatorException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.eventemitter.EventEmitter;
@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.eventemitter.EventDetailsKey.analytics_session_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
@@ -493,7 +493,7 @@ public class HubEventLoggerTest {
         );
     }
 
-    private class EventMatching extends ArgumentMatcher<EventSinkHubEvent> {
+    private class EventMatching implements ArgumentMatcher<EventSinkHubEvent> {
 
         private EventSinkHubEvent expectedEvent;
 
@@ -502,11 +502,10 @@ public class HubEventLoggerTest {
         }
 
         @Override
-        public boolean matches(Object other) {
-            if (other == null || expectedEvent.getClass() != other.getClass()) {
+        public boolean matches(EventSinkHubEvent actualEvent) {
+            if (actualEvent == null || expectedEvent.getClass() != actualEvent.getClass()) {
                 return false;
             }
-            EventSinkHubEvent actualEvent = (EventSinkHubEvent) other;
             return !actualEvent.getEventId().toString().isEmpty() &&
                 Objects.equals(expectedEvent.getTimestamp(), actualEvent.getTimestamp()) &&
                 Objects.equals(expectedEvent.getOriginatingService(), actualEvent.getOriginatingService()) &&

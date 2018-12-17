@@ -4,15 +4,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
-import uk.gov.ida.shared.utils.logging.LevelLogger;
-import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -20,7 +18,7 @@ import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -35,16 +33,11 @@ public class PolicyApplicationExceptionMapperTest {
     private HubEventLogger eventLogger;
     @Mock
     private HttpServletRequest servletRequest;
-    @Mock
-    private LevelLoggerFactory<PolicyApplicationExceptionMapper> levelLoggerFactory;
-    @Mock
-    private LevelLogger levelLogger;
 
     private PolicyApplicationExceptionMapper mapper;
 
     @Before
-    public void setUp() throws Exception {
-        when(levelLoggerFactory.createLevelLogger(PolicyApplicationExceptionMapper.class)).thenReturn(levelLogger);
+    public void setUp() {
         mapper = new PolicyApplicationExceptionMapper(eventLogger);
         mapper.setHttpServletRequest(servletRequest);
     }
@@ -62,7 +55,7 @@ public class PolicyApplicationExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_shouldNotAuditIfEventIsAlreadyAudited() throws Exception {
+    public void toResponse_shouldNotAuditIfEventIsAlreadyAudited() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("requestId");
         ApplicationException exception = createAuditedException(ExceptionType.IDP_DISABLED, UUID.randomUUID());
 
@@ -72,7 +65,7 @@ public class PolicyApplicationExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_shouldReturnAnAuditedErrorStatusIfExceptionIsAudited() throws Exception {
+    public void toResponse_shouldReturnAnAuditedErrorStatusIfExceptionIsAudited() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("requestId");
         ApplicationException exception = createAuditedException(ExceptionType.IDP_DISABLED, UUID.randomUUID());
 
@@ -83,7 +76,7 @@ public class PolicyApplicationExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_shouldReturnAnUnauditedErrorStatusIfExceptionIsNotAudited() throws Exception {
+    public void toResponse_shouldReturnAnUnauditedErrorStatusIfExceptionIsNotAudited() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("requestId");
         ApplicationException exception = createUnauditedExceptionThatShouldNotBeAudited();
 

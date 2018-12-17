@@ -23,7 +23,7 @@ import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.samlengine.builders.AuthnRequestFromRelyingPartyBuilder.anAuthnRequestFromRelyingParty;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PRIVATE_SIGNING_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PUBLIC_SIGNING_CERT;
@@ -80,8 +80,8 @@ public class RpAuthnRequestTranslatorServiceTest {
                 .withSignature(signature)
                 .build();
 
-        stub(stringToAuthnRequestTransformer.apply(samlRequestWithAuthnRequestInformationDto.getSamlMessage())).toReturn(authnRequest);
-        stub(samlAuthnRequestToAuthnRequestFromRelyingPartyTransformer.apply(authnRequest)).toReturn(intermediateBlah);
+        when(stringToAuthnRequestTransformer.apply(samlRequestWithAuthnRequestInformationDto.getSamlMessage())).thenReturn(authnRequest);
+        when(samlAuthnRequestToAuthnRequestFromRelyingPartyTransformer.apply(authnRequest)).thenReturn(intermediateBlah);
 
         TranslatedAuthnRequestDto actual = service.translate(samlRequestWithAuthnRequestInformationDto);
 
