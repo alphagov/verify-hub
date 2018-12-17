@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.policy;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
@@ -81,7 +81,7 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
 
     @Override
     public void run(PolicyConfiguration configuration, Environment environment) throws Exception {
-        environment.getObjectMapper().setDateFormat(new ISO8601DateFormat());
+        environment.getObjectMapper().setDateFormat(new StdDateFormat());
         registerResources(configuration, environment);
         registerExceptionMappers(environment);
         environment.jersey().register(SessionIdPathParamLoggingFilter.class);

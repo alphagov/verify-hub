@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlproxy;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -62,7 +62,7 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
 
     @Override
     public void run(SamlProxyConfiguration configuration, Environment environment) throws Exception {
-        environment.getObjectMapper().setDateFormat(new ISO8601DateFormat());
+        environment.getObjectMapper().setDateFormat(new StdDateFormat());
 
         IdaSamlBootstrap.bootstrap();
 

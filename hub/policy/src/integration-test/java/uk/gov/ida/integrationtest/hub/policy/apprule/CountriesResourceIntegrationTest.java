@@ -147,7 +147,7 @@ public class CountriesResourceIntegrationTest {
         Response response = selectCountry(NETHERLANDS);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        String recordedEvent = eventSinkStub.getLastRequest().getEntity();
+        String recordedEvent = new String (eventSinkStub.getLastRequest().getEntityBytes());
         assertThat(recordedEvent).contains(sessionId.getSessionId());
         assertThat(recordedEvent).contains(EventSinkHubEventConstants.SessionEvents.COUNTRY_SELECTED);
         assertThat(recordedEvent).contains(NETHERLANDS.getEntityId());
@@ -184,7 +184,7 @@ public class CountriesResourceIntegrationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
-        String recordedEvent = eventSinkStub.getLastRequest().getEntity();
+        String recordedEvent = new String(eventSinkStub.getLastRequest().getEntityBytes());
         assertThat(recordedEvent).contains(sessionId.getSessionId());
         assertThat(recordedEvent).contains(EventSinkHubEventConstants.SessionEvents.COUNTRY_SELECTED);
         assertThat(recordedEvent).contains(SPAIN.getEntityId());

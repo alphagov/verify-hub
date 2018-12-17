@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
@@ -80,7 +80,7 @@ public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfigura
     @Override
     public void run(SamlSoapProxyConfiguration configuration, Environment environment) throws Exception {
         IdaSamlBootstrap.bootstrap();
-        environment.getObjectMapper().setDateFormat(new ISO8601DateFormat());
+        environment.getObjectMapper().setDateFormat(new StdDateFormat());
         registerResources(environment);
         environment.servlets().addFilter("Logging SessionId registration Filter", SessionIdQueryParamLoggingFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }

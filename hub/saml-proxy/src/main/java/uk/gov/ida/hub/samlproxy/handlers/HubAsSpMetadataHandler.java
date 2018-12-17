@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlproxy.handlers;
 
-import com.google.common.base.Throwables;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.joda.time.DateTime;
@@ -47,7 +46,7 @@ public class HubAsSpMetadataHandler {
                     .map(this::addValidUntilTime)
                     .orElseThrow(() -> new HubEntityNotFoundException("The hub was not found in metadata"));
         } catch (ResolverException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 

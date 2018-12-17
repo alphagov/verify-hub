@@ -130,7 +130,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(eventSinkStub.getRecordedRequest()).hasSize(2); // one session started event, one idp selected event
 
-        String recordedEvent = eventSinkStub.getLastRequest().getEntity();
+        String recordedEvent = new String(eventSinkStub.getLastRequest().getEntityBytes());
         assertThat(recordedEvent).contains(sessionId.getSessionId());
         assertThat(recordedEvent).contains(principalIpAddress);
         assertThat(recordedEvent).contains(EventSinkHubEventConstants.SessionEvents.IDP_SELECTED);

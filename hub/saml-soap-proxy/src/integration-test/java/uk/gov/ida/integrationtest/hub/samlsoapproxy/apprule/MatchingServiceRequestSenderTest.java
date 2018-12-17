@@ -144,12 +144,12 @@ public class MatchingServiceRequestSenderTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }
 
     @Test
-    public void sendHubMatchingServiceRequest_shouldAcceptAValidRequest() throws Exception {
+    public void sendHubMatchingServiceRequest_shouldAcceptAValidRequest() {
         Credential signingCredential = hubSigningCredential;
         AttributeQueryContainerDto attributeQueryContainerDto = AttributeQueryContainerDtoBuilder
                 .anAttributeQueryContainerDto(AttributeQueryBuilder.anAttributeQuery().withSignature(SignatureBuilder.aSignature().withSigningCredential(signingCredential).build()).withIssuer(IssuerBuilder.anIssuer().withIssuerId(HUB_ENTITY_ID).build()).build())

@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.proxy;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -53,7 +52,7 @@ public class MatchingServiceConfigProxy {
         try {
             return matchingServiceConfigEntityDataDto.getUnchecked(uri);
         } catch (UncheckedExecutionException e){
-            throw Throwables.propagate(e.getCause());
+            throw e;
         }
 
     }

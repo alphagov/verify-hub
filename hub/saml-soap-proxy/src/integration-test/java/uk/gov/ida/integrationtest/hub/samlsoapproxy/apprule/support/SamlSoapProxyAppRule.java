@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.base.Throwables.propagate;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 
@@ -80,7 +79,7 @@ public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfigu
             countryMetadataServer.reset();
             countryMetadataServer.register(COUNTRY_METADATA_PATH, 200, Constants.APPLICATION_SAMLMETADATA_XML, new MetadataFactory().defaultMetadata());
         } catch (Exception e) {
-            throw propagate(e);
+            throw new RuntimeException(e);
         }
 
         super.before();

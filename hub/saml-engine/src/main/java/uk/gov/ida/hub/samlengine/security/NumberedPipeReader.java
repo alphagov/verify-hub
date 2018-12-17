@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.security;
 
-import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
 import uk.gov.ida.common.shared.security.PrivateKeyFactory;
 import uk.gov.ida.common.shared.security.exceptions.KeyLoadingException;
@@ -40,7 +39,7 @@ public class NumberedPipeReader {
             try {
                 fileInputStream.close();
             } catch (IOException e) {
-                Throwables.propagate(e);
+                throw new RuntimeException(e);
             }
         }
     }
