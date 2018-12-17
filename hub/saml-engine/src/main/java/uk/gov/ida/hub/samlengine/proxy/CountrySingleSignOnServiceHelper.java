@@ -18,7 +18,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
-import static com.google.common.base.Throwables.propagate;
 import static java.text.MessageFormat.format;
 
 public class CountrySingleSignOnServiceHelper {
@@ -43,7 +42,7 @@ public class CountrySingleSignOnServiceHelper {
             idpEntityDescriptor = metadataResolver.resolveSingle(criteria);
         } catch (ResolverException e) {
             LOG.error(format("Exception when accessing metadata: {0}", e));
-            throw propagate(e);
+            throw new RuntimeException(e);
         }
         if (idpEntityDescriptor != null) {
             final IDPSSODescriptor idpssoDescriptor = idpEntityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);

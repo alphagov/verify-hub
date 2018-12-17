@@ -11,8 +11,6 @@ import java.net.URL;
 import java.util.Scanner;
 import java.util.Timer;
 
-import static com.google.common.base.Throwables.propagate;
-
 public class EidasMetadataResolver extends JerseyClientMetadataResolver {
     private final URI metadataUri;
 
@@ -30,7 +28,7 @@ public class EidasMetadataResolver extends JerseyClientMetadataResolver {
             this.setId("dynamic-resolver!");
             this.initialize();
         } catch (ComponentInitializationException e) {
-            throw propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -38,7 +36,7 @@ public class EidasMetadataResolver extends JerseyClientMetadataResolver {
         try {
             return new Scanner(new URL(metadataUri.toString()).openStream(), "UTF-8").useDelimiter("\\A").next().getBytes();
         } catch (IOException e) {
-            throw propagate(e);
+            throw new RuntimeException(e);
         }
     }
 }

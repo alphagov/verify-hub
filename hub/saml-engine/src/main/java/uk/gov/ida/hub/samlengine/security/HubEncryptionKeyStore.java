@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.security;
 
-import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ExceptionType;
@@ -30,7 +29,7 @@ public class HubEncryptionKeyStore implements EncryptionKeyStore {
             if (e.getExceptionType().equals(ExceptionType.CLIENT_ERROR)) {
                 throw new NoKeyConfiguredForEntityException(entityId);
             }
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 }

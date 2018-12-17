@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
 
-import static com.google.common.base.Throwables.propagate;
 import static javax.validation.Validation.buildDefaultValidatorFactory;
 
 public class SupportedMsaVersionsLoader {
@@ -41,7 +40,7 @@ public class SupportedMsaVersionsLoader {
                     url.toString());
             return supportedMsaVersions;
         } catch (IOException | ConfigurationException e) {
-            throw propagate(e);
+            throw new RuntimeException(e);
         }
     }
 }
