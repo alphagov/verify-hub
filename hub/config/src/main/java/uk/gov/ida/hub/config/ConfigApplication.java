@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.config;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -53,8 +53,8 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
     }
 
     @Override
-    public void run(ConfigConfiguration configuration, Environment environment) throws Exception {
-        environment.getObjectMapper().setDateFormat(new ISO8601DateFormat());
+    public void run(ConfigConfiguration configuration, Environment environment) {
+        environment.getObjectMapper().setDateFormat(new StdDateFormat());
         registerResources(environment);
         environment.servlets().addFilter("Logging SessionId registration Filter", SessionIdQueryParamLoggingFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }

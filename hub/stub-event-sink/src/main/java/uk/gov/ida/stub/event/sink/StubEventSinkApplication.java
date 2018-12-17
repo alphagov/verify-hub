@@ -1,6 +1,6 @@
 package uk.gov.ida.stub.event.sink;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -47,7 +47,7 @@ public class StubEventSinkApplication extends Application<StubEventSinkConfigura
 
     @Override
     public final void run(StubEventSinkConfiguration configuration, Environment environment) {
-        environment.getObjectMapper().setDateFormat(new ISO8601DateFormat());
+        environment.getObjectMapper().setDateFormat(new StdDateFormat());
 
         StubEventSinkHealthCheck healthCheck = new StubEventSinkHealthCheck();
         environment.healthChecks().register(healthCheck.getName(), healthCheck);

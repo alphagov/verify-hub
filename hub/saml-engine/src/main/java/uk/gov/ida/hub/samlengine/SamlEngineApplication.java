@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlengine;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -130,7 +130,7 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
         IdaSamlBootstrap.bootstrap();
 
         environment.getObjectMapper().registerModule(new GuavaModule());
-        environment.getObjectMapper().setDateFormat(new ISO8601DateFormat());
+        environment.getObjectMapper().setDateFormat(new StdDateFormat());
 
         // register resources
         registerResources(environment, configuration);
