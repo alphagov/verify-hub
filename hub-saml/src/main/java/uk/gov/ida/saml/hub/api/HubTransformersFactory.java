@@ -95,11 +95,11 @@ import uk.gov.ida.saml.metadata.transformers.HubIdentityProviderMetadataDtoToEnt
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.DecrypterFactory;
 import uk.gov.ida.saml.security.EncrypterFactory;
-import uk.gov.ida.saml.security.EncryptionCredentialFactory;
 import uk.gov.ida.saml.security.EncryptionKeyStore;
 import uk.gov.ida.saml.security.EntityToEncryptForLocator;
 import uk.gov.ida.saml.security.IdaKeyStore;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
+import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 import uk.gov.ida.saml.security.SignatureFactory;
@@ -535,7 +535,7 @@ public class HubTransformersFactory {
 
     private SamlAttributeQueryAssertionEncrypter getSamlAttributeQueryAssertionEncrypter(EncryptionKeyStore encryptionKeyStore, Optional<EntityToEncryptForLocator> entity) {
         if (entity.isPresent()) {
-            return new SamlAttributeQueryAssertionEncrypter(new EncryptionCredentialFactory(encryptionKeyStore), new EncrypterFactory(), entity.get());
+            return new SamlAttributeQueryAssertionEncrypter(new KeyStoreBackedEncryptionCredentialResolver(encryptionKeyStore), new EncrypterFactory(), entity.get());
         } else {
             return new NoOpSamlAttributeQueryAssertionEncrypter();
         }

@@ -1,7 +1,5 @@
 package uk.gov.ida.hub.config.domain.builders;
 
-import com.google.common.base.Throwables;
-
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -15,7 +13,7 @@ public class KeyPairBuilder {
             keyGen.initialize(1024);
             keyPair = keyGen.generateKeyPair();
         } catch(NoSuchAlgorithmException e) {
-            Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
 
         return keyPair;
