@@ -84,6 +84,6 @@ public class SamlEngineStubRule extends HttpStubRule {
                     return request.getPath().equals(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE);
                 }
         ).findFirst().get();
-        return objectMapper.readValue(recordedTranslateRequest.getEntity(), SamlAuthnResponseTranslatorDto.class);
+        return objectMapper.readValue(new String(recordedTranslateRequest.getEntityBytes()), SamlAuthnResponseTranslatorDto.class);
     }
 }

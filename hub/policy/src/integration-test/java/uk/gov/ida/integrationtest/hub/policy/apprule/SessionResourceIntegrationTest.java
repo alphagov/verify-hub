@@ -132,7 +132,7 @@ public class SessionResourceIntegrationTest {
         final SessionId getSessionId = getEntity(getUri, SessionId.class);
         assertThat(postSessionId).isEqualTo(getSessionId);
         assertThat(eventSinkStub.getRecordedRequest()).hasSize(1);
-        String eventSinkEntity = eventSinkStub.getRecordedRequest().get(0).getEntity();
+        String eventSinkEntity = new String(eventSinkStub.getRecordedRequest().get(0).getEntityBytes());
         assertThat(eventSinkEntity).contains(postSessionId.getSessionId());
         assertThat(eventSinkEntity).contains(EventSinkHubEventConstants.SessionEvents.SESSION_STARTED);
         assertThat(eventSinkEntity).contains(rpSamlRequest.getPrincipalIPAddressAsSeenByHub());
