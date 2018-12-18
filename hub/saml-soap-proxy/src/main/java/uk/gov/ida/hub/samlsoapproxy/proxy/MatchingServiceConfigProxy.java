@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.inject.Singleton;
 import uk.gov.ida.hub.samlsoapproxy.Urls;
 import uk.gov.ida.hub.samlsoapproxy.annotations.Config;
@@ -49,12 +48,7 @@ public class MatchingServiceConfigProxy {
                 .fromUri(configUri)
                 .path(Urls.ConfigUrls.MATCHING_SERVICE_RESOURCE);
         URI uri = uriBuilder.buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        try {
-            return matchingServiceConfigEntityDataDto.getUnchecked(uri);
-        } catch (UncheckedExecutionException e){
-            throw e;
-        }
-
+        return matchingServiceConfigEntityDataDto.getUnchecked(uri);
     }
 
     @Timed
