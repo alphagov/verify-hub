@@ -131,6 +131,7 @@ public class MatchingServiceRequestSenderTest {
         client = provider.get();
         eventSinkStubRule.setupStubForLogging();
         configStub.setupStubForCertificates(TEST_RP_MS);
+        configStub.setUpStubForMatchingServiceDetails(TEST_RP_MS);
         soapResponse = createMsaResponse();
         RequestAndResponse requestAndResponse = ExpectedRequestBuilder.expectRequest().withPath(attibute_query_resource).andWillRespondWith().withStatus(200).withBody(soapResponse).withContentType(MediaType.TEXT_XML_TYPE.toString()).build();
         msaStubRule.register(requestAndResponse);

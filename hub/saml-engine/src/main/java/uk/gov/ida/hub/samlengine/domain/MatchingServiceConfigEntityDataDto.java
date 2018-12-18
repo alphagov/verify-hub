@@ -1,4 +1,4 @@
-package uk.gov.ida.hub.policy.contracts;
+package uk.gov.ida.hub.samlengine.domain;
 
 import java.net.URI;
 
@@ -21,7 +21,8 @@ public class MatchingServiceConfigEntityDataDto {
                                               String transactionEntityId,
                                               boolean checkEnabled,
                                               boolean onboarding,
-                                              boolean readMetadataFromEntityId, URI userAccountCreationUri) {
+                                              boolean readMetadataFromEntityId,
+                                              URI userAccountCreationUri) {
         this.entityId = entityId;
         this.uri = uri;
         this.transactionEntityId = transactionEntityId;

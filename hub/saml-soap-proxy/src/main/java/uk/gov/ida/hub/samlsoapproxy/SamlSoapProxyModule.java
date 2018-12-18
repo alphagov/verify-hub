@@ -33,8 +33,9 @@ import uk.gov.ida.hub.samlsoapproxy.client.AttributeQueryRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.client.HealthCheckSoapRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.client.MatchingServiceHealthCheckClient;
 import uk.gov.ida.hub.samlsoapproxy.client.SoapRequestClient;
-import uk.gov.ida.hub.samlsoapproxy.config.CertificatesConfigProxy;
+import uk.gov.ida.hub.samlsoapproxy.config.ConfigProxy;
 import uk.gov.ida.hub.samlsoapproxy.config.ConfigServiceKeyStore;
+import uk.gov.ida.hub.samlsoapproxy.config.MatchingServiceAdapterMetadataRetriever;
 import uk.gov.ida.hub.samlsoapproxy.config.SamlConfiguration;
 import uk.gov.ida.hub.samlsoapproxy.config.TrustStoreForCertificateProvider;
 import uk.gov.ida.hub.samlsoapproxy.domain.TimeoutEvaluator;
@@ -66,6 +67,7 @@ import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.MetadataRefreshTask;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
+import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
 import uk.gov.ida.saml.security.MetadataBackedSignatureValidator;
 import uk.gov.ida.saml.security.PublicKeyFactory;
@@ -111,7 +113,7 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(JsonResponseProcessor.class);
         bind(X509CertificateFactory.class).toInstance(new X509CertificateFactory());
         bind(CertificateChainValidator.class);
-        bind(CertificatesConfigProxy.class);
+        bind(ConfigProxy.class);
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(KeyStoreCache.class);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
@@ -133,6 +135,13 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(IpAddressResolver.class).toInstance(new IpAddressResolver());
         bind(TimeoutEvaluator.class).toInstance(new TimeoutEvaluator());
         bind(MetadataHealthCheckRegistry.class).asEagerSingleton();
+        bind(MatchingServiceAdapterMetadataRetriever.class).asEagerSingleton();
+    }
+
+    @Provides
+    @Singleton
+    private DropwizardMetadataResolverFactory getDropwizardMetadataResolverFactory() {
+        return new DropwizardMetadataResolverFactory();
     }
 
     @Provides

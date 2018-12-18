@@ -20,7 +20,7 @@ public class MatchingServiceConfigEntityDataDtoBuilder {
     }
 
     public MatchingServiceConfigEntityDataDto build() {
-        return new MatchingServiceConfigEntityDataDto(this.entityId, uri, transactionEntityId, healthCheckEnabled, onboarding, userAccountCreationUri);
+        return new MatchingServiceConfigEntityDataDto(this.entityId, uri, transactionEntityId, healthCheckEnabled, onboarding, false, userAccountCreationUri);
     }
 
     public MatchingServiceConfigEntityDataDtoBuilder withEntityId(String entityId) {

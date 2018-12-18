@@ -36,6 +36,7 @@ import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PRIVATE_S
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PUBLIC_ENCRYPTION_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PUBLIC_SIGNING_CERT;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
+import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
 
 public class RpAuthnRequestTranslatorResourceTest {
 
@@ -58,6 +59,7 @@ public class RpAuthnRequestTranslatorResourceTest {
     @Before
     public void beforeEach() throws Exception {
         configStub.setupCertificatesForEntity(TEST_RP, TEST_RP_PUBLIC_SIGNING_CERT, TEST_RP_PUBLIC_ENCRYPTION_CERT);
+        configStub.setUpStubForMatchingServiceDetails(TEST_RP_MS);
     }
 
     @After

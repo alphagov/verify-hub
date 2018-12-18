@@ -114,7 +114,7 @@ public class ConfigStubRule extends HttpStubRule {
             .build(StringEncoding.urlEncode(matchingServiceEntityId).replace("+", "%20"))
             .getPath();
 
-        MatchingServiceConfigEntityDataDto matchingServiceUri = new MatchingServiceConfigEntityDataDto(matchingServiceEntityId, URI.create("matchingServiceUri"), rpEntityId, false, isOnboarding, null);
+        MatchingServiceConfigEntityDataDto matchingServiceUri = new MatchingServiceConfigEntityDataDto(matchingServiceEntityId, URI.create("matchingServiceUri"), rpEntityId, false, isOnboarding, false, null);
 
         register(msaUri, OK, matchingServiceUri);
     }

@@ -81,6 +81,10 @@ public class MatchingServiceAdapterService {
             return matchingServiceConfigEntityData.getOnboarding();
         }
 
+        public Boolean getReadMetadataFromEntityId() {
+            return matchingServiceConfigEntityData.getReadMetadataFromEntityId();
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;

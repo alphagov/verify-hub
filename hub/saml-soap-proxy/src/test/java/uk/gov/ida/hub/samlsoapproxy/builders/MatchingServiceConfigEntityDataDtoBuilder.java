@@ -14,13 +14,14 @@ public class MatchingServiceConfigEntityDataDtoBuilder {
     private boolean healthCheckEnabled = true;
     private boolean onboarding;
     private URI userAccountCreationUri = DEFAULT_MATCHING_SERVICE_USER_ACCOUNT_CREATION_URI;
+    private boolean readMetadataFromEntityId = false;
 
     public static MatchingServiceConfigEntityDataDtoBuilder aMatchingServiceConfigEntityDataDto() {
         return new MatchingServiceConfigEntityDataDtoBuilder();
     }
 
     public MatchingServiceConfigEntityDataDto build() {
-        return new MatchingServiceConfigEntityDataDto(this.entityId, uri, transactionEntityId, healthCheckEnabled, onboarding, userAccountCreationUri);
+        return new MatchingServiceConfigEntityDataDto(this.entityId, uri, transactionEntityId, healthCheckEnabled, onboarding, readMetadataFromEntityId, userAccountCreationUri);
     }
 
     public MatchingServiceConfigEntityDataDtoBuilder withEntityId(String entityId) {

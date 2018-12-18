@@ -76,6 +76,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
     @Before
     public void beforeEach() throws Exception {
         configStubRule.setupCertificatesForEntity(TEST_RP_MS);
+        configStubRule.setUpStubForMatchingServiceDetails(TEST_RP_MS);
     }
 
     @After

@@ -50,6 +50,7 @@ public class MatchingServiceResource {
                 matchingServicePerTransaction.getEntityId(),
                 matchingServicePerTransaction.getHealthCheckEnabled(),
                 matchingServicePerTransaction.isOnboarding(),
+                matchingServicePerTransaction.getReadMetadataFromEntityId(),
                 matchingServicePerTransaction.getUserAccountCreationUri());
     }
 }

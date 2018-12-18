@@ -30,6 +30,7 @@ import uk.gov.ida.hub.samlengine.attributequery.AttributeQueryGenerator;
 import uk.gov.ida.hub.samlengine.attributequery.HubAttributeQueryRequestBuilder;
 import uk.gov.ida.hub.samlengine.attributequery.HubEidasAttributeQueryRequestBuilder;
 import uk.gov.ida.hub.samlengine.config.ConfigServiceKeyStore;
+import uk.gov.ida.hub.samlengine.config.MatchingServiceAdapterMetadataRetriever;
 import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
 import uk.gov.ida.hub.samlengine.exceptions.InvalidConfigurationException;
 import uk.gov.ida.hub.samlengine.exceptions.KeyLoadingException;
@@ -200,6 +201,13 @@ public class SamlEngineModule extends AbstractModule {
         bind(IdaAuthnRequestTranslator.class);
         bind(EidasAuthnRequestTranslator.class);
         bind(MatchingServiceHealthcheckResponseTranslatorService.class);
+        bind(MatchingServiceAdapterMetadataRetriever.class).asEagerSingleton();
+    }
+
+    @Provides
+    @Singleton
+    private DropwizardMetadataResolverFactory getDropwizardMetadataResolverFactory() {
+        return new DropwizardMetadataResolverFactory();
     }
 
     @Provides

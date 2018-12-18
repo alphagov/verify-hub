@@ -9,6 +9,7 @@ public class MatchingServiceConfigEntityDataDto {
     private String transactionEntityId;
     private boolean healthCheckEnabled;
     private boolean onboarding;
+    private boolean readMetadataFromEntityId;
     private URI userAccountCreationUri;
 
     @SuppressWarnings("unused")
@@ -20,12 +21,14 @@ public class MatchingServiceConfigEntityDataDto {
                                               String transactionEntityId,
                                               boolean checkEnabled,
                                               boolean onboarding,
+                                              boolean readMetadataFromEntityId,
                                               URI userAccountCreationUri) {
         this.entityId = entityId;
         this.uri = uri;
         this.transactionEntityId = transactionEntityId;
         this.healthCheckEnabled = checkEnabled;
         this.onboarding = onboarding;
+        this.readMetadataFromEntityId = readMetadataFromEntityId;
         this.userAccountCreationUri = userAccountCreationUri;
     }
 
@@ -51,5 +54,9 @@ public class MatchingServiceConfigEntityDataDto {
 
     public URI getUserAccountCreationUri() {
         return userAccountCreationUri;
+    }
+
+    public boolean getReadMetadataFromEntityId() {
+        return readMetadataFromEntityId;
     }
 }

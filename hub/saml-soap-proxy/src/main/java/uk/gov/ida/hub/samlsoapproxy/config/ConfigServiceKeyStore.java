@@ -4,6 +4,7 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.CertificateValidity;
 import uk.gov.ida.common.shared.security.verification.exceptions.CertificateChainValidationException;
+import uk.gov.ida.hub.samlsoapproxy.contract.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.hub.samlsoapproxy.domain.CertificateDto;
 
 import javax.inject.Inject;
@@ -13,51 +14,65 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 
 public class ConfigServiceKeyStore {
 
-    private final CertificatesConfigProxy certificatesConfigProxy;
+    private final ConfigProxy configProxy;
     private final CertificateChainValidator certificateChainValidator;
     private final TrustStoreForCertificateProvider trustStoreForCertificateProvider;
     private final X509CertificateFactory x509CertificateFactory;
+    private final MatchingServiceAdapterMetadataRetriever matchingServiceAdapterMetadataRetriever;
 
     @Inject
     public ConfigServiceKeyStore(
-            CertificatesConfigProxy certificatesConfigProxy,
+            ConfigProxy configProxy,
             CertificateChainValidator certificateChainValidator,
             TrustStoreForCertificateProvider trustStoreForCertificateProvider,
-            X509CertificateFactory x509CertificateFactory) {
+            X509CertificateFactory x509CertificateFactory,
+            MatchingServiceAdapterMetadataRetriever matchingServiceAdapterMetadataRetriever) {
 
-        this.certificatesConfigProxy = certificatesConfigProxy;
+        this.configProxy = configProxy;
         this.certificateChainValidator = certificateChainValidator;
         this.trustStoreForCertificateProvider = trustStoreForCertificateProvider;
         this.x509CertificateFactory = x509CertificateFactory;
+        this.matchingServiceAdapterMetadataRetriever = matchingServiceAdapterMetadataRetriever;
     }
 
     public List<PublicKey> getVerifyingKeysForEntity(String entityId) {
-        Collection<CertificateDto> certificates = certificatesConfigProxy.getSignatureVerificationCertificates(entityId);
-        List<PublicKey> publicKeys = new ArrayList<>();
-        for (CertificateDto keyFromConfig : certificates) {
-            String base64EncodedCertificateValue = keyFromConfig.getCertificate();
-            final X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
-            KeyStore trustStore = trustStoreForCertificateProvider.getTrustStoreFor(keyFromConfig.getFederationEntityType());
-            validate(certificate, trustStore);
-            publicKeys.add(certificate.getPublicKey());
+        final Optional<MatchingServiceConfigEntityDataDto> msaConfiguration = configProxy.getMsaConfiguration(entityId);
+        if(msaConfiguration.isPresent() && msaConfiguration.get().getReadMetadataFromEntityId()) {
+            // it's an MSA! it has metadata we can read! so get the certs from the metadata
+            return matchingServiceAdapterMetadataRetriever.getPublicSigningKeysForMSA(entityId);
+        } else {
+            final Collection<CertificateDto> certificates = configProxy.getSignatureVerificationCertificates(entityId);
+            List<PublicKey> publicKeys = new ArrayList<>();
+            for (CertificateDto keyFromConfig : certificates) {
+                String base64EncodedCertificateValue = keyFromConfig.getCertificate();
+                final X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
+                KeyStore trustStore = trustStoreForCertificateProvider.getTrustStoreFor(keyFromConfig.getFederationEntityType());
+                validate(certificate, trustStore);
+                publicKeys.add(certificate.getPublicKey());
+            }
+            return publicKeys;
         }
-
-        return publicKeys;
     }
 
     public PublicKey getEncryptionKeyForEntity(String entityId) {
-        CertificateDto certificateDto = certificatesConfigProxy.getEncryptionCertificate(entityId);
-        String base64EncodedCertificateValue = certificateDto.getCertificate();
-        final X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
-        KeyStore trustStore = trustStoreForCertificateProvider.getTrustStoreFor(certificateDto.getFederationEntityType());
-        validate(certificate, trustStore);
-
-        return certificate.getPublicKey();
+        final Optional<MatchingServiceConfigEntityDataDto> msaConfiguration = configProxy.getMsaConfiguration(entityId);
+        if(msaConfiguration.isPresent() && msaConfiguration.get().getReadMetadataFromEntityId()) {
+            // it's an MSA! it has metadata we can read! so get the cert from the metadata
+            return matchingServiceAdapterMetadataRetriever.getPublicEncryptionKeyForMSA(entityId);
+        } else {
+            final CertificateDto certificateDto = configProxy.getEncryptionCertificate(entityId);
+            String base64EncodedCertificateValue = certificateDto.getCertificate();
+            X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
+            KeyStore trustStore = trustStoreForCertificateProvider.getTrustStoreFor(certificateDto.getFederationEntityType());
+            validate(certificate, trustStore);
+            return certificate.getPublicKey();
+        }
     }
 
     private void validate(final X509Certificate certificate, final KeyStore trustStore) {

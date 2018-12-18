@@ -51,6 +51,11 @@ public class MatchingServiceConfigEntityData implements ConfigEntityData, Certif
     @JsonProperty
     protected boolean onboarding;
 
+    @NotNull
+    @Valid
+    @JsonProperty
+    protected boolean readMetadataFromEntityId = false;
+
     public String getEntityId() {
         return entityId;
     }
@@ -87,4 +92,9 @@ public class MatchingServiceConfigEntityData implements ConfigEntityData, Certif
     public URI getUserAccountCreationUri() {
         return userAccountCreationUri;
     }
+
+    public Boolean getReadMetadataFromEntityId() {
+        return readMetadataFromEntityId;
+    }
+
 }

@@ -11,7 +11,7 @@ import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
-import uk.gov.ida.hub.samlengine.config.CertificatesConfigProxy;
+import uk.gov.ida.hub.samlengine.config.ConfigProxy;
 import uk.gov.ida.hub.samlengine.config.TrustStoreForCertificateProvider;
 import uk.gov.ida.hub.samlengine.security.AuthnRequestKeyStore;
 import uk.gov.ida.hub.samlengine.security.HubEncryptionKeyStore;
@@ -38,7 +38,7 @@ public class CryptoModule extends AbstractModule {
         bind(X509CertificateFactory.class).toInstance(new X509CertificateFactory());
         bind(CertificateChainValidator.class);
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
-        bind(CertificatesConfigProxy.class);
+        bind(ConfigProxy.class);
         bind(TrustStoreForCertificateProvider.class);
         bind(KeyStoreCache.class);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());

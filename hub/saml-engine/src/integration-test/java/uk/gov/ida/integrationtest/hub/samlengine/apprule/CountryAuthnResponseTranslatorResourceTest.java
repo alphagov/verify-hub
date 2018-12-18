@@ -93,6 +93,7 @@ public class CountryAuthnResponseTranslatorResourceTest {
     @Before
     public void setUp() throws Exception {
         configStubRule.setupCertificatesForEntity(TEST_RP_MS);
+        configStubRule.setUpStubForMatchingServiceDetails(TEST_RP_MS);
     }
 
     @BeforeClass

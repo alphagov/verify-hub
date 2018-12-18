@@ -3,10 +3,13 @@ package uk.gov.ida.integrationtest.hub.samlengine.apprule.support;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import com.google.common.collect.ImmutableList;
+import httpstub.HttpStubRule;
 import io.dropwizard.jackson.Jackson;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.builders.CertificateDtoBuilder;
 import uk.gov.ida.hub.samlengine.domain.CertificateDto;
+import uk.gov.ida.hub.samlengine.domain.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
 import javax.ws.rs.core.Response;
@@ -118,6 +121,12 @@ public class ConfigStubRule extends WireMockClassRule {
     public void setupStubForNonExistentSigningCertificates(String issuer) {
         String signingUri = getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer);
         stubFor(get(signingUri).willReturn(aResponse().withStatus(Response.Status.NOT_FOUND.getStatusCode())));
+    }
+
+    public void setUpStubForMatchingServiceDetails(String msaEntityId) throws JsonProcessingException {
+        final MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = new MatchingServiceConfigEntityDataDto(msaEntityId, UriBuilder.fromUri("http://uri.local").build(), "rp-entity-id", true, false, false, null);
+        Collection<MatchingServiceConfigEntityDataDto> matchingServices = ImmutableList.of(matchingServiceConfigEntityDataDto);
+        stubFor(get(UriBuilder.fromPath(Urls.ConfigUrls.MATCHING_SERVICE_ROOT).build().toString()).willReturn(aResponse().withStatus(OK.getStatusCode()).withBody(objectMapper.writeValueAsString(matchingServices)).withHeader("Content-Type", "application/json")));
     }
 
     public UriBuilder baseUri() {
