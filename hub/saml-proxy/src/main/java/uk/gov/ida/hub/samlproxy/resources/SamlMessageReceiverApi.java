@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.samlproxy.resources;
 
+import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
 import org.jboss.logging.MDC;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -22,7 +23,6 @@ import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
-import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -69,6 +69,7 @@ public class SamlMessageReceiverApi {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
+    @ResponseMetered
     public Response handleRequestPost(SamlRequestDto samlRequestDto) {
 
         relayStateValidator.validate(samlRequestDto.getRelayState());
@@ -95,6 +96,7 @@ public class SamlMessageReceiverApi {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(Urls.SamlProxyUrls.RESPONSE_POST_PATH)
     @Timed
+    @ResponseMetered
     public Response handleResponsePost(SamlRequestDto samlRequestDto) {
 
         final SessionId sessionId = new SessionId(samlRequestDto.getRelayState());
@@ -129,6 +131,7 @@ public class SamlMessageReceiverApi {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(Urls.SamlProxyUrls.EIDAS_RESPONSE_POST_PATH)
     @Timed
+    @ResponseMetered
     public Response handleEidasResponsePost(SamlRequestDto samlRequestDto) {
 
         if (eidasValidatorFactory.isPresent()) {
