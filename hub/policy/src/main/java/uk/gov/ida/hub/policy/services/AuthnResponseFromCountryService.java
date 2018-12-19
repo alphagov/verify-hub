@@ -20,7 +20,9 @@ import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
 import javax.inject.Inject;
 import java.util.List;
 
+import static uk.gov.ida.hub.policy.domain.ResponseAction.nonMatchingJourneySuccess;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.other;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.success;
 
 public class AuthnResponseFromCountryService {
 
@@ -47,20 +49,22 @@ public class AuthnResponseFromCountryService {
                                                           SamlAuthnResponseContainerDto responseFromCountry) {
 
         EidasCountrySelectedStateController stateController = (EidasCountrySelectedStateController) sessionRepository.getStateController(sessionId, EidasCountrySelectedState.class);
-        String matchingServiceEntityId = stateController.getMatchingServiceEntityId();
         validateCountryIsIn(countriesService.getCountries(sessionId), stateController.getCountryEntityId());
 
-        SamlAuthnResponseTranslatorDto responseToTranslate = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(responseFromCountry, matchingServiceEntityId);
+        boolean matchingJourney = stateController.isMatchingJourney();
+        String entityToEncryptFor = matchingJourney ? stateController.getMatchingServiceEntityId() : stateController.getRequestIssuerId();
+
+        SamlAuthnResponseTranslatorDto responseToTranslate = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(responseFromCountry, entityToEncryptFor);
         InboundResponseFromCountry translatedResponse = samlEngineProxy.translateAuthnResponseFromCountry(responseToTranslate);
 
-        return handleResponseFromCountry(translatedResponse, responseFromCountry, sessionId, stateController);
+        return handleResponseFromCountry(translatedResponse, responseFromCountry, sessionId, matchingJourney, stateController);
     }
 
-    private ResponseAction handleResponseFromCountry(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, EidasCountrySelectedStateController stateController) {
+    private ResponseAction handleResponseFromCountry(InboundResponseFromCountry translatedResponse, SamlAuthnResponseContainerDto responseFromCountry, SessionId sessionId, boolean matchingJourney, EidasCountrySelectedStateController stateController) {
         ResponseAction responseAction;
         switch (translatedResponse.getStatus()) {
             case Success:
-                responseAction = handleSuccessResponse(translatedResponse, responseFromCountry, sessionId, stateController);
+                responseAction = handleSuccessResponse(translatedResponse, responseFromCountry, sessionId, matchingJourney, stateController);
                 break;
             case Failure:
                 responseAction = handleAuthenticationFailedResponse(responseFromCountry, sessionId, stateController);
@@ -76,17 +80,23 @@ public class AuthnResponseFromCountryService {
     private ResponseAction handleSuccessResponse(InboundResponseFromCountry translatedResponse,
                                                  SamlAuthnResponseContainerDto responseFromCountry,
                                                  SessionId sessionId,
-                                                 EidasCountrySelectedStateController stateController
-    ) {
-        stateController.handleSuccessResponseFromCountry(translatedResponse,
-                                                         responseFromCountry.getPrincipalIPAddressAsSeenByHub(),
-                                                         responseFromCountry.getAnalyticsSessionId(),
-                                                         responseFromCountry.getJourneyType());
-
-        AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(stateController.getEidasAttributeQueryRequestDto(translatedResponse));
-        samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr));
-
-        return ResponseAction.success(sessionId, false, LevelOfAssurance.LEVEL_2, null);
+                                                 boolean matchingJourney,
+                                                 EidasCountrySelectedStateController stateController) {
+        if (matchingJourney) {
+            stateController.handleMatchingJourneySuccessResponseFromCountry(translatedResponse,
+                    responseFromCountry.getPrincipalIPAddressAsSeenByHub(),
+                    responseFromCountry.getAnalyticsSessionId(),
+                    responseFromCountry.getJourneyType());
+            AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(stateController.getEidasAttributeQueryRequestDto(translatedResponse));
+            samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr));
+            return success(sessionId, false, LevelOfAssurance.LEVEL_2, null);
+        } else {
+            stateController.handleNonMatchingJourneySuccessResponseFromCountry(translatedResponse,
+                    responseFromCountry.getPrincipalIPAddressAsSeenByHub(),
+                    responseFromCountry.getAnalyticsSessionId(),
+                    responseFromCountry.getJourneyType());
+            return nonMatchingJourneySuccess(sessionId, false, LevelOfAssurance.LEVEL_2, null);
+        }
     }
 
     private ResponseAction handleAuthenticationFailedResponse(SamlAuthnResponseContainerDto responseFromCountry,

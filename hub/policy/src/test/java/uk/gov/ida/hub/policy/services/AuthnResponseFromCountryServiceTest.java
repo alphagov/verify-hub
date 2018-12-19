@@ -39,10 +39,12 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.NON_MATCHING_JOURNEY_SUCCESS;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
@@ -69,6 +71,7 @@ public class AuthnResponseFromCountryServiceTest {
     private static final String JOURNEY_TYPE = "some-journey-type";
     private static final SamlAuthnResponseContainerDto SAML_AUTHN_RESPONSE_CONTAINER_DTO = aSamlAuthnResponseContainerDto().withSessionId(SESSION_ID).withPrincipalIPAddressAsSeenByHub("1.1.1.1").withAnalyticsSessionId(ANALYTICS_SESSION_ID).withJourneyType(JOURNEY_TYPE).build();
     private static final SamlAuthnResponseTranslatorDto SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
+    private static final SamlAuthnResponseTranslatorDto NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().withMatchingServiceEntityId(TEST_RP).build();
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY = new InboundResponseFromCountry(
         Status.Success,
@@ -146,9 +149,12 @@ public class AuthnResponseFromCountryServiceTest {
         when(sessionRepository.getStateController(SESSION_ID, EidasCountrySelectedState.class)).thenReturn(stateController);
         when(stateController.getMatchingServiceEntityId()).thenReturn(TEST_RP_MS);
         when(stateController.getCountryEntityId()).thenReturn(COUNTRY_ENTITY_ID);
+        when(stateController.getRequestIssuerId()).thenReturn(TEST_RP);
+        when(stateController.isMatchingJourney()).thenReturn(true);
         when(stateController.getEidasAttributeQueryRequestDto(any())).thenReturn(EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO);
         when(countriesService.getCountries(any())).thenReturn(Collections.singletonList(EIDAS_COUNTRY_DTO));
         when(samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(SAML_AUTHN_RESPONSE_CONTAINER_DTO, TEST_RP_MS)).thenReturn(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO);
+        when(samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(SAML_AUTHN_RESPONSE_CONTAINER_DTO, TEST_RP)).thenReturn(NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO);
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO)).thenReturn(INBOUND_RESPONSE_FROM_COUNTRY);
         when(samlEngineProxy.generateEidasAttributeQuery(EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO)).thenReturn(ATTRIBUTE_QUERY_CONTAINER_DTO);
     }
@@ -165,7 +171,7 @@ public class AuthnResponseFromCountryServiceTest {
         verify(sessionRepository).getStateController(SESSION_ID, EidasCountrySelectedState.class);
         verify(samlAuthnResponseTranslatorDtoFactory).fromSamlAuthnResponseContainerDto(SAML_AUTHN_RESPONSE_CONTAINER_DTO, TEST_RP_MS);
         verify(samlEngineProxy).generateEidasAttributeQuery(EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO);
-        verify(stateController).handleSuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        verify(stateController).handleMatchingJourneySuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
         verify(samlSoapProxyProxy).sendHubMatchingServiceRequest(SESSION_ID, ATTRIBUTE_QUERY_REQUEST);
         ResponseAction expectedResponseAction = ResponseAction.success(SESSION_ID, false, LEVEL_2, null);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
@@ -185,7 +191,7 @@ public class AuthnResponseFromCountryServiceTest {
     }
 
     @Test
-    public void shouldReturnSuccessResponseIfTranslationResponseFromSamlEngineIsSuccessful() {
+    public void shouldReturnSuccessResponseIfTranslationResponseFromSamlEngineIsSuccessfulAndUsingMatching() {
         final InboundResponseFromCountry inboundResponseFromCountry =
                 new InboundResponseFromCountry(Status.Success,
                                                Optional.of("status"),
@@ -200,8 +206,24 @@ public class AuthnResponseFromCountryServiceTest {
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 
-        verify(stateController).handleSuccessResponseFromCountry(inboundResponseFromCountry, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        verify(stateController).handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
         assertThat(responseAction.getResult()).isEqualTo(SUCCESS);
+    }
+
+    @Test
+    public void shouldReturnNonMatchingJourneySuccessResponseIfTranslationResponseFromSamlEngineIsSuccessfulAndNotUsingMatching() {
+        final InboundResponseFromCountry inboundResponseFromCountry =
+                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob-encrypted-for-test-rp"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.absent());
+
+        when(stateController.isMatchingJourney()).thenReturn(false);
+        when(samlEngineProxy.translateAuthnResponseFromCountry(NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
+                .thenReturn(inboundResponseFromCountry);
+
+        ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
+
+        verify(samlAuthnResponseTranslatorDtoFactory).fromSamlAuthnResponseContainerDto(any(), eq(TEST_RP));
+        verify(stateController).handleNonMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        assertThat(responseAction.getResult()).isEqualTo(NON_MATCHING_JOURNEY_SUCCESS);
     }
 
     @Test

@@ -14,7 +14,6 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
 
     private static final long serialVersionUID = -285602589000108606L;
 
-    // TODO: Record matching service entity id
     private String countryEntityId;
     private final Optional<String> relayState;
     private List<LevelOfAssurance> levelsOfAssurance;
