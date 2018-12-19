@@ -42,6 +42,8 @@ import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.samlengine.builders.ResponseFromHubDtoBuilder.aResponseFromHubDto;
+import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
+import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
 
 public class RpAuthnResponseGeneratorResourceTest {
 
@@ -64,8 +66,11 @@ public class RpAuthnResponseGeneratorResourceTest {
     }
 
     @Before
-    public void before() {
+    public void before() throws JsonProcessingException {
         configStub.reset();
+        configStub.setUpStubForMatchingServiceDetails(TEST_RP_MS);
+        configStub.setUpStubForRPMetadataEnabled(TEST_RP_MS);
+        configStub.setUpStubForRPMetadataEnabled(TEST_RP);
         DateTimeFreezer.freezeTime();
     }
 

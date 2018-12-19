@@ -8,6 +8,7 @@ import uk.gov.ida.hub.samlengine.domain.CertificateDto;
 import uk.gov.ida.hub.samlengine.domain.MatchingServiceConfigEntityDataDto;
 
 import javax.inject.Inject;
+import java.net.URI;
 import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -48,32 +49,43 @@ public class ConfigServiceKeyStore {
             // it's an MSA! it has metadata we can read! so get the certs from the metadata
             return matchingServiceAdapterMetadataRetriever.getPublicSigningKeysForMSA(entityId);
         } else {
-            final Collection<CertificateDto> certificates = configProxy.getSignatureVerificationCertificates(entityId);
-            List<PublicKey> publicKeys = new ArrayList<>();
-            for (CertificateDto keyFromConfig : certificates) {
-                String base64EncodedCertificateValue = keyFromConfig.getCertificate();
-                final X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
-                KeyStore trustStore = trustStoreForCertificateProvider.getTrustStoreFor(keyFromConfig.getFederationEntityType());
-                validate(certificate, trustStore);
-                publicKeys.add(certificate.getPublicKey());
+            // i.e. it's not an MSA, and RP metadata is enabled
+            if(!msaConfiguration.isPresent() && configProxy.getRPMetadataEnabled(entityId)) {
+                return matchingServiceAdapterMetadataRetriever.getPublicSigningKeysForRP(entityId);
+            } else {
+                final Collection<CertificateDto> certificates = configProxy.getSignatureVerificationCertificates(entityId);
+                List<PublicKey> publicKeys = new ArrayList<>();
+                for (CertificateDto keyFromConfig : certificates) {
+                    String base64EncodedCertificateValue = keyFromConfig.getCertificate();
+                    final X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
+                    KeyStore trustStore = trustStoreForCertificateProvider.getTrustStoreFor(keyFromConfig.getFederationEntityType());
+                    validate(certificate, trustStore);
+                    publicKeys.add(certificate.getPublicKey());
+                }
+                return publicKeys;
             }
-            return publicKeys;
         }
     }
 
     public PublicKey getEncryptionKeyForEntity(String entityId) {
 
         final Optional<MatchingServiceConfigEntityDataDto> msaConfiguration = configProxy.getMsaConfiguration(entityId);
+
         if(msaConfiguration.isPresent() && msaConfiguration.get().getReadMetadataFromEntityId()) {
             // it's an MSA! it has metadata we can read! so get the cert from the metadata
             return matchingServiceAdapterMetadataRetriever.getPublicEncryptionKeyForMSA(entityId);
         } else {
-            final CertificateDto certificateDto = configProxy.getEncryptionCertificate(entityId);
-            String base64EncodedCertificateValue = certificateDto.getCertificate();
-            X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
-            KeyStore trustStore = trustStoreForCertificateProvider.getTrustStoreFor(certificateDto.getFederationEntityType());
-            validate(certificate, trustStore);
-            return certificate.getPublicKey();
+            // i.e. it's not an MSA, and RP metadata is enabled
+            if(!msaConfiguration.isPresent() && configProxy.getRPMetadataEnabled(entityId)) {
+                return matchingServiceAdapterMetadataRetriever.getPublicEncryptionKeyForRP(entityId);
+            } else {
+                final CertificateDto certificateDto = configProxy.getEncryptionCertificate(entityId);
+                String base64EncodedCertificateValue = certificateDto.getCertificate();
+                X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
+                KeyStore trustStore = trustStoreForCertificateProvider.getTrustStoreFor(certificateDto.getFederationEntityType());
+                validate(certificate, trustStore);
+                return certificate.getPublicKey();
+            }
         }
     }
 

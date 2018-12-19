@@ -140,7 +140,7 @@ public class MSAStubRule extends HttpStubRule {
 
     private List<KeyDescriptor> buildKeyDescriptors(List<String> signingCerts, Optional<String> encCert) {
         List<KeyDescriptor> keyDescriptors = new ArrayList<>();
-        signingCerts.forEach(signingCert -> {
+        signingCerts.stream().forEach(signingCert -> {
             X509Certificate x509SigningCert = X509CertificateBuilder.aX509Certificate().withCert(signingCert).build();
             X509Data signing = X509DataBuilder.aX509Data().withX509Certificate(x509SigningCert).build();
             KeyInfo signing_one = KeyInfoBuilder.aKeyInfo().withKeyName("signing_"+UUID.randomUUID().toString()).withX509Data(signing).build();

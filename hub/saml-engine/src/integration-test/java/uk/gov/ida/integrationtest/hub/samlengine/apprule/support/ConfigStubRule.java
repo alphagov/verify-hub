@@ -129,6 +129,10 @@ public class ConfigStubRule extends WireMockClassRule {
         stubFor(get(UriBuilder.fromPath(Urls.ConfigUrls.MATCHING_SERVICE_ROOT).build().toString()).willReturn(aResponse().withStatus(OK.getStatusCode()).withBody(objectMapper.writeValueAsString(matchingServices)).withHeader("Content-Type", "application/json")));
     }
 
+    public void setUpStubForRPMetadataEnabled(String entityId) throws JsonProcessingException {
+        stubFor(get(UriBuilder.fromPath(Urls.ConfigUrls.METADATA_LOCATION_RESOURCE).build(entityId).toString()).willReturn(aResponse().withStatus(OK.getStatusCode()).withBody("false").withHeader("Content-Type", "application/json")));
+    }
+
     public UriBuilder baseUri() {
         return UriBuilder.fromUri("http://localhost").port(port());
     }

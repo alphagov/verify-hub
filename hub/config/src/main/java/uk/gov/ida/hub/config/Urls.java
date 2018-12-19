@@ -82,6 +82,8 @@ public interface Urls {
         String SHOULD_HUB_SIGN_RESPONSE_MESSAGES_PATH = ENTITY_ID_PATH_PARAM + "/should-hub-sign-response-messages";
         String SHOULD_HUB_USE_LEGACY_SAML_STANDARD_PATH = ENTITY_ID_PATH_PARAM + "/should-hub-use-legacy-saml-standard";
         String SHOULD_SIGN_WITH_SHA1_PATH = ENTITY_ID_PATH_PARAM + "/should-sign-with-sha1";
+        // this is a very badly named path
+        String METADATA_LOCATION_PATH = ENTITY_ID_PATH_PARAM + "/metadata_location";
 
         String EIDAS_ENABLED_FOR_TRANSACTION_RESOURCE = TRANSACTIONS_ROOT + EIDAS_ENABLED_FOR_TRANSACTION_PATH;
         String SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE = TRANSACTIONS_ROOT + SHOULD_HUB_SIGN_RESPONSE_MESSAGES_PATH;

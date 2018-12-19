@@ -50,6 +50,18 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     @JsonProperty
     protected String entityId;
 
+    /**
+     * NOTE: this will use the entityId as the metadata location, and is a very badly named variable
+     * This won't work for multi tenant VSP because metadata location cannot equal entityId for all of them
+     * without doing weird things in the VSP.
+     * Suggest metadata location === entityId for all VSPs unless they are multi tenant, if so the entityId will need
+     * to be configurable separately to the metadata location (suggest this is an override instead of standard
+     * behaviour)
+     */
+    @Valid
+    @JsonProperty
+    protected boolean metadataEnabled = false;
+
     @Valid
     @JsonProperty
     protected String simpleId;
@@ -237,4 +249,9 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     public boolean isUsingMatching() {
         return usingMatching;
     }
+
+    public boolean getMetadataEnabled() {
+        return metadataEnabled;
+    }
+
 }

@@ -52,6 +52,14 @@ public class ConfigProxy {
                     return jsonClient.get(key, new GenericType<Collection<MatchingServiceConfigEntityDataDto>>() {});
                 }
             });
+    private LoadingCache<URI, Boolean> rpMetadataConfigurations = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.SECONDS)
+            .build(new CacheLoader<URI, Boolean>() {
+                @Override
+                public Boolean load(URI key) {
+                    return jsonClient.get(key, Boolean.class);
+                }
+            });
 
     @Inject
     public ConfigProxy(
@@ -99,6 +107,20 @@ public class ConfigProxy {
         try {
             final Collection<MatchingServiceConfigEntityDataDto> dtos = msaConfigurations.getUnchecked(uri);
             return dtos.stream().filter(e -> entityId.equals(e.getEntityId())).findFirst();
+        } catch (UncheckedExecutionException e){
+            Throwables.throwIfUnchecked(e.getCause());
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    @Timed
+    public boolean getRPMetadataEnabled(String entityId) {
+        URI uri = UriBuilder
+                .fromUri(configUri)
+                .path(Urls.ConfigUrls.METADATA_LOCATION_RESOURCE)
+                .build(entityId);
+        try {
+            return rpMetadataConfigurations.getUnchecked(uri);
         } catch (UncheckedExecutionException e){
             Throwables.throwIfUnchecked(e.getCause());
             throw new RuntimeException(e.getCause());

@@ -203,6 +203,7 @@ public class TransactionsResource {
         final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
         return configData.getShouldSignWithSHA1();
     }
+
     @GET
     @Path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
@@ -210,6 +211,15 @@ public class TransactionsResource {
         final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
         return configData.isUsingMatching();
     }
+
+    @GET
+    @Path(Urls.ConfigUrls.METADATA_LOCATION_PATH)
+    @Timed
+    public boolean getMetadataLocation(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
+        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        return configData.getMetadataEnabled();
+    }
+
     private TransactionConfigEntityData getTransactionConfigData(String entityId) {
         final Optional<TransactionConfigEntityData> configData = transactionConfigEntityDataRepository.getData(entityId);
         if (!configData.isPresent()) {
