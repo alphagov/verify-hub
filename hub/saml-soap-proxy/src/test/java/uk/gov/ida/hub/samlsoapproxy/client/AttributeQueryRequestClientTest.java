@@ -31,8 +31,8 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.SEE_OTHER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,7 +71,7 @@ public class AttributeQueryRequestClientTest {
         attributeQueryRequestClientWithRealSoapRequestClient = new AttributeQueryRequestClient(soapRequestClient, externalCommunicationEventLogger, metricsRegistry);
         attributeQueryRequestClientWithMockSoapRequestClient = new AttributeQueryRequestClient(mockSoapRequestClient, externalCommunicationEventLogger, metricsRegistry);
 
-        when(soapMessageManager.wrapWithSoapEnvelope(ArgumentMatchers.<Element>any())).thenReturn(mock(Document.class));
+        when(soapMessageManager.wrapWithSoapEnvelope(any())).thenReturn(mock(Document.class));
         when(soapMessageManager.unwrapSoapMessage(ArgumentMatchers.<Document>any())).thenReturn(mock(Element.class));
 
         when(client.target(ArgumentMatchers.<URI>any())).thenReturn(resource);

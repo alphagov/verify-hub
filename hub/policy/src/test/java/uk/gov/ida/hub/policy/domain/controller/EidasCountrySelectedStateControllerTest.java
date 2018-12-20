@@ -254,7 +254,6 @@ public class EidasCountrySelectedStateControllerTest {
 
     @Test
     public void shouldTransitionNonMatchingJourneySuccessStateWhenNotUsingMatching() {
-        when(transactionsConfigProxy.isUsingMatching(state.getRequestIssuerEntityId())).thenReturn(false);
         EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = anEidasAttributeQueryRequestDto().build();
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(

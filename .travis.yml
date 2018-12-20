@@ -8,6 +8,7 @@ jdk:
   - openjdk11
 matrix:
   allow_failures:
+  - jdk: openjdk10
   - jdk: openjdk11
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
