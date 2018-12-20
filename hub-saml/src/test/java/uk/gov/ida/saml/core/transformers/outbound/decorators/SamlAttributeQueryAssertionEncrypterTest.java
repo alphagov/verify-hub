@@ -14,15 +14,15 @@ import org.opensaml.saml.saml2.encryption.Encrypter;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.xmlsec.encryption.support.EncryptionException;
 import uk.gov.ida.saml.security.EncrypterFactory;
-import uk.gov.ida.saml.security.EncryptionCredentialFactory;
 import uk.gov.ida.saml.security.EntityToEncryptForLocator;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
@@ -37,7 +37,7 @@ public class SamlAttributeQueryAssertionEncrypterTest {
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
     public Credential credential;
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
-    public EncryptionCredentialFactory credentialFactory;
+    public KeyStoreBackedEncryptionCredentialResolver credentialResolver;
     public final EntityToEncryptForLocator entityToEncryptForLocator = mock(EntityToEncryptForLocator.class);
     public final EncrypterFactory encrypterFactory = mock(EncrypterFactory.class);
     public final Encrypter encrypter = mock(Encrypter.class);
@@ -53,11 +53,11 @@ public class SamlAttributeQueryAssertionEncrypterTest {
         attributeQuery = anAttributeQueryWithAssertion(assertion);
         encryptedAssertion = anAssertion().build();
         when(entityToEncryptForLocator.fromRequestId(anyString())).thenReturn("some id");
-        when(credentialFactory.getEncryptingCredential("some id")).thenReturn(credential);
+        when(credentialResolver.getEncryptingCredential("some id")).thenReturn(credential);
         when(encrypterFactory.createEncrypter(credential)).thenReturn(encrypter);
         when(encrypter.encrypt(assertion)).thenReturn(encryptedAssertion);
         samlAttributeQueryAssertionEncrypter = new SamlAttributeQueryAssertionEncrypter(
-                credentialFactory,
+                credentialResolver,
                 encrypterFactory,
                 entityToEncryptForLocator
         );
@@ -88,7 +88,7 @@ public class SamlAttributeQueryAssertionEncrypterTest {
 
         SamlAttributeQueryAssertionEncrypter assertionEncrypter =
                 new SamlAttributeQueryAssertionEncrypter(
-                        credentialFactory,
+                        credentialResolver,
                         encrypterFactory,
                         entityToEncryptForLocator
                 );

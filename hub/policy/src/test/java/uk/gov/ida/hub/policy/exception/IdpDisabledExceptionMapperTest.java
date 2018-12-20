@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
@@ -16,15 +16,14 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IdpDisabledExceptionMapperTest {
 
-    private static final String SERVICE_NAME = "aService";
     private static final SessionId SESSION_ID = SessionId.createNewSessionId();
     private static final String ENTITY_ID = "my-entity";
 
@@ -37,7 +36,7 @@ public class IdpDisabledExceptionMapperTest {
     private IdpDisabledExceptionMapper exceptionMapper;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         exceptionMapper = new IdpDisabledExceptionMapper(eventLogger);
         exceptionMapper.setHttpServletRequest(context);
         when(context.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.toString());

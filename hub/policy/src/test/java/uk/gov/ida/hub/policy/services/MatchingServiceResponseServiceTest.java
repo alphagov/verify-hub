@@ -4,21 +4,16 @@ import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
-import uk.gov.ida.hub.policy.contracts.SamlResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
-import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
-import uk.gov.ida.hub.policy.domain.NoMatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
-import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.controller.WaitingForMatchingServiceResponseStateController;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.WaitingForMatchingServiceResponseState;
@@ -28,7 +23,7 @@ import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import java.util.UUID;
 
 import static java.text.MessageFormat.format;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,7 +82,7 @@ public class MatchingServiceResponseServiceTest {
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
 
-        verify(waitingForMatchingServiceResponseStateController, times(1)).handleMatchResponseFromMatchingService(Matchers.<MatchFromMatchingService>any());
+        verify(waitingForMatchingServiceResponseStateController, times(1)).handleMatchResponseFromMatchingService(any());
     }
 
     @Test
@@ -102,7 +97,7 @@ public class MatchingServiceResponseServiceTest {
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
 
-        verify(waitingForMatchingServiceResponseStateController, times(1)).handleNoMatchResponseFromMatchingService(Matchers.<NoMatchFromMatchingService>any());
+        verify(waitingForMatchingServiceResponseStateController, times(1)).handleNoMatchResponseFromMatchingService(any());
     }
 
     @Test
@@ -117,7 +112,7 @@ public class MatchingServiceResponseServiceTest {
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
 
-        verify(waitingForMatchingServiceResponseStateController, times(1)).handleUserAccountCreatedResponseFromMatchingService(Matchers.<UserAccountCreatedFromMatchingService>any());
+        verify(waitingForMatchingServiceResponseStateController, times(1)).handleUserAccountCreatedResponseFromMatchingService(any());
     }
 
     @Test

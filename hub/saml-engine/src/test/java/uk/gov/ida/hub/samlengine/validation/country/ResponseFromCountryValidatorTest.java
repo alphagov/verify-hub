@@ -62,7 +62,6 @@ public class ResponseFromCountryValidatorTest {
     @Test
     public void shouldNotThrowIfResponseIsNotSuccessfulAndHasUnencryptedAssertions() {
         when(statusCode.getValue()).thenReturn(StatusCode.AUTHN_FAILED);
-        when(response.getAssertions()).thenReturn(ImmutableList.of(assertion));
 
         validator.validateAssertionPresence(response);
     }

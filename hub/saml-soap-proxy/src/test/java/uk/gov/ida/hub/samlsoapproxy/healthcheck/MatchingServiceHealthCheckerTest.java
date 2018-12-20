@@ -9,7 +9,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ExceptionType;
@@ -36,8 +35,8 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -388,12 +387,6 @@ public class MatchingServiceHealthCheckerTest {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         when(samlEngineProxy.generateHealthcheckAttributeQuery(any())).thenReturn(new SamlMessageDto("samSamSaml"));
-        when(matchingServiceHealthCheckClient.sendHealthCheckRequest(any(),
-                eq(matchingServiceConfigEntityDataDto.getUri())
-        ))
-                .thenReturn(new MatchingServiceHealthCheckResponseDto(Optional.of("<saml/>"), Optional.absent()));
-        when(samlEngineProxy.translateHealthcheckMatchingServiceResponse(any()))
-                .thenThrow(ApplicationException.createAuditedException(ExceptionType.INVALID_SAML, UUID.randomUUID()));
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
 

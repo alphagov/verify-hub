@@ -6,11 +6,11 @@ import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.w3c.dom.Element;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.security.EncrypterFactory;
-import uk.gov.ida.saml.security.EncryptionCredentialFactory;
 import uk.gov.ida.saml.security.EncryptionKeyStore;
 import uk.gov.ida.saml.security.EntityToEncryptForLocator;
 import uk.gov.ida.saml.security.IdaKeyStore;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
+import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 import uk.gov.ida.saml.security.SignatureFactory;
 import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseAssertionSigner;
@@ -34,7 +34,7 @@ public class MsaTransformersFactory {
     ) {
         SignatureFactory signatureFactory = new SignatureFactory(new IdaKeyStoreCredentialRetriever(keyStore), signatureAlgorithm, digestAlgorithm);
         SamlResponseAssertionEncrypter assertionEncrypter = new SamlResponseAssertionEncrypter(
-                new EncryptionCredentialFactory(encryptionKeyStore),
+                new KeyStoreBackedEncryptionCredentialResolver(encryptionKeyStore),
                 new EncrypterFactory(),
                 entityToEncryptForLocator);
         return new ResponseToElementTransformer(

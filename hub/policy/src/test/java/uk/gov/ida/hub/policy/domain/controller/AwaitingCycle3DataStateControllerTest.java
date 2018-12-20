@@ -3,13 +3,12 @@ package uk.gov.ida.hub.policy.domain.controller;
 import org.assertj.core.api.Condition;
 import org.assertj.core.condition.AllOf;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventemitter.EventDetailsKey;
@@ -30,10 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_CANCEL;
 import static uk.gov.ida.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_DATA_OBTAINED;
-import static uk.gov.ida.hub.policy.builder.MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
 import static uk.gov.ida.hub.policy.matchers.HasDetail.hasDetail;
@@ -89,7 +86,7 @@ public class AwaitingCycle3DataStateControllerTest {
     }
 
     @Test
-    public void cycle3dataInputCancelledFromFrontEnd_shouldLogCancellation() throws Exception {
+    public void cycle3dataInputCancelledFromFrontEnd_shouldLogCancellation() {
         final String requestId = "requestId";
         final SessionId sessionId = aSessionId().build();
 
@@ -119,8 +116,6 @@ public class AwaitingCycle3DataStateControllerTest {
                 .withRequestId(requestId)
                 .build();
 
-        when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(new Duration(600L));
-
         final AwaitingCycle3DataStateController awaitingCycle3DataStateController = new AwaitingCycle3DataStateController(
                 state,
                 hubEventLogger,
@@ -131,18 +126,15 @@ public class AwaitingCycle3DataStateControllerTest {
                 assertionRestrictionsFactory,
                 matchingServiceConfigProxy);
 
-        when(matchingServiceConfigProxy.getMatchingService(state.getMatchingServiceEntityId())).thenReturn(aMatchingServiceConfigEntityDataDto().build());
         return awaitingCycle3DataStateController;
     }
 
     @Test
-    public void shouldMoveFromAwaitingC3StateToCycle3DataSentStateWhenCycle3DataIsReceived() throws Exception {
+    public void shouldMoveFromAwaitingC3StateToCycle3DataSentStateWhenCycle3DataIsReceived() {
         final SessionId sessionId = SessionId.createNewSessionId();
         AwaitingCycle3DataState state = anAwaitingCycle3DataState().withSessionId(sessionId).build();
         AwaitingCycle3DataStateController controller = new AwaitingCycle3DataStateController(state, hubEventLogger, stateTransitionAction, transactionsConfigProxy, responseFromHubFactory, policyConfiguration, assertionRestrictionsFactory, matchingServiceConfigProxy);
-        when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));
         ArgumentCaptor<Cycle3MatchRequestSentState> argumentCaptor = ArgumentCaptor.forClass(Cycle3MatchRequestSentState.class);
-        when(matchingServiceConfigProxy.getMatchingService(state.getMatchingServiceEntityId())).thenReturn(aMatchingServiceConfigEntityDataDto().build());
 
         controller.handleCycle3DataSubmitted("principalIpAsSeenByHub");
 

@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
@@ -40,8 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.stub;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.AuthnResponseFromHubContainerDtoBuilder.anAuthnResponseFromHubContainerDto;
@@ -66,7 +65,7 @@ public class SessionServiceTest {
     private final SamlAuthnRequestContainerDto requestDto = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         service = new SessionService(samlEngineProxy, configProxy, authnRequestHandler, sessionRepository);
     }
 
@@ -90,17 +89,18 @@ public class SessionServiceTest {
     }
 
     @Test(expected = SessionCreationFailureException.class)
-    public void shouldThrowSessionCreationFailureExceptionIfCallToConfigServiceThrowsExceptionBecauseAssertionConsumerServiceUriIsInvalid() throws Exception {
+    public void shouldThrowSessionCreationFailureExceptionIfCallToConfigServiceThrowsExceptionBecauseAssertionConsumerServiceUriIsInvalid() {
         SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto().build();
 
         givenSamlEngineTranslatesRequest(samlResponse);
-        stub(configProxy.getAssertionConsumerServiceUri(samlResponse.getIssuer(), samlResponse.getAssertionConsumerServiceIndex())).toThrow(new WebApplicationException());
+        when(configProxy.getAssertionConsumerServiceUri(samlResponse.getIssuer(), samlResponse.getAssertionConsumerServiceIndex()))
+                .thenThrow(new WebApplicationException());
 
         service.create(requestDto);
     }
 
     @Test(expected = SessionCreationFailureException.class)
-    public void shouldThrowSessionCreationFailureExceptionIfProvidedAssertionConsumerServiceUrlDoesntMatch() throws Exception {
+    public void shouldThrowSessionCreationFailureExceptionIfProvidedAssertionConsumerServiceUrlDoesntMatch() {
         SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto()
                 .withAssertionConsumerServiceUrl(URI.create("http://wrongurl"))
                 .build();
@@ -116,7 +116,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void shouldCreateSessionIfProvidedAssertionConsumerServiceUrlMatches() throws Exception {
+    public void shouldCreateSessionIfProvidedAssertionConsumerServiceUrlMatches() {
         URI assertionConsumerServiceUri = UriBuilder.fromUri(UUID.randomUUID().toString()).build();
         SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto()
                 .withAssertionConsumerServiceUrl(assertionConsumerServiceUri)
@@ -134,7 +134,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void shouldCreateSessionWithTransactionSupportsEidas() throws Exception {
+    public void shouldCreateSessionWithTransactionSupportsEidas() {
         // Given
         URI assertionConsumerServiceUri = UriBuilder.fromUri(UUID.randomUUID().toString()).build();
         SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto().build();
@@ -155,7 +155,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void shouldGetACountryAuthnRequestWithOverriddenSsoUrl() throws Exception {
+    public void shouldGetACountryAuthnRequestWithOverriddenSsoUrl() {
         // Given
         SessionId sessionId = createNewSessionId();
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
@@ -179,7 +179,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void getSession_ReturnSessionIdWhenSessionExists() throws Exception {
+    public void getSession_ReturnSessionIdWhenSessionExists() {
         SessionId sessionId = createNewSessionId();
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
         assertThat(service.getSessionIfItExists(sessionId)).isEqualTo(sessionId);
@@ -217,7 +217,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void shouldGetLevelOfAssurance() throws Exception {
+    public void shouldGetLevelOfAssurance() {
         SessionId sessionId = createNewSessionId();
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
         final Optional<LevelOfAssurance> loa = Optional.of(LevelOfAssurance.LEVEL_1);
@@ -226,7 +226,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void shouldGetIdpAuthnRequest() throws Exception {
+    public void shouldGetIdpAuthnRequest() {
         SessionId sessionId = createNewSessionId();
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
         AuthnRequestFromHub authnRequestFromHub = anAuthnRequestFromHub().build();
@@ -242,7 +242,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void sendErrorResponseFromHub_shouldReturnDtoWithSamlRequestPostLocationAndRelayState() throws Exception {
+    public void sendErrorResponseFromHub_shouldReturnDtoWithSamlRequestPostLocationAndRelayState() {
         SessionId sessionId = createNewSessionId();
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
         ResponseFromHub responseFromHub = aResponseFromHubDto().withRelayState("relayState").build();
@@ -259,7 +259,7 @@ public class SessionServiceTest {
     }
 
     @Test(expected = ApplicationException.class)
-    public void sendErrorResponseFromHub_shouldErrorWhenSamlEngineProxyReturnsAnError() throws Exception {
+    public void sendErrorResponseFromHub_shouldErrorWhenSamlEngineProxyReturnsAnError() {
         SessionId sessionId = createNewSessionId();
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
         ResponseFromHub responseFromHub = aResponseFromHubDto().withRelayState("relayState").build();
@@ -271,18 +271,22 @@ public class SessionServiceTest {
 
 
     private void givenSessionIsCreated(SamlResponseWithAuthnRequestInformationDto samlResponse, URI assertionConsumerServiceUri, SessionId sessionId, boolean transactionSupportsEidas) {
-        stub(authnRequestHandler.handleRequestFromTransaction(samlResponse, requestDto.getRelayState(), requestDto.getPrincipalIPAddressAsSeenByHub(), assertionConsumerServiceUri, transactionSupportsEidas)).toReturn(sessionId);
+        when(authnRequestHandler.handleRequestFromTransaction(samlResponse, requestDto.getRelayState(), requestDto.getPrincipalIPAddressAsSeenByHub(), assertionConsumerServiceUri, transactionSupportsEidas))
+                .thenReturn(sessionId);
     }
 
     private void givenConfigReturnsAssertionConsumerServiceURLFor(SamlResponseWithAuthnRequestInformationDto samlResponse, URI assertionConsumerServiceUri) {
-        stub(configProxy.getAssertionConsumerServiceUri(samlResponse.getIssuer(), samlResponse.getAssertionConsumerServiceIndex())).toReturn(new ResourceLocation(assertionConsumerServiceUri));
+        when(configProxy.getAssertionConsumerServiceUri(samlResponse.getIssuer(), samlResponse.getAssertionConsumerServiceIndex()))
+                .thenReturn(new ResourceLocation(assertionConsumerServiceUri));
     }
 
     private void givenConfigReturnsTransactionSupportsEidas(SamlResponseWithAuthnRequestInformationDto samlResponse, boolean transactionSupportsEidas) {
-        stub(configProxy.getEidasSupportedForEntity(samlResponse.getIssuer())).toReturn(transactionSupportsEidas);
+        when(configProxy.getEidasSupportedForEntity(samlResponse.getIssuer()))
+                .thenReturn(transactionSupportsEidas);
     }
 
     private void givenSamlEngineTranslatesRequest(SamlResponseWithAuthnRequestInformationDto samlResponse) {
-        stub(samlEngineProxy.translate(requestDto.getSamlRequest())).toReturn(samlResponse);
+        when(samlEngineProxy.translate(requestDto.getSamlRequest()))
+                .thenReturn(samlResponse);
     }
 }

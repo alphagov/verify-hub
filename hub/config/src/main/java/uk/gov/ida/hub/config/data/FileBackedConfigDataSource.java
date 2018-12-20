@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config.data;
 
-import com.google.common.base.Throwables;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.ConfigurationFactory;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -43,7 +42,7 @@ public class FileBackedConfigDataSource<T> implements ConfigDataSource<T> {
             try {
                 data = configurationFactory.build(dataFile);
             } catch (IOException | ConfigurationException e) {
-                throw Throwables.propagate(e);
+                throw new RuntimeException(e);
             }
             configData.add(data);
 

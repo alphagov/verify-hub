@@ -17,22 +17,22 @@ public class IdaJsonProcessingExceptionMapperTest {
     private IdaJsonProcessingExceptionMapper mapper;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mapper = new IdaJsonProcessingExceptionMapper();
     }
 
     @Test
-    public void toResponse_shouldReturnServerErrorWhenExceptionThrownGeneratingJson() throws Exception {
+    public void toResponse_shouldReturnServerErrorWhenExceptionThrownGeneratingJson() {
         assertThat(mapper.toResponse(mock(JsonGenerationException.class)).getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
     @Test
-    public void toResponse_shouldReturnServerErrorWhenDeserialisationLacksAppropriateConstructor() throws Exception {
+    public void toResponse_shouldReturnServerErrorWhenDeserialisationLacksAppropriateConstructor() {
         assertThat(mapper.toResponse(new JsonMappingException("No suitable constructor found")).getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
     @Test
-    public void toResponse_shouldReturnBadRequestAndErrorStatusDtoWhenErrorDeemedToBeFromClient() throws Exception {
+    public void toResponse_shouldReturnBadRequestAndErrorStatusDtoWhenErrorDeemedToBeFromClient() {
         String clientErrorMessage = "This is a client error";
         Response response = mapper.toResponse(new JsonMappingException(clientErrorMessage));
         ErrorStatusDto errorStatus = (ErrorStatusDto) response.getEntity();

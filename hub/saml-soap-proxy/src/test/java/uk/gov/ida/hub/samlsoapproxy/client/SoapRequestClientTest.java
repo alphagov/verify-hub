@@ -3,9 +3,9 @@ package uk.gov.ida.hub.samlsoapproxy.client;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -26,7 +26,7 @@ import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,19 +58,21 @@ public class SoapRequestClientTest {
     @Before
     public void setUp(){
         when(soapMessageManager.wrapWithSoapEnvelope(any(Element.class))).thenReturn(document);
-        when(soapMessageManager.unwrapSoapMessage(Matchers.<Document>any())).thenReturn(soapElement);
+        when(soapMessageManager.unwrapSoapMessage(ArgumentMatchers.<Document>any())).thenReturn(soapElement);
         when(client.target(any(URI.class))).thenReturn(webResource);
         when(webResource.request()).thenReturn(webResourceBuilder);
         soapRequestClient = new SoapRequestClient(soapMessageManager, client);
     }
 
     @Test
-    public void makePost_shouldEnsureResponseInputStreamIsClosedWhenResponseCodeIsNot200(){
+    public void makePost_shouldEnsureResponseInputStreamIsClosedWhenResponseCodeIsNot200() throws URISyntaxException {
         when(response.getStatus()).thenReturn(502);
         when(webResourceBuilder.post(any(Entity.class))).thenReturn(response);
+        URI matchingServiceUri = new URI("http://heyyeyaaeyaaaeyaeyaa.com/abc1");
+
 
         try {
-            soapRequestClient.makeSoapRequest(null, null);
+            soapRequestClient.makeSoapRequest(null, matchingServiceUri);
             fail("Exception should have been thrown");
         }
         catch(SOAPRequestError e) {

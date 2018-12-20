@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.common.shared.security.IdGenerator;
@@ -47,8 +47,8 @@ import java.net.URI;
 import static java.text.MessageFormat.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -318,7 +318,6 @@ public class Cycle3MatchRequestSentStateControllerTest {
                 new Cycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration,
                         null, responseFromHubFactory, transactionsConfigProxy, matchingServiceConfigProxy,
                         assertionRestrictionFactory, attributeQueryService);
-        when(policyConfiguration.getMatchingServiceResponseWaitPeriod()).thenReturn(Duration.standardMinutes(5));
 
         final ResponseFromHub responseFromHub = controller.getErrorResponse();
         assertThat(responseFromHub.getStatus()).isEqualTo(TransactionIdaStatus.NoAuthenticationContext);

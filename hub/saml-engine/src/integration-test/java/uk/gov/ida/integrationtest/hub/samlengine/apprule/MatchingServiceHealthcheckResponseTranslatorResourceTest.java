@@ -28,7 +28,7 @@ import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRu
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.core.test.TestCredentialFactory;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus;
-import uk.gov.ida.saml.security.EncryptionCredentialFactory;
+import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import javax.ws.rs.client.Client;
@@ -68,7 +68,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
     );
 
     @BeforeClass
-    public static void setup() throws Exception {
+    public static void setup() {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder
                 .aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration)
@@ -102,7 +102,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
     }
 
     @Test
-    public void should_shouldReturnErrorStatusDtoWhenThereIsAProblem() throws Exception {
+    public void should_shouldReturnErrorStatusDtoWhenThereIsAProblem() {
         Response response = postResponseForTranslation(new SamlMessageDto(Base64.encodeAsString("<saml/>")));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -146,7 +146,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
                                 .withIssuer(anIssuer().withIssuerId(TEST_RP_MS).build())
                                 .withSignature(aSignature().withSigningCredential(signingCredential).build())
                                 .addAuthnStatement(anAuthnStatement().build())
-                                .buildWithEncrypterCredential(new EncryptionCredentialFactory(entityId -> {
+                                .buildWithEncrypterCredential(new KeyStoreBackedEncryptionCredentialResolver(entityId -> {
                                     PublicKeyFactory keyFactory = new PublicKeyFactory(new X509CertificateFactory());
                                     return keyFactory.createPublicKey(HUB_TEST_PUBLIC_ENCRYPTION_CERT);
                                 }).getEncryptingCredential(HUB_ENTITY_ID))

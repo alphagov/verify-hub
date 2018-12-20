@@ -34,7 +34,7 @@ def dependencyVersions = [
             dropwizard:"$dropwizard_version",
             dropwizard_infinispan:"$dropwizard_version-47",
             pact:'3.5.6',
-            ida_test_utils:"2.0.0-44",
+            ida_test_utils:"2.0.0-46",
             opensaml:"$opensaml_version",
             dev_pki: '1.1.0-34',
             saml_libs:"$opensaml_version-162",
@@ -143,11 +143,11 @@ subprojects {
         }
 
         def test_deps_deps = [
-                'junit:junit:4.11',
+                'junit:junit:4.12',
                 'org.assertj:assertj-core:1.6.0',
                 'org.assertj:assertj-joda-time:1.1.0',
                 'org.assertj:assertj-guava:1.1.0',
-                'org.mockito:mockito-core:1.9.5',
+                'org.mockito:mockito-core:2.23.0',
                 'org.json:json:20170516',
                 'com.jayway.awaitility:awaitility:1.6.0',
                 'com.github.tomakehurst:wiremock:2.16.0',

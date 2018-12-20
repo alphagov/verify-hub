@@ -22,13 +22,11 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.hub.samlsoapproxy.client.AttributeQueryRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlsoapproxy.logging.ProtectiveMonitoringLogger;
-import uk.gov.ida.hub.samlsoapproxy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.builders.StatusBuilder;
 import uk.gov.ida.saml.core.test.builders.StatusMessageBuilder;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
-import uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import javax.xml.namespace.QName;
@@ -36,8 +34,8 @@ import java.net.URI;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,7 +50,7 @@ import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 @RunWith(OpenSAMLMockitoRunner.class)
 public class ExecuteAttributeQueryRequestTest {
 
-    public static final QName HUB_ROLE = SPSSODescriptor.DEFAULT_ELEMENT_NAME;
+    private static final QName HUB_ROLE = SPSSODescriptor.DEFAULT_ELEMENT_NAME;
     @Mock
     private AttributeQueryRequestClient attributeQueryRequestClient;
     @Mock
@@ -66,8 +64,6 @@ public class ExecuteAttributeQueryRequestTest {
     @Mock
     private ProtectiveMonitoringLogger protectiveMonitoringLogger;
     @Mock
-    private MatchingServiceConfigProxy matchingServiceConfigProxy;
-    @Mock
     private Element matchingServiceResponse;
 
     private ExecuteAttributeQueryRequest executeAttributeQueryRequest;
@@ -77,7 +73,7 @@ public class ExecuteAttributeQueryRequestTest {
     private final AttributeQuery attributeQuery = anAttributeQuery().build();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         attributeQueryContainerDto = anAttributeQueryContainerDto(anAttributeQuery().build())
                 .withMatchingServiceUri(matchingServiceUri)
                 .build();
@@ -93,8 +89,6 @@ public class ExecuteAttributeQueryRequestTest {
        DateTimeFreezer.freezeTime();
 
         when(matchingRequestSignatureValidator.validate(any(AttributeQuery.class), eq(HUB_ROLE))).thenReturn(SamlValidationResponse.aValidResponse());
-        when(matchingRequestSignatureValidator.validate(any(Response.class), eq(HUB_ROLE))).thenReturn(SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.invalidMessageSignature()));
-        when(matchingResponseSignatureValidator.validate(any(AttributeQuery.class), eq(AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME))).thenReturn(SamlValidationResponse.anInvalidResponse(SamlTransformationErrorFactory.invalidMessageSignature()));
         when(matchingResponseSignatureValidator.validate(any(Response.class), eq(AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME))).thenReturn(SamlValidationResponse.aValidResponse());
         when(elementToAttributeQueryTransformer.apply(any(Element.class))).thenReturn(attributeQuery);
     }

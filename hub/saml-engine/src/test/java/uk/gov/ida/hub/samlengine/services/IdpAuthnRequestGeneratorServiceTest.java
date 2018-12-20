@@ -3,7 +3,7 @@ package uk.gov.ida.hub.samlengine.services;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import uk.gov.ida.hub.samlengine.contracts.IdaAuthnRequestFromHubDto;
 import uk.gov.ida.hub.samlengine.domain.SamlRequestDto;
@@ -23,8 +23,9 @@ import static org.mockito.Mockito.when;
 @RunWith(OpenSAMLMockitoRunner.class)
 public class IdpAuthnRequestGeneratorServiceTest {
 
-    public static final String HUB_ENTITY_ID = "HUB_ENTITY_ID";
-    IdpAuthnRequestGeneratorService idpAuthnRequestGeneratorService;
+    private  static final String HUB_ENTITY_ID = "HUB_ENTITY_ID";
+
+    private IdpAuthnRequestGeneratorService idpAuthnRequestGeneratorService;
 
     @Mock
     private Function<IdaAuthnRequestFromHub, String> idaAuthnRequestFromHubStringTransformer;
@@ -46,7 +47,7 @@ public class IdpAuthnRequestGeneratorServiceTest {
         IdaAuthnRequestFromHubDto dto = new IdaAuthnRequestFromHubDto("1", null, Optional.of(false), null, idpEntityId, false);
         String samlRequest = "samlRequest";
         URI ssoUri = UriBuilder.fromPath(UUID.randomUUID().toString()).build();
-        when(idaAuthnRequestFromHubStringTransformer.apply(Matchers.<IdaAuthnRequestFromHub>any())).thenReturn(samlRequest);
+        when(idaAuthnRequestFromHubStringTransformer.apply(ArgumentMatchers.any())).thenReturn(samlRequest);
         when(idpSingleSignOnServiceHelper.getSingleSignOn(idpEntityId)).thenReturn(ssoUri);
         when(idaAuthnRequestTranslator.getIdaAuthnRequestFromHub(dto, ssoUri, HUB_ENTITY_ID)).thenReturn(null);
 

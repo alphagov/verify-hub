@@ -13,7 +13,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
@@ -122,7 +122,6 @@ public class EidasCountrySelectedStateControllerTest {
 
     @Test
     public void shouldReturnMatchingServiceEntityIdWhenAsked() {
-        when(transactionsConfigProxy.getMatchingServiceEntityId(STUB_COUNTRY_ONE)).thenReturn(MSA_ID);
         controller.getMatchingServiceEntityId();
         verify(transactionsConfigProxy).getMatchingServiceEntityId(state.getRequestIssuerEntityId());
     }
@@ -255,7 +254,6 @@ public class EidasCountrySelectedStateControllerTest {
 
     @Test
     public void shouldTransitionNonMatchingJourneySuccessStateWhenNotUsingMatching() {
-        when(transactionsConfigProxy.isUsingMatching(state.getRequestIssuerEntityId())).thenReturn(false);
         EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = anEidasAttributeQueryRequestDto().build();
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(

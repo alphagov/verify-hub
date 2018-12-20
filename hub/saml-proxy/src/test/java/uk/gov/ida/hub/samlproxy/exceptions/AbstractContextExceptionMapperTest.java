@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.hub.samlproxy.Urls;
 
@@ -26,31 +26,29 @@ public class AbstractContextExceptionMapperTest {
     private TestExceptionMapper mapper;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Provider<HttpServletRequest> provider = () -> servletRequest;
         mapper = new TestExceptionMapper(provider);
     }
 
     @Test
-    public void shouldDelegateToExceptionMapperForServiceNameRootWithoutSessionId() throws Exception {
+    public void shouldDelegateToExceptionMapperForServiceNameRootWithoutSessionId() {
         assertDelegateExceptionMapperIsUsedForNoContextUri(Urls.SharedUrls.SERVICE_NAME_ROOT);
     }
     
     @Test
-    public void shouldDelegateToExceptionMapperForSaml2SsoReceiverApiRootWithoutSessionId() throws Exception {
+    public void shouldDelegateToExceptionMapperForSaml2SsoReceiverApiRootWithoutSessionId() {
         assertDelegateExceptionMapperIsUsedForNoContextUri(Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
     }
 
     @Test
-    public void shouldDelegateToExceptionMapperForSaml2SsoSenderApiRootWithoutSessionId() throws Exception {
+    public void shouldDelegateToExceptionMapperForSaml2SsoSenderApiRootWithoutSessionId() {
         assertDelegateExceptionMapperIsUsedForNoContextUri(Urls.SamlProxyUrls.SAML2_SSO_SENDER_API_ROOT);
     }
 
     @Test
-    public void shouldDelegateToExceptionMapperWhenSessionIdIsQueryStringPath() throws Exception {
+    public void shouldDelegateToExceptionMapperWhenSessionIdIsQueryStringPath() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SessionId.createNewSessionId().getSessionId());
-        when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
-        when(servletRequest.getRequestURI()).thenReturn(UUID.randomUUID().toString());
 
         String expectedMessage = "Expected message";
         Response response = mapper.toResponse(new RuntimeException(expectedMessage));
@@ -60,7 +58,7 @@ public class AbstractContextExceptionMapperTest {
     }
 
     @Test
-    public void shouldReturnInternalServerErrorWhenThereIsNoSessionIdAndTheRequestUriIsNotAKnownNoContextPath() throws Exception {
+    public void shouldReturnInternalServerErrorWhenThereIsNoSessionIdAndTheRequestUriIsNotAKnownNoContextPath() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
         when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
         String unknownUri = UUID.randomUUID().toString();
@@ -72,7 +70,7 @@ public class AbstractContextExceptionMapperTest {
     }
 
     @Test
-    public void shouldReturnResponseStatusOfNotFoundWhenANotFoundExceptionIsThrown() throws Exception {
+    public void shouldReturnResponseStatusOfNotFoundWhenANotFoundExceptionIsThrown() {
         Response response = mapper.toResponse(new NotFoundException());
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -91,7 +89,7 @@ public class AbstractContextExceptionMapperTest {
     }
 
     private class TestExceptionMapper extends AbstractContextExceptionMapper<RuntimeException> {
-        public TestExceptionMapper(Provider<HttpServletRequest> context) {
+        private TestExceptionMapper(Provider<HttpServletRequest> context) {
             super(context);
         }
 

@@ -3,7 +3,7 @@ package uk.gov.ida.hub.config.validators;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;

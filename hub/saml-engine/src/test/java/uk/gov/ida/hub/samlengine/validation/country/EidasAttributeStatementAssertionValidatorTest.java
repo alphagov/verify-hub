@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -104,8 +104,6 @@ public class EidasAttributeStatementAssertionValidatorTest {
         when(attribute.getName()).thenReturn(name);
         when(attribute.getFriendlyName()).thenReturn(friendlyName);
         when(attribute.getAttributeValues()).thenReturn(ImmutableList.of(xmlObject));
-        when(xmlObject.getSchemaType()).thenReturn(schemaType);
-        when(attribute.getNameFormat()).thenReturn(Attribute.URI_REFERENCE);
         return attribute;
     }
 

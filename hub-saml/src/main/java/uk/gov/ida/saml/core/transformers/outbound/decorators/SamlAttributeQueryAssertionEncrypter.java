@@ -6,8 +6,8 @@ import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import uk.gov.ida.saml.security.EncrypterFactory;
-import uk.gov.ida.saml.security.EncryptionCredentialFactory;
 import uk.gov.ida.saml.security.EntityToEncryptForLocator;
+import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 
 import java.util.List;
 
@@ -15,11 +15,11 @@ public class SamlAttributeQueryAssertionEncrypter extends AbstractAssertionEncry
 
     @Inject
     public SamlAttributeQueryAssertionEncrypter(
-            final EncryptionCredentialFactory credentialFactory,
+            final KeyStoreBackedEncryptionCredentialResolver credentialResolver,
             final EncrypterFactory encrypterFactory,
             final EntityToEncryptForLocator entityToEncryptForLocator) {
 
-        super(encrypterFactory, entityToEncryptForLocator, credentialFactory);
+        super(encrypterFactory, entityToEncryptForLocator, credentialResolver);
     }
 
     @Override
