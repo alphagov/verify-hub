@@ -1,12 +1,12 @@
 package uk.gov.ida.hub.samlproxy.resources;
 
+import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
-import javax.inject.Inject;
-
+import uk.gov.ida.common.SessionId;
 import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.controllogic.SamlMessageSenderHandler;
-import uk.gov.ida.common.SessionId;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -32,6 +32,7 @@ public class SamlMessageSenderApi {
     @GET
     @Path(Urls.SamlProxyUrls.SEND_AUTHN_REQUEST_PATH)
     @Timed
+    @ResponseMetered
     public Response sendJsonAuthnRequestFromHub(
             @QueryParam(SESSION_ID_PARAM) final SessionId sessionId,
             @HeaderParam(X_FORWARDED_FOR) String xForwardedFor) {
@@ -41,6 +42,7 @@ public class SamlMessageSenderApi {
     @GET
     @Path(Urls.SamlProxyUrls.SEND_RESPONSE_FROM_HUB_PATH)
     @Timed
+    @ResponseMetered
     public Response sendJsonAuthnResponseFromHub(
             @QueryParam(SESSION_ID_PARAM) final SessionId sessionId,
             @HeaderParam(X_FORWARDED_FOR) String xForwardedFor) {
@@ -50,6 +52,7 @@ public class SamlMessageSenderApi {
     @GET
     @Path(Urls.SamlProxyUrls.SEND_ERROR_RESPONSE_FROM_HUB_PATH)
     @Timed
+    @ResponseMetered
     public Response sendJsonErrorResponseFromHub(
             @QueryParam(SESSION_ID_PARAM) final SessionId sessionId,
             @HeaderParam(X_FORWARDED_FOR) String xForwardedFor) {
