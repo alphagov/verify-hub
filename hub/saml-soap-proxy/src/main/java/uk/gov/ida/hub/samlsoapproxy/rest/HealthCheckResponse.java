@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.rest;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.w3c.dom.Element;
 
 public class HealthCheckResponse {

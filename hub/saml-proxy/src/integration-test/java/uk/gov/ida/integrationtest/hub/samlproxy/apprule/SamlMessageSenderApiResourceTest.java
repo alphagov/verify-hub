@@ -148,7 +148,7 @@ public class SamlMessageSenderApiResourceTest {
         AuthnResponseFromHubContainerDto authnResponseFromHubContainerDto = new AuthnResponseFromHubContainerDto(
                 samlString,
                 nextLocationUri,
-                com.google.common.base.Optional.absent(),
+                java.util.Optional.empty(),
                 authnResponseFromHub.getId());
 
         policyStubRule.anAuthnResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
@@ -186,7 +186,7 @@ public class SamlMessageSenderApiResourceTest {
         AuthnResponseFromHubContainerDto authnResponseFromHubContainerDto = new AuthnResponseFromHubContainerDto(
                 samlString,
                 nextLocationUri,
-                com.google.common.base.Optional.absent(),
+                java.util.Optional.empty(),
                 authnResponseFromHub.getId());
 
         policyStubRule.anAuthnResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
@@ -210,7 +210,7 @@ public class SamlMessageSenderApiResourceTest {
         AuthnResponseFromHubContainerDto invalidAuthnResponseFromHubContainerDto = new AuthnResponseFromHubContainerDto(
                 "something not valid",
                 nextLocationUri,
-                com.google.common.base.Optional.absent(),
+                java.util.Optional.empty(),
                 authnResponseFromHub.getId());
 
         policyStubRule.anAuthnResponseFromHubToRp(sessionId, invalidAuthnResponseFromHubContainerDto);
@@ -243,7 +243,7 @@ public class SamlMessageSenderApiResourceTest {
         AuthnResponseFromHubContainerDto authnResponseFromHubContainerDto = new AuthnResponseFromHubContainerDto(
                 samlString,
                 uri,
-                com.google.common.base.Optional.absent(),
+                java.util.Optional.empty(),
                 authnResponseFromHub.getId());
         policyStubRule.anErrorResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
 
@@ -268,7 +268,7 @@ public class SamlMessageSenderApiResourceTest {
         AuthnResponseFromHubContainerDto authnResponseFromHubContainerDto = new AuthnResponseFromHubContainerDto(
                 "invalid saml",
                 uri,
-                com.google.common.base.Optional.absent(),
+                java.util.Optional.empty(),
                 authnResponseFromHub.getId());
         policyStubRule.anErrorResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
 

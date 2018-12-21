@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlengine.attributequery;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,10 +13,8 @@ import org.w3c.dom.Element;
 import uk.gov.ida.hub.samlengine.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlengine.exceptions.UnableToGenerateSamlException;
 import uk.gov.ida.hub.samlengine.locators.AssignableEntityToEncryptForLocator;
-import uk.gov.ida.saml.core.domain.HubAssertion;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
-import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
@@ -49,12 +47,12 @@ public class AttributeQueryGeneratorTest {
     private static final String MATCHING_SERVICE_ENTITY_ID = "matching-service-entity-id";
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         attributeQueryGenerator = new AttributeQueryGenerator<>(transformer, entityToEncryptForLocator);
     }
 
     @Test
-    public void handle_shouldSetEntityToEncryptFor() throws Exception {
+    public void handle_shouldSetEntityToEncryptFor() {
         HubAttributeQueryRequest hubAttributeQueryRequest = aHubAttributeQueryRequest();
         when(transformer.apply(any(HubAttributeQueryRequest.class))).thenThrow(new RuntimeException("Avoid NullPointerException later."));
 
@@ -70,7 +68,7 @@ public class AttributeQueryGeneratorTest {
     }
 
     @Test
-    public void handle_shouldDelegateToTransformerWithCorrectData() throws Exception {
+    public void handle_shouldDelegateToTransformerWithCorrectData() {
         DateTimeFreezer.freezeTime();
         HubAttributeQueryRequest hubAttributeQueryRequest = aHubAttributeQueryRequest();
 
@@ -82,7 +80,7 @@ public class AttributeQueryGeneratorTest {
 
         assertThat(request.getId()).isEqualTo(hubAttributeQueryRequest.getId());
         assertThat(request.getEncryptedAuthnAssertion()).isEqualTo(hubAttributeQueryRequest.getEncryptedAuthnAssertion());
-        assertThat(request.getCycle3AttributeAssertion()).isAbsent();
+        assertThat(request.getCycle3AttributeAssertion().isPresent()).isEqualTo(false);
         assertThat(request.getIssueInstant()).isEqualTo(DateTime.now());
         assertThat(request.getAssertionConsumerServiceUrl()).isEqualTo(hubAttributeQueryRequest.getAssertionConsumerServiceUrl());
         assertThat(request.getAuthnRequestIssuerEntityId()).isEqualTo(hubAttributeQueryRequest.getAuthnRequestIssuerEntityId());
@@ -90,7 +88,7 @@ public class AttributeQueryGeneratorTest {
 
     //This test should move to the request builder?
     @Test
-    public void handle_shouldReturnDtoWithSamlMatchingServiceRequest() throws Exception {
+    public void handle_shouldReturnDtoWithSamlMatchingServiceRequest() {
         HubAttributeQueryRequest hubAttributeQueryRequest = aHubAttributeQueryRequest();
         Element transformedRequest = mock(Element.class);
         when(transformer.apply(any(HubAttributeQueryRequest.class))).thenReturn(transformedRequest);
@@ -101,7 +99,7 @@ public class AttributeQueryGeneratorTest {
     }
 
     @Test(expected = UnableToGenerateSamlException.class)
-    public void handle_shouldReturnErrorDtoWhenTransformFails() throws Exception {
+    public void handle_shouldReturnErrorDtoWhenTransformFails() {
         HubAttributeQueryRequest hubAttributeQueryRequest = aHubAttributeQueryRequest();
         when(transformer.apply(hubAttributeQueryRequest)).thenThrow(new RuntimeException("failed to create attribute query request"));
 
@@ -109,7 +107,7 @@ public class AttributeQueryGeneratorTest {
     }
 
     @Test
-    public void handle_shouldReturnDtoWithMatchingServiceEndpointReturnedFromConfig() throws Exception {
+    public void handle_shouldReturnDtoWithMatchingServiceEndpointReturnedFromConfig() {
         HubAttributeQueryRequest hubAttributeQueryRequest = aHubAttributeQueryRequest();
 
         URI attributeQueryUri = URI.create("/attribute-query-uri");
@@ -124,8 +122,8 @@ public class AttributeQueryGeneratorTest {
                 null,
                 "",
                 "",
-                Optional.<HubAssertion>absent(),
-                Optional.<List<UserAccountCreationAttribute>>absent(),
+                Optional.empty(),
+                Optional.empty(),
                 DateTime.now(),
                 null,
                 "",

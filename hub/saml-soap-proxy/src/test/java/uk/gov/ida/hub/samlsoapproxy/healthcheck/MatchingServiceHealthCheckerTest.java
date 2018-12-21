@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.glassfish.jersey.internal.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,7 +101,7 @@ public class MatchingServiceHealthCheckerTest {
         when(matchingRequestSignatureValidator.validate(any(AttributeQuery.class), eq(HUB_ROLE))).thenReturn(SamlValidationResponse.anInvalidResponse(mockFailure));
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
 
 
         matchingServiceHealthChecker.performHealthCheck(aMatchingServiceConfigEntityDataDto().build());
@@ -111,7 +111,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnSuccessWithMessageForHealthyMatchingService() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(aMatchingServiceConfigEntityDataDto().build());
 
@@ -163,7 +163,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnResultWhenVersionIsNotReturnedByMsa() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
 
@@ -196,7 +196,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnDefaultVersionIfVersionFlagNotPresentInResponseIdOrHeaderForHealthyMatchingService() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -207,7 +207,7 @@ public class MatchingServiceHealthCheckerTest {
     @Test
     public void shouldReturnVersionIfPresentInResponseIDButNotHeaderWithMessageForHealthyMatchingService() {
         final String versionNumber = "180";
-        final Optional<String> headerVersion = Optional.absent();
+        final Optional<String> headerVersion = Optional.empty();
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         prepareForHealthyResponse(matchingServiceConfigEntityDataDto, headerVersion);
@@ -221,7 +221,7 @@ public class MatchingServiceHealthCheckerTest {
     @Test
     public void shouldReturnVersionIfSameOneIsPresentInResponseIDAndHeaderWithMessageForHealthyMatchingService() {
         final String versionNumber = "180";
-        final Optional<String> headerVersion = Optional.fromNullable(versionNumber);
+        final Optional<String> headerVersion = Optional.ofNullable(versionNumber);
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
         prepareForHealthyResponse(matchingServiceConfigEntityDataDto, headerVersion);
@@ -234,7 +234,7 @@ public class MatchingServiceHealthCheckerTest {
 
     @Test
     public void shouldReturnResponseIdVersionIfDifferentOnesArePresentInResponseIDAndHeaderWithMessageForHealthyMatchingService() {
-        final Optional<String> headerVersion = Optional.fromNullable("HEADERVER");
+        final Optional<String> headerVersion = Optional.ofNullable("HEADERVER");
         final String idVersion = "IDVER";
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
@@ -250,7 +250,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnDefaultVersionIfVersionValueNotDefinedInResponseIdForHealthyMatchingService() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id-version-");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -262,7 +262,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnReasonableValuesForVersionEidasEnabledAndUseSha1WhenReasonableRequestIdReceived() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id-version-1234-eidasenabled-true-shouldsignwithsha1-false");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -276,7 +276,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnDisabledValuesForVersionEidasEnabledAndUseSha1WhenReasonableRequestIdReceived() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id-version-1234-eidasenabled-false-shouldsignwithsha1-true");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -290,7 +290,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnDefaultVersionIfVersionValueNotDefinedInResponseIdWithOtherFlagsForHealthyMatchingService() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id-version--eidasenabled-true-shouldsignwithsha1-false");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -302,7 +302,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnUndefinedEidasEnabledValueWhenEidasEnabledFlagNotPresentInMsaResponseId() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id-version-1234");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -314,7 +314,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnUndefinedEidasEnabledValueWhenNothingSpecifiedInMsaResponseId() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id-version-1234-eidasenabled--shouldsignwithsha1-true");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -326,7 +326,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnUndefinedShouldSignWithSha1ValueWhenShouldSignWithSha1FlagNotPresentInMsaResponseId() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id-version-1234");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -338,7 +338,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnUndefinedShouldSignWithSha1ValueWhenNothingSpecifiedInMsaResponseId() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         mockHealthcheckResponseId("healthcheck-response-id-version-1234-eidasenabled-true-shouldsignwithsha1-");
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
@@ -356,7 +356,7 @@ public class MatchingServiceHealthCheckerTest {
     public void shouldReturnFailureWithMessageForUnhealthyMatchingService() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForResponse(matchingServiceConfigEntityDataDto, RequesterError, Optional.absent());
+        prepareForResponse(matchingServiceConfigEntityDataDto, RequesterError, Optional.empty());
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
 
@@ -372,7 +372,7 @@ public class MatchingServiceHealthCheckerTest {
         when(matchingServiceHealthCheckClient.sendHealthCheckRequest(any(),
                 eq(matchingServiceConfigEntityDataDto.getUri())
         ))
-                .thenReturn(new MatchingServiceHealthCheckResponseDto(Optional.of("<saml/>"), Optional.absent()));
+                .thenReturn(new MatchingServiceHealthCheckResponseDto(Optional.of("<saml/>"), Optional.empty()));
         when(samlEngineProxy.translateHealthcheckMatchingServiceResponse(any()))
                 .thenThrow(ApplicationException.createAuditedException(ExceptionType.INVALID_SAML, UUID.randomUUID()));
 
@@ -412,7 +412,7 @@ public class MatchingServiceHealthCheckerTest {
                 aMatchingServiceConfigEntityDataDto()
                         .withHealthCheckEnabled()
                         .build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
 
         matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
 
@@ -430,7 +430,7 @@ public class MatchingServiceHealthCheckerTest {
         when(matchingServiceHealthCheckClient.sendHealthCheckRequest(any(),
                 eq(matchingServiceConfigEntityDataDto.getUri())
         ))
-                .thenReturn(new MatchingServiceHealthCheckResponseDto(Optional.absent(), Optional.absent()));
+                .thenReturn(new MatchingServiceHealthCheckResponseDto(Optional.empty(), Optional.empty()));
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
 
@@ -446,7 +446,7 @@ public class MatchingServiceHealthCheckerTest {
                         .withOnboarding(true)
                         .withHealthCheckEnabled()
                         .build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
 
@@ -460,7 +460,7 @@ public class MatchingServiceHealthCheckerTest {
                         .withOnboarding(false)
                         .withHealthCheckEnabled()
                         .build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
 
         MatchingServiceHealthCheckResult result = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto);
 
@@ -472,7 +472,7 @@ public class MatchingServiceHealthCheckerTest {
         final String saml = "<samlsamlsamlsamlsamlsamlsamlsamlsaml/>";
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
                 aMatchingServiceConfigEntityDataDto().build();
-        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.absent());
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto, Optional.empty());
         when(matchingServiceHealthCheckClient.sendHealthCheckRequest(any(),
                 eq(matchingServiceConfigEntityDataDto.getUri())
         ))

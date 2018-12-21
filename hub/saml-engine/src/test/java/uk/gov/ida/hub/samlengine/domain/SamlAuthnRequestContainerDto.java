@@ -1,11 +1,11 @@
 package uk.gov.ida.hub.samlengine.domain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class SamlAuthnRequestContainerDto {
 
     private String samlRequest;
-    private Optional<String> relayState = Optional.absent();
+    private Optional<String> relayState = Optional.empty();
     private String principalIPAddressAsSeenByHub;
 
 

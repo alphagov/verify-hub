@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
@@ -20,7 +20,7 @@ public class InboundResponseFromMatchingServiceUnmarshaller {
     public InboundResponseFromMatchingService fromSaml(ValidatedResponse validatedResponse, ValidatedAssertions validatedAssertions) {
         Optional<PassthroughAssertion> idaAssertion = null;
         if (validatedAssertions.getAssertions().size() > 0){
-            idaAssertion = Optional.fromNullable(passthroughAssertionUnmarshaller.fromAssertion(validatedAssertions.getAssertions().get(0)));
+            idaAssertion = Optional.ofNullable(passthroughAssertionUnmarshaller.fromAssertion(validatedAssertions.getAssertions().get(0)));
         }
 
         MatchingServiceIdaStatus transformedStatus = statusUnmarshaller.fromSaml(validatedResponse.getStatus());

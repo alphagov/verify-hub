@@ -2,7 +2,7 @@ package uk.gov.ida.hub.samlsoapproxy.client;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -42,7 +42,7 @@ public class MatchingServiceHealthCheckClient {
         } catch(ApplicationException ex) {
             final String errorMessage = MessageFormat.format("Failed to complete matching service health check to {0}.", matchingServiceUri);
             LOG.warn(errorMessage, ex);
-            return new MatchingServiceHealthCheckResponseDto(Optional.<String>absent(), Optional.<String>absent());
+            return new MatchingServiceHealthCheckResponseDto(Optional.<String>empty(), Optional.<String>empty());
         } finally {
             context.stop();
         }

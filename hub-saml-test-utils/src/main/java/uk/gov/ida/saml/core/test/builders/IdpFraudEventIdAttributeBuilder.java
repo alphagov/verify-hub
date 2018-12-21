@@ -4,7 +4,7 @@ import javax.xml.namespace.QName;
 
 import org.opensaml.saml.saml2.core.Attribute;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
@@ -16,7 +16,7 @@ public class IdpFraudEventIdAttributeBuilder {
 
     private static final java.lang.String INVALID_TYPE_LOCAL_NAME = "InvalidFraudEventType";
     private OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
-    private Optional<String> value = Optional.fromNullable("default-event-id");
+    private Optional<String> value = Optional.ofNullable("default-event-id");
 
     public static IdpFraudEventIdAttributeBuilder anIdpFraudEventIdAttribute() {
         return new IdpFraudEventIdAttributeBuilder();
@@ -47,7 +47,7 @@ public class IdpFraudEventIdAttributeBuilder {
     }
 
     public IdpFraudEventIdAttributeBuilder withValue(String value){
-        this.value = Optional.fromNullable(value);
+        this.value = Optional.ofNullable(value);
         return this;
     }
 }

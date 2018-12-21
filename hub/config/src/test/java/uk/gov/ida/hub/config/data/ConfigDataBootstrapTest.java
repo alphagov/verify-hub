@@ -82,7 +82,7 @@ public class ConfigDataBootstrapTest {
     }
 
     @Test
-    public void start_shouldThrowExceptionWhenOnboardingTransactionEntityIdCheckFails() throws Exception {
+    public void start_shouldThrowExceptionWhenOnboardingTransactionEntityIdCheckFails() {
         final String idpEntityId = "idp-entity-id";
         final String simpleId = "simple-id";
         final String matchingServiceEntityId = "matching-service-entity-id";
@@ -109,7 +109,7 @@ public class ConfigDataBootstrapTest {
     }
 
     @Test
-    public void start_shouldThrowExceptionWhenMatchingTransactionEntityIdCheckFails() throws Exception {
+    public void start_shouldThrowExceptionWhenMatchingTransactionEntityIdCheckFails() {
         final String transEntityId = "trans-entity-id";
         final String simpleId = "simple-id";
         final IdentityProviderConfigEntityData identityProviderConfigData = anIdentityProviderConfigData().withEntityId("entity-id").build();
@@ -175,7 +175,7 @@ public class ConfigDataBootstrapTest {
     }
 
     @Test
-    public void start_shouldOnlyValidateCertificateChainIfIdentityProviderIsEnabled() throws Exception {
+    public void start_shouldOnlyValidateCertificateChainIfIdentityProviderIsEnabled() {
         final String simpleId = "simple-id";
         IdentityProviderConfigEntityData disabledIdp = anIdentityProviderConfigData().withEntityId("idp1EntityId").withEnabled(false).build();
         MatchingServiceConfigEntityData matchingServiceConfigData = aMatchingServiceConfigEntityData().withEntityId("matchingServiceId").build();

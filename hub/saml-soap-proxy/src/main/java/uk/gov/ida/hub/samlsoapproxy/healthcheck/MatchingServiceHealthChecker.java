@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.internal.util.Base64;
 import org.opensaml.saml.saml2.core.AttributeQuery;
@@ -105,17 +105,14 @@ public class MatchingServiceHealthChecker {
         final HealthCheckData healthCheckData = getHealthCheckData(responseBody);
 
         final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion())
-                .toJavaUtil()
                 .filter(StringUtils::isNotEmpty)
                 .orElse(UNDEFINED_VERSION);
 
         final String isEidasEnabled = healthCheckData.getEidasEnabled()
-                .toJavaUtil()
                 .filter(StringUtils::isNotEmpty)
                 .orElse(UNDEFINED);
 
         final String shouldSignWithSha1 = healthCheckData.getShouldSignWithSha1()
-                .toJavaUtil()
                 .filter(StringUtils::isNotEmpty)
                 .orElse(UNDEFINED);
 
@@ -151,7 +148,7 @@ public class MatchingServiceHealthChecker {
     private Optional<String> getMsaVersion(Optional<String> responseBodyMsaVersion, Optional<String> requestIdMsaVersion) {
         if (requestIdMsaVersion.isPresent()) {
             // if we have conflicting return values, lets trust the one from the ID a little bit more
-            String responseMsaVersion = responseBodyMsaVersion.orNull();
+            String responseMsaVersion = responseBodyMsaVersion.orElse(null);
             String extractedMsaVersion = requestIdMsaVersion.get();
             if (responseMsaVersion != null && !responseMsaVersion.equals(extractedMsaVersion)) {
                 LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", responseMsaVersion, extractedMsaVersion);

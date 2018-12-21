@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.client;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -40,7 +40,7 @@ public class HealthCheckSoapRequestClient extends SoapRequestClient {
                     e);
         }
 
-        return new HealthCheckResponse(response.getBody(), Optional.fromNullable(response.getHeaders().getFirst(MSA_VERSION_HTTP_HEADER)));
+        return new HealthCheckResponse(response.getBody(), Optional.ofNullable(response.getHeaders().getFirst(MSA_VERSION_HTTP_HEADER)));
     }
 
 }

@@ -1,6 +1,6 @@
 package uk.gov.ida.integrationtest.hub.samlengine.builders;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -66,7 +66,7 @@ public class AuthnResponseFactory {
     }
 
     public ResponseBuilder aResponseFromIdpBuilder(String idpEntityId, String ipAddressSeenByIdp) throws Exception {
-        return aResponseFromIdpBuilder(idpEntityId, ipAddressSeenByIdp, DateTime.now(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), Optional.<BasicCredential>absent());
+        return aResponseFromIdpBuilder(idpEntityId, ipAddressSeenByIdp, DateTime.now(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), Optional.empty());
     }
 
     public ResponseBuilder aResponseFromIdpBuilder(String idpEntityId, BasicCredential basicCredential) throws Exception {
@@ -74,21 +74,21 @@ public class AuthnResponseFactory {
     }
 
     public ResponseBuilder aResponseFromIdpBuilder(String idpEntityId, String authnStatementAssertionId, String mdsStatementAssertionId) throws Exception {
-        return aResponseFromIdpBuilder(idpEntityId, "ipAddressSeenByIdp", DateTime.now(), authnStatementAssertionId, mdsStatementAssertionId, Optional.<BasicCredential>absent());
+        return aResponseFromIdpBuilder(idpEntityId, "ipAddressSeenByIdp", DateTime.now(), authnStatementAssertionId, mdsStatementAssertionId, Optional.empty());
     }
 
     public ResponseBuilder aResponseFromIdpBuilder(String idpEntityId, String ipAddressSeenByIdp,  String authnAssertionSubjectPid, String mdsAssertionSubjectPid) throws Exception {
-        return aResponseFromIdpBuilder(idpEntityId, ipAddressSeenByIdp, DateTime.now(), UUID.randomUUID().toString(), authnAssertionSubjectPid, UUID.randomUUID().toString(), mdsAssertionSubjectPid, Optional.<BasicCredential>absent());
+        return aResponseFromIdpBuilder(idpEntityId, ipAddressSeenByIdp, DateTime.now(), UUID.randomUUID().toString(), authnAssertionSubjectPid, UUID.randomUUID().toString(), mdsAssertionSubjectPid, Optional.empty());
     }
 
     public ResponseBuilder aResponseFromIdpBuilderWithIssuers(String idpEntityId, String authnAssertionIssuer, String mdsAssertionIssuer) throws Exception {
         String subjectPersistentIdentifier = generateId();
-        return aResponseFromIdpBuilder(idpEntityId, "ipAddressSeenByIdp", DateTime.now(), UUID.randomUUID().toString(), subjectPersistentIdentifier, authnAssertionIssuer, UUID.randomUUID().toString(), subjectPersistentIdentifier, mdsAssertionIssuer, Optional.<BasicCredential>absent());
+        return aResponseFromIdpBuilder(idpEntityId, "ipAddressSeenByIdp", DateTime.now(), UUID.randomUUID().toString(), subjectPersistentIdentifier, authnAssertionIssuer, UUID.randomUUID().toString(), subjectPersistentIdentifier, mdsAssertionIssuer, Optional.empty());
     }
 
     public ResponseBuilder aResponseFromIdpBuilderWithInResponseToValues(String idpEntityId, String requestId, String authnAssertionInResponseTo, String mdsAssertionInResponseTo) throws Exception {
         String subjectPersistentIdentifier = generateId();
-        return aResponseFromIdpBuilder(idpEntityId, "ipAddressSeenByIdp", requestId, DateTime.now(), UUID.randomUUID().toString(), subjectPersistentIdentifier, idpEntityId, authnAssertionInResponseTo, UUID.randomUUID().toString(), subjectPersistentIdentifier, idpEntityId, mdsAssertionInResponseTo, Optional.<BasicCredential>absent());
+        return aResponseFromIdpBuilder(idpEntityId, "ipAddressSeenByIdp", requestId, DateTime.now(), UUID.randomUUID().toString(), subjectPersistentIdentifier, idpEntityId, authnAssertionInResponseTo, UUID.randomUUID().toString(), subjectPersistentIdentifier, idpEntityId, mdsAssertionInResponseTo, Optional.empty());
     }
 
     public ResponseBuilder aResponseFromIdpBuilder(String idpEntityId,
@@ -138,7 +138,7 @@ public class AuthnResponseFactory {
                                                    String mdsAssertionSubjectPid,
                                                    String mdsAssertionIssuer,
                                                    String mdsAssertionInResponseTo,
-                                                   Optional<BasicCredential> basicCredential) throws Exception {
+                                                   Optional<BasicCredential> basicCredential) {
 
         TestCredentialFactory idpSigningCredentialFactory =
                 new TestCredentialFactory(publicSigningCerts.get(idpEntityId), privateSigningKeys.get(idpEntityId));
@@ -199,7 +199,7 @@ public class AuthnResponseFactory {
         return aFraudResponseFromIdpBuilder(idpEntityId, generateId());
     }
 
-    public ResponseBuilder aFraudResponseFromIdpBuilder(String idpEntityId, String persistentId) throws Exception {
+    public ResponseBuilder aFraudResponseFromIdpBuilder(String idpEntityId, String persistentId) {
 
         TestCredentialFactory idpSigningCredentialFactory =
                 new TestCredentialFactory(publicSigningCerts.get(idpEntityId), privateSigningKeys.get(idpEntityId));
@@ -256,7 +256,7 @@ public class AuthnResponseFactory {
         return responseBuilder;
     }
 
-    public ResponseBuilder anAuthnFailedResponseFromIdpBuilder(String idpEntityId) throws Exception {
+    public ResponseBuilder anAuthnFailedResponseFromIdpBuilder(String idpEntityId) {
 
         String requestId = generateId();
 

@@ -35,7 +35,6 @@ import java.net.URI;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +42,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.base.Throwables.propagate;
 import static io.dropwizard.testing.ConfigOverride.config;
 
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.METADATA_SIGNING_A_PRIVATE_KEY;
@@ -55,7 +53,6 @@ import static uk.gov.ida.saml.metadata.ResourceEncoder.entityIdAsResource;
 public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> {
     private static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
     private static final String COUNTRY_METADATA_PATH = "/uk/gov/ida/saml/metadata/country";
-    public static final String EIDAS_ENTITY_ID = "http://localhost/eidasMetadata";
     private static final String TRUST_ANCHOR_PATH = "/trust-anchor";
     private static final String METADATA_AGGREGATOR_PATH = "/metadata-aggregator";
     private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----\n";
@@ -158,7 +155,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
             trustAnchorServer.reset();
             trustAnchorServer.register(TRUST_ANCHOR_PATH, 200, MediaType.APPLICATION_OCTET_STREAM, buildTrustAnchorString());
         } catch (Exception e) {
-            throw propagate(e);
+            throw new RuntimeException(e);
         }
 
         super.before();
@@ -185,7 +182,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
                 .build();
     }
 
-    private String buildTrustAnchorString() throws ParseException, JOSEException, CertificateEncodingException {
+    private String buildTrustAnchorString() throws JOSEException, CertificateEncodingException {
         X509CertificateFactory x509CertificateFactory = new X509CertificateFactory();
         PrivateKey trustAnchorKey = new PrivateKeyFactory().createPrivateKey(Base64.decodeBase64(TestCertificateStrings.METADATA_SIGNING_A_PRIVATE_KEY));
         X509Certificate trustAnchorCert = new X509CertificateFactory().createCertificate(TestCertificateStrings.METADATA_SIGNING_A_PUBLIC_CERT);

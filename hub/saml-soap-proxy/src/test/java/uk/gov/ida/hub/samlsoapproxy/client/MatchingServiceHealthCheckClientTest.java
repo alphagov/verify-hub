@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.samlsoapproxy.client;
 
 import com.codahale.metrics.MetricRegistry;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,6 +79,6 @@ public class MatchingServiceHealthCheckClientTest {
         final MatchingServiceHealthCheckResponseDto matchingServiceHealthCheckResponseDto =
                 matchingServiceHealthCheckClient.sendHealthCheckRequest(healthCheckRequest, healthCheckUri);
 
-        assertThat(matchingServiceHealthCheckResponseDto.getResponse()).isEqualTo(Optional.<String>absent());
+        assertThat(matchingServiceHealthCheckResponseDto.getResponse()).isEqualTo(Optional.empty());
     }
 }

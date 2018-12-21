@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.core.test.builders;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
@@ -8,7 +8,7 @@ import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 public class NameIdPolicyBuilder {
 
     private OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
-    private Optional<String> format = Optional.fromNullable(NameIDType.PERSISTENT);
+    private Optional<String> format = Optional.ofNullable(NameIDType.PERSISTENT);
 
     public static NameIdPolicyBuilder aNameIdPolicy() {
         return new NameIdPolicyBuilder();
@@ -26,7 +26,7 @@ public class NameIdPolicyBuilder {
     }
 
     public NameIdPolicyBuilder withFormat(String format) {
-        this.format = Optional.fromNullable(format);
+        this.format = Optional.ofNullable(format);
         return this;
     }
 }
