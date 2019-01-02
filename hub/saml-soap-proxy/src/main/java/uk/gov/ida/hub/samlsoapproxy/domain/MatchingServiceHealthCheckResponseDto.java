@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.domain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class MatchingServiceHealthCheckResponseDto {
 

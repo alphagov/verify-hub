@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlproxy.controllogic;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +67,7 @@ public class SamlMessageSenderHandlerTest {
     private static final String samlRequest = "some-saml-request";
     private static final URI postEndPoint = URI.create("http://someurl.com");
     private static final String principalIpAddressAsSeenByHub = "a-principal-ip-address";
-    private static final Optional<String> relayState = Optional.fromNullable("some-relay-state");
+    private static final Optional<String> relayState = Optional.ofNullable("some-relay-state");
 
     @Before
     public void setUp() throws Exception {

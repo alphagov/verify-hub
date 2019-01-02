@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.test.builders;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.HubAssertion;
@@ -12,16 +12,16 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 public class HubAttributeQueryRequestBuilder {
 
     private String id = "id";
     private PersistentId persistentId = new PersistentId("default-name-id");
     private String encryptedAuthnAssertion = "aPassthroughAssertion().buildAuthnStatementAssertion()";
-    private Optional<HubAssertion> cycle3AttributeAssertion = absent();
-    private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes = absent();
+    private Optional<HubAssertion> cycle3AttributeAssertion = empty();
+    private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes = empty();
     private URI assertionConsumerServiceUrl = URI.create("http://transaction.com");
     private String authnRequestIssuerEntityId = "issuer-id";
     private AuthnContext authnContext = AuthnContext.LEVEL_1;
@@ -69,7 +69,7 @@ public class HubAttributeQueryRequestBuilder {
     }
 
     public HubAttributeQueryRequestBuilder withCycle3DataAssertion(HubAssertion cycle3DataAssertion) {
-        this.cycle3AttributeAssertion = fromNullable(cycle3DataAssertion);
+        this.cycle3AttributeAssertion = ofNullable(cycle3DataAssertion);
         return this;
     }
 
@@ -92,14 +92,14 @@ public class HubAttributeQueryRequestBuilder {
         if(!userAccountCreationAttributes.isPresent()){
            List<UserAccountCreationAttribute> userAccountCreationAttributeList = new ArrayList<>();
 
-           userAccountCreationAttributes = Optional.fromNullable(userAccountCreationAttributeList);
+           userAccountCreationAttributes = Optional.ofNullable(userAccountCreationAttributeList);
         }
         this.userAccountCreationAttributes.get().add(userAccountCreationAttribute);
         return this;
     }
 
     public HubAttributeQueryRequestBuilder withoutUserAccountCreationAttributes() {
-        userAccountCreationAttributes = absent();
+        userAccountCreationAttributes = empty();
         return this;
     }
 }

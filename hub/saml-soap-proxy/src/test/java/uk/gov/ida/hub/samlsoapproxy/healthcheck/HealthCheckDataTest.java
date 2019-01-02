@@ -2,41 +2,43 @@ package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
 import org.junit.Test;
 
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class HealthCheckDataTest {
 
     @Test
     public void shouldReturnEmptyHealthCheckDataWhenExtractedFromNullString() {
         HealthCheckData testData = HealthCheckData.extractFrom("test-id");
-        assertThat(testData.getVersion()).isAbsent();
-        assertThat(testData.getEidasEnabled()).isAbsent();
-        assertThat(testData.getShouldSignWithSha1()).isAbsent();
+        assertFalse(testData.getVersion().isPresent());
+        assertFalse(testData.getEidasEnabled().isPresent());
+        assertFalse(testData.getShouldSignWithSha1().isPresent());
     }
 
     @Test
     public void shouldReturnEmptyHealthCheckDataWhenExtractedFromEmptyString() {
         HealthCheckData testData = HealthCheckData.extractFrom("");
-        assertThat(testData.getVersion()).isAbsent();
-        assertThat(testData.getEidasEnabled()).isAbsent();
-        assertThat(testData.getShouldSignWithSha1()).isAbsent();
+        assertFalse(testData.getVersion().isPresent());
+        assertFalse(testData.getEidasEnabled().isPresent());
+        assertFalse(testData.getShouldSignWithSha1().isPresent());
     }
 
     @Test
     public void shouldReturnEmptyHealthCheckDataWhenExtractedFromSimpleIdString() {
         HealthCheckData testData = HealthCheckData.extractFrom("test-id");
-        assertThat(testData.getVersion()).isAbsent();
-        assertThat(testData.getEidasEnabled()).isAbsent();
-        assertThat(testData.getShouldSignWithSha1()).isAbsent();
+        assertThat(testData.getVersion());
+        assertFalse(testData.getEidasEnabled().isPresent());
+        assertFalse(testData.getShouldSignWithSha1().isPresent());
     }
 
     @Test
     public void shouldReturnHealthCheckDataWithVersionWhenExtractedFromStringThatContainsVersionData() {
         String expectedVersion = "1234";
         HealthCheckData testData = HealthCheckData.extractFrom("test-id-version-" + expectedVersion);
-        assertThat(testData.getVersion()).contains(expectedVersion);
-        assertThat(testData.getEidasEnabled()).isAbsent();
-        assertThat(testData.getShouldSignWithSha1()).isAbsent();
+        assertFalse(testData.getEidasEnabled().isPresent());
+        assertFalse(testData.getShouldSignWithSha1().isPresent());
+        assertTrue(testData.getVersion().get().contains(expectedVersion));
     }
 
     @Test
@@ -44,9 +46,9 @@ public class HealthCheckDataTest {
         String expectedVersion = "1234";
         String expectedEidasEnabled = "true";
         HealthCheckData testData = HealthCheckData.extractFrom("test-id-version-" + expectedVersion + "-eidasenabled-" + expectedEidasEnabled);
-        assertThat(testData.getVersion()).contains(expectedVersion);
-        assertThat(testData.getEidasEnabled()).contains(expectedEidasEnabled);
-        assertThat(testData.getShouldSignWithSha1()).isAbsent();
+        assertTrue(testData.getVersion().get().contains(expectedVersion));
+        assertTrue(testData.getEidasEnabled().get().contains(expectedEidasEnabled));
+        assertFalse(testData.getShouldSignWithSha1().isPresent());
     }
 
     @Test
@@ -60,10 +62,9 @@ public class HealthCheckDataTest {
                 "-eidasenabled-" + expectedEidasEnabled +
                 "-shouldsignwithsha1-" + expectedShouldSignWithSha1
         );
-
-        assertThat(testData.getVersion()).contains(expectedVersion);
-        assertThat(testData.getEidasEnabled()).contains(expectedEidasEnabled);
-        assertThat(testData.getShouldSignWithSha1()).contains(expectedShouldSignWithSha1);
+        assertTrue(testData.getVersion().get().contains(expectedVersion));
+        assertTrue(testData.getEidasEnabled().get().contains(expectedEidasEnabled));
+        assertTrue(testData.getShouldSignWithSha1().get().contains(expectedShouldSignWithSha1));
     }
 
     @Test
@@ -75,8 +76,8 @@ public class HealthCheckDataTest {
                 "test-id-version-" + expectedVersion+
                 "-shouldsignwithsha1-" + expectedShouldSignWithSha1);
 
-        assertThat(testData.getVersion()).contains(expectedVersion+"-shouldsignwithsha1-" + expectedShouldSignWithSha1);
-        assertThat(testData.getEidasEnabled()).isAbsent();
-        assertThat(testData.getShouldSignWithSha1()).isAbsent();
+        assertTrue(testData.getVersion().get().contains(expectedVersion+"-shouldsignwithsha1-" + expectedShouldSignWithSha1));
+        assertFalse(testData.getEidasEnabled().isPresent());
+        assertFalse(testData.getShouldSignWithSha1().isPresent());
     }
 }

@@ -1,13 +1,13 @@
 package uk.gov.ida.hub.samlsoapproxy.builders;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.w3c.dom.Element;
 import uk.gov.ida.hub.samlsoapproxy.rest.HealthCheckResponse;
 
 public class HealthCheckResponseBuilder {
 
     private Element element;
-    private Optional<String> versionNumber = Optional.absent();
+    private Optional<String> versionNumber = Optional.empty();
 
     public static HealthCheckResponseBuilder aHealthCheckResponse(){
         return new HealthCheckResponseBuilder();
@@ -23,7 +23,7 @@ public class HealthCheckResponseBuilder {
     }
 
     public HealthCheckResponseBuilder withVersionNumber(String versionNumber) {
-        this.versionNumber = Optional.fromNullable(versionNumber);
+        this.versionNumber = Optional.ofNullable(versionNumber);
         return this;
     }
 }

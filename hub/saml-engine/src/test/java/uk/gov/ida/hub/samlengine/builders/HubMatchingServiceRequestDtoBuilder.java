@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlengine.builders;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.samlengine.domain.AttributeQueryRequestDto;
 import uk.gov.ida.hub.samlengine.domain.Cycle3Dataset;
@@ -11,15 +11,15 @@ import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;
 import java.net.URI;
 import java.util.List;
 
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 import static uk.gov.ida.hub.samlengine.builders.PersistentIdBuilder.aPersistentId;
 
 public class HubMatchingServiceRequestDtoBuilder {
     private String id = "id";
     private String encryptedAuthnAssertion = "aPassthroughAssertion().buildAuthnStatementAssertion()";
-    private Optional<Cycle3Dataset> cycle3AttributeAssertion = absent();
-    private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes = absent();
+    private Optional<Cycle3Dataset> cycle3AttributeAssertion = empty();
+    private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes = empty();
     private String authnRequestIssuerEntityId = "default-auth-request-issuer-id-from-builder";
     private URI assertionConsumerServiceUri = URI.create("/default-ac-service-uri");
     private String matchingServiceEntityId = "matching-service-entity-id";
@@ -67,7 +67,7 @@ public class HubMatchingServiceRequestDtoBuilder {
     }
 
     public HubMatchingServiceRequestDtoBuilder withCycle3DataAssertion(Cycle3Dataset cycle3Assertion) {
-        this.cycle3AttributeAssertion = fromNullable(cycle3Assertion);
+        this.cycle3AttributeAssertion = ofNullable(cycle3Assertion);
         return this;
     }
 
@@ -89,7 +89,7 @@ public class HubMatchingServiceRequestDtoBuilder {
     public HubMatchingServiceRequestDtoBuilder withUserAccountCreationAttributes(
             final List<UserAccountCreationAttribute> attributes) {
 
-        this.userAccountCreationAttributes = fromNullable(attributes);
+        this.userAccountCreationAttributes = ofNullable(attributes);
         return this;
     }
 

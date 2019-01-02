@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlproxy.handlers;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import io.dropwizard.util.Duration;
@@ -29,7 +29,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -62,14 +61,14 @@ public class HubAsIdpMetadataHandlerTest {
             metadataResolver.initialize();
             return metadataResolver;
         } catch (ComponentInitializationException | InitializationException e) {
-            throw propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
     private HubAsIdpMetadataHandler handler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(samlProxyConfiguration.getFrontendExternalUri()).thenReturn(URI.create("http://localhost"));
         when(samlProxyConfiguration.getMetadataValidDuration()).thenReturn(Duration.parse("5h"));
         when(samlProxyConfiguration.getMetadataConfiguration()).thenReturn(metadataConfiguration);
@@ -82,18 +81,18 @@ public class HubAsIdpMetadataHandlerTest {
     }
 
     @Test
-    public void shouldReturnSingleHubEncryptionCert() throws Exception {
+    public void shouldReturnSingleHubEncryptionCert() {
         HubIdentityProviderMetadataDto metadataAsAnIdentityProvider = handler.getMetadataAsAnIdentityProvider();
 
         final List<Certificate> encryptionCertificates = metadataAsAnIdentityProvider.getEncryptionCertificates();
         assertThat(encryptionCertificates).hasSize(1);
-        final Optional<Certificate> hubEncryptionCertificate = Iterables.tryFind(encryptionCertificates, getPredicateByIssuerId(TestEntityIds.HUB_ENTITY_ID));
+        final Optional<Certificate> hubEncryptionCertificate = Iterables.tryFind(encryptionCertificates, getPredicateByIssuerId(TestEntityIds.HUB_ENTITY_ID)).toJavaUtil();
         assertThat(hubEncryptionCertificate.isPresent()).isTrue();
         assertThat(hubEncryptionCertificate.get().getKeyUse()).isEqualTo(Certificate.KeyUse.Encryption);
     }
 
     @Test
-    public void shouldReturnHubSigningCerts() throws Exception {
+    public void shouldReturnHubSigningCerts() {
         HubIdentityProviderMetadataDto metadataAsAnIdentityProvider = handler.getMetadataAsAnIdentityProvider();
 
         final List<Certificate> signingCertificates = metadataAsAnIdentityProvider.getSigningCertificates();
@@ -103,7 +102,7 @@ public class HubAsIdpMetadataHandlerTest {
     }
 
     @Test
-    public void shouldReturnListOfIDPSigningCerts() throws Exception {
+    public void shouldReturnListOfIDPSigningCerts() {
         HubIdentityProviderMetadataDto metadataAsAnIdentityProvider = handler.getMetadataAsAnIdentityProvider();
 
         List<String> idpSigningCertificates = metadataAsAnIdentityProvider

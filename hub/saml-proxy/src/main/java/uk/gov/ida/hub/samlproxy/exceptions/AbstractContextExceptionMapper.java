@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Strings;
 import com.google.inject.Provider;
 import org.slf4j.Logger;
@@ -53,9 +53,9 @@ public abstract class AbstractContextExceptionMapper<TException extends Exceptio
             parameter = context.get().getParameter(Urls.SharedUrls.RELAY_STATE_PARAM);
         }
         if (Strings.isNullOrEmpty(parameter)) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
-            return Optional.fromNullable(new SessionId(parameter));
+            return Optional.ofNullable(new SessionId(parameter));
         }
     }
 

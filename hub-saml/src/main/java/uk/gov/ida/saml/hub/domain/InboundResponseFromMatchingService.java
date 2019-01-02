@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.domain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.saml.core.domain.IdaMatchingServiceResponse;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;

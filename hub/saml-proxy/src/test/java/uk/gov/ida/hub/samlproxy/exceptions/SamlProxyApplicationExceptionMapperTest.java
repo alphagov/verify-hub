@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.inject.Provider;
 import org.junit.Before;
 import org.junit.Test;

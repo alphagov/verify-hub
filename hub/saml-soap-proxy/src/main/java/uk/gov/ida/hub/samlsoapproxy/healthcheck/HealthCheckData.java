@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 class HealthCheckData {
     
@@ -51,14 +51,14 @@ class HealthCheckData {
     }
 
     public Optional<String> getVersion() {
-        return Optional.fromNullable(version);
+        return Optional.ofNullable(version);
     }
 
     public Optional<String> getEidasEnabled() {
-        return Optional.fromNullable(eidasEnabled);
+        return Optional.ofNullable(eidasEnabled);
     }
 
     public Optional<String> getShouldSignWithSha1() {
-        return Optional.fromNullable(shouldSignWithSha1);
+        return Optional.ofNullable(shouldSignWithSha1);
     }
 }

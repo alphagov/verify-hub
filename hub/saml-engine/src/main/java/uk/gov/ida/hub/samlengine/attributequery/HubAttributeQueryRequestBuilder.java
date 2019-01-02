@@ -27,7 +27,7 @@ public class HubAttributeQueryRequestBuilder {
         //TODO: Updating verify-hub to use the new verify-hub-saml lib, but seems like some of the classes in saml-utils were
         //updated to use Java Utils Optional but objects in ida-hub-saml were not. So we now have a mixture of classes
         //This doesn't relate to our current update - will come back and fix this in later updates.
-        com.google.common.base.Optional<HubAssertion> cycle3AttributeAssertion = com.google.common.base.Optional.fromJavaUtil(createCycle3Assertion(attributeQueryRequestDto));
+        Optional<HubAssertion> cycle3AttributeAssertion = createCycle3Assertion(attributeQueryRequestDto);
 
         return new HubAttributeQueryRequest(
                 attributeQueryRequestDto.getRequestId(),

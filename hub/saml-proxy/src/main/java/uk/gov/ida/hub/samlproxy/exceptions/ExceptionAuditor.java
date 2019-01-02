@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventsink.EventDetails;
 import uk.gov.ida.eventsink.EventSinkMessageSender;

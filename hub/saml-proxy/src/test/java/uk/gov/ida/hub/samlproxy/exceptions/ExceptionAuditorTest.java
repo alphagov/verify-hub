@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -85,7 +85,7 @@ public class ExceptionAuditorTest {
     }
 
     @Test
-    public void shouldNotAuditUnauditedExceptionIfItDoesNotRequireAuditing() throws Exception {
+    public void shouldNotAuditUnauditedExceptionIfItDoesNotRequireAuditing() {
         ApplicationException exception = createUnauditedExceptionThatShouldNotBeAudited();
 
         exceptionAuditor.auditException(exception, Optional.of(SESSION_ID));
@@ -94,7 +94,7 @@ public class ExceptionAuditorTest {
     }
 
     @Test
-    public void shouldAuditWithNoSessionContextIfSessionIdIsNotPresent() throws Exception {
+    public void shouldAuditWithNoSessionContextIfSessionIdIsNotPresent() {
         final UUID errorId = UUID.randomUUID();
         ApplicationException exception = createUnauditedException(
                 ExceptionType.DUPLICATE_SESSION,
@@ -102,7 +102,7 @@ public class ExceptionAuditorTest {
                 URI.create("/some-uri")
         );
 
-        exceptionAuditor.auditException(exception, Optional.<SessionId>absent());
+        exceptionAuditor.auditException(exception, Optional.empty());
 
         verify(eventSinkMessageSender).audit(eq(exception), eq(errorId), eq(SessionId.NO_SESSION_CONTEXT_IN_ERROR), any(EventDetails.class));
     }

@@ -1,17 +1,17 @@
 package uk.gov.ida.hub.samlengine.builders;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus;
 
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 public class InboundResponseFromMatchingServiceBuilder extends ResponseBuilder<InboundResponseFromMatchingServiceBuilder> {
 
-    private Optional<PassthroughAssertion> matchingServiceAssertion = absent();
+    private Optional<PassthroughAssertion> matchingServiceAssertion = empty();
 
     public static InboundResponseFromMatchingServiceBuilder anInboundResponseFromMatchingService() {
         return new InboundResponseFromMatchingServiceBuilder()
@@ -33,7 +33,7 @@ public class InboundResponseFromMatchingServiceBuilder extends ResponseBuilder<I
     }
 
     public InboundResponseFromMatchingServiceBuilder withMatchingServiceAssertion(PassthroughAssertion assertion) {
-        this.matchingServiceAssertion = fromNullable(assertion);
+        this.matchingServiceAssertion = ofNullable(assertion);
         return this;
     }
 }

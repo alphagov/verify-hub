@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.api;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeQuery;
@@ -260,7 +260,7 @@ public class HubTransformersFactory {
             SignatureAlgorithm signatureAlgorithm,
             DigestAlgorithm digestAlgorithm, String hubEntityId) {
         Function<HubAttributeQueryRequest, AttributeQuery> t1 = getHubAttributeQueryRequestToSamlAttributeQueryTransformer();
-        Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.fromNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
+        Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.ofNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
 
         return t2.compose(t1);
     }
@@ -274,7 +274,7 @@ public class HubTransformersFactory {
         String hubEntityId) {
 
         Function<HubEidasAttributeQueryRequest, AttributeQuery> t1 = getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer();
-        Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.fromNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
+        Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.ofNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
 
         return t2.compose(t1);
     }
@@ -287,7 +287,7 @@ public class HubTransformersFactory {
             DigestAlgorithm digestAlgorithm, String hubEntityId) {
         Function<MatchingServiceHealthCheckRequest, AttributeQuery> t1
                 = new MatchingServiceHealthCheckRequestToSamlAttributeQueryTransformer(new OpenSamlXmlObjectFactory());
-        Function<AttributeQuery, Element> attributeQueryToElementTransformer = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.fromNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
+        Function<AttributeQuery, Element> attributeQueryToElementTransformer = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.ofNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
         return attributeQueryToElementTransformer.compose(t1);
     }
 

@@ -2,7 +2,7 @@ package uk.gov.ida.hub.samlsoapproxy.client;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -14,7 +14,7 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ResponseProcessingException;
 import java.net.URI;
 
-import static com.google.common.base.Optional.fromNullable;
+import static java.util.Optional.ofNullable;
 import static java.text.MessageFormat.format;
 
 public class AttributeQueryRequestClient {
@@ -67,7 +67,7 @@ public class AttributeQueryRequestClient {
             final Timer timer = metricsRegistry.timer(MetricRegistry.name(AttributeQueryRequestClient.class, "sendSingleQuery", scope));
             final Timer.Context context = timer.time();
             try {
-                return fromNullable(soapRequestClient.makeSoapRequest(serialisedQuery, matchingServiceUri));
+                return ofNullable(soapRequestClient.makeSoapRequest(serialisedQuery, matchingServiceUri));
             } finally {
                 context.stop();
             }
