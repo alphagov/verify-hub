@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.hub.samlproxy.Urls;
 
@@ -67,6 +68,7 @@ public class AbstractContextExceptionMapperTest {
         Response response = mapper.toResponse(new RuntimeException("We don't expect to see this message"));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        assertThat(response.getEntity()).isInstanceOf(ErrorStatusDto.class);
     }
 
     @Test
