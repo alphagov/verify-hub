@@ -48,7 +48,7 @@ public class SamlProxyApplicationExceptionMapperTest {
     public HttpServletRequest servletRequest;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         servletRequest = mock(HttpServletRequest.class);
         when(servletRequest.getParameter(SESSION_ID_PARAM)).thenReturn(sessionId.toString());
         when(servletRequestProvider.get()).thenReturn(servletRequest);
@@ -60,7 +60,7 @@ public class SamlProxyApplicationExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_shouldAuditException() throws Exception {
+    public void toResponse_shouldAuditException() {
         URI exceptionUri = URI.create("/exception-uri");
         ApplicationException exception = createUnauditedException(exceptionType, errorId, exceptionUri);
 
@@ -70,7 +70,7 @@ public class SamlProxyApplicationExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_shouldReturnAuditedErrorResponse() throws Exception {
+    public void toResponse_shouldReturnAuditedErrorResponse() {
         ApplicationException exception = createAuditedException(exceptionType, errorId);
 
         final Response response = mapper.toResponse(exception);
@@ -81,18 +81,10 @@ public class SamlProxyApplicationExceptionMapperTest {
     }
 
     @Test
-    public void shouldLogExceptionAtCorrectLevel() throws Exception {
+    public void shouldLogExceptionAtCorrectLevel() {
         ApplicationException exception = createAuditedException(exceptionType, errorId);
         mapper.toResponse(exception);
 
         verify(levelLogger).log(eq(exception.getExceptionType().getLevel()), eq(exception), any(UUID.class));
-    }
-
-    private ApplicationException createUnauditedExceptionThatShouldNotBeAudited() {
-        return createUnauditedException(
-                ExceptionType.NETWORK_ERROR,
-                UUID.randomUUID(),
-                URI.create("/some-uri")
-        );
     }
 }

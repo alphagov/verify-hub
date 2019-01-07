@@ -33,7 +33,7 @@ public class SamlProxyApplicationExceptionMapper extends AbstractContextExceptio
         levelLogger.log(exception.getExceptionType().getLevel(), exception, errorId);
 
         return Response.serverError()
-                .entity(ErrorStatusDto.createAuditedErrorStatus(errorId, exception.getExceptionType()))
+                .entity(ErrorStatusDto.createAuditedErrorStatus(errorId, exception.getExceptionType(), exception.getMessage()))
                 .build();
     }
 }

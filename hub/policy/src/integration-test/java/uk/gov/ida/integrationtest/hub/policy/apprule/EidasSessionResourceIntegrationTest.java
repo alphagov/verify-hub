@@ -39,6 +39,7 @@ import java.util.Arrays;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.OTHER;
+import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.EIDAS_AUTHN_FAILED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.EIDAS_COUNTRY_SELECTED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
 
@@ -109,7 +110,7 @@ public class EidasSessionResourceIntegrationTest {
     }
 
     @Test
-    public void shouldFailWhenSessionIsInvalid() throws Exception {
+    public void shouldFailWhenSessionIsInvalid() {
         SessionId sessionId = SessionId.createNewSessionId();
 
         Response response = postAuthnResponseToPolicy(sessionId);
@@ -135,6 +136,17 @@ public class EidasSessionResourceIntegrationTest {
         Response response = postAuthnResponseToPolicy(sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void shouldReturnPackagedFailureResponseWhenSessionInEidasAuthnFailedState() {
+        final SessionId sessionId = createSessionInEidasAuthnFailedState();
+
+        final Response response = postAuthnResponseToPolicy(sessionId);
+        final ResponseAction responseAction = response.readEntity(ResponseAction.class);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(responseAction.getResult()).isEqualTo(OTHER);
     }
 
     @Test
@@ -174,6 +186,13 @@ public class EidasSessionResourceIntegrationTest {
                 uri,
                 RP_ENTITY_ID,
                 true);
+        return sessionId;
+    }
+
+    private SessionId createSessionInEidasAuthnFailedState() {
+        SessionId sessionId = SessionId.createNewSessionId();
+        URI uri = policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + EIDAS_AUTHN_FAILED_STATE).build().toASCIIString());
+        TestSessionResourceHelper.createSessionInEidasAuthnFailedErrorState(sessionId, client, uri);
         return sessionId;
     }
 
