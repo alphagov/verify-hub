@@ -11,6 +11,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectedStateController;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
@@ -48,6 +49,10 @@ public class AuthnResponseFromCountryService {
     public ResponseAction receiveAuthnResponseFromCountry(SessionId sessionId,
                                                           SamlAuthnResponseContainerDto responseFromCountry) {
 
+        if (sessionRepository.sessionExists(sessionId) && sessionRepository.isSessionInState(sessionId, EidasAuthnFailedErrorState.class)) {
+            return nonSuccessResponse(sessionId);
+        }
+
         EidasCountrySelectedStateController stateController = (EidasCountrySelectedStateController) sessionRepository.getStateController(sessionId, EidasCountrySelectedState.class);
         validateCountryIsIn(countriesService.getCountries(sessionId), stateController.getCountryEntityId());
 
@@ -70,7 +75,7 @@ public class AuthnResponseFromCountryService {
                 responseAction = handleAuthenticationFailedResponse(responseFromCountry, sessionId, stateController);
                 break;
             default:
-                responseAction = handleOtherResponse(sessionId);
+                responseAction = nonSuccessResponse(sessionId);
                 break;
         }
 
@@ -104,10 +109,10 @@ public class AuthnResponseFromCountryService {
                                                               EidasCountrySelectedStateController stateController) {
         stateController.handleAuthenticationFailedResponseFromCountry(responseFromCountry.getPrincipalIPAddressAsSeenByHub(), responseFromCountry.getAnalyticsSessionId(), responseFromCountry.getJourneyType());
 
-        return other(sessionId, false);
+        return nonSuccessResponse(sessionId);
     }
 
-    private ResponseAction handleOtherResponse(SessionId sessionId) {
+    private ResponseAction nonSuccessResponse(SessionId sessionId) {
         return other(sessionId, false);
     }
 

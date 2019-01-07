@@ -27,6 +27,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectedStateController;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
+import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
@@ -74,45 +75,45 @@ public class AuthnResponseFromCountryServiceTest {
     private static final SamlAuthnResponseTranslatorDto NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().withMatchingServiceEntityId(TEST_RP).build();
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY = new InboundResponseFromCountry(
-        Status.Success,
-        Optional.absent(),
-        STUB_IDP_ONE,
-        Optional.of(BLOB),
-        Optional.of(PID),
-        Optional.of(LEVEL_2),
-        Optional.absent());
+            Status.Success,
+            Optional.absent(),
+            STUB_IDP_ONE,
+            Optional.of(BLOB),
+            Optional.of(PID),
+            Optional.of(LEVEL_2),
+            Optional.absent());
 
     private static final EidasAttributeQueryRequestDto EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO = new EidasAttributeQueryRequestDto(
-        REQUEST_ID,
-        TEST_RP,
-        ASSERTION_CONSUMER_SERVICE_URI,
-        TIMESTAMP.plus(ASSERTION_EXPIRY),
-        TEST_RP_MS,
-        MSA_URI,
-        TIMESTAMP.plus(MATCHING_SERVICE_RESPONSE_WAIT_PERIOD),
-        IS_ONBOARDING,
-        LEVEL_2,
-        new PersistentId(PID),
-        Optional.absent(),
-        Optional.absent(),
-        BLOB
+            REQUEST_ID,
+            TEST_RP,
+            ASSERTION_CONSUMER_SERVICE_URI,
+            TIMESTAMP.plus(ASSERTION_EXPIRY),
+            TEST_RP_MS,
+            MSA_URI,
+            TIMESTAMP.plus(MATCHING_SERVICE_RESPONSE_WAIT_PERIOD),
+            IS_ONBOARDING,
+            LEVEL_2,
+            new PersistentId(PID),
+            Optional.absent(),
+            Optional.absent(),
+            BLOB
     );
 
     private static final AttributeQueryContainerDto ATTRIBUTE_QUERY_CONTAINER_DTO = new AttributeQueryContainerDto(
-        SAML_REQUEST,
-        MSA_URI,
-        REQUEST_ID,
-        TIMESTAMP,
-        TEST_RP,
-        IS_ONBOARDING);
+            SAML_REQUEST,
+            MSA_URI,
+            REQUEST_ID,
+            TIMESTAMP,
+            TEST_RP,
+            IS_ONBOARDING);
 
     private static final AttributeQueryRequest ATTRIBUTE_QUERY_REQUEST = new AttributeQueryRequest(
-        REQUEST_ID,
-        TEST_RP,
-        SAML_REQUEST,
-        MSA_URI,
-        TIMESTAMP,
-        IS_ONBOARDING);
+            REQUEST_ID,
+            TEST_RP,
+            SAML_REQUEST,
+            MSA_URI,
+            TIMESTAMP,
+            IS_ONBOARDING);
 
     private AuthnResponseFromCountryService service;
 
@@ -141,11 +142,11 @@ public class AuthnResponseFromCountryServiceTest {
     public void setup() {
         DateTimeUtils.setCurrentMillisFixed(TIMESTAMP.getMillis());
         service = new AuthnResponseFromCountryService(
-            samlEngineProxy,
-            samlSoapProxyProxy,
-            sessionRepository,
-            samlAuthnResponseTranslatorDtoFactory,
-            countriesService);
+                samlEngineProxy,
+                samlSoapProxyProxy,
+                sessionRepository,
+                samlAuthnResponseTranslatorDtoFactory,
+                countriesService);
         when(sessionRepository.getStateController(SESSION_ID, EidasCountrySelectedState.class)).thenReturn(stateController);
         when(stateController.getMatchingServiceEntityId()).thenReturn(TEST_RP_MS);
         when(stateController.getCountryEntityId()).thenReturn(COUNTRY_ENTITY_ID);
@@ -194,12 +195,12 @@ public class AuthnResponseFromCountryServiceTest {
     public void shouldReturnSuccessResponseIfTranslationResponseFromSamlEngineIsSuccessfulAndUsingMatching() {
         final InboundResponseFromCountry inboundResponseFromCountry =
                 new InboundResponseFromCountry(Status.Success,
-                                               Optional.of("status"),
-                                               "issuer",
-                                               Optional.of("blob"),
-                                               Optional.of("pid"),
-                                               Optional.of(LEVEL_2),
-                                               Optional.absent());
+                        Optional.of("status"),
+                        "issuer",
+                        Optional.of("blob"),
+                        Optional.of("pid"),
+                        Optional.of(LEVEL_2),
+                        Optional.absent());
 
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
                 .thenReturn(inboundResponseFromCountry);
@@ -227,15 +228,25 @@ public class AuthnResponseFromCountryServiceTest {
     }
 
     @Test
+    public void shouldReturnOtherResponseIfSessionSessionInEidasAuthnFailedState() {
+        when(sessionRepository.sessionExists(SESSION_ID)).thenReturn(true);
+        when(sessionRepository.isSessionInState(SESSION_ID, EidasAuthnFailedErrorState.class)).thenReturn(true);
+
+        final ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
+
+        assertThat(responseAction.getResult()).isEqualTo(OTHER);
+    }
+
+    @Test
     public void shouldReturnOtherResponseIfTranslationResponseFromSamlEngineIsFailure() {
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
                 .thenReturn(new InboundResponseFromCountry(Status.Failure,
-                                                           Optional.of("status"),
-                                                           "issuer",
-                                                           Optional.of("blob"),
-                                                           Optional.of("pid"),
-                                                           Optional.of(LEVEL_2),
-                                                           Optional.absent()));
+                        Optional.of("status"),
+                        "issuer",
+                        Optional.of("blob"),
+                        Optional.of("pid"),
+                        Optional.of(LEVEL_2),
+                        Optional.absent()));
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 
