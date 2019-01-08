@@ -8,7 +8,6 @@ import io.dropwizard.setup.Environment;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.eventemitter.Configuration;
-import uk.gov.ida.eventsink.EventSink;
 import uk.gov.ida.eventsink.EventSinkHttpProxy;
 import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.annotations.Config;
@@ -65,7 +64,6 @@ public class PolicyModule extends AbstractModule {
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
         bind(InfinispanStartupTasks.class).asEagerSingleton();
         bind(JsonResponseProcessor.class);
-        bind(EventSinkProxy.class).to(EventSinkHttpProxy.class);
         bind(HubEventLogger.class);
         bind(SessionService.class);
         bind(CountriesService.class);
@@ -152,10 +150,13 @@ public class PolicyModule extends AbstractModule {
     }
 
     @Provides
-    @EventSink
     @Singleton
-    public URI eventSinkUri(PolicyConfiguration policyConfiguration) {
-        return policyConfiguration.getEventSinkUri();
+    public EventSinkProxy eventSinkProxy(JsonClient jsonClient, PolicyConfiguration policyConfiguration, Environment environment) {
+        URI eventSinkUri = policyConfiguration.getEventSinkUri();
+        if (eventSinkUri != null) {
+            return new EventSinkHttpProxy(jsonClient, eventSinkUri, environment);
+        }
+        return event -> {};
     }
 
 

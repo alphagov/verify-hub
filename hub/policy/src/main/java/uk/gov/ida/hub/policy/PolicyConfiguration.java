@@ -56,7 +56,6 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     public Boolean enableRetryTimeOutConnections = false;
 
     @Valid
-    @NotNull
     @JsonProperty
     public URI eventSinkUri;
 

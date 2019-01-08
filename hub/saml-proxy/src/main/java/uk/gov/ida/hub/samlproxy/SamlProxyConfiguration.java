@@ -57,7 +57,6 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     protected Boolean enableRetryTimeOutConnections = false;
 
     @Valid
-    @NotNull
     @JsonProperty
     protected URI eventSinkUri;
 
