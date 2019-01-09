@@ -60,7 +60,6 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     protected Boolean enableRetryTimeOutConnections = false;
 
     @Valid
-    @NotNull
     @JsonProperty
     protected URI eventSinkUri;
 

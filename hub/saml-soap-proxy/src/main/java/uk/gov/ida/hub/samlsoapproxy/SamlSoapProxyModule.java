@@ -22,7 +22,6 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.eventemitter.Configuration;
-import uk.gov.ida.eventsink.EventSink;
 import uk.gov.ida.eventsink.EventSinkHttpProxy;
 import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.samlsoapproxy.annotations.Config;
@@ -95,7 +94,6 @@ public class SamlSoapProxyModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(TrustStoreConfiguration.class).to(SamlSoapProxyConfiguration.class);
-        bind(EventSinkProxy.class).to(EventSinkHttpProxy.class);
         bind(PublicKeyInputStreamFactory.class).toInstance(new PublicKeyFileInputStreamFactory());
         bind(RestfulClientConfiguration.class).to(SamlSoapProxyConfiguration.class);
         bind(Client.class).toProvider(DefaultClientProvider.class).asEagerSingleton();
@@ -258,10 +256,13 @@ public class SamlSoapProxyModule extends AbstractModule {
     }
 
     @Provides
-    @EventSink
     @Singleton
-    public URI eventSinkUri(SamlSoapProxyConfiguration policyConfiguration) {
-        return policyConfiguration.getEventSinkUri();
+    public EventSinkProxy eventSinkProxy(JsonClient jsonClient, SamlSoapProxyConfiguration samlSoapProxyConfiguration, Environment environment) {
+        URI eventSinkUri = samlSoapProxyConfiguration.getEventSinkUri();
+        if (eventSinkUri != null) {
+            return new EventSinkHttpProxy(jsonClient, eventSinkUri, environment);
+        }
+        return event -> {};
     }
 
     @Provides

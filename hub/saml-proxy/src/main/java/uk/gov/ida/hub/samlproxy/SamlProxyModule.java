@@ -22,7 +22,6 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.eventemitter.Configuration;
-import uk.gov.ida.eventsink.EventSink;
 import uk.gov.ida.eventsink.EventSinkHttpProxy;
 import uk.gov.ida.eventsink.EventSinkMessageSender;
 import uk.gov.ida.eventsink.EventSinkProxy;
@@ -110,7 +109,6 @@ public class SamlProxyModule extends AbstractModule {
         bind(PublicKeyInputStreamFactory.class).toInstance(new PublicKeyFileInputStreamFactory());
         bind(SigningKeyStore.class).to(AuthnRequestKeyStore.class);
         bind(Client.class).toProvider(DefaultClientProvider.class).in(Scopes.SINGLETON);
-        bind(EventSinkProxy.class).to(EventSinkHttpProxy.class);
         bind(ConfigServiceKeyStore.class).asEagerSingleton();
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
         bind(ResponseMaxSizeValidator.class);
@@ -386,9 +384,13 @@ public class SamlProxyModule extends AbstractModule {
     }
 
     @Provides
-    @EventSink
-    public URI eventSinkUri(SamlProxyConfiguration policyConfiguration) {
-        return policyConfiguration.getEventSinkUri();
+    @Singleton
+    public EventSinkProxy eventSinkProxy(JsonClient jsonClient, SamlProxyConfiguration samlProxyConfiguration, Environment environment) {
+        URI eventSinkUri = samlProxyConfiguration.getEventSinkUri();
+        if (eventSinkUri != null) {
+            return new EventSinkHttpProxy(jsonClient, eventSinkUri, environment);
+        }
+        return event -> {};
     }
 
     @Provides
