@@ -51,6 +51,7 @@ httpClient:
   tls:
     protocol: TLSv1.2
     verifyHostname: false
+    trustSelfSignedCertificates: true
     trustStorePath: /ida/saml-proxy/saml-proxy.ks
     trustStorePassword: ${KEYSTORE_PASSWORD}
 

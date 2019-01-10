@@ -53,6 +53,7 @@ httpClient:
   tls:
     protocol: TLSv1.2
     verifyHostname: false
+    trustSelfSignedCertificates: true
     trustStorePath: /ida/saml-engine/saml-engine.ks
     trustStorePassword: ${HTTP_TLS_TRUSTSTORE_PASSWORD}
 
