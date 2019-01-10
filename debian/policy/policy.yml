@@ -104,6 +104,7 @@ samlSoapProxyClient:
     protocol: TLSv1.2
     trustStorePath: /ida/truststore/saml_soap_proxy_tls_truststore.ts
     trustStorePassword: ${SAML_SOAP_PROXY_TLS_TRUSTSTORE_PASSWORD}
+    trustSelfSignedCertificates: true
     verifyHostname: ${SAML_SOAP_PROXY_TLS_CLIENT_VERIFYHOSTNAME}
 
 configUri: https://config:50243
