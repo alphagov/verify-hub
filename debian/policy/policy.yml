@@ -90,6 +90,7 @@ httpClient:
     protocol: TLSv1.2
     trustStorePath: /ida/policy/policy.ks
     trustStorePassword: ${HTTP_TLS_TRUSTSTORE_PASSWORD}
+    trustSelfSignedCertificates: true
     verifyHostname: false
 
 samlSoapProxyClient:
