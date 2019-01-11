@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.StandardToStringStyle;
@@ -16,9 +17,13 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
 
     private static final long serialVersionUID = 7151768021473278078L;
 
+    @JsonProperty
     protected final String identityProviderEntityId;
+    @JsonProperty
     protected final String matchingServiceAssertion;
+    @JsonProperty
     protected final Optional<String> relayState;
+    @JsonProperty
     protected final LevelOfAssurance levelOfAssurance;
 
     public AbstractSuccessfulMatchState(

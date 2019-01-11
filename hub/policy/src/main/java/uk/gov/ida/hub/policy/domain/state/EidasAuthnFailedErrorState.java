@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -11,19 +13,22 @@ public class EidasAuthnFailedErrorState extends AbstractAuthnFailedErrorState im
 
     private static final long serialVersionUID = -6087079428518232137L;
 
+    @JsonProperty
     private String countryEntityId;
+    @JsonProperty
     private List<LevelOfAssurance> levelsOfAssurance;
 
+    @JsonCreator
     public EidasAuthnFailedErrorState(
-            String requestId,
-            String authnRequestIssuerEntityId,
-            DateTime sessionExpiryTimestamp,
-            URI assertionConsumerServiceUri,
-            String relayState,
-            SessionId sessionId,
-            String countryEntityId,
-            List<LevelOfAssurance> levelsOfAssurance,
-            Boolean forceAuthentication) {
+            @JsonProperty("requestId") final String requestId,
+            @JsonProperty("authnRequestIssuerEntityId") final String authnRequestIssuerEntityId,
+            @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+            @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+            @JsonProperty("relayState") final String relayState,
+            @JsonProperty("sessionId") final SessionId sessionId,
+            @JsonProperty("countryEntityId") final String countryEntityId,
+            @JsonProperty("levelsOfAssurance") final List<LevelOfAssurance> levelsOfAssurance,
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 
         super(
             requestId,

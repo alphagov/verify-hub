@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -11,18 +13,19 @@ public class UserAccountCreationRequestSentState extends MatchRequestSentState i
 
     private static final long serialVersionUID = -3124130170426481847L;
 
+    @JsonCreator
     public UserAccountCreationRequestSentState(
-            final String requestId,
-            final String requestIssuerEntityId,
-            final DateTime sessionExpiryTimestamp,
-            final URI assertionConsumerServiceUri,
-            final SessionId sessionId,
-            final boolean transactionSupportsEidas,
-            final String identityProviderEntityId,
-            final String relayState,
-            final LevelOfAssurance idpLevelOfAssurance,
-            final boolean registering,
-            final String matchingServiceAdapterEntityId) {
+            @JsonProperty("requestId") final String requestId,
+            @JsonProperty("requestIssuerEntityId") final String requestIssuerEntityId,
+            @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+            @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+            @JsonProperty("sessionId") final SessionId sessionId,
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
+            @JsonProperty("identityProviderEntityId") final String identityProviderEntityId,
+            @JsonProperty("relayState") final String relayState,
+            @JsonProperty("idpLevelOfAssurance") final LevelOfAssurance idpLevelOfAssurance,
+            @JsonProperty("registering") final boolean registering,
+            @JsonProperty("matchingServiceAdapterEntityId") final String matchingServiceAdapterEntityId) {
 
         super(
                 requestId,

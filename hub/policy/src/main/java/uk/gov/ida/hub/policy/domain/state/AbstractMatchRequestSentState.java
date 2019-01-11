@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -13,10 +14,15 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
 
     private static final long serialVersionUID = -3235068474581736050L;
 
+    @JsonProperty
     private final String identityProviderEntityId;
+    @JsonProperty
     private final Optional<String> relayState;
+    @JsonProperty
     private final LevelOfAssurance idpLevelOfAssurance;
+    @JsonProperty
     private final String matchingServiceAdapterEntityId;
+    @JsonProperty
     private final DateTime requestSentTime;
 
     protected AbstractMatchRequestSentState(

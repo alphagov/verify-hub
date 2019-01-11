@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
@@ -14,10 +15,15 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
 
     private static final long serialVersionUID = -3139156310818993792L;
 
+    @JsonProperty
     private final String identityProviderEntityId;
+    @JsonProperty
     private final String matchingServiceEntityId;
+    @JsonProperty
     private final Optional<String> relayState;
+    @JsonProperty
     private final PersistentId persistentId;
+    @JsonProperty
     private final LevelOfAssurance levelOfAssurance;
 
     public AbstractAwaitingCycle3DataState(

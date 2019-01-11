@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
@@ -11,12 +12,19 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
 
     private static final long serialVersionUID = -4735026295130074234L;
 
+    @JsonProperty
     private final String requestId;
+    @JsonProperty
     private final String requestIssuerEntityId;
+    @JsonProperty
     private final DateTime sessionExpiryTimestamp;
+    @JsonProperty
     private final URI assertionConsumerServiceUri;
+    @JsonProperty
     private final SessionId sessionId;
+    @JsonProperty
     private final boolean transactionSupportsEidas;
+    @JsonProperty
     private final Boolean forceAuthentication;
 
     protected AbstractState(

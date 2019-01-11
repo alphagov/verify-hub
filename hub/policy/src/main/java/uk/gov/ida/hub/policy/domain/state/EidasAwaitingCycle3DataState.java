@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.StandardToStringStyle;
@@ -11,26 +13,28 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.net.URI;
 import java.util.Objects;
 
-public final class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
+public class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
 
     private static final long serialVersionUID = -9056285913241958733L;
 
+    @JsonProperty
     private final String encryptedIdentityAssertion;
 
+    @JsonCreator
     public EidasAwaitingCycle3DataState(
-        final String requestId,
-        final String requestIssuerId,
-        final DateTime sessionExpiryTimestamp,
-        final URI assertionConsumerServiceUri,
-        final SessionId sessionId,
-        final boolean transactionSupportsEidas,
-        final String identityProviderEntityId,
-        final String matchingServiceAdapterEntityId,
-        final Optional<String> relayState,
-        final PersistentId persistentId,
-        final LevelOfAssurance levelOfAssurance,
-        final String encryptedIdentityAssertion,
-        final Boolean forceAuthentication) {
+        @JsonProperty("requestId") final String requestId,
+        @JsonProperty("requestIssuerId") final String requestIssuerId,
+        @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+        @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+        @JsonProperty("sessionId") final SessionId sessionId,
+        @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
+        @JsonProperty("identityProviderEntityId") final String identityProviderEntityId,
+        @JsonProperty("matchingServiceAdapterEntityId") final String matchingServiceAdapterEntityId,
+        @JsonProperty("relayState") final Optional<String> relayState,
+        @JsonProperty("persistentId") final PersistentId persistentId,
+        @JsonProperty("levelOfAssurance") final LevelOfAssurance levelOfAssurance,
+        @JsonProperty("encryptedIdentityAssertion") final String encryptedIdentityAssertion,
+        @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 
         super(
             requestId,

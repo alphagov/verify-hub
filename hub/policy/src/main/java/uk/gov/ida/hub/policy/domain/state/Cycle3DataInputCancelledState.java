@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
@@ -9,20 +11,22 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Objects;
 
-public final class Cycle3DataInputCancelledState extends AbstractState implements ResponsePreparedState, Serializable {
+public class Cycle3DataInputCancelledState extends AbstractState implements ResponsePreparedState, Serializable {
 
     private static final long serialVersionUID = 9016732137997928472L;
 
+    @JsonProperty
     private final Optional<String> relayState;
 
+    @JsonCreator
     public Cycle3DataInputCancelledState(
-        final String requestId,
-        final DateTime sessionExpiryTimestamp,
-        final Optional<String> relayState,
-        final String requestIssuerId,
-        final URI assertionConsumerServiceUri,
-        final SessionId sessionId,
-        final boolean transactionSupportsEidas) {
+        @JsonProperty("requestId") final String requestId,
+        @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+        @JsonProperty("relayState") final Optional<String> relayState,
+        @JsonProperty("requestIssuerId") final String requestIssuerId,
+        @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+        @JsonProperty("sessionId") final SessionId sessionId,
+        @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
 
         super(
             requestId,

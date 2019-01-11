@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
@@ -11,17 +12,18 @@ public abstract class AbstractUserAccountCreationFailedState extends AbstractSta
 
     private static final long serialVersionUID = 1388066257920569091L;
 
+    @JsonProperty
     private Optional<String> relayState;
 
     public AbstractUserAccountCreationFailedState(
-        String requestId,
-        String authnRequestIssuerEntityId,
-        DateTime sessionExpiryTimestamp,
-        URI assertionConsumerServiceUri,
-        Optional<String> relayState,
-        SessionId sessionId,
-        boolean transactionSupportsEidas,
-        Boolean forceAuthentication) {
+        final String requestId,
+        final String authnRequestIssuerEntityId,
+        final DateTime sessionExpiryTimestamp,
+        final URI assertionConsumerServiceUri,
+        final Optional<String> relayState,
+        final SessionId sessionId,
+        final boolean transactionSupportsEidas,
+        final Boolean forceAuthentication) {
 
         super(
             requestId,

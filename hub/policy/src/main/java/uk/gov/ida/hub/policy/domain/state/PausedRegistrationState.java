@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
@@ -12,16 +14,29 @@ public class PausedRegistrationState extends AbstractState implements State {
 
     private static final long serialVersionUID = 8208525157755502287L;
 
+    @JsonProperty
     private Optional<String> relayState;
 
-    public PausedRegistrationState(String requestId,
-                                   String requestIssuerId,
-                                   DateTime sessionExpiryTimestamp,
-                                   URI assertionConsumerServiceUri,
-                                   SessionId sessionId,
-                                   boolean transactionSupportsEidas,
-                                   Optional<String> relayState) {
-        super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
+    @JsonCreator
+    public PausedRegistrationState(
+           @JsonProperty("requestId") final String requestId,
+           @JsonProperty("requestIssuerId") final String requestIssuerId,
+           @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+           @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+           @JsonProperty("sessionId") final SessionId sessionId,
+           @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
+           @JsonProperty("relayState") final Optional<String> relayState) {
+
+        super(
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                null
+        );
+
         this.relayState = relayState;
     }
 
