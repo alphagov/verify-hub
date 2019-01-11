@@ -1,4 +1,4 @@
-package uk.gov.ida.hub.policy.domain.state.serialization;
+package uk.gov.ida.hub.policy.domain.serialization;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -12,7 +12,7 @@ import java.io.Serializable;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SerializationHelpers {
+class StateSerializationHelpers {
 
     static void assertDeserializedForm(String actualBase64Form, Object expectedObject) {
         assertThat(expectedObject).isInstanceOf(Serializable.class);

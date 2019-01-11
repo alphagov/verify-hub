@@ -155,7 +155,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
 
         verify(stateTransitionAction).transitionTo(capturedState.capture());
-        assertThat(capturedState.getValue()).isEqualTo(expectedState);
+        assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
     }
 
     @Test
@@ -218,6 +218,6 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
 
         verify(stateTransitionAction).transitionTo(capturedState.capture());
-        assertThat(capturedState.getValue()).isEqualTo(expectedState);
+        assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
     }
 }

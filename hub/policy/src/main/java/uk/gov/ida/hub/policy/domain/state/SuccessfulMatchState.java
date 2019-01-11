@@ -45,24 +45,4 @@ public final class SuccessfulMatchState extends AbstractSuccessfulMatchState {
     public boolean isRegistering() {
         return isRegistering;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        SuccessfulMatchState that = (SuccessfulMatchState) o;
-
-        return Objects.equals(isRegistering, that.isRegistering) && super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(isRegistering, super.hashCode());
-    }
 }
