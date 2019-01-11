@@ -17,7 +17,7 @@ import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.eventsink.EventSinkProxy;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;

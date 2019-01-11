@@ -3,7 +3,7 @@ package uk.gov.ida.integrationtest.hub.policy.builders;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 
 import java.net.URI;

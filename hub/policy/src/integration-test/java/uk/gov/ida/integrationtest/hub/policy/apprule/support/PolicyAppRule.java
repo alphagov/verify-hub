@@ -7,7 +7,7 @@ import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 

@@ -1,4 +1,4 @@
-package uk.gov.ida.hub.policy;
+package uk.gov.ida.hub.policy.configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,6 +8,8 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
+import uk.gov.ida.hub.policy.configuration.AssertionLifetimeConfiguration;
+import uk.gov.ida.hub.policy.configuration.EventEmitterConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanConfiguration;
 import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanServiceConfiguration;

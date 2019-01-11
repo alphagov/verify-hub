@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;

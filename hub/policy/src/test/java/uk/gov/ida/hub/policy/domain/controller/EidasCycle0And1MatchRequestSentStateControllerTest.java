@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.MatchingProcess;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;

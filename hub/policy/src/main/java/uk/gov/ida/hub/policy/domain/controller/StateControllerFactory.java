@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import com.google.inject.Injector;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.PolicyState;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;

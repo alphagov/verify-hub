@@ -1,4 +1,4 @@
-package uk.gov.ida.hub.policy;
+package uk.gov.ida.hub.policy.configuration;
 
 import io.dropwizard.util.Duration;
 
