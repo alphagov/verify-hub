@@ -17,6 +17,7 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.exception.SessionTimeoutException;
+import uk.gov.ida.hub.policy.session.InfinispanSessionStore;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.net.URI;
@@ -50,7 +51,7 @@ public class SessionRepositoryTest {
     @Before
     public void setup() {
         dataStore = new ConcurrentHashMap<>();
-        sessionRepository = new SessionRepository(dataStore, controllerFactory);
+        sessionRepository = new SessionRepository(new InfinispanSessionStore(dataStore), controllerFactory);
     }
 
     @Test(expected = InvalidSessionStateException.class)

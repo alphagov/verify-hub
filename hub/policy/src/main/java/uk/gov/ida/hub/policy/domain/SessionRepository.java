@@ -17,9 +17,9 @@ import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.exception.SessionTimeoutException;
+import uk.gov.ida.hub.policy.session.SessionStore;
 
 import javax.inject.Inject;
-import java.util.concurrent.ConcurrentMap;
 
 import static java.text.MessageFormat.format;
 
@@ -27,14 +27,13 @@ public class SessionRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionRepository.class);
 
-    private final ConcurrentMap<SessionId, State> dataStore;
+    private final SessionStore dataStore;
     private final StateControllerFactory controllerFactory;
 
     @Inject
     public SessionRepository(
-            ConcurrentMap<SessionId, State> dataStore,
+            SessionStore dataStore,
             StateControllerFactory controllerFactory) {
-
         this.dataStore = dataStore;
         this.controllerFactory = controllerFactory;
     }
@@ -42,7 +41,7 @@ public class SessionRepository {
     public SessionId createSession(SessionStartedState startedState) {
         SessionId sessionId = startedState.getSessionId();
 
-        dataStore.put(sessionId, startedState);
+        dataStore.insert(sessionId, startedState);
         LOG.info(format("Session {0} created", sessionId.getSessionId()));
 
         return sessionId;
@@ -69,7 +68,7 @@ public class SessionRepository {
 
     @Timed(name = Urls.SESSION_REPO_TIMED_GROUP)
     public boolean sessionExists(SessionId sessionId) {
-        return dataStore.containsKey(sessionId);
+        return dataStore.hasSession(sessionId);
     }
 
     @Timed(name =Urls.SESSION_REPO_TIMED_GROUP)
@@ -125,16 +124,15 @@ public class SessionRepository {
     private void handleTimeout(SessionId sessionId, State state, Class<? extends State> stateClass, Class<? extends State> expectedStateClass) {
         boolean needsStateChangedToTimeout = isTimedOut(sessionId) && !stateClass.equals(TimeoutState.class);
         if (needsStateChangedToTimeout) {
-            dataStore.replace(
-                    sessionId,
-                    new TimeoutState(
-                            state.getRequestId(),
-                            state.getRequestIssuerEntityId(),
-                            state.getSessionExpiryTimestamp(),
-                            state.getAssertionConsumerServiceUri(),
-                            state.getSessionId(),
-                            state.getTransactionSupportsEidas()
-                    ));
+            TimeoutState timeoutState = new TimeoutState(
+                    state.getRequestId(),
+                    state.getRequestIssuerEntityId(),
+                    state.getSessionExpiryTimestamp(),
+                    state.getAssertionConsumerServiceUri(),
+                    state.getSessionId(),
+                    state.getTransactionSupportsEidas()
+            );
+            dataStore.replace(sessionId, timeoutState);
         }
 
         boolean unexpectedErrorState = isErrorState(stateClass) && !isErrorState(expectedStateClass);
@@ -150,7 +148,7 @@ public class SessionRepository {
     }
 
     private boolean isTimedOut(SessionId sessionId) {
-        if (dataStore.containsKey(sessionId)) {
+        if (dataStore.hasSession(sessionId)) {
             DateTime expiryTime = dataStore.get(sessionId).getSessionExpiryTimestamp();
             return DateTime.now().isAfter(expiryTime);
         } else {

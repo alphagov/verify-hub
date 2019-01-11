@@ -17,9 +17,7 @@ import uk.gov.ida.hub.policy.controllogic.AuthnRequestFromTransactionHandler;
 import uk.gov.ida.hub.policy.controllogic.ResponseFromIdpHandler;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
-import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
-import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
@@ -35,6 +33,8 @@ import uk.gov.ida.hub.policy.services.CountriesService;
 import uk.gov.ida.hub.policy.services.Cycle3Service;
 import uk.gov.ida.hub.policy.services.MatchingServiceResponseService;
 import uk.gov.ida.hub.policy.services.SessionService;
+import uk.gov.ida.hub.policy.session.InfinispanSessionStore;
+import uk.gov.ida.hub.policy.session.SessionStore;
 import uk.gov.ida.jerseyclient.DefaultClientProvider;
 import uk.gov.ida.jerseyclient.ErrorHandlingClient;
 import uk.gov.ida.jerseyclient.JsonClient;
@@ -51,7 +51,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.KeyStore;
-import java.util.concurrent.ConcurrentMap;
 
 public class PolicyModule extends AbstractModule {
 
@@ -62,7 +61,7 @@ public class PolicyModule extends AbstractModule {
         bind(Client.class).toProvider(DefaultClientProvider.class).in(Scopes.SINGLETON);
         bind(KeyStore.class).toProvider(KeyStoreProvider.class).in(Scopes.SINGLETON);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
-        bind(InfinispanStartupTasks.class).asEagerSingleton();
+        bind(SessionStoreStartupTasks.class).asEagerSingleton();
         bind(JsonResponseProcessor.class);
         bind(HubEventLogger.class);
         bind(SessionService.class);
@@ -126,8 +125,8 @@ public class PolicyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public ConcurrentMap<SessionId, State> sessionCache(InfinispanCacheManager infinispanCacheManager) {
-        return infinispanCacheManager.getCache("state_cache");
+    public SessionStore getSessionStore(InfinispanCacheManager infinispanCacheManager) {
+        return new InfinispanSessionStore(infinispanCacheManager.getCache("state_cache"));
     }
 
     @Provides
