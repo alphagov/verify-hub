@@ -32,13 +32,9 @@ logging:
 
 
 sessionStore:
-  infinispan:
-    bindAddress:
-    initialHosts:
-    clusterName:
-    type: standalone
-    expiration: 8h
-    persistenceToFileEnabled: false
+  redis:
+    singleServerConfig:
+      address: "redis://replace.me:1234"
 
 eventSinkUri: ${EVENTSINK_URI:-http://localhost:51100}
 

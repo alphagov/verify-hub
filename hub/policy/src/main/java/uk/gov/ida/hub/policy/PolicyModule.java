@@ -1,10 +1,16 @@
 package uk.gov.ida.hub.policy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import io.dropwizard.setup.Environment;
+import org.redisson.Redisson;
+import org.redisson.api.RMap;
+import org.redisson.codec.JsonJacksonCodec;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.eventemitter.Configuration;
@@ -15,11 +21,14 @@ import uk.gov.ida.hub.policy.annotations.SamlEngine;
 import uk.gov.ida.hub.policy.annotations.SamlSoapProxy;
 import uk.gov.ida.hub.policy.configuration.AssertionLifetimeConfiguration;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.RedisConfiguration;
 import uk.gov.ida.hub.policy.controllogic.AuthnRequestFromTransactionHandler;
 import uk.gov.ida.hub.policy.controllogic.ResponseFromIdpHandler;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
+import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
+import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
@@ -36,6 +45,7 @@ import uk.gov.ida.hub.policy.services.Cycle3Service;
 import uk.gov.ida.hub.policy.services.MatchingServiceResponseService;
 import uk.gov.ida.hub.policy.services.SessionService;
 import uk.gov.ida.hub.policy.session.InfinispanSessionStore;
+import uk.gov.ida.hub.policy.session.RedisSessionStore;
 import uk.gov.ida.hub.policy.session.SessionStore;
 import uk.gov.ida.jerseyclient.DefaultClientProvider;
 import uk.gov.ida.jerseyclient.ErrorHandlingClient;
@@ -127,8 +137,24 @@ public class PolicyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public SessionStore getSessionStore(InfinispanCacheManager infinispanCacheManager) {
-        return new InfinispanSessionStore(infinispanCacheManager.getCache("state_cache"));
+    public SessionStore getSessionStore(PolicyConfiguration configuration,
+                                        InfinispanCacheManager infinispanCacheManager) {
+        return configuration.getSessionStoreConfiguration().getRedisConfiguration()
+                .<SessionStore>map(this::getRedisSessionStore)
+                .orElseGet(() -> new InfinispanSessionStore(infinispanCacheManager.getCache("state_cache")));
+
+    }
+
+    private RedisSessionStore getRedisSessionStore(RedisConfiguration config) {
+        RMap<SessionId, State> redisMap = Redisson.create(config.setCodec(new JsonJacksonCodec(getRedisObjectMapper())))
+                .getMap("redis-state-cache");
+        return new RedisSessionStore(redisMap, config.getSessionExpiryTimeInMinutes());
+    }
+
+    private ObjectMapper getRedisObjectMapper() {
+        return new ObjectMapper().registerModule(new JodaModule())
+                .registerModule(new Jdk8Module())
+                .registerModule(new GuavaModule());
     }
 
     @Provides
