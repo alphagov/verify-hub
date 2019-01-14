@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.MatchingProcess;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
@@ -155,7 +155,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
 
         verify(stateTransitionAction).transitionTo(capturedState.capture());
-        assertThat(capturedState.getValue()).isEqualTo(expectedState);
+        assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
     }
 
     @Test
@@ -218,6 +218,6 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
 
         verify(stateTransitionAction).transitionTo(capturedState.capture());
-        assertThat(capturedState.getValue()).isEqualTo(expectedState);
+        assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
     }
 }

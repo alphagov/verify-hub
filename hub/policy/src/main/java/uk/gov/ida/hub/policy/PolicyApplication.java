@@ -14,6 +14,7 @@ import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
 import uk.gov.ida.eventemitter.EventEmitterModule;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.exception.SessionAlreadyExistingExceptionMapper;
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureExceptionMapper;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundExceptionMapper;

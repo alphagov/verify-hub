@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.shared.security.IdGenerator;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder;

@@ -1,0 +1,85 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${POLICY_PORT:-50110}
+  adminConnectors:
+    - type: http
+      port: ${POLICY_ADMIN_PORT:-50111}
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: apps-home/policy.log
+        archivedLogFilenamePattern: apps-home/policy.log.%d.gz
+        logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+      - type: logstash-file
+        currentLogFilename: apps-home/logstash/policy.log
+        archivedLogFilenamePattern: apps-home/logstash/policy.log.%d.gz
+        archivedFileCount: 7
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: apps-home/policy.log
+      archivedLogFilenamePattern: apps-home/policy.log.%d.gz
+      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %m%n%xEx'
+    - type: logstash-file
+      currentLogFilename: apps-home/logstash/policy.log
+      archivedLogFilenamePattern: apps-home/logstash/policy.log.%d.gz
+      archivedFileCount: 7
+    - type: console
+
+
+sessionStore:
+  redis:
+    singleServerConfig:
+      address: "redis://replace.me:1234"
+
+eventSinkUri: ${EVENTSINK_URI:-http://localhost:51100}
+
+samlEngineUri: ${SAML_ENGINE_URI:-http://localhost:50120}
+
+samlSoapProxyUri: ${SAML_SOAP_PROXY_URI:-http://localhost:50160}
+
+configUri: ${CONFIG_URI:-http://localhost:50240}
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  gzipEnabledForRequests: false
+
+samlSoapProxyClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+serviceInfo:
+  name: policy
+
+timeoutPeriod: 60m
+assertionLifetime: 60m
+matchingServiceResponseWaitPeriod: 60s
+
+clientTrustStoreConfiguration:
+  path: ${IDP_TRUSTSTORE_PATH}
+  password: ${IDP_TRUSTSTORE_PASSWORD}
+
+eidas: true
+
+eventEmitterConfiguration:
+  enabled: ${EVENT_EMITTER_ENABLED}
+  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
+  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
+  region: eu-west-2
+  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
+  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL:-http://not.used}

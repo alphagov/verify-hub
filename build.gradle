@@ -92,6 +92,8 @@ subprojects {
         trust_anchor
         saml_libs
         prometheus
+        redis
+        redis_test
     }
 
     dependencies {
@@ -163,6 +165,9 @@ subprojects {
         }
 
         soap('org.apache.ws.commons:ws-commons-util:1.0.1') { transitive = false }
+
+        redis('org.redisson:redisson:3.9.1')
+        redis_test('com.github.kstyrc:embedded-redis:0.6')
     }
 }
 

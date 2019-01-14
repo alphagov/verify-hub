@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
@@ -9,21 +11,22 @@ public class AuthnFailedErrorState extends AbstractAuthnFailedErrorState impleme
 
     private static final long serialVersionUID = 8101005936409595481L;
 
+    @JsonProperty
     private String idpEntityId;
 
+    @JsonCreator
     public AuthnFailedErrorState(
-            String requestId,
-            String authnRequestIssuerEntityId,
-            DateTime sessionExpiryTimestamp,
-            URI assertionConsumerServiceUri,
-            String relayState,
-            SessionId sessionId,
-            String idpEntityId,
-            Boolean forceAuthentication,
-            boolean transactionSupportsEidas) {
+            @JsonProperty("requestId") final String requestId,
+            @JsonProperty("authnRequestIssuerEntityId") final String authnRequestIssuerEntityId,
+            @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+            @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+            @JsonProperty("relayState") final String relayState,
+            @JsonProperty("sessionId") final SessionId sessionId,
+            @JsonProperty("idpEntityId") final String idpEntityId,
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
 
         super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, transactionSupportsEidas, forceAuthentication);
-
         this.idpEntityId = idpEntityId;
     }
 

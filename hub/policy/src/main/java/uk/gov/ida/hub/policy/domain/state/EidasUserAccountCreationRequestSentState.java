@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -11,17 +13,18 @@ public class EidasUserAccountCreationRequestSentState extends EidasMatchRequestS
 
     private static final long serialVersionUID = -3124130170426481847L;
 
+    @JsonCreator
     public EidasUserAccountCreationRequestSentState(
-            final String requestId,
-            final String requestIssuerEntityId,
-            final DateTime sessionExpiryTimestamp,
-            final URI assertionConsumerServiceUri,
-            final SessionId sessionId,
-            final String identityProviderEntityId,
-            final String relayState,
-            final LevelOfAssurance idpLevelOfAssurance,
-            final String matchingServiceAdapterEntityId,
-            final Boolean forceAuthentication) {
+            @JsonProperty("requestId") final String requestId,
+            @JsonProperty("requestIssuerEntityId") final String requestIssuerEntityId,
+            @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+            @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+            @JsonProperty("sessionId") final SessionId sessionId,
+            @JsonProperty("identityProviderEntityId") final String identityProviderEntityId,
+            @JsonProperty("relayState") final String relayState,
+            @JsonProperty("idpLevelOfAssurance") final LevelOfAssurance idpLevelOfAssurance,
+            @JsonProperty("matchingServiceAdapterEntityId") final String matchingServiceAdapterEntityId,
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 
         super(
                 requestId,

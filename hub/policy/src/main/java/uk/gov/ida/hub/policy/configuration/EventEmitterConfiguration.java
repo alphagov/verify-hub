@@ -1,4 +1,4 @@
-package uk.gov.ida.hub.policy;
+package uk.gov.ida.hub.policy.configuration;
 
 import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.annotation.JsonProperty;

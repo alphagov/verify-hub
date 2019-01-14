@@ -6,7 +6,7 @@ import com.google.inject.Module;
 import io.dropwizard.setup.Environment;
 import org.infinispan.test.fwk.TestCacheManagerFactory;
 import uk.gov.ida.hub.policy.PolicyApplication;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.PolicyModule;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;

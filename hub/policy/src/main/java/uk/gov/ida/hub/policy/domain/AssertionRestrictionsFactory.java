@@ -2,7 +2,7 @@ package uk.gov.ida.hub.policy.domain;
 
 import io.dropwizard.util.Duration;
 import org.joda.time.DateTime;
-import uk.gov.ida.hub.policy.AssertionLifetimeConfiguration;
+import uk.gov.ida.hub.policy.configuration.AssertionLifetimeConfiguration;
 
 import javax.inject.Inject;
 

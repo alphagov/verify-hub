@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
@@ -14,20 +16,25 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
 
     private static final long serialVersionUID = -285602589000108606L;
 
+    @JsonProperty
     private String countryEntityId;
+    @JsonProperty
     private final Optional<String> relayState;
+    @JsonProperty
     private List<LevelOfAssurance> levelsOfAssurance;
 
-    public EidasCountrySelectedState(String countryEntityId,
-                                Optional<String> relayState,
-                                String requestId,
-                                String requestIssuerId,
-                                DateTime sessionExpiryTimestamp,
-                                URI assertionConsumerServiceUri,
-                                SessionId sessionId,
-                                boolean transactionSupportsEidas,
-                                List<LevelOfAssurance> levelsOfAssurance,
-                                Boolean forceAuthentication) {
+    @JsonCreator
+    public EidasCountrySelectedState(
+            @JsonProperty("countryEntityId") final String countryEntityId,
+            @JsonProperty("relayState") final Optional<String> relayState,
+            @JsonProperty("requestId") final String requestId,
+            @JsonProperty("requestIssuerId") final String requestIssuerId,
+            @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+            @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+            @JsonProperty("sessionId") final SessionId sessionId,
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
+            @JsonProperty("levelsOfAssurance") final List<LevelOfAssurance> levelsOfAssurance,
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
         super(
             requestId,
             requestIssuerId,

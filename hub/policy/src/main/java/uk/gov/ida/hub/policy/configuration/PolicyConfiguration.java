@@ -1,4 +1,4 @@
-package uk.gov.ida.hub.policy;
+package uk.gov.ida.hub.policy.configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,7 +38,7 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @Valid
     @NotNull
     @JsonProperty
-    protected InfinispanConfiguration infinispan;
+    protected SessionStoreConfiguration sessionStore;
 
     @Valid
     @NotNull
@@ -109,7 +109,7 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
 
     @Override
     public InfinispanConfiguration getInfinispan() {
-        return infinispan;
+        return sessionStore.getInfinispanConfiguration();
     }
 
     @Override
@@ -165,5 +165,9 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @Override
     public boolean isPrometheusEnabled() {
         return prometheusEnabled;
+    }
+
+    public SessionStoreConfiguration getSessionStoreConfiguration() {
+        return sessionStore;
     }
 }

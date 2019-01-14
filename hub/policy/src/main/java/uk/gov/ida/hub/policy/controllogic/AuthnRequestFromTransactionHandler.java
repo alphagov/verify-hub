@@ -3,7 +3,7 @@ package uk.gov.ida.hub.policy.controllogic;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.AuthnRequestFromHub;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;

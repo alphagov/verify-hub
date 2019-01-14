@@ -3,12 +3,15 @@ package uk.gov.ida.integrationtest.hub.policy.builders;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
-import uk.gov.ida.hub.policy.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.SessionStoreConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static uk.gov.ida.common.ServiceInfoConfigurationBuilder.aServiceInfo;
 
 public class PolicyConfigurationBuilder {
@@ -21,10 +24,13 @@ public class PolicyConfigurationBuilder {
     }
 
     public PolicyConfiguration build() {
+        SessionStoreConfiguration sessionStoreConfiguration = mock(SessionStoreConfiguration.class);
+        when(sessionStoreConfiguration.getRedisConfiguration()).thenReturn(Optional.empty());
         return new TestPolicyConfiguration(
                 new JerseyClientConfiguration(),
                 serviceInfo,
                 mock(ClientTrustStoreConfiguration.class),
+                sessionStoreConfiguration,
                 timeoutPeriod,
                 Duration.minutes(1),
                 Duration.minutes(15));
@@ -45,7 +51,7 @@ public class PolicyConfigurationBuilder {
                 JerseyClientConfiguration httpClient,
                 ServiceInfoConfiguration serviceInfo,
                 ClientTrustStoreConfiguration clientTrustStoreConfiguration,
-
+                SessionStoreConfiguration sessionStoreConfiguration,
                 Duration timeoutPeriod,
                 Duration matchingServiceResponseWaitPeriod,
                 Duration assertionLifetime) {
@@ -56,7 +62,7 @@ public class PolicyConfigurationBuilder {
             this.httpClient = httpClient;
             this.serviceInfo = serviceInfo;
             this.clientTrustStoreConfiguration = clientTrustStoreConfiguration;
-
+            this.sessionStore = sessionStoreConfiguration;
             this.timeoutPeriod = timeoutPeriod;
             this.matchingServiceResponseWaitPeriod = matchingServiceResponseWaitPeriod;
             this.assertionLifetime = assertionLifetime;

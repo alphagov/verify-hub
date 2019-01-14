@@ -1,10 +1,11 @@
-package uk.gov.ida.hub.policy;
+package uk.gov.ida.hub.policy.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Environment;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.ida.hub.policy.PolicyApplication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

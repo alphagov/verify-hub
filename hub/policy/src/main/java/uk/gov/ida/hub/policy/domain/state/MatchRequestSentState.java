@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
@@ -11,6 +12,7 @@ public abstract class MatchRequestSentState extends AbstractMatchRequestSentStat
 
     private static final long serialVersionUID = -1474957484318282399L;
 
+    @JsonProperty
     private final boolean registering;
 
     protected MatchRequestSentState(

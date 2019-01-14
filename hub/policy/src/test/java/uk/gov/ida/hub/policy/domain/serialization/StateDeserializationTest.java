@@ -1,4 +1,4 @@
-package uk.gov.ida.hub.policy.domain.state.serialization;
+package uk.gov.ida.hub.policy.domain.serialization;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -57,7 +57,7 @@ import static uk.gov.ida.hub.policy.builder.state.TimeoutStateBuilder.aTimeoutSt
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreatedStateBuilder.aUserAccountCreatedState;
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationFailedStateBuilder.aUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState;
-import static uk.gov.ida.hub.policy.domain.state.serialization.SerializationHelpers.assertDeserializedForm;
+import static uk.gov.ida.hub.policy.domain.serialization.StateSerializationHelpers.assertDeserializedForm;
 
 /**
  * Tests that check that the "State" objects which we store in infinispan can be deserialized.
@@ -84,7 +84,7 @@ import static uk.gov.ida.hub.policy.domain.state.serialization.SerializationHelp
  * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/io/Serializable.html">The javadoc for Serializable</a>
  * @see <a href="https://stackoverflow.com/a/285809/1344760">Stackoverflow explanation of serialVersionUID</a>
  */
-public class DeserializationTest {
+public class StateDeserializationTest {
 
     private static final SessionId SESSION_ID = new SessionId("some-session-id");
     private static final String REQUEST_ID = "some-request-id";

@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
@@ -12,26 +14,28 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
 
     private static final long serialVersionUID = -2890730003642035273L;
 
+    @JsonProperty
     private final String relayState;
 
+    @JsonCreator
     public SessionStartedState(
-        String requestId,
-        String relayState,
-        String requestIssuerId,
-        URI assertionConsumerServiceUri,
-        Boolean forceAuthentication,
-        DateTime sessionExpiryTimestamp,
-        SessionId sessionId,
-        boolean transactionSupportsEidas) {
+            @JsonProperty("requestId") final String requestId,
+            @JsonProperty("relayState") final String relayState,
+            @JsonProperty("requestIssuerId") final String requestIssuerId,
+            @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
+            @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
+            @JsonProperty("sessionId") final SessionId sessionId,
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
 
         super(
-            requestId,
-            requestIssuerId,
-            sessionExpiryTimestamp,
-            assertionConsumerServiceUri,
-            sessionId,
-            transactionSupportsEidas,
-            forceAuthentication
+                requestId,
+                requestIssuerId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                sessionId,
+                transactionSupportsEidas,
+                forceAuthentication
         );
 
         this.relayState = relayState;
