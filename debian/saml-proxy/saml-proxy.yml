@@ -166,3 +166,4 @@ eventEmitterConfiguration:
   encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
   apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL}
 
+prometheusEnabled: ${PROMETHEUS_ENABLED:-false}
