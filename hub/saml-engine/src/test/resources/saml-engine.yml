@@ -146,3 +146,5 @@ country:
         protocol: TLSv1.2
         verifyHostname: false
         trustSelfSignedCertificates: true
+
+prometheusEnabled: ${PROMETHEUS_ENABLED:-false}
