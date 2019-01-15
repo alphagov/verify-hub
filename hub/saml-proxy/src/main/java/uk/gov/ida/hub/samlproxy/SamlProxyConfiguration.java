@@ -3,6 +3,7 @@ package uk.gov.ida.hub.samlproxy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import engineering.reliability.gds.metrics.config.PrometheusConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
@@ -22,7 +23,7 @@ import java.net.URI;
 import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SamlProxyConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration {
+public class SamlProxyConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, PrometheusConfiguration {
 
     protected SamlProxyConfiguration(){}
 
@@ -93,6 +94,10 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @JsonProperty
     public EventEmitterConfiguration eventEmitterConfiguration;
 
+    @Valid
+    @JsonProperty
+    protected Boolean prometheusEnabled = false;
+
     public SamlConfiguration getSamlConfiguration() {
         return saml;
     }
@@ -153,5 +158,10 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
 
     public boolean isEidasEnabled(){
         return getCountryConfiguration().isPresent() && getCountryConfiguration().get().isEnabled();
+    }
+
+    @Override
+    public boolean isPrometheusEnabled() {
+        return prometheusEnabled;
     }
 }

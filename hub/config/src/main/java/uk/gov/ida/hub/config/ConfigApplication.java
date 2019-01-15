@@ -2,6 +2,7 @@ package uk.gov.ida.hub.config;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
+import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -49,6 +50,7 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());
+        bootstrap.addBundle(new PrometheusBundle());
         bootstrap.addCommand(new ConfigValidCommand());
     }
 

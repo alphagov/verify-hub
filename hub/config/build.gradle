@@ -6,7 +6,8 @@ dependencies {
     compile configurations.ida_utils,
             configurations.config,
             configurations.dropwizard,
-            configurations.common
+            configurations.common,
+            configurations.prometheus
 }
 
 apply plugin: 'application'

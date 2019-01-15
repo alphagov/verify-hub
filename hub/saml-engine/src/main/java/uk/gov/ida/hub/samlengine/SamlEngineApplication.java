@@ -6,6 +6,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
+import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -81,6 +82,7 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
                         bindMetadata())
                 .build();
         bootstrap.addBundle(guiceBundle);
+        bootstrap.addBundle(new PrometheusBundle());
     }
 
     private Module bindMetadata() {

@@ -2,6 +2,7 @@ package uk.gov.ida.hub.samlengine;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import engineering.reliability.gds.metrics.config.PrometheusConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
@@ -25,7 +26,7 @@ import java.net.URI;
 import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SamlEngineConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, InfinispanServiceConfiguration, SamlDuplicateRequestValidationConfiguration, SamlAuthnRequestValidityDurationConfiguration {
+public class SamlEngineConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, InfinispanServiceConfiguration, SamlDuplicateRequestValidationConfiguration, SamlAuthnRequestValidityDurationConfiguration, PrometheusConfiguration {
 
     protected SamlEngineConfiguration() {}
 
@@ -100,6 +101,10 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
+    @Valid
+    @JsonProperty
+    protected Boolean prometheusEnabled = false;
+
     public SamlConfiguration getSamlConfiguration() {
         return saml;
     }
@@ -171,4 +176,8 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Override
     public boolean getEnableRetryTimeOutConnections() { return enableRetryTimeOutConnections; }
 
+    @Override
+    public boolean isPrometheusEnabled() {
+        return prometheusEnabled;
+    }
 }

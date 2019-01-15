@@ -9,7 +9,8 @@ dependencies {
             configurations.saml,
             configurations.common,
             configurations.soap,
-            configurations.verify_event_emitter
+            configurations.verify_event_emitter,
+            configurations.prometheus
 }
 
 apply plugin: 'application'
