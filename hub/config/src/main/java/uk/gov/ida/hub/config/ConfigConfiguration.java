@@ -2,6 +2,7 @@ package uk.gov.ida.hub.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import engineering.reliability.gds.metrics.config.PrometheusConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
@@ -13,7 +14,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ConfigConfiguration extends Configuration implements TrustStoreConfiguration, ServiceNameConfiguration {
+public class ConfigConfiguration extends Configuration implements TrustStoreConfiguration, ServiceNameConfiguration, PrometheusConfiguration {
 
     @Valid
     @NotNull
@@ -49,6 +50,10 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @NotNull
     @JsonProperty
     protected Duration certificateWarningPeriod = Duration.days(30);
+
+    @Valid
+    @JsonProperty
+    protected Boolean prometheusEnabled = false;
 
     protected ConfigConfiguration() {}
 
@@ -87,4 +92,8 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
 
     public boolean getEnableRetryTimeOutConnections() { return enableRetryTimeOutConnections; }
 
+    @Override
+    public boolean isPrometheusEnabled() {
+        return prometheusEnabled;
+    }
 }

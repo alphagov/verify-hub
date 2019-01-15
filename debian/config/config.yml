@@ -72,3 +72,5 @@ clientTrustStoreConfiguration:
 rpTrustStoreConfiguration:
   path: /ida/truststore/ida_rp_truststore.ts
   password: ${RP_TRUSTSTORE_PASSWORD}
+
+prometheusEnabled: ${PROMETHEUS_ENABLED:-false}
