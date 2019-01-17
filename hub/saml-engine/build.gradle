@@ -11,7 +11,6 @@ dependencies {
             configurations.soap,
             configurations.common,
             configurations.ida_utils,
-            configurations.trust_anchor,
             configurations.prometheus
 }
 

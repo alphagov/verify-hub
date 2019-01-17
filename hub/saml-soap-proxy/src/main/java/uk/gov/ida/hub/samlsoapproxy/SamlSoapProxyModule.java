@@ -37,6 +37,7 @@ import uk.gov.ida.hub.samlsoapproxy.config.ConfigServiceKeyStore;
 import uk.gov.ida.hub.samlsoapproxy.config.SamlConfiguration;
 import uk.gov.ida.hub.samlsoapproxy.config.TrustStoreForCertificateProvider;
 import uk.gov.ida.hub.samlsoapproxy.domain.TimeoutEvaluator;
+import uk.gov.ida.hub.samlsoapproxy.exceptions.MissingMetadataException;
 import uk.gov.ida.hub.samlsoapproxy.health.MetadataHealthCheckRegistry;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthCheckHandler;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthChecker;
@@ -80,6 +81,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.cert.CertificateException;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
@@ -149,7 +151,10 @@ public class SamlSoapProxyModule extends AbstractModule {
     @Provides
     @Singleton
     public MetadataHealthCheck getMetadataHealthCheck(MetadataResolver metadataResolver, SamlSoapProxyConfiguration configuration) {
-        return new MetadataHealthCheck(metadataResolver, configuration.getMetadataConfiguration().getExpectedEntityId());
+        return new MetadataHealthCheck(
+            metadataResolver,
+            configuration.getMetadataConfiguration().orElseThrow(() -> new MissingMetadataException()).getExpectedEntityId()
+        );
     }
 
     @Provides
@@ -297,7 +302,7 @@ public class SamlSoapProxyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public MetadataResolverConfiguration metadataConfiguration(SamlSoapProxyConfiguration samlSoapProxyConfiguration) {
+    public Optional<MetadataResolverConfiguration> metadataConfiguration(SamlSoapProxyConfiguration samlSoapProxyConfiguration) {
         return samlSoapProxyConfiguration.getMetadataConfiguration();
     }
 }

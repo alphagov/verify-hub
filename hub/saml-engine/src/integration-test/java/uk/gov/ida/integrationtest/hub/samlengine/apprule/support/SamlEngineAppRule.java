@@ -59,7 +59,7 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 import static uk.gov.ida.saml.metadata.ResourceEncoder.entityIdAsResource;
 
 public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration> {
-    private static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
+    public static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
     private static final String COUNTRY_METADATA_PATH = "/uk/gov/ida/saml/metadata/country";
     public static final String EIDAS_ENTITY_ID = "http://localhost/eidasMetadata";
     private static final String TRUST_ANCHOR_PATH = "/trust-anchor";

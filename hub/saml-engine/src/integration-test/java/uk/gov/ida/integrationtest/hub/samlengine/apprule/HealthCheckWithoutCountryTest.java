@@ -8,7 +8,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.MetadataRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 
 import javax.ws.rs.client.Client;
@@ -16,7 +15,7 @@ import javax.ws.rs.client.Client;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlengine.SamlEngineModule.COUNTRY_METADATA_HEALTH_CHECK;
-import static uk.gov.ida.hub.samlengine.SamlEngineModule.VERIFY_METADATA_HEALTH_CHECK;
+import static uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule.VERIFY_METADATA_PATH;
 
 public class HealthCheckWithoutCountryTest {
 
@@ -40,7 +39,7 @@ public class HealthCheckWithoutCountryTest {
 
     @Test
     public void shouldContainBothVerifyAndCountryMetadataHealthChecks() {
-        assertThat(samlEngineAppRule.getEnvironment().healthChecks().getNames().contains(VERIFY_METADATA_HEALTH_CHECK)).isTrue();
+        assertThat(samlEngineAppRule.getEnvironment().healthChecks().getNames().stream().anyMatch(name -> name.contains(VERIFY_METADATA_PATH))).isTrue();
         assertThat(samlEngineAppRule.getEnvironment().healthChecks().getNames().contains(COUNTRY_METADATA_HEALTH_CHECK)).isFalse();
     }
 }
