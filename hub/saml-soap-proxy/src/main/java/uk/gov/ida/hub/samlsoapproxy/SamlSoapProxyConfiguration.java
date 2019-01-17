@@ -18,6 +18,7 @@ import uk.gov.ida.truststore.TrustStoreConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SamlSoapProxyConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, PrometheusConfiguration {
@@ -117,8 +118,8 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
         return policyUri;
     }
 
-    public MetadataResolverConfiguration getMetadataConfiguration() {
-        return metadata;
+    public Optional<MetadataResolverConfiguration> getMetadataConfiguration() {
+        return Optional.of(metadata);
     }
 
     @Override

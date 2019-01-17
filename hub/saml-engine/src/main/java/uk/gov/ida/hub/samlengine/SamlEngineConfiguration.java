@@ -146,8 +146,8 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
         return readKeysFromFileDescriptors;
     }
 
-    public MetadataResolverConfiguration getMetadataConfiguration() {
-        return metadata;
+    public Optional<MetadataResolverConfiguration> getMetadataConfiguration() {
+        return Optional.of(metadata);
     }
 
     @Override
