@@ -82,7 +82,11 @@ public class SamlMessageReceiverApi {
 
         if (!signatureValidationResponse.isOK()) {
             SamlValidationSpecificationFailure failure = signatureValidationResponse.getSamlValidationSpecificationFailure();
-            throw new SamlTransformationErrorException(failure.getErrorMessage(), signatureValidationResponse.getCause(), Level.ERROR);
+            throw new SamlTransformationErrorException(
+                String.format("Invalid authn request from issuer \"%s\". %s", authnRequest.getIssuer().getValue(), failure.getErrorMessage()),
+                signatureValidationResponse.getCause(),
+                Level.ERROR
+            );
         }
 
         SamlAuthnRequestContainerDto samlAuthnRequestContainerDto = new SamlAuthnRequestContainerDto(samlRequestDto.getSamlRequest(), Optional.ofNullable(samlRequestDto.getRelayState()), samlRequestDto.getPrincipalIpAsSeenByFrontend());
