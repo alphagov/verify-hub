@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.resources;
 
+import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class AttributeQueryRequestSenderResource {
 
     @POST
     @Timed
+    @ResponseMetered
     public Response sendAttributeQueryRequest(final AttributeQueryContainerDto attributeQueryContainerDto, @QueryParam(Urls.SharedUrls.SESSION_ID_PARAM) SessionId sessionId) {
         LOG.info("Received request to send attribute query {} to {}", attributeQueryContainerDto.getId(), attributeQueryContainerDto.getMatchingServiceUri());
 
