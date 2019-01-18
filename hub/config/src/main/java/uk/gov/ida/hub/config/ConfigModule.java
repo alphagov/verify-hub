@@ -7,6 +7,7 @@ import com.google.inject.TypeLiteral;
 import io.dropwizard.configuration.ConfigurationFactoryFactory;
 import io.dropwizard.configuration.DefaultConfigurationFactoryFactory;
 import io.dropwizard.setup.Environment;
+import io.prometheus.client.Gauge;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
@@ -15,6 +16,7 @@ import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.application.MatchingServiceAdapterService;
+import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
 import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
@@ -89,6 +91,20 @@ public class ConfigModule extends AbstractModule {
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(CertificateService.class);
         bind(MatchingServiceAdapterService.class);
+    }
+
+    @Provides
+    @Singleton
+    private Gauge getGauge() {
+        return Gauge.build("verify_config_certificate_expiry", "Timestamp of NotAfter value of X.509 certificate")
+                    .labelNames("entity_id","use","fingerprint")
+                    .register();
+    }
+
+    @Provides
+    @Singleton
+    private PrometheusClientService getPrometheusClientService(CertificateService certificateService, Gauge gauge) {
+        return new PrometheusClientService(certificateService, gauge);
     }
 
     @Provides

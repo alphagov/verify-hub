@@ -4,10 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.dropwizard.validation.ValidationMethod;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.dto.CertificateExpiryStatus;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -15,6 +20,9 @@ import java.util.Date;
 
 @JsonIgnoreProperties({ "certificateType", "notAfter", "x509Valid" })
 public abstract class Certificate {
+    private static final Logger LOG = LoggerFactory.getLogger(Certificate.class);
+    private static final String FINGERPRINT_ALGORITHM = "SHA-256";
+
     protected String fullCert;
 
     @ValidationMethod(message = "Certificate was not a valid x509 cert.")
@@ -59,6 +67,19 @@ public abstract class Certificate {
 
     public Date getNotAfter() throws CertificateException {
         return getCertificate().getNotAfter();
+    }
+
+    public String getFingerprint() throws CertificateException {
+        try {
+            final MessageDigest md = MessageDigest.getInstance(FINGERPRINT_ALGORITHM);
+            byte[] der = getCertificate().getEncoded();
+            md.update(der);
+            final byte[] digest = md.digest();
+            return DatatypeConverter.printHexBinary(digest);
+        } catch (NoSuchAlgorithmException e) {
+            LOG.warn(String.format("Algorithm [algorithm = %s] is not available.", FINGERPRINT_ALGORITHM));
+        }
+        return "";
     }
 
     private Date getNotBefore() throws CertificateException {

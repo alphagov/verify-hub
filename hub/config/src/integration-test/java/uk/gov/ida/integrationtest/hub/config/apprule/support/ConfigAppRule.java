@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.prometheus.client.CollectorRegistry;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
 import org.apache.commons.io.FileUtils;
@@ -98,6 +99,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
 
         createFedConfig();
         createTranslations();
+        CollectorRegistry.defaultRegistry.clear();
 
         super.before();
     }
