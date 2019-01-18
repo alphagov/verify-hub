@@ -22,6 +22,7 @@ import uk.gov.ida.hub.samlproxy.repositories.Direction;
 import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.security.RelayStateValidator;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
@@ -33,6 +34,7 @@ import javax.xml.namespace.QName;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -41,6 +43,7 @@ import static uk.gov.ida.saml.core.test.builders.AuthnRequestBuilder.anAuthnRequ
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aValidIdpResponse;
+import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.invalidMessageSignature;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class SamlMessageReceiverApiTest {
@@ -126,6 +129,21 @@ public class SamlMessageReceiverApiTest {
         samlMessageReceiverApi.handleRequestPost(SAML_REQUEST_DTO);
 
         verify(samlMessageSignatureValidator).validate(any(AuthnRequest.class), any(QName.class));
+    }
+
+    @Test
+    public void handleRequestPost_shouldThrowExceptionWithIssuerInMessageIfInvalidSignature() {
+        AuthnRequest authnRequest = anAuthnRequest().withIssuer(anIssuer().withIssuerId(ISSUER_ID).build()).build();
+
+        when(stringSamlAuthnRequestTransformer.apply(SAML_REQUEST)).thenReturn(authnRequest);
+        when(samlMessageSignatureValidator.validate(any(AuthnRequest.class), any(QName.class))).thenReturn(SamlValidationResponse.anInvalidResponse(invalidMessageSignature()));
+
+        try {
+            samlMessageReceiverApi.handleRequestPost(SAML_REQUEST_DTO);
+            fail("Expected exception not thrown");
+        } catch (SamlTransformationErrorException expected) {
+            assert expected.getMessage().contains(String.format("Invalid authn request from issuer \"%s\"", ISSUER_ID));
+        }
     }
 
     @Test
