@@ -36,6 +36,10 @@ public class MatchingServiceResourceIntegrationTest {
                     .withEntityId("rp-entity-id")
                     .withMatchingServiceEntityId(ENTITY_ID)
                     .build())
+            .addTransaction(aTransactionConfigData()
+                    .withEntityId("rp-entity-id-no-matching")
+                    .withUsingMatching(false)
+                    .build())
             .addMatchingService(aMatchingServiceConfigEntityData()
                     .withEntityId(ENTITY_ID)
                     .withUri(URI.create(MATCHING_URI))
@@ -57,7 +61,7 @@ public class MatchingServiceResourceIntegrationTest {
     public void getMatchingServices_returnsOkAndListOfMatchingServices(){
         Response response = client.target(configAppRule.getUri(Urls.ConfigUrls.MATCHING_SERVICE_ROOT).build()).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(Collection.class)).isNotEmpty();
+        assertThat(response.readEntity(Collection.class).size()).isEqualTo(1);
     }
 
     @Test
