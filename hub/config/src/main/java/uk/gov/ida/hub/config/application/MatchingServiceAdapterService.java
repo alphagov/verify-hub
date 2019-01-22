@@ -35,6 +35,7 @@ public class MatchingServiceAdapterService {
 
     public List<MatchingServicePerTransaction> getMatchingServices() {
         return transactionConfigEntityDataRepository.getAllData().stream()
+                .filter(transaction -> transaction.isUsingMatching())
                 .map(transaction -> new MatchingServicePerTransaction(transaction.getEntityId(),
                         matchingServiceConfigEntityDataRepository.getData(transaction.getMatchingServiceEntityId()).get()))
                 .collect(toList());
