@@ -7,7 +7,6 @@ import com.google.inject.TypeLiteral;
 import io.dropwizard.configuration.ConfigurationFactoryFactory;
 import io.dropwizard.configuration.DefaultConfigurationFactoryFactory;
 import io.dropwizard.setup.Environment;
-import io.prometheus.client.Gauge;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
@@ -95,16 +94,8 @@ public class ConfigModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private Gauge getGauge() {
-        return Gauge.build("verify_config_certificate_expiry", "Timestamp of NotAfter value of X.509 certificate")
-                    .labelNames("entity_id","use","fingerprint")
-                    .register();
-    }
-
-    @Provides
-    @Singleton
-    private PrometheusClientService getPrometheusClientService(CertificateService certificateService, Gauge gauge) {
-        return new PrometheusClientService(certificateService, gauge);
+    private PrometheusClientService getPrometheusClientService(CertificateService certificateService) {
+        return new PrometheusClientService(certificateService);
     }
 
     @Provides

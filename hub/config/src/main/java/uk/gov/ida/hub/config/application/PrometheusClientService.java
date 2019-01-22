@@ -12,17 +12,18 @@ import java.util.Set;
 public class PrometheusClientService {
     private static final Logger LOG = LoggerFactory.getLogger(PrometheusClientService.class);
     private final CertificateService certificateService;
-    private final Gauge gauge;
 
     @Inject
-    public PrometheusClientService(final CertificateService certificateService,
-                                   final Gauge gauge) {
+    public PrometheusClientService(final CertificateService certificateService) {
         this.certificateService = certificateService;
-        this.gauge = gauge;
     }
 
     public void createCertificateExpiryMetrics() {
         final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificatesDetails();
+        Gauge gauge = Gauge.build("verify_config_certificate_expiry", "Timestamp of NotAfter value of X.509 certificate")
+                           .labelNames("entity_id","use","fingerprint")
+                           .register();
+
         certificateDetailsSet.forEach(
             certificateDetails -> {
                 try {
