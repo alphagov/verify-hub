@@ -28,6 +28,7 @@ import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
+import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 import uk.gov.ida.hub.config.domain.ThrowingCertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
 import uk.gov.ida.hub.config.domain.TranslationData;
@@ -75,12 +76,13 @@ public class ConfigValidCommand extends ConfiguredCommand<ConfigConfiguration> {
                         bind(CertificateChainConfigValidator.class)
                                 .annotatedWith(CertificateConfigValidator.class)
                                 .to(ThrowingCertificateChainConfigValidator.class);
+                        bind(OCSPCertificateChainValidityChecker.class);
                     }
 
                     @Provides
                     @Singleton
-                    private PrometheusClientService getPrometheusClientService(CertificateService certificateService) {
-                        return new PrometheusClientService(certificateService);
+                    private PrometheusClientService getPrometheusClientService(CertificateService certificateService, OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker) {
+                        return new PrometheusClientService(certificateService, ocspCertificateChainValidityChecker);
                     }
 
                     @Provides

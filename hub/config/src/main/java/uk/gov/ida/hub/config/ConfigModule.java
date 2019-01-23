@@ -94,8 +94,8 @@ public class ConfigModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private PrometheusClientService getPrometheusClientService(CertificateService certificateService) {
-        return new PrometheusClientService(certificateService);
+    private PrometheusClientService getPrometheusClientService(CertificateService certificateService, OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker) {
+        return new PrometheusClientService(certificateService, ocspCertificateChainValidityChecker);
     }
 
     @Provides

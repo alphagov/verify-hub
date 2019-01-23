@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.CertificateValidity;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
+import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
 import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 
@@ -49,6 +50,15 @@ public class CertificateValidityChecker {
         CertificateValidity certificateValidity = certificateChainValidator.validate(
                 certificate.getX509(),
                 trustStoreForCertificateProvider.getTrustStoreFor(certificate.getFederationEntityType()));
+
+        return certificateValidity.isValid();
+    }
+
+    public boolean isValid(final Certificate certificate,
+                           final FederationEntityType federationEntityType) {
+        CertificateValidity certificateValidity = certificateChainValidator.validate(
+            certificate.getX509(),
+            trustStoreForCertificateProvider.getTrustStoreFor(federationEntityType));
 
         return certificateValidity.isValid();
     }

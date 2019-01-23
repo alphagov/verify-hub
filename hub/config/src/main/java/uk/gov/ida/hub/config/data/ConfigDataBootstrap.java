@@ -92,6 +92,7 @@ public class ConfigDataBootstrap implements Managed {
             .accept(allConfig);
 
         prometheusClientService.createCertificateExpiryMetrics();
+        prometheusClientService.createCertificateOcspSuccessMetrics();
     }
 
     @Override
