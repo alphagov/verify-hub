@@ -28,6 +28,10 @@ public class CertificateDetails {
         return new CertificateDetails(issuerId, certificate, federationEntityType);
     }
 
+    public Certificate getCertificate() {
+        return certificate;
+    }
+
     public String getIssuerId() {
         return issuerId;
     }

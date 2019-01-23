@@ -15,6 +15,7 @@ import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.application.MatchingServiceAdapterService;
+import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
 import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
@@ -89,6 +90,12 @@ public class ConfigModule extends AbstractModule {
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(CertificateService.class);
         bind(MatchingServiceAdapterService.class);
+    }
+
+    @Provides
+    @Singleton
+    private PrometheusClientService getPrometheusClientService(CertificateService certificateService) {
+        return new PrometheusClientService(certificateService);
     }
 
     @Provides

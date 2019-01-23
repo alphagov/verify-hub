@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.ConfigEntityData;
+import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateType;
 import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
@@ -44,6 +45,9 @@ public class ConfigDataBootstrapTest {
 
     @Mock
     private CertificateChainConfigValidator certificateChainConfigValidator;
+
+    @Mock
+    private PrometheusClientService prometheusClientService;
 
     private final ConfigEntityDataRepository<? extends ConfigEntityData> nullConfigEntityDataRepository = new ConfigEntityDataRepository<>();
     private final LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator = new LevelsOfAssuranceConfigValidator();
@@ -219,7 +223,8 @@ public class ConfigDataBootstrapTest {
                 (ConfigEntityDataRepository<TranslationData>) nullConfigEntityDataRepository,
                 (ConfigEntityDataRepository<CountriesConfigEntityData>) nullConfigEntityDataRepository,
                 certificateChainConfigValidator,
-                levelsOfAssuranceConfigValidator);
+                levelsOfAssuranceConfigValidator,
+                prometheusClientService);
     }
 
     private class TestConfigDataSource<T> implements ConfigDataSource<T> {
