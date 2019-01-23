@@ -21,7 +21,7 @@ public class PrometheusClientService {
     public void createCertificateExpiryMetrics() {
         final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificatesDetails();
         Gauge gauge = Gauge.build("verify_config_certificate_expiry", "Timestamp of NotAfter value of X.509 certificate")
-                           .labelNames("entity_id","use","fingerprint")
+                           .labelNames("entity_id", "use", "subject", "fingerprint")
                            .register();
 
         certificateDetailsSet.forEach(
@@ -30,6 +30,7 @@ public class PrometheusClientService {
                     gauge.labels(
                         certificateDetails.getIssuerId(),
                         certificateDetails.getCertificate().getCertificateType().toString(),
+                        certificateDetails.getCertificate().getSubject(),
                         certificateDetails.getCertificate().getFingerprint())
                          .set(certificateDetails.getCertificate().getNotAfter().getTime());
                 } catch (CertificateException e) {

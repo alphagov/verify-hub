@@ -36,7 +36,7 @@ public class PrometheusMetricsIntegrationTest {
     private static Client client;
     private static final String RP_ENTITY_ID = "rp-entity-id";
     private static final String RP_MS_ENTITY_ID = "rp-ms-entity-id";
-    private static final String CERTIFICATE_METRICS_TEMPLATE = "verify_config_certificate_expiry{entity_id=\"%s\",use=\"%s\",fingerprint=\"%s\",} %s\n";
+    private static final String CERTIFICATE_METRICS_TEMPLATE = "verify_config_certificate_expiry{entity_id=\"%s\",use=\"%s\",subject=\"%s\",fingerprint=\"%s\",} %s\n";
     private static final TransactionConfigEntityData TRANSACTION_CONFIG_ENTITY_DATA = aTransactionConfigData().withEntityId(RP_ENTITY_ID).withMatchingServiceEntityId(RP_MS_ENTITY_ID).build();
     private static final MatchingServiceConfigEntityData MATCHING_SERVICE_CONFIG_ENTITY_DATA = aMatchingServiceConfigEntityData().withEntityId(RP_MS_ENTITY_ID).build();
     private static final IdentityProviderConfigEntityData IDENTITY_PROVIDER_CONFIG_ENTITY_DATA = anIdentityProviderConfigData().withEntityId("idp-entity-id").withOnboarding(asList(RP_ENTITY_ID)).build();
@@ -92,6 +92,7 @@ public class PrometheusMetricsIntegrationTest {
             return Optional.of(String.format(CERTIFICATE_METRICS_TEMPLATE,
                 entityId,
                 certificate.getCertificateType(),
+                certificate.getSubject(),
                 certificate.getFingerprint(),
                 new Double(new DateTime(certificate.getNotAfter().getTime(), DateTimeZone.UTC).getMillis())));
         } catch (CertificateException e) {

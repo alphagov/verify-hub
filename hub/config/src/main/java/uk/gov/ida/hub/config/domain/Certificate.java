@@ -69,6 +69,10 @@ public abstract class Certificate {
         return getCertificate().getNotAfter();
     }
 
+    public String getSubject() throws CertificateException {
+        return getCertificate().getSubjectDN().getName();
+    }
+
     public String getFingerprint() throws CertificateException {
         try {
             final MessageDigest md = MessageDigest.getInstance(FINGERPRINT_ALGORITHM);
