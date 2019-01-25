@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import io.dropwizard.lifecycle.Managed;
 import uk.gov.ida.hub.config.ConfigEntityData;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
-import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
@@ -38,25 +37,23 @@ public class ConfigDataBootstrap implements Managed {
     private final ConfigEntityDataRepository<CountriesConfigEntityData> countriesConfigEntityDataConfigEntityDataRepository;
     private CertificateChainConfigValidator certificateChainConfigValidator = null;
     private LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator = null;
-    private final PrometheusClientService prometheusClientService;
 
     private enum EntityData {IDENTITY_PROVIDER, MATCHING_SERVICE, TRANSACTION, COUNTRIES, TRANSLATIONS}
 
     @Inject
     public ConfigDataBootstrap(
-        ConfigDataSource<IdentityProviderConfigEntityData> identityProviderConfigDataSource,
-        ConfigDataSource<MatchingServiceConfigEntityData> matchingServiceConfigDataSource,
-        ConfigDataSource<TransactionConfigEntityData> transactionConfigDataSource,
-        ConfigDataSource<TranslationData> translationsDataSource,
-        ConfigDataSource<CountriesConfigEntityData> countriesConfigDataSource,
-        ConfigEntityDataRepository<IdentityProviderConfigEntityData> identityProviderConfigEntityDataRepository,
-        ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceConfigEntityDataRepository,
-        ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository,
-        ConfigEntityDataRepository<TranslationData> translationsRepository,
-        ConfigEntityDataRepository<CountriesConfigEntityData> countriesConfigEntityDataConfigEntityDataRepository,
-        @CertificateConfigValidator CertificateChainConfigValidator certificateChainConfigValidator,
-        LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator,
-        PrometheusClientService prometheusClientService) {
+            ConfigDataSource<IdentityProviderConfigEntityData> identityProviderConfigDataSource,
+            ConfigDataSource<MatchingServiceConfigEntityData> matchingServiceConfigDataSource,
+            ConfigDataSource<TransactionConfigEntityData> transactionConfigDataSource,
+            ConfigDataSource<TranslationData> translationsDataSource,
+            ConfigDataSource<CountriesConfigEntityData> countriesConfigDataSource,
+            ConfigEntityDataRepository<IdentityProviderConfigEntityData> identityProviderConfigEntityDataRepository,
+            ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceConfigEntityDataRepository,
+            ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository,
+            ConfigEntityDataRepository<TranslationData> translationsRepository,
+            ConfigEntityDataRepository<CountriesConfigEntityData> countriesConfigEntityDataConfigEntityDataRepository,
+            @CertificateConfigValidator CertificateChainConfigValidator certificateChainConfigValidator,
+            LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator) {
 
         this.identityProviderConfigDataSource = identityProviderConfigDataSource;
         this.matchingServiceConfigDataSource = matchingServiceConfigDataSource;
@@ -70,7 +67,6 @@ public class ConfigDataBootstrap implements Managed {
         this.countriesConfigEntityDataConfigEntityDataRepository = countriesConfigEntityDataConfigEntityDataRepository;
         this.certificateChainConfigValidator = certificateChainConfigValidator;
         this.levelsOfAssuranceConfigValidator = levelsOfAssuranceConfigValidator;
-        this.prometheusClientService = prometheusClientService;
     }
 
     @Override
@@ -90,8 +86,6 @@ public class ConfigDataBootstrap implements Managed {
             .andThen(checkThereAreNoInvalidCertificates)
             .andThen(checkIdpAndTransactionsHaveValidLevelsOfAssurance)
             .accept(allConfig);
-
-        prometheusClientService.createCertificateExpiryMetrics();
     }
 
     @Override

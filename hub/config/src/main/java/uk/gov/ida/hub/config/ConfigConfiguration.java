@@ -7,6 +7,7 @@ import io.dropwizard.Configuration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
+import uk.gov.ida.hub.config.configuration.PrometheusClientServiceConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
@@ -55,6 +56,10 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @JsonProperty
     protected Boolean prometheusEnabled = false;
 
+    @Valid
+    @JsonProperty
+    private PrometheusClientServiceConfiguration certificateExpiryDateCheckServiceConfiguration = new PrometheusClientServiceConfiguration();
+
     protected ConfigConfiguration() {}
 
     public String getDataDirectory() {
@@ -95,5 +100,9 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @Override
     public boolean isPrometheusEnabled() {
         return prometheusEnabled;
+    }
+
+    public PrometheusClientServiceConfiguration getCertificateExpiryDateCheckServiceConfiguration() {
+        return certificateExpiryDateCheckServiceConfiguration;
     }
 }
