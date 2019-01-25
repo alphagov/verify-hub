@@ -31,7 +31,9 @@ import java.util.Optional;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.ida.hub.config.application.OcspCertificateChainValidationService.INVALID;
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_EXPIRY;
+import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_SUCCESS;
 import static uk.gov.ida.hub.config.domain.builders.EncryptionCertificateBuilder.anEncryptionCertificate;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
@@ -41,9 +43,10 @@ import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataB
 public class PrometheusMetricsIntegrationTest {
     private static Client client;
     private static final int WAIT_FOR_CERTIFICATE_METRICS_TO_BE_UPDATED = 2_500;
+    private static final String CERTIFICATE_EXCEPTION_MESSAGE = "Unable to get NotAfter from the certificate [issuer = %s, type = %s]";
     private static final String RP_ENTITY_ID = "rp-entity-id";
     private static final String RP_MS_ENTITY_ID = "rp-ms-entity-id";
-    private static final String CERTIFICATE_METRICS_TEMPLATE = "verify_config_certificate_expiry{entity_id=\"%s\",use=\"%s\",subject=\"%s\",fingerprint=\"%s\",timestamp=\"%s\",} %s\n";
+    private static final String CERTIFICATE_METRICS_TEMPLATE = "%s{entity_id=\"%s\",use=\"%s\",subject=\"%s\",fingerprint=\"%s\",timestamp=\"%s\",} %s\n";
     private static final TransactionConfigEntityData TRANSACTION_CONFIG_ENTITY_DATA = aTransactionConfigData().withEntityId(RP_ENTITY_ID)
                                                                                                               .withMatchingServiceEntityId(RP_MS_ENTITY_ID)
                                                                                                               .build();
@@ -65,7 +68,10 @@ public class PrometheusMetricsIntegrationTest {
         config("prometheusEnabled", "true"),
         config("certificateExpiryDateCheckServiceConfiguration.enable", "true"),
         config("certificateExpiryDateCheckServiceConfiguration.initialDelay", "1s"),
-        config("certificateExpiryDateCheckServiceConfiguration.delay", "2s"))
+        config("certificateExpiryDateCheckServiceConfiguration.delay", "2s"),
+        config("certificateOcspRevocationStatusCheckServiceConfiguration.enable", "true"),
+        config("certificateOcspRevocationStatusCheckServiceConfiguration.initialDelay", "1s"),
+        config("certificateOcspRevocationStatusCheckServiceConfiguration.delay", "2s"))
                                                         .addTransaction(TRANSACTION_CONFIG_ENTITY_DATA)
                                                         .addTransaction(aTransactionConfigData().withEntityId(RP_ENTITY_ID_BAD_ENCRYPTION_CERT)
                                                                                                 .withMatchingServiceEntityId(RP_MS_ENTITY_ID)
@@ -108,6 +114,7 @@ public class PrometheusMetricsIntegrationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         final String entity = response.readEntity(String.class);
         assertThat(entity).contains(String.format("# TYPE %s gauge\n", VERIFY_CONFIG_CERTIFICATE_EXPIRY));
+        assertThat(entity).contains(String.format("# TYPE %s gauge\n", VERIFY_CONFIG_CERTIFICATE_OCSP_SUCCESS));
         getExpectedCertificatesMetrics().forEach(expectedCertificateMetric -> assertThat(entity).contains(expectedCertificateMetric));
     }
 
@@ -126,17 +133,24 @@ public class PrometheusMetricsIntegrationTest {
         List<String> expectedCertificatesMetrics = new ArrayList<>();
         configEntityData.getSignatureVerificationCertificates()
                         .forEach(
-                            certificate -> getExpectedCertificateMetrics(configEntityData.getEntityId(), certificate).ifPresent(
-                                expectedCertificateMetrics -> expectedCertificatesMetrics.add(expectedCertificateMetrics)));
-        getExpectedCertificateMetrics(configEntityData.getEntityId(), configEntityData.getEncryptionCertificate()).ifPresent(
-            expectedCertificateMetrics -> expectedCertificatesMetrics.add(expectedCertificateMetrics));
+                            certificate -> {
+                                getExpectedCertificateExpiryDateMetrics(configEntityData.getEntityId(), certificate).ifPresent(
+                                    expectedCertificateExpiryMetrics -> expectedCertificatesMetrics.add(expectedCertificateExpiryMetrics));
+                                getExpectedCertificateOcspRevocationStatusMetrics(configEntityData.getEntityId(), certificate).ifPresent(
+                                    expectedCertificateOcspRevocationStatusMetrics -> expectedCertificatesMetrics.add(expectedCertificateOcspRevocationStatusMetrics));
+                            });
+        getExpectedCertificateExpiryDateMetrics(configEntityData.getEntityId(), configEntityData.getEncryptionCertificate()).ifPresent(
+            expectedCertificateExpiryMetrics -> expectedCertificatesMetrics.add(expectedCertificateExpiryMetrics));
+        getExpectedCertificateOcspRevocationStatusMetrics(configEntityData.getEntityId(), configEntityData.getEncryptionCertificate()).ifPresent(
+            expectedCertificateOcspRevocationStatusMetrics -> expectedCertificatesMetrics.add(expectedCertificateOcspRevocationStatusMetrics));
         return expectedCertificatesMetrics;
     }
 
-    private Optional<String> getExpectedCertificateMetrics(final String entityId,
-                                                           final Certificate certificate) {
+    private Optional<String> getExpectedCertificateExpiryDateMetrics(final String entityId,
+                                                                     final Certificate certificate) {
         try {
             return Optional.of(String.format(CERTIFICATE_METRICS_TEMPLATE,
+                VERIFY_CONFIG_CERTIFICATE_EXPIRY,
                 entityId,
                 certificate.getCertificateType(),
                 certificate.getSubject(),
@@ -144,7 +158,24 @@ public class PrometheusMetricsIntegrationTest {
                 Long.toString(DateTime.now(DateTimeZone.UTC).getMillis()),
                 new Double(new DateTime(certificate.getNotAfter().getTime(), DateTimeZone.UTC).getMillis())));
         } catch (CertificateException e) {
-            System.err.println(String.format("Unable to get NotAfter from the certificate [issuer = %s, type = %s]", entityId, certificate.getCertificateType()));
+            System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateType()));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<String> getExpectedCertificateOcspRevocationStatusMetrics(final String entityId,
+                                                                               final Certificate certificate) {
+        try {
+            return Optional.of(String.format(CERTIFICATE_METRICS_TEMPLATE,
+                VERIFY_CONFIG_CERTIFICATE_OCSP_SUCCESS,
+                entityId,
+                certificate.getCertificateType(),
+                certificate.getSubject(),
+                certificate.getFingerprint(),
+                Long.toString(DateTime.now(DateTimeZone.UTC).getMillis()),
+                new Double(INVALID)));
+        } catch (CertificateException e) {
+            System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateType()));
         }
         return Optional.empty();
     }

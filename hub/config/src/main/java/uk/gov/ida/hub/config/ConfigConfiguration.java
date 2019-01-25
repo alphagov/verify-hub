@@ -60,6 +60,10 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @JsonProperty
     private PrometheusClientServiceConfiguration certificateExpiryDateCheckServiceConfiguration = new PrometheusClientServiceConfiguration();
 
+    @Valid
+    @JsonProperty
+    private PrometheusClientServiceConfiguration certificateOcspRevocationStatusCheckServiceConfiguration = new PrometheusClientServiceConfiguration();
+
     protected ConfigConfiguration() {}
 
     public String getDataDirectory() {
@@ -104,5 +108,9 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
 
     public PrometheusClientServiceConfiguration getCertificateExpiryDateCheckServiceConfiguration() {
         return certificateExpiryDateCheckServiceConfiguration;
+    }
+
+    public PrometheusClientServiceConfiguration getCertificateOcspRevocationStatusCheckServiceConfiguration() {
+        return certificateOcspRevocationStatusCheckServiceConfiguration;
     }
 }

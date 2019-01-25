@@ -97,13 +97,16 @@ public class ConfigModule extends AbstractModule {
     private PrometheusClientService getPrometheusClientService(
         Environment environment,
         ConfigConfiguration configConfiguration,
-        CertificateService certificateService) {
+        CertificateService certificateService,
+        OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker) {
 
         PrometheusClientService prometheusClientService = new PrometheusClientService(
             environment,
             configConfiguration,
-            certificateService);
+            certificateService,
+            ocspCertificateChainValidityChecker);
         prometheusClientService.createCertificateExpiryDateCheckMetrics();
+        prometheusClientService.createCertificateOcspRevocationStatusCheckMetrics();
         return prometheusClientService;
     }
 
