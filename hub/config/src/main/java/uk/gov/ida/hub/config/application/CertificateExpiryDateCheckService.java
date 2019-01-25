@@ -24,6 +24,7 @@ public class CertificateExpiryDateCheckService implements Runnable {
     @Override
     public void run() {
         final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificatesDetails();
+        final String TIMESTAMP = DateTime.now(DateTimeZone.UTC).toString();
         gauge.clear();
         certificateDetailsSet.forEach(
             certificateDetails -> {
@@ -33,7 +34,7 @@ public class CertificateExpiryDateCheckService implements Runnable {
                         certificateDetails.getCertificate().getCertificateType().toString(),
                         certificateDetails.getCertificate().getSubject(),
                         certificateDetails.getCertificate().getFingerprint(),
-                        Long.toString(DateTime.now(DateTimeZone.UTC).getMillis()))
+                        TIMESTAMP)
                          .set(certificateDetails.getCertificate().getNotAfter().getTime());
                 } catch (CertificateException e) {
                     LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificateDetails.getIssuerId()));

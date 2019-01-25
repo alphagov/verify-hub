@@ -155,7 +155,7 @@ public class PrometheusMetricsIntegrationTest {
                 certificate.getCertificateType(),
                 certificate.getSubject(),
                 certificate.getFingerprint(),
-                Long.toString(DateTime.now(DateTimeZone.UTC).getMillis()),
+                DateTime.now(DateTimeZone.UTC).toString(),
                 new Double(new DateTime(certificate.getNotAfter().getTime(), DateTimeZone.UTC).getMillis())));
         } catch (CertificateException e) {
             System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateType()));
@@ -172,7 +172,7 @@ public class PrometheusMetricsIntegrationTest {
                 certificate.getCertificateType(),
                 certificate.getSubject(),
                 certificate.getFingerprint(),
-                Long.toString(DateTime.now(DateTimeZone.UTC).getMillis()),
+                DateTime.now(DateTimeZone.UTC).toString(),
                 new Double(INVALID)));
         } catch (CertificateException e) {
             System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateType()));

@@ -30,6 +30,7 @@ public class OcspCertificateChainValidationService implements Runnable {
     @Override
     public void run() {
         final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificatesDetails();
+        final String TIMESTAMP = DateTime.now(DateTimeZone.UTC).toString();
         gauge.clear();
         certificateDetailsSet.forEach(
             certificateDetails -> {
@@ -39,7 +40,7 @@ public class OcspCertificateChainValidationService implements Runnable {
                         certificateDetails.getCertificate().getCertificateType().toString(),
                         certificateDetails.getCertificate().getSubject(),
                         certificateDetails.getCertificate().getFingerprint(),
-                        Long.toString(DateTime.now(DateTimeZone.UTC).getMillis()))
+                        TIMESTAMP)
                          .set(ocspCertificateChainValidityChecker.isValid(
                              certificateDetails.getCertificate(),
                              certificateDetails.getFederationEntityType()) ? VALID : INVALID);
