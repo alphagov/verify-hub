@@ -2,6 +2,7 @@ package uk.gov.ida.hub.config.domain;
 
 import com.google.common.collect.ImmutableList;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
+import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
 import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 
@@ -22,4 +23,8 @@ public class OCSPCertificateChainValidityChecker {
         return certificateValidityChecker.getInvalidCertificates(certificateDetails);
     }
 
+    public boolean isValid(final Certificate certificate,
+                           final FederationEntityType federationEntityType) {
+        return certificateValidityChecker.isValid(certificate, federationEntityType);
+    }
 }

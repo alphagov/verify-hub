@@ -3,17 +3,15 @@ package uk.gov.ida.hub.config;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.configuration.ConfigurationFactoryFactory;
 import io.dropwizard.configuration.DefaultConfigurationFactoryFactory;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
-import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
-import uk.gov.ida.hub.config.application.CertificateService;
-import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
 import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
@@ -24,7 +22,6 @@ import uk.gov.ida.hub.config.data.FileBackedTransactionConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTranslationsDataSource;
 import uk.gov.ida.hub.config.data.LevelsOfAssuranceConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
-import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
@@ -34,10 +31,6 @@ import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
 import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Singleton;
 
 public class ConfigValidCommand extends ConfiguredCommand<ConfigConfiguration> {
 
@@ -75,17 +68,6 @@ public class ConfigValidCommand extends ConfiguredCommand<ConfigConfiguration> {
                         bind(CertificateChainConfigValidator.class)
                                 .annotatedWith(CertificateConfigValidator.class)
                                 .to(ThrowingCertificateChainConfigValidator.class);
-                    }
-
-                    @Provides
-                    @Singleton
-                    private PrometheusClientService getPrometheusClientService(CertificateService certificateService) {
-                        return new PrometheusClientService(certificateService);
-                    }
-
-                    @Provides
-                    public CertificateValidityChecker validityChecker(TrustStoreForCertificateProvider trustStoreForCertificateProvider, CertificateChainValidator certificateChainValidator) {
-                        return CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
                     }
                 });
 
