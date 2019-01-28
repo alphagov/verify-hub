@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if test ! "$1" == "skip-build"; then
-    ./gradlew clean build installDist -x test
+    ./gradlew --parallel --daemon clean build installDist -x test
 fi
 
 pushd ../ida-hub-acceptance-tests >/dev/null
