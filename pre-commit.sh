@@ -31,7 +31,7 @@ function funky_fail_banner {
 echo "Running tests"
 ./shutdown.sh
 
-if ./gradlew --parallel --daemon clean build intTest 2>/dev/null; then
+if ./gradlew --parallel --daemon clean build intTest installDist 2>/dev/null; then
   echo "Checking for dependency updates:"
   tput setaf 3
   ./gradlew -q dependencyUpdates -Drevision=release \
