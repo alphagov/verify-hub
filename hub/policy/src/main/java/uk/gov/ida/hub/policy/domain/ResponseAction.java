@@ -2,7 +2,10 @@ package uk.gov.ida.hub.policy.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import static java.text.MessageFormat.format;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.CANCEL;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.FAILED_UPLIFT;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.MATCHING_JOURNEY_SUCCESS;
@@ -14,6 +17,9 @@ import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
 // We would like to use the following annotation so in future we can re-use ResponseActionDto,
 // however, it appears Infinispan does not like it: (@JsonIgnoreProperties(ignoreUnknown = true))
 public final class ResponseAction {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResponseAction.class);
+
     public enum IdpResult {
         SUCCESS, MATCHING_JOURNEY_SUCCESS, NON_MATCHING_JOURNEY_SUCCESS, CANCEL, FAILED_UPLIFT, PENDING, OTHER
     }
@@ -28,7 +34,10 @@ public final class ResponseAction {
     public static ResponseAction cancel(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, CANCEL, isRegistration, null, null); }
 
     @JsonIgnore
-    public static ResponseAction other(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, OTHER, isRegistration, null, null); }
+    public static ResponseAction other(SessionId sessionId, boolean isRegistration) {
+        LOG.info(format("Response action 'OTHER' created for session id '{0}'", sessionId));
+        return new ResponseAction(sessionId, OTHER, isRegistration, null, null);
+    }
 
     @JsonIgnore
     public static ResponseAction failedUplift(SessionId sessionId, boolean isRegistration) { return new ResponseAction(sessionId, FAILED_UPLIFT, isRegistration, null, null); }
