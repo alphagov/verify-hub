@@ -109,12 +109,13 @@ import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileTransactionIdaStat
 import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
+import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
+import uk.gov.ida.saml.hub.validators.authnrequest.ConcurrentMapIdExpirationCache;
 import uk.gov.ida.saml.metadata.EidasMetadataConfiguration;
 import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
-import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.MetadataResolverConfigBuilder;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
@@ -172,7 +173,7 @@ public class SamlEngineModule extends AbstractModule {
         bind(Client.class).toProvider(DefaultClientProvider.class).asEagerSingleton();
         bind(EntityToEncryptForLocator.class).to(AssignableEntityToEncryptForLocator.class);
         bind(AssignableEntityToEncryptForLocator.class).asEagerSingleton();
-        bind(InfinispanStartupTasks.class).asEagerSingleton();
+        bind(ReplayCacheStartupTasks.class).asEagerSingleton();
         bind(ConfigServiceKeyStore.class).asEagerSingleton();
         bind(JsonResponseProcessor.class);
         bind(RpErrorResponseGeneratorService.class);
@@ -571,8 +572,8 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private ConcurrentMap<AuthnRequestIdKey, DateTime> authRequestIdCache(InfinispanCacheManager infinispanCacheManager) {
-        return infinispanCacheManager.<AuthnRequestIdKey, DateTime>getCache("authn_request_id_cache");
+    private IdExpirationCache<AuthnRequestIdKey> authRequestIdCache(InfinispanCacheManager infinispanCacheManager) {
+        return new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("authn_request_id_cache"));
     }
 
     @Provides
@@ -591,7 +592,7 @@ public class SamlEngineModule extends AbstractModule {
             @Named("authnRequestKeyStore") SigningKeyStore signingKeyStore,
             IdaKeyStore decryptionKeyStore,
             SamlConfiguration samlConfiguration,
-            ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
+            IdExpirationCache<AuthnRequestIdKey> duplicateIds,
             SamlDuplicateRequestValidationConfiguration duplicateRequestValidationConfiguration,
             SamlAuthnRequestValidityDurationConfiguration authnRequestValidityDurationConfiguration
     ) {

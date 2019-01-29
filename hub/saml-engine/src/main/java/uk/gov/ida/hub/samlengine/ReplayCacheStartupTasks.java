@@ -3,18 +3,19 @@ package uk.gov.ida.hub.samlengine;
 import io.dropwizard.lifecycle.Managed;
 import org.joda.time.DateTime;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
+import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKeyForInitilization;
 
 import javax.inject.Inject;
 import java.util.concurrent.ConcurrentMap;
 
-public class InfinispanStartupTasks implements Managed {
+public class ReplayCacheStartupTasks implements Managed {
 
     private ConcurrentMap<String, DateTime> assertionIdReplayCache;
-    private ConcurrentMap<AuthnRequestIdKey, DateTime> authnRequestIdReplayCache;
+    private IdExpirationCache<AuthnRequestIdKey> authnRequestIdReplayCache;
 
     @Inject
-    public InfinispanStartupTasks(ConcurrentMap<String, DateTime> assertionIdReplayCache, ConcurrentMap<AuthnRequestIdKey, DateTime> authnRequestIdReplayCache) {
+    public ReplayCacheStartupTasks(ConcurrentMap<String, DateTime> assertionIdReplayCache, IdExpirationCache<AuthnRequestIdKey> authnRequestIdReplayCache) {
         this.assertionIdReplayCache = assertionIdReplayCache;
         this.authnRequestIdReplayCache = authnRequestIdReplayCache;
     }
@@ -22,7 +23,7 @@ public class InfinispanStartupTasks implements Managed {
     @Override
     public void start() throws Exception {
         assertionIdReplayCache.get("some-string");
-        authnRequestIdReplayCache.get(new AuthnRequestIdKeyForInitilization("some-id"));
+        authnRequestIdReplayCache.getExpiration(new AuthnRequestIdKeyForInitilization("some-id"));
     }
 
     @Override

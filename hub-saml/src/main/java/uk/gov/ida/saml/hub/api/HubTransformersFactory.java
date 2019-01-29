@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.hub.api;
 
-import java.util.Optional;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeQuery;
@@ -79,9 +78,9 @@ import uk.gov.ida.saml.hub.transformers.outbound.decorators.SamlAttributeQueryAs
 import uk.gov.ida.saml.hub.transformers.outbound.decorators.SigningRequestAbstractTypeSignatureCreator;
 import uk.gov.ida.saml.hub.validators.StringSizeValidator;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestFromTransactionValidator;
-import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIssueInstantValidator;
 import uk.gov.ida.saml.hub.validators.authnrequest.DuplicateAuthnRequestValidator;
+import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 import uk.gov.ida.saml.hub.validators.response.common.AssertionSizeValidator;
 import uk.gov.ida.saml.hub.validators.response.common.ResponseSizeValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
@@ -114,6 +113,7 @@ import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
@@ -200,7 +200,7 @@ public class HubTransformersFactory {
             URI expectedDestinationHost,
             SigningKeyStore signingKeyStore,
             IdaKeyStore decryptionKeyStore,
-            ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
+            IdExpirationCache duplicateIds,
             SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration,
             SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration
     ) {
@@ -432,7 +432,7 @@ public class HubTransformersFactory {
         final URI expectedDestinationHost,
         final SigningKeyStore signingKeyStore,
         final IdaKeyStore decryptionKeyStore,
-        final ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
+        final IdExpirationCache duplicateIds,
         final SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration,
         final SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration
     ) {
