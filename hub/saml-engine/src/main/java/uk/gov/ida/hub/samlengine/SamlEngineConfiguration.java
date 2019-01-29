@@ -6,6 +6,7 @@ import engineering.reliability.gds.metrics.config.PrometheusConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
+import org.redisson.config.Config;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.configuration.PrivateKeyConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
@@ -15,6 +16,7 @@ import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfigu
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.MultiTrustStoresBackedMetadataConfiguration;
+import uk.gov.ida.shared.dropwizard.infinispan.config.CacheType;
 import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanConfiguration;
 import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanServiceConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
@@ -24,6 +26,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Optional;
+
+import static com.google.common.base.Optional.absent;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SamlEngineConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, InfinispanServiceConfiguration, SamlDuplicateRequestValidationConfiguration, SamlAuthnRequestValidityDurationConfiguration, PrometheusConfiguration {
@@ -53,9 +57,14 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     protected boolean readKeysFromFileDescriptors = true;
 
     @Valid
-    @NotNull
     @JsonProperty
-    protected InfinispanConfiguration infinispan;
+    protected InfinispanConfiguration infinispan = new InfinispanConfiguration(
+            absent(), -1, absent(), absent(), CacheType.standalone, com.google.common.base.Optional.of(Duration.hours(2)),
+            absent(), absent(), absent(), absent());
+
+    @Valid
+    @JsonProperty
+    protected Config redis;
 
     @Valid
     @NotNull
@@ -132,6 +141,10 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Override
     public InfinispanConfiguration getInfinispan() {
         return infinispan;
+    }
+
+    public Optional<Config> getRedis() {
+        return Optional.ofNullable(redis);
     }
 
     @Override

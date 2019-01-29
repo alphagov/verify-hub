@@ -11,6 +11,7 @@ dependencies {
             configurations.soap,
             configurations.common,
             configurations.ida_utils,
+            configurations.redis,
             configurations.prometheus
 }
 

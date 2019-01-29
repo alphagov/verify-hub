@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.samlengine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -23,9 +24,11 @@ import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
 import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
+import org.redisson.Redisson;
+import org.redisson.codec.TypedJsonJacksonCodec;
+import org.redisson.config.Config;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
-import uk.gov.ida.hub.samlengine.annotations.Config;
 import uk.gov.ida.hub.samlengine.attributequery.AttributeQueryGenerator;
 import uk.gov.ida.hub.samlengine.attributequery.HubAttributeQueryRequestBuilder;
 import uk.gov.ida.hub.samlengine.attributequery.HubEidasAttributeQueryRequestBuilder;
@@ -114,7 +117,6 @@ import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
-import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.MetadataResolverConfigBuilder;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
 import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
@@ -156,6 +158,7 @@ import static java.util.Arrays.asList;
 
 public class SamlEngineModule extends AbstractModule {
 
+    private static final String REDIS_OBJECT_MAPPER = "RedisObjectMapper";
     public static final String COUNTRY_METADATA_HEALTH_CHECK = "CountryMetadataHealthCheck";
     public static final String EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE = "eIDAS hub entity id is not configured";
     public static final String VERIFY_METADATA_RESOLVER = "VerifyMetadataResolver";
@@ -472,7 +475,7 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    @Config
+    @uk.gov.ida.hub.samlengine.annotations.Config
     private URI configUri(SamlEngineConfiguration configurations) {
         return configurations.getConfigUri();
     }
@@ -565,14 +568,41 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private ConcurrentMap<String, DateTime> assertionIdCache(InfinispanCacheManager infinispanCacheManager) {
-        return infinispanCacheManager.<String, DateTime>getCache("assertion_id_cache");
+    @Named(REDIS_OBJECT_MAPPER)
+    private ObjectMapper getRedisObjectMapper() {
+        return new ObjectMapper().registerModule(new JodaModule());
     }
 
     @Provides
     @Singleton
-    private ConcurrentMap<AuthnRequestIdKey, DateTime> authRequestIdCache(InfinispanCacheManager infinispanCacheManager) {
-        return infinispanCacheManager.<AuthnRequestIdKey, DateTime>getCache("authn_request_id_cache");
+    private ConcurrentMap<String, DateTime> assertionIdCache(SamlEngineConfiguration configuration,
+                                                             @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
+                                                             InfinispanCacheManager infinispanCacheManager) {
+        String cacheName = "assertion_id_cache";
+        return configuration.getRedis()
+                .map(rc -> getAssertionIdCache(rc, objectMapper, cacheName))
+                .orElseGet(() -> infinispanCacheManager.getCache(cacheName));
+    }
+
+    @Provides
+    @Singleton
+    private ConcurrentMap<AuthnRequestIdKey, DateTime> authRequestIdCache(SamlEngineConfiguration configuration,
+                                                                          @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
+                                                                          InfinispanCacheManager infinispanCacheManager) {
+        String cacheName = "authn_request_id_cache";
+        return configuration.getRedis()
+                .map(rc -> getAuthnRequestCache(rc, objectMapper, cacheName))
+                .orElseGet(() -> infinispanCacheManager.getCache(cacheName));
+    }
+
+    private ConcurrentMap<AuthnRequestIdKey, DateTime> getAuthnRequestCache(Config config, ObjectMapper objectMapper, String name) {
+        TypedJsonJacksonCodec jacksonCodec = new TypedJsonJacksonCodec(AuthnRequestIdKey.class, DateTime.class, objectMapper);
+        return Redisson.create(config.setCodec(jacksonCodec)).getMap(name);
+    }
+
+    private ConcurrentMap<String, DateTime> getAssertionIdCache(Config config, ObjectMapper objectMapper, String name) {
+        TypedJsonJacksonCodec jacksonCodec = new TypedJsonJacksonCodec(String.class, DateTime.class, objectMapper);
+        return Redisson.create(config.setCodec(jacksonCodec)).getMap(name);
     }
 
     @Provides
