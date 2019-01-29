@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.redisson.api.RMap;
+import org.redisson.api.RMapCache;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
@@ -25,7 +25,7 @@ public class RedisSessionStoreTest {
     private RedisSessionStore redisSessionStore;
 
     @Mock
-    private RMap<SessionId, State> redisMap;
+    private RMapCache<SessionId, State> redisMap;
 
     @Before
     public void setUp() {
@@ -38,8 +38,7 @@ public class RedisSessionStoreTest {
         State state = getRandomState();
         redisSessionStore.insert(sessionId, state);
 
-        verify(redisMap).put(sessionId, state);
-        verify(redisMap).expire(EXPIRY_TIME, TimeUnit.MINUTES);
+        verify(redisMap).put(sessionId, state, EXPIRY_TIME, TimeUnit.MINUTES);
     }
 
     @Test
