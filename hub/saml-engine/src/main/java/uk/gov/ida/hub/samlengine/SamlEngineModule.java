@@ -566,8 +566,8 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private ConcurrentMap<String, DateTime> assertionIdCache(InfinispanCacheManager infinispanCacheManager) {
-        return infinispanCacheManager.<String, DateTime>getCache("assertion_id_cache");
+    private IdExpirationCache<String> assertionIdCache(InfinispanCacheManager infinispanCacheManager) {
+        return new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("assertion_id_cache"));
     }
 
     @Provides
@@ -635,7 +635,7 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Named("IdpSamlResponseTransformer")
     private DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer getResponseToInboundResponseFromIdpTransformer(
-            ConcurrentMap<String, DateTime> assertionIdCache,
+            IdExpirationCache<String> assertionIdCache,
             SamlConfiguration samlConfiguration,
             @Named(FED_METADATA_ENTITY_SIGNATURE_VALIDATOR) MetadataBackedSignatureValidator idpSignatureValidator,
             IdaKeyStore keyStore,
@@ -673,7 +673,7 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     @Named("ResponseAssertionsFromCountryValidator")
     private Optional<ResponseAssertionsFromCountryValidator> getResponseAssertionsFromCountryValidator(
-            final ConcurrentMap<String, DateTime> assertionIdCache,
+            final IdExpirationCache<String> assertionIdCache,
             @Named("ExpectedEidasDestination") Optional<URI>  expectedDestination) {
         return  expectedDestination.map(destination -> new ResponseAssertionsFromCountryValidator(
                 new IdentityProviderAssertionValidator(
