@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.samlengine;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -23,6 +25,8 @@ import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
 import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
+import org.redisson.Redisson;
+import org.redisson.codec.TypedJsonJacksonCodec;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.hub.samlengine.annotations.Config;
@@ -30,6 +34,7 @@ import uk.gov.ida.hub.samlengine.attributequery.AttributeQueryGenerator;
 import uk.gov.ida.hub.samlengine.attributequery.HubAttributeQueryRequestBuilder;
 import uk.gov.ida.hub.samlengine.attributequery.HubEidasAttributeQueryRequestBuilder;
 import uk.gov.ida.hub.samlengine.config.ConfigServiceKeyStore;
+import uk.gov.ida.hub.samlengine.config.RedisConfiguration;
 import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
 import uk.gov.ida.hub.samlengine.exceptions.InvalidConfigurationException;
 import uk.gov.ida.hub.samlengine.exceptions.KeyLoadingException;
@@ -43,6 +48,7 @@ import uk.gov.ida.hub.samlengine.proxy.CountrySingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.samlengine.security.PrivateKeyFileDescriptors;
+import uk.gov.ida.hub.samlengine.security.RedisIdExpirationCache;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnRequestGeneratorService;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnResponseTranslatorService;
 import uk.gov.ida.hub.samlengine.services.CountryMatchingServiceRequestGeneratorService;
@@ -109,8 +115,8 @@ import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileTransactionIdaStat
 import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
-import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 import uk.gov.ida.saml.hub.validators.authnrequest.ConcurrentMapIdExpirationCache;
+import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 import uk.gov.ida.saml.metadata.EidasMetadataConfiguration;
 import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
@@ -150,13 +156,13 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 import static java.util.Arrays.asList;
 
 public class SamlEngineModule extends AbstractModule {
 
+    private static final String REDIS_OBJECT_MAPPER = "RedisObjectMapper";
     public static final String COUNTRY_METADATA_HEALTH_CHECK = "CountryMetadataHealthCheck";
     public static final String EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE = "eIDAS hub entity id is not configured";
     public static final String VERIFY_METADATA_RESOLVER = "VerifyMetadataResolver";
@@ -566,14 +572,36 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private IdExpirationCache<String> assertionIdCache(InfinispanCacheManager infinispanCacheManager) {
-        return new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("assertion_id_cache"));
+    @Named(REDIS_OBJECT_MAPPER)
+    private ObjectMapper getRedisObjectMapper() {
+        return new ObjectMapper().registerModule(new JodaModule());
     }
 
     @Provides
     @Singleton
-    private IdExpirationCache<AuthnRequestIdKey> authRequestIdCache(InfinispanCacheManager infinispanCacheManager) {
-        return new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("authn_request_id_cache"));
+    private IdExpirationCache<String> assertionIdCache(SamlEngineConfiguration configuration,
+                                                       @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
+                                                       InfinispanCacheManager infinispanCacheManager) {
+        String cacheName = "assertion_id_cache";
+        return configuration.getRedis()
+                .map(rc -> this.<String>getIdExpirationCache(rc, objectMapper, cacheName))
+                .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache(cacheName)));
+    }
+
+    @Provides
+    @Singleton
+    private IdExpirationCache<AuthnRequestIdKey> authRequestIdCache(SamlEngineConfiguration configuration,
+                                                                    @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
+                                                                    InfinispanCacheManager infinispanCacheManager) {
+        String cacheName = "authn_request_id_cache";
+        return configuration.getRedis()
+                .map(rc -> this.<AuthnRequestIdKey>getIdExpirationCache(rc, objectMapper, cacheName))
+                .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache(cacheName)));
+    }
+
+    private <T> IdExpirationCache<T> getIdExpirationCache(RedisConfiguration config, ObjectMapper objectMapper, String name) {
+        TypedJsonJacksonCodec jacksonCodec = new TypedJsonJacksonCodec(new TypeReference<T>() {}, new TypeReference<DateTime>() {}, objectMapper);
+        return new RedisIdExpirationCache<>(Redisson.create(config.setCodec(jacksonCodec)).getMapCache(name), config.getSessionExpiryTimeInMinutes());
     }
 
     @Provides

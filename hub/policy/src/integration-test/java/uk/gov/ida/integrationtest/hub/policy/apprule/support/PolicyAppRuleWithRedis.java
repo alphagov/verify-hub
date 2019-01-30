@@ -22,6 +22,7 @@ import static io.dropwizard.testing.ConfigOverride.config;
 
 public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguration> {
 
+    private static final int REDIS_PORT = 6381;
     private static final KeyStoreResource clientTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static Redis redis;
 
@@ -34,7 +35,7 @@ public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguratio
                 .add(config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()))
                 .add(config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()))
                 .add(config("eventEmitterConfiguration.enabled", "false"))
-                .add(config("sessionStore.redis.singleServerConfig.address", "redis://localhost:6379"))
+                .add(config("sessionStore.redis.singleServerConfig.address", "redis://localhost:" + REDIS_PORT))
                 .add(configOverrides)
                 .build();
         return mergedConfigOverrides.toArray(new ConfigOverride[mergedConfigOverrides.size()]);
@@ -44,7 +45,7 @@ public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguratio
     protected void before() {
         clientTrustStore.create();
         try {
-            redis = new RedisServer(6379);
+            redis = new RedisServer(REDIS_PORT);
         } catch (IOException e) {
             e.printStackTrace();
         }

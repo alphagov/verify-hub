@@ -1,13 +1,11 @@
 package uk.gov.ida.hub.samlengine;
 
 import io.dropwizard.lifecycle.Managed;
-import org.joda.time.DateTime;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
-import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKeyForInitilization;
+import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 
 import javax.inject.Inject;
-import java.util.concurrent.ConcurrentMap;
 
 public class ReplayCacheStartupTasks implements Managed {
 
