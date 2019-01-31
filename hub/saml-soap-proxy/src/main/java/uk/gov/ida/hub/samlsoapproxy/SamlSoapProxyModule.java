@@ -31,6 +31,7 @@ import uk.gov.ida.hub.samlsoapproxy.annotations.SamlEngine;
 import uk.gov.ida.hub.samlsoapproxy.client.AttributeQueryRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.client.HealthCheckSoapRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.client.MatchingServiceHealthCheckClient;
+import uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient;
 import uk.gov.ida.hub.samlsoapproxy.client.SoapRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.config.CertificatesConfigProxy;
 import uk.gov.ida.hub.samlsoapproxy.config.ConfigServiceKeyStore;
@@ -133,6 +134,23 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(IpAddressResolver.class).toInstance(new IpAddressResolver());
         bind(TimeoutEvaluator.class).toInstance(new TimeoutEvaluator());
         bind(MetadataHealthCheckRegistry.class).asEagerSingleton();
+    }
+
+    @Provides
+    @Singleton
+    private PrometheusClient getPrometheusClientService(
+        Environment environment,
+        SamlSoapProxyConfiguration configConfiguration,
+        MatchingServiceConfigProxy matchingServiceConfigProxy,
+        MatchingServiceHealthChecker matchingServiceHealthChecker) {
+
+        PrometheusClient prometheusClientService = new PrometheusClient(
+            environment,
+            configConfiguration,
+            matchingServiceConfigProxy,
+            matchingServiceHealthChecker);
+        prometheusClientService.createMatchingServiceHealthCheckMetrics();
+        return prometheusClientService;
     }
 
     @Provides
