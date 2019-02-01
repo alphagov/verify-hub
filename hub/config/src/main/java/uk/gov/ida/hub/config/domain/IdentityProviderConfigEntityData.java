@@ -75,6 +75,10 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
     @JsonProperty
     protected Boolean useExactComparisonType;
 
+    @Valid
+    @JsonProperty
+    protected Boolean temporarilyUnavailable = false;
+
     @Override
     public String getEntityId() {
         return entityId;
@@ -95,6 +99,10 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
 
     public Boolean isEnabled() {
         return enabled;
+    }
+
+    public Boolean isTemporarilyUnavailable() {
+        return temporarilyUnavailable;
     }
     
     public Boolean isRegistrationEnabled() {
