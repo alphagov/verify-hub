@@ -14,11 +14,11 @@ public class PrometheusClientService {
     public static final String VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE = "verify_config_certificate_expiry_date";
     public static final String VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_LAST_UPDATED = "verify_config_certificate_expiry_date_last_updated";
     public static final String VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS = "verify_config_certificate_ocsp_revocation_status";
-    public static final String VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED = "verify_config_certificate_ocsp_revocation_status_last_updated";
+    public static final String VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP = "verify_config_certificate_ocsp_last_success_timestamp";
     public static final String VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_HELP = "X.509 Certificate Expiry Date (ms)";
     public static final String VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_LAST_UPDATED_HELP = "X.509 Certificate Expiry Date Metric Last Updated (ms)";
     public static final String VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_HELP = "X.509 Certificate OCSP Revocation Status (1 = valid and 0 = invalid)";
-    public static final String VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED_HELP = "X.509 Certificate OCSP Revocation Status Metric Last Updated (ms)";
+    public static final String VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP_HELP = "X.509 Certificate OCSP Last Success Timestamp (ms)";
     private static final boolean USE_DAEMON_THREADS = true;
     private final Environment environment;
     private final ConfigConfiguration configConfiguration;
@@ -60,7 +60,7 @@ public class PrometheusClientService {
             Gauge ocspStatusGauge = Gauge.build(VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS, VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_HELP)
                                          .labelNames("entity_id", "use", "subject", "fingerprint", "serial")
                                          .register();
-            Gauge lastUpdatedGauge = Gauge.build(VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED, VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED_HELP)
+            Gauge lastUpdatedGauge = Gauge.build(VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP, VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP_HELP)
                                           .labelNames("entity_id", "use", "subject", "fingerprint", "serial")
                                           .register();
 

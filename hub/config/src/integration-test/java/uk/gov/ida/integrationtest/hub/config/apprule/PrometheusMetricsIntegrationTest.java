@@ -18,6 +18,7 @@ import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
 import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.Message;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import javax.ws.rs.client.Client;
@@ -39,13 +40,15 @@ import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_C
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_LAST_UPDATED_HELP;
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS;
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_HELP;
-import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED;
-import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED_HELP;
+import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP;
+import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP_HELP;
 import static uk.gov.ida.hub.config.domain.builders.EncryptionCertificateBuilder.anEncryptionCertificate;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
 import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.*;
+import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.messageShouldBePresent;
 
 public class PrometheusMetricsIntegrationTest {
     private static Client client;
@@ -131,71 +134,80 @@ public class PrometheusMetricsIntegrationTest {
 
         assertThat(entity).contains(String.format(GAUGE_HELP_TEMPLATE, VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS, VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_HELP));
         assertThat(entity).contains(String.format(GAUGE_TYPE_TEMPLATE, VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS));
-        assertThat(entity).contains(String.format(GAUGE_HELP_TEMPLATE, VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED, VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED_HELP));
-        assertThat(entity).contains(String.format(GAUGE_TYPE_TEMPLATE, VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED));
+        assertThat(entity).contains(String.format(GAUGE_HELP_TEMPLATE, VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP, VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP_HELP));
+        assertThat(entity).contains(String.format(GAUGE_TYPE_TEMPLATE, VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP));
 
-        getExpectedCertificatesMetrics().forEach(expectedCertificateMetric -> assertThat(entity).contains(expectedCertificateMetric));
+        getExpectedCertificatesMetrics().stream()
+                                        .filter(expectedMessage -> expectedMessage.isPresent())
+                                        .forEach(expectedMessage -> assertThat(entity).contains(expectedMessage.getMessage()));
+        getExpectedCertificatesMetrics().stream()
+                                        .filter(expectedMessage -> !expectedMessage.isPresent())
+                                        .forEach(expectedMessage -> assertThat(entity).doesNotContain(expectedMessage.getMessage()));
     }
 
     private Response getPrometheusMetrics() {
         return client.target(UriBuilder.fromUri("http://localhost").path("/prometheus/metrics").port(configAppRule.getAdminPort()).build()).request().get();
     }
 
-    private List<String> getExpectedCertificatesMetrics() {
-        List<String> expectedCertificatesMetrics = new ArrayList<>();
+    private List<Message> getExpectedCertificatesMetrics() {
+        List<Message> expectedCertificatesMetrics = new ArrayList<>();
         expectedCertificatesMetrics.addAll(getExpectedCertificateMetricsList(TRANSACTION_CONFIG_ENTITY_DATA));
         expectedCertificatesMetrics.addAll(getExpectedCertificateMetricsList(MATCHING_SERVICE_CONFIG_ENTITY_DATA));
         return expectedCertificatesMetrics;
     }
 
-    private <T extends ConfigEntityData & CertificateEntity> List<String> getExpectedCertificateMetricsList(final T configEntityData) {
-        List<String> expectedCertificatesMetrics = new ArrayList<>();
+    private <T extends ConfigEntityData & CertificateEntity> List<Message> getExpectedCertificateMetricsList(final T configEntityData) {
+        List<Message> expectedCertificatesMetrics = new ArrayList<>();
         configEntityData.getSignatureVerificationCertificates()
                         .forEach(
                             certificate -> {
                                 getExpectedCertificateExpiryDateMetrics(configEntityData.getEntityId(), certificate).ifPresent(
-                                    expectedCertificateExpiryMetrics -> expectedCertificatesMetrics.addAll(expectedCertificateExpiryMetrics));
+                                    expectedCertificateExpiryMetrics -> expectedCertificatesMetrics.add(expectedCertificateExpiryMetrics));
                                 getExpectedCertificateOcspRevocationStatusMetrics(configEntityData.getEntityId(), certificate).ifPresent(
                                     expectedCertificateOcspRevocationStatusMetrics -> expectedCertificatesMetrics.addAll(expectedCertificateOcspRevocationStatusMetrics));
                             });
         getExpectedCertificateExpiryDateMetrics(configEntityData.getEntityId(), configEntityData.getEncryptionCertificate()).ifPresent(
-            expectedCertificateExpiryMetrics -> expectedCertificatesMetrics.addAll(expectedCertificateExpiryMetrics));
+            expectedCertificateExpiryMetrics -> expectedCertificatesMetrics.add(expectedCertificateExpiryMetrics));
         getExpectedCertificateOcspRevocationStatusMetrics(configEntityData.getEntityId(), configEntityData.getEncryptionCertificate()).ifPresent(
             expectedCertificateOcspRevocationStatusMetrics -> expectedCertificatesMetrics.addAll(expectedCertificateOcspRevocationStatusMetrics));
+        addExpectedCertificateExpiryDateLastUpdate(expectedCertificatesMetrics);
         return expectedCertificatesMetrics;
     }
 
-    private Optional<List<String>> getExpectedCertificateExpiryDateMetrics(final String entityId,
-                                                                           final Certificate certificate) {
+    private void addExpectedCertificateExpiryDateLastUpdate(final List<Message> expectedCertificatesMetrics) {
+        expectedCertificatesMetrics.add(messageShouldBePresent(String.format(LAST_UPDATE_METRICS_TEMPLATE,
+            VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_LAST_UPDATED,
+            (double) DateTime.now(DateTimeZone.UTC).getMillis())));
+    }
+
+    private Optional<Message> getExpectedCertificateExpiryDateMetrics(final String entityId,
+                                                                      final Certificate certificate) {
         try {
             return Optional.of(
-                Arrays.asList(
+                messageShouldBePresent(
                     getExpectedCertificateMetric(VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE,
                         entityId,
                         certificate,
-                        new DateTime(certificate.getNotAfter().getTime(), DateTimeZone.UTC).getMillis()),
-                    String.format(LAST_UPDATE_METRICS_TEMPLATE,
-                        VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_LAST_UPDATED,
-                        (double) DateTime.now(DateTimeZone.UTC).getMillis())));
+                        new DateTime(certificate.getNotAfter().getTime(), DateTimeZone.UTC).getMillis())));
         } catch (CertificateException e) {
             System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateType()));
         }
         return Optional.empty();
     }
 
-    private Optional<List<String>> getExpectedCertificateOcspRevocationStatusMetrics(final String entityId,
-                                                                                     final Certificate certificate) {
+    private Optional<List<Message>> getExpectedCertificateOcspRevocationStatusMetrics(final String entityId,
+                                                                                      final Certificate certificate) {
         try {
             return Optional.of(
                 Arrays.asList(
-                    getExpectedCertificateMetric(VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS,
+                    messageShouldBePresent(getExpectedCertificateMetric(VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS,
                         entityId,
                         certificate,
-                        INVALID),
-                    getExpectedCertificateMetric(VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_LAST_UPDATED,
+                        INVALID)),
+                    messageShouldNotBePresent(getExpectedCertificateMetric(VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP,
                         entityId,
                         certificate,
-                        DateTime.now(DateTimeZone.UTC).getMillis())));
+                        DateTime.now(DateTimeZone.UTC).getMillis()))));
         } catch (CertificateException e) {
             System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateType()));
         }

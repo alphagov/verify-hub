@@ -37,13 +37,12 @@ public class OcspCertificateChainValidationService implements Runnable {
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
             certificateDetailsSet.forEach(certificateDetails -> {
                 try {
-                    addAGauge(
-                        ocspStatusGauge,
-                        certificateDetails,
-                        ocspCertificateChainValidityChecker.isValid(
-                            certificateDetails.getCertificate(),
-                            certificateDetails.getFederationEntityType()) ? VALID : INVALID);
-                    addAGauge(lastUpdatedGauge, certificateDetails, timestamp);
+                    if (ocspCertificateChainValidityChecker.isValid(certificateDetails.getCertificate(), certificateDetails.getFederationEntityType())) {
+                        updateAGauge(ocspStatusGauge, certificateDetails, VALID);
+                        updateAGauge(lastUpdatedGauge, certificateDetails, timestamp);
+                    } else {
+                        updateAGauge(ocspStatusGauge, certificateDetails, INVALID);
+                    }
                 } catch (CertificateException e) {
                     LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificateDetails.getIssuerId()));
                 }
@@ -54,9 +53,9 @@ public class OcspCertificateChainValidationService implements Runnable {
         }
     }
 
-    private void addAGauge(final Gauge gauge,
-                           final CertificateDetails certificateDetails,
-                           final double value) throws CertificateException {
+    private void updateAGauge(final Gauge gauge,
+                              final CertificateDetails certificateDetails,
+                              final double value) throws CertificateException {
         gauge.labels(certificateDetails.getIssuerId(),
             certificateDetails.getCertificate().getCertificateType().toString(),
             certificateDetails.getCertificate().getSubject(),
