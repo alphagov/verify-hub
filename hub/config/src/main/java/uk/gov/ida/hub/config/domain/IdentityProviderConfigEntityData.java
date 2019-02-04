@@ -101,6 +101,7 @@ public class IdentityProviderConfigEntityData implements ConfigEntityData {
         return enabled;
     }
 
+    @JsonProperty("temporarilyUnavailable")
     public Boolean isTemporarilyUnavailable() {
         return temporarilyUnavailable;
     }

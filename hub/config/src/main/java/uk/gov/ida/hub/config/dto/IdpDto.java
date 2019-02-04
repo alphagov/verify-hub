@@ -12,17 +12,20 @@ public class IdpDto {
     private final String entityId;
     private final List<LevelOfAssurance> levelsOfAssurance;
     private final boolean authenticationEnabled;
+    private final boolean temporarilyUnavailable;
 
     @JsonCreator
     public IdpDto(
             @JsonProperty("simpleId") String simpleId,
             @JsonProperty("entityId") String entityId,
             @JsonProperty("supportedLevelsOfAssurance") List<LevelOfAssurance> levelsOfAssurance,
-            @JsonProperty("authenticationEnabled") boolean authenticationEnabled) {
+            @JsonProperty("authenticationEnabled") boolean authenticationEnabled,
+            @JsonProperty("temporarilyUnavailable") boolean temporarilyUnavailable) {
         this.simpleId = simpleId;
         this.entityId = entityId;
         this.levelsOfAssurance = levelsOfAssurance;
         this.authenticationEnabled = authenticationEnabled;
+        this.temporarilyUnavailable = temporarilyUnavailable;
     }
 
     public String getSimpleId() {
@@ -36,8 +39,10 @@ public class IdpDto {
     public List<LevelOfAssurance> getLevelsOfAssurance() {
         return levelsOfAssurance;
     }
-    
+
     public boolean isAuthenticationEnabled() { return authenticationEnabled; }
+
+    public boolean isTemporarilyUnavailable() { return temporarilyUnavailable; }
 
     @Override
     public boolean equals(Object o) {

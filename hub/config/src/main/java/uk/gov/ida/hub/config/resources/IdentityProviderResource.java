@@ -56,7 +56,13 @@ public class IdentityProviderResource {
 
         Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityData(transactionEntityId);
         return matchingIdps.stream().map(configData ->
-                new IdpDto(configData.getSimpleId(), configData.getEntityId(), configData.getSupportedLevelsOfAssurance(), configData.isAuthenticationEnabled())).collect(Collectors.toList());
+                new IdpDto(
+                        configData.getSimpleId(),
+                        configData.getEntityId(),
+                        configData.getSupportedLevelsOfAssurance(),
+                        configData.isAuthenticationEnabled(),
+                        configData.isTemporarilyUnavailable()))
+                .collect(Collectors.toList());
     }
 
     @GET
@@ -71,7 +77,8 @@ public class IdentityProviderResource {
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
                                 configData.getSupportedLevelsOfAssurance(),
-                                configData.isAuthenticationEnabled()))
+                                configData.isAuthenticationEnabled(),
+                                configData.isTemporarilyUnavailable()))
                 .collect(Collectors.toList());
     }
 
@@ -86,7 +93,8 @@ public class IdentityProviderResource {
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
                                 configData.getSupportedLevelsOfAssurance(),
-                                configData.isAuthenticationEnabled()))
+                                configData.isAuthenticationEnabled(),
+                                configData.isTemporarilyUnavailable()))
                 .collect(Collectors.toList());
     }
 
@@ -101,7 +109,8 @@ public class IdentityProviderResource {
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
                                 configData.getSupportedLevelsOfAssurance(),
-                                configData.isAuthenticationEnabled()))
+                                configData.isAuthenticationEnabled(),
+                                configData.isTemporarilyUnavailable()))
                 .collect(Collectors.toList());
     }
 
