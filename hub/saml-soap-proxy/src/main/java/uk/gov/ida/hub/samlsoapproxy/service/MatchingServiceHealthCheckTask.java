@@ -17,8 +17,7 @@ public class MatchingServiceHealthCheckTask implements Callable<String> {
     private final MatchingServiceConfigEntityDataDto matchingServiceConfig;
     private final Gauge healthStatusGauge;
     private final Gauge healthStatusLastUpdatedGauge;
-    private final Gauge informationGauge;
-    private final Gauge informationLastUpdatedGauge;
+    private MatchingServiceInfoMetric infoMetric;
     public static final double HEALTHY = 1.0;
     public static final double UNHEALTHY = 0.0;
 
@@ -26,14 +25,12 @@ public class MatchingServiceHealthCheckTask implements Callable<String> {
                                           final MatchingServiceConfigEntityDataDto matchingServiceConfig,
                                           final Gauge healthStatusGauge,
                                           final Gauge healthStatusLastUpdatedGauge,
-                                          final Gauge informationGauge,
-                                          final Gauge informationLastUpdatedGauge) {
+                                          final MatchingServiceInfoMetric infoMetric) {
         this.matchingServiceHealthChecker = matchingServiceHealthChecker;
         this.matchingServiceConfig = matchingServiceConfig;
         this.healthStatusGauge = healthStatusGauge;
         this.healthStatusLastUpdatedGauge = healthStatusLastUpdatedGauge;
-        this.informationGauge = informationGauge;
-        this.informationLastUpdatedGauge = informationLastUpdatedGauge;
+        this.infoMetric = infoMetric;
     }
 
     @Override
@@ -42,12 +39,11 @@ public class MatchingServiceHealthCheckTask implements Callable<String> {
             final MatchingServiceHealthCheckResult matchingServiceHealthCheckResult = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfig);
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
             if (matchingServiceHealthCheckResult.isHealthy()) {
+                infoMetric.recordDetails(matchingServiceHealthCheckResult.getDetails());
                 healthStatusGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
                                  .set(HEALTHY);
                 healthStatusLastUpdatedGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
                                             .set(timestamp);
-                addAnInformationGauge(informationGauge, matchingServiceHealthCheckResult, HEALTHY);
-                addAnInformationGauge(informationLastUpdatedGauge, matchingServiceHealthCheckResult, timestamp);
             } else {
                 healthStatusGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
                                  .set(UNHEALTHY);
@@ -58,18 +54,5 @@ public class MatchingServiceHealthCheckTask implements Callable<String> {
             LOG.warn(e.getMessage());
         }
         return DateTime.now(DateTimeZone.UTC) + matchingServiceConfig.getEntityId();
-    }
-
-    private void addAnInformationGauge(final Gauge gauge,
-                                       final MatchingServiceHealthCheckResult matchingServiceHealthCheckResult,
-                                       final double value) {
-        gauge.labels(
-            matchingServiceHealthCheckResult.getDetails().getMatchingService().toString(),
-            matchingServiceHealthCheckResult.getDetails().getVersionNumber(),
-            String.valueOf(matchingServiceHealthCheckResult.getDetails().isVersionSupported()),
-            matchingServiceHealthCheckResult.getDetails().getEidasEnabled(),
-            matchingServiceHealthCheckResult.getDetails().getShouldSignWithSha1(),
-            String.valueOf(matchingServiceHealthCheckResult.getDetails().isOnboarding()))
-             .set(value);
     }
 }

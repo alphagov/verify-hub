@@ -25,8 +25,7 @@ public class MatchingServiceHealthCheckService implements Runnable {
     private final MatchingServiceHealthChecker matchingServiceHealthChecker;
     private final Gauge healthStatusGauge;
     private final Gauge healthStatusLastUpdatedGauge;
-    private final Gauge informationGauge;
-    private final Gauge informationLastUpdatedGauge;
+    private final MatchingServiceInfoMetric infoMetric;
 
     public MatchingServiceHealthCheckService(final ExecutorService matchingServiceHealthCheckTaskManager,
                                              final Duration timeout,
@@ -34,16 +33,14 @@ public class MatchingServiceHealthCheckService implements Runnable {
                                              final MatchingServiceHealthChecker matchingServiceHealthChecker,
                                              final Gauge healthStatusGauge,
                                              final Gauge healthStatusLastUpdatedGauge,
-                                             final Gauge informationGauge,
-                                             final Gauge informationLastUpdatedGauge) {
+                                             final MatchingServiceInfoMetric infoMetric) {
         this.matchingServiceHealthCheckTaskManager = matchingServiceHealthCheckTaskManager;
         this.timeout = timeout;
         this.matchingServiceConfigProxy = matchingServiceConfigProxy;
         this.matchingServiceHealthChecker = matchingServiceHealthChecker;
         this.healthStatusGauge = healthStatusGauge;
         this.healthStatusLastUpdatedGauge = healthStatusLastUpdatedGauge;
-        this.informationGauge = informationGauge;
-        this.informationLastUpdatedGauge = informationLastUpdatedGauge;
+        this.infoMetric = infoMetric;
     }
 
     @Override
@@ -58,8 +55,7 @@ public class MatchingServiceHealthCheckService implements Runnable {
                                                           matchingServiceInformation,
                                                           healthStatusGauge,
                                                           healthStatusLastUpdatedGauge,
-                                                          informationGauge,
-                                                          informationLastUpdatedGauge))
+                                                          infoMetric))
                                              .collect(Collectors.toList());
             matchingServiceHealthCheckTaskManager.invokeAll(callables, timeout.toSeconds() + 1L, TimeUnit.SECONDS);
         } catch (Exception e) {

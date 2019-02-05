@@ -58,8 +58,6 @@ import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_S
 import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_SOAP_PROXY_MSA_HEALTH_STATUS_LAST_UPDATED_HELP;
 import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_SOAP_PROXY_MSA_INFO;
 import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_SOAP_PROXY_MSA_INFO_HELP;
-import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_SOAP_PROXY_MSA_INFO_LAST_UPDATED;
-import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_SOAP_PROXY_MSA_INFO_LAST_UPDATED_HELP;
 import static uk.gov.ida.hub.samlsoapproxy.service.MatchingServiceHealthCheckTask.HEALTHY;
 import static uk.gov.ida.hub.samlsoapproxy.service.MatchingServiceHealthCheckTask.UNHEALTHY;
 import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule.msaStubRule;
@@ -235,8 +233,6 @@ public class PrometheusMetricsIntegrationTest {
 
         assertThat(entity).contains(String.format(GAUGE_HELP_TEMPLATE, VERIFY_SAML_SOAP_PROXY_MSA_INFO, VERIFY_SAML_SOAP_PROXY_MSA_INFO_HELP));
         assertThat(entity).contains(String.format(GAUGE_TYPE_TEMPLATE, VERIFY_SAML_SOAP_PROXY_MSA_INFO));
-        assertThat(entity).contains(String.format(GAUGE_HELP_TEMPLATE, VERIFY_SAML_SOAP_PROXY_MSA_INFO_LAST_UPDATED, VERIFY_SAML_SOAP_PROXY_MSA_INFO_LAST_UPDATED_HELP));
-        assertThat(entity).contains(String.format(GAUGE_TYPE_TEMPLATE, VERIFY_SAML_SOAP_PROXY_MSA_INFO_LAST_UPDATED));
 
         assertThatAHealthyMsaHasBothCorrectHealthAndInfoMetrics(entity, msaStubOne, MSA_ONE_VERSION, MSA_ONE_VERSION_SUPPORTED, MSA_ONE_EIDAS_ENABLED, MSA_ONE_SHOULD_SIGN_WITH_SHA_1);
         assertThatAHealthyMsaHasBothCorrectHealthAndInfoMetrics(entity, msaStubTwo, MSA_TWO_VERSION, MSA_TWO_VERSION_SUPPORTED, MSA_TWO_EIDAS_ENABLED, MSA_TWO_SHOULD_SIGN_WITH_SHA_1);
@@ -255,7 +251,6 @@ public class PrometheusMetricsIntegrationTest {
             msa.getAttributeQueryRequestUri(),
             (double) DateTime.now(DateTimeZone.UTC).getMillis()));
         assertThat(entity).doesNotContain(String.format(VERIFY_SAML_SOAP_PROXY_MSA_INFO + "{matchingService=\"%s\",", msa.getAttributeQueryRequestUri()));
-        assertThat(entity).doesNotContain(String.format(VERIFY_SAML_SOAP_PROXY_MSA_INFO_LAST_UPDATED + "{matchingService=\"%s\",", msa.getAttributeQueryRequestUri()));
     }
 
     private void assertThatAHealthyMsaHasBothCorrectHealthAndInfoMetrics(final String entity,
@@ -282,15 +277,6 @@ public class PrometheusMetricsIntegrationTest {
             msaShouldSignWithSha1,
             ONBOARDING,
             HEALTHY));
-        assertThat(entity).contains(String.format(
-            MSA_INFO_METRICS_TEMPLATE, VERIFY_SAML_SOAP_PROXY_MSA_INFO_LAST_UPDATED,
-            msa.getAttributeQueryRequestUri(),
-            msaVersion,
-            msaVersionSupported,
-            msaEidasEnabled,
-            msaShouldSignWithSha1,
-            ONBOARDING,
-            (double) DateTime.now(DateTimeZone.UTC).getMillis()));
     }
 
     private Response getPrometheusMetrics() {
