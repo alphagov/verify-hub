@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 public class MatchingServiceHealthCheckService implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(MatchingServiceHealthCheckService.class);
+    private static final long WAIT_FOR_THREAD_TO_MARK_TIMEOUT_MATCHING_SERVICE_UNHEALTHY = 1L;
     private final ExecutorService matchingServiceHealthCheckTaskManager;
     private final Duration timeout;
     private final MatchingServiceConfigProxy matchingServiceConfigProxy;
@@ -57,7 +58,7 @@ public class MatchingServiceHealthCheckService implements Runnable {
                                                           healthStatusLastUpdatedGauge,
                                                           infoMetric))
                                              .collect(Collectors.toList());
-            matchingServiceHealthCheckTaskManager.invokeAll(callables, timeout.toSeconds() + 1L, TimeUnit.SECONDS);
+            matchingServiceHealthCheckTaskManager.invokeAll(callables, timeout.toSeconds() + WAIT_FOR_THREAD_TO_MARK_TIMEOUT_MATCHING_SERVICE_UNHEALTHY, TimeUnit.SECONDS);
         } catch (Exception e) {
             LOG.warn(e.getMessage());
         }
