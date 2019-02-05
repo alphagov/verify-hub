@@ -4,19 +4,18 @@ import com.google.inject.Inject;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.Assertion;
 import uk.gov.ida.saml.hub.exception.SamlValidationException;
-
-import java.util.concurrent.ConcurrentMap;
+import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnStatementAlreadyReceived;
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.duplicateMatchingDataset;
 
 public class DuplicateAssertionValidatorImpl implements DuplicateAssertionValidator {
 
-    private final ConcurrentMap<String, DateTime> duplicateIds;
+    private final IdExpirationCache<String> idExpirationCache;
 
     @Inject
-    public DuplicateAssertionValidatorImpl(ConcurrentMap<String, DateTime> duplicateIds) {
-        this.duplicateIds = duplicateIds;
+    public DuplicateAssertionValidatorImpl(IdExpirationCache<String> idExpirationCache) {
+        this.idExpirationCache = idExpirationCache;
     }
 
     @Override
@@ -36,11 +35,12 @@ public class DuplicateAssertionValidatorImpl implements DuplicateAssertionValida
             return false;
 
         DateTime expire = assertion.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().getNotOnOrAfter();
-        duplicateIds.put(assertion.getID(), expire);
+        idExpirationCache.setExpiration(assertion.getID(), expire);
         return true;
     }
 
     private boolean isDuplicateNonExpired(Assertion assertion) {
-        return duplicateIds.containsKey(assertion.getID()) && duplicateIds.get(assertion.getID()).isAfter(DateTime.now());
+        return idExpirationCache.contains(assertion.getID())
+                && idExpirationCache.getExpiration(assertion.getID()).isAfterNow();
     }
 }

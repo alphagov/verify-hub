@@ -1,4 +1,4 @@
-package uk.gov.ida.hub.policy;
+package uk.gov.ida.hub.samlengine.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.redisson.config.Config;

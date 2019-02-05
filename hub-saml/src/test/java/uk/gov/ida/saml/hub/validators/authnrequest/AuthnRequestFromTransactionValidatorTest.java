@@ -50,9 +50,10 @@ public class AuthnRequestFromTransactionValidatorTest {
                 return Duration.minutes(5);
             }
         };
+        IdExpirationCache idExpirationCache = new ConcurrentMapIdExpirationCache(new ConcurrentHashMap<>());
         validator = new AuthnRequestFromTransactionValidator(
                 new IssuerValidator(),
-                new DuplicateAuthnRequestValidator(new ConcurrentHashMap<AuthnRequestIdKey, DateTime>(), samlDuplicateRequestValidationConfiguration),
+                new DuplicateAuthnRequestValidator(idExpirationCache, samlDuplicateRequestValidationConfiguration),
                 new AuthnRequestIssueInstantValidator(samlAuthnRequestValidityDurationConfiguration)
         );
     }
