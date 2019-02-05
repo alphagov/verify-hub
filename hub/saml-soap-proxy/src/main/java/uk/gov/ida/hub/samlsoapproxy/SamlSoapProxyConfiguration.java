@@ -8,6 +8,7 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.JerseyClientWithRetryBackoffConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
+import uk.gov.ida.hub.samlsoapproxy.config.PrometheusClientServiceConfiguration;
 import uk.gov.ida.hub.samlsoapproxy.config.SamlConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
@@ -98,6 +99,10 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @JsonProperty
     protected Boolean prometheusEnabled = false;
 
+    @Valid
+    @JsonProperty
+    private PrometheusClientServiceConfiguration matchingServiceHealthCheckServiceConfiguration = new PrometheusClientServiceConfiguration();
+
     public SamlConfiguration getSamlConfiguration() {
         return saml;
     }
@@ -163,5 +168,9 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Override
     public boolean isPrometheusEnabled() {
         return prometheusEnabled;
+    }
+
+    public PrometheusClientServiceConfiguration getMatchingServiceHealthCheckServiceConfiguration() {
+        return matchingServiceHealthCheckServiceConfiguration;
     }
 }

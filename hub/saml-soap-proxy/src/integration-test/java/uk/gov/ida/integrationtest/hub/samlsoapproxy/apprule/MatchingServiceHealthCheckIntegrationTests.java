@@ -26,7 +26,7 @@ import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.dto.AggregatedMatchi
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.dto.MatchingServiceHealthCheckResultDto;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MSAStubRule;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppRule;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus;
@@ -53,6 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthCheckerResponseDtoBuilder.anInboundResponseFromMatchingServiceDto;
+import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule.msaStubRule;
+import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubRule.stackedSamlEngineStubRule;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT;
@@ -81,13 +83,13 @@ public class MatchingServiceHealthCheckIntegrationTests {
     public static EventSinkStubRule eventSinkStub = new EventSinkStubRule();
 
     @ClassRule
-    public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
+    public static SamlEngineStubRule samlEngineStub = stackedSamlEngineStubRule();
 
     @ClassRule
-    public static MSAStubRule msaStubRule1 = new MSAStubRule();
+    public static MsaStubRule msaStubRule1 = msaStubRule();
 
     @ClassRule
-    public static MSAStubRule msaStubRule2 = new MSAStubRule();
+    public static MsaStubRule msaStubRule2 = msaStubRule();
 
     @ClassRule
     public static SamlSoapProxyAppRule samlSoapProxyAppRule = new SamlSoapProxyAppRule(

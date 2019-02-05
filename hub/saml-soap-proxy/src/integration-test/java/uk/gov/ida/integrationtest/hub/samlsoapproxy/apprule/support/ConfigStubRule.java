@@ -15,7 +15,11 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.OK;
 
 public class ConfigStubRule extends HttpStubRule {
@@ -69,4 +73,21 @@ public class ConfigStubRule extends HttpStubRule {
         register(uri, OK.getStatusCode(), matchingServices);
     }
 
+    public void setUpStubForMatchingServiceHealthCheckRequests(final Set<MatchingServiceDetails> matchingServiceDetailsSet) throws JsonProcessingException {
+        final Collection<MatchingServiceConfigEntityDataDto> matchingServices =
+            matchingServiceDetailsSet.stream()
+                                     .map(matchingServiceDetails ->
+                                              new MatchingServiceConfigEntityDataDto(
+                                                  matchingServiceDetails.getMsaEntityId(),
+                                                  matchingServiceDetails.getMsaUri(),
+                                                  matchingServiceDetails.getRpEntityId(),
+                                                  true,
+                                                  false,
+                                                  null))
+                                     .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+        final String uri = UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_MATCHING_SERVICES_RESOURCE)
+                                     .build()
+                                     .getPath();
+        register(uri, OK.getStatusCode(), matchingServices);
+    }
 }
