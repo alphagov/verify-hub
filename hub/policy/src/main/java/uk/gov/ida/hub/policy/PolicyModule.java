@@ -9,7 +9,7 @@ import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import io.dropwizard.setup.Environment;
 import org.redisson.Redisson;
-import org.redisson.api.RMap;
+import org.redisson.api.RMapCache;
 import org.redisson.codec.JsonJacksonCodec;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.security.IdGenerator;
@@ -146,8 +146,8 @@ public class PolicyModule extends AbstractModule {
     }
 
     private RedisSessionStore getRedisSessionStore(RedisConfiguration config) {
-        RMap<SessionId, State> redisMap = Redisson.create(config.setCodec(new JsonJacksonCodec(getRedisObjectMapper())))
-                .getMap("redis-state-cache");
+        RMapCache<SessionId, State> redisMap = Redisson.create(config.setCodec(new JsonJacksonCodec(getRedisObjectMapper())))
+                .getMapCache("redis-state-cache");
         return new RedisSessionStore(redisMap, config.getSessionExpiryTimeInMinutes());
     }
 

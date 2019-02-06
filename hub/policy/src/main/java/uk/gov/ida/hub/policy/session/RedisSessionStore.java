@@ -1,24 +1,23 @@
 package uk.gov.ida.hub.policy.session;
 
-import org.redisson.api.RMap;
+import org.redisson.api.RMapCache;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 
 import java.util.concurrent.TimeUnit;
 
 public class RedisSessionStore implements SessionStore {
-    private final RMap<SessionId, State> dataStore;
+    private final RMapCache<SessionId, State> dataStore;
     private final Long expiryTimeInMinutes;
 
-    public RedisSessionStore(RMap<SessionId, State> dataStore, Long expiryTimeInMinutes) {
+    public RedisSessionStore(RMapCache<SessionId, State> dataStore, Long expiryTimeInMinutes) {
         this.dataStore = dataStore;
         this.expiryTimeInMinutes = expiryTimeInMinutes;
     }
 
     @Override
     public void insert(SessionId sessionId, State value) {
-        dataStore.put(sessionId, value);
-        dataStore.expire(expiryTimeInMinutes, TimeUnit.MINUTES);
+        dataStore.put(sessionId, value, expiryTimeInMinutes, TimeUnit.MINUTES);
     }
 
     @Override
