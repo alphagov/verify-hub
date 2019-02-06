@@ -19,7 +19,6 @@ public class EidasCountrySelectedStateBuilder {
     private String requestId = UUID.randomUUID().toString();
     private String requestIssuerId = "requestIssuerId";
     private URI assertionConsumerServiceUri = URI.create("/default-service-index");
-    private Optional<String> relayState = absent();
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
     private List<LevelOfAssurance> levelOfAssurance;
@@ -39,7 +38,7 @@ public class EidasCountrySelectedStateBuilder {
     public EidasCountrySelectedState build() {
         return new EidasCountrySelectedState(
             countryCode,
-            relayState,
+            null,
             requestId,
             requestIssuerId,
             sessionExpiryTimestamp,
