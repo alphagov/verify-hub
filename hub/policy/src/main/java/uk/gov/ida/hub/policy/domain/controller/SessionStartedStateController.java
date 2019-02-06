@@ -85,7 +85,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
     public void selectCountry(String countryEntityId) {
         EidasCountrySelectedState eidasCountrySelectedState = new EidasCountrySelectedState(
                 countryEntityId,
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),

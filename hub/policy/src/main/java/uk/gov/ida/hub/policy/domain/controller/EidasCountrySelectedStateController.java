@@ -130,7 +130,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
     public void selectCountry(String countryEntityId) {
         EidasCountrySelectedState countrySelectedState = new EidasCountrySelectedState(
                 countryEntityId,
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),

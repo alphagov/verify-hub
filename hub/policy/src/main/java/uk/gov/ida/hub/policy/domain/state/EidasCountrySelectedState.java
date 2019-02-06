@@ -26,7 +26,7 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
     @JsonCreator
     public EidasCountrySelectedState(
             @JsonProperty("countryEntityId") final String countryEntityId,
-            @JsonProperty("relayState") final Optional<String> relayState,
+            @JsonProperty("relayState") final String relayState,
             @JsonProperty("requestId") final String requestId,
             @JsonProperty("requestIssuerId") final String requestIssuerId,
             @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
@@ -45,7 +45,7 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
             forceAuthentication
         );
 
-        this.relayState = relayState;
+        this.relayState = Optional.fromNullable(relayState);
         this.countryEntityId = countryEntityId;
         this.levelsOfAssurance = levelsOfAssurance;
     }

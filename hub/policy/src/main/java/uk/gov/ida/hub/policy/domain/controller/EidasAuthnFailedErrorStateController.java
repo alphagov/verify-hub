@@ -29,7 +29,7 @@ public class EidasAuthnFailedErrorStateController extends AbstractAuthnFailedErr
     public void selectCountry(final String countryEntityId) {
         EidasCountrySelectedState countrySelectedState = new EidasCountrySelectedState(
                 countryEntityId,
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
