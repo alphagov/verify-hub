@@ -10,6 +10,7 @@ import uk.gov.ida.hub.config.dto.CertificateExpiryStatus;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -84,6 +85,10 @@ public abstract class Certificate {
             LOG.warn(String.format("Algorithm [algorithm = %s] is not available.", FINGERPRINT_ALGORITHM));
         }
         return "";
+    }
+
+    public BigInteger getSerialNumber() throws CertificateException {
+        return getCertificate().getSerialNumber();
     }
 
     private Date getNotBefore() throws CertificateException {

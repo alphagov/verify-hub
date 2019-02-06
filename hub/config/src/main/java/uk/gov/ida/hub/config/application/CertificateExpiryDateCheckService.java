@@ -13,33 +13,38 @@ import java.util.Set;
 public class CertificateExpiryDateCheckService implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(CertificateExpiryDateCheckService.class);
     private final CertificateService certificateService;
-    private final Gauge gauge;
+    private final Gauge expiryDateGauge;
+    private final Gauge lastUpdatedGauge;
 
     public CertificateExpiryDateCheckService(final CertificateService certificateService,
-                                             final Gauge gauge) {
+                                             final Gauge expiryDateGauge,
+                                             final Gauge lastUpdatedGauge) {
         this.certificateService = certificateService;
-        this.gauge = gauge;
+        this.expiryDateGauge = expiryDateGauge;
+        this.lastUpdatedGauge = lastUpdatedGauge;
     }
 
     @Override
     public void run() {
-        final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificatesDetails();
-        final String TIMESTAMP = DateTime.now(DateTimeZone.UTC).toString();
-        gauge.clear();
-        certificateDetailsSet.forEach(
-            certificateDetails -> {
+        try {
+            final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificatesDetails();
+            final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
+            certificateDetailsSet.forEach(certificateDetails -> {
                 try {
-                    gauge.labels(
-                        certificateDetails.getIssuerId(),
+                    expiryDateGauge.labels(certificateDetails.getIssuerId(),
                         certificateDetails.getCertificate().getCertificateType().toString(),
                         certificateDetails.getCertificate().getSubject(),
                         certificateDetails.getCertificate().getFingerprint(),
-                        TIMESTAMP)
+                        String.valueOf(certificateDetails.getCertificate().getSerialNumber()))
                          .set(certificateDetails.getCertificate().getNotAfter().getTime());
                 } catch (CertificateException e) {
                     LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificateDetails.getIssuerId()));
                 }
             });
-        LOG.info("Updated Certificates Expiry Dates Metrics.");
+            lastUpdatedGauge.set(timestamp);
+            LOG.info("Updated Certificates Expiry Dates Metrics.");
+        } catch (Exception e) {
+            LOG.warn(e.getMessage());
+        }
     }
 }

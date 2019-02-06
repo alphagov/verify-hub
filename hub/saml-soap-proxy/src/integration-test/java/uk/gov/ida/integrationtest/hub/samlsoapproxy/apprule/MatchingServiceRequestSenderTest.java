@@ -31,7 +31,7 @@ import uk.gov.ida.hub.samlsoapproxy.exceptions.InvalidSamlRequestInAttributeQuer
 import uk.gov.ida.hub.samlsoapproxy.soap.SoapMessageManager;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MSAStubRule;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.PolicyStubRule;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppRule;
 import uk.gov.ida.restclient.ClientProvider;
@@ -67,6 +67,7 @@ import static io.dropwizard.testing.ConfigOverride.config;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlsoapproxy.Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE;
+import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule.msaStubRule;
 import static uk.gov.ida.jerseyclient.JerseyClientWithRetryBackoffHandlerConfigurationBuilder.aJerseyClientWithRetryBackoffHandlerConfiguration;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
@@ -95,7 +96,7 @@ public class MatchingServiceRequestSenderTest {
     public static EventSinkStubRule eventSinkStubRule = new EventSinkStubRule();
 
     @ClassRule
-    public static MSAStubRule msaStubRule = new MSAStubRule();
+    public static MsaStubRule msaStubRule = msaStubRule();
 
     @ClassRule
     public static PolicyStubRule policyStubRule = new PolicyStubRule();

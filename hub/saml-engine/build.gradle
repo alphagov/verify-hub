@@ -3,6 +3,7 @@ dependencies {
             configurations.pact_test,
             configurations.saml_test,
             configurations.ida_test_utils,
+            configurations.redis_test,
             'org.infinispan:infinispan-core:7.1.1.Final:tests'
 
     compile configurations.dropwizard,
@@ -11,6 +12,7 @@ dependencies {
             configurations.soap,
             configurations.common,
             configurations.ida_utils,
+            configurations.redis,
             configurations.prometheus
 }
 

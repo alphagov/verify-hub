@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.internal.util.Base64;
 import org.opensaml.saml.saml2.core.AttributeQuery;
@@ -32,6 +31,7 @@ import javax.inject.Named;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static java.text.MessageFormat.format;

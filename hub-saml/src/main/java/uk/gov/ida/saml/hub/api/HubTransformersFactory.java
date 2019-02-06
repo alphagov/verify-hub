@@ -1,7 +1,5 @@
 package uk.gov.ida.saml.hub.api;
 
-import java.util.Optional;
-import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -79,9 +77,9 @@ import uk.gov.ida.saml.hub.transformers.outbound.decorators.SamlAttributeQueryAs
 import uk.gov.ida.saml.hub.transformers.outbound.decorators.SigningRequestAbstractTypeSignatureCreator;
 import uk.gov.ida.saml.hub.validators.StringSizeValidator;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestFromTransactionValidator;
-import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIssueInstantValidator;
 import uk.gov.ida.saml.hub.validators.authnrequest.DuplicateAuthnRequestValidator;
+import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 import uk.gov.ida.saml.hub.validators.response.common.AssertionSizeValidator;
 import uk.gov.ida.saml.hub.validators.response.common.ResponseSizeValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
@@ -114,7 +112,7 @@ import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Optional;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
@@ -200,7 +198,7 @@ public class HubTransformersFactory {
             URI expectedDestinationHost,
             SigningKeyStore signingKeyStore,
             IdaKeyStore decryptionKeyStore,
-            ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
+            IdExpirationCache duplicateIds,
             SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration,
             SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration
     ) {
@@ -346,7 +344,7 @@ public class HubTransformersFactory {
             IdaKeyStore keyStore,
             URI expectedDestinationHost,
             String expectedEndpoint,
-            ConcurrentMap<String, DateTime> assertionIdCache,
+            IdExpirationCache<String> assertionIdCache,
             String hubEntityId) {
         // not sure if we need to allow an extra ResponseSizeValidator here.
         Function<String, Response> t1 = getStringToResponseTransformer();
@@ -366,7 +364,7 @@ public class HubTransformersFactory {
             IdaKeyStore keyStore,
             URI expectedDestinationHost,
             String expectedEndpoint,
-            ConcurrentMap<String, DateTime> assertionIdCache,
+            IdExpirationCache<String> assertionIdCache,
             String hubEntityId) {
 
         // not sure if we need to allow an extra ResponseSizeValidator here.
@@ -393,7 +391,7 @@ public class HubTransformersFactory {
             IdaKeyStore keyStore,
             URI expectedDestinationHost,
             String expectedEndpoint,
-            ConcurrentMap<String, DateTime> assertionIdCache,
+            IdExpirationCache<String> assertionIdCache,
             String hubEntityId) {
         return getDecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
                 getSignatureValidator(signingKeyStore),
@@ -410,7 +408,7 @@ public class HubTransformersFactory {
             IdaKeyStore keyStore,
             URI expectedDestinationHost,
             String expectedEndpoint,
-            ConcurrentMap<String, DateTime> assertionIdCache,
+            IdExpirationCache<String> assertionIdCache,
             String hubEntityId) {
         IdpResponseValidator validator = new IdpResponseValidator(this.getSamlResponseSignatureValidator(idpSignatureValidator),
             this.getSamlResponseAssertionDecrypter(keyStore),
@@ -432,7 +430,7 @@ public class HubTransformersFactory {
         final URI expectedDestinationHost,
         final SigningKeyStore signingKeyStore,
         final IdaKeyStore decryptionKeyStore,
-        final ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds,
+        final IdExpirationCache duplicateIds,
         final SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration,
         final SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration
     ) {
@@ -541,7 +539,7 @@ public class HubTransformersFactory {
         }
     }
 
-    private ResponseAssertionsFromIdpValidator getResponseAssertionsFromIdpValidator(final ConcurrentMap<String, DateTime> assertionIdCache, String hubEntityId) {
+    private ResponseAssertionsFromIdpValidator getResponseAssertionsFromIdpValidator(final IdExpirationCache<String> assertionIdCache, String hubEntityId) {
         return new ResponseAssertionsFromIdpValidator(
                 new IdentityProviderAssertionValidator(
                         new IssuerValidator(),

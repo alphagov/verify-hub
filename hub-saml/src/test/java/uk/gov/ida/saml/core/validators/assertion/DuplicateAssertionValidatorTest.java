@@ -10,6 +10,8 @@ import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import uk.gov.ida.saml.core.DateTimeFreezer;
 import uk.gov.ida.saml.core.test.OpenSAMLRunner;
+import uk.gov.ida.saml.hub.validators.authnrequest.ConcurrentMapIdExpirationCache;
+import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -38,7 +40,8 @@ public class DuplicateAssertionValidatorTest {
         duplicateIds.put("duplicate", DateTime.now().plusMinutes(5));
         duplicateIds.put("expired-duplicate", DateTime.now().minusMinutes(2));
 
-        duplicateAssertionValidator = new DuplicateAssertionValidatorImpl(duplicateIds);
+        IdExpirationCache idExpirationCache = new ConcurrentMapIdExpirationCache<>(duplicateIds);
+        duplicateAssertionValidator = new DuplicateAssertionValidatorImpl(idExpirationCache);
     }
 
     @Test
