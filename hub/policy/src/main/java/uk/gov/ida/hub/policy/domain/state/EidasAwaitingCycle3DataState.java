@@ -2,16 +2,12 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.StandardToStringStyle;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.Objects;
 
 public class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
 
@@ -30,7 +26,7 @@ public class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataStat
         @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
         @JsonProperty("identityProviderEntityId") final String identityProviderEntityId,
         @JsonProperty("matchingServiceAdapterEntityId") final String matchingServiceAdapterEntityId,
-        @JsonProperty("relayState") final Optional<String> relayState,
+        @JsonProperty("relayState") final String relayState,
         @JsonProperty("persistentId") final PersistentId persistentId,
         @JsonProperty("levelOfAssurance") final LevelOfAssurance levelOfAssurance,
         @JsonProperty("encryptedIdentityAssertion") final String encryptedIdentityAssertion,
