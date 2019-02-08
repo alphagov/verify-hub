@@ -290,7 +290,7 @@ public class EidasCountrySelectedStateControllerTest {
                 state.getAssertionConsumerServiceUri(),
                 new SessionId(state.getSessionId().getSessionId()),
                 state.getTransactionSupportsEidas(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 singleton(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion())
         );
 

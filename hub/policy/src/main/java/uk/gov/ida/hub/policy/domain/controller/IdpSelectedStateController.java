@@ -292,7 +292,7 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),
             state.getTransactionSupportsEidas(),
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             encryptedAssertions
         );
     }

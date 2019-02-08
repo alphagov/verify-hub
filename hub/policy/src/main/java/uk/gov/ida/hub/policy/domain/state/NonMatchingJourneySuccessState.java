@@ -25,7 +25,7 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
-            @JsonProperty("relayState") final Optional<String> relayState,
+            @JsonProperty("relayState") final String relayState,
             @JsonProperty("encryptedAssertions") final Set<String> encryptedAssertions) {
 
         super(
@@ -38,7 +38,7 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
                 null
         );
 
-        this.relayState = relayState;
+        this.relayState = Optional.fromNullable(relayState);
         this.encryptedAssertions = encryptedAssertions;
     }
 
