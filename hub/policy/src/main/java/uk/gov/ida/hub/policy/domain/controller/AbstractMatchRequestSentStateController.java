@@ -198,7 +198,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());
     }

@@ -57,7 +57,7 @@ public class NoMatchStateBuilderTest {
 
     @Test
     public void withRelayState() throws Exception {
-        NoMatchState noMatchState = NoMatchStateBuilder.aNoMatchState().withRelayState(Optional.of(RELAY_STATE)).build();
+        NoMatchState noMatchState = NoMatchStateBuilder.aNoMatchState().withRelayState(RELAY_STATE).build();
 
         assertThat(noMatchState.getRelayState()).isEqualTo(Optional.of(RELAY_STATE));
     }
