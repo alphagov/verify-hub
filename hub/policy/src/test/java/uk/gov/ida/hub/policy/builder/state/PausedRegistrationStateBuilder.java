@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -30,7 +29,7 @@ public class PausedRegistrationStateBuilder {
             assertionConsumerServiceUri,
             sessionId,
             transactionSupportsEidas,
-            Optional.of(relayState)
+            relayState
         );
     }
 }
