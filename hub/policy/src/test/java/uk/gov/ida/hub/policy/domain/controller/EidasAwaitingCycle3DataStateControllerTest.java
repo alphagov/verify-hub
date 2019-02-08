@@ -145,7 +145,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
         final Cycle3DataInputCancelledState expectedState = new Cycle3DataInputCancelledState(
             state.getRequestId(),
             state.getSessionExpiryTimestamp(),
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             state.getRequestIssuerEntityId(),
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),

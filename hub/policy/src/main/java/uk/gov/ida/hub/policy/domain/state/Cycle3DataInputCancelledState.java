@@ -9,7 +9,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Objects;
 
 public class Cycle3DataInputCancelledState extends AbstractState implements ResponsePreparedState, Serializable {
 
@@ -22,7 +21,7 @@ public class Cycle3DataInputCancelledState extends AbstractState implements Resp
     public Cycle3DataInputCancelledState(
         @JsonProperty("requestId") final String requestId,
         @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
-        @JsonProperty("relayState") final Optional<String> relayState,
+        @JsonProperty("relayState") final String relayState,
         @JsonProperty("requestIssuerId") final String requestIssuerId,
         @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
         @JsonProperty("sessionId") final SessionId sessionId,
@@ -37,7 +36,7 @@ public class Cycle3DataInputCancelledState extends AbstractState implements Resp
             transactionSupportsEidas,
             null);
 
-        this.relayState = relayState;
+        this.relayState = Optional.fromNullable(relayState);
     }
 
     public Optional<String> getRelayState() {
