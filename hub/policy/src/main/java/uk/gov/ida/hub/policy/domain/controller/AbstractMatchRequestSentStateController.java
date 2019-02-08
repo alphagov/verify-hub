@@ -73,7 +73,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
                 state.getIdentityProviderEntityId(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());
         stateTransitionAction.transitionTo(matchingServiceRequestErrorState);
@@ -89,7 +89,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                     state.getSessionExpiryTimestamp(),
                     state.getAssertionConsumerServiceUri(),
                     state.getIdentityProviderEntityId(),
-                    state.getRelayState(),
+                    state.getRelayState().orNull(),
                     state.getSessionId(),
                     state.getTransactionSupportsEidas());
 
