@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
@@ -28,7 +27,7 @@ public class EidasUserAccountCreationFailedStateBuilder {
                 requestIssuerId,
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
-                Optional.absent(),
+                null,
                 sessionId,
                 forceAuthentication
         );

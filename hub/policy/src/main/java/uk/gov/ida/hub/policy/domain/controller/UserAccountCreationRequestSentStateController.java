@@ -54,7 +54,7 @@ public class UserAccountCreationRequestSentStateController extends MatchRequestS
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas()
         );

@@ -35,7 +35,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
         final boolean transactionSupportsEidas,
         final String identityProviderEntityId,
         final String matchingServiceEntityId,
-        final Optional<String> relayState,
+        final String relayState,
         final PersistentId persistentId,
         final LevelOfAssurance levelOfAssurance,
         final Boolean forceAuthentication) {
@@ -52,7 +52,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceEntityId = matchingServiceEntityId;
-        this.relayState = relayState;
+        this.relayState = Optional.fromNullable(relayState);
         this.persistentId = persistentId;
         this.levelOfAssurance = levelOfAssurance;
     }

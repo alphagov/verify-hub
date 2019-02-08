@@ -175,7 +175,7 @@ public class TestSessionResource {
                 dto.getTransactionSupportsEidas(),
                 dto.getIdentityProviderEntityId(),
                 dto.getMatchingServiceAdapterEntityId(),
-                dto.getRelayState(),
+                dto.getRelayState().orNull(),
                 dto.getPersistentId(),
                 dto.getLevelOfAssurance(),
                 dto.getEncryptedIdentityAssertion(),

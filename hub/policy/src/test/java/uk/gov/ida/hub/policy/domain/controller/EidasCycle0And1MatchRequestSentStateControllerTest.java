@@ -145,7 +145,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getTransactionSupportsEidas(),
             state.getIdentityProviderEntityId(),
             state.getMatchingServiceAdapterEntityId(),
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             state.getPersistentId(),
             state.getIdpLevelOfAssurance(),
             state.getEncryptedIdentityAssertion(),
@@ -210,7 +210,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getRequestIssuerEntityId(),
             state.getSessionExpiryTimestamp(),
             state.getAssertionConsumerServiceUri(),
-            state.getRelayState(),
+            state.getRelayState().orNull(),
             state.getSessionId(),
             state.getTransactionSupportsEidas()
         );

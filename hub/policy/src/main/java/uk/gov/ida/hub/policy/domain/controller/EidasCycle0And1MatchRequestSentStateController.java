@@ -91,7 +91,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
                 state.getTransactionSupportsEidas(),
                 state.getIdentityProviderEntityId(),
                 state.getMatchingServiceAdapterEntityId(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getPersistentId(),
                 state.getIdpLevelOfAssurance(),
                 state.getEncryptedIdentityAssertion(),

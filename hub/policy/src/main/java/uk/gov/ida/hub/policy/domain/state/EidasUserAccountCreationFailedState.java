@@ -2,7 +2,6 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
@@ -18,7 +17,7 @@ public class EidasUserAccountCreationFailedState extends AbstractUserAccountCrea
             @JsonProperty("authnRequestIssuerEntityId") final String authnRequestIssuerEntityId,
             @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
-            @JsonProperty("relayState") final Optional<String> relayState,
+            @JsonProperty("relayState") final String relayState,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 

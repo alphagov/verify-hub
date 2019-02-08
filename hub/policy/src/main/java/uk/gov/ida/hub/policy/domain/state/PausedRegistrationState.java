@@ -25,7 +25,7 @@ public class PausedRegistrationState extends AbstractState implements State {
            @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
            @JsonProperty("sessionId") final SessionId sessionId,
            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
-           @JsonProperty("relayState") final Optional<String> relayState) {
+           @JsonProperty("relayState") final String relayState) {
 
         super(
                 requestId,
@@ -37,7 +37,7 @@ public class PausedRegistrationState extends AbstractState implements State {
                 null
         );
 
-        this.relayState = relayState;
+        this.relayState = Optional.fromNullable(relayState);
     }
 
     @Override

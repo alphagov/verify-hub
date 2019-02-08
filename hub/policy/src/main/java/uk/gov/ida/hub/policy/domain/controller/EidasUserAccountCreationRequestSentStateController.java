@@ -54,7 +54,7 @@ public class EidasUserAccountCreationRequestSentStateController extends EidasMat
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 state.getSessionId(),
                 state.getForceAuthentication().orNull()
         );

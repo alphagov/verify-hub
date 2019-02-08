@@ -9,7 +9,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Objects;
 
 public class NoMatchState extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
 
@@ -25,7 +24,7 @@ public class NoMatchState extends AbstractState implements ResponseProcessingSta
             @JsonProperty("requestIssuerId") final String requestIssuerId,
             @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
-            @JsonProperty("relayState") final Optional<String> relayState,
+            @JsonProperty("relayState") final String relayState,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
 
@@ -40,7 +39,7 @@ public class NoMatchState extends AbstractState implements ResponseProcessingSta
         );
 
         this.identityProviderEntityId = identityProviderEntityId;
-        this.relayState = relayState;
+        this.relayState = Optional.fromNullable(relayState);
     }
 
     public String getIdentityProviderEntityId() {

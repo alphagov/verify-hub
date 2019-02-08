@@ -247,7 +247,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getAssertionConsumerServiceUri(),
                 new SessionId(state.getSessionId().getSessionId()),
                 state.getTransactionSupportsEidas(),
-                state.getRelayState(),
+                state.getRelayState().orNull(),
                 translatedResponse.getEncryptedIdentityAssertionBlob().transform(Collections::singleton).or(emptySet())
         );
     }

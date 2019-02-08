@@ -20,7 +20,7 @@ public abstract class AbstractUserAccountCreationFailedState extends AbstractSta
         final String authnRequestIssuerEntityId,
         final DateTime sessionExpiryTimestamp,
         final URI assertionConsumerServiceUri,
-        final Optional<String> relayState,
+        final String relayState,
         final SessionId sessionId,
         final boolean transactionSupportsEidas,
         final Boolean forceAuthentication) {
@@ -35,7 +35,7 @@ public abstract class AbstractUserAccountCreationFailedState extends AbstractSta
             forceAuthentication
         );
 
-        this.relayState = relayState;
+        this.relayState = Optional.fromNullable(relayState);
     }
 
     @Override

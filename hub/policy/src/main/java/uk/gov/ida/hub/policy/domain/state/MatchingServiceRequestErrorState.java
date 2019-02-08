@@ -26,7 +26,7 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
             @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
             @JsonProperty("identityProviderEntityId") final String identityProviderEntityId,
-            @JsonProperty("relayState") final Optional<String> relayState,
+            @JsonProperty("relayState") final String relayState,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
 
@@ -41,7 +41,7 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
         );
 
         this.identityProviderEntityId = identityProviderEntityId;
-        this.relayState = relayState;
+        this.relayState = Optional.fromNullable(relayState);
     }
 
     public String getIdentityProviderEntityId() {
