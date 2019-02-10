@@ -166,6 +166,12 @@ subprojects {
         redis('org.redisson:redisson:3.10.1')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
     }
+
+}
+
+task downloadDependencies(type: Exec) {
+    configurations.testRuntime.files
+    commandLine 'echo', 'Downloaded all dependencies'
 }
 
 task(outputDependencies) doLast {
