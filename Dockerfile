@@ -60,4 +60,5 @@ COPY --from=build-app /verify-hub/hub/$hub_app/build/install/$hub_app .
 # ARG is not available at runtime so set an env var with
 # name of app/app-config to run
 ENV HUB_APP $hub_app
-CMD bin/$HUB_APP server $HUB_APP.yml
+ENTRYPOINT ["sh", "-c", "bin/$HUB_APP"]
+CMD ["server", "$HUB_APP.yml"]
