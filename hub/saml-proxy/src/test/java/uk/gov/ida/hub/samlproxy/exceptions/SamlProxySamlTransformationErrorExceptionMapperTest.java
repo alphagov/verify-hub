@@ -89,16 +89,6 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
     }
 
     @Test
-    public void shouldCreateAuditedErrorResponseForDuplicateRequestIdError() throws Exception {
-        Response response = exceptionMapper.handleException(new SamlDuplicateRequestIdException("error", new RuntimeException(), Level.DEBUG));
-
-        ErrorStatusDto responseEntity = (ErrorStatusDto) response.getEntity();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
-        assertThat(responseEntity.isAudited()).isTrue();
-        assertThat(responseEntity.getExceptionType()).isEqualTo(ExceptionType.INVALID_SAML_DUPLICATE_REQUEST_ID);
-    }
-
-    @Test
     public void shouldLogExceptionAtCorrectLevel() throws Exception {
         Level logLevel = Level.DEBUG;
         TestSamlTransformationErrorException exception = new TestSamlTransformationErrorException("error", new RuntimeException(), logLevel);

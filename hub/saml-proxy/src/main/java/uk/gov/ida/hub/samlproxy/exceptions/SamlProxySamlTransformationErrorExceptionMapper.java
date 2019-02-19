@@ -50,9 +50,7 @@ public class SamlProxySamlTransformationErrorExceptionMapper extends AbstractCon
     }
 
     private ExceptionType getExceptionTypeForSamlException(SamlTransformationErrorException exception) {
-        if (exception instanceof SamlDuplicateRequestIdException) {
-            return ExceptionType.INVALID_SAML_DUPLICATE_REQUEST_ID;
-        } else if (exception instanceof SamlRequestTooOldException) {
+        if (exception instanceof SamlRequestTooOldException) {
             return ExceptionType.INVALID_SAML_REQUEST_TOO_OLD;
         } else {
             return ExceptionType.INVALID_SAML;
