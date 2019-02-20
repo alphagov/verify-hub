@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import java.util.Optional;
 import javax.inject.Inject;
 import com.google.inject.Provider;
 import uk.gov.ida.common.ErrorStatusDto;
@@ -8,7 +7,6 @@ import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventsink.EventSinkMessageSender;
-import uk.gov.ida.saml.hub.exception.SamlDuplicateRequestIdException;
 import uk.gov.ida.saml.hub.exception.SamlRequestTooOldException;
 import uk.gov.ida.shared.utils.logging.LevelLogger;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
@@ -35,13 +33,8 @@ public class SamlProxySamlTransformationErrorExceptionMapper extends AbstractCon
     @Override
     protected Response handleException(SamlTransformationErrorException exception) {
         UUID errorId = UUID.randomUUID();
-        Optional<SessionId> sessionId = getSessionId();
-        if (sessionId.isPresent()) {
-            eventSinkMessageSender.audit(exception, errorId, sessionId.get());
-        } else {
-            eventSinkMessageSender.audit(exception, errorId, SessionId.NO_SESSION_CONTEXT_IN_ERROR);
-        }
 
+        eventSinkMessageSender.audit(exception, errorId, getSessionId().orElse(SessionId.NO_SESSION_CONTEXT_IN_ERROR));
         levelLogger.log(exception.getLogLevel(), exception, errorId);
 
         ErrorStatusDto auditedErrorStatus = ErrorStatusDto.createAuditedErrorStatus(errorId, getExceptionTypeForSamlException(exception));
@@ -50,9 +43,7 @@ public class SamlProxySamlTransformationErrorExceptionMapper extends AbstractCon
     }
 
     private ExceptionType getExceptionTypeForSamlException(SamlTransformationErrorException exception) {
-        if (exception instanceof SamlDuplicateRequestIdException) {
-            return ExceptionType.INVALID_SAML_DUPLICATE_REQUEST_ID;
-        } else if (exception instanceof SamlRequestTooOldException) {
+        if (exception instanceof SamlRequestTooOldException) {
             return ExceptionType.INVALID_SAML_REQUEST_TOO_OLD;
         } else {
             return ExceptionType.INVALID_SAML;

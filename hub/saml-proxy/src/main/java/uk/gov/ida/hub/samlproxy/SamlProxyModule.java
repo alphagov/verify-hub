@@ -35,6 +35,7 @@ import uk.gov.ida.hub.samlproxy.controllogic.SamlMessageSenderHandler;
 import uk.gov.ida.hub.samlproxy.exceptions.ExceptionAuditor;
 import uk.gov.ida.hub.samlproxy.exceptions.NoKeyConfiguredForEntityExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
+import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyDuplicateRequestExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxySamlTransformationErrorExceptionMapper;
 import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
@@ -128,6 +129,7 @@ public class SamlProxyModule extends AbstractModule {
         bind(ProtectiveMonitoringLogger.class);
         bind(SessionProxy.class);
         bind(new TypeLiteral<LevelLoggerFactory<SamlProxySamlTransformationErrorExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
+        bind(new TypeLiteral<LevelLoggerFactory<SamlProxyDuplicateRequestExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
         bind(new TypeLiteral<LevelLoggerFactory<NoKeyConfiguredForEntityExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
         bind(new TypeLiteral<LevelLoggerFactory<SamlProxyApplicationExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
         bind(new TypeLiteral<LevelLoggerFactory<SamlProxyExceptionMapper>>(){}).toInstance(new LevelLoggerFactory<>());
