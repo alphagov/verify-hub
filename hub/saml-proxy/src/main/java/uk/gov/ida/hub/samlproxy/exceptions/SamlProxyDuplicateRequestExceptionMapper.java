@@ -12,7 +12,6 @@ import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import java.util.Optional;
 import java.util.UUID;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static uk.gov.ida.common.ExceptionType.INVALID_SAML_DUPLICATE_REQUEST_ID;
@@ -36,14 +35,9 @@ public class SamlProxyDuplicateRequestExceptionMapper extends AbstractContextExc
     protected Response handleException(SamlDuplicateRequestIdException exception) {
         UUID errorId = UUID.randomUUID();
 
-        Optional<SessionId> sessionId = getSessionId();
-        if (sessionId.isPresent()) {
-            eventSinkMessageSender.audit(exception, errorId, sessionId.get());
-        } else {
-            eventSinkMessageSender.audit(exception, errorId, SessionId.NO_SESSION_CONTEXT_IN_ERROR);
-        }
-
+        eventSinkMessageSender.audit(exception, errorId, getSessionId().orElse(SessionId.NO_SESSION_CONTEXT_IN_ERROR));
         levelLogger.log(ExceptionType.INVALID_SAML_DUPLICATE_REQUEST_ID.getLevel(), exception, errorId);
+
         return Response.status(BAD_REQUEST)
                 .entity(ErrorStatusDto.createAuditedErrorStatus(errorId, INVALID_SAML_DUPLICATE_REQUEST_ID))
                 .build();
