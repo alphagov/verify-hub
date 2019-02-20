@@ -35,6 +35,10 @@ public class SamlProxyDuplicateRequestExceptionMapperTest {
     @Mock
     private Provider<HttpServletRequest> contextProvider;
     @Mock
+    private javax.servlet.http.HttpServletRequest httpServletRequest;
+    @Mock
+    private EventSinkMessageSender eventSinkMessageSender;
+    @Mock
     private LevelLoggerFactory<SamlProxyDuplicateRequestExceptionMapper> levelLoggerFactory;
 
     private SamlProxyDuplicateRequestExceptionMapper exceptionMapper;
@@ -42,16 +46,23 @@ public class SamlProxyDuplicateRequestExceptionMapperTest {
     @Before
     public void setUp() throws Exception {
         when(levelLoggerFactory.createLevelLogger(SamlProxyDuplicateRequestExceptionMapper.class)).thenReturn(levelLogger);
-        exceptionMapper = new SamlProxyDuplicateRequestExceptionMapper(contextProvider, levelLoggerFactory);
+        exceptionMapper = new SamlProxyDuplicateRequestExceptionMapper(contextProvider, eventSinkMessageSender, levelLoggerFactory);
+        when(contextProvider.get()).thenReturn(httpServletRequest);
     }
 
     @Test
     public void shouldCreateAuditedErrorResponseForDuplicateRequestIdError() throws Exception {
-        Response response = exceptionMapper.handleException(new SamlDuplicateRequestIdException("error", new RuntimeException(), Level.DEBUG));
+        SamlDuplicateRequestIdException exception = new SamlDuplicateRequestIdException("error", new RuntimeException(), Level.DEBUG);
+        SessionId sessionId = SessionId.createNewSessionId();
+        when(httpServletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(sessionId.getSessionId());
+
+        Response response = exceptionMapper.handleException(exception);
 
         ErrorStatusDto responseEntity = (ErrorStatusDto) response.getEntity();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(responseEntity.isAudited()).isTrue();
         assertThat(responseEntity.getExceptionType()).isEqualTo(ExceptionType.INVALID_SAML_DUPLICATE_REQUEST_ID);
+
+        verify(eventSinkMessageSender).audit(eq(exception), any(UUID.class), eq(sessionId));
     }
 }
