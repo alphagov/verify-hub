@@ -58,7 +58,7 @@ public class TestSessionResourceHelper {
                 idpSelectedState.isRegistering(),
                 idpSelectedState.getRequestedLoa(),
                 idpSelectedState.getForceAuthentication().orNull(),
-                idpSelectedState.getAvailableIdentityProviderEntityIds(),
+                idpSelectedState.getAvailableIdentityProviders(),
                 idpSelectedState.getTransactionSupportsEidas());
 
         return client

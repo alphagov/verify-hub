@@ -75,7 +75,7 @@ public class IdpSelectorTest {
         assertThat(idpSelectedState.getRelayState()).isEqualTo(state.getRelayState());
         assertThat(idpSelectedState.getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
         assertThat(idpSelectedState.getRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
-        assertThat(idpSelectedState.getAvailableIdentityProviderEntityIds()).isEqualTo(singletonList(IDP_ENTITY_ID));
+        assertThat(idpSelectedState.getAvailableIdentityProviders()).isEqualTo(singletonList(IDP_ENTITY_ID));
         assertThat(idpSelectedState.getForceAuthentication()).isEqualTo(state.getForceAuthentication());
         assertThat(idpSelectedState.getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
         assertThat(idpSelectedState.getSessionExpiryTimestamp()).isEqualTo(state.getSessionExpiryTimestamp());

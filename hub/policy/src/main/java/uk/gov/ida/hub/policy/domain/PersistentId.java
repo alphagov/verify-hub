@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -9,12 +11,14 @@ import java.io.Serializable;
 @Immutable
 public final class PersistentId implements Serializable {
 
+    @JsonProperty
     private String nameId;
 
     @SuppressWarnings("unused")//Needed by JAXB
     private PersistentId() { }
 
-    public PersistentId(String nameId) {
+    @JsonCreator
+    public PersistentId(@JsonProperty("nameId") String nameId) {
         this.nameId = nameId;
     }
 

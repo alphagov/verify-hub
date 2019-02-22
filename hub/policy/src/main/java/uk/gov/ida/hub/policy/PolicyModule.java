@@ -1,5 +1,8 @@
 package uk.gov.ida.hub.policy;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -8,9 +11,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import io.dropwizard.setup.Environment;
-import org.redisson.Redisson;
-import org.redisson.api.RMapCache;
-import org.redisson.codec.JsonJacksonCodec;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.masterslave.MasterSlave;
+import io.lettuce.core.masterslave.StatefulRedisMasterSlaveConnection;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.eventemitter.Configuration;
@@ -37,6 +41,8 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.hub.policy.redis.SessionIdMixIn;
+import uk.gov.ida.hub.policy.redis.SessionStoreRedisCodec;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.services.AuthnResponseFromCountryService;
 import uk.gov.ida.hub.policy.services.AuthnResponseFromIdpService;
@@ -63,6 +69,8 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.KeyStore;
+
+import static java.util.Collections.singletonList;
 
 public class PolicyModule extends AbstractModule {
 
@@ -146,13 +154,23 @@ public class PolicyModule extends AbstractModule {
     }
 
     private RedisSessionStore getRedisSessionStore(RedisConfiguration config) {
-        RMapCache<SessionId, State> redisMap = Redisson.create(config.setCodec(new JsonJacksonCodec(getRedisObjectMapper())))
-                .getMapCache("redis-state-cache");
-        return new RedisSessionStore(redisMap, config.getSessionExpiryTimeInMinutes());
+        RedisClient redisClient = RedisClient.create();
+        StatefulRedisMasterSlaveConnection<SessionId, State> redisConnection = MasterSlave.connect(
+                redisClient,
+                new SessionStoreRedisCodec(getRedisObjectMapper()),
+                singletonList(config.getUri())
+        );
+        RedisCommands<SessionId, State> redisCommands = redisConnection.sync();
+        return new RedisSessionStore(redisCommands, config.getRecordTTL());
     }
 
     private ObjectMapper getRedisObjectMapper() {
-        return new ObjectMapper().registerModule(new JodaModule())
+        return new ObjectMapper()
+                .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
+                .setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .addMixIn(SessionId.class, SessionIdMixIn.class)
+                .registerModule(new JodaModule())
                 .registerModule(new Jdk8Module())
                 .registerModule(new GuavaModule());
     }

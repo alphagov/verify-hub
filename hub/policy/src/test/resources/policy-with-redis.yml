@@ -33,8 +33,7 @@ logging:
 
 sessionStore:
   redis:
-    singleServerConfig:
-      address: "redis://replace.me:1234"
+    uri: "redis://replace.me:1234"
 
 eventSinkUri: ${EVENTSINK_URI:-http://localhost:51100}
 
