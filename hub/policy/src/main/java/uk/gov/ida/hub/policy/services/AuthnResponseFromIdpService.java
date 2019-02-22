@@ -16,6 +16,7 @@ import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
@@ -49,7 +50,16 @@ public class AuthnResponseFromIdpService {
     public ResponseAction receiveAuthnResponseFromIdp(SessionId sessionId,
                                                       SamlAuthnResponseContainerDto samlResponseDto) {
 
-        IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
+        try {
+            IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
+        } catch (InvalidSessionStateException exception) {
+            if idp_reported_error {
+                return ... - handleNoAuthnContextResponse, perhaps
+            } else {
+                raise
+            }
+        }
+
 
         boolean matchingJourney = idpSelectedController.isMatchingJourney();
         String entityToEncryptFor = matchingJourney ? idpSelectedController.getMatchingServiceEntityId() : idpSelectedController.getRequestIssuerId();
