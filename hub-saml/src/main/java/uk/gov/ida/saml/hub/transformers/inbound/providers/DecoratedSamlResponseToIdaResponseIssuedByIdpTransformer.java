@@ -13,6 +13,7 @@ import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements Function<Response, InboundResponseFromIdp> {
@@ -24,7 +25,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
     public DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
             IdaResponseFromIdpUnmarshaller idaResponseUnmarshaller,
             SamlResponseSignatureValidator samlResponseSignatureValidator,
-            AssertionDecrypter assertionDecrypter,
+            List<AssertionDecrypter> assertionDecrypters,
             SamlAssertionsSignatureValidator samlAssertionsSignatureValidator,
             EncryptedResponseFromIdpValidator responseFromIdpValidator,
             DestinationValidator responseDestinationValidator,
@@ -32,7 +33,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
 
         this(new IdpResponseValidator(
             samlResponseSignatureValidator,
-            assertionDecrypter,
+            assertionDecrypters,
             samlAssertionsSignatureValidator,
             responseFromIdpValidator,
             responseDestinationValidator,

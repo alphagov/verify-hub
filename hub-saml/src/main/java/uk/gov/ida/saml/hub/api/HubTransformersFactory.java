@@ -42,7 +42,6 @@ import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
-import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.hub.domain.MatchingServiceHealthCheckRequest;
 import uk.gov.ida.saml.hub.factories.AttributeFactory_1_1;
 import uk.gov.ida.saml.hub.factories.AttributeQueryAttributeFactory;
@@ -87,6 +86,7 @@ import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseF
 import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.EncryptedResponseFromMatchingServiceValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.HealthCheckResponseFromMatchingServiceValidator;
+import uk.gov.ida.saml.hub.validators.response.matchingservice.MatchingServiceResponseValidator;
 import uk.gov.ida.saml.hub.validators.response.matchingservice.ResponseAssertionsFromMatchingServiceValidator;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.transformers.HubIdentityProviderMetadataDtoToEntityDescriptorTransformer;
@@ -111,17 +111,23 @@ import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class HubTransformersFactory {
 
     private final CoreTransformersFactory coreTransformersFactory;
+    private final DecrypterFactory decrypterFactory;
+    private final EncryptionAlgorithmValidator encryptionAlgorithmValidator;
 
     public HubTransformersFactory() {
         coreTransformersFactory = new CoreTransformersFactory();
+        decrypterFactory = new DecrypterFactory();
+        encryptionAlgorithmValidator = new EncryptionAlgorithmValidator();
     }
 
     public Function<OutboundResponseFromHub, String> getOutboundResponseFromHubToStringTransformer(
@@ -311,26 +317,30 @@ public class HubTransformersFactory {
 
     public DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer getResponseToInboundResponseFromMatchingServiceTransformer(
             SigningKeyStore signingKeyStore,
-            IdaKeyStore keyStore, String hubEntityId) {
-        return new DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer(
-                new InboundResponseFromMatchingServiceUnmarshaller(
-                        getAssertionToPassthroughAssertionTransformer(),
-                        new MatchingServiceIdaStatusUnmarshaller()
-                ),
-                getSamlResponseSignatureValidator(getSignatureValidator(signingKeyStore)),
-                this.<InboundResponseFromMatchingService>getSamlResponseAssertionDecrypter(keyStore),
-                getSamlAssertionsSignatureValidator(getSignatureValidator(signingKeyStore)),
-                new EncryptedResponseFromMatchingServiceValidator(),
-                new ResponseAssertionsFromMatchingServiceValidator(
-                        new AssertionValidator(
-                                new IssuerValidator(),
-                                new AssertionSubjectValidator(),
-                                new AssertionAttributeStatementValidator(),
-                                new BasicAssertionSubjectConfirmationValidator()
-                        ),
-                        hubEntityId
-                )
+            IdaKeyStore keyStore,
+            String hubEntityId) {
+        ResponseAssertionsFromMatchingServiceValidator responseAssertionsFromMatchingServiceValidator = new ResponseAssertionsFromMatchingServiceValidator(
+            new AssertionValidator(
+                new IssuerValidator(),
+                new AssertionSubjectValidator(),
+                new AssertionAttributeStatementValidator(),
+                new BasicAssertionSubjectConfirmationValidator()
+            ),
+            hubEntityId
         );
+        InboundResponseFromMatchingServiceUnmarshaller inboundResponseFromMatchingServiceUnmarshaller = new InboundResponseFromMatchingServiceUnmarshaller(
+            getAssertionToPassthroughAssertionTransformer(),
+            new MatchingServiceIdaStatusUnmarshaller()
+        );
+        SignatureValidator signatureValidator = getSignatureValidator(signingKeyStore);
+        MatchingServiceResponseValidator matchingServiceResponseValidator = new MatchingServiceResponseValidator(
+            new EncryptedResponseFromMatchingServiceValidator(),
+            getSamlResponseSignatureValidator(signatureValidator),
+            getSamlResponseAssertionDecrypters(keyStore),
+            getSamlAssertionsSignatureValidator(signatureValidator),
+            responseAssertionsFromMatchingServiceValidator
+        );
+        return new DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer(matchingServiceResponseValidator, inboundResponseFromMatchingServiceUnmarshaller);
     }
 
     /**
@@ -411,7 +421,7 @@ public class HubTransformersFactory {
             IdExpirationCache<String> assertionIdCache,
             String hubEntityId) {
         IdpResponseValidator validator = new IdpResponseValidator(this.getSamlResponseSignatureValidator(idpSignatureValidator),
-            this.getSamlResponseAssertionDecrypter(keyStore),
+            this.getSamlResponseAssertionDecrypters(keyStore),
                 getSamlAssertionsSignatureValidator(idpSignatureValidator),
                 new EncryptedResponseFromIdpValidator<>(new SamlStatusToIdaStatusCodeMapper()),
             new DestinationValidator(expectedDestinationHost, expectedEndpoint),
@@ -435,7 +445,7 @@ public class HubTransformersFactory {
         final SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration
     ) {
         List<Credential> credential = new IdaKeyStoreCredentialRetriever(decryptionKeyStore).getDecryptingCredentials();
-        Decrypter decrypter = new DecrypterFactory().createDecrypter(credential);
+        Decrypter decrypter = decrypterFactory.createDecrypter(credential);
 
         return new AuthnRequestToIdaRequestFromRelyingPartyTransformer(
             new AuthnRequestFromRelyingPartyUnmarshaller(decrypter),
@@ -568,11 +578,18 @@ public class HubTransformersFactory {
         );
     }
 
-    private AssertionDecrypter getSamlResponseAssertionDecrypter(IdaKeyStore keyStore) {
+    private List<AssertionDecrypter> getSamlResponseAssertionDecrypters(IdaKeyStore keyStore) {
         IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever = new IdaKeyStoreCredentialRetriever(keyStore);
-        DecrypterFactory decrypterFactory = new DecrypterFactory();
-        Decrypter decrypter = decrypterFactory.createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
-        return new AssertionDecrypter(new EncryptionAlgorithmValidator(), decrypter);
+        return idaKeyStoreCredentialRetriever.getDecryptingCredentials().stream()
+            .map(this::getAssertionDecrypter)
+            .collect(Collectors.toList());
+    }
+
+    private AssertionDecrypter getAssertionDecrypter(Credential credential) {
+        return new AssertionDecrypter(
+            encryptionAlgorithmValidator,
+            decrypterFactory.createDecrypter(Collections.singletonList(credential))
+        );
     }
 
     private SignatureValidator getSignatureValidator(SigningKeyStore signingKeyStore) {
