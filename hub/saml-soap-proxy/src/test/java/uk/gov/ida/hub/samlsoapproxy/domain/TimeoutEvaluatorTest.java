@@ -14,7 +14,7 @@ import static uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder.anAttribu
 public class TimeoutEvaluatorTest {
 
     @Test(expected = AttributeQueryTimeoutException.class)
-    public void hasAttributeQueryTimedOut_shouldThrowExceptionIfRequestIsTimedOut() throws Exception {
+    public void hasAttributeQueryTimedOut_shouldThrowExceptionIfRequestIsTimedOut() {
 
         DateTimeFreezer.freezeTime();
         AttributeQueryContainerDto queryWithTimeoutInPast =
@@ -28,7 +28,7 @@ public class TimeoutEvaluatorTest {
     }
 
     @Test
-    public void hasAttributeQueryTimedOut_shouldDoNothingIfRequestIsNotTimedOut() throws Exception {
+    public void hasAttributeQueryTimedOut_shouldDoNothingIfRequestIsNotTimedOut() {
 
         DateTimeFreezer.freezeTime();
         AttributeQueryContainerDto queryWithTimeoutInFuture =

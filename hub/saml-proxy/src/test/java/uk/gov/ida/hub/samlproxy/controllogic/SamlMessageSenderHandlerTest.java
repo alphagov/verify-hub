@@ -1,11 +1,8 @@
 package uk.gov.ida.hub.samlproxy.controllogic;
 
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -13,7 +10,6 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.samlproxy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.samlproxy.controllogic.SamlMessageSenderHandler.SamlMessage;
 import uk.gov.ida.hub.samlproxy.domain.AuthnRequestFromHubContainerDto;
@@ -31,6 +27,7 @@ import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 
 import javax.xml.namespace.QName;
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,8 +47,6 @@ public class SamlMessageSenderHandlerTest {
     @Mock
     private SamlMessageSignatureValidator samlMessageSignatureValidator;
     @Mock
-    private EventSinkProxy eventSinkProxy;
-    @Mock
     private ExternalCommunicationEventLogger externalCommunicationEventLogger;
     @Mock
     private StringToOpenSamlObjectTransformer<AuthnRequest> authnRequestTransformer;
@@ -59,8 +54,6 @@ public class SamlMessageSenderHandlerTest {
     private ProtectiveMonitoringLogger protectiveMonitoringLogger;
     @Mock
     private SessionProxy sessionProxy;
-    @Captor
-    private ArgumentCaptor<String> transitionMessageCaptor;
 
     public SamlMessageSenderHandler samlMessageSenderHandler;
 
@@ -83,7 +76,7 @@ public class SamlMessageSenderHandlerTest {
     }
 
     @Test
-    public void generateAuthnRequestFromHub_shouldAddExternalCommunicationEvent() throws Exception {
+    public void generateAuthnRequestFromHub_shouldAddExternalCommunicationEvent() {
         SessionId sessionId = SessionId.createNewSessionId();
         String expectedSamlMessageId = UUID.randomUUID().toString();
 
@@ -144,7 +137,7 @@ public class SamlMessageSenderHandlerTest {
     }
 
     @Test(expected = SamlTransformationErrorException.class)
-    public void generateAuthRequestFromHub_shouldThrowSamlTransformationException() throws MarshallingException, SignatureException {
+    public void generateAuthRequestFromHub_shouldThrowSamlTransformationException() {
         SessionId sessionId = SessionId.createNewSessionId();
         String expectedSamlMessageId = UUID.randomUUID().toString();
         when(sessionProxy.getAuthnRequestFromHub(sessionId)).thenReturn(new AuthnRequestFromHubContainerDto(samlRequest, postEndPoint, true));
@@ -191,5 +184,4 @@ public class SamlMessageSenderHandlerTest {
         when(responseTransformer.apply(anyString())).thenReturn(openSamlResponse);
         return openSamlResponse;
     }
-
 }

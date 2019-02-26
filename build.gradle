@@ -36,8 +36,8 @@ def dependencyVersions = [
             pact:'3.5.6',
             ida_test_utils:"2.0.0-46",
             opensaml:"$opensaml_version",
-            dev_pki: '1.1.0-34',
-            saml_libs:"$opensaml_version-170",
+            dev_pki: '1.1.0-37',
+            saml_libs:"$opensaml_version-176",
         ]
 
 subprojects {
@@ -132,7 +132,7 @@ subprojects {
              "uk.gov.ida:saml-metadata-bindings:$dependencyVersions.saml_libs",
              project(":hub-saml")
 
-        saml_test project(":hub-saml-test-utils")
+        saml_test "uk.gov.ida:saml-test-utils:$dependencyVersions.saml_libs"
 
         saml_libs "uk.gov.ida:saml-utils:$dependencyVersions.saml_libs",
                 "uk.gov.ida:saml-extensions:$dependencyVersions.saml_libs"

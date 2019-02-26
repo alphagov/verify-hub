@@ -1,7 +1,7 @@
 dependencies {
     testCompile configurations.test_deps_compile,
             configurations.ida_test_utils,
-            configurations.saml_test
+            project(':hub-saml-test-utils')
 
     compile configurations.ida_utils,
             configurations.dropwizard,

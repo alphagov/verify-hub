@@ -1,8 +1,8 @@
 dependencies {
     testCompile configurations.test_deps_compile,
-            configurations.saml_test,
             configurations.ida_test_utils,
-            'org.hamcrest:hamcrest-library:1.3'
+            configurations.dev_pki,
+            project(':hub-saml-test-utils')
 
     compile configurations.ida_utils,
             configurations.dropwizard,

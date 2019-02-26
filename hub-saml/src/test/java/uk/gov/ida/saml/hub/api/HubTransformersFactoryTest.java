@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.function.Function;
 
 public class HubTransformersFactoryTest {
-    private StringToOpenSamlObjectTransformer<AuthnRequest> stringtoOpenSamlObjectTransformer;
+    private StringToOpenSamlObjectTransformer<AuthnRequest> stringToOpenSamlObjectTransformer;
 
     private final SignatureAlgorithm signatureAlgorithm = new SignatureRSASHA256();
     private final DigestAlgorithm digestAlgorithm = new DigestSHA256();
@@ -49,7 +49,7 @@ public class HubTransformersFactoryTest {
     public void setUp() {
         IdaSamlBootstrap.bootstrap();
         CoreTransformersFactory coreTransformersFactory = new CoreTransformersFactory();
-        stringtoOpenSamlObjectTransformer = coreTransformersFactory.
+        stringToOpenSamlObjectTransformer = coreTransformersFactory.
             getStringtoOpenSamlObjectTransformer(input -> {});
     }
 
@@ -68,7 +68,7 @@ public class HubTransformersFactoryTest {
 
         Assert.assertNotNull(apply);
 
-        AuthnRequest authnReq = stringtoOpenSamlObjectTransformer.apply(apply);
+        AuthnRequest authnReq = stringToOpenSamlObjectTransformer.apply(apply);
         Assert.assertNotNull(authnReq);
         Assert.assertNull("The Authn Request does not contain a KeyInfo section for Verify UK", authnReq.getSignature().getKeyInfo());
     }
@@ -88,7 +88,7 @@ public class HubTransformersFactoryTest {
 
         Assert.assertNotNull(apply);
 
-        AuthnRequest authnReq = stringtoOpenSamlObjectTransformer.apply(apply);
+        AuthnRequest authnReq = stringToOpenSamlObjectTransformer.apply(apply);
         Assert.assertNotNull(authnReq);
         Assert.assertNotNull("The Authn Request contains a KeyInfo section for eIDAS", authnReq.getSignature().getKeyInfo());
     }
