@@ -3,6 +3,7 @@ package uk.gov.ida.hub.policy.redis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
+import com.google.common.io.ByteStreams;
 import io.lettuce.core.codec.RedisCodec;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
@@ -10,6 +11,8 @@ import uk.gov.ida.hub.policy.domain.State;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class SessionStoreRedisCodec implements RedisCodec<SessionId, State> {
     private final ObjectMapper objectMapper;
@@ -22,7 +25,8 @@ public class SessionStoreRedisCodec implements RedisCodec<SessionId, State> {
     public SessionId decodeKey(ByteBuffer keyBytes) {
         try {
             InputStream inputStream = new ByteBufferBackedInputStream(keyBytes);
-            return objectMapper.readValue(inputStream, SessionId.class);
+            // TODO: Replace with `inputStream.readAllBytes()` when we only use Java 9+
+            return new SessionId(new String(ByteStreams.toByteArray(inputStream), UTF_8));
         } catch (IOException e) {
             throw new RedisSerializationException("Error decoding SessionId", e);
         }
@@ -40,11 +44,7 @@ public class SessionStoreRedisCodec implements RedisCodec<SessionId, State> {
 
     @Override
     public ByteBuffer encodeKey(SessionId sessionId) {
-        try {
-            return ByteBuffer.wrap(objectMapper.writeValueAsBytes(sessionId));
-        } catch (JsonProcessingException e) {
-            throw new RedisSerializationException("Error encoding SessionId", e);
-        }
+        return ByteBuffer.wrap(sessionId.getSessionId().getBytes());
     }
 
     @Override

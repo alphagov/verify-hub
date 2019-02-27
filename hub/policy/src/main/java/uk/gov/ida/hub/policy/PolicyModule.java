@@ -41,7 +41,6 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
-import uk.gov.ida.hub.policy.redis.SessionIdMixIn;
 import uk.gov.ida.hub.policy.redis.SessionStoreRedisCodec;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.services.AuthnResponseFromCountryService;
@@ -166,10 +165,9 @@ public class PolicyModule extends AbstractModule {
 
     private ObjectMapper getRedisObjectMapper() {
         return new ObjectMapper()
-                .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
+                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NONE)
                 .setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .addMixIn(SessionId.class, SessionIdMixIn.class)
                 .registerModule(new JodaModule())
                 .registerModule(new Jdk8Module())
                 .registerModule(new GuavaModule());
