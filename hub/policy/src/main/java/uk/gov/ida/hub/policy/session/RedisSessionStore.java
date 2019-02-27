@@ -1,33 +1,32 @@
 package uk.gov.ida.hub.policy.session;
 
-import org.redisson.api.RMapCache;
+import io.lettuce.core.api.sync.RedisCommands;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 
-import java.util.concurrent.TimeUnit;
-
 public class RedisSessionStore implements SessionStore {
-    private final RMapCache<SessionId, State> dataStore;
-    private final Long expiryTimeInMinutes;
+    private final RedisCommands<SessionId, State> dataStore;
+    private final Long recordTTL;
 
-    public RedisSessionStore(RMapCache<SessionId, State> dataStore, Long expiryTimeInMinutes) {
+    public RedisSessionStore(RedisCommands<SessionId, State> dataStore, Long recordTTL) {
         this.dataStore = dataStore;
-        this.expiryTimeInMinutes = expiryTimeInMinutes;
+        this.recordTTL = recordTTL;
     }
 
     @Override
     public void insert(SessionId sessionId, State value) {
-        dataStore.put(sessionId, value, expiryTimeInMinutes, TimeUnit.MINUTES);
+        dataStore.setex(sessionId, recordTTL, value);
     }
 
     @Override
     public void replace(SessionId sessionId, State value) {
-        dataStore.replace(sessionId, value);
+        Long ttl = dataStore.ttl(sessionId);
+        dataStore.setex(sessionId, ttl, value);
     }
 
     @Override
     public boolean hasSession(SessionId sessionId) {
-        return dataStore.containsKey(sessionId);
+        return dataStore.exists(sessionId) > 0;
     }
 
     @Override

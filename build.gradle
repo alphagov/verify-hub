@@ -163,7 +163,7 @@ subprojects {
 
         soap('org.apache.ws.commons:ws-commons-util:1.0.1') { transitive = false }
 
-        redis('org.redisson:redisson:3.10.1')
+        redis('io.lettuce:lettuce-core:5.1.4.RELEASE')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
     }
 

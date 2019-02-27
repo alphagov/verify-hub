@@ -49,7 +49,8 @@ public class IdpAuthnResponseTranslatorResourceWithRedisTest {
 
     public static SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule(
             ConfigOverride.config("configUri", configStubRule.baseUri().build().toASCIIString()),
-            ConfigOverride.config("redis.singleServerConfig.address", "redis://localhost:" + REDIS_PORT)
+            ConfigOverride.config("redis.uri", "redis://localhost:" + REDIS_PORT),
+            ConfigOverride.config("redis.recordTTL", "PT150m")
     );
 
     @ClassRule

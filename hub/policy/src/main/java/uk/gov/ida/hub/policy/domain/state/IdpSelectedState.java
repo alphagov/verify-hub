@@ -76,7 +76,7 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         return Optional.fromNullable(relayState);
     }
 
-    public List<String> getAvailableIdentityProviderEntityIds() {
+    public List<String> getAvailableIdentityProviders() {
         return availableIdentityProviders;
     }
 

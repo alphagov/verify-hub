@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.samlengine;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableMap;
@@ -11,6 +13,12 @@ import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.masterslave.MasterSlave;
+import io.lettuce.core.masterslave.StatefulRedisMasterSlaveConnection;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import org.joda.time.DateTime;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
@@ -25,8 +33,6 @@ import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
 import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
-import org.redisson.Redisson;
-import org.redisson.codec.TypedJsonJacksonCodec;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.hub.samlengine.annotations.Config;
@@ -47,6 +53,8 @@ import uk.gov.ida.hub.samlengine.metadata.SigningCertFromMetadataExtractor;
 import uk.gov.ida.hub.samlengine.proxy.CountrySingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
+import uk.gov.ida.hub.samlengine.redis.AssertionExpirationCacheRedisCodec;
+import uk.gov.ida.hub.samlengine.redis.AuthnRequestExpirationCacheRedisCodec;
 import uk.gov.ida.hub.samlengine.security.PrivateKeyFileDescriptors;
 import uk.gov.ida.hub.samlengine.security.RedisIdExpirationCache;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnRequestGeneratorService;
@@ -159,6 +167,7 @@ import java.util.Timer;
 import java.util.function.Function;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 public class SamlEngineModule extends AbstractModule {
 
@@ -574,7 +583,11 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     @Named(REDIS_OBJECT_MAPPER)
     private ObjectMapper getRedisObjectMapper() {
-        return new ObjectMapper().registerModule(new JodaModule());
+        return new ObjectMapper()
+                .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
+                .setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .registerModule(new JodaModule());
     }
 
     @Provides
@@ -582,10 +595,10 @@ public class SamlEngineModule extends AbstractModule {
     private IdExpirationCache<String> assertionIdCache(SamlEngineConfiguration configuration,
                                                        @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
                                                        InfinispanCacheManager infinispanCacheManager) {
-        String cacheName = "assertion_id_cache";
+        RedisCodec<String, DateTime> codec = new AssertionExpirationCacheRedisCodec(objectMapper);
         return configuration.getRedis()
-                .map(rc -> this.<String>getIdExpirationCache(rc, objectMapper, cacheName))
-                .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache(cacheName)));
+                .map(rc -> this.getIdExpirationCache(rc, codec, 1))
+                .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("assertion_id_cache")));
     }
 
     @Provides
@@ -593,15 +606,27 @@ public class SamlEngineModule extends AbstractModule {
     private IdExpirationCache<AuthnRequestIdKey> authRequestIdCache(SamlEngineConfiguration configuration,
                                                                     @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
                                                                     InfinispanCacheManager infinispanCacheManager) {
-        String cacheName = "authn_request_id_cache";
+        RedisCodec<AuthnRequestIdKey, DateTime> codec = new AuthnRequestExpirationCacheRedisCodec(objectMapper);
         return configuration.getRedis()
-                .map(rc -> this.<AuthnRequestIdKey>getIdExpirationCache(rc, objectMapper, cacheName))
-                .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache(cacheName)));
+                .map(rc -> this.getIdExpirationCache(rc, codec, 0))
+                .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("authn_request_id_cache")));
     }
 
-    private <T> IdExpirationCache<T> getIdExpirationCache(RedisConfiguration config, ObjectMapper objectMapper, String name) {
-        TypedJsonJacksonCodec jacksonCodec = new TypedJsonJacksonCodec(new TypeReference<T>() {}, new TypeReference<DateTime>() {}, objectMapper);
-        return new RedisIdExpirationCache<>(Redisson.create(config.setCodec(jacksonCodec)).getMapCache(name), config.getSessionExpiryTimeInMinutes());
+    private <T> IdExpirationCache<T> getIdExpirationCache(RedisConfiguration config,
+                                                          RedisCodec<T, DateTime> codec,
+                                                          int dbIndex) {
+        RedisClient redisClient = RedisClient.create();
+        RedisURI uri = config.getUri();
+        uri.setDatabase(dbIndex);
+
+        StatefulRedisMasterSlaveConnection<T, DateTime> redisConnection = MasterSlave.connect(
+                redisClient,
+                codec,
+                singletonList(uri)
+        );
+
+        RedisCommands<T, DateTime> redisCommands = redisConnection.sync();
+        return new RedisIdExpirationCache<>(redisCommands, config.getRecordTTL());
     }
 
     @Provides

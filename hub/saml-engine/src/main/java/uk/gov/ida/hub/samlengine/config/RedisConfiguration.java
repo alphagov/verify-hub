@@ -1,17 +1,29 @@
 package uk.gov.ida.hub.samlengine.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.redisson.config.Config;
+import io.lettuce.core.RedisURI;
 
 import javax.validation.Valid;
+import java.net.URI;
+import java.time.Duration;
 
-public class RedisConfiguration extends Config {
+import static java.time.temporal.ChronoUnit.MINUTES;
+
+public class RedisConfiguration {
 
     @Valid
     @JsonProperty
-    private Long sessionExpiryTimeInMinutes = 150L;
+    private Duration recordTTL = Duration.of(150, MINUTES);
 
-    public Long getSessionExpiryTimeInMinutes() {
-        return sessionExpiryTimeInMinutes;
+    @Valid
+    @JsonProperty
+    private URI uri;
+
+    public Long getRecordTTL() {
+        return recordTTL.getSeconds();
+    }
+
+    public RedisURI getUri() {
+        return RedisURI.create(uri);
     }
 }

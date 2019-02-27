@@ -35,7 +35,7 @@ public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguratio
                 .add(config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()))
                 .add(config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()))
                 .add(config("eventEmitterConfiguration.enabled", "false"))
-                .add(config("sessionStore.redis.singleServerConfig.address", "redis://localhost:" + REDIS_PORT))
+                .add(config("sessionStore.redis.uri", "redis://localhost:" + REDIS_PORT))
                 .add(configOverrides)
                 .build();
         return mergedConfigOverrides.toArray(new ConfigOverride[mergedConfigOverrides.size()]);

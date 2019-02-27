@@ -5,8 +5,12 @@ import java.io.Serializable;
 public class AuthnRequestIdKey implements Serializable {
     private final String requestId;
 
-    AuthnRequestIdKey(String requestId) {
+    public AuthnRequestIdKey(String requestId) {
         this.requestId = requestId;
+    }
+
+    public String getRequestId() {
+        return requestId;
     }
 
     @Override

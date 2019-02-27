@@ -8,7 +8,6 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.Objects;
 
 public class SuccessfulMatchState extends AbstractSuccessfulMatchState {
 
