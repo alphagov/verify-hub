@@ -3,6 +3,7 @@ dependencies {
             configurations.ida_test_utils,
             configurations.saml,
             configurations.redis_test,
+            configurations.dev_pki,
             'org.infinispan:infinispan-core:7.1.1.Final:tests',
             'nl.jqno.equalsverifier:equalsverifier:2.5.2'
 

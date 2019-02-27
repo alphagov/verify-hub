@@ -13,13 +13,11 @@ import uk.gov.ida.hub.samlsoapproxy.builders.CertificateDtoBuilder;
 import uk.gov.ida.hub.samlsoapproxy.domain.CertificateDto;
 import uk.gov.ida.hub.samlsoapproxy.domain.FederationEntityType;
 
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -31,7 +29,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static uk.gov.ida.common.shared.security.verification.CertificateValidity.invalid;
 import static uk.gov.ida.common.shared.security.verification.CertificateValidity.valid;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.PUBLIC_ENCRYPTION_CERTS;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_SECONDARY_CERT;
 
@@ -43,7 +40,6 @@ public class ConfigServiceKeyStoreTest {
     public static final String idpSigningCertPrimary = STUB_IDP_PUBLIC_PRIMARY_CERT;
     public static final String idpSigningCertSecondary = STUB_IDP_PUBLIC_SECONDARY_CERT;
     public static final String idpEncryptionCertPrimary = STUB_IDP_PUBLIC_PRIMARY_CERT;
-    public static final HashMap<String, String> PUBLIC_SIGNING_CERTS = new HashMap<>();
 
     @Mock
     private CertificatesConfigProxy certificatesConfigProxy;
@@ -72,7 +68,7 @@ public class ConfigServiceKeyStoreTest {
     }
 
     @Test
-    public void getVerifyingKeysForEntity_shouldGetVerifyingKeysFromConfigCertificateProxy() throws Exception {
+    public void getVerifyingKeysForEntity_shouldGetVerifyingKeysFromConfigCertificateProxy() {
         configServiceKeyStore.getVerifyingKeysForEntity(issuerId);
 
         verify(certificatesConfigProxy).getSignatureVerificationCertificates(issuerId);
@@ -167,7 +163,7 @@ public class ConfigServiceKeyStoreTest {
         }
     }
 
-    private static CertificateDto buildCertificateDto(String entityId, String cert) throws IOException {
+    private static CertificateDto buildCertificateDto(String entityId, String cert) {
         return new CertificateDtoBuilder().withIssuerId(entityId).withCertificate(cert).build();
     }
 }
