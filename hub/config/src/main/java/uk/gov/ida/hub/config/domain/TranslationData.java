@@ -71,6 +71,10 @@ public class TranslationData implements ConfigEntityData {
         protected String otherWaysText;
 
         @Valid
+        @JsonProperty
+        protected String idpDisconnectedAlternativeHtml;
+
+        @Valid
         @NotNull
         @JsonProperty
         protected String tailoredText;
@@ -133,6 +137,11 @@ public class TranslationData implements ConfigEntityData {
 
         public Translation setOtherWaysText(String otherWaysText) {
             this.otherWaysText = otherWaysText;
+            return this;
+        }
+
+        public Translation setIdpDisconnectedAlternativeHtml(String idpDisconnectedAlternativeHtml) {
+            this.idpDisconnectedAlternativeHtml = idpDisconnectedAlternativeHtml;
             return this;
         }
 
