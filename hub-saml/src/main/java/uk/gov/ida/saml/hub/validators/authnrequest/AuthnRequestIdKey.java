@@ -1,17 +1,16 @@
 package uk.gov.ida.saml.hub.validators.authnrequest;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 
 public class AuthnRequestIdKey implements Serializable {
-    @JsonProperty
     private final String requestId;
 
-    @JsonCreator
-    AuthnRequestIdKey(@JsonProperty("requestId") String requestId) {
+    public AuthnRequestIdKey(String requestId) {
         this.requestId = requestId;
+    }
+
+    public String getRequestId() {
+        return requestId;
     }
 
     @Override

@@ -16,6 +16,7 @@ import io.dropwizard.setup.Environment;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.sync.RedisCommands;
+import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.masterslave.MasterSlave;
 import io.lettuce.core.masterslave.StatefulRedisMasterSlaveConnection;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
@@ -52,7 +53,8 @@ import uk.gov.ida.hub.samlengine.metadata.SigningCertFromMetadataExtractor;
 import uk.gov.ida.hub.samlengine.proxy.CountrySingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
-import uk.gov.ida.hub.samlengine.redis.IdExpirationCacheRedisCodec;
+import uk.gov.ida.hub.samlengine.redis.AssertionExpirationCacheRedisCodec;
+import uk.gov.ida.hub.samlengine.redis.AuthnRequestExpirationCacheRedisCodec;
 import uk.gov.ida.hub.samlengine.security.PrivateKeyFileDescriptors;
 import uk.gov.ida.hub.samlengine.security.RedisIdExpirationCache;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnRequestGeneratorService;
@@ -593,8 +595,9 @@ public class SamlEngineModule extends AbstractModule {
     private IdExpirationCache<String> assertionIdCache(SamlEngineConfiguration configuration,
                                                        @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
                                                        InfinispanCacheManager infinispanCacheManager) {
+        RedisCodec<String, DateTime> codec = new AssertionExpirationCacheRedisCodec(objectMapper);
         return configuration.getRedis()
-                .map(rc -> this.getIdExpirationCache(rc, objectMapper, 1, String.class))
+                .map(rc -> this.getIdExpirationCache(rc, codec, 1))
                 .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("assertion_id_cache")));
     }
 
@@ -603,23 +606,25 @@ public class SamlEngineModule extends AbstractModule {
     private IdExpirationCache<AuthnRequestIdKey> authRequestIdCache(SamlEngineConfiguration configuration,
                                                                     @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
                                                                     InfinispanCacheManager infinispanCacheManager) {
+        RedisCodec<AuthnRequestIdKey, DateTime> codec = new AuthnRequestExpirationCacheRedisCodec(objectMapper);
         return configuration.getRedis()
-                .map(rc -> this.getIdExpirationCache(rc, objectMapper, 0, AuthnRequestIdKey.class))
+                .map(rc -> this.getIdExpirationCache(rc, codec, 0))
                 .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("authn_request_id_cache")));
     }
 
     private <T> IdExpirationCache<T> getIdExpirationCache(RedisConfiguration config,
-                                                          ObjectMapper objectMapper,
-                                                          int dbIndex,
-                                                          Class<T> clazz) {
+                                                          RedisCodec<T, DateTime> codec,
+                                                          int dbIndex) {
         RedisClient redisClient = RedisClient.create();
         RedisURI uri = config.getUri();
         uri.setDatabase(dbIndex);
+
         StatefulRedisMasterSlaveConnection<T, DateTime> redisConnection = MasterSlave.connect(
                 redisClient,
-                new IdExpirationCacheRedisCodec<>(objectMapper, clazz),
+                codec,
                 singletonList(uri)
         );
+
         RedisCommands<T, DateTime> redisCommands = redisConnection.sync();
         return new RedisIdExpirationCache<>(redisCommands, config.getRecordTTL());
     }
