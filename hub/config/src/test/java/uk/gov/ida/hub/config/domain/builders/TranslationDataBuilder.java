@@ -14,6 +14,7 @@ public class TranslationDataBuilder {
             .setAnalyticsDescription("Test RP analytics description")
             .setOtherWaysDescription("Test RP other ways description")
             .setOtherWaysText("Test RP other ways text")
+            .setIdpDisconnectedAlternativeHtml("Test RP alternative methods when IDP has been disconnected")
             .setTailoredText("Test RP tailored text")
             .setTaxonName("Test RP")
     );
