@@ -28,11 +28,11 @@ public class ExceptionAuditor {
                     downstream_uri,
                     exception.getUri().or(URI.create("uri-not-present")).toASCIIString());
 
-            eventSinkMessageSender.audit(
-                    exception,
-                    exception.getErrorId(),
-                    sessionId.orElse(SessionId.NO_SESSION_CONTEXT_IN_ERROR),
-                    eventDetails);
+            if (sessionId.isPresent()) {
+                eventSinkMessageSender.audit(exception, exception.getErrorId(), sessionId.get(), eventDetails);
+            } else {
+                eventSinkMessageSender.audit(exception, exception.getErrorId(), NO_SESSION_CONTEXT_IN_ERROR, eventDetails);
+            }
 
             isAudited = true;
         }

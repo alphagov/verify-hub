@@ -15,7 +15,6 @@ import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.eventemitter.EventEmitterModule;
 import uk.gov.ida.hub.samlproxy.exceptions.NoKeyConfiguredForEntityExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
-import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyDuplicateRequestExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxySamlTransformationErrorExceptionMapper;
 import uk.gov.ida.hub.samlproxy.filters.SessionIdQueryParamLoggingFilter;
@@ -106,7 +105,6 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
         classes.add(NoKeyConfiguredForEntityExceptionMapper.class);
         classes.add(SamlProxySamlTransformationErrorExceptionMapper.class);
         classes.add(SamlProxyApplicationExceptionMapper.class);
-        classes.add(SamlProxyDuplicateRequestExceptionMapper.class);
         classes.add(SamlProxyExceptionMapper.class);
         return classes;
     }
