@@ -84,6 +84,7 @@ import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
+import uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionEncrypter;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseAssertionSigner;
@@ -99,6 +100,7 @@ import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.api.HubTransformersFactory;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
+import uk.gov.ida.saml.hub.domain.EidasAttributesLogger;
 import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
@@ -842,6 +844,12 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     private IdpAssertionMetricsCollector metricsCollector(Environment environment) {
         return new IdpAssertionMetricsCollector(environment.metrics());
+    }
+
+    @Provides
+    @Named("EidasAttributesLogger")
+    private EidasAttributesLogger getEidasAttributesLogger(@Named("HubEidasEntityId") Optional<String> hubEidasEntityId) {
+        return new EidasAttributesLogger(EidasResponseAttributesHashLogger::instance, hubEidasEntityId);
     }
 
     public enum KeyPosition {

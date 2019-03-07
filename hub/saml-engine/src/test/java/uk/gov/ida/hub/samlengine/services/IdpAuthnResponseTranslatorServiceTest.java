@@ -35,6 +35,7 @@ import uk.gov.ida.saml.core.test.builders.MatchingDatasetAttributeStatementBuild
 import uk.gov.ida.saml.core.test.builders.SignatureBuilder;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
+import uk.gov.ida.saml.hub.domain.EidasAttributesLogger;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
@@ -86,6 +87,8 @@ public class IdpAuthnResponseTranslatorServiceTest {
     private IdpAssertionMetricsCollector idpAssertionMetricsCollector;
     @Mock
     private PassthroughAssertion passThroughAssertion;
+    @Mock
+    private EidasAttributesLogger eidasAttributesLogger;
 
     private IdpIdaStatus.Status statusCode = IdpIdaStatus.Status.Success;
     private String statusMessage = "status message";
@@ -162,7 +165,8 @@ public class IdpAuthnResponseTranslatorServiceTest {
                 stringToAssertionTransformer,
                 samlResponseToIdaResponseIssuedByIdpTransformer,
                 inboundResponseFromIdpDataGenerator,
-                idpAssertionMetricsCollector);
+                idpAssertionMetricsCollector,
+                eidasAttributesLogger);
     }
 
     @Test
