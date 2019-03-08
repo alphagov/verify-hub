@@ -46,7 +46,7 @@ public class EidasAttributesLogger {
                             switch (attribute.getName()) {
 
                                 case IdaConstants.Attributes_1_1.Firstname.NAME:
-                                    setFirstVerified(hashLogger, attribute, v -> hashLogger.setFirstName(getTextContent(v)));
+                                    logFirstVerified(attribute, v -> hashLogger.setFirstName(getTextContent(v)));
                                     break;
                                 case IdaConstants.Attributes_1_1.Middlename.NAME:
                                     attribute.getAttributeValues().forEach(v -> hashLogger.addMiddleName(getTextContent(v)));
@@ -55,7 +55,7 @@ public class EidasAttributesLogger {
                                     attribute.getAttributeValues().forEach(v -> hashLogger.addSurname(getTextContent(v)));
                                     break;
                                 case IdaConstants.Attributes_1_1.DateOfBirth.NAME:
-                                    setFirstVerified(hashLogger, attribute, v -> hashLogger.setDateOfBirth(DateTime.parse(getTextContent(v))));
+                                    logFirstVerified(attribute, v -> hashLogger.setDateOfBirth(DateTime.parse(getTextContent(v))));
                                     break;
                                 default:
                                     break;
@@ -65,17 +65,17 @@ public class EidasAttributesLogger {
         hashLogger.logHashFor(response.getID(), response.getDestination());
     }
 
-    private void setFirstVerified(EidasResponseAttributesHashLogger hashLogger, Attribute attribute, Consumer<XMLObject> xmlObjectConsumer) {
+    private void logFirstVerified(Attribute attribute, Consumer<XMLObject> loggingConsumer) {
         attribute.getAttributeValues()
                 .stream()
                 .map(BaseMdsSamlObject.class::cast)
                 .filter(BaseMdsSamlObject::getVerified)
                 .map(XMLObject.class::cast)
                 .findFirst()
-                .ifPresent(xmlObjectConsumer);
+                .ifPresent(loggingConsumer);
     }
 
-    private String getTextContent(XMLObject v) {
-        return v.getDOM().getTextContent();
+    private String getTextContent(XMLObject xmlObject) {
+        return xmlObject.getDOM().getTextContent();
     }
 }
