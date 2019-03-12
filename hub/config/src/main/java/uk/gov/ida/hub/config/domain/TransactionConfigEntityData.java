@@ -110,6 +110,10 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     @JsonProperty
     protected boolean usingMatching = true;
 
+    @Valid
+    @JsonProperty
+    protected boolean eidasProxyNode;
+
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfigEntityData() {
     }
@@ -236,5 +240,9 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
 
     public boolean isUsingMatching() {
         return usingMatching;
+    }
+
+    public boolean isEidasProxyNode() {
+        return eidasProxyNode;
     }
 }

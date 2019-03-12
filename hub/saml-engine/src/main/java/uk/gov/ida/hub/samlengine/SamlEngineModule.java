@@ -848,8 +848,8 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Named("EidasAttributesLogger")
-    private EidasAttributesLogger getEidasAttributesLogger(@Named("HubEidasEntityId") Optional<String> hubEidasEntityId) {
-        return new EidasAttributesLogger(EidasResponseAttributesHashLogger::instance, hubEidasEntityId);
+    private EidasAttributesLogger getEidasAttributesLogger() {
+        return new EidasAttributesLogger(EidasResponseAttributesHashLogger::instance);
     }
 
     public enum KeyPosition {

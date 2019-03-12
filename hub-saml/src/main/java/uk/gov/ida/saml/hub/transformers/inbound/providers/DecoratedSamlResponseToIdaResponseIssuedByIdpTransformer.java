@@ -58,7 +58,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
         return idaResponseUnmarshaller.fromSaml(validatedResponse, validatedAssertions);
     }
 
-    public void setEidasAttributesLogger(Optional<EidasAttributesLogger> eidasAttributesLogger) {
-        this.eidasAttributesLogger = eidasAttributesLogger;
+    public void setEidasAttributesLogger(EidasAttributesLogger eidasAttributesLogger) {
+        this.eidasAttributesLogger = Optional.of(eidasAttributesLogger);
     }
 }

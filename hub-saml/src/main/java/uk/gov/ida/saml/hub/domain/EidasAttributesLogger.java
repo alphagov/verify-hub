@@ -12,22 +12,15 @@ import uk.gov.ida.saml.core.extensions.BaseMdsSamlObject;
 import uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class EidasAttributesLogger {
 
     private final Supplier<EidasResponseAttributesHashLogger> loggerSupplier;
-    private final Optional<String> hubEidasEntityId;
 
-    public EidasAttributesLogger(Supplier<EidasResponseAttributesHashLogger> loggerSupplier, Optional<String> hubEidasEntityId) {
+    public EidasAttributesLogger(Supplier<EidasResponseAttributesHashLogger> loggerSupplier) {
         this.loggerSupplier = loggerSupplier;
-        this.hubEidasEntityId = hubEidasEntityId;
-    }
-
-    public boolean isEidasJourney(String matchingServiceEntityId) {
-        return hubEidasEntityId.isPresent() && hubEidasEntityId.get().equals(matchingServiceEntityId);
     }
 
     public void logEidasAttributesAsHash(Assertion assertion, Response response) {

@@ -64,29 +64,8 @@ public class EidasAttributesLoggerTest {
     }
 
     @Test
-    public void testNotEidasJourneyWhenLoggerIsCreatedWithNoHubEntityIdPresent() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, Optional.empty());
-        assertFalse(eidasAttributesLogger.isEidasJourney("any matching service entity id"));
-        verifyZeroInteractions(hashLogger);
-    }
-
-    @Test
-    public void testNotEidasJourneyWhenMatchingServiceIsNotEidas() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, Optional.of("eidas entity id"));
-        assertFalse(eidasAttributesLogger.isEidasJourney("some other service provider entity id"));
-        verifyZeroInteractions(hashLogger);
-    }
-
-    @Test
-    public void testIsEidasJourneyWhenMatchingServiceIsEidas() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, Optional.of("eidas entity id"));
-        assertTrue(eidasAttributesLogger.isEidasJourney("eidas entity id"));
-
-    }
-
-    @Test
     public void testPersistentIdIsHashedEvenWhenNoAttributeStatements() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, Optional.of("eidas entity id"));
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
         when(assertion.getAttributeStatements()).thenReturn(Collections.EMPTY_LIST);
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
         verify(hashLogger).setPid("pid");
@@ -96,7 +75,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testOnlyFirstValidFirstNameIsHashed() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, Optional.of("eidas entity id"));
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
 
         PersonName attributeValue0 = mock(PersonName.class);
         PersonName attributeValue1 = mock(PersonName.class);
@@ -131,7 +110,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testOnlyFirstValidDateOfBirthIsHashed() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, Optional.of("eidas entity id"));
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
 
         Date attributeValue0 = mock(Date.class);
         Date attributeValue1 = mock(Date.class);
@@ -163,7 +142,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testAllMiddleNamesHashedInCorrectOrder() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, Optional.of("eidas entity id"));
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
 
         PersonName attributeValue0 = mock(PersonName.class);
         PersonName attributeValue1 = mock(PersonName.class);
@@ -195,7 +174,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testAllSurnamesHashedInCorrectOrder() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, Optional.of("eidas entity id"));
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
 
         PersonName attributeValue0 = mock(PersonName.class);
         PersonName attributeValue1 = mock(PersonName.class);

@@ -21,6 +21,7 @@ import uk.gov.ida.hub.samlengine.builders.BuilderHelper;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.samlengine.logging.IdpAssertionMetricsCollector;
+import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.FraudDetectedDetails;
@@ -89,6 +90,8 @@ public class IdpAuthnResponseTranslatorServiceTest {
     private PassthroughAssertion passThroughAssertion;
     @Mock
     private EidasAttributesLogger eidasAttributesLogger;
+    @Mock
+    private TransactionsConfigProxy transactionsConfigProxy;
 
     private IdpIdaStatus.Status statusCode = IdpIdaStatus.Status.Success;
     private String statusMessage = "status message";
@@ -166,7 +169,8 @@ public class IdpAuthnResponseTranslatorServiceTest {
                 samlResponseToIdaResponseIssuedByIdpTransformer,
                 inboundResponseFromIdpDataGenerator,
                 idpAssertionMetricsCollector,
-                eidasAttributesLogger);
+                eidasAttributesLogger,
+                transactionsConfigProxy);
     }
 
     @Test
@@ -249,6 +253,14 @@ public class IdpAuthnResponseTranslatorServiceTest {
         service.translate(responseContainer);
 
         verify(idpAssertionMetricsCollector, times(1)).update(matchingDatasetAssertion);
+    }
+
+    @Test
+    public void shouldSetEidasAttributesLoggerWhenMatchingServiceEntityIsConfiguredAsAnEidasProxyNode() {
+        when(responseContainer.getMatchingServiceEntityId()).thenReturn("foo");
+        when(transactionsConfigProxy.isProxyNodeEntityId("foo")).thenReturn(true);
+        translateAndCheckCommonFields();
+        verify(samlResponseToIdaResponseIssuedByIdpTransformer).setEidasAttributesLogger(eidasAttributesLogger);
     }
 
     private void checkAlwaysPresentFields(InboundResponseFromIdpDto result) {

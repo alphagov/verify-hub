@@ -14,6 +14,7 @@ import uk.gov.ida.hub.samlengine.logging.MdcHelper;
 import uk.gov.ida.hub.samlengine.logging.NotOnOrAfterLogger;
 import uk.gov.ida.hub.samlengine.logging.UnknownMethodAlgorithmLogger;
 import uk.gov.ida.hub.samlengine.logging.VerifiedAttributesLogger;
+import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.domain.InboundResponseFromIdpData;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
@@ -40,6 +41,7 @@ public class IdpAuthnResponseTranslatorService {
     private InboundResponseFromIdpDataGenerator inboundResponseFromIdpDataGenerator;
     private final IdpAssertionMetricsCollector idpAssertionMetricsCollector;
     private final EidasAttributesLogger eidasAttributesLogger;
+    private final TransactionsConfigProxy transactionsConfigProxy;
 
     @Inject
     public IdpAuthnResponseTranslatorService(StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer,
@@ -47,13 +49,15 @@ public class IdpAuthnResponseTranslatorService {
                                                  @Named("IdpSamlResponseTransformer") DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer samlResponseToIdaResponseIssuedByIdpTransformer,
                                              InboundResponseFromIdpDataGenerator inboundResponseFromIdpDataGenerator,
                                              IdpAssertionMetricsCollector idpAssertionMetricsCollector,
-                                             @Named("EidasAttributesLogger") EidasAttributesLogger eidasAttributesLogger) {
+                                             @Named("EidasAttributesLogger") EidasAttributesLogger eidasAttributesLogger,
+                                             TransactionsConfigProxy transactionsConfigProxy) {
         this.stringToOpenSamlResponseTransformer = stringToOpenSamlResponseTransformer;
         this.stringToAssertionTransformer = stringToAssertionTransformer;
         this.samlResponseToIdaResponseIssuedByIdpTransformer = samlResponseToIdaResponseIssuedByIdpTransformer;
         this.inboundResponseFromIdpDataGenerator = inboundResponseFromIdpDataGenerator;
         this.idpAssertionMetricsCollector = idpAssertionMetricsCollector;
         this.eidasAttributesLogger = eidasAttributesLogger;
+        this.transactionsConfigProxy = transactionsConfigProxy;
     }
 
     public InboundResponseFromIdpDto translate(SamlAuthnResponseTranslatorDto samlResponseDto) {
@@ -61,8 +65,8 @@ public class IdpAuthnResponseTranslatorService {
         MdcHelper.addContextToMdc(response);
         try {
             String matchingServiceEntityId = samlResponseDto.getMatchingServiceEntityId();
-            if (eidasAttributesLogger.isEidasJourney(matchingServiceEntityId)) {
-                samlResponseToIdaResponseIssuedByIdpTransformer.setEidasAttributesLogger(Optional.of(eidasAttributesLogger));
+            if (transactionsConfigProxy.isProxyNodeEntityId(matchingServiceEntityId)) {
+                samlResponseToIdaResponseIssuedByIdpTransformer.setEidasAttributesLogger(eidasAttributesLogger);
             }
             InboundResponseFromIdp idaResponseFromIdp = samlResponseToIdaResponseIssuedByIdpTransformer.apply(response);
             UnknownMethodAlgorithmLogger.probeResponseForMethodAlgorithm(idaResponseFromIdp);
