@@ -37,7 +37,7 @@ def dependencyVersions = [
             ida_test_utils:"2.0.0-46",
             opensaml:"$opensaml_version",
             dev_pki: '1.1.0-37',
-            saml_libs:"$opensaml_version-178",
+            saml_libs:"$opensaml_version-179",
         ]
 
 subprojects {
