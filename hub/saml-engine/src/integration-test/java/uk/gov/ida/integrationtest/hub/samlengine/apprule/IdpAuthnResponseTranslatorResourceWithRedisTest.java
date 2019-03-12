@@ -66,6 +66,7 @@ public class IdpAuthnResponseTranslatorResourceWithRedisTest {
     @Before
     public void beforeEach() throws Exception {
         configStubRule.setupCertificatesForEntity(TEST_RP_MS);
+        configStubRule.setupIsProxyNodeEntityForIssuer(TEST_RP_MS);
     }
 
     @After
