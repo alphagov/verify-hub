@@ -76,6 +76,8 @@ public class IdpAuthnResponseTranslatorResourceTest {
     @Before
     public void beforeEach() throws Exception {
         configStubRule.setupCertificatesForEntity(TEST_RP_MS);
+        configStubRule.setupIsProxyNodeEntityForIssuer(TEST_RP_MS);
+        configStubRule.setupIsProxyNodeEntityForIssuer("IGNOREME");
     }
 
     @After

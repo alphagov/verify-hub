@@ -42,6 +42,18 @@ public class ConfigStubRule extends WireMockClassRule {
         setupCertificatesForEntity(issuer, signingCertificate, encryptionCertificate);
     }
 
+    public void setupIsProxyNodeEntityForIssuer(String issuer) {
+        stubFor(get(urlPathEqualTo(getPath(Urls.ConfigUrls.IS_VERIFY_PROXY_NODE_RESOURCE, issuer)))
+                .willReturn(
+                        aResponse()
+                                .withStatus(200)
+                                .withHeader("Content-Type", APPLICATION_JSON)
+                                .withBody("false")
+                )
+        );
+
+    }
+
     private void setupCertificatesForEntity(String issuer, CertificateDto signingCertificate, CertificateDto encryptionCertificate) throws JsonProcessingException {
         Collection<CertificateDto> signingCertificates = new ArrayList<>();
         signingCertificates.add(signingCertificate);
