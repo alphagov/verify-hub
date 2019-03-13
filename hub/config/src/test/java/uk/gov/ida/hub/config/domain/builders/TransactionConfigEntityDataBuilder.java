@@ -35,6 +35,7 @@ public class TransactionConfigEntityDataBuilder {
     private URI headlessStartPage = URI.create("/headless-start-uri");
     private URI singleIdpStartPage;
     private boolean usingMatching = true;
+    private boolean eidasProxyNode = false;
 
 
 
@@ -69,7 +70,8 @@ public class TransactionConfigEntityDataBuilder {
                 shouldSignWithSHA1,
                 headlessStartPage,
                 singleIdpStartPage,
-                usingMatching
+                usingMatching,
+                eidasProxyNode
         );
     }
 
@@ -85,6 +87,11 @@ public class TransactionConfigEntityDataBuilder {
 
     public TransactionConfigEntityDataBuilder withSimpleId(String simpleId) {
         this.simpleId = simpleId;
+        return this;
+    }
+
+    public TransactionConfigEntityDataBuilder withIsEidasProxyNode() {
+        this.eidasProxyNode = true;
         return this;
     }
 
@@ -189,7 +196,8 @@ public class TransactionConfigEntityDataBuilder {
                 boolean shouldSignWithSHA1,
                 URI headlessStartPage,
                 URI singleIdpStartPage,
-                boolean usingMatching
+                boolean usingMatching,
+                boolean eidasProxyNode
                 ) {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
@@ -211,6 +219,7 @@ public class TransactionConfigEntityDataBuilder {
             this.headlessStartpage = headlessStartPage;
             this.singleIdpStartpage = singleIdpStartPage;
             this.usingMatching = usingMatching;
+            this.eidasProxyNode = eidasProxyNode;
 
         }
     }

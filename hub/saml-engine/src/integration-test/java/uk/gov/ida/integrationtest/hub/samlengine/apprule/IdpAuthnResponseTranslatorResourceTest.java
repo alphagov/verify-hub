@@ -76,6 +76,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
     @Before
     public void beforeEach() throws Exception {
         configStubRule.setupCertificatesForEntity(TEST_RP_MS);
+        configStubRule.setupIssuerIsEidasProxyNode(TEST_RP_MS, false);
     }
 
     @After
@@ -191,7 +192,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
                 .build();
         String saml = authnResponseFactory.transformResponseToSaml(samlAuthnResponse);
         SamlAuthnResponseTranslatorDto samlResponseDto = aSamlAuthnResponseTranslatorDto().withSamlResponse(saml).withMatchingServiceEntityId("IGNOREME").build();
-
+        configStubRule.setupIssuerIsEidasProxyNode("IGNOREME", false);
         Response clientResponse = postToSamlEngine(samlResponseDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -232,7 +233,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
                 .build();
         String saml = authnResponseFactory.transformResponseToSaml(samlAuthnResponse);
         SamlAuthnResponseTranslatorDto samlResponseDto = aSamlAuthnResponseTranslatorDto().withSamlResponse(saml).withMatchingServiceEntityId("IGNOREME").build();
-
+        configStubRule.setupIssuerIsEidasProxyNode("IGNOREME", false);
         Response clientResponse = postToSamlEngine(samlResponseDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -302,7 +303,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
                 .build();
         String saml = authnResponseFactory.transformResponseToSaml(samlAuthnResponse);
         SamlAuthnResponseTranslatorDto samlResponseDto = aSamlAuthnResponseTranslatorDto().withSamlResponse(saml).withMatchingServiceEntityId("IGNOREME").build();
-
+        configStubRule.setupIssuerIsEidasProxyNode("IGNOREME", false);
         Response clientResponse = postToSamlEngine(samlResponseDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -339,7 +340,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
                 .build();
         String saml = authnResponseFactory.transformResponseToSaml(samlAuthnResponse);
         SamlAuthnResponseTranslatorDto samlResponseDto = aSamlAuthnResponseTranslatorDto().withSamlResponse(saml).withMatchingServiceEntityId("IGNOREME").build();
-
+        configStubRule.setupIssuerIsEidasProxyNode("IGNOREME", false);
         Response clientResponse = postToSamlEngine(samlResponseDto);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
