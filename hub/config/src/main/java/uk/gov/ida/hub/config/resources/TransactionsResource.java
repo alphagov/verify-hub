@@ -214,9 +214,10 @@ public class TransactionsResource {
     @GET
     @Path(Urls.ConfigUrls.IS_EIDAS_PROXY_NODE_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
-    public boolean isEidasProxyNode(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
-        return configData.isEidasProxyNode();
+    public boolean isEidasProxyNode(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
+        return transactionConfigEntityDataRepository.getData(entityId)
+                .map(TransactionConfigEntityData::isEidasProxyNode)
+                .orElse(false);
     }
 
     private TransactionConfigEntityData getTransactionConfigData(String entityId) {

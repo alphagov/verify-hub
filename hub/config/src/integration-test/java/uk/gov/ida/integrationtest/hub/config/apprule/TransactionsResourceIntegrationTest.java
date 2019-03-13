@@ -337,6 +337,17 @@ public class TransactionsResourceIntegrationTest {
     }
 
     @Test
+    public void getShouldReturn200AndFalseWhenEntityIdNotInTransactions() {
+        String entityId = "some entity id not in /config-service-data/..../transactions";
+        URI uri = configAppRule
+                .getUri(Urls.ConfigUrls.IS_EIDAS_PROXY_NODE_ENABLED_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertFalse(response.readEntity(boolean.class));
+    }
+
+    @Test
     public void getShouldReturnOkWhenUsingMatchingIsFalse() {
         String entityId = ANOTHER_ENTITY_ID;
         URI uri = configAppRule
