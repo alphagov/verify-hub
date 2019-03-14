@@ -41,7 +41,6 @@ public class TransactionsResourceIntegrationTest {
     private static final String SIMPLE_ID = "test-simple-id";
     private static final String MS_ENTITY_ID = "ms-entity-id";
     private static final String NO_EIDAS_MS_ENTITY_ID = "no-eidas-ms-entity-id";
-    private static final String PROXY_NODE_ENTITY_ID = "proxy-node-entity-id";
     private static final String TEST_URI = "http://foo.bar/test-uri";
     private static final String SERVICE_HOMEPAGE = "http://foo.bar/service-homepage";
     private static final String HEADLESS_STARTPAGE = "http://foo.bar/service-headless-start-page";
@@ -86,15 +85,6 @@ public class TransactionsResourceIntegrationTest {
                 .withEntityId(NO_EIDAS_ENTITY_ID)
                 .withMatchingServiceEntityId(NO_EIDAS_MS_ENTITY_ID)
                 .build())
-    .addTransaction(aTransactionConfigData()
-            .withIsEidasProxyNode()
-            .withEntityId(PROXY_NODE_ENTITY_ID)
-            .withSimpleId(SIMPLE_ID)
-            .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
-            .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
-            .withMatchingServiceEntityId(MS_ENTITY_ID)
-            .withUsingMatching(false)
-            .build())
         .addMatchingService(aMatchingServiceConfigEntityData()
                 .withEntityId(MS_ENTITY_ID)
                 .build())
@@ -312,39 +302,6 @@ public class TransactionsResourceIntegrationTest {
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertTrue(response.readEntity(boolean.class));
-    }
-
-    @Test
-    public void getShouldReturnOkWhenIsEidasProxyNodeIsTrue() {
-        String entityId = PROXY_NODE_ENTITY_ID;
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.IS_EIDAS_PROXY_NODE_ENABLED_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertTrue(response.readEntity(boolean.class));
-    }
-
-    @Test
-    public void getShouldReturnFalseWhenIsEidasProxyNodeIsFalse() {
-        String entityId = ANOTHER_ENTITY_ID;
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.IS_EIDAS_PROXY_NODE_ENABLED_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertFalse(response.readEntity(boolean.class));
-    }
-
-    @Test
-    public void getShouldReturn200AndFalseWhenEntityIdNotInTransactions() {
-        String entityId = "some entity id not in /config-service-data/..../transactions";
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.IS_EIDAS_PROXY_NODE_ENABLED_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertFalse(response.readEntity(boolean.class));
     }
 
     @Test
