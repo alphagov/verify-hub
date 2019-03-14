@@ -20,8 +20,6 @@ import uk.gov.ida.saml.core.extensions.Date;
 import uk.gov.ida.saml.core.extensions.PersonName;
 import uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger;
 
-import java.util.Collections;
-
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -57,16 +55,6 @@ public class EidasAttributesLoggerTest {
         when(nameID.getValue()).thenReturn("pid");
         when(response.getID()).thenReturn("request id");
         when(response.getDestination()).thenReturn("destination");
-    }
-
-    @Test
-    public void testPersistentIdIsHashedEvenWhenNoAttributeStatements() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
-        when(assertion.getAttributeStatements()).thenReturn(Collections.EMPTY_LIST);
-        eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
-        verify(hashLogger).setPid("pid");
-        verify(hashLogger).logHashFor("request id", "destination");
-        verifyNoMoreInteractions(hashLogger);
     }
 
     @Test

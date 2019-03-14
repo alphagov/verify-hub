@@ -31,29 +31,26 @@ public class EidasAttributesLogger {
         hashLogger.setPid(pid);
 
         List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
+        List<Attribute> attributes = attributeStatements.get(0).getAttributes();
+        for (Attribute attribute : attributes) {
+            switch (attribute.getName()) {
 
-        attributeStatements.stream().findFirst().ifPresent(
-                attributeStatement -> attributeStatement.getAttributes().forEach(
-                        attribute -> {
-
-                            switch (attribute.getName()) {
-
-                                case IdaConstants.Attributes_1_1.Firstname.NAME:
-                                    logFirstVerified(attribute, v -> hashLogger.setFirstName(getTextContent(v)));
-                                    break;
-                                case IdaConstants.Attributes_1_1.Middlename.NAME:
-                                    attribute.getAttributeValues().forEach(v -> hashLogger.addMiddleName(getTextContent(v)));
-                                    break;
-                                case IdaConstants.Attributes_1_1.Surname.NAME:
-                                    attribute.getAttributeValues().forEach(v -> hashLogger.addSurname(getTextContent(v)));
-                                    break;
-                                case IdaConstants.Attributes_1_1.DateOfBirth.NAME:
-                                    logFirstVerified(attribute, v -> hashLogger.setDateOfBirth(DateTime.parse(getTextContent(v))));
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }));
+                case IdaConstants.Attributes_1_1.Firstname.NAME:
+                    logFirstVerified(attribute, v -> hashLogger.setFirstName(getTextContent(v)));
+                    break;
+                case IdaConstants.Attributes_1_1.Middlename.NAME:
+                    attribute.getAttributeValues().forEach(v -> hashLogger.addMiddleName(getTextContent(v)));
+                    break;
+                case IdaConstants.Attributes_1_1.Surname.NAME:
+                    attribute.getAttributeValues().forEach(v -> hashLogger.addSurname(getTextContent(v)));
+                    break;
+                case IdaConstants.Attributes_1_1.DateOfBirth.NAME:
+                    logFirstVerified(attribute, v -> hashLogger.setDateOfBirth(DateTime.parse(getTextContent(v))));
+                    break;
+                default:
+                    break;
+            }
+        }
 
         hashLogger.logHashFor(response.getID(), response.getDestination());
     }
