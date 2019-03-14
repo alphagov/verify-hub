@@ -25,6 +25,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +66,6 @@ public class IdpAuthnResponseTranslatorResourceWithRedisTest {
     @Before
     public void beforeEach() throws Exception {
         configStubRule.setupCertificatesForEntity(TEST_RP_MS);
-        configStubRule.setupIssuerIsEidasProxyNode(TEST_RP_MS, false);
     }
 
     @After

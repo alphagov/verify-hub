@@ -2,7 +2,6 @@ package uk.gov.ida.saml.hub.transformers.inbound.providers;
 
 import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
-import uk.gov.ida.saml.hub.domain.EidasAttributesLogger;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.transformers.inbound.IdaResponseFromIdpUnmarshaller;
 import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
@@ -14,14 +13,12 @@ import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements Function<Response, InboundResponseFromIdp> {
 
     private final IdaResponseFromIdpUnmarshaller idaResponseUnmarshaller;
     private IdpResponseValidator idpResponseValidator;
-    private Optional<EidasAttributesLogger> eidasAttributesLogger = Optional.empty();
 
     @Deprecated
     public DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer(
@@ -54,11 +51,8 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
         this.idpResponseValidator.validate(response);
         ValidatedResponse validatedResponse = this.idpResponseValidator.getValidatedResponse();
         ValidatedAssertions validatedAssertions = this.idpResponseValidator.getValidatedAssertions();
-        eidasAttributesLogger.ifPresent(l -> l.logEidasAttributesAsHash(validatedAssertions.getMatchingDatasetAssertion().get(), response));
+
         return idaResponseUnmarshaller.fromSaml(validatedResponse, validatedAssertions);
     }
 
-    public void setEidasAttributesLogger(EidasAttributesLogger eidasAttributesLogger) {
-        this.eidasAttributesLogger = Optional.of(eidasAttributesLogger);
-    }
 }
