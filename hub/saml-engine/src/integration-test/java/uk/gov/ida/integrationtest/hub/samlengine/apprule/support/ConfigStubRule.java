@@ -86,6 +86,17 @@ public class ConfigStubRule extends WireMockClassRule {
         shouldHubSignResponseMessages(issuerEntityId, false, false);
     }
 
+    public void setupIssuerIsEidasProxyNode(String issuer, boolean response) {
+        String hubSignUri = getPath(Urls.ConfigUrls.IS_VERIFY_PROXY_NODE_RESOURCE, issuer);
+        stubFor(get(hubSignUri)
+                .willReturn(aResponse()
+                        .withStatus(OK.getStatusCode())
+                        .withHeader("Content-Type", APPLICATION_JSON)
+                        .withBody(String.valueOf(response))
+                )
+        );
+    }
+
     private void shouldHubSignResponseMessages(String issuerEntityId, Boolean shouldHubSignResponseMessages, Boolean shouldHubUseLegacySamlStandard) throws JsonProcessingException {
         String hubSignUri = getPath(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE, issuerEntityId);
         stubFor(get(hubSignUri)
