@@ -47,6 +47,8 @@ public class TransactionsResourceIntegrationTest {
     private static final String SINGLE_IDP_STARTPAGE = "http://foo.bar/service-single-idp-start-page";
     private static final String ANOTHER_ENTITY_ID = "another-test-entity-id";
     private static final String ANOTHER_SIMPLE_ID = "another-test-simple-id";
+    private static final String PROXY_NODE_ENTITY_ID = "proxy-node-entity-id";
+    private static final String NON_PROXY_NODE_ENTITY_ID = "non-proxy-node-entity-id";
 
     @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule()
@@ -85,6 +87,24 @@ public class TransactionsResourceIntegrationTest {
                 .withEntityId(NO_EIDAS_ENTITY_ID)
                 .withMatchingServiceEntityId(NO_EIDAS_MS_ENTITY_ID)
                 .build())
+    .addTransaction(aTransactionConfigData()
+            .withIsEidasProxyNode(true)
+            .withEntityId(PROXY_NODE_ENTITY_ID)
+            .withSimpleId(SIMPLE_ID)
+            .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
+            .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
+            .withMatchingServiceEntityId(MS_ENTITY_ID)
+            .withUsingMatching(false)
+            .build())
+    .addTransaction(aTransactionConfigData()
+            .withIsEidasProxyNode(false)
+            .withEntityId(NON_PROXY_NODE_ENTITY_ID)
+            .withSimpleId(SIMPLE_ID)
+            .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
+            .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
+            .withMatchingServiceEntityId(MS_ENTITY_ID)
+            .withUsingMatching(false)
+            .build())
         .addMatchingService(aMatchingServiceConfigEntityData()
                 .withEntityId(MS_ENTITY_ID)
                 .build())
@@ -302,6 +322,50 @@ public class TransactionsResourceIntegrationTest {
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertTrue(response.readEntity(boolean.class));
+    }
+
+    @Test
+    public void getShouldReturnTrueWhenIsEidasProxyNodeIsTrue() {
+        String entityId = PROXY_NODE_ENTITY_ID;
+        URI uri = configAppRule
+                .getUri(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertTrue(response.readEntity(boolean.class));
+    }
+
+    @Test
+    public void getShouldReturnFalseWhenIsEidasProxyNodeIsFalse() {
+        String entityId = NON_PROXY_NODE_ENTITY_ID;
+        URI uri = configAppRule
+                .getUri(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertFalse(response.readEntity(boolean.class));
+    }
+
+    @Test
+    public void getShouldReturnFalseWhenIsEidasProxyNodeIsUnset() {
+        String entityId = ANOTHER_ENTITY_ID;
+        URI uri = configAppRule
+                .getUri(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertFalse(response.readEntity(boolean.class));
+    }
+
+    @Test
+    public void getShouldReturnFalseWhenEntityIdNotKnown() {
+        String entityId = "some entity id not present in /config-service-data/..../transactions";
+        URI uri = configAppRule
+                .getUri(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        Response response = client.target(uri).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertFalse(response.readEntity(boolean.class));
     }
 
     @Test
