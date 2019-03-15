@@ -21,6 +21,7 @@ import uk.gov.ida.hub.samlengine.builders.BuilderHelper;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.samlengine.logging.IdpAssertionMetricsCollector;
+import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.FraudDetectedDetails;
@@ -35,6 +36,7 @@ import uk.gov.ida.saml.core.test.builders.MatchingDatasetAttributeStatementBuild
 import uk.gov.ida.saml.core.test.builders.SignatureBuilder;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
+import uk.gov.ida.saml.hub.domain.EidasAttributesLogger;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
@@ -48,6 +50,7 @@ import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -86,6 +89,10 @@ public class IdpAuthnResponseTranslatorServiceTest {
     private IdpAssertionMetricsCollector idpAssertionMetricsCollector;
     @Mock
     private PassthroughAssertion passThroughAssertion;
+    @Mock
+    private EidasAttributesLogger eidasAttributesLogger;
+    @Mock
+    private TransactionsConfigProxy transactionsConfigProxy;
 
     private IdpIdaStatus.Status statusCode = IdpIdaStatus.Status.Success;
     private String statusMessage = "status message";
@@ -162,7 +169,9 @@ public class IdpAuthnResponseTranslatorServiceTest {
                 stringToAssertionTransformer,
                 samlResponseToIdaResponseIssuedByIdpTransformer,
                 inboundResponseFromIdpDataGenerator,
-                idpAssertionMetricsCollector);
+                idpAssertionMetricsCollector,
+                eidasAttributesLogger,
+                transactionsConfigProxy);
     }
 
     @Test
@@ -245,6 +254,22 @@ public class IdpAuthnResponseTranslatorServiceTest {
         service.translate(responseContainer);
 
         verify(idpAssertionMetricsCollector, times(1)).update(matchingDatasetAssertion);
+    }
+
+    @Test
+    public void shouldSetEidasAttributesLoggerWhenMatchingServiceEntityIsConfiguredAsAnEidasProxyNode() {
+        when(responseContainer.getMatchingServiceEntityId()).thenReturn("a proxy node entity id");
+        when(transactionsConfigProxy.isProxyNodeEntityId("a proxy node entity id")).thenReturn(true);
+        translateAndCheckCommonFields();
+        verify(samlResponseToIdaResponseIssuedByIdpTransformer).setEidasAttributesLogger(eidasAttributesLogger);
+    }
+
+    @Test
+    public void shouldNotSetEidasAttributesLoggerWhenMatchingServiceEntityIsNotConfiguredAsAnEidasProxyNode() {
+        when(responseContainer.getMatchingServiceEntityId()).thenReturn("a proxy node entity id");
+        when(transactionsConfigProxy.isProxyNodeEntityId("a proxy node entity id")).thenReturn(false);
+        translateAndCheckCommonFields();
+        verify(samlResponseToIdaResponseIssuedByIdpTransformer, never()).setEidasAttributesLogger(eidasAttributesLogger);
     }
 
     private void checkAlwaysPresentFields(InboundResponseFromIdpDto result) {
