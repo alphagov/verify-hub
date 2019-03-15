@@ -6,6 +6,7 @@ import httpstub.HttpStubRule;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.prometheus.client.CollectorRegistry;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
 import org.apache.commons.codec.binary.Base64;
@@ -137,6 +138,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
         idpTrustStore.create();
         rpTrustStore.create();
         countryMetadataTrustStore.create();
+        CollectorRegistry.defaultRegistry.clear();
 
         try {
             InitializationService.initialize();

@@ -11,6 +11,7 @@ import io.dropwizard.setup.Environment;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
+import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.eventemitter.EventEmitterModule;
 import uk.gov.ida.hub.samlproxy.exceptions.NoKeyConfiguredForEntityExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
@@ -22,6 +23,7 @@ import uk.gov.ida.hub.samlproxy.resources.HubMetadataResourceApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageReceiverApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageSenderApi;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 
 import javax.servlet.DispatcherType;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -76,6 +78,11 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
         for (Class klass : getExceptionMappers()) {
             environment.jersey().register(klass);
         }
+
+        MetadataResolverConfiguration metadataConfiguration = configuration.getMetadataConfiguration();
+        TrustStoreMetrics trustStoreMetrics = new TrustStoreMetrics();
+        metadataConfiguration.getHubTrustStore().ifPresent(hubTrustStore -> trustStoreMetrics.registerTrustStore("hub", hubTrustStore));
+        metadataConfiguration.getIdpTrustStore().ifPresent(idpTrustStore -> trustStoreMetrics.registerTrustStore("idp", idpTrustStore));
 
         environment.servlets().addFilter("Logging SessionId registration Filter", SessionIdQueryParamLoggingFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }

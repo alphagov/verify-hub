@@ -18,6 +18,7 @@ import org.slf4j.MDC;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
+import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.hub.samlengine.exceptions.IdaJsonProcessingExceptionMapperBundle;
 import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
 import uk.gov.ida.hub.samlengine.filters.SessionIdQueryParamLoggingFilter;
@@ -34,6 +35,7 @@ import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnRequestTranslatorR
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpErrorResponseGeneratorResource;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanBundle;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
@@ -139,6 +141,12 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
         
         // register exception mappers
         environment.jersey().register(SamlEngineExceptionMapper.class);
+
+        // calling .get() here is safe because the Optional is never empty
+        MetadataResolverConfiguration metadataConfiguration = configuration.getMetadataConfiguration().get();
+        TrustStoreMetrics trustStoreMetrics = new TrustStoreMetrics();
+        metadataConfiguration.getHubTrustStore().ifPresent(hubTrustStore -> trustStoreMetrics.registerTrustStore("hub", hubTrustStore));
+        metadataConfiguration.getIdpTrustStore().ifPresent(idpTrustStore -> trustStoreMetrics.registerTrustStore("idp", idpTrustStore));
 
         environment.servlets().addFilter("Logging SessionId registration Filter", SessionIdQueryParamLoggingFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }

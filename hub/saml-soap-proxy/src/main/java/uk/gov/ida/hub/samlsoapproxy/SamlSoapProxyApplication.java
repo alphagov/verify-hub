@@ -15,6 +15,7 @@ import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngin
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
+import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.eventemitter.EventEmitterModule;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.IdaJsonProcessingExceptionMapperBundle;
 import uk.gov.ida.hub.samlsoapproxy.filters.SessionIdQueryParamLoggingFilter;
@@ -22,6 +23,7 @@ import uk.gov.ida.hub.samlsoapproxy.resources.AttributeQueryRequestSenderResourc
 import uk.gov.ida.hub.samlsoapproxy.resources.MatchingServiceHealthCheckResource;
 import uk.gov.ida.hub.samlsoapproxy.resources.MatchingServiceVersionCheckResource;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;
 
 import javax.servlet.DispatcherType;
@@ -84,6 +86,13 @@ public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfigura
         IdaSamlBootstrap.bootstrap();
         environment.getObjectMapper().setDateFormat(new StdDateFormat());
         registerResources(environment);
+
+        // calling .get() here is safe because the Optional is never empty
+        MetadataResolverConfiguration metadataConfiguration = configuration.getMetadataConfiguration().get();
+        TrustStoreMetrics trustStoreMetrics = new TrustStoreMetrics();
+        metadataConfiguration.getHubTrustStore().ifPresent(hubTrustStore -> trustStoreMetrics.registerTrustStore("hub", hubTrustStore));
+        metadataConfiguration.getIdpTrustStore().ifPresent(idpTrustStore -> trustStoreMetrics.registerTrustStore("idp", idpTrustStore));
+
         environment.servlets().addFilter("Logging SessionId registration Filter", SessionIdQueryParamLoggingFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 
