@@ -41,8 +41,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.samlengine.builders.SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto;
-import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
+import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_THREE;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_TWO;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
@@ -76,6 +76,8 @@ public class IdpAuthnResponseTranslatorResourceTest {
     @Before
     public void beforeEach() throws Exception {
         configStubRule.setupCertificatesForEntity(TEST_RP_MS);
+        configStubRule.setupIssuerIsEidasProxyNode(TEST_RP_MS, false);
+        configStubRule.setupIssuerIsEidasProxyNode("IGNOREME", false);
     }
 
     @After
