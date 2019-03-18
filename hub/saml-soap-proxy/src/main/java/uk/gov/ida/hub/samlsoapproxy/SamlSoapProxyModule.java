@@ -10,7 +10,6 @@ import io.dropwizard.configuration.ConfigurationFactoryFactory;
 import io.dropwizard.configuration.DefaultConfigurationFactoryFactory;
 import io.dropwizard.configuration.UrlConfigurationSourceProvider;
 import io.dropwizard.setup.Environment;
-import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
@@ -38,8 +37,6 @@ import uk.gov.ida.hub.samlsoapproxy.config.ConfigServiceKeyStore;
 import uk.gov.ida.hub.samlsoapproxy.config.SamlConfiguration;
 import uk.gov.ida.hub.samlsoapproxy.config.TrustStoreForCertificateProvider;
 import uk.gov.ida.hub.samlsoapproxy.domain.TimeoutEvaluator;
-import uk.gov.ida.hub.samlsoapproxy.exceptions.MissingMetadataException;
-import uk.gov.ida.hub.samlsoapproxy.health.MetadataHealthCheckRegistry;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthCheckHandler;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthChecker;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.SupportedMsaVersions;
@@ -64,7 +61,6 @@ import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
-import uk.gov.ida.saml.metadata.MetadataHealthCheck;
 import uk.gov.ida.saml.metadata.MetadataRefreshTask;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
@@ -133,7 +129,6 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(SoapMessageManager.class).toInstance(new SoapMessageManager());
         bind(IpAddressResolver.class).toInstance(new IpAddressResolver());
         bind(TimeoutEvaluator.class).toInstance(new TimeoutEvaluator());
-        bind(MetadataHealthCheckRegistry.class).asEagerSingleton();
     }
 
     @Provides
@@ -163,16 +158,6 @@ public class SamlSoapProxyModule extends AbstractModule {
     @Provides
     private Configuration getEventEmitterConfiguration(final SamlSoapProxyConfiguration configuration) {
         return configuration.getEventEmitterConfiguration();
-    }
-
-
-    @Provides
-    @Singleton
-    public MetadataHealthCheck getMetadataHealthCheck(MetadataResolver metadataResolver, SamlSoapProxyConfiguration configuration) {
-        return new MetadataHealthCheck(
-            metadataResolver,
-            configuration.getMetadataConfiguration().orElseThrow(() -> new MissingMetadataException()).getExpectedEntityId()
-        );
     }
 
     @Provides
