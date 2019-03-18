@@ -6,6 +6,8 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.hub.policy.domain.State;
+import uk.gov.ida.hub.policy.domain.controller.SessionStartable;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -39,6 +41,19 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
         );
 
         this.relayState = relayState;
+    }
+
+    public SessionStartedState(SessionStartable state) {
+        this(
+                state.getRequestId(),
+                state.getRelayState().get(),
+                state.getRequestIssuerEntityId(),
+                state.getAssertionConsumerServiceUri(),
+                state.getForceAuthentication().get(),
+                state.getSessionExpiryTimestamp(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas()
+        );
     }
 
     public Optional<String> getRelayState() {

@@ -49,7 +49,7 @@ public class AuthnResponseFromIdpService {
     public ResponseAction receiveAuthnResponseFromIdp(SessionId sessionId,
                                                       SamlAuthnResponseContainerDto samlResponseDto) {
 
-        IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
+        IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getIdpSelectingStateController(sessionId, IdpSelectedState.class);
 
         boolean matchingJourney = idpSelectedController.isMatchingJourney();
         String entityToEncryptFor = matchingJourney ? idpSelectedController.getMatchingServiceEntityId() : idpSelectedController.getRequestIssuerId();

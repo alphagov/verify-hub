@@ -6,11 +6,13 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.Urls;
+import uk.gov.ida.hub.policy.domain.controller.SessionStartable;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
@@ -67,6 +69,35 @@ public class SessionRepository {
     }
 
     @Timed(name = Urls.SESSION_REPO_TIMED_GROUP)
+    public <T extends State> StateController getIdpSelectingStateController(
+            final SessionId sessionId,
+            final Class<T> expectedStateClass) {
+        // We want an IdpSelectedStateController back if that's what's expected?  We can probably move the if statement
+        // in AuthResponseFromIdpService into here and just call this method with a little jiggery pokery
+        validateSessionExists(sessionId);
+
+        State currentState = getCurrentState(sessionId);
+        Class<? extends State> currentStateClass = currentState.getClass();
+
+        if (expectedStateClass.equals(currentState)) {
+            return getStateController(sessionId, expectedStateClass);
+        }
+
+        handleTimeout(sessionId, currentState, currentStateClass, expectedStateClass);
+
+        SessionStartedState sessionStartedState;
+
+        if (currentState instanceof SessionStartable) {
+            sessionStartedState = new SessionStartedState((SessionStartable) currentState);
+            dataStore.replace(sessionId, sessionStartedState);
+            if (isAKindOf(expectedStateClass, currentStateClass) || currentStateClass.equals(TimeoutState.class)) {
+                return controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
+            }
+        }
+        throw new InvalidSessionStateException(sessionId, expectedStateClass, currentState.getClass());
+    }
+
+    @Timed(name = Urls.SESSION_REPO_TIMED_GROUP)
     public boolean sessionExists(SessionId sessionId) {
         return dataStore.hasSession(sessionId);
     }
@@ -111,7 +142,7 @@ public class SessionRepository {
         return stateClass.isAssignableFrom(getCurrentState(sessionId).getClass());
     }
 
-    private State getCurrentState(SessionId sessionId) {
+    public State getCurrentState(SessionId sessionId) {
         return dataStore.get(sessionId);
     }
 
