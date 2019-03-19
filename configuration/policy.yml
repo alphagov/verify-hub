@@ -1,0 +1,66 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  requestLog:
+    type: classic
+    appenders:
+      - type: access-logstash-console
+timeoutPeriod: 90m
+assertionLifetime: 60m
+acceptSelfSignedCerts: true
+matchingServiceResponseWaitPeriod: 60s
+sessionStore:
+  redis:
+    recordTTL: PT150m
+    uri: ${REDIS_HOST}
+samlEngineUri: https://saml-engine.${DOMAIN}:443
+samlSoapProxyUri: https://saml-soap-proxy.${DOMAIN}:443
+enableRetryTimeOutConnections: true
+httpClient:
+  timeout: 60s
+  timeToLive: 10m
+  connectionTimeout: 4s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  tls:
+    protocol: TLSv1.2
+    trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+    trustStorePassword: puppet
+    verifyHostname: false
+samlSoapProxyClient:
+  timeout: 60s
+  timeToLive: 10m
+  connectionTimeout: 4s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  tls:
+    protocol: TLSv1.2
+    trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+    trustStorePassword: puppet
+    verifyHostname: true
+configUri: https://config.${DOMAIN}:443
+serviceInfo:
+  name: policy
+clientTrustStoreConfiguration:
+  path: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+  password: puppet
+logging:
+  level: INFO
+  appenders:
+    - type: logstash-console
+    - type: raven
+      dsn: ${SENTRY_DSN}
+      threshold: ERROR
+      tags: service-name:policy
+eidas: true
+eventEmitterConfiguration:
+  enabled: true
+  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
+  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
+  region: eu-west-2
+  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
+  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL}
+prometheusEnabled: true

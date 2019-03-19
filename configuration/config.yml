@@ -1,0 +1,34 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  requestLog:
+    type: classic
+    appenders:
+      - type: access-logstash-console
+serviceInfo:
+  name: config
+rootDataDirectory: ${CONFIG_DATA_PATH}
+# for whatever reason this path is relative to the one above
+translationsDirectory: ../../display-locales/transactions
+logging:
+  level: INFO
+  appenders:
+    - type: logstash-console
+    - type: raven
+      dsn: ${SENTRY_DSN}
+      threshold: ERROR
+      tags: service-name:config
+# these DEPLOYMENT environment variables should get
+# interpolated by dropwizard
+clientTrustStoreConfiguration:
+  path: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+  password: puppet
+rpTrustStoreConfiguration:
+  path: /tmp/truststores/${DEPLOYMENT}/rp_ca_certs.ts
+  password: puppet
+prometheusEnabled: true
+certificateExpiryDateCheckServiceConfiguration:
+  enable: true
+certificateOcspRevocationStatusCheckServiceConfiguration:
+  enable: true
