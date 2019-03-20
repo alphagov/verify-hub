@@ -54,7 +54,7 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
 
     @Valid
     @JsonProperty
-    protected Boolean prometheusEnabled = false;
+    protected Boolean prometheusEnabled = true;
 
     @Valid
     @JsonProperty

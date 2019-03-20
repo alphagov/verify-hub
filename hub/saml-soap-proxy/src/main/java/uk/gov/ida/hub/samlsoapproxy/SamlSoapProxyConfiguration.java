@@ -97,7 +97,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
 
     @Valid
     @JsonProperty
-    protected Boolean prometheusEnabled = false;
+    protected Boolean prometheusEnabled = true;
 
     @Valid
     @JsonProperty

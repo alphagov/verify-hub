@@ -93,7 +93,7 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
 
     @Valid
     @JsonProperty
-    protected Boolean prometheusEnabled = false;
+    protected Boolean prometheusEnabled = true;
 
     protected PolicyConfiguration() {}
 

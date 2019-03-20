@@ -96,7 +96,7 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
 
     @Valid
     @JsonProperty
-    protected Boolean prometheusEnabled = false;
+    protected Boolean prometheusEnabled = true;
 
     public SamlConfiguration getSamlConfiguration() {
         return saml;
