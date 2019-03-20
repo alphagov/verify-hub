@@ -4,6 +4,7 @@ import certificates.values.CACertificates;
 import httpstub.HttpStubRule;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.prometheus.client.CollectorRegistry;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
 import org.opensaml.core.config.InitializationService;
@@ -69,6 +70,7 @@ public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfigu
         hubTrustStore.create();
         idpTrustStore.create();
         rpTrustStore.create();
+        CollectorRegistry.defaultRegistry.clear();
 
         try {
             InitializationService.initialize();
