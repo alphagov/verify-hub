@@ -11,14 +11,18 @@ import io.dropwizard.setup.Environment;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
+import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.hub.config.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.config.resources.CertificatesResource;
 import uk.gov.ida.hub.config.resources.CountriesResource;
 import uk.gov.ida.hub.config.resources.IdentityProviderResource;
 import uk.gov.ida.hub.config.resources.MatchingServiceResource;
 import uk.gov.ida.hub.config.resources.TransactionsResource;
+import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
+import uk.gov.ida.truststore.KeyStoreLoader;
 
 import javax.servlet.DispatcherType;
+import java.security.KeyStore;
 import java.util.EnumSet;
 
 public class ConfigApplication extends Application<ConfigConfiguration> {
@@ -59,6 +63,15 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
         environment.getObjectMapper().setDateFormat(new StdDateFormat());
         registerResources(environment);
         environment.servlets().addFilter("Logging SessionId registration Filter", SessionIdQueryParamLoggingFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+
+        TrustStoreMetrics trustStoreMetrics = new TrustStoreMetrics();
+        registerMetrics(trustStoreMetrics, "rp", configuration.getRpTrustStoreConfiguration());
+        registerMetrics(trustStoreMetrics, "client", configuration.getClientTrustStoreConfiguration());
+    }
+
+    private void registerMetrics(TrustStoreMetrics metrics, String trustStoreName, ClientTrustStoreConfiguration trustStoreConfiguration) {
+        KeyStore trustStore = new KeyStoreLoader().load(trustStoreConfiguration.getPath(), trustStoreConfiguration.getPassword());
+        metrics.registerTrustStore(trustStoreName, trustStore);
     }
 
     private void registerResources(Environment environment) {
