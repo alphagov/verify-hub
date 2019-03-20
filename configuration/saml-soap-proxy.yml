@@ -1,0 +1,127 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  requestLog:
+    type: classic
+    appenders:
+      - type: access-logstash-console
+saml:
+  entityId: https://signin.service.gov.uk
+  eidasEntityId: https://www.${DOMAIN}/SAML2/metadata/connector
+enableRetryTimeOutConnections: true
+httpClient:
+  timeout: 60s
+  timeToLive: 10m
+  connectionTimeout: 4s
+  retries: 3
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  tls:
+    protocol: TLSv1.2
+    verifyHostname: false
+    trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+    trustStorePassword: puppet
+
+soapHttpClient:
+  timeout: 50s
+  timeToLive: 10m
+  connectionTimeout: 50s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  tls:
+    protocol: TLSv1.2
+    verifyHostname: true
+    trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+    trustStorePassword: puppet
+  retries: 3
+  retryBackoffPeriod: 1s
+  retryExceptionNames:
+    - java.net.SocketException
+    - java.net.SocketTimeoutException
+    - org.apache.http.NoHttpResponseException
+    - org.apache.http.conn.ConnectTimeoutException
+    - java.net.ConnectException
+    - org.apache.http.conn.HttpHostConnectException
+
+healthCheckSoapHttpClient:
+  timeout: 2s
+  timeToLive: 10m
+  connectionTimeout: 2s
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  tls:
+    protocol: TLSv1.2
+    verifyHostname: true
+    trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+    trustStorePassword: puppet
+
+samlEngineUri: https://saml-engine.${DOMAIN}
+configUri: https://config.${DOMAIN}
+policyUri: https://policy.${DOMAIN}
+
+serviceInfo:
+  name: saml-soap-proxy
+
+matchingServiceExecutorConfiguration:
+  corePoolSize: 5
+  maxPoolSize: 10
+  keepAliveDuration: 10s
+
+rpTrustStoreConfiguration:
+  path: /tmp/truststores/${DEPLOYMENT}/rp_ca_certs.ts
+  password: puppet
+
+featureFlagConfiguration: {}
+
+logging:
+  level: INFO
+  appenders:
+    - type: logstash-console
+    - type: raven
+      dsn: ${SENTRY_DSN}
+      threshold: ERROR
+      tags: service-name:saml-soap-proxy
+
+metadata:
+  uri: https://www.${DOMAIN}/SAML2/metadata/federation
+  trustStorePath: /tmp/truststores/${DEPLOYMENT}/metadata_ca_certs.ts
+  trustStorePassword: puppet
+  trustStore:
+    path: /tmp/truststores/${DEPLOYMENT}/metadata_ca_certs.ts
+    password: puppet
+  hubTrustStore:
+    path: /tmp/truststores/${DEPLOYMENT}/hub_ca_certs.ts
+    password: puppet
+  idpTrustStore:
+    path: /tmp/truststores/${DEPLOYMENT}/idp_ca_certs.ts
+    password: puppet
+  minRefreshDelay: 30000
+  maxRefreshDelay: 1800000
+  expectedEntityId: https://signin.service.gov.uk
+  client:
+    timeout: 60s
+    timeToLive: 10m
+    connectionTimeout: 4s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+      trustStorePassword: puppet
+
+eventEmitterConfiguration:
+  enabled: true
+  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
+  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
+  region: eu-west-2
+  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
+  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL}
+prometheusEnabled: true
+matchingServiceHealthCheckServiceConfiguration:
+  enable: true

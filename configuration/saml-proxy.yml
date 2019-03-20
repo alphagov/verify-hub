@@ -1,0 +1,105 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  requestLog:
+    type: classic
+    appenders:
+      - type: access-logstash-console
+saml:
+  entityId: https://signin.service.gov.uk
+  expectedDestination: https://www.${DOMAIN}
+enableRetryTimeOutConnections: true
+httpClient:
+  timeout: 60s
+  timeToLive: 10m
+  connectionTimeout: 4s
+  retries: 3
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+  tls:
+    protocol: TLSv1.2
+    verifyHostname: false
+    trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+    trustStorePassword: puppet
+frontendExternalUri: https://www.${DOMAIN}
+samlEngineUri: https://saml-engine.${DOMAIN}
+configUri: https://config.${DOMAIN}
+policyUri: https://policy.${DOMAIN}
+serviceInfo:
+  name: saml-proxy
+rpTrustStoreConfiguration:
+  path: /tmp/truststores/${DEPLOYMENT}/rp_ca_certs.ts
+  password: puppet
+metadataValidDuration: 1h
+featureFlagConfiguration: {}
+logging:
+  level: INFO
+  appenders:
+    - type: logstash-console
+    - type: raven
+      dsn: ${SENTRY_DSN}
+      threshold: ERROR
+      tags: service-name:saml-proxy
+metadata:
+  uri: https://www.${DOMAIN}/SAML2/metadata/federation
+  trustStorePath: /tmp/truststores/${DEPLOYMENT}/metadata_ca_certs.ts
+  trustStorePassword: puppet
+  trustStore:
+    path: /tmp/truststores/${DEPLOYMENT}/metadata_ca_certs.ts
+    password: puppet
+  hubTrustStore:
+    path: /tmp/truststores/${DEPLOYMENT}/hub_ca_certs.ts
+    password: puppet
+  idpTrustStore:
+    path: /tmp/truststores/${DEPLOYMENT}/idp_ca_certs.ts
+    password: puppet
+  minRefreshDelay: 30000
+  maxRefreshDelay: 1800000
+  expectedEntityId: https://signin.service.gov.uk
+  jerseyClientName: verify-metadata-client
+  client:
+    timeout: 60s
+    timeToLive: 10m
+    connectionTimeout: 4s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
+      trustStorePassword: puppet
+country:
+  enabled: true
+  metadata:
+    trustAnchorUri: https://www.${DOMAIN}/SAML2/metadata/trust-anchor
+    metadataSourceUri: https://www.${DOMAIN}/SAML2/metadata/aggregator
+    trustStore:
+      store: /tmp/truststores/${DEPLOYMENT}/metadata_ca_certs.ts
+      trustStorePassword: puppet
+    minRefreshDelay: 5000
+    maxRefreshDelay: 1800000
+    jerseyClientName: country-metadata-client
+    client:
+      timeout: 60s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 4s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true
+eventEmitterConfiguration:
+  enabled: true
+  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
+  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
+  region: eu-west-2
+  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
+  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL}
+prometheusEnabled: true

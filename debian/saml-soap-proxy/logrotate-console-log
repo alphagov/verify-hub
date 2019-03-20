@@ -1,8 +1,0 @@
-/var/log/ida/saml-soap-proxy.console-log {
-  compress
-  copytruncate
-  daily
-  missingok
-  notifempty
-  rotate 7
-}
