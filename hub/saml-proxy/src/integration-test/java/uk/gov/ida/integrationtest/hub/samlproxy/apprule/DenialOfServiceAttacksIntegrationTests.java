@@ -75,7 +75,7 @@ public class DenialOfServiceAttacksIntegrationTests {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(new SamlRequestDto(samlAuthnRequest, relayState, "12.23.34.45")));
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
 }

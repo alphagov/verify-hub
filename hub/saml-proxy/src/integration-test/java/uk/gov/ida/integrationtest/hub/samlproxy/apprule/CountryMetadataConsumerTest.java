@@ -107,7 +107,7 @@ public class CountryMetadataConsumerTest {
         Response responseFromSamlProxy = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1"));
 
         // Then
-        assertThat(responseFromSamlProxy.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        assertThat(responseFromSamlProxy.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     private javax.ws.rs.core.Response postSAML(SamlRequestDto requestDto) {

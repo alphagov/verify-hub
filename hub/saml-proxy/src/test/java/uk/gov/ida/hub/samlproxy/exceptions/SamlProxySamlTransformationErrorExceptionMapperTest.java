@@ -73,7 +73,7 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
         Response response = exceptionMapper.handleException(new TestSamlTransformationErrorException("error", new RuntimeException(), Level.DEBUG));
 
         ErrorStatusDto responseEntity = (ErrorStatusDto) response.getEntity();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(responseEntity.isAudited()).isTrue();
         assertThat(responseEntity.getExceptionType()).isEqualTo(ExceptionType.INVALID_SAML);
     }
@@ -83,7 +83,7 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
         Response response = exceptionMapper.handleException(new SamlRequestTooOldException("error", new RuntimeException(), Level.DEBUG));
 
         ErrorStatusDto responseEntity = (ErrorStatusDto) response.getEntity();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(responseEntity.isAudited()).isTrue();
         assertThat(responseEntity.getExceptionType()).isEqualTo(ExceptionType.INVALID_SAML_REQUEST_TOO_OLD);
     }

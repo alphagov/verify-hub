@@ -216,7 +216,7 @@ public class SamlMessageSenderApiResourceTest {
         policyStubRule.anAuthnResponseFromHubToRp(sessionId, invalidAuthnResponseFromHubContainerDto);
         javax.ws.rs.core.Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_RESPONSE_FROM_HUB_API_RESOURCE, sessionId);
 
-        assertThat(response.getStatus()).isEqualTo(500);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -274,7 +274,7 @@ public class SamlMessageSenderApiResourceTest {
 
         javax.ws.rs.core.Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_ERROR_RESPONSE_FROM_HUB_API_RESOURCE, sessionId);
 
-        assertThat(response.getStatus()).isEqualTo(500);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     private Response getResponseFromSamlProxy(String url, SessionId sessionId) {
