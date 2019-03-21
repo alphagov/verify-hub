@@ -181,7 +181,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
-        assertError(clientResponse, ExceptionType.INVALID_SAML);
+        assertError(Response.Status.BAD_REQUEST ,clientResponse, ExceptionType.INVALID_SAML);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
-        assertError(clientResponse, ExceptionType.INVALID_SAML);
+        assertError(Response.Status.BAD_REQUEST, clientResponse, ExceptionType.INVALID_SAML);
     }
 
     @Test
@@ -199,7 +199,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
-        assertError(clientResponse, ExceptionType.INVALID_SAML);
+        assertError(Response.Status.BAD_REQUEST, clientResponse, ExceptionType.INVALID_SAML);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE);
 
-        assertError(clientResponse, ExceptionType.INVALID_SAML);
+        assertError(Response.Status.BAD_REQUEST, clientResponse, ExceptionType.INVALID_SAML);
     }
 
     @Test
@@ -230,7 +230,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
-        assertError(clientResponse, ExceptionType.INVALID_SAML);
+        assertError(Response.Status.BAD_REQUEST, clientResponse, ExceptionType.INVALID_SAML);
     }
 
     @Test
@@ -239,7 +239,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
-        assertError(clientResponse, ExceptionType.INVALID_SAML);
+        assertError(Response.Status.BAD_REQUEST, clientResponse, ExceptionType.INVALID_SAML);
     }
 
     @Test
@@ -249,7 +249,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
-        assertError(clientResponse, ExceptionType.INVALID_SAML);
+        assertError(Response.Status.BAD_REQUEST, clientResponse, ExceptionType.INVALID_SAML);
     }
 
     @Test
@@ -262,7 +262,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
-        assertError(clientResponse, ExceptionType.NETWORK_ERROR);
+        assertError(Response.Status.INTERNAL_SERVER_ERROR, clientResponse, ExceptionType.NETWORK_ERROR);
     }
 
     @Test
@@ -287,7 +287,7 @@ public class SamlMessageReceiverApiResourceTest {
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
-        assertError(clientResponse, ExceptionType.INVALID_SAML);
+        assertError(Response.Status.BAD_REQUEST, clientResponse, ExceptionType.INVALID_SAML);
     }
 
     private Response postSAML(SamlRequestDto requestDTO, String path) {
@@ -296,8 +296,8 @@ public class SamlMessageReceiverApiResourceTest {
                 .APPLICATION_JSON_TYPE));
     }
 
-    private void assertError(final Response response, final ExceptionType exceptionType) {
-        assertThat(response.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+    private void assertError(Response.StatusType statusType, final Response response, final ExceptionType exceptionType) {
+        assertThat(response.getStatus()).isEqualTo(statusType.getStatusCode());
         ErrorStatusDto entity = response.readEntity(ErrorStatusDto.class);
         assertThat(entity.getErrorId()).isNotNull();
         assertThat(entity.getExceptionType()).isEqualTo(exceptionType);

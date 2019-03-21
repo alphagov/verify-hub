@@ -39,7 +39,7 @@ public class SamlProxySamlTransformationErrorExceptionMapper extends AbstractCon
 
         ErrorStatusDto auditedErrorStatus = ErrorStatusDto.createAuditedErrorStatus(errorId, getExceptionTypeForSamlException(exception));
 
-        return Response.serverError().entity(auditedErrorStatus).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(auditedErrorStatus).build();
     }
 
     private ExceptionType getExceptionTypeForSamlException(SamlTransformationErrorException exception) {
