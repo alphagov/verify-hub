@@ -24,9 +24,12 @@ import uk.gov.ida.hub.samlproxy.resources.SamlMessageReceiverApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageSenderApi;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
+import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
+import uk.gov.ida.truststore.KeyStoreLoader;
 
 import javax.servlet.DispatcherType;
 import javax.ws.rs.ext.ExceptionMapper;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -80,9 +83,12 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
         }
 
         MetadataResolverConfiguration metadataConfiguration = configuration.getMetadataConfiguration();
+        ClientTrustStoreConfiguration rpTrustStoreConfiguration = configuration.getRpTrustStoreConfiguration();
+        KeyStore rpTrustStore = new KeyStoreLoader().load(rpTrustStoreConfiguration.getPath(), rpTrustStoreConfiguration.getPassword());
         TrustStoreMetrics trustStoreMetrics = new TrustStoreMetrics();
         metadataConfiguration.getHubTrustStore().ifPresent(hubTrustStore -> trustStoreMetrics.registerTrustStore("hub", hubTrustStore));
         metadataConfiguration.getIdpTrustStore().ifPresent(idpTrustStore -> trustStoreMetrics.registerTrustStore("idp", idpTrustStore));
+        trustStoreMetrics.registerTrustStore("rp", rpTrustStore);
 
         environment.servlets().addFilter("Logging SessionId registration Filter", SessionIdQueryParamLoggingFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }

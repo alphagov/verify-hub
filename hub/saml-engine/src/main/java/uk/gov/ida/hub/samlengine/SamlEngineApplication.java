@@ -39,9 +39,12 @@ import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanBundle;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
+import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
+import uk.gov.ida.truststore.KeyStoreLoader;
 
 import javax.inject.Provider;
 import javax.servlet.DispatcherType;
+import java.security.KeyStore;
 import java.util.EnumSet;
 
 import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
@@ -144,9 +147,12 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
 
         // calling .get() here is safe because the Optional is never empty
         MetadataResolverConfiguration metadataConfiguration = configuration.getMetadataConfiguration().get();
+        ClientTrustStoreConfiguration rpTrustStoreConfiguration = configuration.getRpTrustStoreConfiguration();
+        KeyStore rpTrustStore = new KeyStoreLoader().load(rpTrustStoreConfiguration.getPath(), rpTrustStoreConfiguration.getPassword());
         TrustStoreMetrics trustStoreMetrics = new TrustStoreMetrics();
         metadataConfiguration.getHubTrustStore().ifPresent(hubTrustStore -> trustStoreMetrics.registerTrustStore("hub", hubTrustStore));
         metadataConfiguration.getIdpTrustStore().ifPresent(idpTrustStore -> trustStoreMetrics.registerTrustStore("idp", idpTrustStore));
+        trustStoreMetrics.registerTrustStore("rp", rpTrustStore);
 
         environment.servlets().addFilter("Logging SessionId registration Filter", SessionIdQueryParamLoggingFilter.class).addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
