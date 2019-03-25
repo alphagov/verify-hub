@@ -94,10 +94,6 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @JsonProperty
     public EventEmitterConfiguration eventEmitterConfiguration;
 
-    @Valid
-    @JsonProperty
-    protected Boolean prometheusEnabled = true;
-
     public SamlConfiguration getSamlConfiguration() {
         return saml;
     }
@@ -162,6 +158,6 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
 
     @Override
     public boolean isPrometheusEnabled() {
-        return prometheusEnabled;
+        return true;
     }
 }

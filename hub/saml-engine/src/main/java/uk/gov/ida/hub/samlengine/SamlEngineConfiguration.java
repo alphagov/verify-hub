@@ -110,10 +110,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
-    @Valid
-    @JsonProperty
-    protected Boolean prometheusEnabled = true;
-
     public SamlConfiguration getSamlConfiguration() {
         return saml;
     }
@@ -191,6 +187,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
 
     @Override
     public boolean isPrometheusEnabled() {
-        return prometheusEnabled;
+        return true;
     }
 }

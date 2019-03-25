@@ -78,7 +78,6 @@ public class PrometheusMetricsIntegrationTest {
 
     @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule(
-        config("prometheusEnabled", "true"),
         config("certificateExpiryDateCheckServiceConfiguration.enable", "true"),
         config("certificateExpiryDateCheckServiceConfiguration.initialDelay", "1s"),
         config("certificateExpiryDateCheckServiceConfiguration.delay", "2s"),
