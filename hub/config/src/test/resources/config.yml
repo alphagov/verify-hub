@@ -43,5 +43,3 @@ clientTrustStoreConfiguration:
 rpTrustStoreConfiguration:
   path: ${RP_TRUSTSTORE_PATH}
   password: ${RP_TRUSTSTORE_PASSWORD}
-
-prometheusEnabled: ${PROMETHEUS_ENABLED:-false}

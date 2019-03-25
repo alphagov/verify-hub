@@ -27,7 +27,6 @@ clientTrustStoreConfiguration:
 rpTrustStoreConfiguration:
   path: /tmp/truststores/${DEPLOYMENT}/rp_ca_certs.ts
   password: puppet
-prometheusEnabled: true
 certificateExpiryDateCheckServiceConfiguration:
   enable: true
 certificateOcspRevocationStatusCheckServiceConfiguration:

@@ -63,4 +63,3 @@ eventEmitterConfiguration:
   region: eu-west-2
   encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
   apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL}
-prometheusEnabled: true
