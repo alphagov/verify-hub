@@ -132,7 +132,6 @@ public class PrometheusMetricsIntegrationTest {
     public static SamlSoapProxyAppRule samlSoapProxyAppRule = new SamlSoapProxyAppRule(
         config("logging.level", "INFO"),
         config("httpClient.gzipEnabledForRequests", "false"),
-        config("prometheusEnabled", "true"),
         config("matchingServiceHealthCheckServiceConfiguration.enable", "true"),
         config("matchingServiceHealthCheckServiceConfiguration.initialDelay", "1s"),
         config("matchingServiceHealthCheckServiceConfiguration.delay", "3s"),

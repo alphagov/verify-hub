@@ -54,10 +54,6 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
 
     @Valid
     @JsonProperty
-    protected Boolean prometheusEnabled = true;
-
-    @Valid
-    @JsonProperty
     private PrometheusClientServiceConfiguration certificateExpiryDateCheckServiceConfiguration = new PrometheusClientServiceConfiguration();
 
     @Valid
@@ -103,7 +99,7 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
 
     @Override
     public boolean isPrometheusEnabled() {
-        return prometheusEnabled;
+        return true;
     }
 
     public PrometheusClientServiceConfiguration getCertificateExpiryDateCheckServiceConfiguration() {

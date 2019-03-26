@@ -97,10 +97,6 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
 
     @Valid
     @JsonProperty
-    protected Boolean prometheusEnabled = true;
-
-    @Valid
-    @JsonProperty
     private PrometheusClientServiceConfiguration matchingServiceHealthCheckServiceConfiguration = new PrometheusClientServiceConfiguration();
 
     public SamlConfiguration getSamlConfiguration() {
@@ -167,7 +163,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
 
     @Override
     public boolean isPrometheusEnabled() {
-        return prometheusEnabled;
+        return true;
     }
 
     public PrometheusClientServiceConfiguration getMatchingServiceHealthCheckServiceConfiguration() {

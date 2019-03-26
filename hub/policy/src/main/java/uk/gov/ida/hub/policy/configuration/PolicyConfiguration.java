@@ -91,10 +91,6 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @JsonProperty
     public EventEmitterConfiguration eventEmitterConfiguration;
 
-    @Valid
-    @JsonProperty
-    protected Boolean prometheusEnabled = true;
-
     protected PolicyConfiguration() {}
 
     public URI getSamlSoapProxyUri() { return samlSoapProxyUri;  }
@@ -164,7 +160,7 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
 
     @Override
     public boolean isPrometheusEnabled() {
-        return prometheusEnabled;
+        return true;
     }
 
     public SessionStoreConfiguration getSessionStoreConfiguration() {
