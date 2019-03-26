@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.Urls;
+import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
 import uk.gov.ida.hub.policy.domain.controller.SessionStartable;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
@@ -69,7 +70,7 @@ public class SessionRepository {
     }
 
     @Timed(name = Urls.SESSION_REPO_TIMED_GROUP)
-    public <T extends State> StateController getIdpSelectingStateController(
+    public <T extends State> IdpSelectedStateController getIdpSelectingStateController(
             final SessionId sessionId,
             final Class<T> expectedStateClass) {
         // We want an IdpSelectedStateController back if that's what's expected?  We can probably move the if statement
@@ -79,8 +80,8 @@ public class SessionRepository {
         State currentState = getCurrentState(sessionId);
         Class<? extends State> currentStateClass = currentState.getClass();
 
-        if (expectedStateClass.equals(currentState)) {
-            return getStateController(sessionId, expectedStateClass);
+        if (expectedStateClass.equals(currentStateClass)) {
+            return (IdpSelectedStateController) getStateController(sessionId, expectedStateClass);
         }
 
         handleTimeout(sessionId, currentState, currentStateClass, expectedStateClass);
@@ -91,7 +92,7 @@ public class SessionRepository {
             sessionStartedState = new SessionStartedState((SessionStartable) currentState);
             dataStore.replace(sessionId, sessionStartedState);
             if (isAKindOf(expectedStateClass, currentStateClass) || currentStateClass.equals(TimeoutState.class)) {
-                return controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
+                return (IdpSelectedStateController) controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
             }
         }
         throw new InvalidSessionStateException(sessionId, expectedStateClass, currentState.getClass());
