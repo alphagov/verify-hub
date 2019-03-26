@@ -77,8 +77,9 @@ public class AuthnResponseFromIdpServiceTest {
         samlAuthnResponseContainerDto = aSamlAuthnResponseContainerDto().withSessionId(sessionId).withPrincipalIPAddressAsSeenByHub(
                 PRINCIPAL_IP_ADDRESS).withAnalyticsSessionId(ANALYTICS_SESSION_ID).withJourneyType(JOURNEY_TYPE).build();
         service = new AuthnResponseFromIdpService(samlEngineProxy, attributeQueryService, sessionRepository, samlAuthnResponseTranslatorDtoFactory);
-        when(sessionRepository.getIdpSelectingStateController(sessionId, IdpSelectedState.class)).thenReturn(idpSelectedStateController);
-        when(sessionRepository.getCurrentState(sessionId)).thenReturn(mock(IdpSelectedState.class));
+        when(sessionRepository.getIdpSelectingStateController(sessionId, IdpSelectedState.class)).thenCallRealMethod();
+        when(sessionRepository.getStateController(sessionId, IdpSelectedState.class)).thenReturn(idpSelectedStateController);
+        when(sessionRepository.getCurrentState(sessionId)).thenReturn(new IdpSelectedState(null, null, null, null, null, null, null, null, null, false, null, null, null, false));
     }
 
     @Test
