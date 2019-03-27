@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import java.util.Optional;
 import javax.inject.Inject;
 import com.google.inject.Provider;
 import uk.gov.ida.common.ErrorStatusDto;
@@ -35,12 +34,7 @@ public class SamlProxySamlTransformationErrorExceptionMapper extends AbstractCon
     @Override
     protected Response handleException(SamlTransformationErrorException exception) {
         UUID errorId = UUID.randomUUID();
-        Optional<SessionId> sessionId = getSessionId();
-        if (sessionId.isPresent()) {
-            eventSinkMessageSender.audit(exception, errorId, sessionId.get());
-        } else {
-            eventSinkMessageSender.audit(exception, errorId, SessionId.NO_SESSION_CONTEXT_IN_ERROR);
-        }
+        eventSinkMessageSender.audit(exception, errorId, getSessionId().orElse(SessionId.NO_SESSION_CONTEXT_IN_ERROR));
 
         levelLogger.log(exception.getLogLevel(), exception, errorId);
 
