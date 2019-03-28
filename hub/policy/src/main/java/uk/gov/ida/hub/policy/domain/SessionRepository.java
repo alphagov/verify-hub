@@ -75,26 +75,19 @@ public class SessionRepository {
     public <T extends State> IdpSelectingStateController getIdpSelectingStateController(
             final SessionId sessionId,
             final Class<T> expectedStateClass) {
-        // We want an IdpSelectedStateController back if that's what's expected?  We can probably move the if statement
-        // in AuthResponseFromIdpService into here and just call this method with a little jiggery pokery
         validateSessionExists(sessionId);
 
         State currentState = getCurrentState(sessionId);
         Class<? extends State> currentStateClass = currentState.getClass();
 
-        if (expectedStateClass.equals(currentStateClass)) {
-            return (IdpSelectedStateController) getStateController(sessionId, expectedStateClass);
-        }
-
-//        handleTimeout(sessionId, currentState, currentStateClass, expectedStateClass);
+        handleTimeout(sessionId, currentState, currentStateClass, expectedStateClass);
 
         if (currentState instanceof IdpSelectingState) {
 //            SessionStartedState sessionStartedState = new SessionStartedState((SessionStartable) currentState);
 //            dataStore.replace(sessionId, sessionStartedState);
 //            currentState = getCurrentState(sessionId);
 //            if (isAKindOf(expectedStateClass, currentStateClass) || currentStateClass.equals(TimeoutState.class)) {
-            IdpSelectingStateController cont = (IdpSelectingStateController) controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
-            return cont;
+            return (IdpSelectingStateController) controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
 //            }
         }
         throw new InvalidSessionStateException(sessionId, expectedStateClass, currentState.getClass());
