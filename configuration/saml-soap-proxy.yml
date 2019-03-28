@@ -2,6 +2,7 @@ server:
   applicationConnectors:
     - type: http
       port: 8080
+      idleTimeout: 70 seconds
   requestLog:
     type: classic
     appenders:
@@ -28,7 +29,7 @@ soapHttpClient:
   timeout: 50s
   timeToLive: 10m
   connectionTimeout: 50s
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
   tls:
@@ -50,7 +51,7 @@ healthCheckSoapHttpClient:
   timeout: 50s
   timeToLive: 10m
   connectionTimeout: 50s
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
   tls:
