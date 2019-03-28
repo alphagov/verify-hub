@@ -7,7 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.controller.SessionStartable;
+import uk.gov.ida.hub.policy.domain.controller.SessionStartedStateController;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
@@ -70,7 +72,7 @@ public class SessionRepository {
     }
 
     @Timed(name = Urls.SESSION_REPO_TIMED_GROUP)
-    public <T extends State> IdpSelectedStateController getIdpSelectingStateController(
+    public <T extends State> IdpSelectingStateController getIdpSelectingStateController(
             final SessionId sessionId,
             final Class<T> expectedStateClass) {
         // We want an IdpSelectedStateController back if that's what's expected?  We can probably move the if statement
@@ -84,16 +86,16 @@ public class SessionRepository {
             return (IdpSelectedStateController) getStateController(sessionId, expectedStateClass);
         }
 
-        handleTimeout(sessionId, currentState, currentStateClass, expectedStateClass);
+//        handleTimeout(sessionId, currentState, currentStateClass, expectedStateClass);
 
-        SessionStartedState sessionStartedState;
-
-        if (currentState instanceof SessionStartable) {
-            sessionStartedState = new SessionStartedState((SessionStartable) currentState);
-            dataStore.replace(sessionId, sessionStartedState);
-            if (isAKindOf(expectedStateClass, currentStateClass) || currentStateClass.equals(TimeoutState.class)) {
-                return (IdpSelectedStateController) controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
-            }
+        if (currentState instanceof IdpSelectingState) {
+//            SessionStartedState sessionStartedState = new SessionStartedState((SessionStartable) currentState);
+//            dataStore.replace(sessionId, sessionStartedState);
+//            currentState = getCurrentState(sessionId);
+//            if (isAKindOf(expectedStateClass, currentStateClass) || currentStateClass.equals(TimeoutState.class)) {
+            IdpSelectingStateController cont = (IdpSelectingStateController) controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
+            return cont;
+//            }
         }
         throw new InvalidSessionStateException(sessionId, expectedStateClass, currentState.getClass());
     }

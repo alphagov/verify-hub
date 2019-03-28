@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.domain.controller;
 
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
+import uk.gov.ida.hub.policy.domain.RecoveryStateController;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
@@ -16,7 +17,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.Collections;
 
-public class SessionStartedStateController implements IdpSelectingStateController, EidasCountrySelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
+public class SessionStartedStateController implements RecoveryStateController, IdpSelectingStateController, EidasCountrySelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
     private final SessionStartedState state;
     private final HubEventLogger hubEventLogger;

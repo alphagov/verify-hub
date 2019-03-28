@@ -12,7 +12,7 @@ import uk.gov.ida.hub.policy.domain.controller.SessionStartable;
 import java.io.Serializable;
 import java.net.URI;
 
-public class SessionStartedState extends AbstractState implements IdpSelectingState, EidasCountrySelectingState, ResponseProcessingState, Serializable {
+public class SessionStartedState extends AbstractState implements SessionStartable, IdpSelectingState, EidasCountrySelectingState, ResponseProcessingState, Serializable {
 
     private static final long serialVersionUID = -2890730003642035273L;
 

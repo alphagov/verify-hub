@@ -13,9 +13,16 @@ import uk.gov.ida.hub.policy.domain.RequesterErrorResponse;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
+import uk.gov.ida.hub.policy.domain.State;
+import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
+import uk.gov.ida.hub.policy.domain.controller.SessionStartable;
+import uk.gov.ida.hub.policy.domain.controller.SessionStartedStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
@@ -49,22 +56,33 @@ public class AuthnResponseFromIdpService {
     public ResponseAction receiveAuthnResponseFromIdp(SessionId sessionId,
                                                       SamlAuthnResponseContainerDto samlResponseDto) {
 
-        IdpSelectedStateController idpSelectedController = sessionRepository.getIdpSelectingStateController(sessionId, IdpSelectedState.class);
+        State currentState = sessionRepository.getCurrentState(sessionId);
+        if (currentState instanceof IdpSelectedState) {
+            IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
 
-        boolean matchingJourney = idpSelectedController.isMatchingJourney();
-        String entityToEncryptFor = matchingJourney ? idpSelectedController.getMatchingServiceEntityId() : idpSelectedController.getRequestIssuerId();
-        final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, entityToEncryptFor);
-        final InboundResponseFromIdpDto idaResponseFromIdpDto = samlEngineProxy.translateAuthnResponseFromIdp(samlAuthnResponseTranslatorDto);
-        final String principalIPAddressAsSeenByHub = samlResponseDto.getPrincipalIPAddressAsSeenByHub();
+            boolean matchingJourney = idpSelectedController.isMatchingJourney();
+            String entityToEncryptFor = matchingJourney ? idpSelectedController.getMatchingServiceEntityId() : idpSelectedController.getRequestIssuerId();
+            final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, entityToEncryptFor);
+            final InboundResponseFromIdpDto idaResponseFromIdpDto = samlEngineProxy.translateAuthnResponseFromIdp(samlAuthnResponseTranslatorDto);
+            final String principalIPAddressAsSeenByHub = samlResponseDto.getPrincipalIPAddressAsSeenByHub();
 
-        ResponseAction responseAction;
+            ResponseAction responseAction;
 
-        if (isFraudulent(idaResponseFromIdpDto)) {
-            responseAction = handleFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, samlResponseDto.getAnalyticsSessionId(), samlResponseDto.getJourneyType());
+            if (isFraudulent(idaResponseFromIdpDto)) {
+                responseAction = handleFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, idpSelectedController, samlResponseDto.getAnalyticsSessionId(), samlResponseDto.getJourneyType());
+            } else {
+                responseAction = handleNonFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, matchingJourney, idpSelectedController, samlResponseDto.getAnalyticsSessionId(), samlResponseDto.getJourneyType());
+            }
+            return responseAction;
         } else {
-            responseAction = handleNonFraudResponse(idaResponseFromIdpDto, sessionId, principalIPAddressAsSeenByHub, matchingJourney, idpSelectedController, samlResponseDto.getAnalyticsSessionId(), samlResponseDto.getJourneyType());
+            IdpSelectingStateController idpSelectedController = sessionRepository.getIdpSelectingStateController(sessionId, IdpSelectedState.class);
+
+            String entityToEncryptFor = idpSelectedController.getRequestIssuerId();
+            final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, entityToEncryptFor);
+            final InboundResponseFromIdpDto idaResponseFromIdpDto = samlEngineProxy.translateAuthnResponseFromIdp(samlAuthnResponseTranslatorDto);
+
+            throw new InvalidSessionStateException(sessionId, IdpSelectedState.class, sessionRepository.getCurrentState(sessionId).getClass(), idaResponseFromIdpDto);
         }
-        return responseAction;
     }
 
     private boolean isFraudulent(InboundResponseFromIdpDto idaResponseFromIdpDto) {

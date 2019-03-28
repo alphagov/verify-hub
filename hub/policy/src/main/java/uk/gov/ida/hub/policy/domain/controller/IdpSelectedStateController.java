@@ -10,6 +10,7 @@ import uk.gov.ida.hub.policy.domain.AuthnRequestFromHub;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
 import uk.gov.ida.hub.policy.domain.FraudFromIdp;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
+import uk.gov.ida.hub.policy.domain.RecoveryStateController;
 import uk.gov.ida.hub.policy.domain.RequesterErrorResponse;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
@@ -40,7 +41,7 @@ import java.util.Set;
 
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.wrongResponseIssuer;
 
-public class IdpSelectedStateController implements ErrorResponsePreparedStateController, IdpSelectingStateController, AuthnRequestCapableController, RestartJourneyStateController {
+public class IdpSelectedStateController implements RecoveryStateController, ErrorResponsePreparedStateController, IdpSelectingStateController, AuthnRequestCapableController, RestartJourneyStateController {
 
     private final IdpSelectedState state;
     private final HubEventLogger hubEventLogger;
