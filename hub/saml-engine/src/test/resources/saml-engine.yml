@@ -28,14 +28,6 @@ metrics:
 logging:
   level: INFO
   appenders:
-    - type: file
-      currentLogFilename: apps-home/saml-engine.log
-      archivedLogFilenamePattern: apps-home/saml-engine.log.%d.gz
-      logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
-    - type: logstash-file
-      currentLogFilename: apps-home/logstash/saml-engine.log
-      archivedLogFilenamePattern: apps-home/logstash/saml-engine.log.%d.gz
-      archivedFileCount: 7
     - type: console
       logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
 
