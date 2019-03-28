@@ -67,6 +67,12 @@ public class SessionRepository {
     }
 
     @Timed(name = Urls.SESSION_REPO_TIMED_GROUP)
+    public StateController getUnknownStateController(final SessionId sessionId) {
+        State currentState = getCurrentState(sessionId);
+        return controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
+    }
+
+    @Timed(name = Urls.SESSION_REPO_TIMED_GROUP)
     public boolean sessionExists(SessionId sessionId) {
         return dataStore.hasSession(sessionId);
     }
