@@ -64,6 +64,7 @@ subprojects {
         }
         else {
           maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
+          maven { url 'http://splunk.jfrog.io/splunk/ext-releases-local' }
         }
     }
 
@@ -101,6 +102,7 @@ subprojects {
         prometheus
         redis
         redis_test
+        splunk
     }
 
     dependencies {
@@ -176,6 +178,8 @@ subprojects {
 
         redis('io.lettuce:lettuce-core:5.1.4.RELEASE')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
+
+        splunk('com.splunk.logging:splunk-library-javalogging:1.6.2')
     }
 }
 
