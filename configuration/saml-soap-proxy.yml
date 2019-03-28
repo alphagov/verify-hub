@@ -47,9 +47,9 @@ soapHttpClient:
     - org.apache.http.conn.HttpHostConnectException
 
 healthCheckSoapHttpClient:
-  timeout: 2s
+  timeout: 50s
   timeToLive: 10m
-  connectionTimeout: 2s
+  connectionTimeout: 50s
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
