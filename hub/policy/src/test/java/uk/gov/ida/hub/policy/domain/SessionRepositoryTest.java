@@ -76,11 +76,11 @@ public class SessionRepositoryTest {
     }
 
     @Test
-    public void getUncheckedStateController_shouldGetSession() {
+    public void getStateControllerRegardlessOfCurrentState_shouldGetSession() {
         SessionId expectedSessionId = aSessionId().build();
         SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
         SessionId sessionId = sessionRepository.createSession(sessionStartedState);
-        sessionRepository.getUnknownStateController(sessionId);
+        sessionRepository.getStateControllerRegardlessOfCurrentState(sessionId);
 
         assertThat(sessionId).isEqualTo(expectedSessionId);
         assertThat(dataStore.containsKey(expectedSessionId)).isEqualTo(true);

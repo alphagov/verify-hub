@@ -66,8 +66,9 @@ public class SessionRepository {
         throw new InvalidSessionStateException(sessionId, expectedStateClass, currentState.getClass());
     }
 
+
     @Timed(name = Urls.SESSION_REPO_TIMED_GROUP)
-    public StateController getUnknownStateController(final SessionId sessionId) {
+    public StateController getStateControllerRegardlessOfCurrentState(final SessionId sessionId) {
         State currentState = getCurrentState(sessionId);
         return controllerFactory.build(currentState, state -> dataStore.replace(sessionId, state));
     }
