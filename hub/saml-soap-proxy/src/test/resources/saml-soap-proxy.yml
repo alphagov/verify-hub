@@ -2,6 +2,7 @@ server:
   applicationConnectors:
     - type: http
       port: ${SAML_SOAP_PROXY_PORT:-50160}
+      idleTimeout: 70 seconds
   adminConnectors:
     - type: http
       port: ${SAML_SOAP_PROXY_ADMIN_PORT:-50161}
@@ -39,7 +40,7 @@ httpClient:
   cookiesEnabled: false
   connectionTimeout: 1s
   retries: 3
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
@@ -50,7 +51,7 @@ soapHttpClient:
   timeToLive: 10m
   cookiesEnabled: false
   connectionTimeout: 2s
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
@@ -59,7 +60,7 @@ healthCheckSoapHttpClient:
   timeToLive: 10m
   cookiesEnabled: false
   connectionTimeout: 2s
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
