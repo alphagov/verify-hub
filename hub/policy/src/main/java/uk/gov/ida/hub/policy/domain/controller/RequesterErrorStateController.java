@@ -8,6 +8,7 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.RequesterErrorState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -74,5 +75,24 @@ public class RequesterErrorStateController implements StateController, ResponseP
         return new AuthnRequestSignInProcess(
             state.getRequestIssuerEntityId(),
             state.getTransactionSupportsEidas());
+    }
+
+    @Override
+    public void restartSession() {
+        SessionStartedState sessionStartedState = createSessionStartedState();
+        hubEventLogger.logSessionMovedToStartStateEvent(sessionStartedState);
+        stateTransitionAction.transitionTo(sessionStartedState);
+    }
+
+    protected SessionStartedState createSessionStartedState() {
+        return new SessionStartedState(
+                state.getRequestId(),
+                state.getRelayState().orNull(),
+                state.getRequestIssuerEntityId(),
+                state.getAssertionConsumerServiceUri(),
+                state.getForceAuthentication().orNull(),
+                state.getSessionExpiryTimestamp(),
+                state.getSessionId(),
+                state.getTransactionSupportsEidas());
     }
 }

@@ -9,4 +9,6 @@ public interface IdpSelectingStateController {
     String getRequestIssuerId();
 
     AuthnRequestSignInProcess getSignInProcessDetails();
+
+    void restartSession();
 }

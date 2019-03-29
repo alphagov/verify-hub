@@ -9,6 +9,7 @@ import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.policy.domain.AuthenticationErrorResponse;
 import uk.gov.ida.hub.policy.domain.FraudDetectedDetails;
 import uk.gov.ida.hub.policy.domain.FraudFromIdp;
+import uk.gov.ida.hub.policy.domain.IdpIdaStatus;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
@@ -67,13 +68,19 @@ public class AuthnResponseFromIdpService {
 
                 final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, requestIssuerId);
                 final InboundResponseFromIdpDto idaResponseFromIdpDto = samlEngineProxy.translateAuthnResponseFromIdp(samlAuthnResponseTranslatorDto);
+                IdpIdaStatus.Status status = idaResponseFromIdpDto.getStatus();
 
                 MDC.put("RequestIssuer", requestIssuerId);
-                MDC.put("ResponseStatus", idaResponseFromIdpDto.getStatus().toString());
+                MDC.put("ResponseStatus", status.toString());
                 MDC.put("CurrentState",  e.getActualState().toString());
-                LOG.warn("Unexpected session state. Expected: IdpSelectedState");
 
-                throw new UnexpectedAuthnResponseException(sessionId, e.getActualState());
+                if (status.equals(IdpIdaStatus.Status.NoAuthenticationContext)) {
+                    LOG.info("Unexpected session state. Expected: IdpSelectedState");
+                    ((IdpSelectingStateController) uncheckedStateController).restartSession();
+                    return other(sessionId, false);
+                } else {
+                    LOG.warn("Unexpected session state. Expected: IdpSelectedState");
+                }
             }
             throw e;
         }

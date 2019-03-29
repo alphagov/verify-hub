@@ -7,6 +7,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -55,5 +56,12 @@ public class AuthnFailedErrorStateController extends AbstractAuthnFailedErrorSta
         return new AuthnRequestSignInProcess(
                 state.getRequestIssuerEntityId(),
                 state.getTransactionSupportsEidas());
+    }
+
+    @Override
+    public void restartSession() {
+        SessionStartedState sessionStartedState = createSessionStartedState();
+        hubEventLogger.logSessionMovedToStartStateEvent(sessionStartedState);
+        stateTransitionAction.transitionTo(sessionStartedState);
     }
 }

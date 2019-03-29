@@ -21,6 +21,7 @@ import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
+import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -147,6 +148,10 @@ public class AuthnRequestFromTransactionHandlerTest {
 
         public LevelOfAssurance getRequestedLoa() {
             return requestedLoa;
+        }
+
+        @Override
+        public void restartSession() {
         }
     }
 }

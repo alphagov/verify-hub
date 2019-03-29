@@ -98,4 +98,9 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
         stateTransitionAction.transitionTo(eidasCountrySelectedState);
         hubEventLogger.logCountrySelectedEvent(eidasCountrySelectedState);
     }
+
+    @Override
+    public void restartSession() {
+        // Intentionally empty - already in session started state!
+    }
 }

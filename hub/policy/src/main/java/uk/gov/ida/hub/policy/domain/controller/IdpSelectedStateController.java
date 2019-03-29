@@ -363,4 +363,9 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
         stateTransitionAction.transitionTo(sessionStartedState);
         hubEventLogger.logSessionMovedToStartStateEvent(sessionStartedState);
     }
+
+    @Override
+    public void restartSession() {
+        transitionToSessionStartedState();
+    }
 }
