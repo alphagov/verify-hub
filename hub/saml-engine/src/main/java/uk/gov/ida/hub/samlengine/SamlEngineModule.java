@@ -846,12 +846,6 @@ public class SamlEngineModule extends AbstractModule {
         return new IdpAssertionMetricsCollector(environment.metrics());
     }
 
-    @Provides
-    @Named("EidasAttributesLogger")
-    private EidasAttributesLogger getEidasAttributesLogger() {
-        return new EidasAttributesLogger(EidasResponseAttributesHashLogger::instance);
-    }
-
     public enum KeyPosition {
         PRIMARY,
         SECONDARY

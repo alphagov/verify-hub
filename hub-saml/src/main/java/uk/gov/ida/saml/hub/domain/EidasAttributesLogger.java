@@ -8,19 +8,23 @@ import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
 import uk.gov.ida.saml.core.IdaConstants;
+import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.extensions.BaseMdsSamlObject;
 import uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger;
+import uk.gov.ida.saml.hub.factories.UserIdHashFactory;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class EidasAttributesLogger {
-
     private final Supplier<EidasResponseAttributesHashLogger> loggerSupplier;
+    private final UserIdHashFactory userIdHashFactory;
 
-    public EidasAttributesLogger(Supplier<EidasResponseAttributesHashLogger> loggerSupplier) {
+    public EidasAttributesLogger(Supplier<EidasResponseAttributesHashLogger> loggerSupplier, String hashingEntityId) {
         this.loggerSupplier = loggerSupplier;
+        this.userIdHashFactory = new UserIdHashFactory(hashingEntityId);
     }
 
     public void logEidasAttributesAsHash(Assertion assertion, Response response) {
@@ -28,7 +32,13 @@ public class EidasAttributesLogger {
         Subject subject = assertion.getSubject();
         String persistentId = subject.getNameID().getValue();
         EidasResponseAttributesHashLogger hashLogger = loggerSupplier.get();
-        hashLogger.setPid(persistentId);
+
+        String hashedPid = userIdHashFactory.hashId(
+            assertion.getIssuer().getValue(),
+            persistentId,
+            Optional.of(AuthnContext.LEVEL_2));
+
+        hashLogger.setPid(hashedPid);
 
         List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
         List<Attribute> attributes = attributeStatements.get(0).getAttributes();
