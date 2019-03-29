@@ -10,7 +10,6 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
-import uk.gov.ida.saml.hub.HubConstants;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
 
 import static org.opensaml.xmlsec.signature.support.Signer.signObject;

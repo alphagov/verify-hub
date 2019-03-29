@@ -50,6 +50,7 @@ import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -89,8 +90,6 @@ public class IdpAuthnResponseTranslatorServiceTest {
     private IdpAssertionMetricsCollector idpAssertionMetricsCollector;
     @Mock
     private PassthroughAssertion passThroughAssertion;
-    @Mock
-    private EidasAttributesLogger eidasAttributesLogger;
     @Mock
     private TransactionsConfigProxy transactionsConfigProxy;
 
@@ -170,7 +169,6 @@ public class IdpAuthnResponseTranslatorServiceTest {
                 samlResponseToIdaResponseIssuedByIdpTransformer,
                 inboundResponseFromIdpDataGenerator,
                 idpAssertionMetricsCollector,
-                eidasAttributesLogger,
                 transactionsConfigProxy);
     }
 
@@ -261,7 +259,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
         when(responseContainer.getMatchingServiceEntityId()).thenReturn("a proxy node entity id");
         when(transactionsConfigProxy.isProxyNodeEntityId("a proxy node entity id")).thenReturn(true);
         translateAndCheckCommonFields();
-        verify(samlResponseToIdaResponseIssuedByIdpTransformer).setEidasAttributesLogger(eidasAttributesLogger);
+        verify(samlResponseToIdaResponseIssuedByIdpTransformer).setEidasAttributesLogger(isA(EidasAttributesLogger.class));
     }
 
     @Test
@@ -269,7 +267,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
         when(responseContainer.getMatchingServiceEntityId()).thenReturn("a proxy node entity id");
         when(transactionsConfigProxy.isProxyNodeEntityId("a proxy node entity id")).thenReturn(false);
         translateAndCheckCommonFields();
-        verify(samlResponseToIdaResponseIssuedByIdpTransformer, never()).setEidasAttributesLogger(eidasAttributesLogger);
+        verify(samlResponseToIdaResponseIssuedByIdpTransformer, never()).setEidasAttributesLogger(isA(EidasAttributesLogger.class));
     }
 
     private void checkAlwaysPresentFields(InboundResponseFromIdpDto result) {

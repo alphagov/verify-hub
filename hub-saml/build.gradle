@@ -38,7 +38,7 @@ bintray {
 
 dependencies {
     compile configurations.common,
-            configurations.saml_libs,
+            configurations.saml_lib,
             configurations.ida_utils
 
     testCompile configurations.test_deps_compile,

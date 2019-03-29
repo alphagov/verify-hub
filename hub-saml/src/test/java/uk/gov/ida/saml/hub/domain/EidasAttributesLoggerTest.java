@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
@@ -37,6 +38,9 @@ public class EidasAttributesLoggerTest {
     private Assertion assertion;
 
     @Mock
+    private Issuer issuer;
+
+    @Mock
     private Subject subject;
 
     @Mock
@@ -48,9 +52,14 @@ public class EidasAttributesLoggerTest {
     @Mock
     private AttributeStatement attributeStatement;
 
+    private String entityId = "entity-id";
+    private String hashedPid = "0b0cefe3c464c0c3f928d58d1f7fef468e3ff415428e1c0b828d7a78da4c7b21";
+
     @Before
     public void setUp() throws Exception {
         when(assertion.getSubject()).thenReturn(subject);
+        when(assertion.getIssuer()).thenReturn(issuer);
+        when(issuer.getValue()).thenReturn("issuer");
         when(subject.getNameID()).thenReturn(nameID);
         when(nameID.getValue()).thenReturn("pid");
         when(response.getID()).thenReturn("request id");
@@ -59,7 +68,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testOnlyFirstValidFirstNameIsHashed() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, entityId);
 
         PersonName attributeValue0 = mock(PersonName.class);
         PersonName attributeValue1 = mock(PersonName.class);
@@ -79,7 +88,7 @@ public class EidasAttributesLoggerTest {
         when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
         when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attribute));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
-        verify(hashLogger).setPid("pid");
+        verify(hashLogger).setPid(hashedPid);
         verify(hashLogger).setFirstName("Paul");
         verify(hashLogger).logHashFor("request id", "destination");
 
@@ -94,7 +103,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testUnverifiedFirstNamesNeverLogged() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, entityId);
 
         PersonName attributeValue0 = mock(PersonName.class);
         PersonName attributeValue1 = mock(PersonName.class);
@@ -111,7 +120,7 @@ public class EidasAttributesLoggerTest {
 
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
 
-        verify(hashLogger).setPid("pid");
+        verify(hashLogger).setPid(hashedPid);
         verify(hashLogger).logHashFor("request id", "destination");
         verify(attributeValue0).getVerified();
         verify(attributeValue1).getVerified();
@@ -122,7 +131,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testOnlyFirstValidDateOfBirthIsHashed() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, entityId);
 
         Date attributeValue0 = mock(Date.class);
         Date attributeValue1 = mock(Date.class);
@@ -140,7 +149,7 @@ public class EidasAttributesLoggerTest {
         when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
         when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attribute));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
-        verify(hashLogger).setPid("pid");
+        verify(hashLogger).setPid(hashedPid);
         verify(hashLogger).setDateOfBirth(DateTime.parse("2000-01-25"));
         verify(hashLogger).logHashFor("request id", "destination");
         verify(attributeValue0).getVerified();
@@ -154,7 +163,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testAllMiddleNamesHashedInCorrectOrder() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, entityId);
 
         PersonName attributeValue0 = mock(PersonName.class);
         PersonName attributeValue1 = mock(PersonName.class);
@@ -172,7 +181,7 @@ public class EidasAttributesLoggerTest {
         when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
         when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attributeMiddleName));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
-        verify(hashLogger).setPid("pid");
+        verify(hashLogger).setPid(hashedPid);
 
         InOrder inOrder = inOrder(hashLogger);
         inOrder.verify(hashLogger).addMiddleName("middle name 0");
@@ -186,7 +195,7 @@ public class EidasAttributesLoggerTest {
 
     @Test
     public void testAllSurnamesHashedInCorrectOrder() {
-        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger);
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, entityId);
 
         PersonName attributeValue0 = mock(PersonName.class);
         PersonName attributeValue1 = mock(PersonName.class);
@@ -204,7 +213,7 @@ public class EidasAttributesLoggerTest {
         when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
         when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attributeSurname));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
-        verify(hashLogger).setPid("pid");
+        verify(hashLogger).setPid(hashedPid);
 
         InOrder inOrder = inOrder(hashLogger);
         inOrder.verify(hashLogger).addSurname("surname 0");

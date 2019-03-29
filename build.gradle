@@ -24,7 +24,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.ben-manes.versions'
 
 ext {
-    opensaml_version = '3.4.0'
+    opensaml_version = '3.4.2'
     dropwizard_version = '1.3.9'
     build_version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
 }
@@ -37,7 +37,7 @@ def dependencyVersions = [
             ida_test_utils:"2.0.0-46",
             opensaml:"$opensaml_version",
             dev_pki: '1.1.0-37',
-            saml_libs:"$opensaml_version-181",
+            saml_lib:"$opensaml_version-184",
         ]
 
 subprojects {
@@ -89,7 +89,7 @@ subprojects {
         ida_utils
         ida_test_utils
         dev_pki
-        saml_libs
+        saml_lib
         prometheus
         redis
         redis_test
@@ -134,13 +134,11 @@ subprojects {
         prometheus 'engineering.gds-reliability:gds-metrics-dropwizard:0.1.0'
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
-             "uk.gov.ida:saml-metadata-bindings:$dependencyVersions.saml_libs",
              project(":hub-saml")
 
-        saml_test "uk.gov.ida:saml-test-utils:$dependencyVersions.saml_libs"
+        saml_lib "uk.gov.ida:saml-lib:$dependencyVersions.saml_lib"
 
-        saml_libs "uk.gov.ida:saml-utils:$dependencyVersions.saml_libs",
-                "uk.gov.ida:saml-extensions:$dependencyVersions.saml_libs"
+        saml_test "uk.gov.ida:saml-test:$dependencyVersions.saml_lib"
 
         pact_test "au.com.dius:pact-jvm-consumer-junit_2.11:$dependencyVersions.pact",
                 "au.com.dius:pact-jvm-consumer_2.11:$dependencyVersions.pact",
@@ -158,7 +156,7 @@ subprojects {
                 'org.json:json:20170516',
                 'com.jayway.awaitility:awaitility:1.6.0',
                 'com.github.tomakehurst:wiremock:2.16.0',
-                "uk.gov.ida:saml-metadata-bindings-test:$dependencyVersions.saml_libs",
+                "uk.gov.ida:saml-test:$dependencyVersions.saml_lib",
                 'io.dropwizard:dropwizard-testing:' + dependencyVersions.dropwizard]
 
         test_deps_deps.each { dep ->
