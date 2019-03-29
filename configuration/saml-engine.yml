@@ -26,7 +26,7 @@ httpClient:
   timeout: 60s
   timeToLive: 10m
   connectionTimeout: 4s
-  keepAlive: 60s
+  keepAlive: 10s
   gzipEnabled: false
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: false

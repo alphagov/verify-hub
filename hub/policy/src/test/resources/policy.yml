@@ -53,7 +53,7 @@ httpClient:
   timeToLive: 10m
   cookiesEnabled: false
   connectionTimeout: 1s
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
   gzipEnabledForRequests: false
@@ -63,7 +63,7 @@ samlSoapProxyClient:
   timeToLive: 10m
   cookiesEnabled: false
   connectionTimeout: 1s
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
