@@ -76,6 +76,18 @@ public class SessionRepositoryTest {
     }
 
     @Test
+    public void getStateControllerRegardlessOfCurrentState_shouldGetSession() {
+        SessionId expectedSessionId = aSessionId().build();
+        SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
+        SessionId sessionId = sessionRepository.createSession(sessionStartedState);
+        sessionRepository.getStateControllerRegardlessOfCurrentState(sessionId);
+
+        assertThat(sessionId).isEqualTo(expectedSessionId);
+        assertThat(dataStore.containsKey(expectedSessionId)).isEqualTo(true);
+        verify(controllerFactory).build(eq(sessionStartedState), any(StateTransitionAction.class));
+    }
+
+    @Test
     public void stateTransitionAction_shouldUpdateDatastore() {
         SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).build();
         SessionId sessionId = sessionRepository.createSession(sessionStartedState);

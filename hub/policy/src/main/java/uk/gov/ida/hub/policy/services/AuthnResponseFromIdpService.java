@@ -1,5 +1,8 @@
 package uk.gov.ida.hub.policy.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
@@ -13,9 +16,13 @@ import uk.gov.ida.hub.policy.domain.RequesterErrorResponse;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
+import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
+import uk.gov.ida.hub.policy.exception.UnexpectedAuthnResponseException;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
@@ -23,17 +30,18 @@ import javax.inject.Inject;
 
 import static uk.gov.ida.hub.policy.domain.ResponseAction.cancel;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.failedUplift;
+import static uk.gov.ida.hub.policy.domain.ResponseAction.nonMatchingJourneySuccess;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.other;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.pending;
 import static uk.gov.ida.hub.policy.domain.ResponseAction.success;
-import static uk.gov.ida.hub.policy.domain.ResponseAction.nonMatchingJourneySuccess;
-
 
 public class AuthnResponseFromIdpService {
     private final SamlEngineProxy samlEngineProxy;
     private final AttributeQueryService attributeQueryService;
     private final SamlAuthnResponseTranslatorDtoFactory samlAuthnResponseTranslatorDtoFactory;
     private SessionRepository sessionRepository;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AuthnResponseFromIdpService.class);
 
     @Inject
     public AuthnResponseFromIdpService(SamlEngineProxy samlEngineProxy,
@@ -49,8 +57,29 @@ public class AuthnResponseFromIdpService {
     public ResponseAction receiveAuthnResponseFromIdp(SessionId sessionId,
                                                       SamlAuthnResponseContainerDto samlResponseDto) {
 
-        IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
+        try {
+            IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
+            return getResponseActionForValidState(sessionId, samlResponseDto, idpSelectedController);
+        } catch (InvalidSessionStateException e) {
+            StateController uncheckedStateController = sessionRepository.getStateControllerRegardlessOfCurrentState(sessionId);
+            if (uncheckedStateController instanceof IdpSelectingStateController) {
+                String requestIssuerId = ((IdpSelectingStateController) uncheckedStateController).getRequestIssuerId();
 
+                final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, requestIssuerId);
+                final InboundResponseFromIdpDto idaResponseFromIdpDto = samlEngineProxy.translateAuthnResponseFromIdp(samlAuthnResponseTranslatorDto);
+
+                MDC.put("RequestIssuer", requestIssuerId);
+                MDC.put("ResponseStatus", idaResponseFromIdpDto.getStatus().toString());
+                MDC.put("CurrentState",  e.getActualState().toString());
+                LOG.warn("Unexpected session state. Expected: IdpSelectedState");
+
+                throw new UnexpectedAuthnResponseException(sessionId, requestIssuerId, idaResponseFromIdpDto.getStatus(), e.getActualState());
+            }
+            throw e;
+        }
+    }
+
+    private ResponseAction getResponseActionForValidState(SessionId sessionId, SamlAuthnResponseContainerDto samlResponseDto, IdpSelectedStateController idpSelectedController) {
         boolean matchingJourney = idpSelectedController.isMatchingJourney();
         String entityToEncryptFor = matchingJourney ? idpSelectedController.getMatchingServiceEntityId() : idpSelectedController.getRequestIssuerId();
         final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, entityToEncryptFor);
@@ -168,14 +197,14 @@ public class AuthnResponseFromIdpService {
 
     private ResponseAction handleFraudResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIPAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController, String analyticsSessionId, String journeyType) {
         FraudFromIdp fraudFromIdp = new FraudFromIdp(
-                        inboundResponseFromIdpDto.getIssuer(),
-                        principalIPAddressAsSeenByHub,
-                        new PersistentId(inboundResponseFromIdpDto.getPersistentId().get()),
-                        new FraudDetectedDetails(inboundResponseFromIdpDto.getIdpFraudEventId().get(), inboundResponseFromIdpDto.getFraudIndicator().get()),
-                        inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp(),
-                        analyticsSessionId,
-                        journeyType
-                    );
+                inboundResponseFromIdpDto.getIssuer(),
+                principalIPAddressAsSeenByHub,
+                new PersistentId(inboundResponseFromIdpDto.getPersistentId().get()),
+                new FraudDetectedDetails(inboundResponseFromIdpDto.getIdpFraudEventId().get(), inboundResponseFromIdpDto.getFraudIndicator().get()),
+                inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp(),
+                analyticsSessionId,
+                journeyType
+        );
         idpSelectedStateController.handleFraudResponseFromIdp(fraudFromIdp);
         return other(sessionId, idpSelectedStateController.isRegistrationContext());
     }
