@@ -100,7 +100,7 @@ public class AuthnResponseFromIdpServiceTest {
                 null,
                 null
         );
-        when(sessionRepository.getStateControllerRegardlessOfCurrentState(sessionId)).thenReturn(controller);
+        when(sessionRepository.getUnknownStateController(sessionId)).thenReturn(controller);
 
         // When
         service.receiveAuthnResponseFromIdp(sessionId, samlAuthnResponseContainerDto);

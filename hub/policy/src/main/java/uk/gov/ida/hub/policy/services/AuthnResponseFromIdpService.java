@@ -61,7 +61,7 @@ public class AuthnResponseFromIdpService {
             IdpSelectedStateController idpSelectedController = (IdpSelectedStateController) sessionRepository.getStateController(sessionId, IdpSelectedState.class);
             return getResponseActionForValidState(sessionId, samlResponseDto, idpSelectedController);
         } catch (InvalidSessionStateException e) {
-            StateController uncheckedStateController = sessionRepository.getStateControllerRegardlessOfCurrentState(sessionId);
+            StateController uncheckedStateController = sessionRepository.getUnknownStateController(sessionId);
             if (uncheckedStateController instanceof IdpSelectingStateController) {
                 String requestIssuerId = ((IdpSelectingStateController) uncheckedStateController).getRequestIssuerId();
 
