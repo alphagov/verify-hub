@@ -73,7 +73,7 @@ public class AuthnResponseFromIdpService {
                 MDC.put("CurrentState",  e.getActualState().toString());
                 LOG.warn("Unexpected session state. Expected: IdpSelectedState");
 
-                throw new UnexpectedAuthnResponseException(sessionId, e.getActualState());
+                throw new UnexpectedAuthnResponseException(sessionId, requestIssuerId, idaResponseFromIdpDto.getStatus(), e.getActualState());
             }
             throw e;
         }
