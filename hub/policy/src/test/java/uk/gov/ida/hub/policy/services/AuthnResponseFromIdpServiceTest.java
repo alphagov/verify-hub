@@ -30,12 +30,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
-import uk.gov.ida.hub.policy.domain.controller.SessionStartedStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
-import uk.gov.ida.hub.policy.domain.state.NoMatchState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
-import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
-import uk.gov.ida.hub.policy.exception.UnexpectedAuthnResponseException;
 import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
@@ -81,41 +76,6 @@ public class AuthnResponseFromIdpServiceTest {
                 PRINCIPAL_IP_ADDRESS).withAnalyticsSessionId(ANALYTICS_SESSION_ID).withJourneyType(JOURNEY_TYPE).build();
         service = new AuthnResponseFromIdpService(samlEngineProxy, attributeQueryService, sessionRepository, samlAuthnResponseTranslatorDtoFactory);
         when(sessionRepository.getStateController(sessionId, IdpSelectedState.class)).thenReturn(idpSelectedStateController);
-    }
-
-    @Test(expected = UnexpectedAuthnResponseException.class)
-    public void shouldLogInvalidSessionStateException() {
-        // Given
-        InboundResponseFromIdpDto successResponseFromIdp = InboundResponseFromIdpDtoBuilder.successResponse(UUID.randomUUID().toString(), LevelOfAssurance.LEVEL_2, null);
-        mockOutStubs(REGISTERING, false, successResponseFromIdp);
-        when(sessionRepository.getStateController(sessionId, IdpSelectedState.class)).thenThrow(new InvalidSessionStateException(
-                sessionId,
-                IdpSelectedState.class,
-                SessionStartedState.class));
-        SessionStartedStateController controller = new SessionStartedStateController(
-                new SessionStartedState("testRequestId", "testRelayState", REQUEST_ISSUER_ID, null, true, null, sessionId, false),
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        when(sessionRepository.getUnknownStateController(sessionId)).thenReturn(controller);
-
-        // When
-        service.receiveAuthnResponseFromIdp(sessionId, samlAuthnResponseContainerDto);
-    }
-
-    @Test(expected = InvalidSessionStateException.class)
-    public void shouldPassThroughUnexpectedState() {
-        // Given
-        when(sessionRepository.getStateController(sessionId, IdpSelectedState.class)).thenThrow(new InvalidSessionStateException(
-                sessionId,
-                IdpSelectedState.class,
-                NoMatchState.class));
-
-        // When
-        service.receiveAuthnResponseFromIdp(sessionId, samlAuthnResponseContainerDto);
     }
 
     @Test
