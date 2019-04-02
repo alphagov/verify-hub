@@ -1,8 +1,5 @@
 package uk.gov.ida.hub.policy.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
@@ -41,8 +38,6 @@ public class AuthnResponseFromIdpService {
     private final SamlAuthnResponseTranslatorDtoFactory samlAuthnResponseTranslatorDtoFactory;
     private SessionRepository sessionRepository;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuthnResponseFromIdpService.class);
-
     @Inject
     public AuthnResponseFromIdpService(SamlEngineProxy samlEngineProxy,
                                        AttributeQueryService attributeQueryService,
@@ -67,11 +62,6 @@ public class AuthnResponseFromIdpService {
 
                 final SamlAuthnResponseTranslatorDto samlAuthnResponseTranslatorDto = samlAuthnResponseTranslatorDtoFactory.fromSamlAuthnResponseContainerDto(samlResponseDto, requestIssuerId);
                 final InboundResponseFromIdpDto idaResponseFromIdpDto = samlEngineProxy.translateAuthnResponseFromIdp(samlAuthnResponseTranslatorDto);
-
-                MDC.put("RequestIssuer", requestIssuerId);
-                MDC.put("ResponseStatus", idaResponseFromIdpDto.getStatus().toString());
-                MDC.put("CurrentState",  e.getActualState().toString());
-                LOG.warn("Unexpected session state. Expected: IdpSelectedState");
 
                 throw new UnexpectedAuthnResponseException(sessionId, requestIssuerId, idaResponseFromIdpDto.getStatus(), e.getActualState());
             }
