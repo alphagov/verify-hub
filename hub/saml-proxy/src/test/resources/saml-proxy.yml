@@ -41,7 +41,7 @@ httpClient:
   cookiesEnabled: false
   connectionTimeout: 1s
   retries: 3
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 

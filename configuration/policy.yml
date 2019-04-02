@@ -21,7 +21,7 @@ httpClient:
   timeout: 60s
   timeToLive: 10m
   connectionTimeout: 4s
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
   tls:
@@ -33,7 +33,7 @@ samlSoapProxyClient:
   timeout: 60s
   timeToLive: 10m
   connectionTimeout: 4s
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
   tls:

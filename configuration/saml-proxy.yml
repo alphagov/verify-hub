@@ -15,7 +15,7 @@ httpClient:
   timeToLive: 10m
   connectionTimeout: 4s
   retries: 3
-  keepAlive: 60s
+  keepAlive: 10s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
   tls:
