@@ -146,6 +146,9 @@ subprojects {
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
              project(":hub-saml")
+        saml("org.bouncycastle:bcprov-jdk15on:1.61") {
+            force = true
+        }
 
         saml_lib "uk.gov.ida:saml-lib:$dependencyVersions.saml_lib"
 
