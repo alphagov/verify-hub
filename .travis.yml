@@ -2,8 +2,6 @@ language: java
 env:
   - VERIFY_USE_PUBLIC_BINARIES=true
 jdk:
-  - oraclejdk8
-  - openjdk8
   - openjdk11
 matrix:
 before_cache:
