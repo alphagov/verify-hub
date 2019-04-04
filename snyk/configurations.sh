@@ -4,4 +4,4 @@
 # Any new gradle configurations to be tested should be added here.
 
 # shellcheck disable=SC2034
-CONFIGURATIONS="common dropwizard msa saml soap config verify_event_emitter ida_utils saml_lib prometheus redis"
+CONFIGURATIONS="common dropwizard saml soap config verify_event_emitter ida_utils saml_lib prometheus redis"

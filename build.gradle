@@ -85,7 +85,6 @@ subprojects {
         all*.exclude group: 'org.mockito', module: 'mockito-all'
         common
         dropwizard
-        msa
         saml
         saml_test
         pact_test
