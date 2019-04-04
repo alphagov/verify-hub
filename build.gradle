@@ -75,7 +75,8 @@ subprojects {
                     'org.glassfish.hk2:hk2-api:2.4.0-b31',
                     'org.glassfish.hk2:hk2-locator:2.4.0-b31',
                     'org.glassfish.hk2.external:javax.inject:2.4.0-b31',
-                    'com.hubspot.dropwizard:dropwizard-guicier:0.9.1.0'
+                    'com.hubspot.dropwizard:dropwizard-guicier:0.9.1.0',
+                    'org.bouncycastle:bcprov-jdk15on:1.61'
         }
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
@@ -146,9 +147,6 @@ subprojects {
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
              project(":hub-saml")
-        saml("org.bouncycastle:bcprov-jdk15on:1.61") {
-            force = true
-        }
 
         saml_lib "uk.gov.ida:saml-lib:$dependencyVersions.saml_lib"
 
