@@ -24,14 +24,14 @@ We record our architectural decisions in `doc/adr`. We use [adr-tools](https://g
 ## Prerequisites
 The following software is required (installation notes follow)
 
-1. Java 8 JDK (Oracle)
+1. Java 11 JDK (OpenJDK)
 2. Git
 3. Gradle
 4. Intellij Community (Ultimate is fine as well)
 5. Node.js
 6. Ruby, with rbenv
 
-### Java 8 JDK (Oracle)
+### Java 11 JDK (OpenJDK)
 
   * Mac:
 ```
