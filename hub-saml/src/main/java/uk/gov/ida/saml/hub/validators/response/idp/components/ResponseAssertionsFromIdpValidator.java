@@ -1,9 +1,9 @@
 package uk.gov.ida.saml.hub.validators.response.idp.components;
 
 import org.opensaml.saml.saml2.core.Assertion;
+import uk.gov.ida.saml.core.validation.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.AuthnStatementAssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.IPAddressValidator;
-import uk.gov.ida.saml.core.validators.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.MatchingDatasetAssertionValidator;
 import uk.gov.ida.saml.hub.exception.SamlValidationException;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;

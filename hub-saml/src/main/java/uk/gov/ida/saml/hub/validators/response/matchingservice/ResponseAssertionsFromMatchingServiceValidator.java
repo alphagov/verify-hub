@@ -1,7 +1,7 @@
 package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
 import org.opensaml.saml.saml2.core.Assertion;
-import uk.gov.ida.saml.core.validators.assertion.AssertionValidator;
+import uk.gov.ida.saml.core.validation.assertion.AssertionValidator;
 import uk.gov.ida.saml.hub.exception.SamlValidationException;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
