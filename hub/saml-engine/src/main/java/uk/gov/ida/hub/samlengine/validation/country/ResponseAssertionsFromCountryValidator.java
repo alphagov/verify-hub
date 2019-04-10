@@ -4,9 +4,9 @@ import org.opensaml.saml.saml2.core.Assertion;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.validators.assertion.AssertionValidator;
+import uk.gov.ida.saml.core.validation.assertion.AssertionValidator;
+import uk.gov.ida.saml.core.validation.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.AuthnStatementAssertionValidator;
-import uk.gov.ida.saml.core.validators.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 public class ResponseAssertionsFromCountryValidator {

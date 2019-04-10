@@ -9,8 +9,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnStatement;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
+import uk.gov.ida.saml.core.validation.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.AuthnStatementAssertionValidator;
-import uk.gov.ida.saml.core.validators.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 import static org.mockito.Mockito.*;
