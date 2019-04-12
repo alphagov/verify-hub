@@ -62,7 +62,7 @@ public class EidasAttributesLogger {
             }
         }
 
-        hashLogger.logHashFor(response.getID(), response.getDestination());
+        hashLogger.logHashFor(response.getInResponseTo(), response.getDestination());
     }
 
     private void logFirstVerified(Attribute attribute, Consumer<XMLObject> xmlObjectConsumer) {
