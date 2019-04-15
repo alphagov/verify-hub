@@ -62,9 +62,29 @@ public class EidasAttributesLoggerTest {
         when(issuer.getValue()).thenReturn("issuer");
         when(subject.getNameID()).thenReturn(nameID);
         when(nameID.getValue()).thenReturn("pid");
-        when(response.getID()).thenReturn("request id");
+        when(response.getInResponseTo()).thenReturn("request id");
         when(response.getDestination()).thenReturn("destination");
     }
+
+    @Test
+    public void testInResponseToOnIDPResponseIsUsedAsHubRequestIdInEDIASHashLogging() {
+        EidasAttributesLogger eidasAttributesLogger = new EidasAttributesLogger(() -> hashLogger, entityId);
+        PersonName attributeValue = mock(PersonName.class);
+        when(attributeValue.getVerified()).thenReturn(true);
+        Element element = mock(Element.class);
+        when(element.getTextContent()).thenReturn("Paul");
+        when(attributeValue.getDOM()).thenReturn(element);
+        Attribute attribute = mock(Attribute.class);
+        when(attribute.getName()).thenReturn(IdaConstants.Attributes_1_1.Firstname.NAME);
+        when(attribute.getAttributeValues()).thenReturn(Lists.newArrayList(attributeValue));
+        when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
+        when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attribute));
+        eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
+        verify(response).getInResponseTo();
+        verify(response).getDestination();
+        verifyNoMoreInteractions(response);
+    }
+
 
     @Test
     public void testOnlyFirstValidFirstNameIsHashed() {
