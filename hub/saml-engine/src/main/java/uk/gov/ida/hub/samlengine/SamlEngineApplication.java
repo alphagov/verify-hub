@@ -22,7 +22,6 @@ import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.hub.samlengine.exceptions.IdaJsonProcessingExceptionMapperBundle;
 import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
 import uk.gov.ida.hub.samlengine.filters.SessionIdQueryParamLoggingFilter;
-import uk.gov.ida.hub.samlengine.logging.SplunkAppenderFactory;
 import uk.gov.ida.hub.samlengine.resources.translators.CountryAuthnRequestGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.CountryAuthnResponseTranslatorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.CountryMatchingServiceRequestGeneratorResource;
@@ -72,7 +71,6 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
-        bootstrap.getObjectMapper().registerSubtypes(SplunkAppenderFactory.class);
 
         MDC.clear();
         bootstrap.addBundle(new ServiceStatusBundle());
