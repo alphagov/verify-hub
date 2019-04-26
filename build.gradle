@@ -60,11 +60,11 @@ subprojects {
           maven { url 'https://dl.bintray.com/alphagov/maven' } // For dropwizard-logstash
           maven { url 'https://dl.bintray.com/alphagov/maven-test' } // For other public verify binaries
           maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
+          maven { url 'https://splunk.jfrog.io/splunk/ext-releases-local' }
           jcenter()
         }
         else {
           maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
-          maven { url 'http://splunk.jfrog.io/splunk/ext-releases-local' }
         }
     }
 
