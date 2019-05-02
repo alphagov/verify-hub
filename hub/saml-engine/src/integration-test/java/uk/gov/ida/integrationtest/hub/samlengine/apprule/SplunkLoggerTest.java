@@ -18,9 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SplunkLoggerTest {
 
-    private static final String SOURCE_TYPE = "IntegrationTest";
     private static final String TOKEN = "SomeToken";
     private static final String SOURCE = "SplunkLoggerTest";
+    private static final String SOURCE_TYPE = "IntegrationTest";
+    private static final String INDEX = "SplunkIndex";
 
     private static HttpStubRule splunkStub = new HttpStubRule();
     public static SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule(
@@ -28,7 +29,8 @@ public class SplunkLoggerTest {
             config("logging.appenders[0].url", () -> String.valueOf(splunkStub.baseUri())),
             config("logging.appenders[0].token", TOKEN),
             config("logging.appenders[0].source", SOURCE),
-            config("logging.appenders[0].sourceType", SOURCE_TYPE)
+            config("logging.appenders[0].sourceType", SOURCE_TYPE),
+            config("logging.appenders[0].index", INDEX)
     );
 
     @ClassRule
@@ -46,5 +48,6 @@ public class SplunkLoggerTest {
         JsonNode requestBody = new ObjectMapper().readTree(lastRequest.getEntityBytes());
         assertThat(requestBody.get("source").asText()).isEqualTo(SOURCE);
         assertThat(requestBody.get("sourcetype").asText()).isEqualTo(SOURCE_TYPE);
+        assertThat(requestBody.get("index").asText()).isEqualTo(INDEX);
     }
 }

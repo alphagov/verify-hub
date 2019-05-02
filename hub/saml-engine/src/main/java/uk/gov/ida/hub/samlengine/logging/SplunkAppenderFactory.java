@@ -34,6 +34,10 @@ public class SplunkAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
     private String sourceType;
 
     @JsonProperty
+    @NotNull
+    private String index;
+
+    @JsonProperty
     private Long batchSizeCount = 10L;
 
     @Override
@@ -45,6 +49,7 @@ public class SplunkAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
         appender.setToken(token);
         appender.setSource(source);
         appender.setSourcetype(sourceType);
+        appender.setIndex(index);
         appender.setbatch_size_count(batchSizeCount.toString());
         appender.setLayout(buildLayout(context, layoutFactory));
 

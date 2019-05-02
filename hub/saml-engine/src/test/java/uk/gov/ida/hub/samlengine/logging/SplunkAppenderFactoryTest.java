@@ -33,6 +33,7 @@ public class SplunkAppenderFactoryTest {
         jsonSplunkFactory.put("token", "myToken");
         jsonSplunkFactory.put("source", "mySource");
         jsonSplunkFactory.put("sourceType", "mySourceType");
+        jsonSplunkFactory.put("index", "myIndex");
     }
 
     @Test
@@ -43,7 +44,7 @@ public class SplunkAppenderFactoryTest {
     @Test
     public void isNotValidWithoutRequiredFields() throws Exception {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        String[] requiredFields = {"url", "token", "source", "sourceType"};
+        String[] requiredFields = {"url", "token", "source", "sourceType", "index"};
 
         for (String field : requiredFields) {
             JSONObject jsonWithMissingField = new JSONObject(jsonSplunkFactory, JSONObject.getNames(jsonSplunkFactory));

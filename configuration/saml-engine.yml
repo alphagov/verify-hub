@@ -58,6 +58,7 @@ logging:
           token: ${SPLUNK_TOKEN}
           source: ${SPLUNK_SOURCE}
           sourceType: ${SPLUNK_SOURCE_TYPE}
+          index: ${SPLUNK_INDEX}
   level: INFO
   appenders:
     - type: logstash-console
