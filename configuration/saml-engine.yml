@@ -48,6 +48,17 @@ rpTrustStoreConfiguration:
   path: /tmp/truststores/${DEPLOYMENT}/rp_ca_certs.ts
   password: puppet
 logging:
+  loggers:
+    uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger:
+      level: INFO
+      additive: true
+      appenders:
+        - type: splunk
+          url: ${SPLUNK_URL}
+          token: ${SPLUNK_TOKEN}
+          source: ${SPLUNK_SOURCE}
+          sourceType: ${SPLUNK_SOURCE_TYPE}
+          index: ${SPLUNK_INDEX}
   level: INFO
   appenders:
     - type: logstash-console

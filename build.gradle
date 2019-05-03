@@ -60,6 +60,7 @@ subprojects {
           maven { url 'https://dl.bintray.com/alphagov/maven' } // For dropwizard-logstash
           maven { url 'https://dl.bintray.com/alphagov/maven-test' } // For other public verify binaries
           maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
+          maven { url 'https://splunk.jfrog.io/splunk/ext-releases-local' }
           jcenter()
         }
         else {
@@ -101,6 +102,7 @@ subprojects {
         prometheus
         redis
         redis_test
+        splunk
     }
 
     dependencies {
@@ -176,6 +178,8 @@ subprojects {
 
         redis('io.lettuce:lettuce-core:5.1.4.RELEASE')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
+
+        splunk('com.splunk.logging:splunk-library-javalogging:1.6.2')
     }
 }
 
