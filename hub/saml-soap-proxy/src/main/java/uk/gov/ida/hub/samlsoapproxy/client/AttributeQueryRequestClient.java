@@ -74,7 +74,7 @@ public class AttributeQueryRequestClient {
         } catch (SOAPRequestError e) {
             if(e.getEntity().isPresent()) {
                 final String stackTrace = e.getEntity().get();
-                LOG.error(format("Stack trace received from MSA with URI {0} following HTTP response {1}:\n{2}", matchingServiceUri, e.getResponseStatus(), stackTrace));
+                LOG.info(format("Stack trace received from MSA with URI {0} following HTTP response {1}:\n{2}", matchingServiceUri, e.getResponseStatus(), stackTrace));
             }
             throw new MatchingServiceException(format("Matching Service response from {0} was status {1}",
                     matchingServiceUri, e.getResponseStatus()), e);
