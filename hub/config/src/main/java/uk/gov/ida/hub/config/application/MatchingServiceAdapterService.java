@@ -2,11 +2,11 @@ package uk.gov.ida.hub.config.application;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
+import uk.gov.ida.hub.config.data.ConfigRepository;
 import uk.gov.ida.hub.config.domain.EncryptionCertificate;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
+import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -17,37 +17,37 @@ import static java.util.stream.Collectors.toList;
 
 public class MatchingServiceAdapterService {
 
-    private final ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository;
-    private final ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceConfigEntityDataRepository;
+    private final ConfigRepository<TransactionConfig> transactionConfigRepository;
+    private final ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
 
     @Inject
     public MatchingServiceAdapterService(
-            ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository,
-            ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceConfigEntityDataRepository) {
-        this.transactionConfigEntityDataRepository = transactionConfigEntityDataRepository;
-        this.matchingServiceConfigEntityDataRepository = matchingServiceConfigEntityDataRepository;
+            ConfigRepository<TransactionConfig> transactionConfigRepository,
+            ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository) {
+        this.transactionConfigRepository = transactionConfigRepository;
+        this.matchingServiceConfigRepository = matchingServiceConfigRepository;
     }
 
     public MatchingServicePerTransaction getMatchingService(String entityId) {
-        MatchingServiceConfigEntityData matchingServiceConfigEntityData = matchingServiceConfigEntityDataRepository.getData(entityId).get();
-        return new MatchingServicePerTransaction(entityId, matchingServiceConfigEntityData);
+        MatchingServiceConfig matchingServiceConfig = matchingServiceConfigRepository.getData(entityId).get();
+        return new MatchingServicePerTransaction(entityId, matchingServiceConfig);
     }
 
     public List<MatchingServicePerTransaction> getMatchingServices() {
-        return transactionConfigEntityDataRepository.getAllData().stream()
+        return transactionConfigRepository.getAllData().stream()
                 .filter(transaction -> transaction.isUsingMatching())
                 .map(transaction -> new MatchingServicePerTransaction(transaction.getEntityId(),
-                        matchingServiceConfigEntityDataRepository.getData(transaction.getMatchingServiceEntityId()).get()))
+                        matchingServiceConfigRepository.getData(transaction.getMatchingServiceEntityId()).get()))
                 .collect(toList());
     }
 
     public class MatchingServicePerTransaction {
         private String transactionEntityId;
-        private MatchingServiceConfigEntityData matchingServiceConfigEntityData;
+        private MatchingServiceConfig matchingServiceConfig;
 
-        public MatchingServicePerTransaction(String transactionEntityId, MatchingServiceConfigEntityData matchingServiceConfigEntityData) {
+        public MatchingServicePerTransaction(String transactionEntityId, MatchingServiceConfig matchingServiceConfig) {
             this.transactionEntityId = transactionEntityId;
-            this.matchingServiceConfigEntityData = matchingServiceConfigEntityData;
+            this.matchingServiceConfig = matchingServiceConfig;
         }
 
         public String getTransactionEntityId() {
@@ -55,31 +55,31 @@ public class MatchingServiceAdapterService {
         }
 
         public String getEntityId() {
-            return matchingServiceConfigEntityData.getEntityId();
+            return matchingServiceConfig.getEntityId();
         }
 
         public EncryptionCertificate getEncryptionCertificate() {
-            return matchingServiceConfigEntityData.getEncryptionCertificate();
+            return matchingServiceConfig.getEncryptionCertificate();
         }
 
         public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
-            return matchingServiceConfigEntityData.getSignatureVerificationCertificates();
+            return matchingServiceConfig.getSignatureVerificationCertificates();
         }
 
         public URI getUri() {
-            return matchingServiceConfigEntityData.getUri();
+            return matchingServiceConfig.getUri();
         }
 
         public URI getUserAccountCreationUri() {
-            return matchingServiceConfigEntityData.getUserAccountCreationUri();
+            return matchingServiceConfig.getUserAccountCreationUri();
         }
 
         public Boolean getHealthCheckEnabled() {
-            return matchingServiceConfigEntityData.getHealthCheckEnabled();
+            return matchingServiceConfig.getHealthCheckEnabled();
         }
 
         public boolean isOnboarding() {
-            return matchingServiceConfigEntityData.getOnboarding();
+            return matchingServiceConfig.getOnboarding();
         }
 
         @Override
@@ -92,13 +92,13 @@ public class MatchingServiceAdapterService {
 
             return new EqualsBuilder()
                     .append(transactionEntityId, that.transactionEntityId)
-                    .append(matchingServiceConfigEntityData.getEntityId(), that.matchingServiceConfigEntityData.getEntityId())
-                    .append(matchingServiceConfigEntityData.getEncryptionCertificate(), that.matchingServiceConfigEntityData.getEncryptionCertificate())
-                    .append(matchingServiceConfigEntityData.getSignatureVerificationCertificates(), that.matchingServiceConfigEntityData.getSignatureVerificationCertificates())
-                    .append(matchingServiceConfigEntityData.getUri(), that.matchingServiceConfigEntityData.getUri())
-                    .append(matchingServiceConfigEntityData.getUserAccountCreationUri(), that.matchingServiceConfigEntityData.getUserAccountCreationUri())
-                    .append(matchingServiceConfigEntityData.getHealthCheckEnabled(), that.matchingServiceConfigEntityData.getHealthCheckEnabled())
-                    .append(matchingServiceConfigEntityData.getOnboarding(), that.matchingServiceConfigEntityData.getOnboarding())
+                    .append(matchingServiceConfig.getEntityId(), that.matchingServiceConfig.getEntityId())
+                    .append(matchingServiceConfig.getEncryptionCertificate(), that.matchingServiceConfig.getEncryptionCertificate())
+                    .append(matchingServiceConfig.getSignatureVerificationCertificates(), that.matchingServiceConfig.getSignatureVerificationCertificates())
+                    .append(matchingServiceConfig.getUri(), that.matchingServiceConfig.getUri())
+                    .append(matchingServiceConfig.getUserAccountCreationUri(), that.matchingServiceConfig.getUserAccountCreationUri())
+                    .append(matchingServiceConfig.getHealthCheckEnabled(), that.matchingServiceConfig.getHealthCheckEnabled())
+                    .append(matchingServiceConfig.getOnboarding(), that.matchingServiceConfig.getOnboarding())
                     .isEquals();
         }
 
@@ -106,13 +106,13 @@ public class MatchingServiceAdapterService {
         public int hashCode() {
             return new HashCodeBuilder(17, 37)
                     .append(transactionEntityId)
-                    .append(matchingServiceConfigEntityData.getEntityId())
-                    .append(matchingServiceConfigEntityData.getEncryptionCertificate())
-                    .append(matchingServiceConfigEntityData.getSignatureVerificationCertificates())
-                    .append(matchingServiceConfigEntityData.getUri())
-                    .append(matchingServiceConfigEntityData.getUserAccountCreationUri())
-                    .append(matchingServiceConfigEntityData.getHealthCheckEnabled())
-                    .append(matchingServiceConfigEntityData.getOnboarding())
+                    .append(matchingServiceConfig.getEntityId())
+                    .append(matchingServiceConfig.getEncryptionCertificate())
+                    .append(matchingServiceConfig.getSignatureVerificationCertificates())
+                    .append(matchingServiceConfig.getUri())
+                    .append(matchingServiceConfig.getUserAccountCreationUri())
+                    .append(matchingServiceConfig.getHealthCheckEnabled())
+                    .append(matchingServiceConfig.getOnboarding())
                     .toHashCode();
         }
     }

@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.config.domain.filters;
 
 import org.junit.Test;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import java.util.Set;
@@ -14,9 +14,9 @@ public class SupportedLoaIdpPredicateTest {
     @Test
     public void shouldReturnRelevantIdpsForLoa() {
         final SupportedLoaIdpPredicate loa1Predicate = new SupportedLoaIdpPredicate(LevelOfAssurance.LEVEL_1);
-        final Set<IdentityProviderConfigEntityData> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
+        final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
 
-        final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
+        final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa1IdpOtherOnboardingEntity,
                 onboardingLoa2IdpOtherOnboardingEntity, onboardingAllLevelsIdpOtherOnboardingEntity, 
                 nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp, onboardingSoftDisconnectingIdp,

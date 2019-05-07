@@ -1,18 +1,16 @@
 package uk.gov.ida.hub.config.domain.builders;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.hub.config.domain.*;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
 
-public class MatchingServiceConfigEntityDataBuilder {
+public class MatchingServiceConfigBuilder {
     private String entityId = "default-matching-service-entity-id";
     private EncryptionCertificate encryptionCertificate = new EncryptionCertificateBuilder().build();
     private List<SignatureVerificationCertificate> certificates = new ArrayList<>();
@@ -20,16 +18,16 @@ public class MatchingServiceConfigEntityDataBuilder {
     private boolean healthCheckEnabled;
     private URI userAccountCreationUri = URI.create("http://foo.bar/default-account-creation-uri");
 
-    public static MatchingServiceConfigEntityDataBuilder aMatchingServiceConfigEntityData() {
-        return new MatchingServiceConfigEntityDataBuilder();
+    public static MatchingServiceConfigBuilder aMatchingServiceConfig() {
+        return new MatchingServiceConfigBuilder();
     }
 
-    public MatchingServiceConfigEntityData build() {
+    public MatchingServiceConfig build() {
         if (certificates.isEmpty()) {
             certificates.add(aSignatureVerificationCertificate().build());
         }
 
-        return new TestMatchingServiceConfigEntityData(
+        return new TestMatchingServiceConfig(
                 entityId,
                 encryptionCertificate,
                 certificates,
@@ -39,39 +37,39 @@ public class MatchingServiceConfigEntityDataBuilder {
                 false);
     }
 
-    public MatchingServiceConfigEntityDataBuilder withEntityId(String entityId) {
+    public MatchingServiceConfigBuilder withEntityId(String entityId) {
         this.entityId = entityId;
         return this;
     }
 
-    public MatchingServiceConfigEntityDataBuilder withEncryptionCertificate(EncryptionCertificate certificate) {
+    public MatchingServiceConfigBuilder withEncryptionCertificate(EncryptionCertificate certificate) {
         this.encryptionCertificate = certificate;
         return this;
     }
 
-    public MatchingServiceConfigEntityDataBuilder addSignatureVerificationCertificate(SignatureVerificationCertificate certificate) {
+    public MatchingServiceConfigBuilder addSignatureVerificationCertificate(SignatureVerificationCertificate certificate) {
         this.certificates.add(certificate);
         return this;
     }
 
-    public MatchingServiceConfigEntityDataBuilder withUri(URI uri) {
+    public MatchingServiceConfigBuilder withUri(URI uri) {
         this.uri = uri;
         return this;
     }
 
-    public MatchingServiceConfigEntityDataBuilder withHealthCheckEnabled() {
+    public MatchingServiceConfigBuilder withHealthCheckEnabled() {
         this.healthCheckEnabled = true;
         return this;
     }
 
-    public MatchingServiceConfigEntityDataBuilder withHealthCheckDisabled() {
+    public MatchingServiceConfigBuilder withHealthCheckDisabled() {
         this.healthCheckEnabled = false;
         return this;
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
-    private static class TestMatchingServiceConfigEntityData extends MatchingServiceConfigEntityData {
-        private TestMatchingServiceConfigEntityData(
+    private static class TestMatchingServiceConfig extends MatchingServiceConfig {
+        private TestMatchingServiceConfig(
             String entityId,
             EncryptionCertificate encryptionCertificate,
             List<SignatureVerificationCertificate> signatureVerificationCertificates,

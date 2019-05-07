@@ -2,14 +2,13 @@ package uk.gov.ida.hub.config.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.ida.hub.config.ConfigEntityData;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class TranslationData implements ConfigEntityData {
+public class TranslationData implements EntityIdentifiable {
     @Valid
     @NotNull
     @JsonProperty

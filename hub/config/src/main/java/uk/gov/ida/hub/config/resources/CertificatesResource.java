@@ -5,13 +5,13 @@ import com.google.common.collect.ImmutableList;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.application.CertificateService;
-import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
+import uk.gov.ida.hub.config.data.ConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.EntityConfigDataToCertificateDtoTransformer;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
+import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.CertificateDto;
 import uk.gov.ida.hub.config.dto.CertificateHealthCheckDto;
 import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
@@ -38,8 +38,8 @@ import static uk.gov.ida.hub.config.dto.CertificateHealthCheckDto.createCertific
 @Path(Urls.ConfigUrls.CERTIFICATES_ROOT)
 @Produces(MediaType.APPLICATION_JSON)
 public class CertificatesResource {
-    private final ConfigEntityDataRepository<TransactionConfigEntityData> transactionDataSource;
-    private final ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceDataSource;
+    private final ConfigRepository<TransactionConfig> transactionDataSource;
+    private final ConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
     private final ExceptionFactory exceptionFactory;
     private final ConfigConfiguration configuration;
     private final OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker;
@@ -49,8 +49,8 @@ public class CertificatesResource {
 
     @Inject
     public CertificatesResource(
-            ConfigEntityDataRepository<TransactionConfigEntityData> transactionDataSource,
-            ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceDataSource,
+            ConfigRepository<TransactionConfig> transactionDataSource,
+            ConfigRepository<MatchingServiceConfig> matchingServiceDataSource,
             ExceptionFactory exceptionFactory,
             ConfigConfiguration configuration,
             OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker,
@@ -127,7 +127,7 @@ public class CertificatesResource {
     private List<CertificateHealthCheckDto> getCertHealthCheckDtos() throws CertificateException {
         List<CertificateHealthCheckDto> certs = new LinkedList<>();
         // IDP certs are now in the federation metadata and checked for expiry and OCSP status in separate sensu checks
-        for(TransactionConfigEntityData transaction : transactionDataSource.getAllData()) {
+        for(TransactionConfig transaction : transactionDataSource.getAllData()) {
             certs.add(createCertificateHealthCheckDto(
                     transaction.getEntityId(),
                     transaction.getEncryptionCertificate(),
@@ -137,7 +137,7 @@ public class CertificatesResource {
                     transaction.getEntityId(),
                     transaction.getSignatureVerificationCertificates());
         }
-        for(MatchingServiceConfigEntityData ms : matchingServiceDataSource.getAllData()) {
+        for(MatchingServiceConfig ms : matchingServiceDataSource.getAllData()) {
             certs.add(createCertificateHealthCheckDto(
                     ms.getEntityId(),
                     ms.getEncryptionCertificate(),

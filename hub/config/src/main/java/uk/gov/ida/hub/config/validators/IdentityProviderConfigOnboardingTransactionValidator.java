@@ -1,9 +1,9 @@
 package uk.gov.ida.hub.config.validators;
 
 
-import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 
 import java.util.List;
 
@@ -11,21 +11,21 @@ import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createA
 
 public class IdentityProviderConfigOnboardingTransactionValidator {
 
-    private ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigRepository;
+    private ConfigRepository<TransactionConfig> transactionConfigRepository;
 
     public IdentityProviderConfigOnboardingTransactionValidator(
-            final ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigRepository) {
+            final ConfigRepository<TransactionConfig> transactionConfigRepository) {
 
         this.transactionConfigRepository = transactionConfigRepository;
     }
 
-    public void validate(IdentityProviderConfigEntityData identityProviderConfigEntityData) {
-        List<String> onboardingTransactionEntityIds = identityProviderConfigEntityData.getOnboardingTransactionEntityIds();
+    public void validate(IdentityProviderConfig identityProviderConfig) {
+        List<String> onboardingTransactionEntityIds = identityProviderConfig.getOnboardingTransactionEntityIds();
         for(String onboardingTransactionEntityId : onboardingTransactionEntityIds) {
             if (!transactionConfigRepository.getData(onboardingTransactionEntityId).isPresent()) {
                 throw createAbsentOnboardingTransactionConfigException(
                         onboardingTransactionEntityId,
-                        identityProviderConfigEntityData.getEntityId());
+                        identityProviderConfig.getEntityId());
             }
         }
     }

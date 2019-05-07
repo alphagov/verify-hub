@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.builders.AssertionConsumerServiceBuilder.anAssertionConsumerService;
 
-public class TransactionConfigEntityDataBuilder {
+public class TransactionConfigBuilder {
 
     private String entityId = "default-transaction-entity-id";
     private String simpleId = "default-transaction-simple-id";
@@ -39,11 +39,11 @@ public class TransactionConfigEntityDataBuilder {
 
 
 
-    public static TransactionConfigEntityDataBuilder aTransactionConfigData() {
-        return new TransactionConfigEntityDataBuilder();
+    public static TransactionConfigBuilder aTransactionConfigData() {
+        return new TransactionConfigBuilder();
     }
 
-    public TransactionConfigEntityData build() {
+    public TransactionConfig build() {
         if (signatureVerificationCertificates.isEmpty()) {
             signatureVerificationCertificates.add(new SignatureVerificationCertificateBuilder().build());
         }
@@ -52,7 +52,7 @@ public class TransactionConfigEntityDataBuilder {
             assertionConsumerServices.add(anAssertionConsumerService().isDefault(true).build());
         }
 
-        return new TestTransactionConfigEntityData(
+        return new TestTransactionConfig(
                 entityId,
                 simpleId,
                 encryptionCertificate,
@@ -75,110 +75,110 @@ public class TransactionConfigEntityDataBuilder {
         );
     }
 
-    public TransactionConfigEntityDataBuilder withEncryptionCertificate(EncryptionCertificate certificate) {
+    public TransactionConfigBuilder withEncryptionCertificate(EncryptionCertificate certificate) {
         this.encryptionCertificate = certificate;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withEntityId(String entityId) {
+    public TransactionConfigBuilder withEntityId(String entityId) {
         this.entityId = entityId;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withSimpleId(String simpleId) {
+    public TransactionConfigBuilder withSimpleId(String simpleId) {
         this.simpleId = simpleId;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withIsEidasProxyNode(boolean isEidasProxyNode) {
+    public TransactionConfigBuilder withIsEidasProxyNode(boolean isEidasProxyNode) {
         this.eidasProxyNode = isEidasProxyNode;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder addSignatureVerificationCertificate(SignatureVerificationCertificate certificate) {
+    public TransactionConfigBuilder addSignatureVerificationCertificate(SignatureVerificationCertificate certificate) {
         this.signatureVerificationCertificates.add(certificate);
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withMatchingServiceEntityId(String entityId) {
+    public TransactionConfigBuilder withMatchingServiceEntityId(String entityId) {
         this.matchingServiceEntityId = entityId;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder addAssertionConsumerService(AssertionConsumerService assertionConsumerService) {
+    public TransactionConfigBuilder addAssertionConsumerService(AssertionConsumerService assertionConsumerService) {
         this.assertionConsumerServices.add(assertionConsumerService);
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder addUserAccountCreationAttribute(UserAccountCreationAttribute userAccountCreationAttribute) {
+    public TransactionConfigBuilder addUserAccountCreationAttribute(UserAccountCreationAttribute userAccountCreationAttribute) {
         this.userAccountCreationAttributes.add(userAccountCreationAttribute);
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withDisplayName(String displayName) {
+    public TransactionConfigBuilder withDisplayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withMatchingProcess(MatchingProcess matchingProcess) {
+    public TransactionConfigBuilder withMatchingProcess(MatchingProcess matchingProcess) {
         this.matchingProcess = matchingProcess;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withEnabled(boolean enabled) {
+    public TransactionConfigBuilder withEnabled(boolean enabled) {
         this.enabled = enabled;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withEnabledForSingleIdp(boolean singleIdpEnabled) {
+    public TransactionConfigBuilder withEnabledForSingleIdp(boolean singleIdpEnabled) {
         this.enabledForSingleIdp = singleIdpEnabled;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withEidasEnabled(boolean eidasEnabled) {
+    public TransactionConfigBuilder withEidasEnabled(boolean eidasEnabled) {
         this.eidasEnabled = eidasEnabled;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withOtherWaysToCompleteTransaction(final String otherWaysToCompleteTransaction) {
+    public TransactionConfigBuilder withOtherWaysToCompleteTransaction(final String otherWaysToCompleteTransaction) {
         this.otherWaysToCompleteTransaction = otherWaysToCompleteTransaction;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withLevelsOfAssurance(final List<LevelOfAssurance> levelsOfAssurance) {
+    public TransactionConfigBuilder withLevelsOfAssurance(final List<LevelOfAssurance> levelsOfAssurance) {
         this.levelsOfAssurance = levelsOfAssurance;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withServiceHomepage(final URI serviceHomepage) {
+    public TransactionConfigBuilder withServiceHomepage(final URI serviceHomepage) {
         this.serviceHomepage = serviceHomepage;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withShouldSignWithSHA1(boolean shouldSignWithSHA1) {
+    public TransactionConfigBuilder withShouldSignWithSHA1(boolean shouldSignWithSHA1) {
         this.shouldSignWithSHA1 = shouldSignWithSHA1;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withUsingMatching(boolean usingMatching) {
+    public TransactionConfigBuilder withUsingMatching(boolean usingMatching) {
         this.usingMatching = usingMatching;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withHeadlessStartPage(final URI headlessStartPage) {
+    public TransactionConfigBuilder withHeadlessStartPage(final URI headlessStartPage) {
         this.headlessStartPage = headlessStartPage;
         return this;
     }
 
-    public TransactionConfigEntityDataBuilder withSingleIdpStartPage(final URI singleIdpStartPage) {
+    public TransactionConfigBuilder withSingleIdpStartPage(final URI singleIdpStartPage) {
         this.singleIdpStartPage = singleIdpStartPage;
         return this;
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
-    private static class TestTransactionConfigEntityData extends TransactionConfigEntityData {
+    private static class TestTransactionConfig extends TransactionConfig {
 
-        private TestTransactionConfigEntityData(
+        private TestTransactionConfig(
                 String entityId,
                 String simpleId,
                 EncryptionCertificate encryptionCertificate,

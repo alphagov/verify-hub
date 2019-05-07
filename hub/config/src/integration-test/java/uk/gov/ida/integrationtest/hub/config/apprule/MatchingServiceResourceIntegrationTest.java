@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import uk.gov.ida.hub.config.Urls;
-import uk.gov.ida.hub.config.dto.MatchingServiceConfigEntityDataDto;
+import uk.gov.ida.hub.config.dto.MatchingServiceConfigDto;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
@@ -20,8 +20,8 @@ import java.util.Collection;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 
 public class MatchingServiceResourceIntegrationTest {
@@ -40,7 +40,7 @@ public class MatchingServiceResourceIntegrationTest {
                     .withEntityId("rp-entity-id-no-matching")
                     .withUsingMatching(false)
                     .build())
-            .addMatchingService(aMatchingServiceConfigEntityData()
+            .addMatchingService(aMatchingServiceConfig()
                     .withEntityId(ENTITY_ID)
                     .withUri(URI.create(MATCHING_URI))
                     .build())
@@ -71,7 +71,7 @@ public class MatchingServiceResourceIntegrationTest {
 
         Response response = client.target(uri.toASCIIString()).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        MatchingServiceConfigEntityDataDto ms = response.readEntity(MatchingServiceConfigEntityDataDto.class);
+        MatchingServiceConfigDto ms = response.readEntity(MatchingServiceConfigDto.class);
         assertThat(ms.getEntityId()).isEqualTo(entityId);
         assertThat(ms.getUri().toString()).isEqualTo(MATCHING_URI);
     }

@@ -1,9 +1,9 @@
 package uk.gov.ida.hub.config.domain.filters;
 
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
-public class SupportedLoaIdpPredicate implements com.google.common.base.Predicate<IdentityProviderConfigEntityData> {
+public class SupportedLoaIdpPredicate implements com.google.common.base.Predicate<IdentityProviderConfig> {
     private LevelOfAssurance levelOfAssurance;
 
     public SupportedLoaIdpPredicate(LevelOfAssurance levelOfAssurance) {
@@ -11,7 +11,7 @@ public class SupportedLoaIdpPredicate implements com.google.common.base.Predicat
     }
 
     @Override
-    public boolean apply(IdentityProviderConfigEntityData identityProviderConfigEntityData) {
-        return identityProviderConfigEntityData.getSupportedLevelsOfAssurance().contains(levelOfAssurance);
+    public boolean apply(IdentityProviderConfig identityProviderConfig) {
+        return identityProviderConfig.getSupportedLevelsOfAssurance().contains(levelOfAssurance);
     }
 }

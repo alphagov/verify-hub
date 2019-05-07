@@ -3,7 +3,7 @@ package uk.gov.ida.hub.config.domain.filters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -14,12 +14,12 @@ public class IdpEntityIdExtractorTest {
 
     @Test
     public void apply_shouldReturnEntityId() throws Exception {
-        IdentityProviderConfigEntityData identityProviderConfigEntityData = mock(IdentityProviderConfigEntityData.class);
+        IdentityProviderConfig identityProviderConfig = mock(IdentityProviderConfig.class);
         String idpEntityId = "idp entity id";
-        when(identityProviderConfigEntityData.getEntityId()).thenReturn(idpEntityId);
+        when(identityProviderConfig.getEntityId()).thenReturn(idpEntityId);
         IdpEntityIdExtractor idpEntityIdExtractor = new IdpEntityIdExtractor();
 
-        String extractedEntityId = idpEntityIdExtractor.apply(identityProviderConfigEntityData);
+        String extractedEntityId = idpEntityIdExtractor.apply(identityProviderConfig);
 
         assertThat(extractedEntityId).isEqualTo(idpEntityId);
     }

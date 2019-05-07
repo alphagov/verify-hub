@@ -14,10 +14,10 @@ import keystore.builders.KeyStoreResourceBuilder;
 import org.apache.commons.io.FileUtils;
 import uk.gov.ida.hub.config.ConfigApplication;
 import uk.gov.ida.hub.config.ConfigConfiguration;
-import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.CountryConfig;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
+import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.TranslationData;
 
 import javax.ws.rs.core.UriBuilder;
@@ -29,10 +29,10 @@ import java.util.stream.IntStream;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Arrays.asList;
-import static uk.gov.ida.hub.config.domain.builders.CountriesConfigEntityDataBuilder.aCountriesConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.CountryConfigBuilder.aCountryConfig;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.config.domain.builders.TranslationDataBuilder.aTranslationData;
 
 public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
@@ -44,11 +44,11 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
     private static final File TRANSLATIONS_ROOT = new File(FED_CONFIG_ROOT.getAbsolutePath() + "/" + TRANSLATIONS_RELATIVE_PATH);
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private List<TransactionConfigEntityData> transactions = new ArrayList<>();
+    private List<TransactionConfig> transactions = new ArrayList<>();
     private List<TranslationData> translations = new ArrayList<>();
-    private List<MatchingServiceConfigEntityData> matchingServices = new ArrayList<>();
-    private List<IdentityProviderConfigEntityData> idps = new ArrayList<>();
-    private List<CountriesConfigEntityData> countries = new ArrayList<>();
+    private List<MatchingServiceConfig> matchingServices = new ArrayList<>();
+    private List<IdentityProviderConfig> idps = new ArrayList<>();
+    private List<CountryConfig> countries = new ArrayList<>();
 
     public ConfigAppRule(ConfigOverride... configOverrides) {
         super(ConfigApplication.class,
@@ -70,22 +70,22 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
         return overrides.toArray(new ConfigOverride[overrides.size()]);
     }
 
-    public ConfigAppRule addTransaction(TransactionConfigEntityData transaction) {
+    public ConfigAppRule addTransaction(TransactionConfig transaction) {
         this.transactions.add(transaction);
         return this;
     }
 
-    public ConfigAppRule addMatchingService(MatchingServiceConfigEntityData matchingService) {
+    public ConfigAppRule addMatchingService(MatchingServiceConfig matchingService) {
         this.matchingServices.add(matchingService);
         return this;
     }
 
-    public ConfigAppRule addIdp(IdentityProviderConfigEntityData idp) {
+    public ConfigAppRule addIdp(IdentityProviderConfig idp) {
         this.idps.add(idp);
         return this;
     }
 
-    public ConfigAppRule addCountry(CountriesConfigEntityData country) {
+    public ConfigAppRule addCountry(CountryConfig country) {
         this.countries.add(country);
         return this;
     }
@@ -152,7 +152,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
         }
         if (matchingServices.isEmpty()) {
             matchingServices.add(
-                aMatchingServiceConfigEntityData().withEntityId("default-rp-msa-entity-id").build()
+                aMatchingServiceConfig().withEntityId("default-rp-msa-entity-id").build()
             );
         }
         if (idps.isEmpty()) {
@@ -165,7 +165,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
         }
         if (countries.isEmpty()) {
             countries.add(
-                aCountriesConfigEntityData()
+                aCountryConfig()
                     .withEntityId("default-country-entity-id")
                     .withSimpleId("default-country-simple-id")
                     .build()

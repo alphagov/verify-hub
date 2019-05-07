@@ -18,17 +18,17 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.AssertionConsumerServiceBuilder.anAssertionConsumerService;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.shared.ValidationTestHelper.runValidations;
 
-public class TransactionConfigEntityDataTest {
+public class TransactionConfigTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void getAssertionConsumerServiceUri_shouldReturnDefaultUriWhenNoIndexIsSpecified() throws Exception {
         URI uri = URI.create("/some-uri");
-        TransactionConfigEntityData systemUnderTests = aTransactionConfigData()
+        TransactionConfig systemUnderTests = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).build())
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(true).withUri(uri).build())
                 .build();
@@ -43,7 +43,7 @@ public class TransactionConfigEntityDataTest {
     public void getAssertionConsumerServiceUri_shouldReturnCorrectUriWhenIndexIsSpecified() throws Exception {
         URI uri = URI.create("/expected-uri");
         int index = 1;
-        TransactionConfigEntityData systemUnderTests = aTransactionConfigData()
+        TransactionConfig systemUnderTests = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().withIndex(0).build())
                 .addAssertionConsumerService(anAssertionConsumerService().withIndex(index).withUri(uri).build())
                 .build();
@@ -56,7 +56,7 @@ public class TransactionConfigEntityDataTest {
 
     @Test
     public void getAssertionConsumerServiceUri_shouldReturnAbsentWhenInvalidIndexIsSpecified() throws Exception {
-        TransactionConfigEntityData systemUnderTests = aTransactionConfigData()
+        TransactionConfig systemUnderTests = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().withIndex(0).build())
                 .build();
 
@@ -67,58 +67,58 @@ public class TransactionConfigEntityDataTest {
 
     @Test
     public void isAssertionConsumerServiceIndicesUnique_shouldReturnViolationWhenIndicesAreDuplicated() throws Exception {
-        TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+        TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).withIndex(1).build())
                 .addAssertionConsumerService(anAssertionConsumerService().withIndex(1).build())
                 .build();
 
-        final Set<ConstraintViolation<TransactionConfigEntityData>> constraintViolations = runValidations(transactionConfigData);
+        final Set<ConstraintViolation<TransactionConfig>> constraintViolations = runValidations(transactionConfigData);
         assertThat(constraintViolations.size()).isEqualTo(1);
         assertThat(constraintViolations.iterator().next().getMessage()).isEqualTo("Assertion Consumer Service indices must be unique.");
     }
 
     @Test
     public void isAssertionConsumerServiceIndicesUnique_shouldReturnNoViolationsWhenIndicesAreUnique() throws Exception {
-        TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+        TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).withIndex(1).build())
                 .addAssertionConsumerService(anAssertionConsumerService().withIndex(2).build())
                 .build();
 
-        final Set<ConstraintViolation<TransactionConfigEntityData>> constraintViolations = runValidations(transactionConfigData);
+        final Set<ConstraintViolation<TransactionConfig>> constraintViolations = runValidations(transactionConfigData);
         assertThat(constraintViolations.size()).isEqualTo(0);
     }
 
     @Test
     public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnNoViolationsWhenOneACSIsDefault() throws Exception {
-        TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+        TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).build())
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(true).build())
                 .build();
 
-        final Set<ConstraintViolation<TransactionConfigEntityData>> constraintViolations = runValidations(transactionConfigData);
+        final Set<ConstraintViolation<TransactionConfig>> constraintViolations = runValidations(transactionConfigData);
         assertThat(constraintViolations.size()).isEqualTo(0);
     }
 
     @Test
     public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnViolationWhenNoACSsAreDefault() throws Exception {
-        TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+        TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).build())
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).build())
                 .build();
 
-        final Set<ConstraintViolation<TransactionConfigEntityData>> constraintViolations = runValidations(transactionConfigData);
+        final Set<ConstraintViolation<TransactionConfig>> constraintViolations = runValidations(transactionConfigData);
         assertThat(constraintViolations.size()).isEqualTo(1);
         assertThat(constraintViolations.iterator().next().getMessage()).isEqualTo("Exactly one Assertion Consumer Service must be marked as default.");
     }
 
     @Test
     public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnViolationWhenMoreThanOneACSIsDefault() throws Exception {
-        TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+        TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(true).build())
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(true).build())
                 .build();
 
-        final Set<ConstraintViolation<TransactionConfigEntityData>> constraintViolations = runValidations(transactionConfigData);
+        final Set<ConstraintViolation<TransactionConfig>> constraintViolations = runValidations(transactionConfigData);
         assertThat(constraintViolations.size()).isEqualTo(1);
         assertThat(constraintViolations.iterator().next().getMessage()).isEqualTo("Exactly one Assertion Consumer Service must be marked as default.");
     }

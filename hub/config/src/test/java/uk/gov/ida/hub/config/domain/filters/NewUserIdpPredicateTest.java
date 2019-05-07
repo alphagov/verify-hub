@@ -3,7 +3,7 @@ package uk.gov.ida.hub.config.domain.filters;
 import com.google.common.base.Predicate;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
@@ -12,9 +12,9 @@ import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBu
 public class NewUserIdpPredicateTest {
 	@Test
 	public void apply_shouldReturnTrue_whenIdpRegistrationIsEnabled() {
-		Predicate<IdentityProviderConfigEntityData> newUserIdpPredicate = new NewUserIdpPredicate();
+		Predicate<IdentityProviderConfig> newUserIdpPredicate = new NewUserIdpPredicate();
 		
-		IdentityProviderConfigEntityData disconnectingIdp = anIdentityProviderConfigData()
+		IdentityProviderConfig disconnectingIdp = anIdentityProviderConfigData()
 				.withProvideRegistrationUntil(DateTime.now().plusDays(1))
 				.build();
 		
@@ -23,9 +23,9 @@ public class NewUserIdpPredicateTest {
 	
 	@Test
 	public void apply_shouldReturnFalse_whenIdpRegistrationIsDisabled() {
-		Predicate<IdentityProviderConfigEntityData> newUserIdpPredicate = new NewUserIdpPredicate();
+		Predicate<IdentityProviderConfig> newUserIdpPredicate = new NewUserIdpPredicate();
 		
-		IdentityProviderConfigEntityData disconnectingIdp = anIdentityProviderConfigData()
+		IdentityProviderConfig disconnectingIdp = anIdentityProviderConfigData()
 				.withProvideRegistrationUntil(DateTime.now().minusDays(1))
 				.build();
 		

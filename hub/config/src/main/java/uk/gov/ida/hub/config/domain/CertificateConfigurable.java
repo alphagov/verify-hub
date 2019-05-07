@@ -1,11 +1,8 @@
-package uk.gov.ida.hub.config;
-
-import uk.gov.ida.hub.config.domain.EncryptionCertificate;
-import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
+package uk.gov.ida.hub.config.domain;
 
 import java.util.Collection;
 
-public interface CertificateEntity {
+public interface CertificateConfigurable {
 
     EncryptionCertificate getEncryptionCertificate();
 

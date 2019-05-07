@@ -12,21 +12,21 @@ public class EntityConfigDataToCertificateDtoTransformer {
     public EntityConfigDataToCertificateDtoTransformer() {
     }
 
-    public ImmutableList<CertificateDetails> transform(Set<TransactionConfigEntityData> transactionConfigEntityDatas, Set<MatchingServiceConfigEntityData> matchingServiceConfigEntityDatas) {
+    public ImmutableList<CertificateDetails> transform(Set<TransactionConfig> transactionConfigs, Set<MatchingServiceConfig> matchingServiceConfigs) {
         ImmutableList.Builder<CertificateDetails> builder = ImmutableList.builder();
         // IDP certs are now in the federation metadata and checked for expiry and OCSP status in separate sensu checks
-        for (TransactionConfigEntityData transactionConfigEntityData : transactionConfigEntityDatas) {
-            for (Certificate certificate : transactionConfigEntityData.getSignatureVerificationCertificates()) {
-                builder.add(new CertificateDetails(transactionConfigEntityData.getEntityId(), certificate, FederationEntityType.RP));
+        for (TransactionConfig transactionConfig : transactionConfigs) {
+            for (Certificate certificate : transactionConfig.getSignatureVerificationCertificates()) {
+                builder.add(new CertificateDetails(transactionConfig.getEntityId(), certificate, FederationEntityType.RP));
             }
-            builder.add(new CertificateDetails(transactionConfigEntityData.getEntityId(), transactionConfigEntityData.getEncryptionCertificate(), FederationEntityType.RP));
+            builder.add(new CertificateDetails(transactionConfig.getEntityId(), transactionConfig.getEncryptionCertificate(), FederationEntityType.RP));
         }
-        for (MatchingServiceConfigEntityData matchingServiceConfigEntityData : matchingServiceConfigEntityDatas) {
-            for (Certificate certificate : matchingServiceConfigEntityData.getSignatureVerificationCertificates()) {
-                builder.add(new CertificateDetails(matchingServiceConfigEntityData.getEntityId(), certificate, FederationEntityType.MS));
+        for (MatchingServiceConfig matchingServiceConfig : matchingServiceConfigs) {
+            for (Certificate certificate : matchingServiceConfig.getSignatureVerificationCertificates()) {
+                builder.add(new CertificateDetails(matchingServiceConfig.getEntityId(), certificate, FederationEntityType.MS));
 
             }
-            builder.add(new CertificateDetails(matchingServiceConfigEntityData.getEntityId(), matchingServiceConfigEntityData.getEncryptionCertificate(), FederationEntityType.MS));
+            builder.add(new CertificateDetails(matchingServiceConfig.getEntityId(), matchingServiceConfig.getEncryptionCertificate(), FederationEntityType.MS));
         }
         return builder.build();
     }

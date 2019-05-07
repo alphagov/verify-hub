@@ -2,7 +2,7 @@ package uk.gov.ida.hub.config.domain.filters;
 
 import com.google.common.base.Predicate;
 import org.junit.Test;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import java.util.Set;
@@ -16,12 +16,12 @@ public class IdpPredicateFactoryPredicatesTest {
 
     @Test
     public void shouldReturnIdpsForLoaForNonOnboardingTransactionEntity() {
-        final Set<Predicate<IdentityProviderConfigEntityData>> loa1Predicate = idpPredicateFactory
+        final Set<Predicate<IdentityProviderConfig>> loa1Predicate = idpPredicateFactory
                 .createPredicatesForTransactionEntityAndLoa(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);
 
-        final Set<IdentityProviderConfigEntityData> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
+        final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
 
-        final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
+        final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa2Idp, onboardingLoa2IdpOtherOnboardingEntity};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
@@ -29,12 +29,12 @@ public class IdpPredicateFactoryPredicatesTest {
 
     @Test
     public void shouldReturnIdpsForLoaForOnboardingTransactionEntity() {
-        final Set<Predicate<IdentityProviderConfigEntityData>> loa1PredicateOnboarding = idpPredicateFactory
+        final Set<Predicate<IdentityProviderConfig>> loa1PredicateOnboarding = idpPredicateFactory
                 .createPredicatesForTransactionEntityAndLoa(transactionEntityOnboarding, LevelOfAssurance.LEVEL_1);
 
-        final Set<IdentityProviderConfigEntityData> filteredIdps = getFilteredIdps(allIdps, loa1PredicateOnboarding);
+        final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1PredicateOnboarding);
 
-        final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
+        final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa2IdpOtherOnboardingEntity};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
@@ -42,12 +42,12 @@ public class IdpPredicateFactoryPredicatesTest {
 
     @Test
     public void shouldReturnIdpsForSignInForNonOnboardingTransactionEntity() {
-        final Set<Predicate<IdentityProviderConfigEntityData>> signInPredicateNonOnboarding= idpPredicateFactory
+        final Set<Predicate<IdentityProviderConfig>> signInPredicateNonOnboarding= idpPredicateFactory
                 .createPredicatesForSignIn(transactionEntityNonOnboarding);
 
-        final Set<IdentityProviderConfigEntityData> filteredIdps = getFilteredIdps(allIdps, signInPredicateNonOnboarding);
+        final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, signInPredicateNonOnboarding);
 
-        final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp,
+        final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp,
                 nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp,
                 onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity, 
                 nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
@@ -58,12 +58,12 @@ public class IdpPredicateFactoryPredicatesTest {
     @Test
     public void shouldReturnIdpsForSignInForOnboardingTransactionEntity()
     {
-        final Set<Predicate<IdentityProviderConfigEntityData>> signInPredicateOnboarding = idpPredicateFactory
+        final Set<Predicate<IdentityProviderConfig>> signInPredicateOnboarding = idpPredicateFactory
                 .createPredicatesForSignIn(transactionEntityOnboarding);
 
-        final Set<IdentityProviderConfigEntityData> filteredIdps = getFilteredIdps(allIdps, signInPredicateOnboarding);
+        final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, signInPredicateOnboarding);
 
-        final IdentityProviderConfigEntityData[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
+        final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
                 nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp,
                 onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity, 
                 onboardingSoftDisconnectingIdp, onboardingHardDisconnectingIdp,

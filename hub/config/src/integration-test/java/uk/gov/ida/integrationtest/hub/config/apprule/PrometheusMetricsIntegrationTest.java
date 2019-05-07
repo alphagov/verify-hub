@@ -9,14 +9,14 @@ import org.joda.time.DateTimeZone;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import uk.gov.ida.hub.config.CertificateEntity;
-import uk.gov.ida.hub.config.ConfigEntityData;
+import uk.gov.ida.hub.config.domain.CertificateConfigurable;
+import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.EncryptionCertificate;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
+import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.Message;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
@@ -44,9 +44,9 @@ import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_C
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP_HELP;
 import static uk.gov.ida.hub.config.domain.builders.EncryptionCertificateBuilder.anEncryptionCertificate;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.*;
 import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.messageShouldBePresent;
 
@@ -60,12 +60,12 @@ public class PrometheusMetricsIntegrationTest {
     private static final String RP_MS_ENTITY_ID = "rp-ms-entity-id";
     private static final String CERTIFICATE_METRICS_TEMPLATE = "%s{entity_id=\"%s\",use=\"%s\",subject=\"%s\",fingerprint=\"%s\",serial=\"%s\",} %s\n";
     private static final String LAST_UPDATE_METRICS_TEMPLATE = "%s %s\n";
-    private static final TransactionConfigEntityData TRANSACTION_CONFIG_ENTITY_DATA = aTransactionConfigData().withEntityId(RP_ENTITY_ID)
+    private static final TransactionConfig TRANSACTION_CONFIG_ENTITY_DATA = aTransactionConfigData().withEntityId(RP_ENTITY_ID)
                                                                                                               .withMatchingServiceEntityId(RP_MS_ENTITY_ID)
                                                                                                               .build();
-    private static final MatchingServiceConfigEntityData MATCHING_SERVICE_CONFIG_ENTITY_DATA = aMatchingServiceConfigEntityData().withEntityId(RP_MS_ENTITY_ID)
+    private static final MatchingServiceConfig MATCHING_SERVICE_CONFIG_ENTITY_DATA = aMatchingServiceConfig().withEntityId(RP_MS_ENTITY_ID)
                                                                                                                                  .build();
-    private static final IdentityProviderConfigEntityData IDENTITY_PROVIDER_CONFIG_ENTITY_DATA = anIdentityProviderConfigData().withEntityId("idp-entity-id")
+    private static final IdentityProviderConfig IDENTITY_PROVIDER_CONFIG_ENTITY_DATA = anIdentityProviderConfigData().withEntityId("idp-entity-id")
                                                                                                                                .withOnboarding(asList(RP_ENTITY_ID))
                                                                                                                                .build();
     private static final String RP_ENTITY_ID_BAD_SIGNATURE_CERT = "rp-entity-id-bad-cert";
@@ -155,7 +155,7 @@ public class PrometheusMetricsIntegrationTest {
         return expectedCertificatesMetrics;
     }
 
-    private <T extends ConfigEntityData & CertificateEntity> List<Message> getExpectedCertificateMetricsList(final T configEntityData) {
+    private <T extends EntityIdentifiable & CertificateConfigurable> List<Message> getExpectedCertificateMetricsList(final T configEntityData) {
         List<Message> expectedCertificatesMetrics = new ArrayList<>();
         configEntityData.getSignatureVerificationCertificates()
                         .forEach(

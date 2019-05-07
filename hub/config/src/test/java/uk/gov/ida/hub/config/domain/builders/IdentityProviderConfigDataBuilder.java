@@ -3,7 +3,7 @@ package uk.gov.ida.hub.config.domain.builders;
 
 import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
 
@@ -30,12 +30,12 @@ public class IdentityProviderConfigDataBuilder {
         return new IdentityProviderConfigDataBuilder();
     }
 
-    public IdentityProviderConfigEntityData build() {
+    public IdentityProviderConfig build() {
         if (signatureVerificationCertificates.isEmpty()) {
             signatureVerificationCertificates.add(new SignatureVerificationCertificateBuilder().build());
         }
 
-        return new TestIdentityProviderConfigEntityData(
+        return new TestIdentityProviderConfig(
                 entityId,
                 simpleId,
                 enabled,
@@ -111,9 +111,9 @@ public class IdentityProviderConfigDataBuilder {
         return this;
     }
 
-    private static class TestIdentityProviderConfigEntityData extends IdentityProviderConfigEntityData {
+    private static class TestIdentityProviderConfig extends IdentityProviderConfig {
 
-        private TestIdentityProviderConfigEntityData(
+        private TestIdentityProviderConfig(
                 String entityId,
                 String simpleId,
                 boolean enabled,

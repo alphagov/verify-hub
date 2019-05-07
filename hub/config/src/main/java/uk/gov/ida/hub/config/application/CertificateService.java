@@ -3,13 +3,13 @@ package uk.gov.ida.hub.config.application;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.CertificateEntity;
-import uk.gov.ida.hub.config.ConfigEntityData;
-import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
+import uk.gov.ida.hub.config.domain.CertificateConfigurable;
+import uk.gov.ida.hub.config.domain.EntityIdentifiable;
+import uk.gov.ida.hub.config.data.ConfigRepository;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.exceptions.CertificateDisabledException;
 import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
@@ -27,8 +27,8 @@ import static java.util.stream.Collectors.toList;
 public class CertificateService {
 
     private static final List<CertificateDetails> EMPTY = null;
-    private final ConfigEntityDataRepository<TransactionConfigEntityData> transactionDataSource;
-    private final ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceDataSource;
+    private final ConfigRepository<TransactionConfig> transactionDataSource;
+    private final ConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
     private CertificateValidityChecker certificateValidityChecker = null;
 
     private final Function<String, Optional<CertificateDetails>> getTransactionEncryptionCert;
@@ -40,8 +40,8 @@ public class CertificateService {
 
     @Inject
     public CertificateService(
-            ConfigEntityDataRepository<TransactionConfigEntityData> transactionDataSource,
-            ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceDataSource,
+            ConfigRepository<TransactionConfig> transactionDataSource,
+            ConfigRepository<MatchingServiceConfig> matchingServiceDataSource,
             CertificateValidityChecker certificateValidityChecker) {
         this.transactionDataSource = transactionDataSource;
         this.matchingServiceDataSource = matchingServiceDataSource;
@@ -72,10 +72,10 @@ public class CertificateService {
         return certificateDetailsSet;
     }
 
-    private <T extends ConfigEntityData & CertificateEntity> Set<CertificateDetails> getCertificatesDetailsSet(final ConfigEntityDataRepository<T> configEntityDataRepository,
-                                                                                                               final FederationEntityType federationEntityType) {
+    private <T extends EntityIdentifiable & CertificateConfigurable> Set<CertificateDetails> getCertificatesDetailsSet(final ConfigRepository<T> configRepository,
+                                                                                                                       final FederationEntityType federationEntityType) {
         Set<CertificateDetails> certificateDetailsSet = new HashSet<>();
-        final Set<T> configs = configEntityDataRepository.getAllData();
+        final Set<T> configs = configRepository.getAllData();
         configs.forEach(
             config -> {
                 config.getSignatureVerificationCertificates()
@@ -99,14 +99,14 @@ public class CertificateService {
                 .orElseThrow(() -> new NoCertificateFoundException()));
     }
 
-    private BiFunction<ConfigEntityDataRepository<? extends CertificateEntity>, FederationEntityType,
+    private BiFunction<ConfigRepository<? extends CertificateConfigurable>, FederationEntityType,
             Function<String, Optional<CertificateDetails>>> encryptiondataSource =
             (certEntityRepo, fedType) -> entityId ->
                     certEntityRepo.getData(entityId)
                     .map(cert -> new CertificateDetails(entityId, cert.getEncryptionCertificate(), fedType, cert.isEnabled()))
                     .filter(cert -> certificateValidityChecker.isValid(cert));
 
-    private BiFunction<ConfigEntityDataRepository<? extends CertificateEntity>, FederationEntityType,
+    private BiFunction<ConfigRepository<? extends CertificateConfigurable>, FederationEntityType,
             Function<String, Optional<List<CertificateDetails>>>> signatureDataSource =
             (certEntityRepo, fedType) -> entityId ->
                 certEntityRepo.getData(entityId)

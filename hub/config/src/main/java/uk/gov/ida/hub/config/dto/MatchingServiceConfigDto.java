@@ -2,7 +2,7 @@ package uk.gov.ida.hub.config.dto;
 
 import java.net.URI;
 
-public class MatchingServiceConfigEntityDataDto {
+public class MatchingServiceConfigDto {
 
     private String entityId;
     private URI uri;
@@ -12,15 +12,15 @@ public class MatchingServiceConfigEntityDataDto {
     private URI userAccountCreationUri;
 
     @SuppressWarnings("unused")
-    private MatchingServiceConfigEntityDataDto() {
+    private MatchingServiceConfigDto() {
     }
 
-    public MatchingServiceConfigEntityDataDto(String entityId,
-                                              URI uri,
-                                              String transactionEntityId,
-                                              boolean checkEnabled,
-                                              boolean onboarding,
-                                              URI userAccountCreationUri) {
+    public MatchingServiceConfigDto(String entityId,
+                                    URI uri,
+                                    String transactionEntityId,
+                                    boolean checkEnabled,
+                                    boolean onboarding,
+                                    URI userAccountCreationUri) {
         this.entityId = entityId;
         this.uri = uri;
         this.transactionEntityId = transactionEntityId;

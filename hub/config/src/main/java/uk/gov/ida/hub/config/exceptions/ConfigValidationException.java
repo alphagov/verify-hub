@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.config.exceptions;
 
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
 
 import java.text.MessageFormat;
@@ -48,15 +48,15 @@ public final class ConfigValidationException extends RuntimeException {
                 certificate.getDescription())).collect(Collectors.joining("\n")));
     }
 
-    public static ConfigValidationException createIDPLevelsOfAssuranceUnsupportedException(Collection<IdentityProviderConfigEntityData> badIDPConfigs) {
-        return new ConfigValidationException(badIDPConfigs.stream().map(identityProviderConfigEntityData -> MessageFormat.format(
+    public static ConfigValidationException createIDPLevelsOfAssuranceUnsupportedException(Collection<IdentityProviderConfig> badIDPConfigs) {
+        return new ConfigValidationException(badIDPConfigs.stream().map(idpConfig -> MessageFormat.format(
                 "Unsupported level of assurance in IDP config.\nEntity Id: {0}\nLevels: {1}\n",
-                identityProviderConfigEntityData.getEntityId(),
-                identityProviderConfigEntityData.getSupportedLevelsOfAssurance()))
+                idpConfig.getEntityId(),
+                idpConfig.getSupportedLevelsOfAssurance()))
                 .collect(Collectors.joining("\n")));
     }
 
-    public static ConfigValidationException createTransactionsRequireUnsupportedLevelOfAssurance(Collection<TransactionConfigEntityData> badTransactionConfigs) {
+    public static ConfigValidationException createTransactionsRequireUnsupportedLevelOfAssurance(Collection<TransactionConfig> badTransactionConfigs) {
         return new ConfigValidationException(badTransactionConfigs.stream()
                 .map(entityData -> MessageFormat.format(
                         "Unsupported level of assurance in transaction config.\nEntity Id: {0}\nLevels of assurance: {1}\n",
@@ -65,11 +65,11 @@ public final class ConfigValidationException extends RuntimeException {
                 .collect(Collectors.joining("\n")));
     }
 
-    public static ConfigValidationException createIncompatiblePairsOfTransactionsAndIDPs(Map<TransactionConfigEntityData, List<IdentityProviderConfigEntityData>> incompatibleIdps) {
+    public static ConfigValidationException createIncompatiblePairsOfTransactionsAndIDPs(Map<TransactionConfig, List<IdentityProviderConfig>> incompatibleIdps) {
         return new ConfigValidationException(incompatibleIdps.keySet().stream().map(transactionEntity -> MessageFormat.format(
                 "Transaction unsupported by IDP(s).\nTransaction: {0}\nIDP(s): {1}\n",
                 transactionEntity.getEntityId(),
-                incompatibleIdps.get(transactionEntity).stream().map(IdentityProviderConfigEntityData::getEntityId).collect(Collectors.toList()))
+                incompatibleIdps.get(transactionEntity).stream().map(IdentityProviderConfig::getEntityId).collect(Collectors.toList()))
         ).collect(Collectors.joining("\n")));
     }
 }

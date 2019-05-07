@@ -3,9 +3,9 @@ package uk.gov.ida.hub.config.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.ImmutableList;
 import uk.gov.ida.hub.config.Urls;
-import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
+import uk.gov.ida.hub.config.data.ConfigRepository;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.config.dto.MatchingProcessDto;
@@ -32,18 +32,18 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 public class TransactionsResource {
 
-    private final ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository;
-    private final ConfigEntityDataRepository<TranslationData> translationConfigEntityDataRepository;
+    private final ConfigRepository<TransactionConfig> transactionConfigRepository;
+    private final ConfigRepository<TranslationData> translationConfigRepository;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public TransactionsResource(
-            ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository,
-            ConfigEntityDataRepository<TranslationData> translationConfigEntityDataRepository,
+            ConfigRepository<TransactionConfig> transactionConfigRepository,
+            ConfigRepository<TranslationData> translationConfigRepository,
             ExceptionFactory exceptionFactory) {
 
-        this.transactionConfigEntityDataRepository = transactionConfigEntityDataRepository;
-        this.translationConfigEntityDataRepository = translationConfigEntityDataRepository;
+        this.transactionConfigRepository = transactionConfigRepository;
+        this.translationConfigRepository = translationConfigRepository;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -54,7 +54,7 @@ public class TransactionsResource {
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId,
             @QueryParam(Urls.ConfigUrls.ASSERTION_CONSUMER_SERVICE_INDEX_PARAM) Optional<Integer> assertionConsumerServiceIndex) {
 
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
 
         final Optional<URI> assertionConsumerServiceUri = configData.getAssertionConsumerServiceUri(assertionConsumerServiceIndex);
         if (!assertionConsumerServiceUri.isPresent()) {
@@ -72,11 +72,11 @@ public class TransactionsResource {
     public TransactionDisplayData getDisplayData(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
 
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         return buildTransactionDisplayData(configData);
     }
 
-    private TransactionDisplayData buildTransactionDisplayData(TransactionConfigEntityData configData) {
+    private TransactionDisplayData buildTransactionDisplayData(TransactionConfig configData) {
         return new TransactionDisplayData(
                 configData.getSimpleId().orElse(null),
                 configData.getServiceHomepage(),
@@ -90,7 +90,7 @@ public class TransactionsResource {
     public MatchingProcessDto getMatchingProcess(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
 
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         if (configData.getMatchingProcess().isPresent()) {
             return new MatchingProcessDto(
                     configData.getMatchingProcess().get().getCycle3AttributeName());
@@ -103,9 +103,9 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.ENABLED_TRANSACTIONS_PATH)
     @Timed
     public List<TransactionDisplayData> getEnabledTransactions(){
-        Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();
+        Set<TransactionConfig> allData = transactionConfigRepository.getAllData();
         return allData.stream()
-            .filter(TransactionConfigEntityData::isEnabled)
+            .filter(TransactionConfig::isEnabled)
             .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance(), t.getHeadlessStartpage()))
             .collect(Collectors.toList());
     }
@@ -114,10 +114,10 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH)
     @Timed
     public List<TransactionSingleIdpData> getSingleIDPEnabledServiceListTransactions(){
-        Set<TransactionConfigEntityData> allData = transactionConfigEntityDataRepository.getAllData();
+        Set<TransactionConfig> allData = transactionConfigRepository.getAllData();
         return allData.stream()
-                .filter(TransactionConfigEntityData::isEnabled)
-                .filter(TransactionConfigEntityData::isEnabledForSingleIdp)
+                .filter(TransactionConfig::isEnabled)
+                .filter(TransactionConfig::isEnabledForSingleIdp)
                 .map(t -> new TransactionSingleIdpData(t.getSimpleId().orElse(null),
                         t.getSingleIdpStartPage().orElse(t.getServiceHomepage()),
                         t.getLevelsOfAssurance(),
@@ -142,7 +142,7 @@ public class TransactionsResource {
     public List<LevelOfAssurance> getLevelsOfAssurance(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
 
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         return configData.getLevelsOfAssurance();
     }
 
@@ -150,7 +150,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.MATCHING_SERVICE_ENTITY_ID_PATH)
     @Timed
     public String getMatchingServiceEntityId(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         return configData.getMatchingServiceEntityId();
     }
 
@@ -158,7 +158,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_PATH)
     @Timed
     public List<UserAccountCreationAttribute> getUserAccountCreationAttributes(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
 
         return configData.getUserAccountCreationAttributes().orElse(Collections.<UserAccountCreationAttribute>emptyList());
     }
@@ -167,7 +167,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_PATH)
     @Timed
     public boolean getShouldHubSignResponseMessages(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         return configData.getShouldHubSignResponseMessages();
     }
 
@@ -175,7 +175,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_PATH)
     @Timed
     public boolean getShouldHubUseLegacySamlStandard(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         return configData.getShouldHubUseLegacySamlStandard();
     }
 
@@ -183,7 +183,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
     public boolean isEidasEnabledForTransaction(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         return configData.isEidasEnabled();
     }
 
@@ -191,7 +191,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.EIDAS_COUNTRIES_FOR_TRANSACTION_PATH)
     @Timed
     public List<String> getEidasCountries(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         Optional<List<String>> eidasCountries = configData.getEidasCountries();
         return eidasCountries.isPresent() ? eidasCountries.get() : ImmutableList.of();
     }
@@ -200,14 +200,14 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_PATH)
     @Timed
     public boolean getShouldSignWithSHA1(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         return configData.getShouldSignWithSHA1();
     }
     @GET
     @Path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
     public boolean isUsingMatching(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
-        final TransactionConfigEntityData configData = getTransactionConfigData(entityId);
+        final TransactionConfig configData = getTransactionConfigData(entityId);
         return configData.isUsingMatching();
     }
 
@@ -215,13 +215,13 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_PATH)
     @Timed
     public boolean isEidasProxyNode(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        return transactionConfigEntityDataRepository.getData(entityId)
-                .map(TransactionConfigEntityData::isEidasProxyNode)
+        return transactionConfigRepository.getData(entityId)
+                .map(TransactionConfig::isEidasProxyNode)
                 .orElse(false);
     }
 
-    private TransactionConfigEntityData getTransactionConfigData(String entityId) {
-        final Optional<TransactionConfigEntityData> configData = transactionConfigEntityDataRepository.getData(entityId);
+    private TransactionConfig getTransactionConfigData(String entityId) {
+        final Optional<TransactionConfig> configData = transactionConfigRepository.getData(entityId);
         if (!configData.isPresent()) {
             throw exceptionFactory.createNoDataForEntityException(entityId);
         }
@@ -232,7 +232,7 @@ public class TransactionsResource {
     }
 
     private TranslationData getTranslationData(String simpleId) {
-        final Optional<TranslationData> data = translationConfigEntityDataRepository.getData(simpleId);
+        final Optional<TranslationData> data = translationConfigRepository.getData(simpleId);
         if (!data.isPresent()) throw exceptionFactory.createNoDataForEntityException(simpleId);
         return data.get();
     }

@@ -7,14 +7,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.ida.hub.config.ConfigEntityData;
+import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateType;
-import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
+import uk.gov.ida.hub.config.domain.CountryConfig;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
+import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
@@ -31,8 +31,8 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.config.domain.builders.TranslationDataBuilder.aTranslationData;
 import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createAbsentOnboardingTransactionConfigException;
 import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createInvalidCertificatesException;
@@ -45,7 +45,7 @@ public class ConfigDataBootstrapTest {
     @Mock
     private CertificateChainConfigValidator certificateChainConfigValidator;
 
-    private final ConfigEntityDataRepository<? extends ConfigEntityData> nullConfigEntityDataRepository = new ConfigEntityDataRepository<>();
+    private final ConfigRepository<? extends EntityIdentifiable> nullConfigRepository = new ConfigRepository<>();
     private final LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator = new LevelsOfAssuranceConfigValidator();
 
     @Test
@@ -53,24 +53,24 @@ public class ConfigDataBootstrapTest {
         final String entityId = "entity-id";
         final String simpleId = "simple-id";
         final String matchingServiceEntityId = "matching-service-entity-id";
-        final IdentityProviderConfigEntityData identityProviderConfigData = anIdentityProviderConfigData().withEntityId(entityId).build();
-        final TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+        final IdentityProviderConfig identityProviderConfigData = anIdentityProviderConfigData().withEntityId(entityId).build();
+        final TransactionConfig transactionConfigData = aTransactionConfigData()
                 .withEntityId(entityId)
                 .withMatchingServiceEntityId(matchingServiceEntityId)
                 .build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
-        final MatchingServiceConfigEntityData matchingServiceConfigData = aMatchingServiceConfigEntityData()
+        final MatchingServiceConfig matchingServiceConfigData = aMatchingServiceConfig()
                 .withEntityId(matchingServiceEntityId)
                 .build();
 
-        final CountriesConfigEntityData countriesConfigEntityData = new CountriesConfigEntityData() {};
+        final CountryConfig countryConfig = new CountryConfig() {};
 
         ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(
                 identityProviderConfigData, 
                 matchingServiceConfigData, 
                 transactionConfigData, 
                 translationData,
-                countriesConfigEntityData
+                countryConfig
         );
 
         try {
@@ -87,17 +87,17 @@ public class ConfigDataBootstrapTest {
         final String simpleId = "simple-id";
         final String matchingServiceEntityId = "matching-service-entity-id";
         final String nonExistentTransactionEntityId = "non-existent-transaction";
-        final IdentityProviderConfigEntityData identityProviderConfigData = anIdentityProviderConfigData().withEntityId(idpEntityId).withOnboarding(ImmutableList.of(nonExistentTransactionEntityId)).build();
-        final TransactionConfigEntityData transactionConfigData = aTransactionConfigData().withEntityId("transaction-entity-id").withMatchingServiceEntityId(matchingServiceEntityId).build();
+        final IdentityProviderConfig identityProviderConfigData = anIdentityProviderConfigData().withEntityId(idpEntityId).withOnboarding(ImmutableList.of(nonExistentTransactionEntityId)).build();
+        final TransactionConfig transactionConfigData = aTransactionConfigData().withEntityId("transaction-entity-id").withMatchingServiceEntityId(matchingServiceEntityId).build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
-        final CountriesConfigEntityData countriesConfigEntityData = new CountriesConfigEntityData() {};
+        final CountryConfig countryConfig = new CountryConfig() {};
 
         ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(
                 identityProviderConfigData, 
-                aMatchingServiceConfigEntityData().withEntityId(matchingServiceEntityId).build(), 
+                aMatchingServiceConfig().withEntityId(matchingServiceEntityId).build(),
                 transactionConfigData, 
                 translationData,
-                countriesConfigEntityData
+                countryConfig
         );
 
         try {
@@ -112,24 +112,24 @@ public class ConfigDataBootstrapTest {
     public void start_shouldThrowExceptionWhenMatchingTransactionEntityIdCheckFails() {
         final String transEntityId = "trans-entity-id";
         final String simpleId = "simple-id";
-        final IdentityProviderConfigEntityData identityProviderConfigData = anIdentityProviderConfigData().withEntityId("entity-id").build();
-        final TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+        final IdentityProviderConfig identityProviderConfigData = anIdentityProviderConfigData().withEntityId("entity-id").build();
+        final TransactionConfig transactionConfigData = aTransactionConfigData()
                 .withEntityId(transEntityId)
                 .withMatchingServiceEntityId(NON_EXISTENT_MATCHING_SERVICE_ENTITY_ID)
                 .build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
-        final MatchingServiceConfigEntityData matchingServiceConfigData = aMatchingServiceConfigEntityData()
+        final MatchingServiceConfig matchingServiceConfigData = aMatchingServiceConfig()
                 .withEntityId(MATCHING_SERVICE_ENTITY_ID)
                 .build();
 
-        final CountriesConfigEntityData countriesConfigEntityData = new CountriesConfigEntityData() {};
+        final CountryConfig countryConfig = new CountryConfig() {};
 
         ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(
                 identityProviderConfigData, 
                 matchingServiceConfigData, 
                 transactionConfigData, 
                 translationData,
-                countriesConfigEntityData
+                countryConfig
         );
 
         try {
@@ -149,11 +149,11 @@ public class ConfigDataBootstrapTest {
         final String rpEntityId = "rp-entity";
         String badCertificateValue = "badCertificate";
         final SignatureVerificationCertificate badCertificate = new SignatureVerificationCertificateBuilder().withX509(badCertificateValue).build();
-        final IdentityProviderConfigEntityData identityProviderConfigData = anIdentityProviderConfigData().withEntityId(idpEntityId).addSignatureVerificationCertificate(badCertificate).build();
+        final IdentityProviderConfig identityProviderConfigData = anIdentityProviderConfigData().withEntityId(idpEntityId).addSignatureVerificationCertificate(badCertificate).build();
 
 
-        MatchingServiceConfigEntityData matchingServiceConfigData = aMatchingServiceConfigEntityData().addSignatureVerificationCertificate(badCertificate).withEntityId(matchingServiceId).build();
-        TransactionConfigEntityData transactionConfigData = aTransactionConfigData().withMatchingServiceEntityId(matchingServiceId).withEntityId(rpEntityId).build();
+        MatchingServiceConfig matchingServiceConfigData = aMatchingServiceConfig().addSignatureVerificationCertificate(badCertificate).withEntityId(matchingServiceId).build();
+        TransactionConfig transactionConfigData = aTransactionConfigData().withMatchingServiceEntityId(matchingServiceId).withEntityId(rpEntityId).build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
 
         InvalidCertificateDto invalidIdpCertificateDto = new InvalidCertificateDto(idpEntityId, CertPathValidatorException.BasicReason.INVALID_SIGNATURE, CertificateType.SIGNING, FederationEntityType.IDP, "certificate was bad!");
@@ -163,13 +163,13 @@ public class ConfigDataBootstrapTest {
                 ImmutableSet.of(transactionConfigData),
                 ImmutableSet.of(matchingServiceConfigData));
 
-        CountriesConfigEntityData countriesConfigEntityData = createCountriesConfigEntityData();
+        CountryConfig countryConfig = createCountriesConfig();
         ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(
                 identityProviderConfigData, 
                 matchingServiceConfigData, 
                 transactionConfigData, 
                 translationData,
-                countriesConfigEntityData
+                countryConfig
         );
         configDataBootstrap.start();
     }
@@ -177,14 +177,14 @@ public class ConfigDataBootstrapTest {
     @Test
     public void start_shouldOnlyValidateCertificateChainIfIdentityProviderIsEnabled() {
         final String simpleId = "simple-id";
-        IdentityProviderConfigEntityData disabledIdp = anIdentityProviderConfigData().withEntityId("idp1EntityId").withEnabled(false).build();
-        MatchingServiceConfigEntityData matchingServiceConfigData = aMatchingServiceConfigEntityData().withEntityId("matchingServiceId").build();
-        TransactionConfigEntityData transactionConfigData = aTransactionConfigData()
+        IdentityProviderConfig disabledIdp = anIdentityProviderConfigData().withEntityId("idp1EntityId").withEnabled(false).build();
+        MatchingServiceConfig matchingServiceConfigData = aMatchingServiceConfig().withEntityId("matchingServiceId").build();
+        TransactionConfig transactionConfigData = aTransactionConfigData()
                 .withMatchingServiceEntityId("matchingServiceId")
                 .withEntityId("rpEntityId")
                 .build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
-        CountriesConfigEntityData countriesConfigData = new CountriesConfigEntityData() {};
+        CountryConfig countriesConfigData = new CountryConfig() {};
 
         ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(
                 disabledIdp, 
@@ -198,26 +198,26 @@ public class ConfigDataBootstrapTest {
         verify(certificateChainConfigValidator).validate(ImmutableSet.of(transactionConfigData), ImmutableSet.of(matchingServiceConfigData));
     }
 
-    private CountriesConfigEntityData createCountriesConfigEntityData() {
-        return new CountriesConfigEntityData() {};
+    private CountryConfig createCountriesConfig() {
+        return new CountryConfig() {};
     }
 
-    private ConfigDataBootstrap createConfigDataBootstrap(IdentityProviderConfigEntityData identityProviderConfigData,
-                                                          MatchingServiceConfigEntityData matchingServiceConfigData,
-                                                          TransactionConfigEntityData transactionConfigData,
+    private ConfigDataBootstrap createConfigDataBootstrap(IdentityProviderConfig identityProviderConfigData,
+                                                          MatchingServiceConfig matchingServiceConfigData,
+                                                          TransactionConfig transactionConfigData,
                                                           TranslationData translationData,
-                                                          CountriesConfigEntityData countriesConfigData) {
+                                                          CountryConfig countriesConfigData) {
         return new ConfigDataBootstrap(
                 new TestConfigDataSource<>(identityProviderConfigData),
                 new TestConfigDataSource<>(matchingServiceConfigData),
                 new TestConfigDataSource<>(transactionConfigData),
                 new TestConfigDataSource<>(translationData),
                 new TestConfigDataSource<>(countriesConfigData),
-                (ConfigEntityDataRepository<IdentityProviderConfigEntityData>) nullConfigEntityDataRepository,
-                (ConfigEntityDataRepository<MatchingServiceConfigEntityData>) nullConfigEntityDataRepository,
-                (ConfigEntityDataRepository<TransactionConfigEntityData>) nullConfigEntityDataRepository, 
-                (ConfigEntityDataRepository<TranslationData>) nullConfigEntityDataRepository,
-                (ConfigEntityDataRepository<CountriesConfigEntityData>) nullConfigEntityDataRepository,
+                (ConfigRepository<IdentityProviderConfig>) nullConfigRepository,
+                (ConfigRepository<MatchingServiceConfig>) nullConfigRepository,
+                (ConfigRepository<TransactionConfig>) nullConfigRepository,
+                (ConfigRepository<TranslationData>) nullConfigRepository,
+                (ConfigRepository<CountryConfig>) nullConfigRepository,
                 certificateChainConfigValidator,
                 levelsOfAssuranceConfigValidator);
     }

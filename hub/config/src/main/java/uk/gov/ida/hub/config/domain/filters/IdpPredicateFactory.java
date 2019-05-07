@@ -2,7 +2,7 @@ package uk.gov.ida.hub.config.domain.filters;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import javax.inject.Inject;
@@ -17,9 +17,9 @@ public class IdpPredicateFactory {
     }
 
     @Deprecated
-    public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForTransactionEntity(Optional<String> transactionEntity) {
+    public Set<Predicate<IdentityProviderConfig>> createPredicatesForTransactionEntity(Optional<String> transactionEntity) {
         EnabledIdpPredicate enabledIdpPredicate = new EnabledIdpPredicate();
-        Set<Predicate<IdentityProviderConfigEntityData>> predicates = new HashSet<>();
+        Set<Predicate<IdentityProviderConfig>> predicates = new HashSet<>();
         predicates.add(enabledIdpPredicate);
 
         Optional.ofNullable(transactionEntity).ifPresent(s -> predicates.add(new OnboardingForTransactionEntityPredicate(s.get())));
@@ -27,17 +27,17 @@ public class IdpPredicateFactory {
         return predicates;
     }
 
-    public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForTransactionEntityAndLoa(String transactionEntity,
-                                                                                                       LevelOfAssurance levelOfAssurance) {
+    public Set<Predicate<IdentityProviderConfig>> createPredicatesForTransactionEntityAndLoa(String transactionEntity,
+                                                                                             LevelOfAssurance levelOfAssurance) {
         return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntity, levelOfAssurance),
                 new SupportedLoaIdpPredicate(levelOfAssurance), new NewUserIdpPredicate());
     }
 
-    public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForSignIn(String transactionEntityId) {
+    public Set<Predicate<IdentityProviderConfig>> createPredicatesForSignIn(String transactionEntityId) {
         return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null));
     }
 
-    public Set<Predicate<IdentityProviderConfigEntityData>> createPredicatesForSingleIdp(String transactionEntityId) {
+    public Set<Predicate<IdentityProviderConfig>> createPredicatesForSingleIdp(String transactionEntityId) {
         return Sets.newHashSet(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null), new SingleIdpEnabledPredicate(), new NewUserIdpPredicate());
     }
 }

@@ -2,15 +2,14 @@ package uk.gov.ida.hub.config.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.ida.hub.config.ConfigEntityData;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CountriesConfigEntityData implements ConfigEntityData {
+public class CountryConfig implements EntityIdentifiable {
     @SuppressWarnings("unused") // needed to prevent guice injection
-    protected CountriesConfigEntityData() {
+    protected CountryConfig() {
     }
 
     @Valid
