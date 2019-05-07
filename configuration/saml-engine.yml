@@ -57,8 +57,8 @@ logging:
           url: ${SPLUNK_URL}
           token: ${SPLUNK_TOKEN}
           source: ${SPLUNK_SOURCE}
-          sourceType: ${SPLUNK_SOURCE_TYPE}
-          index: ${SPLUNK_INDEX}
+          sourceType: verify-hub_saml-engine
+          index: verify_eidas_notification_saml
   level: INFO
   appenders:
     - type: logstash-console
