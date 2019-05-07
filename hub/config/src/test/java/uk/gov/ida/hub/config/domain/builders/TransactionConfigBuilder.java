@@ -1,7 +1,14 @@
 package uk.gov.ida.hub.config.domain.builders;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import uk.gov.ida.hub.config.domain.*;
+import uk.gov.ida.hub.config.domain.AssertionConsumerService;
+import uk.gov.ida.hub.config.domain.EncryptionCertificate;
+import uk.gov.ida.hub.config.domain.LevelOfAssurance;
+import uk.gov.ida.hub.config.domain.MatchingProcess;
+import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
+import uk.gov.ida.hub.config.domain.TestX509CertificateConfiguration;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
+import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 
 import java.net.URI;
 import java.util.ArrayList;
