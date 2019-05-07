@@ -3,13 +3,11 @@ package uk.gov.ida.hub.config.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.data.ConfigRepository;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
-import uk.gov.ida.hub.config.domain.filters.IdpEntityIdExtractor;
 import uk.gov.ida.hub.config.domain.filters.IdpPredicateFactory;
 import uk.gov.ida.hub.config.dto.IdpConfigDto;
 import uk.gov.ida.hub.config.dto.IdpDto;
@@ -145,9 +143,9 @@ public class IdentityProviderResource {
     public Collection<String> getEnabledIdentityProviderEntityIdsPathParam(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
 
-        Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfig(transactionEntityId);
-
-        return Collections2.transform(matchingIdps, new IdpEntityIdExtractor());
+        return getIdentityProviderConfig(transactionEntityId).stream()
+                .map(IdentityProviderConfig::getEntityId)
+                .collect(Collectors.toList());
     }
 
     @GET
