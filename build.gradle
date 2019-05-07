@@ -38,14 +38,14 @@ ext {
 }
 
 def dependencyVersions = [
-            ida_utils:'352',
+            ida_utils:'359',
             dropwizard:"$dropwizard_version",
             dropwizard_infinispan:"$dropwizard_version-48",
             pact:'3.5.6',
             ida_test_utils:"2.0.0-46",
             opensaml:"$opensaml_version",
             dev_pki: '1.1.0-37',
-            saml_lib:"$opensaml_version-188",
+            saml_lib:"$opensaml_version-190",
         ]
 
 subprojects {
