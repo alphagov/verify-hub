@@ -38,7 +38,7 @@ public class SplunkAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
     private String index;
 
     @JsonProperty
-    private Long batchSizeCount = 10L;
+    private Long batchSizeCount = 1L;
 
     @Override
     public Appender<ILoggingEvent> build(LoggerContext context, String applicationName, LayoutFactory<ILoggingEvent> layoutFactory, LevelFilterFactory<ILoggingEvent> levelFilterFactory, AsyncAppenderFactory<ILoggingEvent> asyncAppenderFactory) {
@@ -52,7 +52,6 @@ public class SplunkAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
         appender.setIndex(index);
         appender.setbatch_size_count(batchSizeCount.toString());
         appender.setLayout(buildLayout(context, layoutFactory));
-
         appender.addFilter(levelFilterFactory.build(threshold));
         appender.start();
 
