@@ -1,9 +1,9 @@
 package uk.gov.ida.hub.config.data;
 
 import com.google.common.collect.ImmutableSet;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
 
 import java.util.HashSet;
@@ -19,18 +19,18 @@ import static uk.gov.ida.hub.config.domain.LevelOfAssurance.LEVEL_2;
 
 public class LevelsOfAssuranceConfigValidator {
 
-    public void validateLevelsOfAssurance(final Set<IdentityProviderConfigEntityData> identityProviderConfigEntityData,
-                                           final Set<TransactionConfigEntityData> transactionConfigEntityData) {
-        validateAllIDPsSupportLOA1orLOA2(identityProviderConfigEntityData);
-        validateAllTransactionsAreLOA1OrLOA2(transactionConfigEntityData);
-        validateAllTransactionsAreSupportedByIDPs(identityProviderConfigEntityData, transactionConfigEntityData);
+    public void validateLevelsOfAssurance(final Set<IdentityProviderConfig> identityProviderConfig,
+                                           final Set<TransactionConfig> transactionConfig) {
+        validateAllIDPsSupportLOA1orLOA2(identityProviderConfig);
+        validateAllTransactionsAreLOA1OrLOA2(transactionConfig);
+        validateAllTransactionsAreSupportedByIDPs(identityProviderConfig, transactionConfig);
     }
 
-    protected void validateAllTransactionsAreSupportedByIDPs(Set<IdentityProviderConfigEntityData> identityProviderConfigEntityData, Set<TransactionConfigEntityData> transactionConfigEntityData) {
-        Map<TransactionConfigEntityData, List<IdentityProviderConfigEntityData>> unsupportedTransaction = transactionConfigEntityData.stream()
+    protected void validateAllTransactionsAreSupportedByIDPs(Set<IdentityProviderConfig> identityProviderConfig, Set<TransactionConfig> transactionConfig) {
+        Map<TransactionConfig, List<IdentityProviderConfig>> unsupportedTransaction = transactionConfig.stream()
                 .collect(Collectors.toMap(
                         identity(),
-                        config -> unsupportedIdpsForATransaction(identityProviderConfigEntityData, config)
+                        config -> unsupportedIdpsForATransaction(identityProviderConfig, config)
                 ));
 
         if (unsupportedTransaction.values().stream().anyMatch(x -> !x.isEmpty())) {
@@ -38,26 +38,26 @@ public class LevelsOfAssuranceConfigValidator {
         }
     }
 
-    private List<IdentityProviderConfigEntityData> unsupportedIdpsForATransaction(Set<IdentityProviderConfigEntityData> identityProviderConfigEntityData, TransactionConfigEntityData transactionConfigEntityData) {
-        Set<LevelOfAssurance> transactionLOAs = ImmutableSet.copyOf(transactionConfigEntityData.getLevelsOfAssurance());
-        return identityProviderConfigEntityData.stream()
-                .filter(idp -> isIdpForTransaction(transactionConfigEntityData, idp))
+    private List<IdentityProviderConfig> unsupportedIdpsForATransaction(Set<IdentityProviderConfig> identityProviderConfig, TransactionConfig transactionConfig) {
+        Set<LevelOfAssurance> transactionLOAs = ImmutableSet.copyOf(transactionConfig.getLevelsOfAssurance());
+        return identityProviderConfig.stream()
+                .filter(idp -> isIdpForTransaction(transactionConfig, idp))
                 .filter(idp -> idpCannotFulfillLoaRequirements(transactionLOAs, idp))
                 .collect(Collectors.toList());
     }
 
-    private boolean isIdpForTransaction(TransactionConfigEntityData transactionConfigEntityData, IdentityProviderConfigEntityData idp) {
-        return idp.getOnboardingTransactionEntityIds().contains(transactionConfigEntityData.getEntityId()) || idp.getOnboardingTransactionEntityIds().isEmpty();
+    private boolean isIdpForTransaction(TransactionConfig transactionConfig, IdentityProviderConfig idp) {
+        return idp.getOnboardingTransactionEntityIds().contains(transactionConfig.getEntityId()) || idp.getOnboardingTransactionEntityIds().isEmpty();
     }
 
-    private boolean idpCannotFulfillLoaRequirements(Set<LevelOfAssurance> transactionLOAs, IdentityProviderConfigEntityData idp) {
+    private boolean idpCannotFulfillLoaRequirements(Set<LevelOfAssurance> transactionLOAs, IdentityProviderConfig idp) {
         Set<LevelOfAssurance> idpLOAs = new HashSet<>(idp.getSupportedLevelsOfAssurance());
         idpLOAs.retainAll(transactionLOAs);
         return idpLOAs.isEmpty();
     }
 
-    protected void validateAllTransactionsAreLOA1OrLOA2(Set<TransactionConfigEntityData> transactionConfigEntityData) {
-        List<TransactionConfigEntityData> badTransactionConfigs = transactionConfigEntityData.stream()
+    protected void validateAllTransactionsAreLOA1OrLOA2(Set<TransactionConfig> transactionConfig) {
+        List<TransactionConfig> badTransactionConfigs = transactionConfig.stream()
                 .filter(x -> {
                     List<LevelOfAssurance> levelsOfAssurance = x.getLevelsOfAssurance();
                     boolean isLoa1 = levelsOfAssurance.equals(asList(LEVEL_1, LEVEL_2));
@@ -70,8 +70,8 @@ public class LevelsOfAssuranceConfigValidator {
         }
     }
 
-    protected void validateAllIDPsSupportLOA1orLOA2(Set<IdentityProviderConfigEntityData> identityProviderConfigEntityData) {
-        List<IdentityProviderConfigEntityData> badIDPConfigs = identityProviderConfigEntityData.stream()
+    protected void validateAllIDPsSupportLOA1orLOA2(Set<IdentityProviderConfig> identityProviderConfig) {
+        List<IdentityProviderConfig> badIDPConfigs = identityProviderConfig.stream()
                 .filter(x -> x.getSupportedLevelsOfAssurance().isEmpty() || containsUnsupportedLOAs(x))
                 .collect(Collectors.toList());
 
@@ -80,8 +80,8 @@ public class LevelsOfAssuranceConfigValidator {
         }
     }
 
-    private boolean containsUnsupportedLOAs(IdentityProviderConfigEntityData identityProviderConfigEntityData) {
-        return !identityProviderConfigEntityData.getSupportedLevelsOfAssurance().stream()
+    private boolean containsUnsupportedLOAs(IdentityProviderConfig identityProviderConfig) {
+        return !identityProviderConfig.getSupportedLevelsOfAssurance().stream()
                 .filter(loa -> loa != LEVEL_1 && loa != LEVEL_2)
                 .collect(Collectors.toList())
                 .isEmpty();

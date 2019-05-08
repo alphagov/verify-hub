@@ -4,7 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder;
 
@@ -28,25 +28,25 @@ final class PredicateTestHelper {
     static final DateTime expiredDatetime = DateTime.now().minusDays(1);
     static final DateTime futureDatetime = DateTime.now().plusDays(1);
 
-    static final IdentityProviderConfigEntityData nonOnboardingLoa1Idp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig nonOnboardingLoa1Idp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_1))
             .withoutOnboarding()
             .withSimpleId("nonOnboardingLoa1Idp")
             .build();
 
-    static final IdentityProviderConfigEntityData nonOnboardingLoa2Idp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig nonOnboardingLoa2Idp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
             .withoutOnboarding()
             .withSimpleId("nonOnboardingLoa2Idp")
             .build();
 
-    static final IdentityProviderConfigEntityData nonOnboardingAllLevelsIdp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig nonOnboardingAllLevelsIdp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withoutOnboarding()
             .withSimpleId("nonOnboardingAllLevelsIdp")
             .build();
 
-    static final IdentityProviderConfigEntityData nonOnboardingSoftDisconnectingIdp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig nonOnboardingSoftDisconnectingIdp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withoutOnboarding()
             .withProvideRegistrationUntil(expiredDatetime)
@@ -54,7 +54,7 @@ final class PredicateTestHelper {
             .withSimpleId("nonOnboardingSoftDisconnectingIdp")
             .build();
 
-    static final IdentityProviderConfigEntityData nonOnboardingHardDisconnectingIdp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig nonOnboardingHardDisconnectingIdp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withoutOnboarding()
             .withProvideRegistrationUntil(expiredDatetime)
@@ -62,14 +62,14 @@ final class PredicateTestHelper {
             .withSimpleId("nonOnboardingHardDisconnectingIdp")
             .build();
 
-    static final IdentityProviderConfigEntityData onboardingLoa1Idp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig onboardingLoa1Idp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
             .withOnboarding(Collections.singletonList(transactionEntityOnboarding))
             .withSimpleId("onboardingLoa1Idp")
             .build();
 
-    static final IdentityProviderConfigEntityData onboardingSoftDisconnectingIdp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig onboardingSoftDisconnectingIdp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboarding(Collections.singletonList(transactionEntityOnboarding))
@@ -78,7 +78,7 @@ final class PredicateTestHelper {
             .withSimpleId("onboardingSoftDisconnectingIdp")
             .build();
 
-    static final IdentityProviderConfigEntityData onboardingHardDisconnectingIdp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig onboardingHardDisconnectingIdp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboarding(Collections.singletonList(transactionEntityOnboarding))
@@ -87,54 +87,54 @@ final class PredicateTestHelper {
             .withSimpleId("onboardingHardDisconnectingIdp")
             .build();
     
-    static final IdentityProviderConfigEntityData onboardingLoa1IdpOtherOnboardingEntity = anIdentityProviderConfigData()
+    static final IdentityProviderConfig onboardingLoa1IdpOtherOnboardingEntity = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
             .withOnboarding(Collections.singletonList(transactionEntityOnboardingOther))
             .withSimpleId("onboardingLoa1IdpOtherOnboardingEntity")
             .build();
 
-    static final IdentityProviderConfigEntityData onboardingLoa2Idp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig onboardingLoa2Idp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_2))
             .withOnboarding(Collections.singletonList(transactionEntityOnboarding))
             .withSimpleId("onboardingLoa2Idp")
             .build();
 
-    static final IdentityProviderConfigEntityData onboardingLoa2IdpOtherOnboardingEntity = anIdentityProviderConfigData()
+    static final IdentityProviderConfig onboardingLoa2IdpOtherOnboardingEntity = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_2))
             .withOnboarding(Collections.singletonList(transactionEntityOnboardingOther))
             .withSimpleId("onboardingLoa2IdpOtherOnboardingEntity")
             .build();
 
-    static final IdentityProviderConfigEntityData onboardingAllLevelsIdp = anIdentityProviderConfigData()
+    static final IdentityProviderConfig onboardingAllLevelsIdp = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboarding(Collections.singletonList(transactionEntityOnboarding))
             .withSimpleId("onboardingAllLevelsIdp")
             .build();
 
-    static final IdentityProviderConfigEntityData onboardingAllLevelsIdpOtherOnboardingEntity = anIdentityProviderConfigData()
+    static final IdentityProviderConfig onboardingAllLevelsIdpOtherOnboardingEntity = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboarding(Collections.singletonList(transactionEntityOnboardingOther))
             .withSimpleId("onboardingAllLevelsIdpOtherOnboardingEntity")
             .build();
 
-    static final Set<IdentityProviderConfigEntityData> allIdps = new HashSet<>(Arrays.asList(nonOnboardingLoa1Idp,
+    static final Set<IdentityProviderConfig> allIdps = new HashSet<>(Arrays.asList(nonOnboardingLoa1Idp,
             nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp, nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp,
             onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa1IdpOtherOnboardingEntity, 
             onboardingLoa2IdpOtherOnboardingEntity, onboardingAllLevelsIdpOtherOnboardingEntity, onboardingSoftDisconnectingIdp,
             onboardingHardDisconnectingIdp));
 
-    static Set<IdentityProviderConfigEntityData> getFilteredIdps(Set<IdentityProviderConfigEntityData> idpSet,
-                                                                 Set<Predicate<IdentityProviderConfigEntityData>> predicateSet) {
+    static Set<IdentityProviderConfig> getFilteredIdps(Set<IdentityProviderConfig> idpSet,
+                                                       Set<Predicate<IdentityProviderConfig>> predicateSet) {
         return Sets.filter(idpSet, Predicates.and(predicateSet));
     }
 
-    static Set<IdentityProviderConfigEntityData> getFilteredIdps(Set<IdentityProviderConfigEntityData> idpSet,
-                                                                 Predicate<IdentityProviderConfigEntityData> predicate) {
+    static Set<IdentityProviderConfig> getFilteredIdps(Set<IdentityProviderConfig> idpSet,
+                                                       Predicate<IdentityProviderConfig> predicate) {
         return Sets.filter(idpSet, predicate);
     }
 }

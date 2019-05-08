@@ -3,8 +3,8 @@ package uk.gov.ida.hub.config.exceptions;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.ida.hub.config.domain.CertificateType;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
 public class ConfigValidationExceptionTest {
     @Test
@@ -70,7 +70,7 @@ public class ConfigValidationExceptionTest {
 
     @Test
     public void createIncompatiblePairsOfTransactionsAndIDPs() throws Exception {
-        Map<TransactionConfigEntityData, List<IdentityProviderConfigEntityData>> incompatiblePairs = ImmutableMap.of(aTransactionConfigData().build(), asList(anIdentityProviderConfigData().build()));
+        Map<TransactionConfig, List<IdentityProviderConfig>> incompatiblePairs = ImmutableMap.of(aTransactionConfigData().build(), asList(anIdentityProviderConfigData().build()));
         ConfigValidationException exception = ConfigValidationException.createIncompatiblePairsOfTransactionsAndIDPs(incompatiblePairs);
         assertThat(exception.getMessage()).isEqualTo("Transaction unsupported by IDP(s).\n" +
                 "Transaction: default-transaction-entity-id\n" +

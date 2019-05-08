@@ -25,8 +25,8 @@ public abstract class CertificateChainConfigValidator {
         this.certificateDtoTransformer = new EntityConfigDataToCertificateDtoTransformer();
     }
 
-    public void validate(final Set<TransactionConfigEntityData> transactionConfigEntityData, final Set<MatchingServiceConfigEntityData> matchingServiceConfigEntityData) {
-        Collection<CertificateDetails> certificateDetails = certificateDtoTransformer.transform(transactionConfigEntityData, matchingServiceConfigEntityData);
+    public void validate(final Set<TransactionConfig> transactionConfigs, final Set<MatchingServiceConfig> matchingServiceConfigs) {
+        Collection<CertificateDetails> certificateDetails = certificateDtoTransformer.transform(transactionConfigs, matchingServiceConfigs);
         ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificateDetails);
 
         handleInvalidCertificates(invalidCertificates);

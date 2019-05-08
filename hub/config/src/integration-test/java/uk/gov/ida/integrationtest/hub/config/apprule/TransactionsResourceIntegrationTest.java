@@ -28,8 +28,8 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.AssertionConsumerServiceBuilder.anAssertionConsumerService;
 import static uk.gov.ida.hub.config.domain.builders.MatchingProcessBuilder.aMatchingProcess;
@@ -105,10 +105,10 @@ public class TransactionsResourceIntegrationTest {
             .withMatchingServiceEntityId(MS_ENTITY_ID)
             .withUsingMatching(false)
             .build())
-        .addMatchingService(aMatchingServiceConfigEntityData()
+        .addMatchingService(aMatchingServiceConfig()
                 .withEntityId(MS_ENTITY_ID)
                 .build())
-        .addMatchingService(aMatchingServiceConfigEntityData()
+        .addMatchingService(aMatchingServiceConfig()
                 .withEntityId(NO_EIDAS_MS_ENTITY_ID)
                 .build())
         .addIdp(anIdentityProviderConfigData()

@@ -5,16 +5,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfigEntityData;
-import uk.gov.ida.hub.config.domain.TransactionConfigEntityData;
+import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
+import uk.gov.ida.hub.config.domain.TransactionConfig;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MatchingServiceAdapterServiceTest {
@@ -28,22 +28,22 @@ public class MatchingServiceAdapterServiceTest {
     private MatchingServiceAdapterService matchingServiceAdapterService;
 
     @Mock
-    private ConfigEntityDataRepository<TransactionConfigEntityData> transactionConfigEntityDataRepository;
+    private ConfigRepository<TransactionConfig> transactionConfigRepository;
 
     @Mock
-    private ConfigEntityDataRepository<MatchingServiceConfigEntityData> matchingServiceConfigEntityDataRepository;
+    private ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
 
     @Before
     public void initialise() {
-        matchingServiceAdapterService = new MatchingServiceAdapterService(transactionConfigEntityDataRepository, matchingServiceConfigEntityDataRepository);
+        matchingServiceAdapterService = new MatchingServiceAdapterService(transactionConfigRepository, matchingServiceConfigRepository);
     }
 
     @Test
     public void matchingServiceFoundWhenMatchingServiceExistsForTransactionEntityId() {
-        MatchingServiceConfigEntityData matchingServiceConfigEntity = aMatchingServiceConfigEntityData()
+        MatchingServiceConfig matchingServiceConfigEntity = aMatchingServiceConfig()
                 .withEntityId("http://www.some-rp-ms.gov.uk")
                 .build();
-        when(matchingServiceConfigEntityDataRepository.getData(TRANSACTION_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfigEntity));
+        when(matchingServiceConfigRepository.getData(TRANSACTION_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfigEntity));
 
         MatchingServiceAdapterService.MatchingServicePerTransaction expectedMatchingServicePerTransaction =
                 matchingServiceAdapterService.new MatchingServicePerTransaction(TRANSACTION_ENTITY_ID, matchingServiceConfigEntity);
@@ -52,14 +52,14 @@ public class MatchingServiceAdapterServiceTest {
 
     @Test(expected = NoSuchElementException.class)
     public void exceptionThrownWhenMatchingServiceDoesNotExistsForTransactionEntityId() {
-        when(matchingServiceConfigEntityDataRepository.getData(TRANSACTION_ENTITY_ID)).thenReturn(Optional.empty());
+        when(matchingServiceConfigRepository.getData(TRANSACTION_ENTITY_ID)).thenReturn(Optional.empty());
 
         matchingServiceAdapterService.getMatchingService(TRANSACTION_ENTITY_ID);
     }
 
     @Test
     public void emptyListReturnedWhenNoTransactionConfigEntitiesExist() {
-        when(transactionConfigEntityDataRepository.getAllData()).thenReturn(new HashSet<>());
+        when(transactionConfigRepository.getAllData()).thenReturn(new HashSet<>());
 
         Collection<MatchingServiceAdapterService.MatchingServicePerTransaction> matchingServices = matchingServiceAdapterService.getMatchingServices();
         assertThat(matchingServices.isEmpty()).isTrue();
@@ -67,28 +67,28 @@ public class MatchingServiceAdapterServiceTest {
 
     @Test(expected = NoSuchElementException.class)
     public void exceptionThrownWhenNoMatchingServiceConfigEntitiesExist() {
-        TransactionConfigEntityData transactionConfigEntityData = aTransactionConfigData().build();
-        when(transactionConfigEntityDataRepository.getAllData())
-                .thenReturn(aTransactionConfigEntityDataSetWith(transactionConfigEntityData));
+        TransactionConfig transactionConfig = aTransactionConfigData().build();
+        when(transactionConfigRepository.getAllData())
+                .thenReturn(aTransactionConfigEntityDataSetWith(transactionConfig));
 
-        when(matchingServiceConfigEntityDataRepository.getData(transactionConfigEntityData.getMatchingServiceEntityId())).thenReturn(Optional.empty());
+        when(matchingServiceConfigRepository.getData(transactionConfig.getMatchingServiceEntityId())).thenReturn(Optional.empty());
 
         matchingServiceAdapterService.getMatchingServices();
     }
 
     @Test
     public void singleMatchingServiceReturnedWhenOnlyOneTransactionExists() {
-        TransactionConfigEntityData transactionConfigEntityData = aTransactionConfigData()
+        TransactionConfig transactionConfig = aTransactionConfigData()
                 .withEntityId(TRANSACTION_ENTITY_ID)
                 .withMatchingServiceEntityId(MATCHING_SERVICE_ENTITY_ID)
                 .build();
-        when(transactionConfigEntityDataRepository.getAllData())
-                .thenReturn(aTransactionConfigEntityDataSetWith(transactionConfigEntityData));
+        when(transactionConfigRepository.getAllData())
+                .thenReturn(aTransactionConfigEntityDataSetWith(transactionConfig));
 
-        MatchingServiceConfigEntityData matchingServiceConfigEntity = aMatchingServiceConfigEntityData()
+        MatchingServiceConfig matchingServiceConfigEntity = aMatchingServiceConfig()
                 .withEntityId("http://www.some-rp-ms.gov.uk")
                 .build();
-        when(matchingServiceConfigEntityDataRepository.getData(MATCHING_SERVICE_ENTITY_ID))
+        when(matchingServiceConfigRepository.getData(MATCHING_SERVICE_ENTITY_ID))
                 .thenReturn(Optional.of(matchingServiceConfigEntity));
 
         MatchingServiceAdapterService.MatchingServicePerTransaction expectedMatchingServicePerTransaction =
@@ -100,26 +100,26 @@ public class MatchingServiceAdapterServiceTest {
 
     @Test
     public void multipleMatchingServicesReturnedWhenMultipleTransactionsExists() {
-        TransactionConfigEntityData transactionConfigEntityData = aTransactionConfigData()
+        TransactionConfig transactionConfig = aTransactionConfigData()
                 .withEntityId(TRANSACTION_ENTITY_ID)
                 .withMatchingServiceEntityId(MATCHING_SERVICE_ENTITY_ID)
                 .build();
-        TransactionConfigEntityData transactionConfigEntityData2 = aTransactionConfigData()
+        TransactionConfig transactionConfig2 = aTransactionConfigData()
                 .withEntityId(TRANSACTION_ENTITY_ID_2)
                 .withMatchingServiceEntityId(MATCHING_SERVICE_ENTITY_ID_2)
                 .build();
-        when(transactionConfigEntityDataRepository.getAllData())
-                .thenReturn(aTransactionConfigEntityDataSetWith(transactionConfigEntityData, transactionConfigEntityData2));
+        when(transactionConfigRepository.getAllData())
+                .thenReturn(aTransactionConfigEntityDataSetWith(transactionConfig, transactionConfig2));
 
-        MatchingServiceConfigEntityData matchingServiceConfigEntity = aMatchingServiceConfigEntityData()
+        MatchingServiceConfig matchingServiceConfigEntity = aMatchingServiceConfig()
                 .withEntityId(MATCHING_SERVICE_CONFIG_ENTITY_ID)
                 .build();
-        MatchingServiceConfigEntityData matchingServiceConfigEntity2 = aMatchingServiceConfigEntityData()
+        MatchingServiceConfig matchingServiceConfigEntity2 = aMatchingServiceConfig()
                 .withEntityId(ANOTHER_MATCHING_SERVICE_CONFIG_ENTITY_ID)
                 .build();
-        when(matchingServiceConfigEntityDataRepository.getData(MATCHING_SERVICE_ENTITY_ID))
+        when(matchingServiceConfigRepository.getData(MATCHING_SERVICE_ENTITY_ID))
                 .thenReturn(Optional.of(matchingServiceConfigEntity));
-        when(matchingServiceConfigEntityDataRepository.getData(MATCHING_SERVICE_ENTITY_ID_2))
+        when(matchingServiceConfigRepository.getData(MATCHING_SERVICE_ENTITY_ID_2))
                 .thenReturn(Optional.of(matchingServiceConfigEntity2));
 
         MatchingServiceAdapterService.MatchingServicePerTransaction expectedMatchingServicePerTransaction =
@@ -131,9 +131,9 @@ public class MatchingServiceAdapterServiceTest {
                 .contains(expectedMatchingServicePerTransaction, otherExpectedMatchingServicePerTransaction);
     }
 
-    private HashSet<TransactionConfigEntityData> aTransactionConfigEntityDataSetWith(TransactionConfigEntityData... transactionConfigEntityData) {
-        HashSet<TransactionConfigEntityData> transactionConfigEntityDataSet = new HashSet<>();
-        transactionConfigEntityDataSet.addAll(Arrays.asList(transactionConfigEntityData));
-        return transactionConfigEntityDataSet;
+    private HashSet<TransactionConfig> aTransactionConfigEntityDataSetWith(TransactionConfig... transactionConfigEntityData) {
+        HashSet<TransactionConfig> transactionConfigSet = new HashSet<>();
+        transactionConfigSet.addAll(Arrays.asList(transactionConfigEntityData));
+        return transactionConfigSet;
     }
 }

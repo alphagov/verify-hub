@@ -3,13 +3,11 @@ package uk.gov.ida.hub.config.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import uk.gov.ida.hub.config.Urls;
-import uk.gov.ida.hub.config.data.ConfigEntityDataRepository;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
-import uk.gov.ida.hub.config.domain.filters.IdpEntityIdExtractor;
 import uk.gov.ida.hub.config.domain.filters.IdpPredicateFactory;
 import uk.gov.ida.hub.config.dto.IdpConfigDto;
 import uk.gov.ida.hub.config.dto.IdpDto;
@@ -32,17 +30,17 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 public class IdentityProviderResource {
 
-    private final ConfigEntityDataRepository<IdentityProviderConfigEntityData> identityProviderConfigEntityDataRepository;
+    private final ConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
     private IdpPredicateFactory idpPredicateFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public IdentityProviderResource(
-            ConfigEntityDataRepository<IdentityProviderConfigEntityData> identityProviderConfigEntityDataRepository,
+            ConfigRepository<IdentityProviderConfig> identityProviderConfigRepository,
             IdpPredicateFactory idpPredicateFactory,
             ExceptionFactory exceptionFactory) {
 
-        this.identityProviderConfigEntityDataRepository = identityProviderConfigEntityDataRepository;
+        this.identityProviderConfigRepository = identityProviderConfigRepository;
         this.idpPredicateFactory = idpPredicateFactory;
         this.exceptionFactory = exceptionFactory;
     }
@@ -54,7 +52,7 @@ public class IdentityProviderResource {
     public List<IdpDto> getIdpList(@QueryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM)
                                    final Optional<String> transactionEntityId) {
 
-        Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityData(transactionEntityId);
+        Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfig(transactionEntityId);
         return matchingIdps.stream().map(configData ->
                 new IdpDto(
                         configData.getSimpleId(),
@@ -70,7 +68,7 @@ public class IdentityProviderResource {
     @Timed
     public List<IdpDto> getIdpList(@PathParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final String transactionEntityId,
                                    @PathParam(Urls.SharedUrls.LEVEL_OF_ASSURANCE_PARAM) final LevelOfAssurance levelOfAssurance) {
-        Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityData(transactionEntityId, levelOfAssurance);
+        Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfig(transactionEntityId, levelOfAssurance);
         return matchingIdps.stream()
                 .map(configData ->
                         new IdpDto(
@@ -86,7 +84,7 @@ public class IdentityProviderResource {
     @Path(Urls.ConfigUrls.IDP_LIST_FOR_SIGN_IN_PATH)
     @Timed
     public List<IdpDto> getIdpListForSignIn(@PathParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final String transactionEntityId) {
-        Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityDataForSignIn(transactionEntityId);
+        Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfigForSignIn(transactionEntityId);
         return matchingIdps.stream()
                 .map(configData ->
                         new IdpDto(
@@ -102,7 +100,7 @@ public class IdentityProviderResource {
     @Path(Urls.ConfigUrls.IDP_LIST_FOR_SINGLE_IDP_PATH)
     @Timed
     public List<IdpDto> getIdpListForSingleIdp(@PathParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final String transactionEntityId) {
-        Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityDataForSingleIdp(transactionEntityId);
+        Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfigForSingleIdp(transactionEntityId);
         return matchingIdps.stream()
                 .map(configData ->
                         new IdpDto(
@@ -119,7 +117,7 @@ public class IdentityProviderResource {
     @Timed
     public IdpConfigDto getIdpConfig(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
 
-        IdentityProviderConfigEntityData idpData = getIdentityProviderConfigData(entityId);
+        IdentityProviderConfig idpData = getIdentityProviderConfigData(entityId);
         return new IdpConfigDto(
                 idpData.getSimpleId(),
                 idpData.isEnabled(),
@@ -145,9 +143,9 @@ public class IdentityProviderResource {
     public Collection<String> getEnabledIdentityProviderEntityIdsPathParam(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
 
-        Collection<IdentityProviderConfigEntityData> matchingIdps = getIdentityProviderConfigEntityData(transactionEntityId);
-
-        return Collections2.transform(matchingIdps, new IdpEntityIdExtractor());
+        return getIdentityProviderConfig(transactionEntityId).stream()
+                .map(IdentityProviderConfig::getEntityId)
+                .collect(Collectors.toList());
     }
 
     @GET
@@ -167,8 +165,8 @@ public class IdentityProviderResource {
         return getIdpList(transactionEntityId, levelOfAssurance).stream().map(IdpDto::getEntityId).collect(Collectors.toList());
     }
 
-    private IdentityProviderConfigEntityData getIdentityProviderConfigData(String identityProviderEntityId) {
-        final Optional<IdentityProviderConfigEntityData> configData = identityProviderConfigEntityDataRepository.getData(identityProviderEntityId);
+    private IdentityProviderConfig getIdentityProviderConfigData(String identityProviderEntityId) {
+        final Optional<IdentityProviderConfig> configData = identityProviderConfigRepository.getData(identityProviderEntityId);
         if (!configData.isPresent()) {
             throw exceptionFactory.createNoDataForEntityException(identityProviderEntityId);
         }
@@ -179,31 +177,31 @@ public class IdentityProviderResource {
     }
 
     @Deprecated
-    private Set<IdentityProviderConfigEntityData> getIdentityProviderConfigEntityData(Optional<String> transactionEntityId) {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicatesForTransactionEntity = idpPredicateFactory.createPredicatesForTransactionEntity(transactionEntityId);
+    private Set<IdentityProviderConfig> getIdentityProviderConfig(Optional<String> transactionEntityId) {
+        Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity = idpPredicateFactory.createPredicatesForTransactionEntity(transactionEntityId);
         return idpsFilteredBy(predicatesForTransactionEntity);
     }
 
-    private Set<IdentityProviderConfigEntityData> getIdentityProviderConfigEntityData(String transactionEntityId,
-                                                                                      LevelOfAssurance levelOfAssurance) {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicatesForTransactionEntity =
+    private Set<IdentityProviderConfig> getIdentityProviderConfig(String transactionEntityId,
+                                                                  LevelOfAssurance levelOfAssurance) {
+        Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity =
                 idpPredicateFactory.createPredicatesForTransactionEntityAndLoa(transactionEntityId, levelOfAssurance);
         return idpsFilteredBy(predicatesForTransactionEntity);
     }
 
-    private Set<IdentityProviderConfigEntityData> getIdentityProviderConfigEntityDataForSignIn(String transactionEntityId) {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicatesForTransactionEntity =
+    private Set<IdentityProviderConfig> getIdentityProviderConfigForSignIn(String transactionEntityId) {
+        Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity =
                 idpPredicateFactory.createPredicatesForSignIn(transactionEntityId);
         return idpsFilteredBy(predicatesForTransactionEntity);
     }
 
-    private Set<IdentityProviderConfigEntityData> getIdentityProviderConfigEntityDataForSingleIdp(String transactionEntityId) {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicatesForTransactionEntity =
+    private Set<IdentityProviderConfig> getIdentityProviderConfigForSingleIdp(String transactionEntityId) {
+        Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity =
                 idpPredicateFactory.createPredicatesForSingleIdp(transactionEntityId);
         return idpsFilteredBy(predicatesForTransactionEntity);
     }
 
-    private Set<IdentityProviderConfigEntityData> idpsFilteredBy(Set<Predicate<IdentityProviderConfigEntityData>> predicatesForTransactionEntity) {
-        return Sets.filter(identityProviderConfigEntityDataRepository.getAllData(), Predicates.and(predicatesForTransactionEntity));
+    private Set<IdentityProviderConfig> idpsFilteredBy(Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity) {
+        return Sets.filter(identityProviderConfigRepository.getAllData(), Predicates.and(predicatesForTransactionEntity));
     }
 }

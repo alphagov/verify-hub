@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.config.domain.filters;
 
 import com.google.common.base.Predicate;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 
 @Deprecated
-public class OnboardingForTransactionEntityPredicate implements Predicate<IdentityProviderConfigEntityData> {
+public class OnboardingForTransactionEntityPredicate implements Predicate<IdentityProviderConfig> {
     private String transactionEntity;
 
     public OnboardingForTransactionEntityPredicate(String transactionEntity) {
@@ -12,9 +12,9 @@ public class OnboardingForTransactionEntityPredicate implements Predicate<Identi
     }
 
     @Override
-    public boolean apply(IdentityProviderConfigEntityData identityProviderConfigEntityData) {
-        boolean isOnboarding = !identityProviderConfigEntityData.getOnboardingTransactionEntityIds().isEmpty();
-        return !isOnboarding || identityProviderConfigEntityData.getOnboardingTransactionEntityIds().contains(transactionEntity);
+    public boolean apply(IdentityProviderConfig identityProviderConfig) {
+        boolean isOnboarding = !identityProviderConfig.getOnboardingTransactionEntityIds().isEmpty();
+        return !isOnboarding || identityProviderConfig.getOnboardingTransactionEntityIds().contains(transactionEntity);
     }
 
     public String getTransactionEntity() {

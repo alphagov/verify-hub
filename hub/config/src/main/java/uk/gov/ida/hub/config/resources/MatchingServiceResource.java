@@ -3,7 +3,7 @@ package uk.gov.ida.hub.config.resources;
 import com.codahale.metrics.annotation.Timed;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.application.MatchingServiceAdapterService;
-import uk.gov.ida.hub.config.dto.MatchingServiceConfigEntityDataDto;
+import uk.gov.ida.hub.config.dto.MatchingServiceConfigDto;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -28,7 +28,7 @@ public class MatchingServiceResource {
     @GET
     @Path(Urls.ConfigUrls.MATCHING_SERVICE_PATH)
     @Timed
-    public MatchingServiceConfigEntityDataDto getMatchingService(
+    public MatchingServiceConfigDto getMatchingService(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         MatchingServiceAdapterService.MatchingServicePerTransaction matchingServicePerTransaction = matchingServiceAdapterService.getMatchingService(entityId);
 
@@ -37,14 +37,14 @@ public class MatchingServiceResource {
 
     @GET
     @Timed
-    public Collection<MatchingServiceConfigEntityDataDto> getMatchingServices() {
+    public Collection<MatchingServiceConfigDto> getMatchingServices() {
         return matchingServiceAdapterService.getMatchingServices().stream()
                 .map(this::toMatchingServiceDto)
                 .collect(toList());
     }
 
-    private MatchingServiceConfigEntityDataDto toMatchingServiceDto(MatchingServiceAdapterService.MatchingServicePerTransaction matchingServicePerTransaction) {
-        return new MatchingServiceConfigEntityDataDto(
+    private MatchingServiceConfigDto toMatchingServiceDto(MatchingServiceAdapterService.MatchingServicePerTransaction matchingServicePerTransaction) {
+        return new MatchingServiceConfigDto(
                 matchingServicePerTransaction.getEntityId(),
                 matchingServicePerTransaction.getUri(),
                 matchingServicePerTransaction.getEntityId(),

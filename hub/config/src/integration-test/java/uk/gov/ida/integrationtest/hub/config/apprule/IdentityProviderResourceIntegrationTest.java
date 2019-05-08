@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
 public class IdentityProviderResourceIntegrationTest {
     private static Client client;
@@ -55,7 +55,7 @@ public class IdentityProviderResourceIntegrationTest {
                 .withEntityId(DEFAULT_RP)
                 .withMatchingServiceEntityId(DEFAULT_MS)
                 .build())
-        .addMatchingService(aMatchingServiceConfigEntityData()
+        .addMatchingService(aMatchingServiceConfig()
                 .withEntityId(DEFAULT_MS)
                 .build())
         .addIdp(anIdentityProviderConfigData()
@@ -67,7 +67,7 @@ public class IdentityProviderResourceIntegrationTest {
                 .withEntityId(ONBOARDING_RP)
                 .withMatchingServiceEntityId(ONBOARDING_MS)
                 .build())
-        .addMatchingService(aMatchingServiceConfigEntityData()
+        .addMatchingService(aMatchingServiceConfig()
                 .withEntityId(ONBOARDING_MS)
                 .build())
         .addIdp(anIdentityProviderConfigData()
@@ -80,7 +80,7 @@ public class IdentityProviderResourceIntegrationTest {
                 .withEntityId(LOA_1_TEST_RP)
                 .withMatchingServiceEntityId(LOA_1_MS)
                 .build())
-        .addMatchingService(aMatchingServiceConfigEntityData()
+        .addMatchingService(aMatchingServiceConfig()
                 .withEntityId(LOA_1_MS)
                 .build())
         .addIdp(anIdentityProviderConfigData()

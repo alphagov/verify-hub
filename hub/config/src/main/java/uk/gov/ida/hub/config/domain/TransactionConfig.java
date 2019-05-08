@@ -3,8 +3,6 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.validation.ValidationMethod;
-import uk.gov.ida.hub.config.CertificateEntity;
-import uk.gov.ida.hub.config.ConfigEntityData;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
 import static java.util.Optional.ofNullable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TransactionConfigEntityData implements ConfigEntityData, CertificateEntity {
+public class TransactionConfig implements EntityIdentifiable, CertificateConfigurable {
 
     @Valid
     @NotNull
@@ -115,7 +113,7 @@ public class TransactionConfigEntityData implements ConfigEntityData, Certificat
     protected boolean eidasProxyNode;
 
     @SuppressWarnings("unused") // needed to prevent guice injection
-    protected TransactionConfigEntityData() {
+    protected TransactionConfig() {
     }
 
     @ValidationMethod(message = "Assertion Consumer Service indices must be unique.")

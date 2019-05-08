@@ -13,23 +13,23 @@ import static org.mockito.Mockito.when;
 public class EntityConfigDataToCertificateDtoTransformerTest {
 
     private EntityConfigDataToCertificateDtoTransformer transformer;
-    private ImmutableSet<TransactionConfigEntityData> transactionConfigEntityDatas;
-    private ImmutableSet<MatchingServiceConfigEntityData> matchingServiceConfigEntityDatas;
-    private ImmutableSet<IdentityProviderConfigEntityData> identityProviderConfigEntityDatas;
+    private ImmutableSet<TransactionConfig> transactionConfigs;
+    private ImmutableSet<MatchingServiceConfig> matchingServiceConfigs;
+    private ImmutableSet<IdentityProviderConfig> identityProviderConfigs;
     private final String entityId = "ENTITY_ID";
 
     @Before
     public void setUp() throws Exception {
         transformer = new EntityConfigDataToCertificateDtoTransformer();
-        identityProviderConfigEntityDatas = ImmutableSet.of();
-        transactionConfigEntityDatas = ImmutableSet.of();
-        matchingServiceConfigEntityDatas = ImmutableSet.of();
+        identityProviderConfigs = ImmutableSet.of();
+        transactionConfigs = ImmutableSet.of();
+        matchingServiceConfigs = ImmutableSet.of();
     }
 
     @Test
     public void shouldIncludeTransactionSignatureCertificatesAndEncryptionCertificateInList() throws Exception {
-        TransactionConfigEntityData transactionConfigEntityData = mock(TransactionConfigEntityData.class);
-        transactionConfigEntityDatas = ImmutableSet.of(transactionConfigEntityData);
+        TransactionConfig transactionConfig = mock(TransactionConfig.class);
+        transactionConfigs = ImmutableSet.of(transactionConfig);
 
         Certificate signatureVerificationCertificate = mock(Certificate.class);
         Certificate encryptionCertificate = mock(EncryptionCertificate.class);
@@ -39,11 +39,11 @@ public class EntityConfigDataToCertificateDtoTransformerTest {
         when(encryptionCertificate.getX509()).thenReturn(encryptionX509);
         when(signatureVerificationCertificate.getX509()).thenReturn(signatureX509);
 
-        doReturn(encryptionCertificate).when(transactionConfigEntityData).getEncryptionCertificate();
-        doReturn(ImmutableList.of(signatureVerificationCertificate)).when(transactionConfigEntityData).getSignatureVerificationCertificates();
-        doReturn(entityId).when(transactionConfigEntityData).getEntityId();
+        doReturn(encryptionCertificate).when(transactionConfig).getEncryptionCertificate();
+        doReturn(ImmutableList.of(signatureVerificationCertificate)).when(transactionConfig).getSignatureVerificationCertificates();
+        doReturn(entityId).when(transactionConfig).getEntityId();
 
-        ImmutableList<CertificateDetails> certificates = transformer.transform(transactionConfigEntityDatas, matchingServiceConfigEntityDatas);
+        ImmutableList<CertificateDetails> certificates = transformer.transform(transactionConfigs, matchingServiceConfigs);
 
         assertThat(certificates.size()).isEqualTo(2);
         assertThat(certificates.get(0).getX509()).isEqualTo(signatureX509);
@@ -54,8 +54,8 @@ public class EntityConfigDataToCertificateDtoTransformerTest {
 
     @Test
     public void shouldIncludeMatchingServiceSignatureCertificatesAndEncryptionCertificateInList() throws Exception {
-        MatchingServiceConfigEntityData matchingServiceConfigEntityData = mock(MatchingServiceConfigEntityData.class);
-        matchingServiceConfigEntityDatas = ImmutableSet.of(matchingServiceConfigEntityData);
+        MatchingServiceConfig matchingServiceConfig = mock(MatchingServiceConfig.class);
+        matchingServiceConfigs = ImmutableSet.of(matchingServiceConfig);
 
         Certificate signatureVerificationCertificate = mock(Certificate.class);
         Certificate encryptionCertificate = mock(EncryptionCertificate.class);
@@ -65,12 +65,12 @@ public class EntityConfigDataToCertificateDtoTransformerTest {
         when(encryptionCertificate.getX509()).thenReturn(encryptionX509);
         when(signatureVerificationCertificate.getX509()).thenReturn(signatureX509);
 
-        doReturn(encryptionCertificate).when(matchingServiceConfigEntityData).getEncryptionCertificate();
-        doReturn(ImmutableList.of(signatureVerificationCertificate)).when(matchingServiceConfigEntityData).getSignatureVerificationCertificates();
-        doReturn(entityId).when(matchingServiceConfigEntityData).getEntityId();
+        doReturn(encryptionCertificate).when(matchingServiceConfig).getEncryptionCertificate();
+        doReturn(ImmutableList.of(signatureVerificationCertificate)).when(matchingServiceConfig).getSignatureVerificationCertificates();
+        doReturn(entityId).when(matchingServiceConfig).getEntityId();
 
 
-        ImmutableList<CertificateDetails> entityCertificates = transformer.transform(transactionConfigEntityDatas, matchingServiceConfigEntityDatas);
+        ImmutableList<CertificateDetails> entityCertificates = transformer.transform(transactionConfigs, matchingServiceConfigs);
 
         assertThat(entityCertificates.size()).isEqualTo(2);
         assertThat(entityCertificates.get(0).getX509()).isEqualTo(signatureX509);

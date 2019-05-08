@@ -24,8 +24,8 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.EncryptionCertificateBuilder.anEncryptionCertificate;
 import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
-import static uk.gov.ida.hub.config.domain.builders.TransactionConfigEntityDataBuilder.aTransactionConfigData;
-import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigEntityDataBuilder.aMatchingServiceConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
+import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 
 
@@ -58,7 +58,7 @@ public class CertificatesResourceIntegrationTest {
                     .withMatchingServiceEntityId(RP_MS_ENTITY_ID)
                     .addSignatureVerificationCertificate(BAD_SIGNATURE_CERTIFICATE)
                     .build())
-            .addMatchingService(aMatchingServiceConfigEntityData()
+            .addMatchingService(aMatchingServiceConfig()
                     .withEntityId(RP_MS_ENTITY_ID)
                     .build())
             .addIdp(anIdentityProviderConfigData()

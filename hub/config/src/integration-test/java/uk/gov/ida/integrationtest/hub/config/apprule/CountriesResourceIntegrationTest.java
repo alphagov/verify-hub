@@ -8,7 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import uk.gov.ida.hub.config.Urls;
-import uk.gov.ida.hub.config.domain.CountriesConfigEntityData;
+import uk.gov.ida.hub.config.domain.CountryConfig;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
 
 import javax.ws.rs.client.Client;
@@ -19,7 +19,7 @@ import java.util.Collection;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.hub.config.domain.builders.CountriesConfigEntityDataBuilder.aCountriesConfigEntityData;
+import static uk.gov.ida.hub.config.domain.builders.CountryConfigBuilder.aCountryConfig;
 
 public class CountriesResourceIntegrationTest {
     private static Client client;
@@ -29,7 +29,7 @@ public class CountriesResourceIntegrationTest {
     @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule()
             .addCountry(
-                aCountriesConfigEntityData()
+                aCountryConfig()
                     .withEntityId(COUNTRY_ID)
                     .withSimpleId(COUNTRY_ID)
                     .withOverriddenSsoUrl(SSO_URL)
@@ -47,10 +47,10 @@ public class CountriesResourceIntegrationTest {
         URI uri = configAppRule.getUri(Urls.ConfigUrls.COUNTRIES_ROOT).build();
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Collection<CountriesConfigEntityData> result = response.readEntity(new GenericType<Collection<CountriesConfigEntityData>>() {}) ;
+        Collection<CountryConfig> result = response.readEntity(new GenericType<Collection<CountryConfig>>() {}) ;
         assertNotNull(result);
         assertThat(result.size()).isGreaterThan(0);
-        CountriesConfigEntityData countryConfigEntityData = result.stream()
+        CountryConfig countryConfigEntityData = result.stream()
                 .filter(countriesConfigEntityData -> countriesConfigEntityData.getSimpleId().equals(COUNTRY_ID))
                 .findAny().get();
         assertThat(countryConfigEntityData.getEntityId()).isEqualTo(COUNTRY_ID);

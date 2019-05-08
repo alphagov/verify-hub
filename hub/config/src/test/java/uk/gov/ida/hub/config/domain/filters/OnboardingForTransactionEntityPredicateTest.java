@@ -3,7 +3,7 @@ package uk.gov.ida.hub.config.domain.filters;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ public class OnboardingForTransactionEntityPredicateTest {
     @Test
     public void shouldBeTrueForNonOnboarding() {
         String transactionEntity = "transactionEntity";
-        Predicate<IdentityProviderConfigEntityData> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);
+        Predicate<IdentityProviderConfig> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);
 
-        IdentityProviderConfigEntityData nonOnboardingIdp = anIdentityProviderConfigData()
+        IdentityProviderConfig nonOnboardingIdp = anIdentityProviderConfigData()
                 .build();
 
         assertThat(onboardingPredicate.apply(nonOnboardingIdp)).isTrue();
@@ -26,9 +26,9 @@ public class OnboardingForTransactionEntityPredicateTest {
     @Test
     public void shouldBeTrueForOnboardingForSameTransactionEntity() {
         String transactionEntity = "transactionEntity";
-        Predicate<IdentityProviderConfigEntityData> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);
+        Predicate<IdentityProviderConfig> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);
 
-        IdentityProviderConfigEntityData onboardingSameTransactionEntityIdp = anIdentityProviderConfigData()
+        IdentityProviderConfig onboardingSameTransactionEntityIdp = anIdentityProviderConfigData()
                 .withOnboarding(ImmutableList.of(transactionEntity))
                 .build();
 
@@ -39,9 +39,9 @@ public class OnboardingForTransactionEntityPredicateTest {
     public void shouldBeFalseForOnboardingDifferentTransactionEntity() {
         String transactionEntity = "transactionEntity";
         List<String>  differentTransactionEntity = ImmutableList.of("differentTransactionEntity");
-        Predicate<IdentityProviderConfigEntityData> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);
+        Predicate<IdentityProviderConfig> onboardingPredicate = new OnboardingForTransactionEntityPredicate(transactionEntity);
 
-        IdentityProviderConfigEntityData onboardingDifferentTransactionEntityIdp = anIdentityProviderConfigData()
+        IdentityProviderConfig onboardingDifferentTransactionEntityIdp = anIdentityProviderConfigData()
                 .withOnboarding(differentTransactionEntity)
                 .build();
 

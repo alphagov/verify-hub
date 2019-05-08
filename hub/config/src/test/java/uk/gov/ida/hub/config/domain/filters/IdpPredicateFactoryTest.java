@@ -4,7 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.ida.hub.config.domain.IdentityProviderConfigEntityData;
+import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import java.util.Set;
@@ -25,7 +25,7 @@ public class IdpPredicateFactoryTest {
 
     @Test
     public void createPredicatesForTransactionEntityAndLoA_shouldNotIncludeExtraPredicate() throws Exception {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicates = idpPredicateFactory.createPredicatesForTransactionEntityAndLoa(TRANSACTION_ENTITY, LEVEL_OF_ASSURANCE);
+        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntityAndLoa(TRANSACTION_ENTITY, LEVEL_OF_ASSURANCE);
 
         Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
         Predicate<Predicate> findOnboarding = input -> input instanceof OnboardingIdpPredicate;
@@ -41,14 +41,14 @@ public class IdpPredicateFactoryTest {
 
     @Test
     public void createPredicatesForTransactionEntity_shouldNotIncludeExtraPredicate() throws Exception {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(ofNullable(TRANSACTION_ENTITY));
+        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(ofNullable(TRANSACTION_ENTITY));
 
         assertThat(predicates).hasSize(2);
     }
 
     @Test
     public void createPredicatesForTransactionEntity_shouldIncludeEnabledPredicateWhenTransactionEntityIdIsProvided() throws Exception {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(ofNullable(TRANSACTION_ENTITY));
+        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(ofNullable(TRANSACTION_ENTITY));
 
         Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
 
@@ -57,7 +57,7 @@ public class IdpPredicateFactoryTest {
 
     @Test
     public void createPredicatesForTransactionEntity_shouldIncludeEnabledPredicateWhenTransactionEntityIdIsNotProvided() throws Exception {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(null);
+        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(null);
 
         Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
 
@@ -66,7 +66,7 @@ public class IdpPredicateFactoryTest {
 
     @Test
     public void createPredicatesForTransactionEntity_shouldIncludeTransactionEntityPredicateWhenTransactionEntityIdIsProvided() throws Exception {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicates =
+        Set<Predicate<IdentityProviderConfig>> predicates =
                 idpPredicateFactory.createPredicatesForTransactionEntity(ofNullable(TRANSACTION_ENTITY));
 
         Predicate<Predicate> findEnabled = input -> {
@@ -82,7 +82,7 @@ public class IdpPredicateFactoryTest {
 
     @Test
     public void createPredicatesForTransactionEntity_shouldNotIncludeTransactionEntityPredicateWhenTransactionEntityIdIsNotProvided() throws Exception {
-        Set<Predicate<IdentityProviderConfigEntityData>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(null);
+        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(null);
 
         Predicate<Predicate> findEnabled = input -> {
             if(!(input instanceof OnboardingForTransactionEntityPredicate)){

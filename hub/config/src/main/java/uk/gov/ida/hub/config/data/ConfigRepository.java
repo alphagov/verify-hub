@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.config.data;
 
-import uk.gov.ida.hub.config.ConfigEntityData;
+import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class ConfigEntityDataRepository<T extends ConfigEntityData> {
+public class ConfigRepository<T extends EntityIdentifiable> {
 
     private Map<String, T> dataMap = new HashMap<>();
 
     @Inject
-    public ConfigEntityDataRepository() {
+    public ConfigRepository() {
     }
 
     public Optional<T> getData(String entityId) {

@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections.ListUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import uk.gov.ida.hub.config.ConfigEntityData;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -15,10 +14,10 @@ import java.util.List;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IdentityProviderConfigEntityData implements ConfigEntityData {
+public class IdentityProviderConfig implements EntityIdentifiable {
 
     @SuppressWarnings("unused") // needed to prevent guice injection
-    protected IdentityProviderConfigEntityData() {
+    protected IdentityProviderConfig() {
     }
 
     // If present, the IDP will only be visible when fulfilling a request from

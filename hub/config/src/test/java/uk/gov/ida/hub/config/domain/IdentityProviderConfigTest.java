@@ -11,7 +11,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 
-public class IdentityProviderConfigEntityDataTest {
+public class IdentityProviderConfigTest {
 
     private final IdentityProviderConfigDataBuilder dataBuilder = anIdentityProviderConfigData();
 
@@ -20,14 +20,14 @@ public class IdentityProviderConfigEntityDataTest {
 
     @Test
     public void should_defaultSupportedLevelsOfAssuranceToOnlyIncludeLOA2() {
-        IdentityProviderConfigEntityData data = dataBuilder.build();
+        IdentityProviderConfig data = dataBuilder.build();
 
         assertThat(data.getSupportedLevelsOfAssurance()).containsExactly(LevelOfAssurance.LEVEL_2);
     }
     
     @Test
     public void shouldReturnTrueForRegistrationEnabled_whenProvideRegistrationUntilHasNotBeenSpecified() {
-        IdentityProviderConfigEntityData data = dataBuilder.build();
+        IdentityProviderConfig data = dataBuilder.build();
         data.provideRegistrationUntil = "";
 
         assertThat(data.isRegistrationEnabled()).isEqualTo(true);
@@ -35,7 +35,7 @@ public class IdentityProviderConfigEntityDataTest {
     
     @Test
     public void shouldReturnTrueForRegistrationEnabled_whenProvideRegistrationUntilDateHasNotExpired() {
-        IdentityProviderConfigEntityData data = dataBuilder
+        IdentityProviderConfig data = dataBuilder
             .withProvideRegistrationUntil(futureDatetime)
             .build();
         
@@ -44,7 +44,7 @@ public class IdentityProviderConfigEntityDataTest {
     
     @Test
     public void shouldReturnFalseForRegistrationEnabled_whenProvideRegistrationUntilDateHasExpired() {
-        IdentityProviderConfigEntityData data = dataBuilder
+        IdentityProviderConfig data = dataBuilder
             .withProvideRegistrationUntil(expiredDatetime)
             .build();
         
@@ -53,14 +53,14 @@ public class IdentityProviderConfigEntityDataTest {
 
     @Test(expected = java.lang.IllegalArgumentException.class)
     public void shouldThrowInvalidFormatException_whenProvideRegistrationUntilHasBeenSpecifiedButIsInvalid() {
-        IdentityProviderConfigEntityData data = dataBuilder.build();
+        IdentityProviderConfig data = dataBuilder.build();
         data.provideRegistrationUntil = "2020-09-09";
         data.isRegistrationEnabled();
     }
 
     @Test
     public void shouldReturnTrueForAuthenticationEnabled_whenProvideAuthenticationUntilHasNotBeenSpecified() {
-        IdentityProviderConfigEntityData data = dataBuilder.build();
+        IdentityProviderConfig data = dataBuilder.build();
         data.provideAuthenticationUntil = "";
 
         assertThat(data.isAuthenticationEnabled()).isEqualTo(true);
@@ -68,7 +68,7 @@ public class IdentityProviderConfigEntityDataTest {
     
     @Test
     public void shouldReturnTrueForAuthenticationEnabled_whenProvideAuthenticationUntilDateHasNotExpired() {
-        IdentityProviderConfigEntityData data = dataBuilder
+        IdentityProviderConfig data = dataBuilder
             .withProvideAuthenticationUntil(futureDatetime)
             .build();
         
@@ -77,7 +77,7 @@ public class IdentityProviderConfigEntityDataTest {
     
     @Test
     public void shouldReturnFalseForAuthenticationEnabled_whenProvideAuthenticationUntilDateHasExpired() {
-        IdentityProviderConfigEntityData data = dataBuilder
+        IdentityProviderConfig data = dataBuilder
             .withProvideAuthenticationUntil(expiredDatetime)
             .build();
         
@@ -86,14 +86,14 @@ public class IdentityProviderConfigEntityDataTest {
 
     @Test(expected = java.lang.IllegalArgumentException.class)
     public void shouldThrowInvalidFormatException_whenProvideAuthenticationUntilHasBeenSpecifiedButIsInvalid() {
-        IdentityProviderConfigEntityData data = dataBuilder.build();
+        IdentityProviderConfig data = dataBuilder.build();
         data.provideAuthenticationUntil = "2020-09-09";
         data.isAuthenticationEnabled();
     }
 
     @Test
     public void shouldReturnAllOnboardingEntityIds() {
-        IdentityProviderConfigEntityData data = dataBuilder
+        IdentityProviderConfig data = dataBuilder
                 .withOnboarding(Arrays.asList("EID1", "EID2"))
                 .withOnboardingTemp(Arrays.asList("EID_OT1", "EID_OT2"))
                 .build();
@@ -113,10 +113,10 @@ public class IdentityProviderConfigEntityDataTest {
 
     @Test
     public void shouldCheckThatIsOnboardingForTransactionEntity() {
-        final IdentityProviderConfigEntityData dataWithoutOnboarding = dataBuilder.withEntityId("EID").build();
+        final IdentityProviderConfig dataWithoutOnboarding = dataBuilder.withEntityId("EID").build();
         assertThat(dataWithoutOnboarding.isOnboardingForTransactionEntity("EID")).isFalse();
 
-        final IdentityProviderConfigEntityData data = dataBuilder
+        final IdentityProviderConfig data = dataBuilder
                 .withOnboarding(Collections.singletonList("EID_O"))
                 .withOnboardingTemp(Collections.singletonList("EID_OT"))
                 .build();
@@ -127,14 +127,14 @@ public class IdentityProviderConfigEntityDataTest {
 
     @Test
     public void shouldCheckThatIsOnboardingAtAllLevels() {
-        final IdentityProviderConfigEntityData dataOnboardingAtAllLevels = dataBuilder
+        final IdentityProviderConfig dataOnboardingAtAllLevels = dataBuilder
                 .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
                 .withOnboardingLevels(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
                 .build();
 
         assertThat(dataOnboardingAtAllLevels.isOnboardingAtAllLevels()).isTrue();
 
-        final IdentityProviderConfigEntityData dataOnboardingAtOneLevelOnly = dataBuilder
+        final IdentityProviderConfig dataOnboardingAtOneLevelOnly = dataBuilder
                 .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
                 .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
                 .build();
@@ -144,7 +144,7 @@ public class IdentityProviderConfigEntityDataTest {
 
     @Test
     public void shouldCheckThatIsOnboardingAtLoa() {
-        final IdentityProviderConfigEntityData data = dataBuilder
+        final IdentityProviderConfig data = dataBuilder
                 .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
                 .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
                 .build();
