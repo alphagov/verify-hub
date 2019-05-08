@@ -8,6 +8,7 @@ import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
 import uk.gov.ida.hub.config.configuration.PrometheusClientServiceConfiguration;
+import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
@@ -51,6 +52,10 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @NotNull
     @JsonProperty
     protected Duration certificateWarningPeriod = Duration.days(30);
+
+    @Valid
+    @JsonProperty
+    protected SelfServiceConfig selfService;
 
     @Valid
     @JsonProperty
@@ -100,6 +105,10 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @Override
     public boolean isPrometheusEnabled() {
         return true;
+    }
+
+    public SelfServiceConfig getSelfService() {
+        return selfService;
     }
 
     public PrometheusClientServiceConfiguration getCertificateExpiryDateCheckServiceConfiguration() {
