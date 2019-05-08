@@ -112,6 +112,11 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
     @JsonProperty
     protected boolean eidasProxyNode;
 
+    @Valid
+    @JsonProperty
+    protected boolean selfService = false;
+
+
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfig() {
     }
@@ -243,4 +248,9 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
     public boolean isEidasProxyNode() {
         return eidasProxyNode;
     }
+
+    public boolean isSelfService() {
+        return selfService;
+    }
+
 }
