@@ -33,7 +33,7 @@ public class OcspCertificateChainValidationService implements Runnable {
     @Override
     public void run() {
         try {
-            final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificatesDetails();
+            final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificateDetails();
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
             certificateDetailsSet.forEach(certificateDetails -> {
                 try {
