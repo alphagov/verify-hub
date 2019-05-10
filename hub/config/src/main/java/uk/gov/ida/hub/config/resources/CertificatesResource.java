@@ -91,7 +91,7 @@ public class CertificatesResource {
     public Collection<CertificateDto> getSignatureVerificationCertificates(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         try {
-            List<CertificateDetails> certificateDetails = certificateService.signatureVerificatonCertificatesFor(entityId);
+            List<CertificateDetails> certificateDetails = certificateService.signatureVerificationCertificatesFor(entityId);
             return certificateDetails.stream()
                     .map(details -> aCertificateDto(
                             entityId,

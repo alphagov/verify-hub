@@ -18,6 +18,10 @@ public class ConfigRepository<T extends EntityIdentifiable> {
     public ConfigRepository() {
     }
 
+    public boolean containsKey(String entityId){
+        return dataMap.containsKey(entityId);
+    }
+
     public Optional<T> getData(String entityId) {
         return Optional.ofNullable(dataMap.get(entityId));
     }

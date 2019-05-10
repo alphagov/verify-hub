@@ -1,119 +1,106 @@
 package uk.gov.ida.hub.config.application;
 
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.domain.CertificateConfigurable;
-import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.domain.Certificate;
+import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
+import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.exceptions.CertificateDisabledException;
 import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toList;
+public class CertificateService <T extends EntityIdentifiable & CertificateConfigurable> {
 
-public class CertificateService {
-
-    private static final List<CertificateDetails> EMPTY = null;
-    private final ConfigRepository<TransactionConfig> transactionDataSource;
-    private final ConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
-    private CertificateValidityChecker certificateValidityChecker = null;
-
-    private final Function<String, Optional<CertificateDetails>> getTransactionEncryptionCert;
-    private final Function<String, Optional<CertificateDetails>> getMatchingServiceEncryptionCert;
-    private final Function<String, Optional<List<CertificateDetails>>> getTransactionSignatureCert;
-    private final Function<String, Optional<List<CertificateDetails>>> getMatchingServiceSignatureCert;
-
-    private static final Logger LOG = LoggerFactory.getLogger(CertificateService.class);
+    private final List<ConfigRepository<T>> configRepositories = new ArrayList<>();
+    private CertificateValidityChecker certificateValidityChecker;
 
     @Inject
     public CertificateService(
-            ConfigRepository<TransactionConfig> transactionDataSource,
-            ConfigRepository<MatchingServiceConfig> matchingServiceDataSource,
+            ConfigRepository<TransactionConfig> transactionConfigRepository,
+            ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
             CertificateValidityChecker certificateValidityChecker) {
-        this.transactionDataSource = transactionDataSource;
-        this.matchingServiceDataSource = matchingServiceDataSource;
+        this.configRepositories.add((ConfigRepository<T>)transactionConfigRepository);
+        this.configRepositories.add((ConfigRepository<T>)matchingServiceConfigRepository);
         this.certificateValidityChecker = certificateValidityChecker;
-
-        getTransactionEncryptionCert = encryptiondataSource.apply(transactionDataSource, FederationEntityType.RP);
-        getMatchingServiceEncryptionCert = encryptiondataSource.apply(matchingServiceDataSource, FederationEntityType.MS);
-        getTransactionSignatureCert = signatureDataSource.apply(transactionDataSource, FederationEntityType.RP);
-        getMatchingServiceSignatureCert = signatureDataSource.apply(matchingServiceDataSource, FederationEntityType.MS);
     }
 
-    public CertificateDetails encryptionCertificateFor(String entityId) {
-        CertificateDetails certificateDetails = getTransactionEncryptionCert.apply(entityId)
-                .orElseGet(() -> getMatchingServiceEncryptionCert.apply(entityId)
-                .orElseThrow(() -> new NoCertificateFoundException()));
+    public Set<CertificateDetails> getAllCertificateDetails() {
+        return configRepositories.stream()
+                .flatMap(this::getAllCertificateDetails)
+                .collect(Collectors.toSet());
+    }
 
-        if (certificateDetails.isNotEnabled()) {
+    public  CertificateDetails encryptionCertificateFor(String entityId) {
+        T config = getConfig(entityId);
+        CertificateDetails certDetails = createCertificateDetails(config, config.getEncryptionCertificate());
+        if (!certificateValidityChecker.isValid(certDetails)){
+            throw new NoCertificateFoundException();
+        }
+        if (certDetails.isNotEnabled()){
             throw new CertificateDisabledException();
         }
-
-        return certificateDetails;
+        return certDetails;
     }
 
-    public Set<CertificateDetails> getAllCertificatesDetails() {
-        Set<CertificateDetails> certificateDetailsSet = new HashSet<>();
-        certificateDetailsSet.addAll(getCertificatesDetailsSet(transactionDataSource, FederationEntityType.RP));
-        certificateDetailsSet.addAll(getCertificatesDetailsSet(matchingServiceDataSource, FederationEntityType.MS));
-        return certificateDetailsSet;
+    public List<CertificateDetails> signatureVerificationCertificatesFor(String entityId) {
+        T config = getConfig(entityId);
+        return config.getSignatureVerificationCertificates()
+                .stream()
+                .map(cert -> createCertificateDetails(config, cert))
+                .filter(cd -> certificateValidityChecker.isValid(cd))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), this::throwIfEmpty));
     }
 
-    private <T extends EntityIdentifiable & CertificateConfigurable> Set<CertificateDetails> getCertificatesDetailsSet(final ConfigRepository<T> configRepository,
-                                                                                                                       final FederationEntityType federationEntityType) {
-        Set<CertificateDetails> certificateDetailsSet = new HashSet<>();
-        final Set<T> configs = configRepository.getAllData();
-        configs.forEach(
-            config -> {
-                config.getSignatureVerificationCertificates()
-                      .forEach(certificate -> certificateDetailsSet.add(new CertificateDetails(
-                          config.getEntityId(),
-                          certificate,
-                          federationEntityType,
-                          config.isEnabled())));
-                certificateDetailsSet.add(new CertificateDetails(
-                    config.getEntityId(),
-                    config.getEncryptionCertificate(),
-                    federationEntityType,
-                    config.isEnabled()));
-            });
-        return certificateDetailsSet;
+    private List<CertificateDetails> throwIfEmpty(List<CertificateDetails> list){
+        if (list.isEmpty()){
+            throw new NoCertificateFoundException();
+        }
+        return list;
     }
 
-    public List<CertificateDetails> signatureVerificatonCertificatesFor(String entityId) {
-        return getTransactionSignatureCert.apply(entityId)
-                .orElseGet(() -> getMatchingServiceSignatureCert.apply(entityId)
-                .orElseThrow(() -> new NoCertificateFoundException()));
+    private Stream<CertificateDetails> getAllCertificateDetails(ConfigRepository<T> configRepository) {
+        return configRepository.getAllData()
+                .stream()
+                .flatMap(this::getAllCertificateDetails);
     }
 
-    private BiFunction<ConfigRepository<? extends CertificateConfigurable>, FederationEntityType,
-            Function<String, Optional<CertificateDetails>>> encryptiondataSource =
-            (certEntityRepo, fedType) -> entityId ->
-                    certEntityRepo.getData(entityId)
-                    .map(cert -> new CertificateDetails(entityId, cert.getEncryptionCertificate(), fedType, cert.isEnabled()))
-                    .filter(cert -> certificateValidityChecker.isValid(cert));
+    private Stream<CertificateDetails> getAllCertificateDetails(T config){
+        List<CertificateDetails> certDetails = config.getSignatureVerificationCertificates()
+                .stream()
+                .map(cert -> createCertificateDetails(config, cert))
+                .collect(Collectors.toList());
+        certDetails.add(createCertificateDetails(config, config.getEncryptionCertificate()));
+        return certDetails.stream();
+    }
 
-    private BiFunction<ConfigRepository<? extends CertificateConfigurable>, FederationEntityType,
-            Function<String, Optional<List<CertificateDetails>>>> signatureDataSource =
-            (certEntityRepo, fedType) -> entityId ->
-                certEntityRepo.getData(entityId)
-                .map(cert -> cert.getSignatureVerificationCertificates())
-                .map(sigCerts -> sigCerts.stream()
-                        .map(cert -> new CertificateDetails(entityId, cert, fedType))
-                        .filter(certDetail -> certificateValidityChecker.isValid(certDetail))
-                        .collect(collectingAndThen(toList(), certDetailsList -> certDetailsList.isEmpty() ? EMPTY : certDetailsList)));
+    private CertificateDetails createCertificateDetails(T config, Certificate certificate){
+        return new CertificateDetails(
+                config.getEntityId(),
+                certificate,
+                getType(config),
+                config.isEnabled());
+    }
+
+    private T getConfig(String entityId){
+        return configRepositories.stream()
+                .filter(repo -> repo.containsKey(entityId))
+                .findFirst()
+                .orElseThrow(NoCertificateFoundException::new)
+                .getData(entityId)
+                .get();
+    }
+
+    private FederationEntityType getType(T config) {
+        return config instanceof TransactionConfig ? FederationEntityType.RP : FederationEntityType.MS;
+    }
 }
-
