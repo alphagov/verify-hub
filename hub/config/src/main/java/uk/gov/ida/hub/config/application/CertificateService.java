@@ -21,9 +21,8 @@ import java.util.stream.Stream;
 
 public class CertificateService <T extends EntityIdentifiable & CertificateConfigurable> {
 
-    private final List<ConfigRepository<T>> configRepositories =new ArrayList<>();
+    private final List<ConfigRepository<T>> configRepositories = new ArrayList<>();
     private CertificateValidityChecker certificateValidityChecker;
-//    private static final Logger LOG = LoggerFactory.getLogger(CertificateService.class);
 
     @Inject
     public CertificateService(
