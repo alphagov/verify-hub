@@ -249,7 +249,7 @@ public class PrometheusMetricsIntegrationTest {
             MSA_HEALTH_METRICS_TEMPLATE, VERIFY_SAML_SOAP_PROXY_MSA_HEALTH_STATUS_LAST_UPDATED,
             msa.getAttributeQueryRequestUri(),
             (double) DateTime.now(DateTimeZone.UTC).getMillis()));
-        assertThat(entity).doesNotContain(String.format(VERIFY_SAML_SOAP_PROXY_MSA_INFO + "{matchingService=\"%s\",", msa.getAttributeQueryRequestUri()));
+        assertThat(entity).contains(String.format(VERIFY_SAML_SOAP_PROXY_MSA_INFO + "{matchingService=\"%s\",", msa.getAttributeQueryRequestUri()));
     }
 
     private void assertThatAHealthyMsaHasBothCorrectHealthAndInfoMetrics(final String entity,

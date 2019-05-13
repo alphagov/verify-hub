@@ -38,18 +38,11 @@ public class MatchingServiceHealthCheckTask implements Callable<String> {
         try {
             final MatchingServiceHealthCheckResult matchingServiceHealthCheckResult = matchingServiceHealthChecker.performHealthCheck(matchingServiceConfig);
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
-            if (matchingServiceHealthCheckResult.isHealthy()) {
-                infoMetric.recordDetails(matchingServiceHealthCheckResult.getDetails());
-                healthStatusGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
-                                 .set(HEALTHY);
-                healthStatusLastUpdatedGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
-                                            .set(timestamp);
-            } else {
-                healthStatusGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
-                                 .set(UNHEALTHY);
-                healthStatusLastUpdatedGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
-                                            .set(timestamp);
-            }
+            infoMetric.recordDetails(matchingServiceHealthCheckResult.getDetails());
+            healthStatusGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
+                    .set(matchingServiceHealthCheckResult.isHealthy() ? HEALTHY : UNHEALTHY);
+            healthStatusLastUpdatedGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
+                    .set(timestamp);
         } catch (Exception e) {
             LOG.warn(e.getMessage());
         }
