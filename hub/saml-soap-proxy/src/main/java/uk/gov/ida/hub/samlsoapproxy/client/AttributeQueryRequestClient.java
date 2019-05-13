@@ -74,7 +74,14 @@ public class AttributeQueryRequestClient {
         } catch (SOAPRequestError e) {
             if(e.getEntity().isPresent()) {
                 final String responseBody = e.getEntity().get();
-                LOG.info(format("Error received from MSA (URI '{0}') following HTTP response {1}; response body:\n{2}", matchingServiceUri, e.getResponseStatus(), responseBody));
+                LOG.info(format("Error received from MSA (URI ''{0}'') following HTTP response {1}; response body:\n{2}", matchingServiceUri, e.getResponseStatus(), responseBody));
+
+                // The MSA sometimes returns 500s with a singularly unhelpful body. Special case handling to get Sentry
+                // to split out these errors. See https://trello.com/c/N7edPMiO/
+                if (responseBody.equals("uk.gov.ida.exceptions.ApplicationException")) {
+                    throw new MatchingServiceException(format("Unknown internal Matching Service error from {0} with status {1} ",
+                            matchingServiceUri, e.getResponseStatus()), e);
+                }
             }
             throw new MatchingServiceException(format("Matching Service response from {0} was status {1}",
                     matchingServiceUri, e.getResponseStatus()), e);
