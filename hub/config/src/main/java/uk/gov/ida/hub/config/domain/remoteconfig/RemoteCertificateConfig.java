@@ -7,13 +7,9 @@ import javax.validation.constraints.NotNull;
 
 public class RemoteCertificateConfig {
 
-    @Valid
-    @NotNull
     @JsonProperty
     protected String name;
 
-    @Valid
-    @NotNull
     @JsonProperty
     protected String value;
 

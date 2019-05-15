@@ -8,19 +8,13 @@ import java.util.List;
 
 public class RemoteServiceProviderConfig {
 
-    @Valid
-    @NotNull
     @JsonProperty
     protected String name;
 
-    @Valid
-    @NotNull
-    @JsonProperty
+    @JsonProperty("encryption_certificate")
     protected RemoteCertificateConfig encryptionCertificate;
 
-    @Valid
-    @NotNull
-    @JsonProperty
+    @JsonProperty("signing_certificates")
     protected List<RemoteCertificateConfig> signingCertificates;
 
 

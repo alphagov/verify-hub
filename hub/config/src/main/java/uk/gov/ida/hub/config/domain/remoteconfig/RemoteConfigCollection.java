@@ -11,24 +11,19 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RemoteConfigCollection {
 
-    @Valid
-    @NotNull
-    @JsonProperty
-    protected Instant publishedAt;
+    @JsonProperty("published_at")
+    protected String publishedAt;
 
-    @Valid
-    @NotNull
-    @JsonProperty
+    @JsonProperty("event_id")
+    protected int eventId;
+
+    @JsonProperty("connected_services")
     protected List<RemoteConnectedServiceConfig> connectedServices;
 
-    @Valid
-    @NotNull
-    @JsonProperty
+    @JsonProperty("matching_service_adapters")
     protected List<RemoteMatchingServiceConfig> matchingServiceAdapters;
 
-    @Valid
-    @NotNull
-    @JsonProperty
+    @JsonProperty("service_providers")
     protected List<RemoteServiceProviderConfig> serviceProviders;
 
 
@@ -36,7 +31,7 @@ public class RemoteConfigCollection {
     protected RemoteConfigCollection() {
     }
 
-    public Instant getPublishedAt() {
+    public String getPublishedAt() {
         return publishedAt;
     }
 
@@ -50,5 +45,9 @@ public class RemoteConfigCollection {
 
     public List<RemoteServiceProviderConfig> getServiceProviders() {
         return serviceProviders;
+    }
+
+    public int getEventId() {
+        return eventId;
     }
 }

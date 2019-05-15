@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.Valid;
-import java.net.URI;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SelfServiceConfig {
@@ -15,7 +14,19 @@ public class SelfServiceConfig {
 
     @Valid
     @JsonProperty
-    private URI source;
+    private String s3BucketName;
+
+    @Valid
+    @JsonProperty
+    private String s3ObjectKey;
+
+    @Valid
+    @JsonProperty
+    private String s3AccessKeyId;
+
+    @Valid
+    @JsonProperty
+    private String s3SecretKeyId;
 
     @SuppressWarnings("unused")
     public SelfServiceConfig() { }
@@ -24,7 +35,19 @@ public class SelfServiceConfig {
         return enabled;
     }
 
-    public URI getSource() {
-        return source;
+    public String getS3BucketName() {
+        return s3BucketName;
+    }
+
+    public String getS3AccessKeyId() {
+        return s3AccessKeyId;
+    }
+
+    public String getS3SecretKeyId() {
+        return s3SecretKeyId;
+    }
+
+    public String getS3ObjectKey() {
+        return s3ObjectKey;
     }
 }
