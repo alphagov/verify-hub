@@ -159,9 +159,9 @@ public class PrometheusMetricsIntegrationTest {
         final MatchingServiceDetails msaFourDetails = new MatchingServiceDetails(
             msaStubFour.getAttributeQueryRequestUri(), MSA_FOUR_ENTITY_ID, RP_FOUR_ENTITY_ID);
         Set<MatchingServiceDetails> msaDetailsSet = new HashSet<>(Sets.newHashSet(msaOneDetails, msaTwoDetails, msaThreeDetails, msaFourDetails));
-        final Element msaOneResponse = aHealthyHealthCheckResponse(MSA_ONE_ENTITY_ID, MSA_ONE_RESPONSE_ID);
-        final Element msaTwoResponse = aHealthyHealthCheckResponse(MSA_TWO_ENTITY_ID, MSA_TWO_RESPONSE_ID);
-        final Element msaFourResponse = aHealthyHealthCheckResponse(MSA_FOUR_ENTITY_ID, MSA_FOUR_RESPONSE_ID);
+        final Element msaOneResponse = aHealthyHealthCheckResponse(MSA_ONE_ENTITY_ID, MSA_ONE_RESPONSE_ID, MSA_ONE_VERSION);
+        final Element msaTwoResponse = aHealthyHealthCheckResponse(MSA_TWO_ENTITY_ID, MSA_TWO_RESPONSE_ID, MSA_TWO_VERSION);
+        final Element msaFourResponse = aHealthyHealthCheckResponse(MSA_FOUR_ENTITY_ID, MSA_FOUR_RESPONSE_ID, MSA_FOUR_VERSION);
         final SamlMessageDto msaOneSamlMessage = new SamlMessageDto(encodeAsString(XmlUtils.writeToString(msaOneResponse)));
         final SamlMessageDto msaTwoSamlMessage = new SamlMessageDto(encodeAsString(XmlUtils.writeToString(msaTwoResponse)));
         final SamlMessageDto msaFourSamlMessage = new SamlMessageDto(encodeAsString(XmlUtils.writeToString(msaFourResponse)));
@@ -176,11 +176,11 @@ public class PrometheusMetricsIntegrationTest {
         configStub.setupStubForCertificates(MSA_TWO_ENTITY_ID, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
         configStub.setupStubForCertificates(MSA_FOUR_ENTITY_ID, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
         msaStubOne.prepareForHealthCheckRequest(
-            XmlUtils.writeToString(SOAP_MESSAGE_MANAGER.wrapWithSoapEnvelope(msaOneResponse)), MSA_ONE_VERSION);
+            XmlUtils.writeToString(SOAP_MESSAGE_MANAGER.wrapWithSoapEnvelope(msaOneResponse)));
         msaStubTwo.prepareForHealthCheckRequest(
-            XmlUtils.writeToString(SOAP_MESSAGE_MANAGER.wrapWithSoapEnvelope(msaTwoResponse)), MSA_TWO_VERSION);
+            XmlUtils.writeToString(SOAP_MESSAGE_MANAGER.wrapWithSoapEnvelope(msaTwoResponse)));
         msaStubFour.prepareForHealthCheckRequest(
-            XmlUtils.writeToString(SOAP_MESSAGE_MANAGER.wrapWithSoapEnvelope(msaFourResponse)), MSA_FOUR_VERSION);
+            XmlUtils.writeToString(SOAP_MESSAGE_MANAGER.wrapWithSoapEnvelope(msaFourResponse)));
         samlEngineStub.prepareForHealthCheckSamlGeneration(msaOneHealthCheckerRequest);
         samlEngineStub.prepareForHealthCheckSamlGeneration(msaTwoHealthCheckerRequest);
         samlEngineStub.prepareForHealthCheckSamlGeneration(msaThreeHealthCheckerRequest);
@@ -288,7 +288,7 @@ public class PrometheusMetricsIntegrationTest {
     }
 
     private static Element aHealthyHealthCheckResponse(final String msaEntityId,
-                                                       final String responseId) {
+                                                       final String responseId, String msaVersion) {
         Function<HealthCheckResponseFromMatchingService, Element> transformer = new MsaTransformersFactory().getHealthcheckResponseFromMatchingServiceToElementTransformer(
             null,
             getKeyStore(),
@@ -298,7 +298,7 @@ public class PrometheusMetricsIntegrationTest {
         final HealthCheckResponseFromMatchingService healthCheckResponse = new HealthCheckResponseFromMatchingService(
             responseId,
             msaEntityId,
-            "request-id"
+            "request-id-"+msaVersion
         );
         return transformer.apply(healthCheckResponse);
     }

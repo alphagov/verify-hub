@@ -1,7 +1,5 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.internal.util.Base64;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
@@ -31,8 +29,11 @@ import javax.inject.Named;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static java.text.MessageFormat.format;
 import static uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthCheckResult.healthy;
@@ -87,7 +88,7 @@ public class MatchingServiceHealthChecker {
                     configEntity.getUri()
             );
 
-            return buildMatchingServiceHealthCheckResult(configEntity, responseDto.getResponse(), responseDto.getVersionNumber());
+            return buildMatchingServiceHealthCheckResult(configEntity, responseDto.getResponse());
         } catch (ApplicationException e) {
             final String message = format("Saml-engine was unable to generate saml to send to MSA: {0}", e);
             eventLogger.logException(e, message);
@@ -99,21 +100,20 @@ public class MatchingServiceHealthChecker {
     }
 
     private MatchingServiceHealthCheckResult buildMatchingServiceHealthCheckResult(final MatchingServiceConfigEntityDataDto configEntity,
-                                                                                   final Optional<String> responseBody,
-                                                                                   final Optional<String> responseMsaVersion) throws ParserConfigurationException, SAXException, IOException {
+                                                                                   final Optional<String> responseBody) throws ParserConfigurationException, SAXException, IOException {
 
         final HealthCheckData healthCheckData = getHealthCheckData(responseBody);
 
-        final String versionNumber = getMsaVersion(responseMsaVersion, healthCheckData.getVersion())
-                .filter(StringUtils::isNotEmpty)
+        final String versionNumber = healthCheckData.getVersion()
+                .filter(Predicate.not(String::isEmpty))
                 .orElse(UNDEFINED_VERSION);
 
         final String isEidasEnabled = healthCheckData.getEidasEnabled()
-                .filter(StringUtils::isNotEmpty)
+                .filter(Predicate.not(String::isEmpty))
                 .orElse(UNDEFINED);
 
         final String shouldSignWithSha1 = healthCheckData.getShouldSignWithSha1()
-                .filter(StringUtils::isNotEmpty)
+                .filter(Predicate.not(String::isEmpty))
                 .orElse(UNDEFINED);
 
         if (isHealthyResponse(configEntity.getUri(), responseBody)) {
@@ -143,19 +143,6 @@ public class MatchingServiceHealthChecker {
         }
 
         return HealthCheckData.extractFrom(null);
-    }
-
-    private Optional<String> getMsaVersion(Optional<String> responseBodyMsaVersion, Optional<String> requestIdMsaVersion) {
-        if (requestIdMsaVersion.isPresent()) {
-            // if we have conflicting return values, lets trust the one from the ID a little bit more
-            String responseMsaVersion = responseBodyMsaVersion.orElse(null);
-            String extractedMsaVersion = requestIdMsaVersion.get();
-            if (responseMsaVersion != null && !responseMsaVersion.equals(extractedMsaVersion)) {
-                LOG.warn("MSA healthcheck response with two version numbers: {0} & {1}", responseMsaVersion, extractedMsaVersion);
-            }
-            return requestIdMsaVersion;
-        }
-        return responseBodyMsaVersion;
     }
 
     private void validateRequestSignature(Element matchingServiceRequest) {
@@ -226,7 +213,9 @@ public class MatchingServiceHealthChecker {
         String exceptionMessage = format("Matching service health check failed for URI {0}", matchingServiceUri);
         try {
             // Saml-engine expects the saml to be base64 encoded
-            final SamlMessageDto samlMessageDto = new SamlMessageDto(Base64.encodeAsString(response.get()));
+
+            String base64Response = Base64.getEncoder().encodeToString(response.get().getBytes(Charset.defaultCharset()));
+            final SamlMessageDto samlMessageDto = new SamlMessageDto(base64Response);
             final MatchingServiceHealthCheckerResponseDto responseFromMatchingService =
                     samlEngineProxy.translateHealthcheckMatchingServiceResponse(samlMessageDto);
 

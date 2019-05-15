@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableMap;
 import httpstub.AbstractHttpStub;
 import httpstub.HttpStub;
 import httpstub.HttpStubRule;
@@ -33,12 +32,11 @@ public class MsaStubRule extends HttpStubRule {
         register(ATTRIBUTE_QUERY_RESOURCE, Response.Status.OK.getStatusCode(), response);
     }
 
-    public void prepareForHealthCheckRequest(String response, String msaVersion) {
+    public void prepareForHealthCheckRequest(String response) {
         RegisteredResponse registeredResponse = aRegisteredResponse()
                 .withStatus(Response.Status.OK.getStatusCode())
                 .withContentType(MediaType.TEXT_XML_TYPE.toString())
                 .withBody(response)
-                .withHeaders(ImmutableMap.of("ida-msa-version", msaVersion))
                 .build();
         register(ATTRIBUTE_QUERY_RESOURCE, registeredResponse);
     }

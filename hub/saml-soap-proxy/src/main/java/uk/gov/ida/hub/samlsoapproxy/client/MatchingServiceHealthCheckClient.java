@@ -2,7 +2,6 @@ package uk.gov.ida.hub.samlsoapproxy.client;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -14,6 +13,7 @@ import uk.gov.ida.shared.utils.xml.XmlUtils;
 import javax.inject.Inject;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.Optional;
 
 public class MatchingServiceHealthCheckClient {
 
@@ -42,13 +42,12 @@ public class MatchingServiceHealthCheckClient {
         } catch(ApplicationException ex) {
             final String errorMessage = MessageFormat.format("Failed to complete matching service health check to {0}.", matchingServiceUri);
             LOG.warn(errorMessage, ex);
-            return new MatchingServiceHealthCheckResponseDto(Optional.<String>empty(), Optional.<String>empty());
+            return new MatchingServiceHealthCheckResponseDto(Optional.<String>empty());
         } finally {
             context.stop();
         }
 
         return new MatchingServiceHealthCheckResponseDto(
-                    Optional.of(XmlUtils.writeToString(healthCheckResponse.getResponseElement())),
-                    healthCheckResponse.getVersionNumber());
+                    Optional.of(XmlUtils.writeToString(healthCheckResponse.getResponseElement())));
     }
 }

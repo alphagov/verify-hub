@@ -37,7 +37,7 @@ public class MatchingServiceHealthCheckerResponseDtoBuilder {
         return this;
     }
 
-    public MatchingServiceHealthCheckerResponseDtoBuilder withId() {
+    public MatchingServiceHealthCheckerResponseDtoBuilder withId(String id) {
         this.id = id;
         return this;
     }
