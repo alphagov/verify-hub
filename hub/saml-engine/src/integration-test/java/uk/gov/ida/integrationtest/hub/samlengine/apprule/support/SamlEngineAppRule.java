@@ -49,13 +49,10 @@ import static com.google.common.base.Throwables.propagate;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.METADATA_SIGNING_A_PRIVATE_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.METADATA_SIGNING_A_PUBLIC_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_PRIVATE_KEY;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_PUBLIC_CERT;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 import static uk.gov.ida.saml.metadata.ResourceEncoder.entityIdAsResource;
 
@@ -85,12 +82,24 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
     public SamlEngineAppRule(boolean isCountryEnabled, ConfigOverride... configOverrides) {
         super(SamlEngineIntegrationApplication.class,
                 ResourceHelpers.resourceFilePath("saml-engine.yml"),
-                withDefaultOverrides(isCountryEnabled, configOverrides)
+                withDefaultOverrides(isCountryEnabled, null, null, configOverrides)
         );
         BootstrapUtils.reset();
     }
 
-    public static ConfigOverride[] withDefaultOverrides(boolean isCountryEnabled, ConfigOverride ... configOverrides) {
+    public SamlEngineAppRule(String proxyHost, String proxyPort, ConfigOverride... configOverrides) {
+        super(SamlEngineIntegrationApplication.class,
+            ResourceHelpers.resourceFilePath("saml-engine.yml"),
+            withDefaultOverrides(true, proxyHost, proxyPort, configOverrides)
+        );
+        BootstrapUtils.reset();
+    }
+
+    public static ConfigOverride[] withDefaultOverrides(boolean isCountryEnabled, String proxyHost, String proxyPort, ConfigOverride ... configOverrides) {
+        if (proxyHost != null && proxyPort != null) {
+            System.setProperty("http.proxyHost", proxyHost);
+            System.setProperty("http.proxyPort", proxyPort);
+        }
         List<ConfigOverride> overrides = Stream.of(
                 config("saml.entityId", HUB_ENTITY_ID),
                 config("saml.expectedDestination", "http://localhost"),

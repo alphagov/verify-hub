@@ -53,8 +53,14 @@ public class SplunkAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
         appender.setbatch_size_count(batchSizeCount.toString());
         appender.setLayout(buildLayout(context, layoutFactory));
         appender.addFilter(levelFilterFactory.build(threshold));
+        appender.setHttpProxyHost(System.getProperty("http.proxyHost"));
+        appender.setHttpProxyPort(getProxyPortIntFromSystem());
         appender.start();
 
         return wrapAsync(appender, asyncAppenderFactory, context);
+    }
+
+    private int getProxyPortIntFromSystem() {
+        return (System.getProperty("http.proxyPort") != null) ? Integer.parseInt(System.getProperty("http.proxyPort")) : 0;
     }
 }
