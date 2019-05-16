@@ -3,16 +3,14 @@ package uk.gov.ida.hub.config.domain.remoteconfig;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RemoteConfigCollection {
 
     @JsonProperty("published_at")
-    protected String publishedAt;
+    protected Date publishedAt;
 
     @JsonProperty("event_id")
     protected int eventId;
@@ -26,12 +24,11 @@ public class RemoteConfigCollection {
     @JsonProperty("service_providers")
     protected List<RemoteServiceProviderConfig> serviceProviders;
 
-
     @SuppressWarnings("unused")
     protected RemoteConfigCollection() {
     }
 
-    public String getPublishedAt() {
+    public Date getPublishedAt() {
         return publishedAt;
     }
 

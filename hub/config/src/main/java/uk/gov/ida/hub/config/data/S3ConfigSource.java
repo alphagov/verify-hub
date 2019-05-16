@@ -15,6 +15,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 /**
  * Configure S3 connection here
@@ -35,8 +37,7 @@ public class S3ConfigSource{
     }
 
     public RemoteConfigCollection getRemoteConfig() throws IOException {
-        S3Object fullObject;
-        fullObject = s3Client.getObject(new GetObjectRequest(configConfiguration.getSelfService().getS3BucketName(),
+        S3Object fullObject = s3Client.getObject(new GetObjectRequest(configConfiguration.getSelfService().getS3BucketName(),
                 configConfiguration.getSelfService().getS3ObjectKey()));
         InputStream s3ObjectStream =  fullObject.getObjectContent();
         BufferedReader reader = new BufferedReader(new InputStreamReader(s3ObjectStream));
@@ -44,10 +45,15 @@ public class S3ConfigSource{
         String line;
         while ((line = reader.readLine()) != null) {
             configFile.append(line);
-            System.out.println(line);
         }
+        return configFileToObj(configFile.toString());
+    }
+
+    public RemoteConfigCollection configFileToObj(String configFile) throws IOException {
         ObjectMapper om = new ObjectMapper();
-        return om.readValue(configFile.toString(), RemoteConfigCollection.class);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        om.setDateFormat(df);
+        return om.readValue(configFile, RemoteConfigCollection.class);
     }
 
 }
