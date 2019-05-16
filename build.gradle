@@ -179,7 +179,7 @@ subprojects {
         redis('io.lettuce:lettuce-core:5.1.4.RELEASE')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
 
-        splunk('com.splunk.logging:splunk-library-javalogging:1.6.2')
+        splunk('uk.gov.ida:splunk-library-javalogging:1.1.0')
     }
 }
 
