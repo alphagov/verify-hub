@@ -1,6 +1,10 @@
 package uk.gov.ida.hub.config.data;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.client.methods.HttpGet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -9,54 +13,59 @@ import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URL;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class S3ConfigSourceTest {
 
-    private String accessKey = System.getenv("awsAccessKey");
-    private String secretKey = System.getenv("awsSecretKey");
+    private String awsRegion = System.getenv("awsRegion");
     private String bucketName = System.getenv("bucketName");
     private String objectKey = System.getenv("objectKey");
 
     private String selfServiceConfigJson = "{" +
                     "\"enabled\" : \"true\"," +
+                    "\"awsRegion\": \"" + awsRegion + "\"," +
                     "\"s3BucketName\": \"" + bucketName + "\"," +
-                    "\"s3ObjectKey\": \"" + objectKey + "\"," +
-                    "\"s3AccessKeyId\": \"" + accessKey + "\"," +
-                    "\"s3SecretKeyId\": \"" + secretKey + "\"" +
+                    "\"s3ObjectKey\": \"" + objectKey + "\"" +
             "}";
 
-    private String testConfigFile = "{\"published_at\":\"2019-05-09T09:41:20.509+00:00\",\"event_id\":80,\"matching_service_adapters\":[{\"name\":\"Banana Registry MSA\",\"encryption_certificate\":null,\"signing_certificates\":[{\"name\":\"/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=HUB Signing (20190218155358)\",\"value\":\"MIIESzCCAzOgAwIBAgIQLphW6d7RItgMV/IpVCpcsjANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJHQjEXMBUGA1UEChMOQ2FiaW5ldCBPZmZpY2UxDDAKBgNVBAsTA0dEUzEYMBYGA1UEAxMPSURBUCBDb3JlIENBIEcyMB4XDTE5MDIxODAwMDAwMFoXDTE5MTExNTIzNTk1OVowfTELMAkGA1UEBhMCR0IxDzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMGTG9uZG9uMRcwFQYDVQQKFA5DYWJpbmV0IE9mZmljZTEMMAoGA1UECxQDR0RTMSUwIwYDVQQDExxIVUIgU2lnbmluZyAoMjAxOTAyMTgxNTUzNTgpMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp26jnUDZXaE2H3wMBtiv1Z1HHdA84dNbgqdkFrlZ5kqAYefOLwY7sTMAEd4K3xXQCkCsYOWotQieoGhhKiSolVHlGCWYq11Klqv1mRQJF7AjjRdQoHufIda0n3SiT4mcStkgaKLCaBH0gSmOkG0Bw/3wpBqPu5kvkaImPAE2eYl+z+yBMK1h+Uhka6Oo7KwiaZotkqYXbIt/zXvPXQm0RM2NY6irQzxi2JAvMY//blhIhf/iQVzDiXOcq4I5jEhkz/mZdhhyZOLD5GYPU21CAwtXfBmgCJ0Dj4ptEUtKEYULrBuxL32WP0okrWrJfPqMXCJSfVTc1usFGf7+em5/KQIDAQABo4H1MIHyMAwGA1UdEwEB/wQCMAAwVwYDVR0fBFAwTjBMoEqgSIZGaHR0cDovL29uc2l0ZWNybC50cnVzdHdpc2UuY29tL0NhYmluZXRPZmZpY2VJREFQQ29yZUNBRzIvTGF0ZXN0Q1JMLmNybDAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYEFHrV0ViKwincM5p7GuVeaDGFlZzjMB8GA1UdIwQYMBaAFPj8Sbu0P8bGhufBhHon7HjiOC4dMDkGCCsGAQUFBwEBBC0wKzApBggrBgEFBQcwAYYdaHR0cDovL3N0ZC1vY3NwLnRydXN0d2lzZS5jb20wDQYJKoZIhvcNAQELBQADggEBAJPXenRSno3b2Tdtps+BZLYHyphOw40ytW0fGc9vdPrQr/t7qEnsN2RbynvbZI3gmdx+b/A7eAXaPTpWbGfZOnxnGJ4lPYWHPX4GKN67Fg0NK6/ntiaoEhqr4zzVNFI+mEXbfu4fXVO+AAqqtXYCiTQxRCAiBLTOvXI5Qe7IoZUHY+4XTfkwPe2mEIZFIurHedbrGZOxTvN3H1GXA3qW3H32sN4qUHA6xPnszcMtzXvCxWmR00nGWeIEtbc3Xd/G/uXXbzpEOGzoA3cu4RShzg3rU1k8yEbuOew0724K3AaTYv9xJDn+mc/Msft8ZAWhTPsykhn1eO8JewlHZM4XAX0=\"}]}],\"service_providers\":[{\"name\":\"Banana Registry VSP\",\"encryption_certificate\":{\"name\":\"/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=HUB Signing (20190218155358)\",\"value\":\"MIIESzCCAzOgAwIBAgIQLphW6d7RItgMV/IpVCpcsjANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJHQjEXMBUGA1UEChMOQ2FiaW5ldCBPZmZpY2UxDDAKBgNVBAsTA0dEUzEYMBYGA1UEAxMPSURBUCBDb3JlIENBIEcyMB4XDTE5MDIxODAwMDAwMFoXDTE5MTExNTIzNTk1OVowfTELMAkGA1UEBhMCR0IxDzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMGTG9uZG9uMRcwFQYDVQQKFA5DYWJpbmV0IE9mZmljZTEMMAoGA1UECxQDR0RTMSUwIwYDVQQDExxIVUIgU2lnbmluZyAoMjAxOTAyMTgxNTUzNTgpMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp26jnUDZXaE2H3wMBtiv1Z1HHdA84dNbgqdkFrlZ5kqAYefOLwY7sTMAEd4K3xXQCkCsYOWotQieoGhhKiSolVHlGCWYq11Klqv1mRQJF7AjjRdQoHufIda0n3SiT4mcStkgaKLCaBH0gSmOkG0Bw/3wpBqPu5kvkaImPAE2eYl+z+yBMK1h+Uhka6Oo7KwiaZotkqYXbIt/zXvPXQm0RM2NY6irQzxi2JAvMY//blhIhf/iQVzDiXOcq4I5jEhkz/mZdhhyZOLD5GYPU21CAwtXfBmgCJ0Dj4ptEUtKEYULrBuxL32WP0okrWrJfPqMXCJSfVTc1usFGf7+em5/KQIDAQABo4H1MIHyMAwGA1UdEwEB/wQCMAAwVwYDVR0fBFAwTjBMoEqgSIZGaHR0cDovL29uc2l0ZWNybC50cnVzdHdpc2UuY29tL0NhYmluZXRPZmZpY2VJREFQQ29yZUNBRzIvTGF0ZXN0Q1JMLmNybDAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYEFHrV0ViKwincM5p7GuVeaDGFlZzjMB8GA1UdIwQYMBaAFPj8Sbu0P8bGhufBhHon7HjiOC4dMDkGCCsGAQUFBwEBBC0wKzApBggrBgEFBQcwAYYdaHR0cDovL3N0ZC1vY3NwLnRydXN0d2lzZS5jb20wDQYJKoZIhvcNAQELBQADggEBAJPXenRSno3b2Tdtps+BZLYHyphOw40ytW0fGc9vdPrQr/t7qEnsN2RbynvbZI3gmdx+b/A7eAXaPTpWbGfZOnxnGJ4lPYWHPX4GKN67Fg0NK6/ntiaoEhqr4zzVNFI+mEXbfu4fXVO+AAqqtXYCiTQxRCAiBLTOvXI5Qe7IoZUHY+4XTfkwPe2mEIZFIurHedbrGZOxTvN3H1GXA3qW3H32sN4qUHA6xPnszcMtzXvCxWmR00nGWeIEtbc3Xd/G/uXXbzpEOGzoA3cu4RShzg3rU1k8yEbuOew0724K3AaTYv9xJDn+mc/Msft8ZAWhTPsykhn1eO8JewlHZM4XAX0=\"},\"signing_certificates\":[{\"name\":\"/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=Test RP Signing (20180814163440)\",\"value\":\"MIIEZTCCA02gAwIBAgIQeubwaFtatADurZRB71IWtDANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJHQjEXMBUGA1UEChMOQ2FiaW5ldCBPZmZpY2UxDDAKBgNVBAsTA0dEUzEjMCEGA1UEAxMaSURBUCBSZWx5aW5nIFBhcnR5IFRlc3QgQ0EwHhcNMTgwODE0MDAwMDAwWhcNMTkwODE0MjM1OTU5WjCBgTELMAkGA1UEBhMCR0IxDzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMGTG9uZG9uMRcwFQYDVQQKFA5DYWJpbmV0IE9mZmljZTEMMAoGA1UECxQDR0RTMSkwJwYDVQQDEyBUZXN0IFJQIFNpZ25pbmcgKDIwMTgwODE0MTYzNDQwKTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALYrhhe1qL+RbwixjpCrZRpBlWEqkjZKPtgFKHcQ7i7+ImOLQlLMA8NedBwxl/bVVex3E6sueS7n/GjWPVj9dyWGfq/rjF+tI/6eCvCxgnvJkWM0FxZqjwwRsdT/klgRw1Z/2QJby12XUNWA7nR0sAub/lF9lw2ZgrineFeobbm7fkwoLwaNifajNsfFEOfsbwL+5yTQ2IBbgJvCefS0C9LMcA0x9NokvenmQH+vUsWIiiJgqLk7Am4vwpbSm2rwgfsd4wmYT3GKrVFlpZ+Vg9Vo5Eyi2tCC8yhyIdbEozGYja3KLo9IJpdV7hb2tocxk72yqsQ4Iv7q9pG+pKeYQfMCAwEAAaOB/zCB/DAMBgNVHRMBAf8EAjAAMGEGA1UdHwRaMFgwVqBUoFKGUGh0dHA6Ly9vbnNpdGVjcmwudHJ1c3R3aXNlLmNvbS9DYWJpbmV0T2ZmaWNlSURBUFJlbHlpbmdQYXJ0eVRlc3RDQS9MYXRlc3RDUkwuY3JsMA4GA1UdDwEB/wQEAwIHgDAdBgNVHQ4EFgQUuh5RUUrcwsCFVV+oQ3SmxHZSqfwwHwYDVR0jBBgwFoAU3eT1XRoKDzrRSCIeTsD4bjb2xSUwOQYIKwYBBQUHAQEELTArMCkGCCsGAQUFBzABhh1odHRwOi8vc3RkLW9jc3AudHJ1c3R3aXNlLmNvbTANBgkqhkiG9w0BAQsFAAOCAQEAdlUW3aPXyRTDIE+Cd6E6i8ix8RaKLVibsCuD5D6bEQZ38xDXlXXBWF3HJU7t4loT3B4TDI2c6bDtb102iBMh48r3oLjEmbccIHW8U8zncTdx956axwkHL4jKhGztfi3rupcfsFlO5dwAIwT9q1rX7I5mk6Mr90bn/EDB7JvFlHEAy4gRhtHedHjW+ZYPeOkQgFO7nLeuVHJdy4z8rOshdVA3SEMe92vBk7VL1LZrdSM84vjAf3EH2Aug06bV7qPyct3y8vtjadFvZsK2kwGMyBS/4iTMJlRsG3PRtKHaRm2ub8ao8BJTfytutqqHaUeLl2yedSoA0UnHWV9c1zpTDg==\"},{\"name\":\"/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=HUB Signing (20190218155358)\",\"value\":\"MIIESzCCAzOgAwIBAgIQLphW6d7RItgMV/IpVCpcsjANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJHQjEXMBUGA1UEChMOQ2FiaW5ldCBPZmZpY2UxDDAKBgNVBAsTA0dEUzEYMBYGA1UEAxMPSURBUCBDb3JlIENBIEcyMB4XDTE5MDIxODAwMDAwMFoXDTE5MTExNTIzNTk1OVowfTELMAkGA1UEBhMCR0IxDzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMGTG9uZG9uMRcwFQYDVQQKFA5DYWJpbmV0IE9mZmljZTEMMAoGA1UECxQDR0RTMSUwIwYDVQQDExxIVUIgU2lnbmluZyAoMjAxOTAyMTgxNTUzNTgpMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp26jnUDZXaE2H3wMBtiv1Z1HHdA84dNbgqdkFrlZ5kqAYefOLwY7sTMAEd4K3xXQCkCsYOWotQieoGhhKiSolVHlGCWYq11Klqv1mRQJF7AjjRdQoHufIda0n3SiT4mcStkgaKLCaBH0gSmOkG0Bw/3wpBqPu5kvkaImPAE2eYl+z+yBMK1h+Uhka6Oo7KwiaZotkqYXbIt/zXvPXQm0RM2NY6irQzxi2JAvMY//blhIhf/iQVzDiXOcq4I5jEhkz/mZdhhyZOLD5GYPU21CAwtXfBmgCJ0Dj4ptEUtKEYULrBuxL32WP0okrWrJfPqMXCJSfVTc1usFGf7+em5/KQIDAQABo4H1MIHyMAwGA1UdEwEB/wQCMAAwVwYDVR0fBFAwTjBMoEqgSIZGaHR0cDovL29uc2l0ZWNybC50cnVzdHdpc2UuY29tL0NhYmluZXRPZmZpY2VJREFQQ29yZUNBRzIvTGF0ZXN0Q1JMLmNybDAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYEFHrV0ViKwincM5p7GuVeaDGFlZzjMB8GA1UdIwQYMBaAFPj8Sbu0P8bGhufBhHon7HjiOC4dMDkGCCsGAQUFBwEBBC0wKzApBggrBgEFBQcwAYYdaHR0cDovL3N0ZC1vY3NwLnRydXN0d2lzZS5jb20wDQYJKoZIhvcNAQELBQADggEBAJPXenRSno3b2Tdtps+BZLYHyphOw40ytW0fGc9vdPrQr/t7qEnsN2RbynvbZI3gmdx+b/A7eAXaPTpWbGfZOnxnGJ4lPYWHPX4GKN67Fg0NK6/ntiaoEhqr4zzVNFI+mEXbfu4fXVO+AAqqtXYCiTQxRCAiBLTOvXI5Qe7IoZUHY+4XTfkwPe2mEIZFIurHedbrGZOxTvN3H1GXA3qW3H32sN4qUHA6xPnszcMtzXvCxWmR00nGWeIEtbc3Xd/G/uXXbzpEOGzoA3cu4RShzg3rU1k8yEbuOew0724K3AaTYv9xJDn+mc/Msft8ZAWhTPsykhn1eO8JewlHZM4XAX0=\"},{\"name\":\"/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=HUB Signing (20190218155358)\",\"value\":\"MIIESzCCAzOgAwIBAgIQLphW6d7RItgMV/IpVCpcsjANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJHQjEXMBUGA1UEChMOQ2FiaW5ldCBPZmZpY2UxDDAKBgNVBAsTA0dEUzEYMBYGA1UEAxMPSURBUCBDb3JlIENBIEcyMB4XDTE5MDIxODAwMDAwMFoXDTE5MTExNTIzNTk1OVowfTELMAkGA1UEBhMCR0IxDzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMGTG9uZG9uMRcwFQYDVQQKFA5DYWJpbmV0IE9mZmljZTEMMAoGA1UECxQDR0RTMSUwIwYDVQQDExxIVUIgU2lnbmluZyAoMjAxOTAyMTgxNTUzNTgpMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp26jnUDZXaE2H3wMBtiv1Z1HHdA84dNbgqdkFrlZ5kqAYefOLwY7sTMAEd4K3xXQCkCsYOWotQieoGhhKiSolVHlGCWYq11Klqv1mRQJF7AjjRdQoHufIda0n3SiT4mcStkgaKLCaBH0gSmOkG0Bw/3wpBqPu5kvkaImPAE2eYl+z+yBMK1h+Uhka6Oo7KwiaZotkqYXbIt/zXvPXQm0RM2NY6irQzxi2JAvMY//blhIhf/iQVzDiXOcq4I5jEhkz/mZdhhyZOLD5GYPU21CAwtXfBmgCJ0Dj4ptEUtKEYULrBuxL32WP0okrWrJfPqMXCJSfVTc1usFGf7+em5/KQIDAQABo4H1MIHyMAwGA1UdEwEB/wQCMAAwVwYDVR0fBFAwTjBMoEqgSIZGaHR0cDovL29uc2l0ZWNybC50cnVzdHdpc2UuY29tL0NhYmluZXRPZmZpY2VJREFQQ29yZUNBRzIvTGF0ZXN0Q1JMLmNybDAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYEFHrV0ViKwincM5p7GuVeaDGFlZzjMB8GA1UdIwQYMBaAFPj8Sbu0P8bGhufBhHon7HjiOC4dMDkGCCsGAQUFBwEBBC0wKzApBggrBgEFBQcwAYYdaHR0cDovL3N0ZC1vY3NwLnRydXN0d2lzZS5jb20wDQYJKoZIhvcNAQELBQADggEBAJPXenRSno3b2Tdtps+BZLYHyphOw40ytW0fGc9vdPrQr/t7qEnsN2RbynvbZI3gmdx+b/A7eAXaPTpWbGfZOnxnGJ4lPYWHPX4GKN67Fg0NK6/ntiaoEhqr4zzVNFI+mEXbfu4fXVO+AAqqtXYCiTQxRCAiBLTOvXI5Qe7IoZUHY+4XTfkwPe2mEIZFIurHedbrGZOxTvN3H1GXA3qW3H32sN4qUHA6xPnszcMtzXvCxWmR00nGWeIEtbc3Xd/G/uXXbzpEOGzoA3cu4RShzg3rU1k8yEbuOew0724K3AaTYv9xJDn+mc/Msft8ZAWhTPsykhn1eO8JewlHZM4XAX0=\"},{\"name\":\"/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=HUB Signing (20190218155358)\",\"value\":\"MIIESzCCAzOgAwIBAgIQLphW6d7RItgMV/IpVCpcsjANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJHQjEXMBUGA1UEChMOQ2FiaW5ldCBPZmZpY2UxDDAKBgNVBAsTA0dEUzEYMBYGA1UEAxMPSURBUCBDb3JlIENBIEcyMB4XDTE5MDIxODAwMDAwMFoXDTE5MTExNTIzNTk1OVowfTELMAkGA1UEBhMCR0IxDzANBgNVBAgTBkxvbmRvbjEPMA0GA1UEBxMGTG9uZG9uMRcwFQYDVQQKFA5DYWJpbmV0IE9mZmljZTEMMAoGA1UECxQDR0RTMSUwIwYDVQQDExxIVUIgU2lnbmluZyAoMjAxOTAyMTgxNTUzNTgpMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp26jnUDZXaE2H3wMBtiv1Z1HHdA84dNbgqdkFrlZ5kqAYefOLwY7sTMAEd4K3xXQCkCsYOWotQieoGhhKiSolVHlGCWYq11Klqv1mRQJF7AjjRdQoHufIda0n3SiT4mcStkgaKLCaBH0gSmOkG0Bw/3wpBqPu5kvkaImPAE2eYl+z+yBMK1h+Uhka6Oo7KwiaZotkqYXbIt/zXvPXQm0RM2NY6irQzxi2JAvMY//blhIhf/iQVzDiXOcq4I5jEhkz/mZdhhyZOLD5GYPU21CAwtXfBmgCJ0Dj4ptEUtKEYULrBuxL32WP0okrWrJfPqMXCJSfVTc1usFGf7+em5/KQIDAQABo4H1MIHyMAwGA1UdEwEB/wQCMAAwVwYDVR0fBFAwTjBMoEqgSIZGaHR0cDovL29uc2l0ZWNybC50cnVzdHdpc2UuY29tL0NhYmluZXRPZmZpY2VJREFQQ29yZUNBRzIvTGF0ZXN0Q1JMLmNybDAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYEFHrV0ViKwincM5p7GuVeaDGFlZzjMB8GA1UdIwQYMBaAFPj8Sbu0P8bGhufBhHon7HjiOC4dMDkGCCsGAQUFBwEBBC0wKzApBggrBgEFBQcwAYYdaHR0cDovL3N0ZC1vY3NwLnRydXN0d2lzZS5jb20wDQYJKoZIhvcNAQELBQADggEBAJPXenRSno3b2Tdtps+BZLYHyphOw40ytW0fGc9vdPrQr/t7qEnsN2RbynvbZI3gmdx+b/A7eAXaPTpWbGfZOnxnGJ4lPYWHPX4GKN67Fg0NK6/ntiaoEhqr4zzVNFI+mEXbfu4fXVO+AAqqtXYCiTQxRCAiBLTOvXI5Qe7IoZUHY+4XTfkwPe2mEIZFIurHedbrGZOxTvN3H1GXA3qW3H32sN4qUHA6xPnszcMtzXvCxWmR00nGWeIEtbc3Xd/G/uXXbzpEOGzoA3cu4RShzg3rU1k8yEbuOew0724K3AaTYv9xJDn+mc/Msft8ZAWhTPsykhn1eO8JewlHZM4XAX0=\"}]},{\"name\":\"chris\",\"encryption_certificate\":null,\"signing_certificates\":[{\"name\":\"/C=UK/O=DEFRA/CN=www-chs-perf.ruraldev.org.uk-MSA-SAML-ENCRYPT-INT-120319\",\"value\":\"MIIEQzCCAyugAwIBAgIQDx0lS9xrjbQt/c9Z9+F4rTANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJHQjEXMBUGA1UEChMOQ2FiaW5ldCBPZmZpY2UxDDAKBgNVBAsTA0dEUzEjMCEGA1UEAxMaSURBUCBSZWx5aW5nIFBhcnR5IFRlc3QgQ0EwHhcNMTkwMTEwMDAwMDAwWhcNMTkxMDA3MjM1OTU5WjBgMQswCQYDVQQGEwJVSzEOMAwGA1UEChQFREVGUkExQTA/BgNVBAMTOHd3dy1jaHMtcGVyZi5ydXJhbGRldi5vcmcudWstTVNBLVNBTUwtRU5DUllQVC1JTlQtMTIwMzE5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+mbIykZjf6lsmIiB5MDwOydJLN36LFnJH3UkXUB8B+Gmd3gx0fuvdRmAbPqZUjJSUusCWfgllzLjNdw8D5TZKXp+n9l8ZgegFxi+xQ9rU8iMwBkNIYzuoRow1onszt0Vc15e9Hm8l50fGgAJM0dTTvdpHlALF+p+fyI+e0kqL9HPOXzY0MEFrGLK6QWPzIFFLmFWmhgAHKxdhXuK8ppknVW7/FvmHozrL91bQJLXtmHr2kWvPmgmPCuvmBvfDaUzmY54t5O3zyffpt/SpyqCXiPKu/o2V5Qhs40W/iFomlbLRDdpVR5VQGtD6T7oudWUkxFZK2zcPi1NVA51kMZQiwIDAQABo4H/MIH8MAwGA1UdEwEB/wQCMAAwYQYDVR0fBFowWDBWoFSgUoZQaHR0cDovL29uc2l0ZWNybC50cnVzdHdpc2UuY29tL0NhYmluZXRPZmZpY2VJREFQUmVseWluZ1BhcnR5VGVzdENBL0xhdGVzdENSTC5jcmwwDgYDVR0PAQH/BAQDAgUgMB0GA1UdDgQWBBTK3v6Bef1uDnqEBvbekmtS4dU4BDAfBgNVHSMEGDAWgBTd5PVdGgoPOtFIIh5OwPhuNvbFJTA5BggrBgEFBQcBAQQtMCswKQYIKwYBBQUHMAGGHWh0dHA6Ly9zdGQtb2NzcC50cnVzdHdpc2UuY29tMA0GCSqGSIb3DQEBCwUAA4IBAQAnbvmaSi/MoS65rCdR6AoeziJ5z9IQzkOf+3VegwmJ84qAXbe9BzXqMb+ql/IL4hreRxnqH4X+7TaK2DEcT4Tn7LJrbYk7ynXexJ3l1irnCuIFf61AI0AOIWsu/s98YSvsfaGPnKBrosIC6L2AgDxg3dP5qUF/fAqnTPppMKD6XtG1RD7WJ7ubQ557I0HyGY/nGlqR+SFjTh8JfDbz1ahTgznBVsesuSFgOy3Rl36bHNsNUuKLpHCLtZq/6M8G3q2aU3Z2dC1Hh7qiRgW11+Y0CI+3xTcRRxKju2QS1nSXwPLDXS+nlJ3CJs/Pfj9OG5DgvQRQ0FLzevPn8rbjIHxn\"}]}]}";
+    @Mock
+    private AmazonS3 s3Client;
+
+    @Mock
+    private S3Object mockObject;
 
     @Mock
     private ConfigConfiguration configConfiguration;
 
     @Test
     /**
-     * Integration Test with AWS Requires valid Credentials
+     * Tests to make sure we can process the JSON to an object
      */
-    public void s3BuckConnectionTest() throws Exception {
+    public void getRemoteConfigTest() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigJson, SelfServiceConfig.class);
-        when(configConfiguration.getSelfService()).thenReturn(selfServiceConfig);
-        S3ConfigSource testSource = new S3ConfigSource(configConfiguration);
-        RemoteConfigCollection result = testSource.getRemoteConfig();
-        assertThat(result).isNotNull();
-    }
 
-    @Test
-    public void configJsonToObjectTest() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+        URL url = this.getClass().getResource("/test.json");
+        File initialFile = new File(url.getFile());
+        InputStream testStream = new FileInputStream(initialFile);
+        S3ObjectInputStream s3ObjectStream = new S3ObjectInputStream(testStream, new HttpGet());
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigJson, SelfServiceConfig.class);
         when(configConfiguration.getSelfService()).thenReturn(selfServiceConfig);
-        S3ConfigSource testSource = new S3ConfigSource(configConfiguration);
-        RemoteConfigCollection result = testSource.configFileToObj(testConfigFile);
-        assertThat(result.getEventId()).isEqualTo(80);
+        when(s3Client.getObject(any())).thenReturn(mockObject);
+        when(mockObject.getObjectContent()).thenReturn(s3ObjectStream);
+        S3ConfigSource testSource = new S3ConfigSource(configConfiguration, s3Client);
+        RemoteConfigCollection result = testSource.getRemoteConfig();
+        result.getPublishedAt();
         assertThat(result.getMatchingServiceAdapters().size()).isEqualTo(1);
         assertThat(result.getServiceProviders().size()).isEqualTo(2);
-        assertThat(result.getServiceProviders().get(0).getSigningCertificates().size()).isEqualTo(4);
     }
 
 }

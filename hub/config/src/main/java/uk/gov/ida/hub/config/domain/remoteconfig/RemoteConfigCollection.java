@@ -12,9 +12,6 @@ public class RemoteConfigCollection {
     @JsonProperty("published_at")
     protected Date publishedAt;
 
-    @JsonProperty("event_id")
-    protected int eventId;
-
     @JsonProperty("connected_services")
     protected List<RemoteConnectedServiceConfig> connectedServices;
 
@@ -44,7 +41,4 @@ public class RemoteConfigCollection {
         return serviceProviders;
     }
 
-    public int getEventId() {
-        return eventId;
-    }
 }

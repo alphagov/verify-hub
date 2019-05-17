@@ -5,55 +5,69 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3DataSource;
 import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-/**
- * Configure S3 connection here
- */
-public class S3ConfigSource{
-
-    private S3DataSource s3DataSource;
+public class S3ConfigSource {
+    private static final Logger LOG = LoggerFactory.getLogger(S3ConfigSource.class);
     private ConfigConfiguration configConfiguration;
     private AmazonS3 s3Client;
 
-    public S3ConfigSource(ConfigConfiguration configConfiguration){
+    public S3ConfigSource(ConfigConfiguration configConfiguration, AmazonS3 s3Client) {
         this.configConfiguration = configConfiguration;
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(configConfiguration.getSelfService().getS3AccessKeyId(),
-                configConfiguration.getSelfService().getS3SecretKeyId());
-        this.s3Client = AmazonS3ClientBuilder.standard().withRegion("eu-west-2")
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .build();
+        this.s3Client = s3Client;
+    }
+
+    /**
+     * TODO: Refactor this static method out with guice later
+     * @param configConfiguration
+     * @return
+     */
+    public static S3ConfigSource setupS3ConfigSource(ConfigConfiguration configConfiguration) {
+        AmazonS3 s3Client;
+        if(!configConfiguration.getSelfService().getS3AccessKeyId().isEmpty() &&
+                !configConfiguration.getSelfService().getS3SecretKeyId().isEmpty()) {
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(configConfiguration.getSelfService().getS3AccessKeyId(),
+                    configConfiguration.getSelfService().getS3SecretKeyId());
+            s3Client = AmazonS3ClientBuilder.standard()
+                    .withRegion(configConfiguration.getSelfService().getAwsRegion())
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                    .build();
+        } else {
+            s3Client = AmazonS3ClientBuilder.defaultClient();
+        }
+        return new S3ConfigSource(configConfiguration, s3Client);
     }
 
     public RemoteConfigCollection getRemoteConfig() throws IOException {
-        S3Object fullObject = s3Client.getObject(new GetObjectRequest(configConfiguration.getSelfService().getS3BucketName(),
+        S3Object fullObject = s3Client.getObject(
+                new GetObjectRequest(configConfiguration.getSelfService().getS3BucketName(),
                 configConfiguration.getSelfService().getS3ObjectKey()));
         InputStream s3ObjectStream =  fullObject.getObjectContent();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(s3ObjectStream));
-        StringBuilder configFile = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            configFile.append(line);
-        }
-        return configFileToObj(configFile.toString());
-    }
-
-    public RemoteConfigCollection configFileToObj(String configFile) throws IOException {
         ObjectMapper om = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         om.setDateFormat(df);
-        return om.readValue(configFile, RemoteConfigCollection.class);
+        try {
+            return om.readValue(s3ObjectStream, RemoteConfigCollection.class);
+        } catch(IOException e) {
+            LOG.error("An error occured trying to get or process object {} from S3 Buck {}",
+                    configConfiguration.getSelfService().getS3ObjectKey(),
+                    configConfiguration.getSelfService().getS3BucketName(), e);
+            throw e;
+        } finally {
+            if(fullObject != null) {
+                fullObject.close();
+            }
+        }
     }
 
 }

@@ -21,6 +21,15 @@ public class RemoteConnectedServiceConfig {
     protected RemoteConnectedServiceConfig() {
     }
 
+    public String getEntityId() {
+        return entityId;
+    }
 
+    public RemoteServiceProviderConfig getServiceProviderConfig() {
+        return serviceProviderConfig;
+    }
 
+    public RemoteMatchingServiceConfig getMatchingServiceConfig() {
+        return matchingServiceConfig;
+    }
 }

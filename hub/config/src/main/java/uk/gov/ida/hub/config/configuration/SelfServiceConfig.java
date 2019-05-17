@@ -12,6 +12,9 @@ public class SelfServiceConfig {
     @JsonProperty
     private boolean enabled = false;
 
+    @JsonProperty
+    private String awsRegion;
+
     @Valid
     @JsonProperty
     private String s3BucketName;
@@ -33,6 +36,10 @@ public class SelfServiceConfig {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public String getAwsRegion() {
+        return awsRegion;
     }
 
     public String getS3BucketName() {
