@@ -53,7 +53,7 @@ public class S3ConfigSourceTest {
     public void getRemoteConfigTest() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        URL url = this.getClass().getResource("/test.json");
+        URL url = this.getClass().getResource("/remote-test-config.json");
         File initialFile = new File(url.getFile());
         InputStream testStream = new FileInputStream(initialFile);
         S3ObjectInputStream s3ObjectStream = new S3ObjectInputStream(testStream, new HttpGet());
