@@ -59,7 +59,7 @@ public class S3ConfigSource {
         try {
             return om.readValue(s3ObjectStream, RemoteConfigCollection.class);
         } catch(IOException e) {
-            LOG.error("An error occured trying to get or process object {} from S3 Buck {}",
+            LOG.error("An error occured trying to get or process object {} from S3 Bucket {}",
                     configConfiguration.getSelfService().getS3ObjectKey(),
                     configConfiguration.getSelfService().getS3BucketName(), e);
             throw e;
