@@ -2,7 +2,6 @@
 
 set -e
 set +x
-./gradlew checkJceInstalled || exit 1
 
 function funky_pass_banner {
     tput setaf 2
@@ -27,6 +26,27 @@ function funky_fail_banner {
     printf "##       ##     ## #### ######## ######## ######## \n\n"
     tput sgr0
 }
+
+if [[ ! $(git secrets 2>/dev/null) ]]; then
+  echo "⚠️ This repository should be checked against leaked AWS credentials ⚠️"
+  echo "We highly recommend you run the following:"
+  echo "   brew install git-secrets"
+  echo "then to set up the git-secrets to run on each commit:"
+  echo "   git secrets --install"
+  echo "   git secrets --register-aws"
+  echo " === !!! !!! !!! === "
+  funky_fail_banner
+  exit 1
+else
+  for hook in .git/hooks/commit-msg .git/hooks/pre-commit .git/hooks/prepare-commit-msg; do
+    if ! grep -q "git secrets" $hook; then
+      git secrets --install -f
+    fi
+  done
+  git secrets --register-aws
+fi
+
+./gradlew checkJceInstalled || exit 1
 
 echo "Running tests"
 ./shutdown.sh
