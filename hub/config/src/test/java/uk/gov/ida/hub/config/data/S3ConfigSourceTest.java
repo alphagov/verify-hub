@@ -11,12 +11,15 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteCertificateConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,10 +68,10 @@ public class S3ConfigSourceTest {
         RemoteConfigCollection result = testSource.getRemoteConfig();
         result.getPublishedAt();
         assertThat(result.getMatchingServiceAdapters().size()).isEqualTo(1);
-        assertThat(result.getMatchingServiceAdapters().get(0).getName().contentEquals("Banana Registry MSA")).isTrue();
-        assertThat(result.getMatchingServiceAdapters().get(0).getEncryptionCertificate().getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds")).isTrue();
-        assertThat(result.getMatchingServiceAdapters().get(0).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getMatchingServiceAdapters().get(0).getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds")).isTrue();
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getName().contentEquals("Banana Registry MSA")).isTrue();
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getEncryptionCertificate().getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds")).isTrue();
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getSigningCertificates().size()).isEqualTo(1);
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds")).isTrue();
         assertThat(result.getServiceProviders().size()).isEqualTo(2);
         assertThat(result.getServiceProviders().get(0).getName().contentEquals("chris")).isTrue();
         assertThat(result.getServiceProviders().get(0).getSigningCertificates().size()).isEqualTo(1);
@@ -77,5 +80,6 @@ public class S3ConfigSourceTest {
         assertThat(result.getServiceProviders().get(1).getSigningCertificates().size()).isEqualTo(1);
         assertThat(result.getServiceProviders().get(1).getSigningCertificates().get(0).getName().contentEquals("/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=HUB Signing (20190218155358)")).isTrue();
     }
+
 
 }
