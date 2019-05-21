@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.client;
 
 import com.codahale.metrics.MetricRegistry;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +15,7 @@ import uk.gov.ida.hub.samlsoapproxy.rest.HealthCheckResponse;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,22 +54,6 @@ public class MatchingServiceHealthCheckClientTest {
                 matchingServiceHealthCheckClient.sendHealthCheckRequest(healthCheckRequest, healthCheckUri);
 
         assertThat(matchingServiceHealthCheckResponseDto.getResponse()).isEqualTo(Optional.of(XmlUtils.writeToString(healthCheckResponseElement)));
-    }
-
-    @Test
-    public void sendHealthCheckRequest_shouldReturnSuccessResponseWithVersionNumber() {
-        String expectedVersion = "someVersion";
-        HealthCheckResponse responseMessageThatHasAVersion = aHealthCheckResponse()
-                .withElement(healthCheckResponseElement)
-                .withVersionNumber(expectedVersion)
-                .build();
-
-        when(soapRequestClient.makeSoapRequestForHealthCheck(healthCheckRequest, healthCheckUri)).thenReturn(responseMessageThatHasAVersion);
-
-        final MatchingServiceHealthCheckResponseDto matchingServiceHealthCheckResponseDto =
-                matchingServiceHealthCheckClient.sendHealthCheckRequest(healthCheckRequest, healthCheckUri);
-
-        assertThat(matchingServiceHealthCheckResponseDto.getVersionNumber()).isEqualTo(Optional.of(expectedVersion));
     }
 
     @Test

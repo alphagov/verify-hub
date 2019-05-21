@@ -117,7 +117,8 @@ public class MatchingServiceHealthCheckIntegrationTests {
     @Test
     public void healthCheck_shouldRespondWith200WhenAllMatchingServicesHealthy() throws Exception {
         configStub.setUpStubForMatchingServiceHealthCheckRequest(msaStubRule1.getAttributeQueryRequestUri(), msaEntityId2);
-        msaStubRule1.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2), msaVersion2);
+        String healthCheckResponse = aHealthyHealthCheckResponse(msaEntityId2, msaVersion2);
+        msaStubRule1.prepareForHealthCheckRequest(healthCheckResponse);
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslate(anInboundResponseFromMatchingServiceDto()
                 .withIssuer(msaEntityId2)
@@ -151,13 +152,13 @@ public class MatchingServiceHealthCheckIntegrationTests {
     public void healthCheck_shouldRespondWith500WhenAllMatchingServicesAreNotHealthy() throws Exception {
         configStub.setUpStubForTwoMatchingServiceHealthCheckRequests(msaStubRule1.getAttributeQueryRequestUri(), msaEntityId,
                 msaStubRule2.getAttributeQueryRequestUri(), msaEntityId2);
-
-        msaStubRule1.prepareForHealthCheckRequest(anUnhealthyHealthCheckResponse(msaEntityId), msaVersion);
+        
+        msaStubRule1.prepareForHealthCheckRequest(anUnhealthyHealthCheckResponse(msaEntityId, msaVersion));
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslateReturningError(ErrorStatusDto.createAuditedErrorStatus(UUID.randomUUID(),
                 ExceptionType.INVALID_SAML));
 
-        msaStubRule2.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2), msaVersion2);
+        msaStubRule2.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2, msaVersion2));
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslateReturningError(ErrorStatusDto.createAuditedErrorStatus(UUID.randomUUID(),
                 ExceptionType.INVALID_SAML));
@@ -182,12 +183,12 @@ public class MatchingServiceHealthCheckIntegrationTests {
         configStub.setUpStubForTwoMatchingServiceHealthCheckRequests(msaStubRule1.getAttributeQueryRequestUri(), msaEntityId,
                 msaStubRule2.getAttributeQueryRequestUri(), msaEntityId2);
 
-        msaStubRule1.prepareForHealthCheckRequest(anUnhealthyHealthCheckResponse(msaEntityId), msaVersion);
+        msaStubRule1.prepareForHealthCheckRequest(anUnhealthyHealthCheckResponse(msaEntityId, msaVersion));
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslateReturningError(ErrorStatusDto.createAuditedErrorStatus(UUID.randomUUID(),
                 ExceptionType.INVALID_SAML));
 
-        msaStubRule2.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2), msaVersion2);
+        msaStubRule2.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2, msaVersion2));
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslate(anInboundResponseFromMatchingServiceDto()
                 .withIssuer(msaEntityId2)
@@ -208,7 +209,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
 
     }
 
-    private String anUnhealthyHealthCheckResponse(String msaEntityId) throws Base64DecodingException {
+    private String anUnhealthyHealthCheckResponse(String msaEntityId, String msaVersion) throws Base64DecodingException {
         Function<HealthCheckResponseFromMatchingService, Element> transformer = new MsaTransformersFactory().getHealthcheckResponseFromMatchingServiceToElementTransformer(
                 null,
                 getKeyStore(),
@@ -217,6 +218,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
                 DIGEST_ALGORITHM
         );
         final HealthCheckResponseFromMatchingService healthCheckResponse = new HealthCheckResponseFromMatchingService(
+                "response-id-123-version-"+msaVersion,
                 msaEntityId,
                 "request-id"
         );
@@ -224,7 +226,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
         return XmlUtils.writeToString(soapMessageManager.wrapWithSoapEnvelope(healthyResponse));
     }
 
-    private String aHealthyHealthCheckResponse(String msaEntityId) throws Base64DecodingException {
+    private String aHealthyHealthCheckResponse(String msaEntityId, String msaVersion) throws Base64DecodingException {
         Function<uk.gov.ida.saml.msa.test.outbound.HealthCheckResponseFromMatchingService, Element> transformer = new MsaTransformersFactory().getHealthcheckResponseFromMatchingServiceToElementTransformer(
                 null,
                 getKeyStore(),
@@ -233,6 +235,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
                 DIGEST_ALGORITHM
         );
         final HealthCheckResponseFromMatchingService healthCheckResponse = new HealthCheckResponseFromMatchingService(
+                "response-id-123-version-"+msaVersion,
                 msaEntityId,
                 "request-id"
         );
