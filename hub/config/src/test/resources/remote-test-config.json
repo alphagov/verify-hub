@@ -5,7 +5,7 @@
     {
       "entity_id" : "https://bananaregistry.service.gov.uk",
       "matching_service_adapter" : "https://msa.bananaregistry.service.gov.uk",
-      "service_provider": 2
+      "service_provider_id": 2
     }
   ],
   "matching_service_adapters":[

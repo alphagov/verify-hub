@@ -3,8 +3,6 @@ package uk.gov.ida.hub.config.data;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,7 +74,7 @@ public class RemoteConfigCollectionDeserializer extends StdDeserializer<RemoteCo
         @JsonProperty("entity_id")
         protected String entityId;
 
-        @JsonProperty("service_provider")
+        @JsonProperty("service_provider_id")
         protected int serviceProviderConfigId;
 
         @JsonProperty("matching_service_adapter")

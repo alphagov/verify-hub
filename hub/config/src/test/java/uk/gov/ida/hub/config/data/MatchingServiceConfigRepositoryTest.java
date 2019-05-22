@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConnectedServiceConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteMatchingServiceConfig;
 
 import java.io.File;
