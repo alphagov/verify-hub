@@ -33,7 +33,11 @@ public class ResponseAssertionsFromCountryValidator {
 
     public void validate(ValidatedResponse validatedResponse, Assertion validatedIdentityAssertion) {
 
-        assertionValidator.validate(validatedIdentityAssertion, validatedResponse.getInResponseTo(), expectedRecipientId);
+        assertionValidator.validateEidas(
+            validatedIdentityAssertion,
+            validatedResponse.getInResponseTo(),
+            expectedRecipientId
+        );
 
         if (validatedResponse.isSuccess()) {
 

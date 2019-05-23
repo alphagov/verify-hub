@@ -33,7 +33,7 @@ public class EidasValidatorFactory {
 
     public void getValidatedAssertion(ValidatedResponse validatedResponse, List<Assertion> decryptedAssertions) {
         SamlAssertionsSignatureValidator samlAssertionsSignatureValidator = new SamlAssertionsSignatureValidator(getSamlMessageSignatureValidator(validatedResponse.getIssuer().getValue()));
-        samlAssertionsSignatureValidator.validate(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+        samlAssertionsSignatureValidator.validateEidas(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
     }
 
     private SamlMessageSignatureValidator getSamlMessageSignatureValidator(String entityId) {
