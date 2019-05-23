@@ -1,11 +1,13 @@
 package uk.gov.ida.hub.config.domain.remoteconfig;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RemoteServiceProviderConfig {
 
     @JsonProperty
@@ -17,9 +19,15 @@ public class RemoteServiceProviderConfig {
     @JsonProperty("signing_certificates")
     protected List<RemoteCertificateConfig> signingCertificates;
 
+    public RemoteServiceProviderConfig() {
 
-    @SuppressWarnings("unused")
-    protected RemoteServiceProviderConfig() {
+    }
+
+    public RemoteServiceProviderConfig(String name, RemoteCertificateConfig encryptionCertificate,
+                                       List<RemoteCertificateConfig> signingCertificates) {
+        this.name = name;
+        this.encryptionCertificate = encryptionCertificate;
+        this.signingCertificates = signingCertificates;
     }
 
     public String getName() {

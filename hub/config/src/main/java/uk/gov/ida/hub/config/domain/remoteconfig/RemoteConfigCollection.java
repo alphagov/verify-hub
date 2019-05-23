@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RemoteConfigCollection {
@@ -13,32 +15,40 @@ public class RemoteConfigCollection {
     protected Date publishedAt;
 
     @JsonProperty("connected_services")
-    protected List<RemoteConnectedServiceConfig> connectedServices;
+    protected Map<String, RemoteConnectedServiceConfig> connectedServices;
 
     @JsonProperty("matching_service_adapters")
-    protected List<RemoteMatchingServiceConfig> matchingServiceAdapters;
+    protected Map<String, RemoteMatchingServiceConfig> matchingServiceAdapters;
 
     @JsonProperty("service_providers")
     protected List<RemoteServiceProviderConfig> serviceProviders;
 
-    @SuppressWarnings("unused")
-    protected RemoteConfigCollection() {
+    public RemoteConfigCollection() {
+
+    }
+
+    public RemoteConfigCollection(Date publishedAt, Map<String, RemoteConnectedServiceConfig> connectedServices,
+                                  Map<String, RemoteMatchingServiceConfig> matchingServiceAdapters,
+                                  List<RemoteServiceProviderConfig> serviceProviders) {
+        this.publishedAt = publishedAt;
+        this.connectedServices = connectedServices;
+        this.matchingServiceAdapters = matchingServiceAdapters;
+        this.serviceProviders = serviceProviders;
     }
 
     public Date getPublishedAt() {
         return publishedAt;
     }
 
-    public List<RemoteConnectedServiceConfig> getConnectedServices() {
+    public Map<String, RemoteConnectedServiceConfig> getConnectedServices() {
         return connectedServices;
     }
 
-    public List<RemoteMatchingServiceConfig> getMatchingServiceAdapters() {
+    public Map<String, RemoteMatchingServiceConfig> getMatchingServiceAdapters() {
         return matchingServiceAdapters;
     }
 
     public List<RemoteServiceProviderConfig> getServiceProviders() {
         return serviceProviders;
     }
-
 }

@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.ConfigConfiguration;
@@ -48,7 +49,7 @@ public class S3ConfigSource {
         return new S3ConfigSource(configConfiguration, s3Client);
     }
 
-    public RemoteConfigCollection getRemoteConfig() throws IOException {
+    public RemoteConfigCollection getRemoteConfig() {
         S3Object fullObject = s3Client.getObject(
                 new GetObjectRequest(configConfiguration.getSelfService().getS3BucketName(),
                 configConfiguration.getSelfService().getS3ObjectKey()));
@@ -56,16 +57,23 @@ public class S3ConfigSource {
         ObjectMapper om = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         om.setDateFormat(df);
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(RemoteConfigCollection.class, new RemoteConfigCollectionDeserializer());
+        om.registerModule(module);
         try {
             return om.readValue(s3ObjectStream, RemoteConfigCollection.class);
         } catch(IOException e) {
             LOG.error("An error occured trying to get or process object {} from S3 Bucket {}",
                     configConfiguration.getSelfService().getS3ObjectKey(),
                     configConfiguration.getSelfService().getS3BucketName(), e);
-            throw e;
+            throw new RuntimeException(e);
         } finally {
             if(fullObject != null) {
-                fullObject.close();
+                try {
+                    fullObject.close();
+                } catch(IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
