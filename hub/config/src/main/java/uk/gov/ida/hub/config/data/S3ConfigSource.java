@@ -15,7 +15,6 @@ import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,18 +22,16 @@ import java.util.Date;
 public class S3ConfigSource {
     private static final Logger LOG = LoggerFactory.getLogger(S3ConfigSource.class);
     private ConfigConfiguration configConfiguration;
-    private S3Object s3Object;
     private long cacheLengthInMillis;
     private Date lastModifiedDate;
     private Long lastAccessedTime;
     private RemoteConfigCollection currentConfig;
+    private AmazonS3 s3Client;
 
     public S3ConfigSource(ConfigConfiguration configConfiguration, AmazonS3 s3Client) {
         this.configConfiguration = configConfiguration;
         this.cacheLengthInMillis = configConfiguration.getSelfService().getCacheLengthInSeconds() * 1000;
-        this.s3Object = s3Client.getObject(
-                new GetObjectRequest(configConfiguration.getSelfService().getS3BucketName(),
-                        configConfiguration.getSelfService().getS3ObjectKey()));
+        this.s3Client = s3Client;
     }
 
     /**
@@ -44,7 +41,10 @@ public class S3ConfigSource {
      */
     public static S3ConfigSource setupS3ConfigSource(ConfigConfiguration configConfiguration) {
         AmazonS3 s3Client;
-        if(!configConfiguration.getSelfService().getS3AccessKeyId().isEmpty() &&
+        if(configConfiguration.getSelfService().getS3AccessKeyId() == null ||
+                configConfiguration.getSelfService().getS3SecretKeyId() == null) {
+            s3Client = AmazonS3ClientBuilder.defaultClient();
+        } else if(!configConfiguration.getSelfService().getS3AccessKeyId().isEmpty() &&
                 !configConfiguration.getSelfService().getS3SecretKeyId().isEmpty()) {
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(configConfiguration.getSelfService().getS3AccessKeyId(),
                     configConfiguration.getSelfService().getS3SecretKeyId());
@@ -63,15 +63,16 @@ public class S3ConfigSource {
             // Object has never been retrieved get it
             if (lastModifiedDate == null) {
                 lastAccessedTime = System.currentTimeMillis();
-                getObjectData();
+                getObjectData(getBucketObject());
             }
             // If the cache has timed out see if the object has changed
             else if (lastAccessedTime + cacheLengthInMillis < System.currentTimeMillis()) {
                 lastAccessedTime = System.currentTimeMillis();
+                S3Object s3Object = getBucketObject();
                 // Get Object meta data... see if it has been changed.
                 if (this.lastModifiedDate.before(s3Object.getObjectMetadata().getLastModified())) {
                     // If the object has changed get the object from s3
-                    getObjectData();
+                    getObjectData(s3Object);
                 }
             }
         } catch (IOException e) {
@@ -85,7 +86,22 @@ public class S3ConfigSource {
         return this.currentConfig;
     }
 
-    private void getObjectData() throws IOException {
+    /**
+     * Get an sObject which makes a request for metadata only.
+     * @return
+     */
+    private S3Object getBucketObject() {
+        return s3Client.getObject(
+                new GetObjectRequest(configConfiguration.getSelfService().getS3BucketName(),
+                        configConfiguration.getSelfService().getS3ObjectKey()));
+    }
+
+    /**
+     * This method gets the object data directly from the S3Bucket
+     * @param s3Object
+     * @throws IOException
+     */
+    private void getObjectData(S3Object s3Object) throws IOException {
         this.lastModifiedDate = s3Object.getObjectMetadata().getLastModified();
         S3ObjectInputStream s3ObjectStream = s3Object.getObjectContent();
         ObjectMapper om = new ObjectMapper();
@@ -102,12 +118,8 @@ public class S3ConfigSource {
                     configConfiguration.getSelfService().getS3BucketName(), e);
             throw e;
         } finally {
-            if(this.s3Object != null) {
-                try {
-                    this.s3Object.close();
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
+            if(s3Object != null) {
+               s3Object.close();
             }
         }
     }

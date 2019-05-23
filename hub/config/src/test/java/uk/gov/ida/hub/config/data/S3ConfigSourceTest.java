@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteCertificateConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 
 import java.io.ByteArrayInputStream;
@@ -25,8 +24,6 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -76,7 +73,6 @@ public class S3ConfigSourceTest {
         InputStream testStream = new FileInputStream(initialFile);
         return new S3ObjectInputStream(testStream, new HttpGet());
     }
-
 
     @Test
     /**
