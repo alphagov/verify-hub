@@ -78,7 +78,7 @@ public class AttributeQueryRequestClient {
 
                 // The MSA sometimes returns 500s with a singularly unhelpful body. Special case handling to get Sentry
                 // to split out these errors. See https://trello.com/c/N7edPMiO/
-                if (responseBody.equals("uk.gov.ida.exceptions.ApplicationException")) {
+                if (responseBody.startsWith("uk.gov.ida.exceptions.ApplicationException") || responseBody.startsWith("uk.gov.ida.matchingserviceadapter.exceptions.LocalMatchingServiceException")) {
                     throw new MatchingServiceException(format("Unknown internal Matching Service error from {0} with status {1} ",
                             matchingServiceUri, e.getResponseStatus()), e);
                 }
