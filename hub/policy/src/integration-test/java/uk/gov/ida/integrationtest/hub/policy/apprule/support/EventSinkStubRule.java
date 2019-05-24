@@ -10,5 +10,4 @@ public class EventSinkStubRule extends HttpStubRule {
     public void setupStubForLogging() throws JsonProcessingException {
         register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
     }
-
 }
