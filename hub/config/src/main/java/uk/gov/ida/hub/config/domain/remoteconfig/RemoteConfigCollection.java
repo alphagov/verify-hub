@@ -3,10 +3,10 @@ package uk.gov.ida.hub.config.domain.remoteconfig;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RemoteConfigCollection {
@@ -50,5 +50,13 @@ public class RemoteConfigCollection {
 
     public List<RemoteServiceProviderConfig> getServiceProviders() {
         return serviceProviders;
+    }
+
+    public static RemoteConfigCollection createEmpty(){
+        RemoteConfigCollection empty = new RemoteConfigCollection();
+        empty.connectedServices = Collections.emptyMap();
+        empty.serviceProviders = Collections.emptyList();
+        empty.matchingServiceAdapters = Collections.emptyMap();
+        return empty;
     }
 }

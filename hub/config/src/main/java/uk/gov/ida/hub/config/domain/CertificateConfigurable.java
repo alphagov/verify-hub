@@ -5,10 +5,9 @@ import java.util.Collection;
 public interface CertificateConfigurable {
 
     EncryptionCertificate getEncryptionCertificate();
-
     Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates();
 
-    default Boolean isEnabled() {
+    default boolean isEnabled() {
         return true;
     }
 }

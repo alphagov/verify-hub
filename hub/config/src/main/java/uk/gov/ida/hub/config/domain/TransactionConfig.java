@@ -3,6 +3,8 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.validation.ValidationMethod;
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteCertificateConfig;
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConnectedServiceConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -32,11 +34,11 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
     @Valid
     @NotNull
     @JsonProperty
-    protected Boolean enabled;
+    protected boolean enabled = true;
 
     @Valid
     @JsonProperty
-    protected Boolean enabledForSingleIdp = false;
+    protected boolean enabledForSingleIdp = false;
 
     @Valid
     @NotNull
@@ -67,20 +69,19 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
 
     @Valid
     @JsonProperty
-    protected boolean eidasEnabled;
+    protected boolean eidasEnabled = false;
 
     @Valid
     @JsonProperty
     private List<String> eidasCountries;
 
     @Valid
-    @NotNull
     @JsonProperty
-    protected Boolean shouldHubSignResponseMessages;
+    protected boolean shouldHubSignResponseMessages = true;
 
     @Valid
     @JsonProperty
-    protected Boolean shouldHubUseLegacySamlStandard = false;
+    protected boolean shouldHubUseLegacySamlStandard = false;
 
     @Valid
     @NotNull
@@ -88,9 +89,8 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
     protected List<X509CertificateConfiguration> signatureVerificationCertificates;
 
     @Valid
-    @NotNull
     @JsonProperty
-    protected Boolean shouldSignWithSHA1 = true;
+    protected boolean shouldSignWithSHA1 = true;
 
     @Valid
     @JsonProperty
@@ -110,7 +110,7 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
 
     @Valid
     @JsonProperty
-    protected boolean eidasProxyNode;
+    protected boolean eidasProxyNode = false;
 
     @Valid
     @JsonProperty
@@ -169,11 +169,11 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
         return serviceHomepage;
     }
 
-    public Boolean isEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
-    public Boolean isEnabledForSingleIdp() {
+    public boolean isEnabledForSingleIdp() {
         return enabledForSingleIdp;
     }
 
@@ -197,7 +197,7 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
         return levelsOfAssurance;
     }
 
-    public Boolean getShouldHubSignResponseMessages() {
+    public boolean getShouldHubSignResponseMessages() {
         return shouldHubSignResponseMessages;
     }
 
@@ -205,7 +205,7 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
         return shouldSignWithSHA1;
     }
 
-    public Boolean getShouldHubUseLegacySamlStandard() {
+    public boolean getShouldHubUseLegacySamlStandard() {
         return shouldHubUseLegacySamlStandard;
     }
 
@@ -251,6 +251,45 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
 
     public boolean isSelfService() {
         return selfService;
+    }
+
+    public TransactionConfig override(RemoteConnectedServiceConfig remoteConfig){
+        TransactionConfig clone = new TransactionConfig();
+
+        clone.assertionConsumerServices = this.assertionConsumerServices;
+        clone.serviceHomepage = this.serviceHomepage;
+        clone.enabled = this.enabled;
+        clone.enabledForSingleIdp = this.enabledForSingleIdp;
+        clone.encryptionCertificate = mapRemoteCertConfig(remoteConfig.getServiceProviderConfig().getEncryptionCertificate());
+        clone.entityId = this.entityId;
+        clone.simpleId = this.simpleId;
+        clone.matchingProcess = this.matchingProcess;
+        clone.matchingServiceEntityId = this.matchingServiceEntityId;
+        clone.levelsOfAssurance = this.levelsOfAssurance;
+        clone.eidasEnabled = this.eidasEnabled;
+        clone.eidasCountries = this.eidasCountries;
+        clone.shouldHubSignResponseMessages = this.shouldHubSignResponseMessages;
+        clone.shouldHubUseLegacySamlStandard = this.shouldHubUseLegacySamlStandard;
+        clone.signatureVerificationCertificates = mapRemoteCertConfig(remoteConfig.getServiceProviderConfig().getSigningCertificates());
+        clone.shouldSignWithSHA1 = this.shouldSignWithSHA1;
+        clone.userAccountCreationAttributes = this.userAccountCreationAttributes;
+        clone.headlessStartpage = this.headlessStartpage;
+        clone.singleIdpStartpage = this.singleIdpStartpage;
+        clone.usingMatching = this.usingMatching;
+        clone.eidasProxyNode = this.eidasProxyNode;
+        clone.selfService = this.selfService;
+
+        return clone;
+    }
+
+    private List<X509CertificateConfiguration> mapRemoteCertConfig(List<RemoteCertificateConfig> certificates) {
+        return certificates.stream()
+                .map(this::mapRemoteCertConfig)
+                .collect(Collectors.toList());
+    }
+
+    private X509CertificateConfiguration mapRemoteCertConfig(RemoteCertificateConfig cert) {
+        return new X509CertificateConfiguration(cert.getValue());
     }
 
 }

@@ -18,13 +18,16 @@ import uk.gov.ida.hub.config.application.MatchingServiceAdapterService;
 import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.ConnectedServiceConfigRepository;
 import uk.gov.ida.hub.config.data.FileBackedCountryConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedIdentityProviderConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedMatchingServiceConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTransactionConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTranslationsDataSource;
 import uk.gov.ida.hub.config.data.LevelsOfAssuranceConfigValidator;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
+import uk.gov.ida.hub.config.data.MatchingServiceConfigRepository;
+import uk.gov.ida.hub.config.data.S3ConfigSource;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.CountryConfig;
@@ -70,11 +73,11 @@ public class ConfigModule extends AbstractModule {
         bind(new TypeLiteral<ConfigDataSource<MatchingServiceConfig>>() {}).to(FileBackedMatchingServiceConfigDataSource.class).asEagerSingleton();
         bind(new TypeLiteral<ConfigDataSource<IdentityProviderConfig>>() {}).to(FileBackedIdentityProviderConfigDataSource.class).asEagerSingleton();
         bind(new TypeLiteral<ConfigDataSource<CountryConfig>>() {}).to(FileBackedCountryConfigDataSource.class).asEagerSingleton();
-        bind(new TypeLiteral<ConfigRepository<TransactionConfig>>(){}).asEagerSingleton();
-        bind(new TypeLiteral<ConfigRepository<TranslationData>>(){}).asEagerSingleton();
-        bind(new TypeLiteral<ConfigRepository<CountryConfig>>(){}).asEagerSingleton();
-        bind(new TypeLiteral<ConfigRepository<MatchingServiceConfig>>(){}).asEagerSingleton();
-        bind(new TypeLiteral<ConfigRepository<IdentityProviderConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<LocalConfigRepository<TransactionConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<LocalConfigRepository<TranslationData>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<LocalConfigRepository<CountryConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<LocalConfigRepository<MatchingServiceConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<LocalConfigRepository<IdentityProviderConfig>>(){}).asEagerSingleton();
         bind(LevelsOfAssuranceConfigValidator.class).toInstance(new LevelsOfAssuranceConfigValidator());
         bind(CertificateChainValidator.class);
         bind(TrustStoreForCertificateProvider.class);
@@ -90,6 +93,10 @@ public class ConfigModule extends AbstractModule {
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(CertificateService.class);
         bind(MatchingServiceAdapterService.class);
+        bind(MatchingServiceConfigRepository.class).asEagerSingleton();
+        bind(ConnectedServiceConfigRepository.class).asEagerSingleton();
+        bind(S3ConfigSource.class).asEagerSingleton();
+
     }
 
     @Provides

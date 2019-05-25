@@ -2,7 +2,7 @@ package uk.gov.ida.hub.config.application;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.EncryptionCertificate;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
@@ -17,13 +17,13 @@ import static java.util.stream.Collectors.toList;
 
 public class MatchingServiceAdapterService {
 
-    private final ConfigRepository<TransactionConfig> transactionConfigRepository;
-    private final ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
+    private final LocalConfigRepository<TransactionConfig> transactionConfigRepository;
+    private final LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
 
     @Inject
     public MatchingServiceAdapterService(
-            ConfigRepository<TransactionConfig> transactionConfigRepository,
-            ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository) {
+            LocalConfigRepository<TransactionConfig> transactionConfigRepository,
+            LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository) {
         this.transactionConfigRepository = transactionConfigRepository;
         this.matchingServiceConfigRepository = matchingServiceConfigRepository;
     }
@@ -79,7 +79,7 @@ public class MatchingServiceAdapterService {
         }
 
         public boolean isOnboarding() {
-            return matchingServiceConfig.getOnboarding();
+            return matchingServiceConfig.isOnboarding();
         }
 
         @Override
@@ -98,7 +98,7 @@ public class MatchingServiceAdapterService {
                     .append(matchingServiceConfig.getUri(), that.matchingServiceConfig.getUri())
                     .append(matchingServiceConfig.getUserAccountCreationUri(), that.matchingServiceConfig.getUserAccountCreationUri())
                     .append(matchingServiceConfig.getHealthCheckEnabled(), that.matchingServiceConfig.getHealthCheckEnabled())
-                    .append(matchingServiceConfig.getOnboarding(), that.matchingServiceConfig.getOnboarding())
+                    .append(matchingServiceConfig.isOnboarding(), that.matchingServiceConfig.isOnboarding())
                     .isEquals();
         }
 
@@ -112,7 +112,7 @@ public class MatchingServiceAdapterService {
                     .append(matchingServiceConfig.getUri())
                     .append(matchingServiceConfig.getUserAccountCreationUri())
                     .append(matchingServiceConfig.getHealthCheckEnabled())
-                    .append(matchingServiceConfig.getOnboarding())
+                    .append(matchingServiceConfig.isOnboarding())
                     .toHashCode();
         }
     }

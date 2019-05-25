@@ -5,11 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.ida.hub.config.data.ConnectedServiceConfigRepository;
+import uk.gov.ida.hub.config.data.MatchingServiceConfigRepository;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
-import uk.gov.ida.hub.config.domain.EntityIdentifiable;
-import uk.gov.ida.hub.config.data.ConfigRepository;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
+import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -19,6 +20,7 @@ import uk.gov.ida.hub.config.exceptions.CertificateDisabledException;
 import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
 import uk.gov.ida.saml.core.test.TestCertificateStrings;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -42,10 +44,10 @@ public class CertificateServiceTest {
     private static final String CERT_TWO_X509 = TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
 
     @Mock
-    private ConfigRepository<TransactionConfig> transactionDataSource;
+    private MatchingServiceConfigRepository matchingServiceConfigRepository;
 
     @Mock
-    private ConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
+    private ConnectedServiceConfigRepository connectedServiceConfigRepository;
 
     @Mock
     private CertificateValidityChecker certificateValidityChecker;
@@ -54,7 +56,7 @@ public class CertificateServiceTest {
 
     @Before
     public void createService() {
-        certificateService = new CertificateService(transactionDataSource, matchingServiceDataSource, certificateValidityChecker);
+        certificateService = new CertificateService(matchingServiceConfigRepository, connectedServiceConfigRepository, certificateValidityChecker);
     }
 
     @Test
@@ -64,8 +66,8 @@ public class CertificateServiceTest {
                 .withEnabled(true)
                 .build();
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(transactionDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
         when(certificateValidityChecker.isValid(any(CertificateDetails.class))).thenReturn(true);
 
         CertificateDetails certificateDetails = certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
@@ -81,8 +83,8 @@ public class CertificateServiceTest {
                 .withEnabled(true)
                 .build();
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(transactionDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
         when(certificateValidityChecker.isValid(any(CertificateDetails.class))).thenReturn(false);
 
         certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
@@ -94,9 +96,9 @@ public class CertificateServiceTest {
                 .withEntityId(RP_ONE_ENTITY_ID)
                 .build();
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(matchingServiceDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
         when(certificateValidityChecker.isValid(any(CertificateDetails.class))).thenReturn(true);
 
         CertificateDetails certificateDetails = certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
@@ -111,9 +113,8 @@ public class CertificateServiceTest {
                 .withEntityId(RP_ONE_ENTITY_ID)
                 .build();
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(matchingServiceDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
+        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
         when(certificateValidityChecker.isValid(any(CertificateDetails.class))).thenReturn(false);
 
         certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
@@ -122,8 +123,8 @@ public class CertificateServiceTest {
 
     @Test(expected = NoCertificateFoundException.class)
     public void throwsNotFoundException_WhenNoEncryptionCertificateExists() {
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
 
         certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
     }
@@ -135,8 +136,8 @@ public class CertificateServiceTest {
                 .withEnabled(false)
                 .build();
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(transactionDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
         when(certificateValidityChecker.isValid(any(CertificateDetails.class))).thenReturn(true);
 
         certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
@@ -153,8 +154,8 @@ public class CertificateServiceTest {
                 .addSignatureVerificationCertificate(sigCert2)
                 .build();
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(transactionDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
         when(certificateValidityChecker.isValid(any(CertificateDetails.class))).thenReturn(true);
 
         List<CertificateDetails> certificateDetailsFound = certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
@@ -178,8 +179,8 @@ public class CertificateServiceTest {
         CertificateDetails validCertificate = aCertifcateDetail(RP_ONE_ENTITY_ID, validCert, FederationEntityType.RP);
         CertificateDetails invalidCertificate = aCertifcateDetail(RP_ONE_ENTITY_ID, invalidCert, FederationEntityType.RP);
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(transactionDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
         when(certificateValidityChecker.isValid(invalidCertificate)).thenReturn(false);
         when(certificateValidityChecker.isValid(validCertificate)).thenReturn(true);
 
@@ -200,9 +201,8 @@ public class CertificateServiceTest {
                 .addSignatureVerificationCertificate(sigCert2)
                 .build();
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(matchingServiceDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
+        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
         when(certificateValidityChecker.isValid(any(CertificateDetails.class))).thenReturn(true);
 
         List<CertificateDetails> certificateDetailsFound = certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
@@ -226,9 +226,9 @@ public class CertificateServiceTest {
         CertificateDetails validCertificate = new CertificateDetails(RP_ONE_ENTITY_ID, validSigCert, FederationEntityType.MS);
         CertificateDetails invalidCertificate = new CertificateDetails(RP_ONE_ENTITY_ID, invalidSigCert, FederationEntityType.MS);
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(matchingServiceDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
         when(certificateValidityChecker.isValid(invalidCertificate)).thenReturn(false);
         when(certificateValidityChecker.isValid(validCertificate)).thenReturn(true);
 
@@ -249,9 +249,9 @@ public class CertificateServiceTest {
 
         CertificateDetails invalidCertificate = new CertificateDetails(RP_ONE_ENTITY_ID, invalidSigCert, FederationEntityType.MS);
 
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(matchingServiceDataSource.getData(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+        when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
         when(certificateValidityChecker.isValid(invalidCertificate)).thenReturn(false);
 
         certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
@@ -259,8 +259,8 @@ public class CertificateServiceTest {
 
     @Test(expected = NoCertificateFoundException.class)
     public void throwsNoCertificateFoundException_WhenMatchingSignatureCertificatesDoNotExist() {
-        when(transactionDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceDataSource.containsKey(RP_ONE_ENTITY_ID)).thenReturn(false);
+        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
 
         certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
     }
@@ -280,13 +280,13 @@ public class CertificateServiceTest {
         expectedCertificateDetailsSet.addAll(getCertificateDetailsSet(transactionTwoConfig, FederationEntityType.RP));
         expectedCertificateDetailsSet.addAll(getCertificateDetailsSet(matchingServiceOneConfig, FederationEntityType.MS));
 
-        Set<TransactionConfig> transactionConfigs = new HashSet<>();
+        List<TransactionConfig> transactionConfigs = new ArrayList<>();
         transactionConfigs.add(transactionOneConfig);
         transactionConfigs.add(transactionTwoConfig);
-        Set<MatchingServiceConfig> matchingServiceConfigs = new HashSet<>();
+        List<MatchingServiceConfig> matchingServiceConfigs = new ArrayList<>();
         matchingServiceConfigs.add(matchingServiceOneConfig);
-        when(transactionDataSource.getAllData()).thenReturn(transactionConfigs);
-        when(matchingServiceDataSource.getAllData()).thenReturn(matchingServiceConfigs);
+        when(connectedServiceConfigRepository.getAll()).thenReturn(transactionConfigs);
+        when(matchingServiceConfigRepository.getAll()).thenReturn(matchingServiceConfigs);
 
         final Set<CertificateDetails> actualCertificateDetailsSet = certificateService.getAllCertificateDetails();
 

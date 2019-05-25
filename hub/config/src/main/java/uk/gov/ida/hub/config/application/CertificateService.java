@@ -2,12 +2,13 @@ package uk.gov.ida.hub.config.application;
 
 import com.google.inject.Inject;
 import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.ConnectedServiceConfigRepository;
+import uk.gov.ida.hub.config.data.MatchingServiceConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.EntityIdentifiable;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.exceptions.CertificateDisabledException;
@@ -26,10 +27,10 @@ public class CertificateService <T extends EntityIdentifiable & CertificateConfi
 
     @Inject
     public CertificateService(
-            ConfigRepository<TransactionConfig> transactionConfigRepository,
-            ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
+            MatchingServiceConfigRepository matchingServiceConfigRepository,
+            ConnectedServiceConfigRepository connectedServiceConfigRepository,
             CertificateValidityChecker certificateValidityChecker) {
-        this.configRepositories.add((ConfigRepository<T>)transactionConfigRepository);
+        this.configRepositories.add((ConfigRepository<T>)connectedServiceConfigRepository);
         this.configRepositories.add((ConfigRepository<T>)matchingServiceConfigRepository);
         this.certificateValidityChecker = certificateValidityChecker;
     }
@@ -69,7 +70,7 @@ public class CertificateService <T extends EntityIdentifiable & CertificateConfi
     }
 
     private Stream<CertificateDetails> getAllCertificateDetails(ConfigRepository<T> configRepository) {
-        return configRepository.getAllData()
+        return configRepository.getAll()
                 .stream()
                 .flatMap(this::getAllCertificateDetails);
     }
@@ -93,10 +94,10 @@ public class CertificateService <T extends EntityIdentifiable & CertificateConfi
 
     private T getConfig(String entityId){
         return configRepositories.stream()
-                .filter(repo -> repo.containsKey(entityId))
+                .filter(repo -> repo.has(entityId))
                 .findFirst()
                 .orElseThrow(NoCertificateFoundException::new)
-                .getData(entityId)
+                .get(entityId)
                 .get();
     }
 

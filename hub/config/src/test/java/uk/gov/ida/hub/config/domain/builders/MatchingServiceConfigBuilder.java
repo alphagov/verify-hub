@@ -17,6 +17,7 @@ public class MatchingServiceConfigBuilder {
     private URI uri = URI.create("http://foo.bar/default-matching-service-uri");
     private boolean healthCheckEnabled;
     private URI userAccountCreationUri = URI.create("http://foo.bar/default-account-creation-uri");
+    private boolean selfService = false;
 
     public static MatchingServiceConfigBuilder aMatchingServiceConfig() {
         return new MatchingServiceConfigBuilder();
@@ -34,7 +35,8 @@ public class MatchingServiceConfigBuilder {
                 uri,
                 userAccountCreationUri,
                 healthCheckEnabled,
-                false);
+                false,
+                selfService);
     }
 
     public MatchingServiceConfigBuilder withEntityId(String entityId) {
@@ -67,8 +69,14 @@ public class MatchingServiceConfigBuilder {
         return this;
     }
 
+    public MatchingServiceConfigBuilder withSelfService(boolean selfService) {
+        this.selfService = selfService;
+        return this;
+    }
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class TestMatchingServiceConfig extends MatchingServiceConfig {
+
         private TestMatchingServiceConfig(
             String entityId,
             EncryptionCertificate encryptionCertificate,
@@ -76,7 +84,8 @@ public class MatchingServiceConfigBuilder {
             URI uri,
             URI userAccountCreationUri,
             boolean healthCheckEnabled,
-            boolean onboarding) {
+            boolean onboarding,
+            boolean selfService) {
 
             this.entityId = entityId;
             this.encryptionCertificate = new TestX509CertificateConfiguration(encryptionCertificate.getX509());
@@ -87,6 +96,7 @@ public class MatchingServiceConfigBuilder {
             this.userAccountCreationUri = userAccountCreationUri;
             this.healthCheckEnabled = healthCheckEnabled;
             this.onboarding = onboarding;
+            this.selfService = selfService;
         }
     }
 }

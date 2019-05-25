@@ -43,6 +43,7 @@ public class TransactionConfigBuilder {
     private URI singleIdpStartPage;
     private boolean usingMatching = true;
     private boolean eidasProxyNode = false;
+    private boolean selfService = false;
 
 
 
@@ -78,7 +79,8 @@ public class TransactionConfigBuilder {
                 headlessStartPage,
                 singleIdpStartPage,
                 usingMatching,
-                eidasProxyNode
+                eidasProxyNode,
+                selfService
         );
     }
 
@@ -182,6 +184,11 @@ public class TransactionConfigBuilder {
         return this;
     }
 
+    public TransactionConfigBuilder withSelfService(boolean selfService) {
+        this.selfService = selfService;
+        return this;
+    }
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class TestTransactionConfig extends TransactionConfig {
 
@@ -204,7 +211,8 @@ public class TransactionConfigBuilder {
                 URI headlessStartPage,
                 URI singleIdpStartPage,
                 boolean usingMatching,
-                boolean eidasProxyNode
+                boolean eidasProxyNode,
+                boolean selfService
                 ) {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
@@ -227,6 +235,7 @@ public class TransactionConfigBuilder {
             this.singleIdpStartpage = singleIdpStartPage;
             this.usingMatching = usingMatching;
             this.eidasProxyNode = eidasProxyNode;
+            this.selfService = selfService;
 
         }
     }

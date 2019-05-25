@@ -11,15 +11,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteCertificateConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -82,4 +79,13 @@ public class S3ConfigSourceTest {
     }
 
 
+    @Test
+    public void getRemoteConfigReturnsEmptySelfServiceIsDisabled() {
+
+    }
+
+    @Test
+    public void getRemoteConfigReturnsEmptyWhenS3Unavailable() {
+
+    }
 }
