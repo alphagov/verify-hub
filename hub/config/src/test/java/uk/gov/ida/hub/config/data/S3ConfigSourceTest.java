@@ -64,18 +64,18 @@ public class S3ConfigSourceTest {
         S3ConfigSource testSource = new S3ConfigSource(configConfiguration, s3Client);
         RemoteConfigCollection result = testSource.getRemoteConfig();
         result.getPublishedAt();
-        assertThat(result.getMatchingServiceAdapters().size()).isEqualTo(1);
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getName().contentEquals("Banana Registry MSA")).isTrue();
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getEncryptionCertificate().getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds")).isTrue();
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds")).isTrue();
+        assertThat(result.getMatchingServiceAdapters().size()).isEqualTo(3);
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getName().contentEquals("Banana Registry MSA")).isTrue();
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getEncryptionCertificate().getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-encryption")).isTrue();
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getSigningCertificates().size()).isEqualTo(1);
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-signing")).isTrue();
         assertThat(result.getServiceProviders().size()).isEqualTo(2);
-        assertThat(result.getServiceProviders().get(0).getName().contentEquals("chris")).isTrue();
+        assertThat(result.getServiceProviders().get(0).getName().contentEquals("Apple Registry VSP")).isTrue();
         assertThat(result.getServiceProviders().get(0).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getServiceProviders().get(0).getSigningCertificates().get(0).getName().contentEquals("/C=UK/O=DEFRA/CN=www-chs-perf.ruraldev.org.uk-MSA-SAML-ENCRYPT-INT-120319")).isTrue();
+        assertThat(result.getServiceProviders().get(0).getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-apple-signing")).isTrue();
         assertThat(result.getServiceProviders().get(1).getName().contentEquals("Banana Registry VSP")).isTrue();
         assertThat(result.getServiceProviders().get(1).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getServiceProviders().get(1).getSigningCertificates().get(0).getName().contentEquals("/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=HUB Signing (20190218155358)")).isTrue();
+        assertThat(result.getServiceProviders().get(1).getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-banana-signing")).isTrue();
     }
 
 

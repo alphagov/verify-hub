@@ -25,11 +25,11 @@ import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTr
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectedServiceConfigRepositoryTest {
 
-    private static final String REMOTE_ONLY_ENTITY_ID = "https://bananaregistry.service.gov.uk";
-    private static final String REMOTE_ENABLED_ENTITY_ID = "https://appleregistry.service.gov.uk";
-    private static final String REMOTE_DISABLED_ENTITY_ID = "https://cherryregistry.service.gov.uk";
-    private static final String LOCAL_ONLY_ENTITY_ID = "https://local.service.gov.uk";
-    private static final String BAD_ENTITY_ID = "http://none.existent.service.gov.uk";
+    private static final String REMOTE_ONLY_ENTITY_ID = "https://bananaregistry.test.com";
+    private static final String REMOTE_ENABLED_ENTITY_ID = "https://appleregistry.test.com";
+    private static final String REMOTE_DISABLED_ENTITY_ID = "https://cherryregistry.test.com";
+    private static final String LOCAL_ONLY_ENTITY_ID = "https://local.test.com";
+    private static final String BAD_ENTITY_ID = "http://none.existent.test.com";
 
     private static final String REMOTE_CERT = "MIIDQTCCAiigAwIBAgIBADANBgkqhkiG9w0BAQ0FADA6MQswCQYDVQQGEwJ1azEPMA0GA1UECAwGTG9uZG9uMQwwCgYDVQQKDANHRFMxDDAKBgNVBAMMA2dkczAeFw0xOTA1MTYwOTM4MjlaFw0xOTEwMjgwOTM4MjlaMDoxCzAJBgNVBAYTAnVrMQ8wDQYDVQQIDAZMb25kb24xDDAKBgNVBAoMA0dEUzEMMAoGA1UEAwwDZ2RzMIIBIzANBgkqhkiG9w0BAQEFAAOCARAAMIIBCwKCAQIAxE0gWYnXAqnQf11iWkRDDO+C9C8T+WHrpwxfTtfNILwyHnOhwZNGnO6jjGgQknfiPRVcYcLxkHS54hLlyJjqJA1EPvr/7Zb9VMibsI5wEjglq7E/iZLzsrsqAZ+98fmtodTQPk90sUbOpVi+9eK+oSylqbd4scXyWZ55xSj44xqvqVsOVLLkAFdpgTGrBd6fKx7O+i9tBS5gQVDdFytqOTrD7VrO+pofZX4LWHMoyfksPtpLdASYVnYbO4NG1dxNLq9jmFBMZXR1d8K0i0fF7D7d8mjPDFcOJZSpeLguAXoPKkLfeS6/yr/gex8jDJFtww75LOFIThQCmZMn22YQgOcCAwEAAaNQME4wHQYDVR0OBBYEFOrAl8SufPZEp51+JUisbDJpaFfHMB8GA1UdIwQYMBaAFOrAl8SufPZEp51+JUisbDJpaFfHMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQENBQADggECADRaXNjOl64eqBOMxnkjD0sJwFFIAAzLqxucXcj6SikU+aS7J27fBjjqitw+dHArLry0R6QhgSGpeNEZOu31UoVzS4KL+TDxfQeK/cUgKuqnZQqkeZb3gWmZz4ynnKNUvtzmbA7bXZOgy8jQBGS/lpOprpbsleZywudW8ydn7kuvJMF9G+X7Dlc0S5Gn/PXCDYLS4JAj8uo0RLbKSqMrbnKqSoyugP7C1GPRhLAgbgwn1ozL39nAIlgbKFinuoBGb/B+ZPjpKHvkBt7p7Fngf1zEMR8RyMovKMA/kfYsmPvRxnfT13Qbd5QlNKo4sYj25FTyZfxS1teqfYwwLO4nuLXI";
 
@@ -78,14 +78,14 @@ public class ConnectedServiceConfigRepositoryTest {
     public void getReturnsOptionalEmptyIfNoLocalConfigFound() {
         ConnectedServiceConfigRepository configRepo = new ConnectedServiceConfigRepository(localConfigRepository, s3ConfigSource);
         Optional<TransactionConfig> result = configRepo.get(BAD_ENTITY_ID);
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result.isPresent()).isFalse();
     }
 
     @Test
     public void getReturnsOptionalEmptyIfNoLocalConfigFoundButRemoteExists() {
         ConnectedServiceConfigRepository configRepo = new ConnectedServiceConfigRepository(localConfigRepository, s3ConfigSource);
         Optional<TransactionConfig> result = configRepo.get(REMOTE_ONLY_ENTITY_ID);
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result.isPresent()).isFalse();
     }
 
     @Test

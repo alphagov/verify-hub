@@ -24,13 +24,13 @@ import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder
 
 @RunWith(MockitoJUnitRunner.class)
 public class MatchingServiceConfigRepositoryTest {
-    private static final String REMOTE_ONLY_ENTITY_ID = "https://msa.bananaregistry.service.gov.uk";
-    private static final String REMOTE_ENABLED_ENTITY_ID = "https://msa.appleregistry.service.gov.uk";
-    private static final String REMOTE_DISABLED_ENTITY_ID = "https://msa.cherryregistry.service.gov.uk";
-    private static final String LOCAL_ONLY_ENTITY_ID = "https://msa.local.service.gov.uk";
-    private static final String BAD_ENTITY_ID = "http://msa.none.existent.service.gov.uk";
+    private static final String REMOTE_ONLY_ENTITY_ID = "https://msa.bananaregistry.test.com";
+    private static final String REMOTE_ENABLED_ENTITY_ID = "https://msa.appleregistry.test.com";
+    private static final String REMOTE_DISABLED_ENTITY_ID = "https://msa.cherryregistry.test.com";
+    private static final String LOCAL_ONLY_ENTITY_ID = "https://msa.local.test.com";
+    private static final String BAD_ENTITY_ID = "http://msa.none.existent.test.com";
 
-    private static final String REMOTE_CERT = "MIIDQTCCAiigAwIBAgIBADANBgkqhkiG9w0BAQ0FADA6MQswCQYDVQQGEwJ1azEPMA0GA1UECAwGTG9uZG9uMQwwCgYDVQQKDANHRFMxDDAKBgNVBAMMA2dkczAeFw0xOTA1MTYxNDAyMzBaFw0yMDA1MTUxNDAyMzBaMDoxCzAJBgNVBAYTAnVrMQ8wDQYDVQQIDAZMb25kb24xDDAKBgNVBAoMA0dEUzEMMAoGA1UEAwwDZ2RzMIIBIzANBgkqhkiG9w0BAQEFAAOCARAAMIIBCwKCAQIA078oF47ZG5ETMQcVxVVV5yXvew6kYkHPgyWe2gpmXTuUDOYJv84xuQ5QJvAT3yPL+s5k6fV17Cdt1oHHnb8L+05jspKNbPq6Tmg6f+1HOKVrq3CFcrLo6+ETBDybrC+GFnoygrZKDuyi3BXiPsd8WfsOk/TI47d6ib8QUmK10uFDbK7o53FXpqrZ5bAGimm4mKeR/nTO7zvVrvSecYMJmvCe2yvUXvefmDVArDT0YgX93IvQ1BQ5VG+gIOTPbXJa4700t/zw9vehZumzbU2DUTM+qGakhhFZp7Txb3LxwLgLK7jPaonvtIOX5dhxLD2ijMfwxVG2Bfas7EMC+nB909UCAwEAAaNQME4wHQYDVR0OBBYEFB1LHW9K6Kq5fRDQL/6sP4ExLKUzMB8GA1UdIwQYMBaAFB1LHW9K6Kq5fRDQL/6sP4ExLKUzMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQENBQADggECABK2qsX/AU90FFN85W2uQEw2sr0j2WZnB8eFjy1IRe99W6t4gLAPcMV6JLWMcee85sYDqNnZ2DpXVFPbdQIAEgb5nKsxVhvtXNjOATeRT8QOauUnRA+Sj5UAZdXmhVYS1hp9Wj6pEF9C/Oo5LsO0qtsYQT+EEYptZPhAv5Hw2zPCTpN5lhmwwiw43Q9YD98B9FJDIEHxldi86B6rcX/Kyt3I+nqKFuwW9ffKSdgaDxQJS/kXqvDz1bIp19w5Yodkv7yP38z0qIIuZkgIMTXANyNiauHU1jrWcUaZUjvfBzs05DIBymDnKt2XJ5bs0li6hlq4+n8vt9McJv5IBxNr9hdZ";
+    private static final String REMOTE_CERT = "MIIDQTCCAiigAwIBAgIBADANBgkqhkiG9w0BAQ0FADA6MQswCQYDVQQGEwJ1azEPMA0GA1UECAwGTG9uZG9uMQwwCgYDVQQKDANHRFMxDDAKBgNVBAMMA2dkczAeFw0xOTA1MTYwOTM4MjlaFw0xOTEwMjgwOTM4MjlaMDoxCzAJBgNVBAYTAnVrMQ8wDQYDVQQIDAZMb25kb24xDDAKBgNVBAoMA0dEUzEMMAoGA1UEAwwDZ2RzMIIBIzANBgkqhkiG9w0BAQEFAAOCARAAMIIBCwKCAQIAxE0gWYnXAqnQf11iWkRDDO+C9C8T+WHrpwxfTtfNILwyHnOhwZNGnO6jjGgQknfiPRVcYcLxkHS54hLlyJjqJA1EPvr/7Zb9VMibsI5wEjglq7E/iZLzsrsqAZ+98fmtodTQPk90sUbOpVi+9eK+oSylqbd4scXyWZ55xSj44xqvqVsOVLLkAFdpgTGrBd6fKx7O+i9tBS5gQVDdFytqOTrD7VrO+pofZX4LWHMoyfksPtpLdASYVnYbO4NG1dxNLq9jmFBMZXR1d8K0i0fF7D7d8mjPDFcOJZSpeLguAXoPKkLfeS6/yr/gex8jDJFtww75LOFIThQCmZMn22YQgOcCAwEAAaNQME4wHQYDVR0OBBYEFOrAl8SufPZEp51+JUisbDJpaFfHMB8GA1UdIwQYMBaAFOrAl8SufPZEp51+JUisbDJpaFfHMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQENBQADggECADRaXNjOl64eqBOMxnkjD0sJwFFIAAzLqxucXcj6SikU+aS7J27fBjjqitw+dHArLry0R6QhgSGpeNEZOu31UoVzS4KL+TDxfQeK/cUgKuqnZQqkeZb3gWmZz4ynnKNUvtzmbA7bXZOgy8jQBGS/lpOprpbsleZywudW8ydn7kuvJMF9G+X7Dlc0S5Gn/PXCDYLS4JAj8uo0RLbKSqMrbnKqSoyugP7C1GPRhLAgbgwn1ozL39nAIlgbKFinuoBGb/B+ZPjpKHvkBt7p7Fngf1zEMR8RyMovKMA/kfYsmPvRxnfT13Qbd5QlNKo4sYj25FTyZfxS1teqfYwwLO4nuLXI";
 
     @Mock
     private LocalConfigRepository<MatchingServiceConfig> localConfigRepository;
@@ -77,14 +77,14 @@ public class MatchingServiceConfigRepositoryTest {
     public void getReturnsOptionalEmptyIfNoLocalConfigFound() {
         MatchingServiceConfigRepository configRepo = new MatchingServiceConfigRepository(localConfigRepository, s3ConfigSource);
         Optional<MatchingServiceConfig> result = configRepo.get(BAD_ENTITY_ID);
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result.isPresent()).isFalse();
     }
 
     @Test
     public void getReturnsOptionalEmptyIfNoLocalConfigFoundButRemoteExists() {
         MatchingServiceConfigRepository configRepo = new MatchingServiceConfigRepository(localConfigRepository, s3ConfigSource);
         Optional<MatchingServiceConfig> result = configRepo.get(REMOTE_ONLY_ENTITY_ID);
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result.isPresent()).isFalse();
     }
 
     @Test
