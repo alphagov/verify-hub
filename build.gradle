@@ -70,9 +70,7 @@ subprojects {
 
     configurations.all {
         resolutionStrategy {
-            // dropwizard-testing uses 2.2.0 but our libraries currently only work with 1.6.0.
-            force 'org.assertj:assertj-core:1.6.0',
-                    'org.glassfish.hk2:hk2-api:2.4.0-b31',
+            force 'org.glassfish.hk2:hk2-api:2.4.0-b31',
                     'org.glassfish.hk2:hk2-locator:2.4.0-b31',
                     'org.glassfish.hk2.external:javax.inject:2.4.0-b31',
                     'com.hubspot.dropwizard:dropwizard-guicier:0.9.1.0'
@@ -135,13 +133,17 @@ subprojects {
             force = true
         }
 
-        ida_test_utils "uk.gov.ida:common-test-utils:$dependencyVersions.ida_test_utils"
+        ida_test_utils("uk.gov.ida:common-test-utils:$dependencyVersions.ida_test_utils") {
+            exclude group: 'org.assertj', module: 'assertj'
+            exclude group: 'org.assertj', module: 'assertj-core'
+        }
 
         dev_pki "uk.gov.ida:ida-dev-pki:$dependencyVersions.dev_pki"
 
         dropwizard_infinispan "uk.gov.ida:dropwizard-infinispan:$dependencyVersions.dropwizard_infinispan"
 
         prometheus 'engineering.gds-reliability:gds-metrics-dropwizard:0.1.0'
+        
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
              project(":hub-saml")
@@ -158,15 +160,11 @@ subprojects {
         }
 
         def test_deps_deps = [
-                'junit:junit:4.12',
-                'org.assertj:assertj-core:1.6.0',
-                'org.assertj:assertj-joda-time:1.1.0',
-                'org.assertj:assertj-guava:1.1.0',
-                'org.mockito:mockito-core:2.23.0',
                 'org.json:json:20170516',
                 'com.jayway.awaitility:awaitility:1.6.0',
                 'com.github.tomakehurst:wiremock:2.16.0',
                 "uk.gov.ida:saml-test:$dependencyVersions.saml_lib",
+                'org.assertj:assertj-core:3.9.1',
                 'io.dropwizard:dropwizard-testing:' + dependencyVersions.dropwizard]
 
         test_deps_deps.each { dep ->

@@ -4,17 +4,14 @@
   "connected_services" : [
     {
       "entity_id" : "https://appleregistry.test.com",
-      "matching_service_adapter" : "https://msa.appleregistry.test.com",
       "service_provider_id": 2
     },
     {
       "entity_id" : "https://bananaregistry.test.com",
-      "matching_service_adapter" : "https://msa.bananaregistry.test.com",
       "service_provider_id": 3
     },
     {
       "entity_id" : "https://cherryregistry.test.com",
-      "matching_service_adapter" : "https://msa.cherryregistry.test.com",
       "service_provider_id": 3
     }
   ],

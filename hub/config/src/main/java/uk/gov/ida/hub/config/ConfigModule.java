@@ -14,11 +14,11 @@ import uk.gov.ida.common.shared.security.verification.OCSPPKIXParametersProvider
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
+import uk.gov.ida.hub.config.application.RoleBasedCertificateService;
 import uk.gov.ida.hub.config.application.MatchingServiceAdapterService;
 import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
-import uk.gov.ida.hub.config.data.ConnectedServiceConfigRepository;
 import uk.gov.ida.hub.config.data.FileBackedCountryConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedIdentityProviderConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedMatchingServiceConfigDataSource;
@@ -26,7 +26,7 @@ import uk.gov.ida.hub.config.data.FileBackedTransactionConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTranslationsDataSource;
 import uk.gov.ida.hub.config.data.LevelsOfAssuranceConfigValidator;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
-import uk.gov.ida.hub.config.data.MatchingServiceConfigRepository;
+import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.data.S3ConfigSource;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
@@ -78,6 +78,11 @@ public class ConfigModule extends AbstractModule {
         bind(new TypeLiteral<LocalConfigRepository<CountryConfig>>(){}).asEagerSingleton();
         bind(new TypeLiteral<LocalConfigRepository<MatchingServiceConfig>>(){}).asEagerSingleton();
         bind(new TypeLiteral<LocalConfigRepository<IdentityProviderConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<ManagedEntityConfigRepository<TransactionConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<ManagedEntityConfigRepository<MatchingServiceConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<RoleBasedCertificateService<TransactionConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<RoleBasedCertificateService<MatchingServiceConfig>>(){}).asEagerSingleton();
+        bind(CertificateService.class).asEagerSingleton();
         bind(LevelsOfAssuranceConfigValidator.class).toInstance(new LevelsOfAssuranceConfigValidator());
         bind(CertificateChainValidator.class);
         bind(TrustStoreForCertificateProvider.class);
@@ -91,12 +96,13 @@ public class ConfigModule extends AbstractModule {
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
         bind(OCSPPKIXParametersProvider.class).toInstance(new OCSPPKIXParametersProvider());
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
-        bind(CertificateService.class);
         bind(MatchingServiceAdapterService.class);
-        bind(MatchingServiceConfigRepository.class).asEagerSingleton();
-        bind(ConnectedServiceConfigRepository.class).asEagerSingleton();
-        bind(S3ConfigSource.class).asEagerSingleton();
+    }
 
+    @Provides
+    @Singleton
+    public S3ConfigSource setupS3ConfigSource(ConfigConfiguration configConfiguration) {
+        return S3ConfigSource.setupS3ConfigSource(configConfiguration);
     }
 
     @Provides

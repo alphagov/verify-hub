@@ -18,6 +18,12 @@ public class RemoteCertificateConfig {
     @JsonProperty
     protected String value;
 
+    public RemoteCertificateConfig(String id, String name, String value) {
+        this.id = id;
+        this.name = name;
+        this.value = value;
+    }
+
     @SuppressWarnings("unused")
     public RemoteCertificateConfig() {
     }

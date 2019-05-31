@@ -3,8 +3,7 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.validation.ValidationMethod;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteCertificateConfig;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteMatchingServiceConfig;
+import uk.gov.ida.hub.config.dto.FederationEntityType;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MatchingServiceConfig implements EntityIdentifiable, CertificateConfigurable {
+public class MatchingServiceConfig implements CertificateConfigurable<MatchingServiceConfig> {
 
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected MatchingServiceConfig() {
@@ -60,6 +59,11 @@ public class MatchingServiceConfig implements EntityIdentifiable, CertificateCon
         return entityId;
     }
 
+    @Override
+    public FederationEntityType getEntityType() {
+        return FederationEntityType.MS;
+    }
+
     public EncryptionCertificate getEncryptionCertificate() {
         return new EncryptionCertificate(encryptionCertificate);
     }
@@ -101,11 +105,12 @@ public class MatchingServiceConfig implements EntityIdentifiable, CertificateCon
         return selfService;
     }
 
-    public MatchingServiceConfig override(RemoteMatchingServiceConfig remoteConfig){
+    @Override
+    public MatchingServiceConfig override(List<X509CertificateConfiguration> signatureVerificationCertificateList, X509CertificateConfiguration encryptionCertificate) {
         MatchingServiceConfig clone = new MatchingServiceConfig();
         clone.entityId = this.entityId;
-        clone.encryptionCertificate = mapRemoteCertConfig(remoteConfig.getEncryptionCertificate());
-        clone.signatureVerificationCertificates = mapRemoteCertConfig(remoteConfig.getSigningCertificates());
+        clone.encryptionCertificate = encryptionCertificate;
+        clone.signatureVerificationCertificates = signatureVerificationCertificates;
         clone.uri = this.uri;
         clone.userAccountCreationUri = this.userAccountCreationUri;
         clone.healthCheckEnabled = this.healthCheckEnabled;
@@ -113,16 +118,6 @@ public class MatchingServiceConfig implements EntityIdentifiable, CertificateCon
         clone.selfService = this.selfService;
 
         return clone;
-    }
-
-    private List<X509CertificateConfiguration> mapRemoteCertConfig(List<RemoteCertificateConfig> certificates) {
-        return certificates.stream()
-                .map(this::mapRemoteCertConfig)
-                .collect(Collectors.toList());
-    }
-
-    private X509CertificateConfiguration mapRemoteCertConfig(RemoteCertificateConfig cert) {
-        return new X509CertificateConfiguration(cert.getValue());
     }
 
 }

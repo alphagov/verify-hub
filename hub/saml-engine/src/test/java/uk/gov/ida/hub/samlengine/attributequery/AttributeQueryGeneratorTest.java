@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.attributequery;
 
-import java.util.Optional;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,17 +18,14 @@ import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.assertj.jodatime.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AttributeQueryGeneratorTest {

@@ -3,12 +3,10 @@ package uk.gov.ida.hub.config.domain.remoteconfig;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RemoteMatchingServiceConfig {
+public class RemoteMatchingServiceConfig implements RemoteComponentConfig {
 
     @JsonProperty("entity_id")
     protected String entityId;
@@ -43,11 +41,11 @@ public class RemoteMatchingServiceConfig {
         return name;
     }
 
-    public RemoteCertificateConfig getEncryptionCertificate() {
+    public RemoteCertificateConfig getEncryptionCertificateConfig() {
         return encryptionCertificate;
     }
 
-    public List<RemoteCertificateConfig> getSigningCertificates() {
+    public List<RemoteCertificateConfig> getSigningCertificatesConfig() {
         return signingCertificates;
     }
 }

@@ -15,11 +15,14 @@ import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
@@ -66,26 +69,35 @@ public class S3ConfigSourceTest {
         result.getPublishedAt();
         assertThat(result.getMatchingServiceAdapters().size()).isEqualTo(3);
         assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getName().contentEquals("Banana Registry MSA")).isTrue();
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getEncryptionCertificate().getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-encryption")).isTrue();
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-signing")).isTrue();
-        assertThat(result.getServiceProviders().size()).isEqualTo(2);
-        assertThat(result.getServiceProviders().get(0).getName().contentEquals("Apple Registry VSP")).isTrue();
-        assertThat(result.getServiceProviders().get(0).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getServiceProviders().get(0).getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-apple-signing")).isTrue();
-        assertThat(result.getServiceProviders().get(1).getName().contentEquals("Banana Registry VSP")).isTrue();
-        assertThat(result.getServiceProviders().get(1).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getServiceProviders().get(1).getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-banana-signing")).isTrue();
-    }
-
-
-    @Test
-    public void getRemoteConfigReturnsEmptySelfServiceIsDisabled() {
-
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getEncryptionCertificateConfig().getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-encryption")).isTrue();
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getSigningCertificatesConfig().size()).isEqualTo(1);
+        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.test.com").getSigningCertificatesConfig().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-signing")).isTrue();
+        assertThat(result.getConnectedServices().size()).isEqualTo(3);
+        assertThat(result.getConnectedServices().get("https://appleregistry.test.com").getServiceProviderConfig().getName().contentEquals("Apple Registry VSP")).isTrue();
+        assertThat(result.getConnectedServices().get("https://appleregistry.test.com").getServiceProviderConfig().getSigningCertificatesConfig().size()).isEqualTo(1);
+        assertThat(result.getConnectedServices().get("https://appleregistry.test.com").getServiceProviderConfig().getSigningCertificatesConfig().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-apple-signing")).isTrue();
+        assertThat(result.getConnectedServices().get("https://bananaregistry.test.com").getServiceProviderConfig().getName().contentEquals("Banana Registry VSP")).isTrue();
+        assertThat(result.getConnectedServices().get("https://bananaregistry.test.com").getServiceProviderConfig().getSigningCertificatesConfig().size()).isEqualTo(1);
+        assertThat(result.getConnectedServices().get("https://bananaregistry.test.com").getServiceProviderConfig().getSigningCertificatesConfig().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-banana-signing")).isTrue();
+        assertThat(result.getConnectedServices().get("https://cherryregistry.test.com").getServiceProviderConfig().getName().contentEquals("Banana Registry VSP")).isTrue();
+        assertThat(result.getConnectedServices().get("https://cherryregistry.test.com").getServiceProviderConfig().getSigningCertificatesConfig().size()).isEqualTo(1);
+        assertThat(result.getConnectedServices().get("https://cherryregistry.test.com").getServiceProviderConfig().getSigningCertificatesConfig().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds-banana-signing")).isTrue();
     }
 
     @Test
-    public void getRemoteConfigReturnsEmptyWhenS3Unavailable() {
+    public void getRemoteConfigReturnsEmptyWhenS3Unavailable() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
 
+        URL url = this.getClass().getResource("/remote-test-config.json");
+        File initialFile = new File(url.getFile());
+        InputStream testStream = new FileInputStream(initialFile);
+        SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigJson, SelfServiceConfig.class);
+        when(configConfiguration.getSelfService()).thenReturn(selfServiceConfig);
+        when(s3Client.getObject(any())).thenReturn(mockObject);
+        when(mockObject.getObjectContent()).thenReturn(null);
+        S3ConfigSource testSource = new S3ConfigSource(configConfiguration, s3Client);
+        RemoteConfigCollection result = testSource.getRemoteConfig();
+        assertThat(result.getMatchingServiceAdapters().isEmpty()).isTrue();
+        assertThat(result.getConnectedServices().isEmpty()).isTrue();
     }
 }

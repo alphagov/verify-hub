@@ -2,25 +2,27 @@ package uk.gov.ida.hub.config.domain.remoteconfig;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.ida.hub.config.domain.X509CertificateConfiguration;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RemoteServiceProviderConfig {
+public class RemoteServiceProviderConfig implements RemoteComponentConfig {
 
     @JsonProperty
-    protected String name;
+    private String name;
 
     @JsonProperty("encryption_certificate")
-    protected RemoteCertificateConfig encryptionCertificate;
+    private RemoteCertificateConfig encryptionCertificate;
 
     @JsonProperty("signing_certificates")
-    protected List<RemoteCertificateConfig> signingCertificates;
+    private List<RemoteCertificateConfig> signingCertificates;
 
-    public RemoteServiceProviderConfig() {
+    @JsonProperty("id")
+    private int id;
 
+    protected RemoteServiceProviderConfig() {
     }
 
     public RemoteServiceProviderConfig(String name, RemoteCertificateConfig encryptionCertificate,
@@ -34,11 +36,15 @@ public class RemoteServiceProviderConfig {
         return name;
     }
 
-    public RemoteCertificateConfig getEncryptionCertificate() {
+    public RemoteCertificateConfig getEncryptionCertificateConfig() {
         return encryptionCertificate;
     }
 
-    public List<RemoteCertificateConfig> getSigningCertificates() {
+    public List<RemoteCertificateConfig> getSigningCertificatesConfig() {
         return signingCertificates;
+    }
+
+    public int getId() {
+        return id;
     }
 }

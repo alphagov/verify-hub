@@ -155,7 +155,7 @@ public class PrometheusMetricsIntegrationTest {
         return expectedCertificatesMetrics;
     }
 
-    private <T extends EntityIdentifiable & CertificateConfigurable> List<Message> getExpectedCertificateMetricsList(final T configEntityData) {
+    private <T extends CertificateConfigurable<T>> List<Message> getExpectedCertificateMetricsList(final T configEntityData) {
         List<Message> expectedCertificatesMetrics = new ArrayList<>();
         configEntityData.getSignatureVerificationCertificates()
                         .forEach(

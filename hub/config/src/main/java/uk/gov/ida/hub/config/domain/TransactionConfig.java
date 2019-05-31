@@ -3,8 +3,7 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.validation.ValidationMethod;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteCertificateConfig;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConnectedServiceConfig;
+import uk.gov.ida.hub.config.dto.FederationEntityType;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 import static java.util.Optional.ofNullable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TransactionConfig implements EntityIdentifiable, CertificateConfigurable {
+public class TransactionConfig implements CertificateConfigurable<TransactionConfig> {
 
     @Valid
     @NotNull
@@ -116,7 +115,6 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
     @JsonProperty
     protected boolean selfService = false;
 
-
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfig() {
     }
@@ -179,6 +177,11 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
 
     public String getEntityId() {
         return entityId;
+    }
+
+    @Override
+    public FederationEntityType getEntityType() {
+        return FederationEntityType.RP;
     }
 
     public EncryptionCertificate getEncryptionCertificate() {
@@ -253,14 +256,15 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
         return selfService;
     }
 
-    public TransactionConfig override(RemoteConnectedServiceConfig remoteConfig){
+    @Override
+    public TransactionConfig override(List<X509CertificateConfiguration> signatureVerificationCertificates, X509CertificateConfiguration encryptionCertificate){
         TransactionConfig clone = new TransactionConfig();
 
         clone.assertionConsumerServices = this.assertionConsumerServices;
         clone.serviceHomepage = this.serviceHomepage;
         clone.enabled = this.enabled;
         clone.enabledForSingleIdp = this.enabledForSingleIdp;
-        clone.encryptionCertificate = mapRemoteCertConfig(remoteConfig.getServiceProviderConfig().getEncryptionCertificate());
+        clone.encryptionCertificate = encryptionCertificate;
         clone.entityId = this.entityId;
         clone.simpleId = this.simpleId;
         clone.matchingProcess = this.matchingProcess;
@@ -270,7 +274,7 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
         clone.eidasCountries = this.eidasCountries;
         clone.shouldHubSignResponseMessages = this.shouldHubSignResponseMessages;
         clone.shouldHubUseLegacySamlStandard = this.shouldHubUseLegacySamlStandard;
-        clone.signatureVerificationCertificates = mapRemoteCertConfig(remoteConfig.getServiceProviderConfig().getSigningCertificates());
+        clone.signatureVerificationCertificates = signatureVerificationCertificates;
         clone.shouldSignWithSHA1 = this.shouldSignWithSHA1;
         clone.userAccountCreationAttributes = this.userAccountCreationAttributes;
         clone.headlessStartpage = this.headlessStartpage;
@@ -281,15 +285,4 @@ public class TransactionConfig implements EntityIdentifiable, CertificateConfigu
 
         return clone;
     }
-
-    private List<X509CertificateConfiguration> mapRemoteCertConfig(List<RemoteCertificateConfig> certificates) {
-        return certificates.stream()
-                .map(this::mapRemoteCertConfig)
-                .collect(Collectors.toList());
-    }
-
-    private X509CertificateConfiguration mapRemoteCertConfig(RemoteCertificateConfig cert) {
-        return new X509CertificateConfiguration(cert.getValue());
-    }
-
 }
