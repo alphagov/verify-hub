@@ -54,7 +54,8 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
         this.idpResponseValidator.validate(response);
         ValidatedResponse validatedResponse = this.idpResponseValidator.getValidatedResponse();
         ValidatedAssertions validatedAssertions = this.idpResponseValidator.getValidatedAssertions();
-        eidasAttributesLogger.ifPresent(l -> l.logEidasAttributesAsHash(validatedAssertions.getMatchingDatasetAssertion().get(), response));
+        eidasAttributesLogger.ifPresent(logger -> validatedAssertions.getMatchingDatasetAssertion()
+                .ifPresent(assertion -> logger.logEidasAttributesAsHash(assertion, response)));
         return idaResponseUnmarshaller.fromSaml(validatedResponse, validatedAssertions);
     }
 
