@@ -2,7 +2,6 @@ package uk.gov.ida.hub.config.domain.remoteconfig;
 
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;

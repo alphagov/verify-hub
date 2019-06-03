@@ -1,7 +1,5 @@
 package uk.gov.ida.hub.config.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,12 +13,6 @@ import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConnectedServiceConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteServiceProviderConfig;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -61,7 +53,7 @@ public class ManagedEntityConfigRepositoryTest {
             .build();
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         ConnectedService v1 = new ConnectedService(
             new RemoteConnectedServiceConfig(),
             new RemoteServiceProviderConfig("tbd",

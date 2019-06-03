@@ -15,10 +15,6 @@ import java.util.stream.Collectors;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MatchingServiceConfig implements CertificateConfigurable<MatchingServiceConfig> {
 
-    @SuppressWarnings("unused") // needed to prevent guice injection
-    protected MatchingServiceConfig() {
-    }
-
     @Valid
     @NotNull
     @JsonProperty
@@ -54,6 +50,10 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
     @Valid
     @JsonProperty
     protected boolean selfService = false;
+
+    @SuppressWarnings("unused") // needed to prevent guice injection
+    protected MatchingServiceConfig() {
+    }
 
     public String getEntityId() {
         return entityId;

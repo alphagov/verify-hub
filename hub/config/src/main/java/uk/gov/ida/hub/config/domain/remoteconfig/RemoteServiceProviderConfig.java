@@ -2,10 +2,8 @@ package uk.gov.ida.hub.config.domain.remoteconfig;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.ida.hub.config.domain.X509CertificateConfiguration;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RemoteServiceProviderConfig implements RemoteComponentConfig {
@@ -22,6 +20,7 @@ public class RemoteServiceProviderConfig implements RemoteComponentConfig {
     @JsonProperty("id")
     private int id;
 
+    @SuppressWarnings("unused")
     protected RemoteServiceProviderConfig() {
     }
 

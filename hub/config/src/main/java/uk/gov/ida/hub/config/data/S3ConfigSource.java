@@ -29,9 +29,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-
 public class S3ConfigSource {
     private static final Logger LOG = LoggerFactory.getLogger(S3ConfigSource.class);
     public static final RemoteConfigCollection EMPTY_COLLECTION = new RemoteConfigCollection(null, ImmutableMap.of(), ImmutableMap.of());
@@ -97,7 +94,7 @@ public class S3ConfigSource {
                     configConfiguration.getSelfService().getS3ObjectKey(),
                     configConfiguration.getSelfService().getS3BucketName()
                 ), e);
-            return empty();
+            return Optional.empty();
         } finally {
             if(fullObject != null) {
                 try {
@@ -129,7 +126,7 @@ public class S3ConfigSource {
     }
 
     private Optional<ConnectedService> serviceProviderConfigForService(Map<Integer, RemoteServiceProviderConfig> serviceProviderConfigMap, RemoteConnectedServiceConfig service) {
-        return ofNullable(serviceProviderConfigMap.get(service.getServiceProviderConfigId()))
+        return Optional.ofNullable(serviceProviderConfigMap.get(service.getServiceProviderConfigId()))
             .map((serviceProviderConfig) -> new ConnectedService(service, serviceProviderConfig)
             ).or(() -> {
                 LOG.error(

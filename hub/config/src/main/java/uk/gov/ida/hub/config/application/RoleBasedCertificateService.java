@@ -94,4 +94,4 @@ public class RoleBasedCertificateService<T extends CertificateConfigurable<T>> {
         return managedEntityConfigRepository.get(entityId);
     }
 
-};
+}
