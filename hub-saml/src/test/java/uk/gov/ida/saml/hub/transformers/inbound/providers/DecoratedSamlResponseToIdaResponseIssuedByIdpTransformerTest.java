@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,6 +52,7 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformerTest {
         transformer.apply(response);
         verify(eidasAttributesLogger, never()).logEidasAttributesAsHash(assertion, response);
         verify(validatedAssertions, never()).getMatchingDatasetAssertion();
+        verify(idaResponseUnmarshaller).fromSaml(validatedResponse, validatedAssertions);
     }
 
     @Test
@@ -63,5 +65,21 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformerTest {
         verify(idaResponseUnmarshaller).fromSaml(validatedResponse, validatedAssertions);
         verify(validatedAssertions).getMatchingDatasetAssertion();
         verify(eidasAttributesLogger).logEidasAttributesAsHash(assertion, response);
+        verify(idaResponseUnmarshaller).fromSaml(validatedResponse, validatedAssertions);
     }
+
+    @Test
+    public void testAttributesNotLoggedWhenMatchingDatasetAssertionsEmpty() {
+        when(idpResponseValidator.getValidatedAssertions()).thenReturn(validatedAssertions);
+        when(validatedAssertions.getMatchingDatasetAssertion()).thenReturn(Optional.empty());
+        when(idpResponseValidator.getValidatedResponse()).thenReturn(validatedResponse);
+        transformer.setEidasAttributesLogger(eidasAttributesLogger);
+        transformer.apply(response);
+        verify(validatedAssertions).getMatchingDatasetAssertion();
+        verify(eidasAttributesLogger, never()).logEidasAttributesAsHash(assertion, response);
+        verify(idpResponseValidator).validate(response);
+        verify(idaResponseUnmarshaller).fromSaml(validatedResponse, validatedAssertions);
+        verifyNoMoreInteractions(eidasAttributesLogger);
+    }
+
 }
