@@ -43,3 +43,6 @@ clientTrustStoreConfiguration:
 rpTrustStoreConfiguration:
   path: ${RP_TRUSTSTORE_PATH}
   password: ${RP_TRUSTSTORE_PASSWORD}
+
+selfService:
+  enabled: false

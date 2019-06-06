@@ -32,7 +32,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static uk.gov.ida.hub.config.dto.CertificateDto.aCertificateDto;
 import static uk.gov.ida.hub.config.dto.CertificateHealthCheckDto.createCertificateHealthCheckDto;
 
 @Path(Urls.ConfigUrls.CERTIFICATES_ROOT)
@@ -72,7 +71,7 @@ public class CertificatesResource {
     public CertificateDto getEncryptionCertificate(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         try {
             CertificateDetails certificateDetails = certificateService.encryptionCertificateFor(entityId);
-            return aCertificateDto(
+            return new CertificateDto(
                     entityId,
                     certificateDetails.getX509(),
                     CertificateDto.KeyUse.Encryption,
@@ -93,7 +92,7 @@ public class CertificatesResource {
         try {
             List<CertificateDetails> certificateDetails = certificateService.signatureVerificationCertificatesFor(entityId);
             return certificateDetails.stream()
-                    .map(details -> aCertificateDto(
+                    .map(details -> new CertificateDto(
                             entityId,
                             details.getX509(),
                             CertificateDto.KeyUse.Signing,

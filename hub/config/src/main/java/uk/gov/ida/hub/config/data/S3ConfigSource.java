@@ -45,7 +45,7 @@ public class S3ConfigSource {
     }
 
     public static S3ConfigSource setupS3ConfigSource(ConfigConfiguration configConfiguration) {
-        if(configConfiguration.getSelfService() == null) {
+        if(configConfiguration.getSelfService() == null || !configConfiguration.getSelfService().isEnabled()) {
             return nullS3ConfigSource();
         }
         AmazonS3 s3Client;

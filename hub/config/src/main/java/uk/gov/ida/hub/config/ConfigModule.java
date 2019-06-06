@@ -14,11 +14,11 @@ import uk.gov.ida.common.shared.security.verification.OCSPPKIXParametersProvider
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
-import uk.gov.ida.hub.config.application.RoleBasedCertificateService;
 import uk.gov.ida.hub.config.application.MatchingServiceAdapterService;
 import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
+import uk.gov.ida.hub.config.data.ConfigRepository;
 import uk.gov.ida.hub.config.data.FileBackedCountryConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedIdentityProviderConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedMatchingServiceConfigDataSource;
@@ -48,6 +48,8 @@ import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigModule extends AbstractModule {
 
@@ -80,9 +82,6 @@ public class ConfigModule extends AbstractModule {
         bind(new TypeLiteral<LocalConfigRepository<IdentityProviderConfig>>(){}).asEagerSingleton();
         bind(new TypeLiteral<ManagedEntityConfigRepository<TransactionConfig>>(){}).asEagerSingleton();
         bind(new TypeLiteral<ManagedEntityConfigRepository<MatchingServiceConfig>>(){}).asEagerSingleton();
-        bind(new TypeLiteral<RoleBasedCertificateService<TransactionConfig>>(){}).asEagerSingleton();
-        bind(new TypeLiteral<RoleBasedCertificateService<MatchingServiceConfig>>(){}).asEagerSingleton();
-        bind(CertificateService.class).asEagerSingleton();
         bind(LevelsOfAssuranceConfigValidator.class).toInstance(new LevelsOfAssuranceConfigValidator());
         bind(CertificateChainValidator.class);
         bind(TrustStoreForCertificateProvider.class);
@@ -97,6 +96,20 @@ public class ConfigModule extends AbstractModule {
         bind(OCSPPKIXParametersProvider.class).toInstance(new OCSPPKIXParametersProvider());
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(MatchingServiceAdapterService.class);
+    }
+
+
+    @Provides
+    @Singleton
+    public CertificateService setupCertificateService(
+            ManagedEntityConfigRepository<TransactionConfig> connectedServiceConfigRepository,
+            ManagedEntityConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
+            CertificateValidityChecker certificateValidityChecker
+    ) {
+        List<ConfigRepository> configRepositories = new ArrayList<>();
+        configRepositories.add(connectedServiceConfigRepository);
+        configRepositories.add(matchingServiceConfigRepository);
+        return new CertificateService(configRepositories, certificateValidityChecker);
     }
 
     @Provides
