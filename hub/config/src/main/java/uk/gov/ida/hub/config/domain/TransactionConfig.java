@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import static java.util.Optional.ofNullable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TransactionConfig implements EntityIdentifiable, CertificateConfigurable {
+public class TransactionConfig implements CertificateConfigurable {
 
     @Valid
     @NotNull

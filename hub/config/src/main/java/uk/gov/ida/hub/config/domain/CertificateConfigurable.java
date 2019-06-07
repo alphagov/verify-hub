@@ -2,7 +2,7 @@ package uk.gov.ida.hub.config.domain;
 
 import java.util.Collection;
 
-public interface CertificateConfigurable {
+public interface CertificateConfigurable extends EntityIdentifiable {
 
     EncryptionCertificate getEncryptionCertificate();
 
