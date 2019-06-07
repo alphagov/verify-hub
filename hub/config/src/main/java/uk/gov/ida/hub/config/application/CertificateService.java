@@ -6,7 +6,6 @@ import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
-import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
@@ -19,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CertificateService <T extends EntityIdentifiable & CertificateConfigurable> {
+public class CertificateService <T extends CertificateConfigurable> {
 
     private final List<LocalConfigRepository<T>> configRepositories = new ArrayList<>();
     private CertificateValidityChecker certificateValidityChecker;

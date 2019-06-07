@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MatchingServiceConfig implements EntityIdentifiable, CertificateConfigurable {
+public class MatchingServiceConfig implements CertificateConfigurable {
 
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected MatchingServiceConfig() {
