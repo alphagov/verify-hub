@@ -3,7 +3,7 @@ package uk.gov.ida.hub.config.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.ImmutableList;
 import uk.gov.ida.hub.config.Urls;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.TranslationData;
@@ -32,14 +32,14 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 public class TransactionsResource {
 
-    private final ConfigRepository<TransactionConfig> transactionConfigRepository;
-    private final ConfigRepository<TranslationData> translationConfigRepository;
+    private final LocalConfigRepository<TransactionConfig> transactionConfigRepository;
+    private final LocalConfigRepository<TranslationData> translationConfigRepository;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public TransactionsResource(
-            ConfigRepository<TransactionConfig> transactionConfigRepository,
-            ConfigRepository<TranslationData> translationConfigRepository,
+            LocalConfigRepository<TransactionConfig> transactionConfigRepository,
+            LocalConfigRepository<TranslationData> translationConfigRepository,
             ExceptionFactory exceptionFactory) {
 
         this.transactionConfigRepository = transactionConfigRepository;

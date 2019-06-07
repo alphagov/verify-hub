@@ -5,7 +5,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Sets;
 import uk.gov.ida.hub.config.Urls;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.filters.IdpPredicateFactory;
@@ -30,13 +30,13 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 public class IdentityProviderResource {
 
-    private final ConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
+    private final LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
     private IdpPredicateFactory idpPredicateFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public IdentityProviderResource(
-            ConfigRepository<IdentityProviderConfig> identityProviderConfigRepository,
+            LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository,
             IdpPredicateFactory idpPredicateFactory,
             ExceptionFactory exceptionFactory) {
 

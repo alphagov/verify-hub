@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class ConfigRepository<T extends EntityIdentifiable> {
+public class LocalConfigRepository<T extends EntityIdentifiable> {
 
     private Map<String, T> dataMap = new HashMap<>();
 
     @Inject
-    public ConfigRepository() {
+    public LocalConfigRepository() {
     }
 
     public boolean containsKey(String entityId){

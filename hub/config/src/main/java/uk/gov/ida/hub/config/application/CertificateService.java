@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.config.application;
 
 import com.google.inject.Inject;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
@@ -21,16 +21,16 @@ import java.util.stream.Stream;
 
 public class CertificateService <T extends EntityIdentifiable & CertificateConfigurable> {
 
-    private final List<ConfigRepository<T>> configRepositories = new ArrayList<>();
+    private final List<LocalConfigRepository<T>> configRepositories = new ArrayList<>();
     private CertificateValidityChecker certificateValidityChecker;
 
     @Inject
     public CertificateService(
-            ConfigRepository<TransactionConfig> transactionConfigRepository,
-            ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
+            LocalConfigRepository<TransactionConfig> transactionConfigRepository,
+            LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
             CertificateValidityChecker certificateValidityChecker) {
-        this.configRepositories.add((ConfigRepository<T>)transactionConfigRepository);
-        this.configRepositories.add((ConfigRepository<T>)matchingServiceConfigRepository);
+        this.configRepositories.add((LocalConfigRepository<T>)transactionConfigRepository);
+        this.configRepositories.add((LocalConfigRepository<T>)matchingServiceConfigRepository);
         this.certificateValidityChecker = certificateValidityChecker;
     }
 
@@ -68,7 +68,7 @@ public class CertificateService <T extends EntityIdentifiable & CertificateConfi
         return list;
     }
 
-    private Stream<CertificateDetails> getAllCertificateDetails(ConfigRepository<T> configRepository) {
+    private Stream<CertificateDetails> getAllCertificateDetails(LocalConfigRepository<T> configRepository) {
         return configRepository.getAllData()
                 .stream()
                 .flatMap(this::getAllCertificateDetails);

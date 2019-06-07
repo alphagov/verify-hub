@@ -30,11 +30,11 @@ public class ConfigDataBootstrap implements Managed {
     private final ConfigDataSource<TranslationData> translationsDataSource;
     private final ConfigDataSource<CountryConfig> countriesConfigDataSource;
 
-    private final ConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
-    private ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository = null;
-    private ConfigRepository<TransactionConfig> transactionConfigRepository = null;
-    private final ConfigRepository<TranslationData> translationsRepository;
-    private final ConfigRepository<CountryConfig> countryConfigRepository;
+    private final LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
+    private LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository = null;
+    private LocalConfigRepository<TransactionConfig> transactionConfigRepository = null;
+    private final LocalConfigRepository<TranslationData> translationsRepository;
+    private final LocalConfigRepository<CountryConfig> countryConfigRepository;
     private CertificateChainConfigValidator certificateChainConfigValidator = null;
     private LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator = null;
 
@@ -47,11 +47,11 @@ public class ConfigDataBootstrap implements Managed {
             ConfigDataSource<TransactionConfig> transactionConfigDataSource,
             ConfigDataSource<TranslationData> translationsDataSource,
             ConfigDataSource<CountryConfig> countriesConfigDataSource,
-            ConfigRepository<IdentityProviderConfig> identityProviderConfigRepository,
-            ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
-            ConfigRepository<TransactionConfig> transactionConfigRepository,
-            ConfigRepository<TranslationData> translationsRepository,
-            ConfigRepository<CountryConfig> countryConfigRepository,
+            LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository,
+            LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
+            LocalConfigRepository<TransactionConfig> transactionConfigRepository,
+            LocalConfigRepository<TranslationData> translationsRepository,
+            LocalConfigRepository<CountryConfig> countryConfigRepository,
             @CertificateConfigValidator CertificateChainConfigValidator certificateChainConfigValidator,
             LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator) {
 

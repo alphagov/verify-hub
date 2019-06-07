@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.application.CertificateService;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.EntityConfigDataToCertificateDtoTransformer;
@@ -38,8 +38,8 @@ import static uk.gov.ida.hub.config.dto.CertificateHealthCheckDto.createCertific
 @Path(Urls.ConfigUrls.CERTIFICATES_ROOT)
 @Produces(MediaType.APPLICATION_JSON)
 public class CertificatesResource {
-    private final ConfigRepository<TransactionConfig> transactionDataSource;
-    private final ConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
+    private final LocalConfigRepository<TransactionConfig> transactionDataSource;
+    private final LocalConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
     private final ExceptionFactory exceptionFactory;
     private final ConfigConfiguration configuration;
     private final OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker;
@@ -49,8 +49,8 @@ public class CertificatesResource {
 
     @Inject
     public CertificatesResource(
-            ConfigRepository<TransactionConfig> transactionDataSource,
-            ConfigRepository<MatchingServiceConfig> matchingServiceDataSource,
+            LocalConfigRepository<TransactionConfig> transactionDataSource,
+            LocalConfigRepository<MatchingServiceConfig> matchingServiceDataSource,
             ExceptionFactory exceptionFactory,
             ConfigConfiguration configuration,
             OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker,

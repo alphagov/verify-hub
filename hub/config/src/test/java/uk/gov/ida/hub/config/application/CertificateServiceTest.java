@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.EntityIdentifiable;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
@@ -42,10 +42,10 @@ public class CertificateServiceTest {
     private static final String CERT_TWO_X509 = TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
 
     @Mock
-    private ConfigRepository<TransactionConfig> transactionDataSource;
+    private LocalConfigRepository<TransactionConfig> transactionDataSource;
 
     @Mock
-    private ConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
+    private LocalConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
 
     @Mock
     private CertificateValidityChecker certificateValidityChecker;

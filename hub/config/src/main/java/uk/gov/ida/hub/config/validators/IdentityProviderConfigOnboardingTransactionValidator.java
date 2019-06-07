@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.config.validators;
 
 
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 
@@ -11,10 +11,10 @@ import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createA
 
 public class IdentityProviderConfigOnboardingTransactionValidator {
 
-    private ConfigRepository<TransactionConfig> transactionConfigRepository;
+    private LocalConfigRepository<TransactionConfig> transactionConfigRepository;
 
     public IdentityProviderConfigOnboardingTransactionValidator(
-            final ConfigRepository<TransactionConfig> transactionConfigRepository) {
+            final LocalConfigRepository<TransactionConfig> transactionConfigRepository) {
 
         this.transactionConfigRepository = transactionConfigRepository;
     }
