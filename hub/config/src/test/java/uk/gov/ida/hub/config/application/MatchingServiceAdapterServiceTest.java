@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 
@@ -28,10 +28,10 @@ public class MatchingServiceAdapterServiceTest {
     private MatchingServiceAdapterService matchingServiceAdapterService;
 
     @Mock
-    private ConfigRepository<TransactionConfig> transactionConfigRepository;
+    private LocalConfigRepository<TransactionConfig> transactionConfigRepository;
 
     @Mock
-    private ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
+    private LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
 
     @Before
     public void initialise() {

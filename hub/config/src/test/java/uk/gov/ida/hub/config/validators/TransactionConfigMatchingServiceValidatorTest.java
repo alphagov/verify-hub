@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.ida.hub.config.data.ConfigRepository;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
@@ -25,7 +25,7 @@ public class TransactionConfigMatchingServiceValidatorTest {
     private TransactionConfigMatchingServiceValidator validator = new TransactionConfigMatchingServiceValidator();
 
     @Mock
-    private ConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
+    private LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
 
     @Test
     public void matchingServiceEntityId_shouldHaveCorrespondingConfigurationWhenUsingMatching() throws Exception {

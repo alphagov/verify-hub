@@ -45,7 +45,7 @@ public class ConfigDataBootstrapTest {
     @Mock
     private CertificateChainConfigValidator certificateChainConfigValidator;
 
-    private final ConfigRepository<? extends EntityIdentifiable> nullConfigRepository = new ConfigRepository<>();
+    private final LocalConfigRepository<? extends EntityIdentifiable> nullConfigRepository = new LocalConfigRepository<>();
     private final LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator = new LevelsOfAssuranceConfigValidator();
 
     @Test
@@ -213,11 +213,11 @@ public class ConfigDataBootstrapTest {
                 new TestConfigDataSource<>(transactionConfigData),
                 new TestConfigDataSource<>(translationData),
                 new TestConfigDataSource<>(countriesConfigData),
-                (ConfigRepository<IdentityProviderConfig>) nullConfigRepository,
-                (ConfigRepository<MatchingServiceConfig>) nullConfigRepository,
-                (ConfigRepository<TransactionConfig>) nullConfigRepository,
-                (ConfigRepository<TranslationData>) nullConfigRepository,
-                (ConfigRepository<CountryConfig>) nullConfigRepository,
+                (LocalConfigRepository<IdentityProviderConfig>) nullConfigRepository,
+                (LocalConfigRepository<MatchingServiceConfig>) nullConfigRepository,
+                (LocalConfigRepository<TransactionConfig>) nullConfigRepository,
+                (LocalConfigRepository<TranslationData>) nullConfigRepository,
+                (LocalConfigRepository<CountryConfig>) nullConfigRepository,
                 certificateChainConfigValidator,
                 levelsOfAssuranceConfigValidator);
     }
