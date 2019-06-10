@@ -14,17 +14,17 @@ import uk.gov.ida.common.shared.security.verification.OCSPPKIXParametersProvider
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
-import uk.gov.ida.hub.config.application.MatchingServiceAdapterService;
 import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
-import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.data.FileBackedCountryConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedIdentityProviderConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedMatchingServiceConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTransactionConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTranslationsDataSource;
 import uk.gov.ida.hub.config.data.LevelsOfAssuranceConfigValidator;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
+import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.CountryConfig;
@@ -75,6 +75,8 @@ public class ConfigModule extends AbstractModule {
         bind(new TypeLiteral<LocalConfigRepository<CountryConfig>>(){}).asEagerSingleton();
         bind(new TypeLiteral<LocalConfigRepository<MatchingServiceConfig>>(){}).asEagerSingleton();
         bind(new TypeLiteral<LocalConfigRepository<IdentityProviderConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<ManagedEntityConfigRepository<TransactionConfig>>(){}).asEagerSingleton();
+        bind(new TypeLiteral<ManagedEntityConfigRepository<MatchingServiceConfig>>(){}).asEagerSingleton();
         bind(LevelsOfAssuranceConfigValidator.class).toInstance(new LevelsOfAssuranceConfigValidator());
         bind(CertificateChainValidator.class);
         bind(TrustStoreForCertificateProvider.class);
@@ -89,7 +91,6 @@ public class ConfigModule extends AbstractModule {
         bind(OCSPPKIXParametersProvider.class).toInstance(new OCSPPKIXParametersProvider());
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
         bind(CertificateService.class);
-        bind(MatchingServiceAdapterService.class);
     }
 
     @Provides

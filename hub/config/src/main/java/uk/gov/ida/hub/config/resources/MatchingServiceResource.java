@@ -2,7 +2,8 @@ package uk.gov.ida.hub.config.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import uk.gov.ida.hub.config.Urls;
-import uk.gov.ida.hub.config.application.MatchingServiceAdapterService;
+import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
+import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.dto.MatchingServiceConfigDto;
 
 import javax.inject.Inject;
@@ -18,11 +19,11 @@ import static java.util.stream.Collectors.toList;
 @Path(Urls.ConfigUrls.MATCHING_SERVICE_ROOT)
 @Produces(MediaType.APPLICATION_JSON)
 public class MatchingServiceResource {
-    private final MatchingServiceAdapterService matchingServiceAdapterService;
+    private final ManagedEntityConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
 
     @Inject
-    public MatchingServiceResource(MatchingServiceAdapterService matchingServiceAdapterService) {
-        this.matchingServiceAdapterService = matchingServiceAdapterService;
+    public MatchingServiceResource(ManagedEntityConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository) {
+        this.matchingServiceConfigRepository = matchingServiceConfigRepository;
     }
 
     @GET
@@ -30,26 +31,26 @@ public class MatchingServiceResource {
     @Timed
     public MatchingServiceConfigDto getMatchingService(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        MatchingServiceAdapterService.MatchingServicePerTransaction matchingServicePerTransaction = matchingServiceAdapterService.getMatchingService(entityId);
-
-        return toMatchingServiceDto(matchingServicePerTransaction);
+        MatchingServiceConfig config = matchingServiceConfigRepository.get(entityId).get();
+        return toMatchingServiceDto(config);
     }
 
     @GET
     @Timed
     public Collection<MatchingServiceConfigDto> getMatchingServices() {
-        return matchingServiceAdapterService.getMatchingServices().stream()
+        return matchingServiceConfigRepository.getAll().stream()
                 .map(this::toMatchingServiceDto)
                 .collect(toList());
     }
 
-    private MatchingServiceConfigDto toMatchingServiceDto(MatchingServiceAdapterService.MatchingServicePerTransaction matchingServicePerTransaction) {
+    private MatchingServiceConfigDto toMatchingServiceDto(MatchingServiceConfig config) {
         return new MatchingServiceConfigDto(
-                matchingServicePerTransaction.getEntityId(),
-                matchingServicePerTransaction.getUri(),
-                matchingServicePerTransaction.getEntityId(),
-                matchingServicePerTransaction.getHealthCheckEnabled(),
-                matchingServicePerTransaction.isOnboarding(),
-                matchingServicePerTransaction.getUserAccountCreationUri());
+                config.getEntityId(),
+                config.getUri(),
+                config.getEntityId(),
+                config.getHealthCheckEnabled(),
+                config.getOnboarding(),
+                config.getUserAccountCreationUri());
     }
+
 }
