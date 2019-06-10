@@ -4,14 +4,15 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.common.collect.ImmutableList;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
+import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.config.dto.MatchingProcessDto;
 import uk.gov.ida.hub.config.dto.ResourceLocationDto;
-import uk.gov.ida.hub.config.dto.TransactionSingleIdpData;
 import uk.gov.ida.hub.config.dto.TransactionDisplayData;
+import uk.gov.ida.hub.config.dto.TransactionSingleIdpData;
 import uk.gov.ida.hub.config.exceptions.ExceptionFactory;
 
 import javax.inject.Inject;
@@ -22,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,13 +34,13 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 public class TransactionsResource {
 
-    private final LocalConfigRepository<TransactionConfig> transactionConfigRepository;
+    private final ManagedEntityConfigRepository<TransactionConfig> transactionConfigRepository;
     private final LocalConfigRepository<TranslationData> translationConfigRepository;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public TransactionsResource(
-            LocalConfigRepository<TransactionConfig> transactionConfigRepository,
+            ManagedEntityConfigRepository<TransactionConfig> transactionConfigRepository,
             LocalConfigRepository<TranslationData> translationConfigRepository,
             ExceptionFactory exceptionFactory) {
 
@@ -103,7 +105,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.ENABLED_TRANSACTIONS_PATH)
     @Timed
     public List<TransactionDisplayData> getEnabledTransactions(){
-        Set<TransactionConfig> allData = transactionConfigRepository.getAllData();
+        Set<TransactionConfig> allData = transactionConfigRepository.getAll();
         return allData.stream()
             .filter(TransactionConfig::isEnabled)
             .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance(), t.getHeadlessStartpage()))
@@ -114,7 +116,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH)
     @Timed
     public List<TransactionSingleIdpData> getSingleIDPEnabledServiceListTransactions(){
-        Set<TransactionConfig> allData = transactionConfigRepository.getAllData();
+        Collection<TransactionConfig> allData = transactionConfigRepository.getAll();
         return allData.stream()
                 .filter(TransactionConfig::isEnabled)
                 .filter(TransactionConfig::isEnabledForSingleIdp)
@@ -215,13 +217,13 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_PATH)
     @Timed
     public boolean isEidasProxyNode(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        return transactionConfigRepository.getData(entityId)
+        return transactionConfigRepository.get(entityId)
                 .map(TransactionConfig::isEidasProxyNode)
                 .orElse(false);
     }
 
     private TransactionConfig getTransactionConfigData(String entityId) {
-        final Optional<TransactionConfig> configData = transactionConfigRepository.getData(entityId);
+        final Optional<TransactionConfig> configData = transactionConfigRepository.get(entityId);
         if (!configData.isPresent()) {
             throw exceptionFactory.createNoDataForEntityException(entityId);
         }
