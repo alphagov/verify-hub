@@ -38,7 +38,7 @@ ext {
 }
 
 def dependencyVersions = [
-            ida_utils:'364',
+            ida_utils:'359',
             dropwizard:"$dropwizard_version",
             dropwizard_infinispan:"$dropwizard_version-48",
             pact:'3.5.6',
@@ -101,7 +101,6 @@ subprojects {
         redis
         redis_test
         splunk
-        awssdk
     }
 
     dependencies {
@@ -123,7 +122,7 @@ subprojects {
 
         config 'commons-io:commons-io:2.1'
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-66"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-60"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils",
@@ -178,8 +177,6 @@ subprojects {
         redis_test('com.github.kstyrc:embedded-redis:0.6')
 
         splunk('uk.gov.ida:splunk-library-javalogging:1.1.0')
-
-        awssdk 'com.amazonaws:aws-java-sdk-s3:1.11.563'
     }
 }
 

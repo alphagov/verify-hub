@@ -7,8 +7,7 @@ dependencies {
             configurations.config,
             configurations.dropwizard,
             configurations.common,
-            configurations.prometheus,
-            configurations.awssdk
+            configurations.prometheus
 }
 
 apply plugin: 'application'
