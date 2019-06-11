@@ -31,6 +31,9 @@ public class SelfServiceConfig {
     @JsonProperty
     private String s3SecretKeyId;
 
+    @JsonProperty
+    private long cacheExpiryInSeconds;
+
     @SuppressWarnings("unused")
     public SelfServiceConfig() { }
 
@@ -56,5 +59,9 @@ public class SelfServiceConfig {
 
     public String getS3ObjectKey() {
         return s3ObjectKey;
+    }
+
+    public long getCacheExpiryInSeconds() {
+        return cacheExpiryInSeconds;
     }
 }
