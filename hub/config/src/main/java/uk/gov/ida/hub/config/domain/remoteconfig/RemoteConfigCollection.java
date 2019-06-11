@@ -6,10 +6,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RemoteConfigCollection {
+
+    private Date lastModified;
 
     @JsonProperty("published_at")
     protected Date publishedAt;
@@ -34,6 +35,14 @@ public class RemoteConfigCollection {
         this.connectedServices = connectedServices;
         this.matchingServiceAdapters = matchingServiceAdapters;
         this.serviceProviders = serviceProviders;
+    }
+
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
     }
 
     public Date getPublishedAt() {
