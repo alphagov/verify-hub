@@ -3,6 +3,8 @@ package uk.gov.ida.hub.samlsoapproxy.client;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import java.util.Optional;
+
+import io.prometheus.client.Summary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -14,12 +16,20 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ResponseProcessingException;
 import java.net.URI;
 
-import static java.util.Optional.ofNullable;
 import static java.text.MessageFormat.format;
 
 public class AttributeQueryRequestClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AttributeQueryRequestClient.class);
+    private static final Summary msaRequestDuration = Summary.build(
+            "verify_saml_soal_proxy_attribute_query_request_duration",
+            "The observed time to perform an AttributeQuery request to the given URI")
+            .quantile(0.5, 0.05)
+            .quantile(0.75, 0.02)
+            .quantile(0.95, 0.005)
+            .quantile(0.99, 0.001)
+            .labelNames("uri")
+            .register();
 
     public static class MatchingServiceException extends RuntimeException{
         public MatchingServiceException(String message){
@@ -64,12 +74,15 @@ public class AttributeQueryRequestClient {
 
             // Use a custom timer so that we get separate metrics for each matching service
             final String scope = matchingServiceUri.toString().replace(':', '_').replace('/', '_');
+            // TODO: remove this timer once we're happy the prometheus Histogram works properly
             final Timer timer = metricsRegistry.timer(MetricRegistry.name(AttributeQueryRequestClient.class, "sendSingleQuery", scope));
             final Timer.Context context = timer.time();
+            Summary.Timer prometheusTimer = msaRequestDuration.labels(matchingServiceUri.toString()).startTimer();
             try {
-                return ofNullable(soapRequestClient.makeSoapRequest(serialisedQuery, matchingServiceUri));
+                return Optional.ofNullable(soapRequestClient.makeSoapRequest(serialisedQuery, matchingServiceUri));
             } finally {
                 context.stop();
+                prometheusTimer.observeDuration();
             }
         } catch (SOAPRequestError e) {
             if(e.getEntity().isPresent()) {
