@@ -33,10 +33,6 @@ public class EventEmitterConfiguration implements Configuration {
     @JsonProperty
     private URI apiGatewayUrl;
 
-    @Valid
-    @JsonProperty
-    private String sourceQueueName;
-
     private EventEmitterConfiguration() { }
 
     @Override
@@ -64,8 +60,5 @@ public class EventEmitterConfiguration implements Configuration {
 
     @Override
     public URI getApiGatewayUrl() { return apiGatewayUrl; }
-
-    @Override
-    public String getSourceQueueName() { return sourceQueueName; }
 }
 
