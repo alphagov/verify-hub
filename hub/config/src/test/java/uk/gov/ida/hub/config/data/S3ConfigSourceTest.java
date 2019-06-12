@@ -14,6 +14,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteMatchingServiceConfig;
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteServiceProviderConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +25,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -90,18 +94,20 @@ public class S3ConfigSourceTest {
         when(objectMetadata.getLastModified()).thenReturn(new Date());
         S3ConfigSource testSource = new S3ConfigSource(configConfiguration, s3Client);
         RemoteConfigCollection result = testSource.getRemoteConfig();
-        assertThat(result.getMatchingServiceAdapters().size()).isEqualTo(1);
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getName().contentEquals("Banana Registry MSA")).isTrue();
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getEncryptionCertificate().getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds")).isTrue();
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getMatchingServiceAdapters().get("https://msa.bananaregistry.service.gov.uk").getSigningCertificates().get(0).getName().contentEquals("/C=uk/ST=London/O=GDS/CN=gds")).isTrue();
-        assertThat(result.getServiceProviders().size()).isEqualTo(2);
-        assertThat(result.getServiceProviders().get(0).getName().contentEquals("chris")).isTrue();
-        assertThat(result.getServiceProviders().get(0).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getServiceProviders().get(0).getSigningCertificates().get(0).getName().contentEquals("/C=UK/O=DEFRA/CN=www-chs-perf.ruraldev.org.uk-MSA-SAML-ENCRYPT-INT-120319")).isTrue();
-        assertThat(result.getServiceProviders().get(1).getName().contentEquals("Banana Registry VSP")).isTrue();
-        assertThat(result.getServiceProviders().get(1).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(result.getServiceProviders().get(1).getSigningCertificates().get(0).getName().contentEquals("/C=GB/ST=London/L=London/O=Cabinet Office/OU=GDS/CN=HUB Signing (20190218155358)")).isTrue();
+        Map<String, RemoteMatchingServiceConfig> msConfigs = result.getMatchingServiceAdapters();
+        assertThat(msConfigs.size()).isEqualTo(3);
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getName()).isEqualTo("Banana Registry MSA");
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getEncryptionCertificate().getName()).isEqualTo("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-encryption");
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSigningCertificates().size()).isEqualTo(1);
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSigningCertificates().get(0).getName()).isEqualTo("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-signing");
+        List<RemoteServiceProviderConfig> spConfigs = result.getServiceProviders();
+        assertThat(spConfigs.size()).isEqualTo(2);
+        assertThat(spConfigs.get(0).getName()).isEqualTo("Apple Registry VSP");
+        assertThat(spConfigs.get(0).getSigningCertificates().size()).isEqualTo(1);
+        assertThat(spConfigs.get(0).getSigningCertificates().get(0).getName()).isEqualTo("/C=uk/ST=London/O=GDS/CN=gds-apple-signing");
+        assertThat(spConfigs.get(1).getName()).isEqualTo("Banana Registry VSP");
+        assertThat(spConfigs.get(1).getSigningCertificates().size()).isEqualTo(1);
+        assertThat(spConfigs.get(1).getSigningCertificates().get(0).getName()).isEqualTo("/C=uk/ST=London/O=GDS/CN=gds-banana-signing");
     }
 
     @Test
