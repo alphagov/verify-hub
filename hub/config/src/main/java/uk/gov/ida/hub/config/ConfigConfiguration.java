@@ -55,7 +55,7 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
 
     @Valid
     @JsonProperty
-    protected SelfServiceConfig selfService;
+    protected SelfServiceConfig selfService = new SelfServiceConfig(false);
 
     @Valid
     @JsonProperty

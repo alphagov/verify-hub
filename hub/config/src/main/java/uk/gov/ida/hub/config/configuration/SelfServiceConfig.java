@@ -2,6 +2,7 @@ package uk.gov.ida.hub.config.configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.dropwizard.util.Duration;
 
 import javax.validation.Valid;
 
@@ -11,9 +12,6 @@ public class SelfServiceConfig {
     @Valid
     @JsonProperty
     private boolean enabled = false;
-
-    @JsonProperty
-    private String awsRegion;
 
     @Valid
     @JsonProperty
@@ -25,43 +23,28 @@ public class SelfServiceConfig {
 
     @Valid
     @JsonProperty
-    private String s3AccessKeyId;
-
-    @Valid
-    @JsonProperty
-    private String s3SecretKeyId;
-
-    @JsonProperty
-    private long cacheExpiryInSeconds;
+    private Duration cacheExpiry;
 
     @SuppressWarnings("unused")
     public SelfServiceConfig() { }
 
-    public boolean isEnabled() {
-        return enabled;
+    public SelfServiceConfig(boolean enabled){
+        this.enabled = enabled;
     }
 
-    public String getAwsRegion() {
-        return awsRegion;
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public String getS3BucketName() {
         return s3BucketName;
     }
 
-    public String getS3AccessKeyId() {
-        return s3AccessKeyId;
-    }
-
-    public String getS3SecretKeyId() {
-        return s3SecretKeyId;
-    }
-
     public String getS3ObjectKey() {
         return s3ObjectKey;
     }
 
-    public long getCacheExpiryInSeconds() {
-        return cacheExpiryInSeconds;
+    public Duration getCacheExpiry() {
+        return cacheExpiry;
     }
 }

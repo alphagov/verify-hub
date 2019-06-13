@@ -7,12 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConnectedServiceConfig;
@@ -22,7 +20,6 @@ import uk.gov.ida.hub.config.domain.remoteconfig.SelfServiceMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -41,22 +38,15 @@ public class S3ConfigSource {
     private LoadingCache<String, RemoteConfigCollection> cache;
     private ObjectMapper objectMapper;
 
-    public S3ConfigSource(ConfigConfiguration configConfiguration, AmazonS3 s3Client) {
-        this.selfServiceConfig = configConfiguration.getSelfService();
+    public S3ConfigSource(SelfServiceConfig selfServiceConfig, AmazonS3 s3Client, ObjectMapper objectMapper) {
+        this.selfServiceConfig = selfServiceConfig;
         if (selfServiceConfig != null && selfServiceConfig.isEnabled()){
             this.s3Client = s3Client;
-            this.objectMapper = new ObjectMapper();
-            objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+            this.objectMapper = objectMapper;
 
             CacheLoader<String, RemoteConfigCollection> cacheLoader = new S3ConfigCacheLoader();
-            long expiry = selfServiceConfig.getCacheExpiryInSeconds();
-            TimeUnit unit = TimeUnit.SECONDS;
-            if (expiry == 0){
-                expiry = 1;
-                unit = TimeUnit.MILLISECONDS;
-            }
             this.cache = CacheBuilder.newBuilder()
-                    .refreshAfterWrite(expiry, unit)
+                    .refreshAfterWrite(selfServiceConfig.getCacheExpiry().toMilliseconds(), TimeUnit.MILLISECONDS)
                     .build(cacheLoader);
         }
     }
@@ -108,14 +98,16 @@ public class S3ConfigSource {
         @Override
         public ListenableFuture<RemoteConfigCollection> reload(String key, RemoteConfigCollection existingConfig) {
             S3Object s3Object = getS3Object(key);
-            Date lastModified = s3Object.getObjectMetadata().getLastModified();
-            if (!existingConfig.getLastModified().before(lastModified)){
-                return Futures.immediateFuture(existingConfig);
-            }else {
-                ListenableFutureTask<RemoteConfigCollection> task = ListenableFutureTask.create(() -> mapToRemoteConfigCollection(s3Object.getObjectContent(), lastModified));
-                new Thread(task).start();
-                return task;
-            }
+            ListenableFutureTask<RemoteConfigCollection> task = ListenableFutureTask.create(() -> {
+                Date lastModified = s3Object.getObjectMetadata().getLastModified();
+                if (!existingConfig.getLastModified().before(lastModified)){
+                    return existingConfig;
+                }else {
+                    return mapToRemoteConfigCollection(s3Object.getObjectContent(), lastModified);
+                }
+            });
+            new Thread(task).start();
+            return task;
         }
     }
     

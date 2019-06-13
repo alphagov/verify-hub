@@ -39,21 +39,21 @@ import static org.mockito.Mockito.when;
 public class S3ConfigSourceTest {
 
     private String selfServiceConfigEnabledJson = "{" +
-                    "\"enabled\" : \"true\"," +
-                    "\"cacheExpiryInSeconds\" : 5,"+
-                    "\"s3BucketName\": \"s3BucketName\"," +
-                    "\"s3ObjectKey\": \"s3ObjectName\"" +
+            "   \"enabled\" : \"true\"," +
+            "   \"cacheExpiry\" : \"5s\","+
+            "   \"s3BucketName\": \"s3BucketName\"," +
+            "   \"s3ObjectKey\": \"s3ObjectName\"" +
             "}";
 
     private String selfServiceConfigDisabledJson = "{" +
-            "\"enabled\" : \"false\"" +
+            "   \"enabled\" : \"false\"" +
             "}";
 
     private String selfServiceConfigShortCacheJson = "{" +
-            "\"enabled\" : \"true\"," +
-            "\"cacheExpiryInSeconds\" : 0,"+
-            "\"s3BucketName\": \"s3BucketName\"," +
-            "\"s3ObjectKey\": \"s3ObjectName\"" +
+            "   \"enabled\" : \"true\"," +
+            "   \"cacheExpiry\" : \"1ms\","+
+            "   \"s3BucketName\": \"s3BucketName\"," +
+            "   \"s3ObjectKey\": \"s3ObjectName\"" +
             "}";
 
     @Mock
@@ -74,9 +74,11 @@ public class S3ConfigSourceTest {
     @Mock
     private ConfigConfiguration configConfiguration;
 
+    private ObjectMapper objectMapper;
+
     @Before
     public void setUp(){
-
+        objectMapper = new ObjectMapper();
     }
 
     @Test
@@ -84,15 +86,12 @@ public class S3ConfigSourceTest {
      * Tests to make sure we can process the JSON to an object
      */
     public void getRemoteConfigReturnsRemoteConfigCollection() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigEnabledJson, SelfServiceConfig.class);
-        when(configConfiguration.getSelfService()).thenReturn(selfServiceConfig);
         when(s3Client.getObject(any())).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(new Date());
-        S3ConfigSource testSource = new S3ConfigSource(configConfiguration, s3Client);
+        S3ConfigSource testSource = new S3ConfigSource(selfServiceConfig, s3Client, objectMapper);
         RemoteConfigCollection result = testSource.getRemoteConfig();
         Map<String, RemoteMatchingServiceConfig> msConfigs = result.getMatchingServiceAdapters();
         assertThat(msConfigs.size()).isEqualTo(3);
@@ -112,10 +111,8 @@ public class S3ConfigSourceTest {
 
     @Test
     public void getRemoteConfigReturnsEmptyRemoteConfigWhenSelfServiceDisabled() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigDisabledJson, SelfServiceConfig.class);
-        when(configConfiguration.getSelfService()).thenReturn(selfServiceConfig);
-        S3ConfigSource testSource = new S3ConfigSource(configConfiguration, null);
+        S3ConfigSource testSource = new S3ConfigSource(selfServiceConfig, null, objectMapper);
         RemoteConfigCollection result = testSource.getRemoteConfig();
         assertThat(result).isNotNull();
         assertThat(result.getServiceProviders().size()).isEqualTo(0);
@@ -125,15 +122,12 @@ public class S3ConfigSourceTest {
 
     @Test
     public void getRemoteConfigReturnsCachedConfigWhenRepeatedlyCalled() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigEnabledJson, SelfServiceConfig.class);
-        when(configConfiguration.getSelfService()).thenReturn(selfServiceConfig);
         when(s3Client.getObject(any())).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(new Date());
-        S3ConfigSource testSource = new S3ConfigSource(configConfiguration, s3Client);
+        S3ConfigSource testSource = new S3ConfigSource(selfServiceConfig, s3Client, objectMapper);
         RemoteConfigCollection result1 = testSource.getRemoteConfig();
         RemoteConfigCollection result2 = testSource.getRemoteConfig();
         verify(s3Object, times(1)).getObjectContent();
@@ -143,15 +137,12 @@ public class S3ConfigSourceTest {
 
     @Test
     public void getRemoteConfigOnlyRetrievesNewContentWhenLastModifiedChanges() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigShortCacheJson, SelfServiceConfig.class);
-        when(configConfiguration.getSelfService()).thenReturn(selfServiceConfig);
         when(s3Client.getObject(any())).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(Date.from(Instant.now().minusMillis(10000)));
-        S3ConfigSource testSource = new S3ConfigSource(configConfiguration, s3Client);
+        S3ConfigSource testSource = new S3ConfigSource(selfServiceConfig, s3Client, objectMapper);
         RemoteConfigCollection result1 = testSource.getRemoteConfig();
         RemoteConfigCollection result2 = testSource.getRemoteConfig();
         assertThat((result1 == result2)).isTrue();

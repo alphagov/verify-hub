@@ -9,8 +9,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SelfServiceMetadata {
 
-    protected SelfServiceMetadata() {}
-
     @JsonProperty("published_at")
     protected Date publishedAt;
 
@@ -22,6 +20,8 @@ public class SelfServiceMetadata {
 
     @JsonProperty("service_providers")
     protected List<RemoteServiceProviderConfig> serviceProviders;
+
+    protected SelfServiceMetadata() {}
 
     public Date getPublishedAt() {
         return publishedAt;
