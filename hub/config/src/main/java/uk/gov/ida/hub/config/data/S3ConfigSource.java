@@ -40,7 +40,7 @@ public class S3ConfigSource {
 
     public S3ConfigSource(SelfServiceConfig selfServiceConfig, AmazonS3 s3Client, ObjectMapper objectMapper) {
         this.selfServiceConfig = selfServiceConfig;
-        if (selfServiceConfig != null && selfServiceConfig.isEnabled()){
+        if (selfServiceConfig.isEnabled()){
             this.s3Client = s3Client;
             this.objectMapper = objectMapper;
 
@@ -52,7 +52,7 @@ public class S3ConfigSource {
     }
 
     public RemoteConfigCollection getRemoteConfig(){
-        if ( selfServiceConfig == null || !selfServiceConfig.isEnabled()){
+        if (!selfServiceConfig.isEnabled()){
             return EMPTY_COLLECTION;
         }
         try {
