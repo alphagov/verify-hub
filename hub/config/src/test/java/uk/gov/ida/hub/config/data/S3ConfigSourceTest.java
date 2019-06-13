@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.config.data;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
@@ -38,11 +39,14 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class S3ConfigSourceTest {
 
+    private static final String BUCKET_NAME = "s3BucketName";
+    private static final String OBJECT_KEY = "s3ObjectName";
+
     private String selfServiceConfigEnabledJson = "{" +
             "   \"enabled\" : \"true\"," +
             "   \"cacheExpiry\" : \"5s\","+
-            "   \"s3BucketName\": \"s3BucketName\"," +
-            "   \"s3ObjectKey\": \"s3ObjectName\"" +
+            "   \"s3BucketName\": \""+BUCKET_NAME+"\"," +
+            "   \"s3ObjectKey\": \""+OBJECT_KEY+"\"" +
             "}";
 
     private String selfServiceConfigDisabledJson = "{" +
@@ -52,8 +56,8 @@ public class S3ConfigSourceTest {
     private String selfServiceConfigShortCacheJson = "{" +
             "   \"enabled\" : \"true\"," +
             "   \"cacheExpiry\" : \"1ms\","+
-            "   \"s3BucketName\": \"s3BucketName\"," +
-            "   \"s3ObjectKey\": \"s3ObjectName\"" +
+            "   \"s3BucketName\": \""+BUCKET_NAME+"\"," +
+            "   \"s3ObjectKey\": \""+OBJECT_KEY+"\"" +
             "}";
 
     @Mock
@@ -87,7 +91,7 @@ public class S3ConfigSourceTest {
      */
     public void getRemoteConfigReturnsRemoteConfigCollection() throws Exception {
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigEnabledJson, SelfServiceConfig.class);
-        when(s3Client.getObject(any())).thenReturn(s3Object);
+        when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(new Date());
@@ -123,7 +127,7 @@ public class S3ConfigSourceTest {
     @Test
     public void getRemoteConfigReturnsCachedConfigWhenRepeatedlyCalled() throws IOException {
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigEnabledJson, SelfServiceConfig.class);
-        when(s3Client.getObject(any())).thenReturn(s3Object);
+        when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(new Date());
@@ -138,7 +142,7 @@ public class S3ConfigSourceTest {
     @Test
     public void getRemoteConfigOnlyRetrievesNewContentWhenLastModifiedChanges() throws IOException {
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigShortCacheJson, SelfServiceConfig.class);
-        when(s3Client.getObject(any())).thenReturn(s3Object);
+        when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(Date.from(Instant.now().minusMillis(10000)));
@@ -152,7 +156,7 @@ public class S3ConfigSourceTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        when(s3Client.getObject(any())).thenReturn(s3Object2);
+        when(s3Client.getObject(any(GetObjectRequest.class))).thenReturn(s3Object2);
         when(s3Object2.getObjectMetadata()).thenReturn(objectMetadata2);
         when(s3Object2.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(objectMetadata2.getLastModified()).thenReturn(Date.from(Instant.now()));

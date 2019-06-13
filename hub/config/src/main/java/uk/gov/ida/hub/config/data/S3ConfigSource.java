@@ -33,6 +33,7 @@ public class S3ConfigSource {
     public static final Map<String, RemoteMatchingServiceConfig> EMPTY_MATCHING_SERVICE_CONFIG_MAP = Collections.emptyMap();
     public static final List<RemoteServiceProviderConfig> EMPTY_SERVICE_PROVIDER_CONFIG_LIST = Collections.emptyList();
     public static final RemoteConfigCollection EMPTY_COLLECTION = new RemoteConfigCollection(null, null, EMPTY_CONNECTED_SERVICE_CONFIG_MAP, EMPTY_MATCHING_SERVICE_CONFIG_MAP, EMPTY_SERVICE_PROVIDER_CONFIG_LIST);
+    private String bucket;
     private SelfServiceConfig selfServiceConfig;
     private AmazonS3 s3Client;
     private LoadingCache<String, RemoteConfigCollection> cache;
@@ -40,6 +41,7 @@ public class S3ConfigSource {
 
     public S3ConfigSource(SelfServiceConfig selfServiceConfig, AmazonS3 s3Client, ObjectMapper objectMapper) {
         this.selfServiceConfig = selfServiceConfig;
+        this.bucket = selfServiceConfig.getS3BucketName();
         if (selfServiceConfig.isEnabled()){
             this.s3Client = s3Client;
             this.objectMapper = objectMapper;
@@ -74,36 +76,29 @@ public class S3ConfigSource {
         }
     }
 
-    private S3Object getS3Object(String key) {
-        return s3Client.getObject(
-                new GetObjectRequest(selfServiceConfig.getS3BucketName(),
-                        key));
-    }
-
     private class S3ConfigCacheLoader extends CacheLoader<String, RemoteConfigCollection>{
 
         @Override
         public RemoteConfigCollection load(String key) throws Exception {
-            S3Object s3Object = getS3Object(key);
+            S3Object s3Object = s3Client.getObject(bucket, key);
             try{
                 return mapToRemoteConfigCollection(s3Object.getObjectContent(), s3Object.getObjectMetadata().getLastModified());
             } catch(IOException e) {
-                LOG.error("An error occurred trying to get or process object {} from S3 Bucket {}",
-                        selfServiceConfig.getS3ObjectKey(),
-                        selfServiceConfig.getS3BucketName(), e);
+                LOG.error("An error occurred trying to get or process object {} from S3 Bucket {}", key, bucket, e);
                 throw(e);
             }
         }
 
         @Override
         public ListenableFuture<RemoteConfigCollection> reload(String key, RemoteConfigCollection existingConfig) {
-            S3Object s3Object = getS3Object(key);
             ListenableFutureTask<RemoteConfigCollection> task = ListenableFutureTask.create(() -> {
-                Date lastModified = s3Object.getObjectMetadata().getLastModified();
-                if (!existingConfig.getLastModified().before(lastModified)){
+                S3Object s3Object = s3Client.getObject(
+                        new GetObjectRequest(bucket, key)
+                                .withModifiedSinceConstraint(existingConfig.getLastModified()));
+                if (s3Object == null){
                     return existingConfig;
                 }else {
-                    return mapToRemoteConfigCollection(s3Object.getObjectContent(), lastModified);
+                    return mapToRemoteConfigCollection(s3Object.getObjectContent(), s3Object.getObjectMetadata().getLastModified());
                 }
             });
             new Thread(task).start();
