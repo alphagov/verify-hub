@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import java.util.Optional;
 
+import io.prometheus.client.Counter;
 import io.prometheus.client.Summary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +23,22 @@ public class AttributeQueryRequestClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AttributeQueryRequestClient.class);
     private static final Summary msaRequestDuration = Summary.build(
-            "verify_saml_soal_proxy_attribute_query_request_duration",
+            "verify_saml_soap_proxy_attribute_query_request_duration",
             "The observed time to perform an AttributeQuery request to the given URI")
             .quantile(0.5, 0.05)
             .quantile(0.75, 0.02)
             .quantile(0.95, 0.005)
             .quantile(0.99, 0.001)
+            .labelNames("uri")
+            .register();
+    private static final Counter totalQueries = Counter.build(
+            "verify_saml_soap_proxy_attribute_query_request_total",
+            "Total number of AttributeQuery requests attempted")
+            .labelNames("uri")
+            .register();
+    private static final Counter successfulQueries = Counter.build(
+            "verify_saml_soap_proxy_attribute_query_success_total",
+            "Total number of successful AttributeQuery requests")
             .labelNames("uri")
             .register();
 
@@ -56,6 +67,7 @@ public class AttributeQueryRequestClient {
 
     public Element sendQuery(Element matchingServiceRequest, String messageId, SessionId sessionId, URI matchingServiceUri) {
         LOG.info("Sending attribute query to {}", matchingServiceUri);
+        totalQueries.labels(matchingServiceUri.toString()).inc();
         Optional<Element> response = sendSingleQuery(
                 matchingServiceRequest,
                 messageId,
@@ -63,6 +75,7 @@ public class AttributeQueryRequestClient {
                 matchingServiceUri
         );
         if (response.isPresent()) {
+            successfulQueries.labels(matchingServiceUri.toString()).inc();
             return response.get();
         }
         throw new MatchingServiceException(format("Attribute query failed"));
