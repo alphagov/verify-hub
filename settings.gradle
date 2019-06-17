@@ -4,5 +4,6 @@ include "hub:stub-event-sink",
         "hub:saml-engine",
         "hub:saml-proxy",
         "hub:saml-soap-proxy",
+        "hub:shared",
         "hub-saml",
         "hub-saml-test-utils"
