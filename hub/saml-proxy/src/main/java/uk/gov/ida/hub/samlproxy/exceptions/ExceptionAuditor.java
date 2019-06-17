@@ -2,8 +2,8 @@ package uk.gov.ida.hub.samlproxy.exceptions;
 
 import java.util.Optional;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.eventsink.EventDetails;
-import uk.gov.ida.eventsink.EventSinkMessageSender;
+import uk.gov.ida.hub.shared.eventsink.EventDetails;
+import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
 import uk.gov.ida.exceptions.ApplicationException;
 
 import javax.inject.Inject;

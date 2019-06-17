@@ -6,7 +6,7 @@ import com.google.inject.Key;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventemitter.EventEmitter;
-import uk.gov.ida.eventsink.EventSinkProxy;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.samlsoapproxy.annotations.MatchingServiceRequestExecutorBacklog;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlsoapproxy.domain.TimeoutEvaluator;

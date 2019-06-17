@@ -13,7 +13,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
-import uk.gov.ida.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;

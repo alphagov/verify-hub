@@ -10,7 +10,7 @@ import org.slf4j.event.Level;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.eventsink.EventSinkMessageSender;
+import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
 import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.hub.exception.SamlDuplicateRequestIdException;

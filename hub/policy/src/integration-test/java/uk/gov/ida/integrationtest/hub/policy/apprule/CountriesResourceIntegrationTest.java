@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import uk.gov.ida.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.SessionId;

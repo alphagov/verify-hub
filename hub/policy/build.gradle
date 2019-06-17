@@ -13,7 +13,8 @@ dependencies {
             configurations.dropwizard,
             configurations.dropwizard_infinispan,
             configurations.prometheus,
-            configurations.redis
+            configurations.redis,
+            project(':hub:shared')
 }
 
 apply plugin: 'application'

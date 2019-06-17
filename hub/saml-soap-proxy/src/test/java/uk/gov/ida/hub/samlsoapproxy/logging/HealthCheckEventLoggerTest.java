@@ -11,8 +11,8 @@ import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventemitter.EventDetailsKey;
-import uk.gov.ida.eventsink.EventSinkHubEvent;
-import uk.gov.ida.eventsink.EventSinkProxy;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEvent;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.exceptions.ApplicationException;
 
 import java.net.URI;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.ida.common.SessionId.NO_SESSION_CONTEXT_IN_ERROR;
 import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message;
-import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.ERROR_EVENT;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.ERROR_EVENT;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HealthCheckEventLoggerTest {
