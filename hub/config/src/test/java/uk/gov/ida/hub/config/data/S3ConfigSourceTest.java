@@ -164,7 +164,7 @@ public class S3ConfigSourceTest {
         testSource.getRemoteConfig();
 
         try {
-            Thread.sleep(5);
+            Thread.sleep(10);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
