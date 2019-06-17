@@ -1,81 +1,109 @@
 package uk.gov.ida.hub.config.data;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.ConfigConfiguration;
+import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConnectedServiceConfig;
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteMatchingServiceConfig;
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteServiceProviderConfig;
+import uk.gov.ida.hub.config.domain.remoteconfig.SelfServiceMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class S3ConfigSource {
     private static final Logger LOG = LoggerFactory.getLogger(S3ConfigSource.class);
-    private ConfigConfiguration configConfiguration;
+    public static final Map<String, RemoteConnectedServiceConfig> EMPTY_CONNECTED_SERVICE_CONFIG_MAP = Collections.emptyMap();
+    public static final Map<String, RemoteMatchingServiceConfig> EMPTY_MATCHING_SERVICE_CONFIG_MAP = Collections.emptyMap();
+    public static final List<RemoteServiceProviderConfig> EMPTY_SERVICE_PROVIDER_CONFIG_LIST = Collections.emptyList();
+    public static final RemoteConfigCollection EMPTY_COLLECTION = new RemoteConfigCollection(null, null, EMPTY_CONNECTED_SERVICE_CONFIG_MAP, EMPTY_MATCHING_SERVICE_CONFIG_MAP, EMPTY_SERVICE_PROVIDER_CONFIG_LIST);
+    private String bucket;
+    private SelfServiceConfig selfServiceConfig;
     private AmazonS3 s3Client;
+    private LoadingCache<String, RemoteConfigCollection> cache;
+    private ObjectMapper objectMapper;
 
-    public S3ConfigSource(ConfigConfiguration configConfiguration, AmazonS3 s3Client) {
-        this.configConfiguration = configConfiguration;
-        this.s3Client = s3Client;
-    }
+    public S3ConfigSource(SelfServiceConfig selfServiceConfig, AmazonS3 s3Client, ObjectMapper objectMapper) {
+        this.selfServiceConfig = selfServiceConfig;
+        this.bucket = selfServiceConfig.getS3BucketName();
+        if (selfServiceConfig.isEnabled()){
+            this.s3Client = s3Client;
+            this.objectMapper = objectMapper;
 
-    /**
-     * TODO: Refactor this static method out with guice later
-     * @param configConfiguration
-     * @return
-     */
-    public static S3ConfigSource setupS3ConfigSource(ConfigConfiguration configConfiguration) {
-        AmazonS3 s3Client;
-        if(!configConfiguration.getSelfService().getS3AccessKeyId().isEmpty() &&
-                !configConfiguration.getSelfService().getS3SecretKeyId().isEmpty()) {
-            BasicAWSCredentials awsCreds = new BasicAWSCredentials(configConfiguration.getSelfService().getS3AccessKeyId(),
-                    configConfiguration.getSelfService().getS3SecretKeyId());
-            s3Client = AmazonS3ClientBuilder.standard()
-                    .withRegion(configConfiguration.getSelfService().getAwsRegion())
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                    .build();
-        } else {
-            s3Client = AmazonS3ClientBuilder.defaultClient();
+            CacheLoader<String, RemoteConfigCollection> cacheLoader = new S3ConfigCacheLoader();
+            this.cache = CacheBuilder.newBuilder()
+                    .refreshAfterWrite(selfServiceConfig.getCacheExpiry().toMilliseconds(), TimeUnit.MILLISECONDS)
+                    .build(cacheLoader);
         }
-        return new S3ConfigSource(configConfiguration, s3Client);
     }
 
-    public RemoteConfigCollection getRemoteConfig() {
-        S3Object fullObject = s3Client.getObject(
-                new GetObjectRequest(configConfiguration.getSelfService().getS3BucketName(),
-                configConfiguration.getSelfService().getS3ObjectKey()));
-        InputStream s3ObjectStream =  fullObject.getObjectContent();
-        ObjectMapper om = new ObjectMapper();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        om.setDateFormat(df);
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(RemoteConfigCollection.class, new RemoteConfigCollectionDeserializer());
-        om.registerModule(module);
+    public RemoteConfigCollection getRemoteConfig(){
+        if (!selfServiceConfig.isEnabled()){
+            return EMPTY_COLLECTION;
+        }
         try {
-            return om.readValue(s3ObjectStream, RemoteConfigCollection.class);
-        } catch(IOException e) {
-            LOG.error("An error occured trying to get or process object {} from S3 Bucket {}",
-                    configConfiguration.getSelfService().getS3ObjectKey(),
-                    configConfiguration.getSelfService().getS3BucketName(), e);
-            throw new RuntimeException(e);
+            RemoteConfigCollection config = cache.get(selfServiceConfig.getS3ObjectKey());
+            return config;
+        } catch (ExecutionException e) {
+            LOG.warn("Unable to get {} from cache.", selfServiceConfig.getS3ObjectKey());
+            return EMPTY_COLLECTION;
+        }
+    }
+
+    private RemoteConfigCollection mapToRemoteConfigCollection(InputStream inputStream, Date lastModified) throws IOException {
+        try {
+            SelfServiceMetadata metadata = objectMapper.readValue(inputStream, SelfServiceMetadata.class);
+            RemoteConfigCollection remoteConfig = new RemoteConfigCollection(lastModified, metadata);
+            return remoteConfig;
         } finally {
-            if(fullObject != null) {
-                try {
-                    fullObject.close();
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
+            inputStream.close();
+        }
+    }
+
+    private class S3ConfigCacheLoader extends CacheLoader<String, RemoteConfigCollection>{
+
+        @Override
+        public RemoteConfigCollection load(String key) throws Exception {
+            S3Object s3Object = s3Client.getObject(bucket, key);
+            try{
+                return mapToRemoteConfigCollection(s3Object.getObjectContent(), s3Object.getObjectMetadata().getLastModified());
+            } catch(IOException e) {
+                LOG.error("An error occurred trying to get or process object {} from S3 Bucket {}", key, bucket, e);
+                throw(e);
             }
         }
-    }
 
+        @Override
+        public ListenableFuture<RemoteConfigCollection> reload(String key, RemoteConfigCollection existingConfig) {
+            ListenableFutureTask<RemoteConfigCollection> task = ListenableFutureTask.create(() -> {
+                S3Object s3Object = s3Client.getObject(
+                        new GetObjectRequest(bucket, key)
+                                .withModifiedSinceConstraint(existingConfig.getLastModified()));
+                if (s3Object == null){
+                    return existingConfig;
+                }else {
+                    return mapToRemoteConfigCollection(s3Object.getObjectContent(), s3Object.getObjectMetadata().getLastModified());
+                }
+            });
+            new Thread(task).start();
+            return task;
+        }
+    }
+    
 }

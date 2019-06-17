@@ -1,39 +1,41 @@
 package uk.gov.ida.hub.config.domain.remoteconfig;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class RemoteConfigCollection {
 
-    @JsonProperty("published_at")
-    protected Date publishedAt;
+    private Date lastModified;
+    private Date publishedAt;
+    private Map<String, RemoteConnectedServiceConfig> connectedServices;
+    private Map<String, RemoteMatchingServiceConfig> matchingServiceAdapters;
+    private List<RemoteServiceProviderConfig> serviceProviders;
 
-    @JsonProperty("connected_services")
-    protected Map<String, RemoteConnectedServiceConfig> connectedServices;
-
-    @JsonProperty("matching_service_adapters")
-    protected Map<String, RemoteMatchingServiceConfig> matchingServiceAdapters;
-
-    @JsonProperty("service_providers")
-    protected List<RemoteServiceProviderConfig> serviceProviders;
-
-    public RemoteConfigCollection() {
-
-    }
-
-    public RemoteConfigCollection(Date publishedAt, Map<String, RemoteConnectedServiceConfig> connectedServices,
+    public RemoteConfigCollection(Date lastModified, Date publishedAt, Map<String, RemoteConnectedServiceConfig> connectedServices,
                                   Map<String, RemoteMatchingServiceConfig> matchingServiceAdapters,
                                   List<RemoteServiceProviderConfig> serviceProviders) {
+        this.lastModified = lastModified;
         this.publishedAt = publishedAt;
         this.connectedServices = connectedServices;
         this.matchingServiceAdapters = matchingServiceAdapters;
         this.serviceProviders = serviceProviders;
+    }
+
+    public RemoteConfigCollection(Date lastModified, SelfServiceMetadata metadata) {
+        matchingServiceAdapters = metadata.matchingServiceAdapters.stream().collect(Collectors.toUnmodifiableMap(RemoteMatchingServiceConfig::getEntityId, v->v));
+        connectedServices = metadata.connectedServices.stream().collect(Collectors.toUnmodifiableMap(RemoteConnectedServiceConfig::getEntityId, v->v));
+        serviceProviders = metadata.serviceProviders.stream().collect(Collectors.toUnmodifiableList());
+        this.lastModified = lastModified;
+    }
+
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
     }
 
     public Date getPublishedAt() {
