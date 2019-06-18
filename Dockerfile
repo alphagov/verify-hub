@@ -10,13 +10,16 @@ COPY inttest.gradle inttest.gradle
 
 RUN gradle downloadDependencies
 
+COPY hub/shared/ hub/shared/
 COPY hub-saml/ hub-saml/
 COPY hub-saml-test-utils/ hub-saml-test-utils/
 RUN gradle --console=plain \
     :hub-saml:build \
     :hub-saml:test \
     :hub-saml-test-utils:build \
-    :hub-saml-test-utils:test
+    :hub-saml-test-utils:test \
+    :hub:shared:build \
+    :hub:shared:test
 
 FROM gradle:5.1.0-jdk11 as build-app
 USER root
@@ -27,6 +30,9 @@ WORKDIR /verify-hub
 
 # Copy artifacts from previous image
 COPY --from=base-image /usr/gradle/.gradle /usr/gradle/.gradle
+COPY --from=base-image /verify-hub/hub/shared/build.gradle hub/shared/build.gradle
+COPY --from=base-image /verify-hub/hub/shared/src hub/shared/src
+COPY --from=base-image /verify-hub/hub/shared/build hub/shared/build
 COPY --from=base-image /verify-hub/hub-saml/build.gradle hub-saml/build.gradle
 COPY --from=base-image /verify-hub/hub-saml/src hub-saml/src
 COPY --from=base-image /verify-hub/hub-saml/build hub-saml/build
@@ -45,7 +51,8 @@ RUN gradle --console=plain \
     :hub:$hub_app:installDist \
     :hub:$hub_app:test \
     :hub:$hub_app:intTest \
-    # Don't rebuild hub-saml or hub-saml-test-utils
+    # Don't rebuild hub-saml or hub-saml-test-utils \
+    -x :hub:shared:jar \
     -x :hub-saml:jar \
     -x :hub-saml-test-utils:jar
 
