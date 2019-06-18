@@ -1,6 +1,6 @@
 package uk.gov.ida.stub.event.sink.repositories;
 
-import uk.gov.ida.eventsink.EventSinkHubEvent;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEvent;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

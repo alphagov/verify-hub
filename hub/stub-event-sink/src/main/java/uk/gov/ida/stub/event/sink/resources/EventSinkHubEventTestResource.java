@@ -1,6 +1,6 @@
 package uk.gov.ida.stub.event.sink.resources;
 
-import uk.gov.ida.eventsink.EventSinkHubEvent;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEvent;
 import uk.gov.ida.stub.event.sink.StubEventSinkUrls;
 import uk.gov.ida.stub.event.sink.repositories.InMemoryEventSinkHubEventStore;
 

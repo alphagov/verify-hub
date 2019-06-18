@@ -12,8 +12,8 @@ import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventemitter.EventDetailsKey;
-import uk.gov.ida.eventsink.EventSinkHubEvent;
-import uk.gov.ida.eventsink.EventSinkProxy;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEvent;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.shared.utils.IpAddressResolver;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
@@ -30,10 +30,10 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.external_endpoint;
 import static uk.gov.ida.eventemitter.EventDetailsKey.external_ip_address;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.principal_ip_address_as_seen_by_hub;
-import static uk.gov.ida.eventsink.EventSinkHubEventConstants.EventTypes.EXTERNAL_COMMUNICATION_EVENT;
-import static uk.gov.ida.eventsink.EventSinkHubEventConstants.ExternalCommunicationsTypes.AUTHN_REQUEST;
-import static uk.gov.ida.eventsink.EventSinkHubEventConstants.ExternalCommunicationsTypes.MATCHING_SERVICE_REQUEST;
-import static uk.gov.ida.eventsink.EventSinkHubEventConstants.ExternalCommunicationsTypes.RESPONSE_FROM_HUB;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.EXTERNAL_COMMUNICATION_EVENT;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.ExternalCommunicationsTypes.AUTHN_REQUEST;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.ExternalCommunicationsTypes.MATCHING_SERVICE_REQUEST;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.ExternalCommunicationsTypes.RESPONSE_FROM_HUB;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExternalCommunicationEventLoggerTest {

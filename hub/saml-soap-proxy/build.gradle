@@ -10,7 +10,8 @@ dependencies {
             configurations.common,
             configurations.soap,
             configurations.verify_event_emitter,
-            configurations.prometheus
+            configurations.prometheus,
+            project(':hub:shared')
 }
 
 apply plugin: 'application'

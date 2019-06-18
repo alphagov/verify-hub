@@ -3,7 +3,8 @@ dependencies {
 
     compile configurations.ida_utils,
             configurations.common,
-            configurations.dropwizard
+            configurations.dropwizard,
+            project(':hub:shared')
 }
 
 apply plugin: 'application'
