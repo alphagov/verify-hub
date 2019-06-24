@@ -1,7 +1,8 @@
 dependencies {
     testCompile configurations.test_deps_compile,
             configurations.ida_test_utils,
-            configurations.dev_pki
+            configurations.dev_pki,
+            configurations.s3mock
 
     compile configurations.ida_utils,
             configurations.config,
