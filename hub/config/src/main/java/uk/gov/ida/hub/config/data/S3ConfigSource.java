@@ -36,8 +36,13 @@ public class S3ConfigSource {
     private String bucket;
     private SelfServiceConfig selfServiceConfig;
     private AmazonS3 s3Client;
+    private CacheLoader<String, RemoteConfigCollection> cacheLoader;
     private LoadingCache<String, RemoteConfigCollection> cache;
     private ObjectMapper objectMapper;
+
+    public CacheLoader<String, RemoteConfigCollection> getCacheLoader() {
+        return cacheLoader;
+    }
 
     public S3ConfigSource(SelfServiceConfig selfServiceConfig, AmazonS3 s3Client, ObjectMapper objectMapper) {
         this.selfServiceConfig = selfServiceConfig;
@@ -45,8 +50,7 @@ public class S3ConfigSource {
         if (selfServiceConfig.isEnabled()){
             this.s3Client = s3Client;
             this.objectMapper = objectMapper;
-
-            CacheLoader<String, RemoteConfigCollection> cacheLoader = new S3ConfigCacheLoader();
+            this.cacheLoader = new S3ConfigCacheLoader();
             this.cache = CacheBuilder.newBuilder()
                     .refreshAfterWrite(selfServiceConfig.getCacheExpiry().toMilliseconds(), TimeUnit.MILLISECONDS)
                     .build(cacheLoader);
@@ -76,7 +80,7 @@ public class S3ConfigSource {
         }
     }
 
-    private class S3ConfigCacheLoader extends CacheLoader<String, RemoteConfigCollection>{
+    public class S3ConfigCacheLoader extends CacheLoader<String, RemoteConfigCollection> {
 
         @Override
         public RemoteConfigCollection load(String key) throws Exception {
