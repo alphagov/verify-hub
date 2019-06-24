@@ -152,7 +152,9 @@ public class S3ConfigSourceTest {
         var testCacheLoader = testSource.getCacheLoader();
         RemoteConfigCollection result1 = testSource.getRemoteConfig();
         ListenableFuture<RemoteConfigCollection> task = testCacheLoader.reload("test", result1);
-        while(!task.isDone()){}
+        while(!task.isDone()){
+            Thread.yield();
+        }
         RemoteConfigCollection result2 = task.get();
         assertThat((result1 == result2)).isTrue();
         verify(s3Object, times(1)).getObjectContent();
@@ -161,39 +163,8 @@ public class S3ConfigSourceTest {
         when(s3Object2.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(objectMetadata2.getLastModified()).thenReturn(Date.from(Instant.now()));
         ListenableFuture<RemoteConfigCollection> task2 = testCacheLoader.reload("test", result1);
-        while(!task2.isDone()){}
-        verify(s3Object2, times(1)).getObjectContent();
-        verify(objectMetadata2, times(1)).getLastModified();
-    }
-
-    @Test
-    public void getRemoteConfigOnlyRetrievesNewContentWhenLastModifiedChanges() throws IOException {
-        SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigShortCacheJson, SelfServiceConfig.class);
-        when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
-        when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
-        when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
-        when(objectMetadata.getLastModified()).thenReturn(Date.from(Instant.now().minusMillis(10000)));
-        S3ConfigSource testSource = new S3ConfigSource(selfServiceConfig, s3Client, objectMapper);
-        RemoteConfigCollection result1 = testSource.getRemoteConfig();
-        RemoteConfigCollection result2 = testSource.getRemoteConfig();
-        assertThat((result1 == result2)).isTrue();
-        verify(s3Object, times(1)).getObjectContent();
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        when(s3Client.getObject(any(GetObjectRequest.class))).thenReturn(s3Object2);
-        when(s3Object2.getObjectMetadata()).thenReturn(objectMetadata2);
-        when(s3Object2.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
-        when(objectMetadata2.getLastModified()).thenReturn(Date.from(Instant.now()));
-
-        testSource.getRemoteConfig();
-
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while(!task2.isDone()){
+            Thread.yield();
         }
         verify(s3Object2, times(1)).getObjectContent();
         verify(objectMetadata2, times(1)).getLastModified();
