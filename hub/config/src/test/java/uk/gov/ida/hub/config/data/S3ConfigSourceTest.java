@@ -141,7 +141,7 @@ public class S3ConfigSourceTest {
     }
 
     @Test
-    public void getRemoteConfigOnlyRetrievesNewContentWhenLastModifiedChanges2() throws Exception {
+    public void getRemoteConfigOnlyRetrievesNewContentWhenLastModifiedChanges() throws Exception {
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigShortCacheJson, SelfServiceConfig.class);
         when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
