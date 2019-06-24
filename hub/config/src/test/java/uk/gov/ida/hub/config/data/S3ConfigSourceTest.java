@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.Before;
 import org.junit.Test;
@@ -140,33 +141,29 @@ public class S3ConfigSourceTest {
     }
 
     @Test
-    public void getRemoteConfigOnlyRetrievesNewContentWhenLastModifiedChanges() throws IOException {
+    public void getRemoteConfigOnlyRetrievesNewContentWhenLastModifiedChanges() throws Exception {
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigShortCacheJson, SelfServiceConfig.class);
         when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(Date.from(Instant.now().minusMillis(10000)));
         S3ConfigSource testSource = new S3ConfigSource(selfServiceConfig, s3Client, objectMapper);
+        var testCacheLoader = testSource.getCacheLoader();
         RemoteConfigCollection result1 = testSource.getRemoteConfig();
-        RemoteConfigCollection result2 = testSource.getRemoteConfig();
+        ListenableFuture<RemoteConfigCollection> task = testCacheLoader.reload("test", result1);
+        while(!task.isDone()){
+            Thread.yield();
+        }
+        RemoteConfigCollection result2 = task.get();
         assertThat((result1 == result2)).isTrue();
         verify(s3Object, times(1)).getObjectContent();
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         when(s3Client.getObject(any(GetObjectRequest.class))).thenReturn(s3Object2);
         when(s3Object2.getObjectMetadata()).thenReturn(objectMetadata2);
         when(s3Object2.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(objectMetadata2.getLastModified()).thenReturn(Date.from(Instant.now()));
-
-        testSource.getRemoteConfig();
-
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        ListenableFuture<RemoteConfigCollection> task2 = testCacheLoader.reload("test", result1);
+        while(!task2.isDone()){
+            Thread.yield();
         }
         verify(s3Object2, times(1)).getObjectContent();
         verify(objectMetadata2, times(1)).getLastModified();
