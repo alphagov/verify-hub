@@ -162,7 +162,7 @@ subprojects {
         def test_deps_deps = [
                 'org.json:json:20170516',
                 'com.jayway.awaitility:awaitility:1.6.0',
-                'com.github.tomakehurst:wiremock:2.16.0',
+                'com.github.tomakehurst:wiremock-standalone:2.23.2',
                 "uk.gov.ida:saml-test:$dependencyVersions.saml_lib",
                 'org.assertj:assertj-core:3.9.1',
                 'io.dropwizard:dropwizard-testing:' + dependencyVersions.dropwizard]
