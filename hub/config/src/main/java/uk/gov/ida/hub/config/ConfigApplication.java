@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
@@ -37,7 +36,6 @@ import java.util.EnumSet;
 public class ConfigApplication extends Application<ConfigConfiguration> {
 
     private GuiceBundle<ConfigConfiguration> guiceBundle;
-    private AmazonS3 testAmazonS3 = null;
 
     public static void main(String[] args) throws Exception {
         new ConfigApplication().run(args);

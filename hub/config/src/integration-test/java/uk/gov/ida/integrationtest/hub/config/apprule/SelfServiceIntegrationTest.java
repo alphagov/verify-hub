@@ -1,6 +1,6 @@
 package uk.gov.ida.integrationtest.hub.config.apprule;
 
-import com.adobe.testing.s3mock.junit4.S3MockRule;
+import com.adobe.testing.s3mock.S3MockRule;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -10,6 +10,7 @@ import io.dropwizard.util.Duration;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.dto.MatchingServiceConfigDto;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
@@ -34,10 +35,14 @@ public class SelfServiceIntegrationTest {
     private static final String BUCKET_NAME = "s3Bucket";
     private static final String OBJECT_KEY = "src/test/resources/remote-test-config.json";
 
-    @ClassRule(order = 1)
-    public static S3MockRule s3MockRule = S3MockRule.builder().silent().build();
 
-    @ClassRule(order = 2)
+    public static S3MockRule s3MockRule = new S3MockRule();
+
+
+
+
+
+    @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule(s3MockRule::createS3Client, getSelfServiceOverrides())
             .addTransaction(aTransactionConfigData()
                     .withEntityId("rp-entity-id")
@@ -56,6 +61,7 @@ public class SelfServiceIntegrationTest {
                     .withOnboarding(asList("rp-entity-id"))
                     .build());
 
+
     private static ConfigOverride[] getSelfServiceOverrides() {
         ConfigOverride[] overrides = {
                 ConfigOverride.config("selfService.enabled", "true"),
@@ -66,6 +72,9 @@ public class SelfServiceIntegrationTest {
         return overrides;
     }
 
+    @ClassRule
+    public static RuleChain ruleChain = RuleChain.outerRule(s3MockRule)
+            .around(configAppRule);
 
     @BeforeClass
     public static void setUp() throws Exception {

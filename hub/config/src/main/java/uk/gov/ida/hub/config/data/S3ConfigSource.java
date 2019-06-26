@@ -49,7 +49,7 @@ public class S3ConfigSource {
         this.selfServiceConfig = selfServiceConfig;
         this.enabled = selfServiceConfig.isEnabled();
         this.bucket = selfServiceConfig.getS3BucketName();
-        if (selfServiceConfig.isEnabled() && s3Client != null){
+        if (enabled && s3Client != null){
             this.s3Client = s3Client;
             this.objectMapper = objectMapper;
             this.cacheLoader = new S3ConfigCacheLoader();
