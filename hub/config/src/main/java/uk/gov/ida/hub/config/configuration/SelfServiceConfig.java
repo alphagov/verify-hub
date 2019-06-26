@@ -25,6 +25,14 @@ public class SelfServiceConfig {
     @JsonProperty
     private Duration cacheExpiry;
 
+    @Valid
+    @JsonProperty
+    private String s3Endpoint;
+
+    @Valid
+    @JsonProperty
+    private String s3Region;
+
     @SuppressWarnings("unused")
     public SelfServiceConfig() { }
 
@@ -46,5 +54,13 @@ public class SelfServiceConfig {
 
     public Duration getCacheExpiry() {
         return cacheExpiry;
+    }
+
+    public String getS3Endpoint() {
+        return s3Endpoint;
+    }
+
+    public String getS3Region() {
+        return s3Region;
     }
 }

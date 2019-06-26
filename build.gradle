@@ -56,15 +56,15 @@ subprojects {
 
     repositories {
         if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
-          logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/whitelisted-repos for production builds.\n\n')
-          maven { url 'https://dl.bintray.com/alphagov/maven' } // For dropwizard-logstash
-          maven { url 'https://dl.bintray.com/alphagov/maven-test' } // For other public verify binaries
-          maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
-          maven { url 'https://splunk.jfrog.io/splunk/ext-releases-local' }
-          jcenter()
+            logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/whitelisted-repos for production builds.\n\n')
+            maven { url 'https://dl.bintray.com/alphagov/maven' } // For dropwizard-logstash
+            maven { url 'https://dl.bintray.com/alphagov/maven-test' } // For other public verify binaries
+            maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
+            maven { url 'https://splunk.jfrog.io/splunk/ext-releases-local' }
+            jcenter()
         }
         else {
-          maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
+            maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
         }
     }
 
@@ -102,6 +102,7 @@ subprojects {
         redis_test
         splunk
         awssdk
+        s3mock
     }
 
     dependencies {
@@ -180,6 +181,8 @@ subprojects {
         splunk('uk.gov.ida:splunk-library-javalogging:1.1.0')
 
         awssdk 'com.amazonaws:aws-java-sdk-s3:1.11.563'
+
+        s3mock 'com.adobe.testing:s3mock:1.1.6'
     }
 }
 

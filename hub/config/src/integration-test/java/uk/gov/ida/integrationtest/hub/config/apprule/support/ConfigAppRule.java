@@ -1,6 +1,7 @@
 package uk.gov.ida.integrationtest.hub.config.apprule.support;
 
 import certificates.values.CACertificates;
+import com.amazonaws.services.s3.AmazonS3;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static io.dropwizard.testing.ConfigOverride.config;
@@ -49,6 +51,14 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
     private List<MatchingServiceConfig> matchingServices = new ArrayList<>();
     private List<IdentityProviderConfig> idps = new ArrayList<>();
     private List<CountryConfig> countries = new ArrayList<>();
+
+    public ConfigAppRule(Supplier<AmazonS3> s3ClientSupplier, ConfigOverride... configOverrides) {
+        super(ConfigIntegrationApplication.class,
+                ResourceHelpers.resourceFilePath("config.yml"),
+                withDefaultOverrides(configOverrides)
+        );
+        ConfigIntegrationApplication.setS3ClientSupplier(s3ClientSupplier);
+    }
 
     public ConfigAppRule(ConfigOverride... configOverrides) {
         super(ConfigApplication.class,

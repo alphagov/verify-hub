@@ -33,6 +33,7 @@ public class S3ConfigSource {
     public static final Map<String, RemoteMatchingServiceConfig> EMPTY_MATCHING_SERVICE_CONFIG_MAP = Collections.emptyMap();
     public static final List<RemoteServiceProviderConfig> EMPTY_SERVICE_PROVIDER_CONFIG_LIST = Collections.emptyList();
     public static final RemoteConfigCollection EMPTY_COLLECTION = new RemoteConfigCollection(null, null, EMPTY_CONNECTED_SERVICE_CONFIG_MAP, EMPTY_MATCHING_SERVICE_CONFIG_MAP, EMPTY_SERVICE_PROVIDER_CONFIG_LIST);
+    private boolean enabled = false;
     private String bucket;
     private SelfServiceConfig selfServiceConfig;
     private AmazonS3 s3Client;
@@ -40,14 +41,15 @@ public class S3ConfigSource {
     private LoadingCache<String, RemoteConfigCollection> cache;
     private ObjectMapper objectMapper;
 
-    public CacheLoader<String, RemoteConfigCollection> getCacheLoader() {
-        return cacheLoader;
+
+    public S3ConfigSource() {
     }
 
     public S3ConfigSource(SelfServiceConfig selfServiceConfig, AmazonS3 s3Client, ObjectMapper objectMapper) {
         this.selfServiceConfig = selfServiceConfig;
+        this.enabled = selfServiceConfig.isEnabled();
         this.bucket = selfServiceConfig.getS3BucketName();
-        if (selfServiceConfig.isEnabled()){
+        if (enabled && s3Client != null){
             this.s3Client = s3Client;
             this.objectMapper = objectMapper;
             this.cacheLoader = new S3ConfigCacheLoader();
@@ -58,7 +60,7 @@ public class S3ConfigSource {
     }
 
     public RemoteConfigCollection getRemoteConfig(){
-        if (!selfServiceConfig.isEnabled()){
+        if (!enabled){
             return EMPTY_COLLECTION;
         }
         try {
@@ -78,6 +80,10 @@ public class S3ConfigSource {
         } finally {
             inputStream.close();
         }
+    }
+
+    public CacheLoader<String, RemoteConfigCollection> getCacheLoader() {
+        return cacheLoader;
     }
 
     public class S3ConfigCacheLoader extends CacheLoader<String, RemoteConfigCollection> {

@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.config;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -15,6 +17,7 @@ import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.application.PrometheusClientService;
+import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedCountryConfigDataSource;
@@ -93,8 +96,17 @@ public class ConfigModule extends AbstractModule {
         bind(CertificateService.class);
     }
 
+    private AmazonS3 getAmazonS3Client(SelfServiceConfig selfServiceConfig) {
+        if (!selfServiceConfig.isEnabled()){
+            return null;
+        }
+
+        return AmazonS3ClientBuilder.defaultClient();
+    }
+
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private PrometheusClientService getPrometheusClientService(
         Environment environment,
         ConfigConfiguration configConfiguration,
@@ -119,6 +131,7 @@ public class ConfigModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     public CertificateValidityChecker validityChecker(TrustStoreForCertificateProvider trustStoreForCertificateProvider, CertificateChainValidator certificateChainValidator) {
         return CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
     }
