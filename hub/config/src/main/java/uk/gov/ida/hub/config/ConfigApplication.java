@@ -81,7 +81,7 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
                 if (selfServiceConfig.isEnabled()){
                     return new S3ConfigSource(
                             selfServiceConfig,
-                            AmazonS3ClientBuilder.defaultClient(),
+                            AmazonS3ClientBuilder.standard().withRegion("eu-west-2").build(),
                             objectMapper);
                 }
                 return new S3ConfigSource();
