@@ -51,7 +51,7 @@ public class ManagedEntityConfigRepository<T extends CertificateConfigurable<T>>
                                 remote.getEncryptionCertificate()))
                         .get();
             } else {
-                LOG.error("Local config for '{}' expects there to be remote config but it could not be found", local.getEntityId());
+                LOG.warn("Local config for '{}' expects there to be remote config but it could not be found", local.getEntityId());
             }
         }
         return local;
