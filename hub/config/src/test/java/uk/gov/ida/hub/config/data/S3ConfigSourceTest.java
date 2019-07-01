@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +38,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class S3ConfigSourceTest {
+
+
+    private static final String CERT_MSA_BANANA_ENCRYPTION = "MIIDFDCCAfwCCQDEj/3MbRb8jzANBgkqhkiG9w0BAQsFADBMMQswCQYDVQQGEwJVSzEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANHRFMxHjAcBgNVBAMMFUJhbmFuYSBNU0EgRW5jcnlwdGlvbjAeFw0xOTA2MjgxNDI0MzFaFw0zOTA2MjgxNDI0MzFaMEwxCzAJBgNVBAYTAlVLMQ8wDQYDVQQHDAZMb25kb24xDDAKBgNVBAoMA0dEUzEeMBwGA1UEAwwVQmFuYW5hIE1TQSBFbmNyeXB0aW9uMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1FuGXjWgeNNJ7a5todg/+gQO+xKUf6/tJ0wIW4dHS1lEOnk3mWu5fCtyTbDG9O+O22EOqmxMzsF6Kl/U6qRhmqs8bmc5pW9AQ67JMlMYCmrLq/VhF2aQ9rZV/Dx9rd2xuU6IkJPWWryY6qFfNrh6CDHzFzM5y+iGAXNLj1Z0TY8J38hjgRWCjSq9XD8tYW3SFfsonMRm71CvLGNl0WQu3WEGMu4yDqQjH8QT7LF1IF3obSeUPJKDnVIKa5/7THu/Lrekon8LJ5BbBYeBvahqpbQbvf2UK+lEvgCOUupGoPjz6mQ97tjHXCtE04xMyDEkMFy2urnNv2e2eVuy0VHE4wIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQCacP1D5haveoTdwhxnWnCwgc6TFiMd4g5Io31bXOvwShmqcYoJ7t9gdD7ZiPMJPbcF/YGCCk/BSEUtvYOPaRJV7C3BIZEPnewoQXyhX1uKzSqsYFIssl7DyUuItnmLZCQ4+OHpp1JMprDaWoF5hk2TdgqSv/fNlxt0193ayLzV+Dt34LhaS/pwXEBG/WtmJW3fygEOnmqmL4SMfG6nvvd/pOxAUeMEnzct3lJ5j2Qv/c0k43fUsy267gIRz/dpB/zlEzA6uUnrCNVdz+1AVjzvo9kf7H/4cA348mnBnh/USbRoIXhPkbPp5GuD3Q2CHvAL+bqVcQVNAJr6HKl+OwC4";
+    private static final String CERT_MSA_BANANA_SIGNING = "MIIDDjCCAfYCCQCEmqzN+B9I0TANBgkqhkiG9w0BAQsFADBJMQswCQYDVQQGEwJVSzEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANHRFMxGzAZBgNVBAMMEkJhbmFuYSBNU0EgU2lnbmluZzAeFw0xOTA2MjgxNDIzNDVaFw0zOTA2MjgxNDIzNDVaMEkxCzAJBgNVBAYTAlVLMQ8wDQYDVQQHDAZMb25kb24xDDAKBgNVBAoMA0dEUzEbMBkGA1UEAwwSQmFuYW5hIE1TQSBTaWduaW5nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwic0bJaHNqQNyZhFb2fE0ATFOWRO/DxDECeVLFsSyPbh0WUD4jVXJkvvSVK95DN1wdp63d0z02ErVgcMYaNnPI1Obpvl2MSWnJV33FGYOOCMDPgntigfRkrYVfTcEA4VmZ57r0tvmHGtCMUVo9CON9KA/FGBp1wnqLq89lQY2fmtk2wLxAWTjkcafKvkU2CLSrAZ6QAbJKCVMqeWyM2Fv6xxC2cUly+ygL/5wj21et9683tJDD3nAtt4wbfbYYXnGNCYJO86pK1Q3pZ+hLBDTmK0o73uVksqIFX64Qw5naYu9UztdgOZCNLwCfbdhFoThvmV+KWElHYTaSv38I91UwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQBbu8Tmk3MuTS7kEHjxaQFSHIll1Ts9eM1cZarv2cNSayyvdevImf8MP3mtQKYtUTOaKlyYJ1MbI+Pi76NyyvUbCaeoP14R6FgSBe6fTrDgPiBe9+tIagBRkid0daV+h1S3M3Omwrvm/Ct7WfxbA+i4ioTHS6lLUgJVHxU1PyACrPdtdJfAk0pGmDEpm4rn9ZJYRhwfv4KiRf/bhxdcuvSwp5tQCFRwWzfoKoJF/54CKk/8Fo+oYqaNaiZ75/eaOCyXXsdvAFpLQpwn8OV6ASo1GisJL67PycSV6UMl8hGjz9ne8QlNz06Y/H+i4PJu1NLkM5QFShjhvywecuIzbqN3";
+    private static final String CERT_VSP_APPLE_SIGNING = "MIIDDDCCAfQCCQCJ/3Eyv/MZMDANBgkqhkiG9w0BAQsFADBIMQswCQYDVQQGEwJVSzEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANHRFMxGjAYBgNVBAMMEUFwcGxlIFZTUCBTaWduaW5nMB4XDTE5MDYyODE0MTMzM1oXDTM5MDYyODE0MTMzM1owSDELMAkGA1UEBhMCVUsxDzANBgNVBAcMBkxvbmRvbjEMMAoGA1UECgwDR0RTMRowGAYDVQQDDBFBcHBsZSBWU1AgU2lnbmluZzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN0MGCJFJ1nRvgD3Scgr3TdK365pvHp0i8x5G/XmVnXU8sdrr2EgY27UV6CNJI95aE5Tt90JHr/XCOTEdY9zsu5wCVizx7o3g/6LsrTNGDkiz8pLuvygOm2zr32m70qw2IXtuXjLEJwhqcWjWOL5Tx7szFrVfClXhQcCQwuYFe57449/makLqPSY9pUYAX9juaDYjcMjTtShJ9AVov3Z7j0KgAVNRLFG97EiniD0vglxs7L6wguU3QP0PC0iTSk83zTxoho76bcFDZDoFWs3LhLALUOchntjeSBbWC61EzIVWp7kA0JM6Kg8FW7zljE7MG+yVy+Qggqmxo+pTBi2LqkCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAF0MnpSXv0A0UJ+l2MN3A9kbg8T6m92blqiPrwnaTsj7tLAOCk6CY7V5X5No2LnQ5TB2mOzsaQ3a/YGP6TtaYaCnyZ4bkqVuviAwwNPj7QiKEJIi9/sVUcmVne/qPUozrcM/sz4L8+GhrgZjAwWWqDnEpdybQjqaOMB7kbTMiOL0psYDy7FRpU79+usUTns4ZQw21ucFRE10eMdbYkQYsHYM1TpzXhJnJ2YY4pSUgbHEibQoBAcK0YUErJDmUFukfsfa29T9DMS3R3RHeQQIBpEwTiThUxfAsrVX2R1xqoylLN9nhEi5Nhv+/n6ZZxN3FGw2ebzavowbDCsuyJxVPyg==";
+    private static final String CERT_VSP_BANANA_SIGNING = "MIIDDjCCAfYCCQC4nnLu8fPLIjANBgkqhkiG9w0BAQsFADBJMQswCQYDVQQGEwJVSzEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANHRFMxGzAZBgNVBAMMEkJhbmFuYSBWU1AgU2lnbmluZzAeFw0xOTA2MjgxNDIyMjZaFw0zOTA2MjgxNDIyMjZaMEkxCzAJBgNVBAYTAlVLMQ8wDQYDVQQHDAZMb25kb24xDDAKBgNVBAoMA0dEUzEbMBkGA1UEAwwSQmFuYW5hIFZTUCBTaWduaW5nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3JmFyYO0pF6krivSlsJgpe9AMmr88FmUpShUquNUvQIe6tQtPp436azXLozlZXyPR+nJ6EfE6H/m5jhobwOuq7EGRKU2pjEwveTLB1qI1NOUCEBkv5ii9Bm+3xkiF840U15D8ftjr20VLcCDuyI/bbLqS4rDC7syaSeD6SN7k4ifRhIyfxaXBHts7m++6zKENisH+2laQ/GYNP2/TZHXvxS2CWXGgw5RDhY7LbOEZldU/PPlW8WkqCDgUFEdRa65Pe6c22zsPYMD+JsuIkW0bE0uceAY6ja5sNyEBkEZe/1A409O6+q6OhyTAtJ5ewcNSIx4L0eh5MM5AQ4zFTJRuwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQBP4WBZufGxcGoKvZnyTTbprpbEA/pILC0pNK/7Dku3m1zR8zEpSehnbaWKWO9KpSvuak1Kp983BdczcJy/0zSml+RkN46yia65eebZniWFtJ32/TgpW2ALbqLjVCfr4h5OinPouf4yKCDpSvb8CtFsHCeHDh9EdWtoZzDgeFJqPADwP9/A6asyKIOVag5QuCUqlEpr7lcAWKWYb7eQsL105WdssOQF1R/W70x4TCbK72U0t3pRbBEab10JrjUpPscc+NnEKgz33zILTXjEO1FeEcdTGcs5AvwR2GIwAg2IBGZY/USyD6LKmvHS3tvyxWbM9qnw00Fr3Cl15ZpWzClK";
 
     private static final String BUCKET_NAME = "s3BucketName";
     private static final String OBJECT_KEY = "s3ObjectName";
@@ -101,17 +106,19 @@ public class S3ConfigSourceTest {
         Map<String, RemoteMatchingServiceConfig> msConfigs = result.getMatchingServiceAdapters();
         assertThat(msConfigs.size()).isEqualTo(3);
         assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getName()).isEqualTo("Banana Registry MSA");
-        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getEncryptionCertificate().getName()).isEqualTo("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-encryption");
-        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSigningCertificates().size()).isEqualTo(1);
-        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSigningCertificates().get(0).getName()).isEqualTo("/C=uk/ST=London/O=GDS/CN=gds-msa-banana-signing");
-        List<RemoteServiceProviderConfig> spConfigs = result.getServiceProviders();
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getEncryptionCertificate().getFullCert()).contains(CERT_MSA_BANANA_ENCRYPTION);
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSignatureVerificationCertificates().size()).isEqualTo(1);
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSignatureVerificationCertificates().get(0).getFullCert()).contains(CERT_MSA_BANANA_SIGNING);
+        Map<String, RemoteServiceProviderConfig> spConfigs = result.getServiceProviders();
         assertThat(spConfigs.size()).isEqualTo(2);
-        assertThat(spConfigs.get(0).getName()).isEqualTo("Apple Registry VSP");
-        assertThat(spConfigs.get(0).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(spConfigs.get(0).getSigningCertificates().get(0).getName()).isEqualTo("/C=uk/ST=London/O=GDS/CN=gds-apple-signing");
-        assertThat(spConfigs.get(1).getName()).isEqualTo("Banana Registry VSP");
-        assertThat(spConfigs.get(1).getSigningCertificates().size()).isEqualTo(1);
-        assertThat(spConfigs.get(1).getSigningCertificates().get(0).getName()).isEqualTo("/C=uk/ST=London/O=GDS/CN=gds-banana-signing");
+        RemoteServiceProviderConfig spConfig2 = spConfigs.get("2");
+        assertThat(spConfig2.getName()).isEqualTo("Apple Registry VSP");
+        assertThat(spConfig2.getSignatureVerificationCertificates().size()).isEqualTo(1);
+        assertThat(spConfig2.getSignatureVerificationCertificates().get(0).getFullCert()).contains(CERT_VSP_APPLE_SIGNING);
+        RemoteServiceProviderConfig spConfig3 = spConfigs.get("3");
+        assertThat(spConfig3.getName()).isEqualTo("Banana Registry VSP");
+        assertThat(spConfig3.getSignatureVerificationCertificates().size()).isEqualTo(1);
+        assertThat(spConfig3.getSignatureVerificationCertificates().get(0).getFullCert()).contains(CERT_VSP_BANANA_SIGNING);
     }
 
     @Test

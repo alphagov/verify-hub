@@ -2,39 +2,37 @@ package uk.gov.ida.hub.config.application;
 
 import com.google.inject.Inject;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
+import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
-import uk.gov.ida.hub.config.domain.TransactionConfig;
-import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.exceptions.CertificateDisabledException;
 import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CertificateService <T extends CertificateConfigurable> {
+public class CertificateService <T extends CertificateConfigurable<T>> {
 
-    private final List<LocalConfigRepository<T>> configRepositories = new ArrayList<>();
+    private final ManagedEntityConfigRepository<T> connectedServiceConfigRepository;
+    private final ManagedEntityConfigRepository<T> matchingServiceConfigRepository;
     private CertificateValidityChecker certificateValidityChecker;
 
     @Inject
     public CertificateService(
-            LocalConfigRepository<TransactionConfig> transactionConfigRepository,
-            LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
+            ManagedEntityConfigRepository<T> connectedServiceConfigRepository,
+            ManagedEntityConfigRepository<T> matchingServiceConfigRepository,
             CertificateValidityChecker certificateValidityChecker) {
-        this.configRepositories.add((LocalConfigRepository<T>)transactionConfigRepository);
-        this.configRepositories.add((LocalConfigRepository<T>)matchingServiceConfigRepository);
+        this.connectedServiceConfigRepository = connectedServiceConfigRepository;
+        this.matchingServiceConfigRepository = matchingServiceConfigRepository;
         this.certificateValidityChecker = certificateValidityChecker;
     }
 
     public Set<CertificateDetails> getAllCertificateDetails() {
-        return configRepositories.stream()
+        return Stream.concat(connectedServiceConfigRepository.stream(), matchingServiceConfigRepository.stream())
                 .flatMap(this::getAllCertificateDetails)
                 .collect(Collectors.toSet());
     }
@@ -86,20 +84,16 @@ public class CertificateService <T extends CertificateConfigurable> {
         return new CertificateDetails(
                 config.getEntityId(),
                 certificate,
-                getType(config),
+                config.getEntityType(),
                 config.isEnabled());
     }
 
     private T getConfig(String entityId){
-        return configRepositories.stream()
-                .filter(repo -> repo.containsKey(entityId))
+        return Stream.of(connectedServiceConfigRepository, matchingServiceConfigRepository)
+                .filter(repo -> repo.has(entityId))
                 .findFirst()
                 .orElseThrow(NoCertificateFoundException::new)
-                .getData(entityId)
+                .get(entityId)
                 .get();
-    }
-
-    private FederationEntityType getType(T config) {
-        return config instanceof TransactionConfig ? FederationEntityType.RP : FederationEntityType.MS;
     }
 }

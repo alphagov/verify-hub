@@ -3,6 +3,7 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.validation.ValidationMethod;
+import uk.gov.ida.hub.config.dto.FederationEntityType;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 import static java.util.Optional.ofNullable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TransactionConfig implements CertificateConfigurable {
+public class TransactionConfig implements CertificateConfigurable<TransactionConfig> {
 
     @Valid
     @NotNull
@@ -32,11 +33,11 @@ public class TransactionConfig implements CertificateConfigurable {
     @Valid
     @NotNull
     @JsonProperty
-    protected Boolean enabled;
+    protected boolean enabled = true;
 
     @Valid
     @JsonProperty
-    protected Boolean enabledForSingleIdp = false;
+    protected boolean enabledForSingleIdp = false;
 
     @Valid
     @NotNull
@@ -76,11 +77,11 @@ public class TransactionConfig implements CertificateConfigurable {
     @Valid
     @NotNull
     @JsonProperty
-    protected Boolean shouldHubSignResponseMessages;
+    protected boolean shouldHubSignResponseMessages = false;
 
     @Valid
     @JsonProperty
-    protected Boolean shouldHubUseLegacySamlStandard = false;
+    protected boolean shouldHubUseLegacySamlStandard = false;
 
     @Valid
     @NotNull
@@ -90,7 +91,7 @@ public class TransactionConfig implements CertificateConfigurable {
     @Valid
     @NotNull
     @JsonProperty
-    protected Boolean shouldSignWithSHA1 = true;
+    protected boolean shouldSignWithSHA1 = true;
 
     @Valid
     @JsonProperty
@@ -110,7 +111,7 @@ public class TransactionConfig implements CertificateConfigurable {
 
     @Valid
     @JsonProperty
-    protected boolean eidasProxyNode;
+    protected boolean eidasProxyNode = false;
 
     @Valid
     @JsonProperty
@@ -169,16 +170,21 @@ public class TransactionConfig implements CertificateConfigurable {
         return serviceHomepage;
     }
 
-    public Boolean isEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
-    public Boolean isEnabledForSingleIdp() {
+    public boolean isEnabledForSingleIdp() {
         return enabledForSingleIdp;
     }
 
     public String getEntityId() {
         return entityId;
+    }
+
+    @Override
+    public FederationEntityType getEntityType() {
+        return FederationEntityType.RP;
     }
 
     public EncryptionCertificate getEncryptionCertificate() {
@@ -197,15 +203,15 @@ public class TransactionConfig implements CertificateConfigurable {
         return levelsOfAssurance;
     }
 
-    public Boolean getShouldHubSignResponseMessages() {
+    public boolean getShouldHubSignResponseMessages() {
         return shouldHubSignResponseMessages;
     }
 
-    public Boolean getShouldSignWithSHA1() {
+    public boolean getShouldSignWithSHA1() {
         return shouldSignWithSHA1;
     }
 
-    public Boolean getShouldHubUseLegacySamlStandard() {
+    public boolean getShouldHubUseLegacySamlStandard() {
         return shouldHubUseLegacySamlStandard;
     }
 
@@ -251,6 +257,36 @@ public class TransactionConfig implements CertificateConfigurable {
 
     public boolean isSelfService() {
         return selfService;
+    }
+
+    @Override
+    public TransactionConfig override(List<X509CertificateConfiguration> signatureVerificationCertificates, X509CertificateConfiguration encryptionCertificate){
+        TransactionConfig clone = new TransactionConfig();
+
+        clone.assertionConsumerServices = this.assertionConsumerServices;
+        clone.serviceHomepage = this.serviceHomepage;
+        clone.enabled = this.enabled;
+        clone.enabledForSingleIdp = this.enabledForSingleIdp;
+        clone.encryptionCertificate = encryptionCertificate;
+        clone.entityId = this.entityId;
+        clone.simpleId = this.simpleId;
+        clone.matchingProcess = this.matchingProcess;
+        clone.matchingServiceEntityId = this.matchingServiceEntityId;
+        clone.levelsOfAssurance = this.levelsOfAssurance;
+        clone.eidasEnabled = this.eidasEnabled;
+        clone.eidasCountries = this.eidasCountries;
+        clone.shouldHubSignResponseMessages = this.shouldHubSignResponseMessages;
+        clone.shouldHubUseLegacySamlStandard = this.shouldHubUseLegacySamlStandard;
+        clone.signatureVerificationCertificates = signatureVerificationCertificates;
+        clone.shouldSignWithSHA1 = this.shouldSignWithSHA1;
+        clone.userAccountCreationAttributes = this.userAccountCreationAttributes;
+        clone.headlessStartpage = this.headlessStartpage;
+        clone.singleIdpStartpage = this.singleIdpStartpage;
+        clone.usingMatching = this.usingMatching;
+        clone.eidasProxyNode = this.eidasProxyNode;
+        clone.selfService = this.selfService;
+
+        return clone;
     }
 
 }

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class LocalConfigRepository<T extends EntityIdentifiable> {
 
@@ -38,5 +39,9 @@ public class LocalConfigRepository<T extends EntityIdentifiable> {
         for(T datum : data) {
             addData(datum);
         }
+    }
+
+    public Stream<T> stream() {
+        return dataMap.values().stream();
     }
 }

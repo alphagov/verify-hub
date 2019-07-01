@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RemoteServiceProviderConfig {
+public class RemoteServiceProviderConfig implements RemoteComponentConfig {
 
     @JsonProperty
     protected String id;
@@ -32,11 +32,11 @@ public class RemoteServiceProviderConfig {
         return name;
     }
 
-    public RemoteCertificateConfig getEncryptionCertificate() {
+    public RemoteCertificateConfig getEncryptionCertificateConfig() {
         return encryptionCertificate;
     }
 
-    public List<RemoteCertificateConfig> getSigningCertificates() {
+    public List<RemoteCertificateConfig> getSigningCertificatesConfig() {
         return signingCertificates;
     }
 }

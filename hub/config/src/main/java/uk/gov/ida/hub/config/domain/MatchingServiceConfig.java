@@ -3,6 +3,7 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.validation.ValidationMethod;
+import uk.gov.ida.hub.config.dto.FederationEntityType;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -12,11 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MatchingServiceConfig implements CertificateConfigurable {
-
-    @SuppressWarnings("unused") // needed to prevent guice injection
-    protected MatchingServiceConfig() {
-    }
+public class MatchingServiceConfig implements CertificateConfigurable<MatchingServiceConfig> {
 
     @Valid
     @NotNull
@@ -44,13 +41,27 @@ public class MatchingServiceConfig implements CertificateConfigurable {
 
     @NotNull
     @JsonProperty
-    protected Boolean healthCheckEnabled;
+    protected boolean healthCheckEnabled = true;
 
+    @Valid
     @JsonProperty
-    protected boolean onboarding;
+    protected boolean onboarding = false;
+
+    @Valid
+    @JsonProperty
+    protected boolean selfService = false;
+
+    @SuppressWarnings("unused") // needed to prevent guice injection
+    protected MatchingServiceConfig() {
+    }
 
     public String getEntityId() {
         return entityId;
+    }
+
+    @Override
+    public FederationEntityType getEntityType() {
+        return FederationEntityType.MS;
     }
 
     public EncryptionCertificate getEncryptionCertificate() {
@@ -64,7 +75,7 @@ public class MatchingServiceConfig implements CertificateConfigurable {
                 .collect(Collectors.toList());
     }
 
-    public Boolean getHealthCheckEnabled() {
+    public boolean getHealthCheckEnabled() {
         return healthCheckEnabled;
     }
 
@@ -84,5 +95,24 @@ public class MatchingServiceConfig implements CertificateConfigurable {
 
     public URI getUserAccountCreationUri() {
         return userAccountCreationUri;
+    }
+
+    public boolean isSelfService() {
+        return selfService;
+    }
+
+    @Override
+    public MatchingServiceConfig override(List<X509CertificateConfiguration> signatureVerificationCertificateList, X509CertificateConfiguration encryptionCertificate) {
+        MatchingServiceConfig clone = new MatchingServiceConfig();
+        clone.entityId = this.entityId;
+        clone.encryptionCertificate = encryptionCertificate;
+        clone.signatureVerificationCertificates = signatureVerificationCertificates;
+        clone.uri = this.uri;
+        clone.userAccountCreationUri = this.userAccountCreationUri;
+        clone.healthCheckEnabled = this.healthCheckEnabled;
+        clone.onboarding = this.onboarding;
+        clone.selfService = this.selfService;
+
+        return clone;
     }
 }
