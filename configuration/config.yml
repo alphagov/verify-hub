@@ -31,3 +31,8 @@ certificateExpiryDateCheckServiceConfiguration:
   enable: true
 certificateOcspRevocationStatusCheckServiceConfiguration:
   enable: true
+selfService:
+  enabled: ${SELF_SERVICE_ENABLED:-false}
+  s3BucketName: ${SERVICES_METADATA_BUCKET:-}
+  s3ObjectKey: ${METADATA_OBJECT_KEY:-}
+  cacheExpiry: 30s
