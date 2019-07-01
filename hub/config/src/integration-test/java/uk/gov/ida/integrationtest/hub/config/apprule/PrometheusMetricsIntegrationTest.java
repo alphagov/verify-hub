@@ -9,9 +9,8 @@ import org.joda.time.DateTimeZone;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import uk.gov.ida.hub.config.domain.CertificateConfigurable;
-import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.Certificate;
+import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.EncryptionCertificate;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
@@ -38,17 +37,17 @@ import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_C
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_HELP;
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_LAST_UPDATED;
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE_LAST_UPDATED_HELP;
-import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS;
-import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_HELP;
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP;
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP_HELP;
+import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS;
+import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_OCSP_REVOCATION_STATUS_HELP;
 import static uk.gov.ida.hub.config.domain.builders.EncryptionCertificateBuilder.anEncryptionCertificate;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
-import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.*;
 import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.messageShouldBePresent;
+import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.messageShouldNotBePresent;
 
 public class PrometheusMetricsIntegrationTest {
     private static Client client;
@@ -155,7 +154,7 @@ public class PrometheusMetricsIntegrationTest {
         return expectedCertificatesMetrics;
     }
 
-    private <T extends EntityIdentifiable & CertificateConfigurable> List<Message> getExpectedCertificateMetricsList(final T configEntityData) {
+    private <T extends CertificateConfigurable<T>> List<Message> getExpectedCertificateMetricsList(final T configEntityData) {
         List<Message> expectedCertificatesMetrics = new ArrayList<>();
         configEntityData.getSignatureVerificationCertificates()
                         .forEach(

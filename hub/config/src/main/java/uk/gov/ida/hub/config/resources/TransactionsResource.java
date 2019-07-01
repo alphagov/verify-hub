@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path(Urls.ConfigUrls.TRANSACTIONS_ROOT)
@@ -105,7 +104,7 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.ENABLED_TRANSACTIONS_PATH)
     @Timed
     public List<TransactionDisplayData> getEnabledTransactions(){
-        Set<TransactionConfig> allData = transactionConfigRepository.getAll();
+        Collection<TransactionConfig> allData = transactionConfigRepository.getAll();
         return allData.stream()
             .filter(TransactionConfig::isEnabled)
             .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance(), t.getHeadlessStartpage()))

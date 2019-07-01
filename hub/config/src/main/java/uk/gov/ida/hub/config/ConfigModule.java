@@ -1,7 +1,5 @@
 package uk.gov.ida.hub.config;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -17,7 +15,6 @@ import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.application.PrometheusClientService;
-import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedCountryConfigDataSource;
@@ -93,15 +90,15 @@ public class ConfigModule extends AbstractModule {
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
         bind(OCSPPKIXParametersProvider.class).toInstance(new OCSPPKIXParametersProvider());
         bind(PKIXParametersProvider.class).toInstance(new PKIXParametersProvider());
-        bind(CertificateService.class);
     }
 
-    private AmazonS3 getAmazonS3Client(SelfServiceConfig selfServiceConfig) {
-        if (!selfServiceConfig.isEnabled()){
-            return null;
-        }
-
-        return AmazonS3ClientBuilder.defaultClient();
+    @Provides
+    @Singleton
+    @SuppressWarnings("unused")
+    private CertificateService getCertificateService(ManagedEntityConfigRepository<TransactionConfig> connectedServiceConfigRepository,
+                                                     ManagedEntityConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
+                                                     CertificateValidityChecker certificateValidityChecker){
+        return new CertificateService(connectedServiceConfigRepository, matchingServiceConfigRepository, certificateValidityChecker);
     }
 
     @Provides

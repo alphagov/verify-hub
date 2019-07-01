@@ -10,7 +10,9 @@ public class RemoteConnectedServiceConfig {
     protected String entityId;
 
     @JsonProperty("service_provider_id")
-    protected int serviceProviderConfigId;
+    protected String serviceProviderConfigId;
+
+    private RemoteServiceProviderConfig serviceProviderConfig;
 
     @SuppressWarnings("unused")
     protected RemoteConnectedServiceConfig() {
@@ -20,8 +22,16 @@ public class RemoteConnectedServiceConfig {
         return entityId;
     }
 
-    public int getServiceProviderConfigId() {
+    public String getServiceProviderConfigId() {
         return serviceProviderConfigId;
     }
 
+    public RemoteConnectedServiceConfig withServiceProviderConfig(RemoteServiceProviderConfig serviceProviderConfig) {
+        this.serviceProviderConfig = serviceProviderConfig;
+        return this;
+    }
+
+    public RemoteServiceProviderConfig getServiceProviderConfig() {
+        return serviceProviderConfig;
+    }
 }

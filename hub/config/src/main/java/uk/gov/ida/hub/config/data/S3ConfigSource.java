@@ -13,26 +13,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConnectedServiceConfig;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteMatchingServiceConfig;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteServiceProviderConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.SelfServiceMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class S3ConfigSource {
     private static final Logger LOG = LoggerFactory.getLogger(S3ConfigSource.class);
-    public static final Map<String, RemoteConnectedServiceConfig> EMPTY_CONNECTED_SERVICE_CONFIG_MAP = Collections.emptyMap();
-    public static final Map<String, RemoteMatchingServiceConfig> EMPTY_MATCHING_SERVICE_CONFIG_MAP = Collections.emptyMap();
-    public static final List<RemoteServiceProviderConfig> EMPTY_SERVICE_PROVIDER_CONFIG_LIST = Collections.emptyList();
-    public static final RemoteConfigCollection EMPTY_COLLECTION = new RemoteConfigCollection(null, null, EMPTY_CONNECTED_SERVICE_CONFIG_MAP, EMPTY_MATCHING_SERVICE_CONFIG_MAP, EMPTY_SERVICE_PROVIDER_CONFIG_LIST);
+
     private boolean enabled = false;
     private String bucket;
     private SelfServiceConfig selfServiceConfig;
@@ -61,14 +52,14 @@ public class S3ConfigSource {
 
     public RemoteConfigCollection getRemoteConfig(){
         if (!enabled){
-            return EMPTY_COLLECTION;
+            return RemoteConfigCollection.EMPTY_REMOTE_CONFIG_COLLECTION;
         }
         try {
             RemoteConfigCollection config = cache.get(selfServiceConfig.getS3ObjectKey());
             return config;
         } catch (ExecutionException e) {
             LOG.warn("Unable to get {} from cache.", selfServiceConfig.getS3ObjectKey());
-            return EMPTY_COLLECTION;
+            return RemoteConfigCollection.EMPTY_REMOTE_CONFIG_COLLECTION;
         }
     }
 
