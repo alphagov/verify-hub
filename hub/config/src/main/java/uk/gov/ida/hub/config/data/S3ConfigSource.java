@@ -9,6 +9,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
@@ -57,7 +58,7 @@ public class S3ConfigSource {
         try {
             RemoteConfigCollection config = cache.get(selfServiceConfig.getS3ObjectKey());
             return config;
-        } catch (ExecutionException e) {
+        } catch (ExecutionException | UncheckedExecutionException e) {
             LOG.warn("Unable to get {} from cache.", selfServiceConfig.getS3ObjectKey());
             return RemoteConfigCollection.EMPTY_REMOTE_CONFIG_COLLECTION;
         }
@@ -80,9 +81,9 @@ public class S3ConfigSource {
     public class S3ConfigCacheLoader extends CacheLoader<String, RemoteConfigCollection> {
 
         @Override
-        public RemoteConfigCollection load(String key) throws Exception {
-            S3Object s3Object = s3Client.getObject(bucket, key);
+        public RemoteConfigCollection load(String key)throws Exception {
             try{
+                S3Object s3Object = s3Client.getObject(bucket, key);
                 return mapToRemoteConfigCollection(s3Object.getObjectContent(), s3Object.getObjectMetadata().getLastModified());
             } catch(IOException e) {
                 LOG.error("An error occurred trying to get or process object {} from S3 Bucket {}", key, bucket, e);
