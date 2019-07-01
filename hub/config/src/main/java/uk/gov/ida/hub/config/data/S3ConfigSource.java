@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.config.data;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
@@ -85,9 +86,12 @@ public class S3ConfigSource {
             try{
                 S3Object s3Object = s3Client.getObject(bucket, key);
                 return mapToRemoteConfigCollection(s3Object.getObjectContent(), s3Object.getObjectMetadata().getLastModified());
-            } catch(IOException e) {
+            } catch (SdkClientException e) {
+                LOG.error("An error occurred accessing object {} from S3 Bucket {}", key, bucket, e);
+                return RemoteConfigCollection.EMPTY_REMOTE_CONFIG_COLLECTION;
+            } catch (IOException e) {
                 LOG.error("An error occurred trying to get or process object {} from S3 Bucket {}", key, bucket, e);
-                throw(e);
+                return RemoteConfigCollection.EMPTY_REMOTE_CONFIG_COLLECTION;
             }
         }
 
