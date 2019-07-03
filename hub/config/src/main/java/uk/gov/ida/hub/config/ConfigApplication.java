@@ -1,11 +1,7 @@
 package uk.gov.ida.hub.config;
 
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import com.google.inject.Provides;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
 import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
@@ -17,8 +13,6 @@ import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
 import uk.gov.ida.common.shared.security.TrustStoreMetrics;
-import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
-import uk.gov.ida.hub.config.data.S3ConfigSource;
 import uk.gov.ida.hub.config.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.config.resources.CertificatesResource;
 import uk.gov.ida.hub.config.resources.CountriesResource;
@@ -28,7 +22,6 @@ import uk.gov.ida.hub.config.resources.TransactionsResource;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
 
-import javax.inject.Singleton;
 import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
@@ -68,25 +61,7 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
     }
 
     protected Module bindS3ConfigSource() {
-        return new AbstractModule() {
-            @Override
-            protected void configure() {
-            }
-
-            @Provides
-            @Singleton
-            @SuppressWarnings("unused")
-            private S3ConfigSource getS3ConfigSource(ConfigConfiguration configConfiguration, ObjectMapper objectMapper){
-                SelfServiceConfig selfServiceConfig = configConfiguration.getSelfService();
-                if (selfServiceConfig.isEnabled()){
-                    return new S3ConfigSource(
-                            selfServiceConfig,
-                            AmazonS3ClientBuilder.standard().withRegion("eu-west-2").build(),
-                            objectMapper);
-                }
-                return new S3ConfigSource();
-            }
-        };
+        return new S3ConfigSourceModule();
     }
 
     @Override
