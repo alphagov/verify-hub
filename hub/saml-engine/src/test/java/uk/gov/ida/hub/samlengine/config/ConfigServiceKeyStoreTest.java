@@ -21,6 +21,7 @@ import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,7 +81,7 @@ public class ConfigServiceKeyStoreTest {
         when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(of(certOneDto, certTwoDto));
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
         when(x509CertificateFactory.createCertificate(certTwoDto.getCertificate())).thenReturn(x509Certificate);
-        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(trustStore);
+        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
         when(certificateChainValidator.validate(x509Certificate, trustStore)).thenReturn(valid());
 
         List<PublicKey> keys = configServiceKeyStore.getVerifyingKeysForEntity(issuerId);
@@ -95,7 +96,7 @@ public class ConfigServiceKeyStoreTest {
         when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(of(certOneDto, certTwoDto));
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
         when(x509CertificateFactory.createCertificate(certTwoDto.getCertificate())).thenReturn(x509Certificate);
-        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(trustStore);
+        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
         when(certificateChainValidator.validate(x509Certificate, trustStore)).thenReturn(valid());
 
         configServiceKeyStore.getVerifyingKeysForEntity(issuerId);
@@ -108,7 +109,7 @@ public class ConfigServiceKeyStoreTest {
         final CertificateDto certOneDto = getX509Certificate(IDP_ENTITY_ID);
         when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(of(certOneDto));
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
-        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(trustStore);
+        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
         CertPathValidatorException underlyingException = new CertPathValidatorException("Invalid Certificate");
         when(certificateChainValidator.validate(x509Certificate, trustStore)).thenReturn(invalid(underlyingException));
         try {
@@ -124,7 +125,7 @@ public class ConfigServiceKeyStoreTest {
     public void getEncryptionKeyForEntity_shouldGetEncryptionKeysFromConfigCertificateProxy() throws Exception {
         when(certificatesConfigProxy.getEncryptionCertificate(anyString())).thenReturn(aCertificateDto().build());
         when(x509CertificateFactory.createCertificate(anyString())).thenReturn(x509Certificate);
-        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(trustStore);
+        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
         when(certificateChainValidator.validate(x509Certificate, trustStore)).thenReturn(valid());
 
         configServiceKeyStore.getEncryptionKeyForEntity(issuerId);
@@ -137,7 +138,7 @@ public class ConfigServiceKeyStoreTest {
         final CertificateDto certOneDto = getX509Certificate(IDP_ENTITY_ID);
         when(certificatesConfigProxy.getEncryptionCertificate(issuerId)).thenReturn(certOneDto);
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
-        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(trustStore);
+        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
         when(certificateChainValidator.validate(x509Certificate, trustStore)).thenReturn(valid());
 
         configServiceKeyStore.getEncryptionKeyForEntity(issuerId);
@@ -150,7 +151,7 @@ public class ConfigServiceKeyStoreTest {
         final CertificateDto certOneDto = getX509Certificate(IDP_ENTITY_ID);
         when(certificatesConfigProxy.getEncryptionCertificate(issuerId)).thenReturn(certOneDto);
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
-        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(trustStore);
+        when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
         CertPathValidatorException underlyingException = new CertPathValidatorException("Invalid Certificate");
         when(certificateChainValidator.validate(x509Certificate, trustStore)).thenReturn(invalid(underlyingException));
         try {
