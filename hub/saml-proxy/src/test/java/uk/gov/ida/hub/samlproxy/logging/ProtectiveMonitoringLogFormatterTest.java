@@ -22,6 +22,8 @@ import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.saml.core.test.builders.AuthnRequestBuilder.anAuthnRequest;
+import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.DEFAULT_REQUEST_ID;
+import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.DEFAULT_RESPONSE_ID;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 
 @RunWith(OpenSAMLRunner.class)
@@ -62,8 +64,8 @@ public class ProtectiveMonitoringLogFormatterTest {
         String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(response, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
 
         String expectedLogMessage = "Protective Monitoring – Authn Response Event – " +
-                "{responseId: default-response-id, " +
-                "inResponseTo: default-request-id, " +
+                "{responseId: " + DEFAULT_RESPONSE_ID + ", " +
+                "inResponseTo: " + DEFAULT_REQUEST_ID + ", " +
                 "direction: INBOUND, " +
                 "destination: http://destination.com, " +
                 "issuerId: a-test-entity, " +
