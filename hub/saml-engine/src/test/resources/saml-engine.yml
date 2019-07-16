@@ -59,8 +59,6 @@ configUri: ${CONFIG_URI:-http://localhost:50240}
 serviceInfo:
   name: saml-engine
 
-readKeysFromFileDescriptors: false
-
 privateSigningKeyConfiguration:
   type: base64
   key: ${HUB_SIGNING_KEY}

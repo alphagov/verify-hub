@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -55,7 +54,6 @@ import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.samlengine.redis.AssertionExpirationCacheRedisCodec;
 import uk.gov.ida.hub.samlengine.redis.AuthnRequestExpirationCacheRedisCodec;
-import uk.gov.ida.hub.samlengine.security.PrivateKeyFileDescriptors;
 import uk.gov.ida.hub.samlengine.security.RedisIdExpirationCache;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnRequestGeneratorService;
 import uk.gov.ida.hub.samlengine.services.CountryAuthnResponseTranslatorService;
@@ -161,7 +159,6 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.function.Function;
@@ -454,12 +451,10 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Singleton
     private IdaKeyStore getKeyStore(SamlEngineConfiguration configuration, SigningCertFromMetadataExtractor signingCertExtractor) {
-        Map<KeyPosition, PrivateKey> privateKeyStore = privateEncryptionKeys(configuration);
-
         try {
-            PrivateKey primaryEncryptionKey = privateKeyStore.get(KeyPosition.PRIMARY);
-            PrivateKey secondaryEncryptionKey = privateKeyStore.get(KeyPosition.SECONDARY);
-            PrivateKey signingKey = privateSigningKey(configuration);
+            PrivateKey primaryEncryptionKey = configuration.getPrimaryPrivateEncryptionKeyConfiguration().getPrivateKey();
+            PrivateKey secondaryEncryptionKey = configuration.getSecondaryPrivateEncryptionKeyConfiguration().getPrivateKey();
+            PrivateKey signingKey = configuration.getPrivateSigningKeyConfiguration().getPrivateKey();
             PublicKey publicSigningKey = KeySupport.derivePublicKey(signingKey);
 
             KeyPair primaryEncryptionKeyPair = new KeyPair(KeySupport.derivePublicKey(primaryEncryptionKey), primaryEncryptionKey);
@@ -842,45 +837,6 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     private IdpAssertionMetricsCollector metricsCollector(Environment environment) {
         return new IdpAssertionMetricsCollector(environment.metrics());
-    }
-
-    public enum KeyPosition {
-        PRIMARY,
-        SECONDARY
-    }
-
-    private PrivateKey privateSigningKey(SamlEngineConfiguration configuration) {
-        // Running in production-like environments means we load keys from file descriptors
-        // Non-prod environments may load keys from file paths
-        if (configuration.shouldReadKeysFromFileDescriptors()) {
-            return PrivateKeyFileDescriptors.SIGNING_KEY.loadKey();
-        } else {
-            return configuration.getPrivateSigningKeyConfiguration().getPrivateKey();
-        }
-    }
-
-    private Map<KeyPosition, PrivateKey> privateEncryptionKeys(SamlEngineConfiguration configuration) {
-        // Running in production-like environments means we load keys from file descriptors
-        // Non-prod environments may load keys from file paths
-        if (configuration.shouldReadKeysFromFileDescriptors()) {
-            return privateEncryptionKeysFromFileDescriptors();
-        } else {
-            return privateEncryptionKeysFromConfig(configuration);
-        }
-    }
-
-    private Map<KeyPosition, PrivateKey> privateEncryptionKeysFromConfig(SamlEngineConfiguration configuration) {
-        return ImmutableMap.of(
-                KeyPosition.PRIMARY, configuration.getPrimaryPrivateEncryptionKeyConfiguration().getPrivateKey(),
-                KeyPosition.SECONDARY, configuration.getSecondaryPrivateEncryptionKeyConfiguration().getPrivateKey()
-        );
-    }
-
-    private Map<KeyPosition, PrivateKey> privateEncryptionKeysFromFileDescriptors() {
-        return ImmutableMap.of(
-                KeyPosition.PRIMARY, PrivateKeyFileDescriptors.PRIMARY_ENCRYPTION_KEY.loadKey(),
-                KeyPosition.SECONDARY, PrivateKeyFileDescriptors.SECONDARY_ENCRYPTION_KEY.loadKey()
-        );
     }
 
     private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){

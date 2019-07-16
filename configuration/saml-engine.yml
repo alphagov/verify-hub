@@ -7,7 +7,6 @@ server:
     appenders:
       - type: access-logstash-console
 
-readKeysFromFileDescriptors: false
 privateSigningKeyConfiguration:
   key: ${HUB_SIGNING_PRIVATE_KEY}
   type: encoded

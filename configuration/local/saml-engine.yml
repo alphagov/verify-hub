@@ -43,8 +43,6 @@ configUri: ${CONFIG_URL}
 serviceInfo:
   name: saml-engine
 
-readKeysFromFileDescriptors: false
-
 privateSigningKeyConfiguration:
   keyFile: /data/pki/hub_signing_primary.pk8
 
