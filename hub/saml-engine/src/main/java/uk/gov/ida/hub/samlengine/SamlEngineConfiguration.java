@@ -52,11 +52,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     protected PrivateKeyConfiguration secondaryPrivateEncryptionKeyConfiguration;
 
     @Valid
-    @NotNull
-    @JsonProperty
-    protected boolean readKeysFromFileDescriptors = true;
-
-    @Valid
     @JsonProperty
     protected InfinispanConfiguration infinispan = new InfinispanConfiguration(
             absent(), -1, absent(), absent(), CacheType.standalone, com.google.common.base.Optional.of(Duration.hours(2)),
@@ -151,9 +146,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Override
     public Duration getAuthnRequestValidityDuration() { return authnRequestValidityDuration; }
 
-    public boolean shouldReadKeysFromFileDescriptors() {
-        return readKeysFromFileDescriptors;
-    }
 
     public Optional<MetadataResolverConfiguration> getMetadataConfiguration() {
         return Optional.of(metadata);

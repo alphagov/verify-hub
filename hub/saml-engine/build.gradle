@@ -21,12 +21,6 @@ apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.hub.samlengine.SamlEngineApplication'
 mainClassName = ext.mainclass
 
-test {
-    if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
-        jvmArgs += ["--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"]
-    }
-}
-
 apply from: "${rootDir}/inttest.gradle"
 
 tasks.check.dependsOn(intTest)
