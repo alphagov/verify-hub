@@ -57,7 +57,7 @@ public class ConfigServiceKeyStoreTest {
     private ConfigServiceKeyStore configServiceKeyStore;
 
     @Before
-    public void setup() {
+    public void setUp() {
         issuerId = "issuer-id";
         configServiceKeyStore = new ConfigServiceKeyStore(
                 certificatesConfigProxy,
