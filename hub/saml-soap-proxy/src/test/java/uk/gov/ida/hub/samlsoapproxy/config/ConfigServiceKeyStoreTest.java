@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.config;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,12 +18,10 @@ import uk.gov.ida.saml.core.test.TestEntityIds;
 import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.CertPathValidatorException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -63,7 +62,7 @@ public class ConfigServiceKeyStoreTest {
     private ConfigServiceKeyStore configServiceKeyStore;
 
     @Before
-    public void setup() throws CertificateException {
+    public void setUp() {
         issuerId = "issuer-id";
         configServiceKeyStore = new ConfigServiceKeyStore(
                 certificatesConfigProxy,
@@ -80,10 +79,10 @@ public class ConfigServiceKeyStoreTest {
     }
 
     @Test
-    public void getVerifyingKeysForEntity_shouldReturnAllKeysReturnedByConfig() throws Exception {
+    public void getVerifyingKeysForEntity_shouldReturnAllKeysReturnedByConfig() {
         final CertificateDto certOneDto = buildCertificateDto(IDP_ENTITY_ID, idpSigningCertPrimary);
         final CertificateDto certTwoDto = buildCertificateDto(SECOND_IDP_ENTITY_ID, idpSigningCertSecondary);
-        when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(of(certOneDto, certTwoDto));
+        when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(ImmutableList.of(certOneDto, certTwoDto));
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
         when(x509CertificateFactory.createCertificate(certTwoDto.getCertificate())).thenReturn(x509Certificate);
         when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
@@ -95,10 +94,10 @@ public class ConfigServiceKeyStoreTest {
     }
 
     @Test
-    public void getVerifyingKeysForEntity_shouldValidateEachKeyReturnedByConfig() throws Exception {
+    public void getVerifyingKeysForEntity_shouldValidateEachKeyReturnedByConfig() {
         final CertificateDto certOneDto = buildCertificateDto(IDP_ENTITY_ID, idpSigningCertPrimary);
         final CertificateDto certTwoDto = buildCertificateDto(SECOND_IDP_ENTITY_ID, idpSigningCertSecondary);
-        when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(of(certOneDto, certTwoDto));
+        when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(ImmutableList.of(certOneDto, certTwoDto));
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
         when(x509CertificateFactory.createCertificate(certTwoDto.getCertificate())).thenReturn(x509Certificate);
         when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
@@ -110,9 +109,9 @@ public class ConfigServiceKeyStoreTest {
     }
 
     @Test
-    public void getVerificationKeyForEntity_shouldThrowExceptionIfCertificateIsInvalid() throws Exception {
+    public void getVerificationKeyForEntity_shouldThrowExceptionIfCertificateIsInvalid() {
         final CertificateDto certOneDto = buildCertificateDto(IDP_ENTITY_ID, idpSigningCertPrimary);
-        when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(of(certOneDto));
+        when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(ImmutableList.of(certOneDto));
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
         when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
         CertPathValidatorException underlyingException = new CertPathValidatorException("Invalid Certificate");
@@ -129,7 +128,7 @@ public class ConfigServiceKeyStoreTest {
     @Test
     public void getVerificationKeyForEntity_shouldNotValidateWhenTrustStoreDisabled() {
         final CertificateDto certOneDto = buildCertificateDto(RP_ENTITY_ID, rpSigningCertPrimary);
-        when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(of(certOneDto));
+        when(certificatesConfigProxy.getSignatureVerificationCertificates(issuerId)).thenReturn(ImmutableList.of(certOneDto));
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
         when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.empty());
         configServiceKeyStore.getVerifyingKeysForEntity(issuerId);
@@ -137,7 +136,7 @@ public class ConfigServiceKeyStoreTest {
     }
 
     @Test
-    public void getEncryptionKeyForEntity_shouldGetEncryptionKeysFromConfigCertificateProxy() throws Exception {
+    public void getEncryptionKeyForEntity_shouldGetEncryptionKeysFromConfigCertificateProxy() {
         when(certificatesConfigProxy.getEncryptionCertificate(anyString())).thenReturn(buildCertificateDto(IDP_ENTITY_ID, idpEncryptionCertPrimary));
         when(x509CertificateFactory.createCertificate(anyString())).thenReturn(x509Certificate);
         when(trustStoreForCertificateProvider.getTrustStoreFor(any(FederationEntityType.class))).thenReturn(Optional.of(trustStore));
@@ -149,7 +148,7 @@ public class ConfigServiceKeyStoreTest {
     }
 
     @Test
-    public void getEncryptionKeyForEntity_shouldValidateTheKeyReturnedByConfig() throws Exception {
+    public void getEncryptionKeyForEntity_shouldValidateTheKeyReturnedByConfig() {
         final CertificateDto certOneDto = buildCertificateDto(IDP_ENTITY_ID, idpSigningCertPrimary);
         when(certificatesConfigProxy.getEncryptionCertificate(issuerId)).thenReturn(certOneDto);
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
@@ -162,7 +161,7 @@ public class ConfigServiceKeyStoreTest {
     }
 
     @Test
-    public void getEncryptionKeyForEntity_shouldThrowExceptionIfCertificateIsInvalid() throws Exception {
+    public void getEncryptionKeyForEntity_shouldThrowExceptionIfCertificateIsInvalid() {
         final CertificateDto certOneDto = buildCertificateDto(IDP_ENTITY_ID, idpSigningCertPrimary);
         when(certificatesConfigProxy.getEncryptionCertificate(issuerId)).thenReturn(certOneDto);
         when(x509CertificateFactory.createCertificate(certOneDto.getCertificate())).thenReturn(x509Certificate);
