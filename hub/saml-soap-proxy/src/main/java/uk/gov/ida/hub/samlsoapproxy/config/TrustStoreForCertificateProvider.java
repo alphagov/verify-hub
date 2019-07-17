@@ -7,6 +7,7 @@ import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.inject.Inject;
 import java.security.KeyStore;
+import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 
@@ -21,9 +22,12 @@ public class TrustStoreForCertificateProvider {
         this.keyStoreCache = keyStoreCache;
     }
 
-    public KeyStore getTrustStoreFor(FederationEntityType federationEntityType) {
+    public Optional<KeyStore> getTrustStoreFor(FederationEntityType federationEntityType) {
         ClientTrustStoreConfiguration configuration = getAppropriateTrustStoreConfig(federationEntityType);
-        return keyStoreCache.get(configuration);
+        if (configuration.isEnabled()) {
+            return Optional.of(keyStoreCache.get(configuration));
+        }
+        return Optional.empty();
     }
 
     private ClientTrustStoreConfiguration getAppropriateTrustStoreConfig(final FederationEntityType federationEntityType) {
