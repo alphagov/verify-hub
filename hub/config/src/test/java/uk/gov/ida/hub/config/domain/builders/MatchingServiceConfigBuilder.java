@@ -87,9 +87,9 @@ public class MatchingServiceConfigBuilder {
             boolean selfService) {
 
             this.entityId = entityId;
-            this.encryptionCertificate = new TestX509CertificateConfiguration(encryptionCertificate.getX509());
+            this.encryptionCertificate = encryptionCertificate.getX509();
             this.signatureVerificationCertificates = signatureVerificationCertificates.stream()
-                .map(cert -> new TestX509CertificateConfiguration(cert.getX509()))
+                .map(Certificate::getX509)
                 .collect(Collectors.toList());
             this.uri = uri;
             this.userAccountCreationUri = userAccountCreationUri;

@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.config.domain.builders;
 
 import uk.gov.ida.hub.config.domain.EncryptionCertificate;
-import uk.gov.ida.hub.config.domain.X509CertificateConfiguration;
 
 import static java.text.MessageFormat.format;
 import static org.mockito.Mockito.mock;
@@ -23,9 +22,6 @@ public class EncryptionCertificateBuilder {
     }
 
     public EncryptionCertificate build() {
-        String fullCert = format("{0}\n{1}\n{2}", BEGIN_CERT, x509.trim(), END_CERT);
-        X509CertificateConfiguration configuration = mock(X509CertificateConfiguration.class);
-        when(configuration.getFullCert()).thenReturn(fullCert);
-        return new EncryptionCertificate(configuration);
+        return new EncryptionCertificate(x509);
     }
 }

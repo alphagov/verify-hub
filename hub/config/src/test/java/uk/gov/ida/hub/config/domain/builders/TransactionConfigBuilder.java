@@ -2,11 +2,11 @@ package uk.gov.ida.hub.config.domain.builders;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import uk.gov.ida.hub.config.domain.AssertionConsumerService;
+import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.EncryptionCertificate;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.MatchingProcess;
 import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
-import uk.gov.ida.hub.config.domain.TestX509CertificateConfiguration;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 
@@ -218,9 +218,9 @@ public class TransactionConfigBuilder {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
             this.simpleId = simpleId;
-            this.encryptionCertificate = new TestX509CertificateConfiguration(encryptionCertificate.getX509());
+            this.encryptionCertificate = encryptionCertificate.getX509();
             this.signatureVerificationCertificates = signatureVerificationCertificates.stream()
-                    .map(cert -> new TestX509CertificateConfiguration(cert.getX509()))
+                    .map(Certificate::getX509)
                     .collect(Collectors.toList());
             this.matchingServiceEntityId = matchingServiceEntityId;
             this.assertionConsumerServices = assertionConsumerServices;

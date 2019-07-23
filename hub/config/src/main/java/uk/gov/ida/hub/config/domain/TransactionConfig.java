@@ -42,7 +42,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @Valid
     @NotNull
     @JsonProperty
-    protected X509CertificateConfiguration encryptionCertificate;
+    protected String encryptionCertificate;
 
     @Valid
     @NotNull
@@ -86,7 +86,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @Valid
     @NotNull
     @JsonProperty
-    protected List<X509CertificateConfiguration> signatureVerificationCertificates;
+    protected List<String> signatureVerificationCertificates;
 
     @Valid
     @NotNull
@@ -260,7 +260,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     }
 
     @Override
-    public TransactionConfig override(List<X509CertificateConfiguration> signatureVerificationCertificates, X509CertificateConfiguration encryptionCertificate){
+    public TransactionConfig override(List<String> signatureVerificationCertificates, String encryptionCertificate){
         TransactionConfig clone = new TransactionConfig();
 
         clone.assertionConsumerServices = this.assertionConsumerServices;

@@ -5,8 +5,8 @@ public class SignatureVerificationCertificate extends Certificate {
     public SignatureVerificationCertificate() {
     }
 
-    public SignatureVerificationCertificate(X509CertificateConfiguration publicKeyConfiguration) {
-        this.fullCert = publicKeyConfiguration.getFullCert();
+    public SignatureVerificationCertificate(String publicKey) {
+        this.cert = publicKey;
     }
 
     @Override

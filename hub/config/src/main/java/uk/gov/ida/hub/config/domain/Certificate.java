@@ -19,12 +19,16 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import static java.text.MessageFormat.format;
+import static uk.gov.ida.common.shared.security.Certificate.BEGIN_CERT;
+import static uk.gov.ida.common.shared.security.Certificate.END_CERT;
+
 @JsonIgnoreProperties({ "certificateType", "notAfter", "x509Valid" })
 public abstract class Certificate {
     private static final Logger LOG = LoggerFactory.getLogger(Certificate.class);
     private static final String FINGERPRINT_ALGORITHM = "SHA-256";
 
-    protected String fullCert;
+    protected String cert;
 
     @ValidationMethod(message = "Certificate was not a valid x509 cert.")
     public boolean isX509Valid() {
@@ -37,14 +41,11 @@ public abstract class Certificate {
     }
 
     public String getX509() {
-        return fullCert
-                .replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replace("\n", "")
-                .trim();
+        return cert;
     }
 
     private X509Certificate getCertificate() throws CertificateException {
+        String fullCert = format("{0}\n{1}\n{2}", BEGIN_CERT, cert.trim(), END_CERT);
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fullCert.getBytes(StandardCharsets.UTF_8));
         return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(byteArrayInputStream);
     }

@@ -5,8 +5,8 @@ public class EncryptionCertificate extends Certificate {
     public EncryptionCertificate() {
     }
 
-    public EncryptionCertificate(X509CertificateConfiguration publicKeyConfiguration) {
-        this.fullCert = publicKeyConfiguration.getFullCert();
+    public EncryptionCertificate(String publicKey) {
+        this.cert = publicKey;
     }
 
     @Override

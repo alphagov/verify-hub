@@ -15,7 +15,7 @@ public interface CertificateConfigurable<T> extends EntityIdentifiable {
         return true;
     }
 
-    T override(List<X509CertificateConfiguration> signatureVerificationCertificateList, X509CertificateConfiguration encryptionCertificate);
+    T override(List<String> signatureVerificationCertificateList, String encryptionCertificate);
 
     FederationEntityType getEntityType();
 }
