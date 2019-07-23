@@ -7,16 +7,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateType;
 import uk.gov.ida.hub.config.domain.CountryConfig;
+import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
-import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.TranslationData;
-import uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
 import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
 import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
@@ -148,11 +146,9 @@ public class ConfigDataBootstrapTest {
         final String matchingServiceId = "matching-service-id";
         final String rpEntityId = "rp-entity";
         String badCertificateValue = "badCertificate";
-        final SignatureVerificationCertificate badCertificate = new SignatureVerificationCertificateBuilder().withX509(badCertificateValue).build();
-        final IdentityProviderConfig identityProviderConfigData = anIdentityProviderConfigData().withEntityId(idpEntityId).addSignatureVerificationCertificate(badCertificate).build();
+        final IdentityProviderConfig identityProviderConfigData = anIdentityProviderConfigData().withEntityId(idpEntityId).build();
 
-
-        MatchingServiceConfig matchingServiceConfigData = aMatchingServiceConfig().addSignatureVerificationCertificate(badCertificate).withEntityId(matchingServiceId).build();
+        MatchingServiceConfig matchingServiceConfigData = aMatchingServiceConfig().addSignatureVerificationCertificate(badCertificateValue).withEntityId(matchingServiceId).build();
         TransactionConfig transactionConfigData = aTransactionConfigData().withMatchingServiceEntityId(matchingServiceId).withEntityId(rpEntityId).build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
 

@@ -2,12 +2,14 @@ package uk.gov.ida.hub.config.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.dropwizard.validation.ValidationMethod;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -39,10 +41,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @JsonProperty
     protected boolean enabledForSingleIdp = false;
 
-    @Valid
-    @NotNull
-    @JsonProperty
-    protected X509CertificateConfiguration encryptionCertificate;
+    protected String encryptionCertificate;
 
     @Valid
     @NotNull
@@ -83,10 +82,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @JsonProperty
     protected boolean shouldHubUseLegacySamlStandard = false;
 
-    @Valid
-    @NotNull
-    @JsonProperty
-    protected List<X509CertificateConfiguration> signatureVerificationCertificates;
+    protected List<String> signatureVerificationCertificates;
 
     @Valid
     @NotNull
@@ -120,6 +116,27 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
 
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfig() {
+    }
+
+    @JsonProperty
+    protected void setEncryptionCertificate(JsonNode node){
+        if (node.isTextual()){
+            encryptionCertificate = node.textValue();
+        }else{
+            encryptionCertificate = node.get("x509").textValue();
+        }
+    }
+
+    @JsonProperty
+    protected void setSignatureVerificationCertificates(JsonNode node){
+        signatureVerificationCertificates = new ArrayList<>();
+        for (JsonNode n : node) {
+            if (n.isTextual()){
+                signatureVerificationCertificates.add(n.textValue());
+            }else{
+                signatureVerificationCertificates.add(n.get("x509").textValue());
+            }
+        }
     }
 
     @ValidationMethod(message = "Assertion Consumer Service indices must be unique.")
@@ -187,8 +204,8 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return FederationEntityType.RP;
     }
 
-    public EncryptionCertificate getEncryptionCertificate() {
-        return new EncryptionCertificate(encryptionCertificate);
+    public Certificate getEncryptionCertificate() {
+        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.enabled);
     }
 
     public Optional<MatchingProcess> getMatchingProcess() {
@@ -215,10 +232,10 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return shouldHubUseLegacySamlStandard;
     }
 
-    public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
+    public Collection<Certificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(SignatureVerificationCertificate::new)
+                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.enabled))
                 .collect(Collectors.toList());
     }
 
@@ -260,7 +277,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     }
 
     @Override
-    public TransactionConfig override(List<X509CertificateConfiguration> signatureVerificationCertificates, X509CertificateConfiguration encryptionCertificate){
+    public TransactionConfig override(List<String> signatureVerificationCertificates, String encryptionCertificate){
         TransactionConfig clone = new TransactionConfig();
 
         clone.assertionConsumerServices = this.assertionConsumerServices;

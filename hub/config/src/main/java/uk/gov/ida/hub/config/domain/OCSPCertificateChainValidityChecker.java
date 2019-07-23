@@ -19,8 +19,8 @@ public class OCSPCertificateChainValidityChecker {
         this.certificateValidityChecker = createOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, ocspCertificateChainValidator);
     }
 
-    public ImmutableList<InvalidCertificateDto> check(Collection<CertificateDetails> certificateDetails) {
-        return certificateValidityChecker.getInvalidCertificates(certificateDetails);
+    public ImmutableList<InvalidCertificateDto> check(Collection<Certificate> certificate) {
+        return certificateValidityChecker.getInvalidCertificates(certificate);
     }
 
     public boolean isValid(final Certificate certificate,
