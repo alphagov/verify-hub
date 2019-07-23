@@ -94,9 +94,8 @@ public class ConfigModule extends AbstractModule {
     @Singleton
     @SuppressWarnings("unused")
     private CertificateService getCertificateService(ManagedEntityConfigRepository<TransactionConfig> connectedServiceConfigRepository,
-                                                     ManagedEntityConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
-                                                     CertificateValidityChecker certificateValidityChecker){
-        return new CertificateService(connectedServiceConfigRepository, matchingServiceConfigRepository, certificateValidityChecker);
+                                                     ManagedEntityConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository){
+        return new CertificateService(connectedServiceConfigRepository, matchingServiceConfigRepository);
     }
 
     @Provides
