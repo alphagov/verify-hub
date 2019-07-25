@@ -64,14 +64,14 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
         return FederationEntityType.MS;
     }
 
-    public EncryptionCertificate getEncryptionCertificate() {
-        return new EncryptionCertificate(encryptionCertificate);
+    public Certificate getEncryptionCertificate() {
+        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.isEnabled());
     }
 
-    public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
+    public Collection<Certificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(SignatureVerificationCertificate::new)
+                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.isEnabled()))
                 .collect(Collectors.toList());
     }
 

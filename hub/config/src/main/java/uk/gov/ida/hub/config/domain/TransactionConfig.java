@@ -187,8 +187,8 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return FederationEntityType.RP;
     }
 
-    public EncryptionCertificate getEncryptionCertificate() {
-        return new EncryptionCertificate(encryptionCertificate);
+    public Certificate getEncryptionCertificate() {
+        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.enabled);
     }
 
     public Optional<MatchingProcess> getMatchingProcess() {
@@ -215,10 +215,10 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return shouldHubUseLegacySamlStandard;
     }
 
-    public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
+    public Collection<Certificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(SignatureVerificationCertificate::new)
+                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.enabled))
                 .collect(Collectors.toList());
     }
 
