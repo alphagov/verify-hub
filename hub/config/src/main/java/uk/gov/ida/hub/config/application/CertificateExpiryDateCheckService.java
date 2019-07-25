@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.domain.CertificateDetails;
+import uk.gov.ida.hub.config.domain.Certificate;
 
 import java.security.cert.CertificateException;
 import java.util.Set;
@@ -27,18 +27,18 @@ public class CertificateExpiryDateCheckService implements Runnable {
     @Override
     public void run() {
         try {
-            final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificateDetails();
+            final Set<Certificate> certificateSet = certificateService.getAllCertificates();
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
-            certificateDetailsSet.forEach(certificateDetails -> {
+            certificateSet.forEach(certificate -> {
                 try {
-                    expiryDateGauge.labels(certificateDetails.getIssuerId(),
-                        certificateDetails.getCertificate().getCertificateType().toString(),
-                        certificateDetails.getCertificate().getSubject(),
-                        certificateDetails.getCertificate().getFingerprint(),
-                        String.valueOf(certificateDetails.getCertificate().getSerialNumber()))
-                         .set(certificateDetails.getCertificate().getNotAfter().getTime());
+                    expiryDateGauge.labels(certificate.getIssuerEntityId(),
+                        certificate.getCertificateType().toString(),
+                        certificate.getSubject(),
+                        certificate.getFingerprint(),
+                        String.valueOf(certificate.getSerialNumber()))
+                         .set(certificate.getNotAfter().getTime());
                 } catch (CertificateException e) {
-                    LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificateDetails.getIssuerId()));
+                    LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificate.getIssuerEntityId()));
                 }
             });
             lastUpdatedGauge.set(timestamp);
