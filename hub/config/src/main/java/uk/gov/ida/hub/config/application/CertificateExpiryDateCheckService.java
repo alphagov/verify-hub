@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.domain.Certificate;
+import uk.gov.ida.hub.config.domain.CertificateDetails;
 
 import java.security.cert.CertificateException;
 import java.util.Set;
@@ -27,18 +27,18 @@ public class CertificateExpiryDateCheckService implements Runnable {
     @Override
     public void run() {
         try {
-            final Set<Certificate> certificateSet = certificateService.getAllCertificates();
+            final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificateDetails();
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
-            certificateSet.forEach(certificate -> {
+            certificateDetailsSet.forEach(certificateDetails -> {
                 try {
-                    expiryDateGauge.labels(certificate.getIssuerEntityId(),
-                        certificate.getCertificateType().toString(),
-                        certificate.getSubject(),
-                        certificate.getFingerprint(),
-                        String.valueOf(certificate.getSerialNumber()))
-                         .set(certificate.getNotAfter().getTime());
+                    expiryDateGauge.labels(certificateDetails.getIssuerId(),
+                        certificateDetails.getCertificate().getCertificateType().toString(),
+                        certificateDetails.getCertificate().getSubject(),
+                        certificateDetails.getCertificate().getFingerprint(),
+                        String.valueOf(certificateDetails.getCertificate().getSerialNumber()))
+                         .set(certificateDetails.getCertificate().getNotAfter().getTime());
                 } catch (CertificateException e) {
-                    LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificate.getIssuerEntityId()));
+                    LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificateDetails.getIssuerId()));
                 }
             });
             lastUpdatedGauge.set(timestamp);

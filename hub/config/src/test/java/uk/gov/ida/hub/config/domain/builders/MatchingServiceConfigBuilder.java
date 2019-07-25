@@ -1,19 +1,19 @@
 package uk.gov.ida.hub.config.domain.builders;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
+import uk.gov.ida.hub.config.domain.*;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
+import static uk.gov.ida.hub.config.domain.builders.SignatureVerificationCertificateBuilder.aSignatureVerificationCertificate;
 
 public class MatchingServiceConfigBuilder {
     private String entityId = "default-matching-service-entity-id";
-    private String encryptionCertificate = HUB_TEST_PUBLIC_ENCRYPTION_CERT;
-    private List<String> certificates = new ArrayList<>();
+    private EncryptionCertificate encryptionCertificate = new EncryptionCertificateBuilder().build();
+    private List<SignatureVerificationCertificate> certificates = new ArrayList<>();
     private URI uri = URI.create("http://foo.bar/default-matching-service-uri");
     private boolean healthCheckEnabled;
     private URI userAccountCreationUri = URI.create("http://foo.bar/default-account-creation-uri");
@@ -25,7 +25,7 @@ public class MatchingServiceConfigBuilder {
 
     public MatchingServiceConfig build() {
         if (certificates.isEmpty()) {
-            certificates.add(HUB_TEST_PUBLIC_SIGNING_CERT);
+            certificates.add(aSignatureVerificationCertificate().build());
         }
 
         return new TestMatchingServiceConfig(
@@ -44,12 +44,12 @@ public class MatchingServiceConfigBuilder {
         return this;
     }
 
-    public MatchingServiceConfigBuilder withEncryptionCertificate(String certificate) {
+    public MatchingServiceConfigBuilder withEncryptionCertificate(EncryptionCertificate certificate) {
         this.encryptionCertificate = certificate;
         return this;
     }
 
-    public MatchingServiceConfigBuilder addSignatureVerificationCertificate(String certificate) {
+    public MatchingServiceConfigBuilder addSignatureVerificationCertificate(SignatureVerificationCertificate certificate) {
         this.certificates.add(certificate);
         return this;
     }
@@ -78,8 +78,8 @@ public class MatchingServiceConfigBuilder {
     private static class TestMatchingServiceConfig extends MatchingServiceConfig {
         private TestMatchingServiceConfig(
             String entityId,
-            String encryptionCertificate,
-            List<String> signatureVerificationCertificates,
+            EncryptionCertificate encryptionCertificate,
+            List<SignatureVerificationCertificate> signatureVerificationCertificates,
             URI uri,
             URI userAccountCreationUri,
             boolean healthCheckEnabled,
@@ -87,8 +87,10 @@ public class MatchingServiceConfigBuilder {
             boolean selfService) {
 
             this.entityId = entityId;
-            this.encryptionCertificate = encryptionCertificate;
-            this.signatureVerificationCertificates = signatureVerificationCertificates;
+            this.encryptionCertificate = new TestX509CertificateConfiguration(encryptionCertificate.getX509());
+            this.signatureVerificationCertificates = signatureVerificationCertificates.stream()
+                .map(cert -> new TestX509CertificateConfiguration(cert.getX509()))
+                .collect(Collectors.toList());
             this.uri = uri;
             this.userAccountCreationUri = userAccountCreationUri;
             this.healthCheckEnabled = healthCheckEnabled;

@@ -23,12 +23,12 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
     @Valid
     @NotNull
     @JsonProperty
-    protected String encryptionCertificate;
+    protected X509CertificateConfiguration encryptionCertificate;
 
     @Valid
     @NotNull
     @JsonProperty
-    protected List<String> signatureVerificationCertificates;
+    protected List<X509CertificateConfiguration> signatureVerificationCertificates;
 
     @Valid
     @NotNull
@@ -64,14 +64,14 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
         return FederationEntityType.MS;
     }
 
-    public Certificate getEncryptionCertificate() {
-        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.isEnabled());
+    public EncryptionCertificate getEncryptionCertificate() {
+        return new EncryptionCertificate(encryptionCertificate);
     }
 
-    public Collection<Certificate> getSignatureVerificationCertificates() {
+    public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.isEnabled()))
+                .map(SignatureVerificationCertificate::new)
                 .collect(Collectors.toList());
     }
 
@@ -102,7 +102,7 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
     }
 
     @Override
-    public MatchingServiceConfig override(List<String> signatureVerificationCertificateList, String encryptionCertificate) {
+    public MatchingServiceConfig override(List<X509CertificateConfiguration> signatureVerificationCertificateList, X509CertificateConfiguration encryptionCertificate) {
         MatchingServiceConfig clone = new MatchingServiceConfig();
         clone.entityId = this.entityId;
         clone.encryptionCertificate = encryptionCertificate;

@@ -37,8 +37,8 @@ public class CertificateValidityChecker {
         this.certificateChainValidator = certificateChainValidator;
     }
 
-    public ImmutableList<InvalidCertificateDto> getInvalidCertificates(Collection<Certificate> certificate) {
-        FluentIterable<InvalidCertificateDto> invalidCertificates = from(certificate)
+    public ImmutableList<InvalidCertificateDto> getInvalidCertificates(Collection<CertificateDetails> certificateDetails) {
+        FluentIterable<InvalidCertificateDto> invalidCertificates = from(certificateDetails)
                 .transform(toDetailsValidityMap())
                 .filter(invalidCertificateValidities())
                 .transform(toInvalidCertificates());
@@ -46,7 +46,7 @@ public class CertificateValidityChecker {
         return copyOf(invalidCertificates);
     }
 
-    public boolean isValid(Certificate certificate) {
+    public boolean isValid(CertificateDetails certificate) {
         CertificateValidity certificateValidity = certificateChainValidator.validate(
                 certificate.getX509(),
                 trustStoreForCertificateProvider.getTrustStoreFor(certificate.getFederationEntityType()));
@@ -63,26 +63,26 @@ public class CertificateValidityChecker {
         return certificateValidity.isValid();
     }
 
-    private Function<Map<Certificate, CertificateValidity>, InvalidCertificateDto> toInvalidCertificates() {
+    private Function<Map<CertificateDetails, CertificateValidity>, InvalidCertificateDto> toInvalidCertificates() {
         return input -> {
-            Certificate certificate = getOnlyElement(input.keySet());
+            CertificateDetails certificateDetail = getOnlyElement(input.keySet());
             CertificateValidity certificateValidity = getOnlyElement(input.values());
 
             CertPathValidatorException certPathValidatorException = certificateValidity.getException().get();
             return new InvalidCertificateDto(
-                    certificate.getIssuerEntityId(),
+                    certificateDetail.getIssuerId(),
                     certPathValidatorException.getReason(),
-                    certificate.getCertificateType(),
-                    certificate.getFederationEntityType(),
+                    certificateDetail.getKeyUse(),
+                    certificateDetail.getFederationEntityType(),
                     certPathValidatorException.getMessage());
         };
     }
 
-    private Predicate<Map<Certificate, CertificateValidity>> invalidCertificateValidities() {
+    private Predicate<Map<CertificateDetails, CertificateValidity>> invalidCertificateValidities() {
         return input -> !getOnlyElement(input.values()).isValid();
     }
 
-    private Function<Certificate, Map<Certificate, CertificateValidity>> toDetailsValidityMap() {
+    private Function<CertificateDetails, Map<CertificateDetails, CertificateValidity>> toDetailsValidityMap() {
         return input -> {
             CertificateValidity certificateValidity = certificateChainValidator.validate(
                     input.getX509(),

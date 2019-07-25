@@ -2,8 +2,11 @@ package uk.gov.ida.hub.config.domain.builders;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import uk.gov.ida.hub.config.domain.AssertionConsumerService;
+import uk.gov.ida.hub.config.domain.EncryptionCertificate;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.MatchingProcess;
+import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
+import uk.gov.ida.hub.config.domain.TestX509CertificateConfiguration;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
 
@@ -11,17 +14,16 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.builders.AssertionConsumerServiceBuilder.anAssertionConsumerService;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
 
 public class TransactionConfigBuilder {
 
     private String entityId = "default-transaction-entity-id";
     private String simpleId = "default-transaction-simple-id";
-    private String encryptionCertificate = HUB_TEST_PUBLIC_ENCRYPTION_CERT;
-    private List<String> signatureVerificationCertificates = new ArrayList<>();
+    private EncryptionCertificate encryptionCertificate = new EncryptionCertificateBuilder().build();
+    private List<SignatureVerificationCertificate> signatureVerificationCertificates = new ArrayList<>();
     private String matchingServiceEntityId = "default-matching-service-entity-id";
     private List<AssertionConsumerService> assertionConsumerServices = new ArrayList<>();
     private List<UserAccountCreationAttribute> userAccountCreationAttributes = new ArrayList<>();
@@ -52,7 +54,7 @@ public class TransactionConfigBuilder {
 
     public TransactionConfig build() {
         if (signatureVerificationCertificates.isEmpty()) {
-            signatureVerificationCertificates.add(HUB_TEST_PUBLIC_SIGNING_CERT);
+            signatureVerificationCertificates.add(new SignatureVerificationCertificateBuilder().build());
         }
 
         if (assertionConsumerServices.isEmpty()) {
@@ -83,7 +85,7 @@ public class TransactionConfigBuilder {
         );
     }
 
-    public TransactionConfigBuilder withEncryptionCertificate(String certificate) {
+    public TransactionConfigBuilder withEncryptionCertificate(EncryptionCertificate certificate) {
         this.encryptionCertificate = certificate;
         return this;
     }
@@ -103,7 +105,7 @@ public class TransactionConfigBuilder {
         return this;
     }
 
-    public TransactionConfigBuilder addSignatureVerificationCertificate(String certificate) {
+    public TransactionConfigBuilder addSignatureVerificationCertificate(SignatureVerificationCertificate certificate) {
         this.signatureVerificationCertificates.add(certificate);
         return this;
     }
@@ -194,8 +196,8 @@ public class TransactionConfigBuilder {
         private TestTransactionConfig(
                 String entityId,
                 String simpleId,
-                String encryptionCertificate,
-                List<String> signatureVerificationCertificates,
+                EncryptionCertificate encryptionCertificate,
+                List<SignatureVerificationCertificate> signatureVerificationCertificates,
                 String matchingServiceEntityId,
                 List<AssertionConsumerService> assertionConsumerServices,
                 List<UserAccountCreationAttribute> userAccountCreationAttributes,
@@ -216,8 +218,10 @@ public class TransactionConfigBuilder {
             this.serviceHomepage = serviceHomepage;
             this.entityId = entityId;
             this.simpleId = simpleId;
-            this.encryptionCertificate = encryptionCertificate;
-            this.signatureVerificationCertificates = signatureVerificationCertificates;
+            this.encryptionCertificate = new TestX509CertificateConfiguration(encryptionCertificate.getX509());
+            this.signatureVerificationCertificates = signatureVerificationCertificates.stream()
+                    .map(cert -> new TestX509CertificateConfiguration(cert.getX509()))
+                    .collect(Collectors.toList());
             this.matchingServiceEntityId = matchingServiceEntityId;
             this.assertionConsumerServices = assertionConsumerServices;
             this.userAccountCreationAttributes = userAccountCreationAttributes;
