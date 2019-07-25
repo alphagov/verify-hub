@@ -7,7 +7,6 @@ import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
-import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -26,7 +25,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -164,14 +162,8 @@ public class CertificatesResource {
 
     private Collection<Certificate> getCertificates(Set<TransactionConfig> transactionConfigs, Set<MatchingServiceConfig> matchingServiceConfigs) {
         return Stream.concat(transactionConfigs.stream(), matchingServiceConfigs.stream())
-                .flatMap(this::getCertificates)
+                .flatMap(config -> config.getAllCertificates().stream())
                 .collect(Collectors.toSet());
     }
 
-    private Stream<Certificate> getCertificates(CertificateConfigurable config){
-        List<Certificate> certs = new ArrayList();
-        certs.addAll(config.getSignatureVerificationCertificates());
-        certs.add(config.getEncryptionCertificate());
-        return certs.stream();
-    }
 }

@@ -22,26 +22,20 @@ public class Certificate {
 
     private final String issuerEntityId;
     private final FederationEntityType federationEntityType;
-    private final String base46EncodeCertificate;
+    private final String base64EncodedCertificate;
     private final CertificateType certificateType;
     private final boolean enabled;
     private final X509Certificate x509Certificate;
     private final boolean valid;
 
-    public Certificate(String issuerEntityId, FederationEntityType federationEntityType, String base46EncodeCertificate, CertificateType certificateType, boolean enabled){
+    public Certificate(String issuerEntityId, FederationEntityType federationEntityType, String base64EncodedCertificate, CertificateType certificateType, boolean enabled){
         this.issuerEntityId = issuerEntityId;
         this.federationEntityType = federationEntityType;
-        this.base46EncodeCertificate = base46EncodeCertificate;
+        this.base64EncodedCertificate = base64EncodedCertificate;
         this.certificateType = certificateType;
         this.enabled = enabled;
-        X509Certificate x509 = null;
-        try {
-            x509 = getCertificate(base46EncodeCertificate);
-        } catch (CertificateException e) {
-
-        }
-        this.x509Certificate = x509;
-        this.valid = x509 != null;
+        this.x509Certificate = getCertificate(base64EncodedCertificate);
+        this.valid = x509Certificate != null;
     }
 
     public String getIssuerEntityId() {
@@ -67,16 +61,17 @@ public class Certificate {
         return "";
     }
 
-    private X509Certificate getCertificate(String base64EncodeCertificate) throws CertificateException {
+    private X509Certificate getCertificate(String base64EncodedCertificate) {
         String cleanUpRegex = "(-----BEGIN CERTIFICATE-----)|(\\n)|(-----END CERTIFICATE-----)";
-        String clean64 = base64EncodeCertificate.replaceAll(cleanUpRegex, "");
+        String clean64 = base64EncodedCertificate.replaceAll(cleanUpRegex, "");
         try {
             byte[] certBytes = Base64.getDecoder().decode(clean64);
             return (X509Certificate) CertificateFactory
                     .getInstance("X.509")
                     .generateCertificate(new ByteArrayInputStream(certBytes));
-        } catch (IllegalArgumentException e) {
-            throw new CertificateException(e);
+        } catch (IllegalArgumentException | CertificateException e) {
+            //Any problems creating the certificate should return null.
+            return null;
         }
     }
 
@@ -125,6 +120,6 @@ public class Certificate {
 
         Certificate that = (Certificate) o;
 
-        return base46EncodeCertificate.equals(that.base46EncodeCertificate);
+        return base64EncodedCertificate.equals(that.base64EncodedCertificate);
     }
 }

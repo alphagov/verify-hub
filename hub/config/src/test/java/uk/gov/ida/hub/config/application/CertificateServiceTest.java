@@ -259,7 +259,7 @@ public class CertificateServiceTest {
     }
 
     @Test
-    public void getAllCertificateReturnsAllTransactionAndMatchingServiceCertificate() {
+    public void getAllCertificatesReturnsAllTransactionAndMatchingServiceCertificate() {
         final TransactionConfig transactionOneConfig = aTransactionConfigData().withEntityId(RP_ONE_ENTITY_ID)
                 .withEnabled(true)
                 .build();
