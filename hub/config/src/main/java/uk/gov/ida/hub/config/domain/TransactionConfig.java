@@ -42,7 +42,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @Valid
     @NotNull
     @JsonProperty
-    protected String encryptionCertificate;
+    protected X509CertificateConfiguration encryptionCertificate;
 
     @Valid
     @NotNull
@@ -86,7 +86,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @Valid
     @NotNull
     @JsonProperty
-    protected List<String> signatureVerificationCertificates;
+    protected List<X509CertificateConfiguration> signatureVerificationCertificates;
 
     @Valid
     @NotNull
@@ -187,8 +187,8 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return FederationEntityType.RP;
     }
 
-    public Certificate getEncryptionCertificate() {
-        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.enabled);
+    public EncryptionCertificate getEncryptionCertificate() {
+        return new EncryptionCertificate(encryptionCertificate);
     }
 
     public Optional<MatchingProcess> getMatchingProcess() {
@@ -215,10 +215,10 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return shouldHubUseLegacySamlStandard;
     }
 
-    public Collection<Certificate> getSignatureVerificationCertificates() {
+    public Collection<SignatureVerificationCertificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.enabled))
+                .map(SignatureVerificationCertificate::new)
                 .collect(Collectors.toList());
     }
 
@@ -260,7 +260,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     }
 
     @Override
-    public TransactionConfig override(List<String> signatureVerificationCertificates, String encryptionCertificate){
+    public TransactionConfig override(List<X509CertificateConfiguration> signatureVerificationCertificates, X509CertificateConfiguration encryptionCertificate){
         TransactionConfig clone = new TransactionConfig();
 
         clone.assertionConsumerServices = this.assertionConsumerServices;

@@ -5,13 +5,16 @@ import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
+import uk.gov.ida.hub.config.domain.SignatureVerificationCertificate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class IdentityProviderConfigDataBuilder {
 
     private String entityId = "default-idp-entity-id";
+    private List<SignatureVerificationCertificate> signatureVerificationCertificates = new ArrayList<>();
     private String simpleId = "default-idp-simple-id";
     private Boolean enabled = true;
     private Boolean enabledForSingleIdp = false;
@@ -28,6 +31,10 @@ public class IdentityProviderConfigDataBuilder {
     }
 
     public IdentityProviderConfig build() {
+        if (signatureVerificationCertificates.isEmpty()) {
+            signatureVerificationCertificates.add(new SignatureVerificationCertificateBuilder().build());
+        }
+
         return new TestIdentityProviderConfig(
                 entityId,
                 simpleId,
@@ -50,6 +57,11 @@ public class IdentityProviderConfigDataBuilder {
 
     public IdentityProviderConfigDataBuilder withSimpleId(String simpleId) {
         this.simpleId = simpleId;
+        return this;
+    }
+
+    public IdentityProviderConfigDataBuilder addSignatureVerificationCertificate(SignatureVerificationCertificate certificate) {
+        this.signatureVerificationCertificates.add(certificate);
         return this;
     }
 

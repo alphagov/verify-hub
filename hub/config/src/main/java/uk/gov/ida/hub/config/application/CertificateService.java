@@ -5,11 +5,11 @@ import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
+import uk.gov.ida.hub.config.domain.CertificateDetails;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.exceptions.CertificateDisabledException;
 import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,50 +31,61 @@ public class CertificateService <T extends CertificateConfigurable<T>> {
         this.certificateValidityChecker = certificateValidityChecker;
     }
 
-    public Set<Certificate> getAllCertificates() {
+    public Set<CertificateDetails> getAllCertificateDetails() {
         return Stream.concat(connectedServiceConfigRepository.stream(), matchingServiceConfigRepository.stream())
-                .flatMap(this::getAllCertificates)
+                .flatMap(this::getAllCertificateDetails)
                 .collect(Collectors.toSet());
     }
 
-    public  Certificate encryptionCertificateFor(String entityId) {
+    public  CertificateDetails encryptionCertificateFor(String entityId) {
         T config = getConfig(entityId);
-        Certificate cert = config.getEncryptionCertificate();
-        if (!certificateValidityChecker.isValid(cert)){
+        CertificateDetails certDetails = createCertificateDetails(config, config.getEncryptionCertificate());
+        if (!certificateValidityChecker.isValid(certDetails)){
             throw new NoCertificateFoundException();
         }
-        if (!cert.isEnabled()){
+        if (certDetails.isNotEnabled()){
             throw new CertificateDisabledException();
         }
-        return cert;
+        return certDetails;
     }
 
-    public List<Certificate> signatureVerificationCertificatesFor(String entityId) {
+    public List<CertificateDetails> signatureVerificationCertificatesFor(String entityId) {
         T config = getConfig(entityId);
         return config.getSignatureVerificationCertificates()
                 .stream()
+                .map(cert -> createCertificateDetails(config, cert))
                 .filter(cd -> certificateValidityChecker.isValid(cd))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), this::throwIfEmpty));
     }
 
-    private List<Certificate> throwIfEmpty(List<Certificate> list){
+    private List<CertificateDetails> throwIfEmpty(List<CertificateDetails> list){
         if (list.isEmpty()){
             throw new NoCertificateFoundException();
         }
         return list;
     }
 
-    private Stream<Certificate> getAllCertificates(LocalConfigRepository<T> configRepository) {
+    private Stream<CertificateDetails> getAllCertificateDetails(LocalConfigRepository<T> configRepository) {
         return configRepository.getAllData()
                 .stream()
-                .flatMap(this::getAllCertificates);
+                .flatMap(this::getAllCertificateDetails);
     }
 
-    private Stream<Certificate> getAllCertificates(T config){
-        List<Certificate> certs = new ArrayList();
-        certs.addAll(config.getSignatureVerificationCertificates());
-        certs.add(config.getEncryptionCertificate());
-        return certs.stream();
+    private Stream<CertificateDetails> getAllCertificateDetails(T config){
+        List<CertificateDetails> certDetails = config.getSignatureVerificationCertificates()
+                .stream()
+                .map(cert -> createCertificateDetails(config, cert))
+                .collect(Collectors.toList());
+        certDetails.add(createCertificateDetails(config, config.getEncryptionCertificate()));
+        return certDetails.stream();
+    }
+
+    private CertificateDetails createCertificateDetails(T config, Certificate certificate){
+        return new CertificateDetails(
+                config.getEntityId(),
+                certificate,
+                config.getEntityType(),
+                config.isEnabled());
     }
 
     private T getConfig(String entityId){

@@ -10,32 +10,27 @@ import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static uk.gov.ida.hub.config.domain.CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker;
 
 public abstract class CertificateChainConfigValidator {
     private final CertificateValidityChecker certificateValidityChecker;
+    private final EntityConfigDataToCertificateDtoTransformer certificateDtoTransformer;
 
     private static final Logger LOG = LoggerFactory.getLogger(CertificateChainConfigValidator.class);
 
     @Inject
     public CertificateChainConfigValidator(final TrustStoreForCertificateProvider trustStoreForCertificateProvider, final CertificateChainValidator certificateChainValidator) {
         this.certificateValidityChecker = createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
+        this.certificateDtoTransformer = new EntityConfigDataToCertificateDtoTransformer();
     }
 
     public void validate(final Set<TransactionConfig> transactionConfigs, final Set<MatchingServiceConfig> matchingServiceConfigs) {
-        Collection<Certificate> certificates = getCertificates(transactionConfigs, matchingServiceConfigs);
-        ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificates);
+        Collection<CertificateDetails> certificateDetails = certificateDtoTransformer.transform(transactionConfigs, matchingServiceConfigs);
+        ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificateDetails);
+
         handleInvalidCertificates(invalidCertificates);
     }
 
     abstract void handleInvalidCertificates(ImmutableList<InvalidCertificateDto> invalidCertificates);
-
-    private Collection<Certificate> getCertificates(Set<TransactionConfig> transactionConfigs, Set<MatchingServiceConfig> matchingServiceConfigs) {
-        return Stream.concat(transactionConfigs.stream(), matchingServiceConfigs.stream())
-                .flatMap(config -> config.getAllCertificates().stream())
-                .collect(Collectors.toSet());
-    }
 }

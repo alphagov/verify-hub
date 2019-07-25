@@ -28,6 +28,7 @@ import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.CountryConfig;
+import uk.gov.ida.hub.config.domain.EntityConfigDataToCertificateDtoTransformer;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LoggingCertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
@@ -83,6 +84,7 @@ public class ConfigModule extends AbstractModule {
         bind(KeyStoreCache.class);
         bind(ExceptionFactory.class);
         bind(OCSPCertificateChainValidityChecker.class);
+        bind(EntityConfigDataToCertificateDtoTransformer.class);
         bind(OCSPCertificateChainValidator.class);
         bind(IdpPredicateFactory.class);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());

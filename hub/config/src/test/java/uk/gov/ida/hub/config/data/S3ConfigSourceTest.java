@@ -106,19 +106,19 @@ public class S3ConfigSourceTest {
         Map<String, RemoteMatchingServiceConfig> msConfigs = result.getMatchingServiceAdapters();
         assertThat(msConfigs.size()).isEqualTo(3);
         assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getName()).isEqualTo("Banana Registry MSA");
-        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getEncryptionCertificate()).contains(CERT_MSA_BANANA_ENCRYPTION);
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getEncryptionCertificate().getFullCert()).contains(CERT_MSA_BANANA_ENCRYPTION);
         assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSignatureVerificationCertificates().size()).isEqualTo(1);
-        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSignatureVerificationCertificates().get(0)).contains(CERT_MSA_BANANA_SIGNING);
+        assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSignatureVerificationCertificates().get(0).getFullCert()).contains(CERT_MSA_BANANA_SIGNING);
         Map<String, RemoteServiceProviderConfig> spConfigs = result.getServiceProviders();
         assertThat(spConfigs.size()).isEqualTo(2);
         RemoteServiceProviderConfig spConfig2 = spConfigs.get("2");
         assertThat(spConfig2.getName()).isEqualTo("Apple Registry VSP");
         assertThat(spConfig2.getSignatureVerificationCertificates().size()).isEqualTo(1);
-        assertThat(spConfig2.getSignatureVerificationCertificates().get(0)).contains(CERT_VSP_APPLE_SIGNING);
+        assertThat(spConfig2.getSignatureVerificationCertificates().get(0).getFullCert()).contains(CERT_VSP_APPLE_SIGNING);
         RemoteServiceProviderConfig spConfig3 = spConfigs.get("3");
         assertThat(spConfig3.getName()).isEqualTo("Banana Registry VSP");
         assertThat(spConfig3.getSignatureVerificationCertificates().size()).isEqualTo(1);
-        assertThat(spConfig3.getSignatureVerificationCertificates().get(0)).contains(CERT_VSP_BANANA_SIGNING);
+        assertThat(spConfig3.getSignatureVerificationCertificates().get(0).getFullCert()).contains(CERT_VSP_BANANA_SIGNING);
     }
 
     @Test

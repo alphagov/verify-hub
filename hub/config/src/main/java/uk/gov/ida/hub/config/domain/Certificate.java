@@ -1,92 +1,83 @@
 package uk.gov.ida.hub.config.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.dropwizard.validation.ValidationMethod;
+import org.joda.time.Duration;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.dto.FederationEntityType;
+import uk.gov.ida.hub.config.dto.CertificateExpiryStatus;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
 import java.util.Date;
 
-public class Certificate {
+@JsonIgnoreProperties({ "certificateType", "notAfter", "x509Valid" })
+public abstract class Certificate {
     private static final Logger LOG = LoggerFactory.getLogger(Certificate.class);
     private static final String FINGERPRINT_ALGORITHM = "SHA-256";
 
-    private final String issuerEntityId;
-    private final FederationEntityType federationEntityType;
-    private final String base64EncodedCertificate;
-    private final CertificateType certificateType;
-    private final boolean enabled;
-    private final X509Certificate x509Certificate;
-    private final boolean valid;
+    protected String fullCert;
 
-    public Certificate(String issuerEntityId, FederationEntityType federationEntityType, String base64EncodedCertificate, CertificateType certificateType, boolean enabled){
-        this.issuerEntityId = issuerEntityId;
-        this.federationEntityType = federationEntityType;
-        this.base64EncodedCertificate = base64EncodedCertificate;
-        this.certificateType = certificateType;
-        this.enabled = enabled;
-        this.x509Certificate = getCertificate(base64EncodedCertificate);
-        this.valid = x509Certificate != null;
-    }
-
-    public String getIssuerEntityId() {
-        return issuerEntityId;
-    }
-
-    public FederationEntityType getFederationEntityType() {
-        return federationEntityType;
-    }
-
-    public boolean isValid() {
-        return valid;
+    @ValidationMethod(message = "Certificate was not a valid x509 cert.")
+    public boolean isX509Valid() {
+        try {
+            getCertificate();
+        } catch (CertificateException e) {
+            return false;
+        }
+        return true;
     }
 
     public String getX509() {
-        if (x509Certificate != null){
-            try {
-                return Base64.getEncoder().encodeToString(x509Certificate.getEncoded());
-            } catch (CertificateEncodingException e) {
-                return "";
-            }
-        }
-        return "";
+        return fullCert
+                .replace("-----BEGIN CERTIFICATE-----", "")
+                .replace("-----END CERTIFICATE-----", "")
+                .replace("\n", "")
+                .trim();
     }
 
-    private X509Certificate getCertificate(String base64EncodedCertificate) {
-        String cleanUpRegex = "(-----BEGIN CERTIFICATE-----)|(\\n)|(-----END CERTIFICATE-----)";
-        String clean64 = base64EncodedCertificate.replaceAll(cleanUpRegex, "");
+    private X509Certificate getCertificate() throws CertificateException {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fullCert.getBytes(StandardCharsets.UTF_8));
+        return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(byteArrayInputStream);
+    }
+
+    public CertificateExpiryStatus getExpiryStatus(Duration warningPeriod) {
         try {
-            byte[] certBytes = Base64.getDecoder().decode(clean64);
-            return (X509Certificate) CertificateFactory
-                    .getInstance("X.509")
-                    .generateCertificate(new ByteArrayInputStream(certBytes));
-        } catch (IllegalArgumentException | CertificateException e) {
-            //Any problems creating the certificate should return null.
-            return null;
+            Date notAfter = getNotAfter();
+            LocalDateTime now = LocalDateTime.now();
+            Date notBefore = getNotBefore();
+            if (now.toDate().after(notAfter) || now.toDate().before(notBefore)) {
+                return CertificateExpiryStatus.CRITICAL;
+            }
+            if (now.plus(warningPeriod).toDate().after(notAfter)) {
+                return CertificateExpiryStatus.WARNING;
+            }
+            return CertificateExpiryStatus.OK;
+        } catch (CertificateException e) {
+            return CertificateExpiryStatus.CRITICAL;
         }
     }
 
-    public Date getNotAfter() {
-        return x509Certificate.getNotAfter();
+    public Date getNotAfter() throws CertificateException {
+        return getCertificate().getNotAfter();
     }
 
-    public String getSubject() {
-        return x509Certificate.getSubjectDN().getName();
+    public String getSubject() throws CertificateException {
+        return getCertificate().getSubjectDN().getName();
     }
 
-    public String getFingerprint() throws CertificateException{
+    public String getFingerprint() throws CertificateException {
         try {
             final MessageDigest md = MessageDigest.getInstance(FINGERPRINT_ALGORITHM);
-            byte[] der = x509Certificate.getEncoded();
+            byte[] der = getCertificate().getEncoded();
             md.update(der);
             final byte[] digest = md.digest();
             return DatatypeConverter.printHexBinary(digest);
@@ -96,21 +87,19 @@ public class Certificate {
         return "";
     }
 
-    public BigInteger getSerialNumber() {
-        return x509Certificate.getSerialNumber();
+    public BigInteger getSerialNumber() throws CertificateException {
+        return getCertificate().getSerialNumber();
     }
 
-    public Date getNotBefore() {
-        return x509Certificate.getNotBefore();
+    private Date getNotBefore() throws CertificateException {
+        return getCertificate().getNotBefore();
     }
 
-    public CertificateType getCertificateType(){
-        return certificateType;
+    public String getType() {
+        return "x509";
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+    public abstract CertificateType getCertificateType();
 
     @Override
     public boolean equals(Object o) {
@@ -120,6 +109,6 @@ public class Certificate {
 
         Certificate that = (Certificate) o;
 
-        return base64EncodedCertificate.equals(that.base64EncodedCertificate);
+        return getX509().equals(that.getX509());
     }
 }
