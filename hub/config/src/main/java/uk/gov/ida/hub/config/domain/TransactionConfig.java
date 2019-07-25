@@ -11,6 +11,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,9 +40,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @JsonProperty
     protected boolean enabledForSingleIdp = false;
 
-    @Valid
-    @NotNull
-    @JsonProperty
+
     protected String encryptionCertificate;
 
     @Valid
@@ -83,9 +82,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @JsonProperty
     protected boolean shouldHubUseLegacySamlStandard = false;
 
-    @Valid
-    @NotNull
-    @JsonProperty
+
     protected List<String> signatureVerificationCertificates;
 
     @Valid
@@ -120,6 +117,18 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
 
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfig() {
+    }
+
+    @JsonProperty("encryptionCertificate")
+    public void setEncryptionCertificate(Map<String, String> encryptionCertificate){
+        this.encryptionCertificate = encryptionCertificate.get("x509");
+    }
+
+    @JsonProperty("signatureVerificationCertificates")
+    public void setSignatureVerificationCertificates(List<Map<String, String>> signatureVerificationCertificates){
+        this.signatureVerificationCertificates = signatureVerificationCertificates.stream()
+                .map(map -> map.get("x509"))
+                .collect(Collectors.toList());
     }
 
     @ValidationMethod(message = "Assertion Consumer Service indices must be unique.")

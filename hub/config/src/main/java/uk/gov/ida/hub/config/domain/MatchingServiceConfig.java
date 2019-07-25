@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,14 +21,8 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
     @JsonProperty
     protected String entityId;
 
-    @Valid
-    @NotNull
-    @JsonProperty
     protected String encryptionCertificate;
 
-    @Valid
-    @NotNull
-    @JsonProperty
     protected List<String> signatureVerificationCertificates;
 
     @Valid
@@ -53,6 +48,18 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
 
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected MatchingServiceConfig() {
+    }
+
+    @JsonProperty("encryptionCertificate")
+    public void setEncryptionCertificate(Map<String, String> encryptionCertificate){
+        this.encryptionCertificate = encryptionCertificate.get("x509");
+    }
+
+    @JsonProperty("signatureVerificationCertificates")
+    public void setSignatureVerificationCertificates(List<Map<String, String>> signatureVerificationCertificates){
+        this.signatureVerificationCertificates = signatureVerificationCertificates.stream()
+                .map(map -> map.get("x509"))
+                .collect(Collectors.toList());
     }
 
     public String getEntityId() {
