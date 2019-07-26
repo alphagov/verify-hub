@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.domain.CertificateDetails;
+import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 
 import java.security.cert.CertificateException;
@@ -33,18 +33,18 @@ public class OcspCertificateChainValidationService implements Runnable {
     @Override
     public void run() {
         try {
-            final Set<CertificateDetails> certificateDetailsSet = certificateService.getAllCertificateDetails();
+            final Set<Certificate> certificatesSet = certificateService.getAllCertificates();
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
-            certificateDetailsSet.forEach(certificateDetails -> {
+            certificatesSet.forEach(certificate -> {
                 try {
-                    if (ocspCertificateChainValidityChecker.isValid(certificateDetails.getCertificate(), certificateDetails.getFederationEntityType())) {
-                        updateAGauge(ocspStatusGauge, certificateDetails, VALID);
-                        updateAGauge(lastUpdatedGauge, certificateDetails, timestamp);
+                    if (ocspCertificateChainValidityChecker.isValid(certificate, certificate.getFederationEntityType())) {
+                        updateAGauge(ocspStatusGauge, certificate, VALID);
+                        updateAGauge(lastUpdatedGauge, certificate, timestamp);
                     } else {
-                        updateAGauge(ocspStatusGauge, certificateDetails, INVALID);
+                        updateAGauge(ocspStatusGauge, certificate, INVALID);
                     }
                 } catch (CertificateException e) {
-                    LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificateDetails.getIssuerId()));
+                    LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificate.getIssuerEntityId()));
                 }
             });
             LOG.info("Updated Certificates OCSP Revocation Statuses Metrics.");
@@ -54,13 +54,13 @@ public class OcspCertificateChainValidationService implements Runnable {
     }
 
     private void updateAGauge(final Gauge gauge,
-                              final CertificateDetails certificateDetails,
+                              final Certificate certificate,
                               final double value) throws CertificateException {
-        gauge.labels(certificateDetails.getIssuerId(),
-            certificateDetails.getCertificate().getCertificateType().toString(),
-            certificateDetails.getCertificate().getSubject(),
-            certificateDetails.getCertificate().getFingerprint(),
-            String.valueOf(certificateDetails.getCertificate().getSerialNumber()))
+        gauge.labels(certificate.getIssuerEntityId(),
+            certificate.getCertificateType().toString(),
+            certificate.getSubject(),
+            certificate.getFingerprint(),
+            String.valueOf(certificate.getSerialNumber()))
              .set(value);
     }
 }
