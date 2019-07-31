@@ -182,7 +182,7 @@ public class PrometheusMetricsIntegrationTest {
                         certificate,
                         new DateTime(certificate.getNotAfter().getTime(), DateTimeZone.UTC).getMillis())));
         } catch (CertificateException e) {
-            System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateType()));
+            System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateUse()));
         }
         return Optional.empty();
     }
@@ -201,7 +201,7 @@ public class PrometheusMetricsIntegrationTest {
                         certificate,
                         DateTime.now(DateTimeZone.UTC).getMillis()))));
         } catch (CertificateException e) {
-            System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateType()));
+            System.err.println(String.format(CERTIFICATE_EXCEPTION_MESSAGE, entityId, certificate.getCertificateUse()));
         }
         return Optional.empty();
     }
@@ -213,7 +213,7 @@ public class PrometheusMetricsIntegrationTest {
         return String.format(CERTIFICATE_METRICS_TEMPLATE,
             metricName,
             entityId,
-            certificate.getCertificateType(),
+            certificate.getCertificateUse(),
             certificate.getSubject(),
             certificate.getFingerprint(),
             certificate.getSerialNumber(),

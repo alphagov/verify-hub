@@ -36,7 +36,7 @@ public class CertificateValidityCheckerTest {
 
     @Before
     public void setUp() {
-        certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateType.SIGNING, true);
+        certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, true);
         certificateValidityChecker = createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertProvider, certificateChainValidator);
         when(trustStoreForCertProvider.getTrustStoreFor(certificate.getFederationEntityType())).thenReturn(trustStore);
     }
@@ -50,7 +50,7 @@ public class CertificateValidityCheckerTest {
 
         ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificate));
 
-        InvalidCertificateDto expected = new InvalidCertificateDto(certificate.getIssuerEntityId(), certPathValidatorException.getReason(), CertificateType.SIGNING, certificate.getFederationEntityType(), description);
+        InvalidCertificateDto expected = new InvalidCertificateDto(certificate.getIssuerEntityId(), certPathValidatorException.getReason(), CertificateUse.SIGNING, certificate.getFederationEntityType(), description);
 
         assertThat(invalidCertificates).usingFieldByFieldElementComparator().containsOnly(expected);
     }

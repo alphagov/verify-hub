@@ -57,7 +57,7 @@ public class OcspCertificateChainValidationService implements Runnable {
                               final Certificate certificate,
                               final double value) throws CertificateException {
         gauge.labels(certificate.getIssuerEntityId(),
-            certificate.getCertificateType().toString(),
+            certificate.getCertificateUse().toString(),
             certificate.getSubject(),
             certificate.getFingerprint(),
             String.valueOf(certificate.getSerialNumber()))

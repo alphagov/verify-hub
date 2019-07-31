@@ -32,7 +32,7 @@ public class CertificateExpiryDateCheckService implements Runnable {
             certificateSet.forEach(certificate -> {
                 try {
                     expiryDateGauge.labels(certificate.getIssuerEntityId(),
-                        certificate.getCertificateType().toString(),
+                        certificate.getCertificateUse().toString(),
                         certificate.getSubject(),
                         certificate.getFingerprint(),
                         String.valueOf(certificate.getSerialNumber()))

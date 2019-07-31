@@ -23,16 +23,16 @@ public class Certificate {
     private final String issuerEntityId;
     private final FederationEntityType federationEntityType;
     private final String base64EncodedCertificate;
-    private final CertificateType certificateType;
+    private final CertificateUse certificateUse;
     private final boolean enabled;
     private final X509Certificate x509Certificate;
     private final boolean valid;
 
-    public Certificate(String issuerEntityId, FederationEntityType federationEntityType, String base64EncodedCertificate, CertificateType certificateType, boolean enabled){
+    public Certificate(String issuerEntityId, FederationEntityType federationEntityType, String base64EncodedCertificate, CertificateUse certificateUse, boolean enabled){
         this.issuerEntityId = issuerEntityId;
         this.federationEntityType = federationEntityType;
         this.base64EncodedCertificate = base64EncodedCertificate;
-        this.certificateType = certificateType;
+        this.certificateUse = certificateUse;
         this.enabled = enabled;
         this.x509Certificate = getCertificate(base64EncodedCertificate);
         this.valid = x509Certificate != null;
@@ -104,8 +104,8 @@ public class Certificate {
         return x509Certificate.getNotBefore();
     }
 
-    public CertificateType getCertificateType(){
-        return certificateType;
+    public CertificateUse getCertificateUse(){
+        return certificateUse;
     }
 
     public boolean isEnabled() {

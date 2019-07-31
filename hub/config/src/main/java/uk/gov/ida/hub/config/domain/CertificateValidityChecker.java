@@ -72,7 +72,7 @@ public class CertificateValidityChecker {
             return new InvalidCertificateDto(
                     certificate.getIssuerEntityId(),
                     certPathValidatorException.getReason(),
-                    certificate.getCertificateType(),
+                    certificate.getCertificateUse(),
                     certificate.getFederationEntityType(),
                     certPathValidatorException.getMessage());
         };

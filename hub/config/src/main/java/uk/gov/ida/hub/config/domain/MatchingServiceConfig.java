@@ -82,13 +82,13 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
     }
 
     public Certificate getEncryptionCertificate() {
-        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.isEnabled());
+        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateUse.ENCRYPTION, this.isEnabled());
     }
 
     public Collection<Certificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.isEnabled()))
+                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateUse.SIGNING, this.isEnabled()))
                 .collect(Collectors.toList());
     }
 

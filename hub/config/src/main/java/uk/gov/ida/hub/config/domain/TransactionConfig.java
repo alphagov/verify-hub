@@ -205,7 +205,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     }
 
     public Certificate getEncryptionCertificate() {
-        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.enabled);
+        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateUse.ENCRYPTION, this.enabled);
     }
 
     public Optional<MatchingProcess> getMatchingProcess() {
@@ -235,7 +235,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     public Collection<Certificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.enabled))
+                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateUse.SIGNING, this.enabled))
                 .collect(Collectors.toList());
     }
 
