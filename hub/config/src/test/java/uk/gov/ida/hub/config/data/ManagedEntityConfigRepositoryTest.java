@@ -86,7 +86,7 @@ public class ManagedEntityConfigRepositoryTest {
         Optional<TransactionConfig> result = configRepo.get(LOCAL_ONLY_ENTITY_ID);
 
         assertThat(result.get().getEntityId()).isEqualTo(LOCAL_ONLY_ENTITY_ID);
-        assertThat(result.get().getEncryptionCertificate().getX509()).isEqualTo(localOnlyTransaction.getEncryptionCertificate().getX509());
+        assertThat(result.get().getEncryptionCertificate().getBase64Encoded().get()).isEqualTo(localOnlyTransaction.getEncryptionCertificate().getBase64Encoded().get());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class ManagedEntityConfigRepositoryTest {
         Optional<TransactionConfig> result = configRepo.get(REMOTE_DISABLED_ENTITY_ID);
 
         assertThat(result.get().getEntityId()).isEqualTo(REMOTE_DISABLED_ENTITY_ID);
-        assertThat(result.get().getEncryptionCertificate().getX509()).isEqualTo(remoteDisabledTransaction.getEncryptionCertificate().getX509());
+        assertThat(result.get().getEncryptionCertificate().getBase64Encoded().get()).isEqualTo(remoteDisabledTransaction.getEncryptionCertificate().getBase64Encoded().get());
     }
 
     @Test
@@ -104,7 +104,7 @@ public class ManagedEntityConfigRepositoryTest {
         Optional<TransactionConfig> result = configRepo.get(REMOTE_ENABLED_ENTITY_ID);
 
         assertThat(result.get().getEntityId()).isEqualTo(REMOTE_ENABLED_ENTITY_ID);
-        assertThat(result.get().getEncryptionCertificate().getX509()).isEqualTo(REMOTE_CERT);
+        assertThat(result.get().getEncryptionCertificate().getBase64Encoded().get()).isEqualTo(REMOTE_CERT);
     }
 
 }

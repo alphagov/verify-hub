@@ -37,7 +37,7 @@ public class OcspCertificateChainValidationService implements Runnable {
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
             certificatesSet.forEach(certificate -> {
                 try {
-                    if (ocspCertificateChainValidityChecker.isValid(certificate, certificate.getFederationEntityType())) {
+                    if (ocspCertificateChainValidityChecker.isValid(certificate)) {
                         updateAGauge(ocspStatusGauge, certificate, VALID);
                         updateAGauge(lastUpdatedGauge, certificate, timestamp);
                     } else {

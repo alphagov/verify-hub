@@ -15,6 +15,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
+import java.util.Optional;
 
 public class Certificate {
     private static final Logger LOG = LoggerFactory.getLogger(Certificate.class);
@@ -36,7 +38,7 @@ public class Certificate {
         this.certificateUse = certificateUse;
         this.certificateOrigin = certificateOrigin;
         this.enabled = enabled;
-        this.x509Certificate = getCertificate(base64EncodedCertificate);
+        this.x509Certificate = decodeBase64(base64EncodedCertificate);
         this.valid = x509Certificate != null;
     }
 
@@ -52,18 +54,26 @@ public class Certificate {
         return valid;
     }
 
-    public String getX509() {
-        if (x509Certificate != null){
+    public Optional<String> getBase64Encoded() {
+        return getX509Certificate().map(x509 -> {
             try {
-                return Base64.getEncoder().encodeToString(x509Certificate.getEncoded());
+                return Base64.getEncoder().encodeToString(x509.getEncoded());
             } catch (CertificateEncodingException e) {
-                return "";
+                //this should never happen as the x509 should be valid.
+                return null;
             }
-        }
-        return "";
+        });
     }
 
-    private X509Certificate getCertificate(String base64EncodedCertificate) {
+    public Optional<X509Certificate> getX509Certificate() {
+        return Optional.ofNullable(x509Certificate);
+    }
+
+    private X509Certificate decodeBase64(String base64EncodedCertificate) {
+        if (base64EncodedCertificate == null || base64EncodedCertificate.isBlank()){
+            return null;
+        }
+
         String cleanUpRegex = "(-----BEGIN CERTIFICATE-----)|(\\n)|(-----END CERTIFICATE-----)";
         String clean64 = base64EncodedCertificate.replaceAll(cleanUpRegex, "");
         try {
@@ -117,11 +127,15 @@ public class Certificate {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-
         if (o == null || getClass() != o.getClass()) return false;
-
         Certificate that = (Certificate) o;
+        return issuerEntityId.equals(that.issuerEntityId) &&
+                base64EncodedCertificate.equals(that.base64EncodedCertificate) &&
+                certificateUse == that.certificateUse;
+    }
 
-        return base64EncodedCertificate.equals(that.base64EncodedCertificate);
+    @Override
+    public int hashCode() {
+        return Objects.hash(issuerEntityId, base64EncodedCertificate, certificateUse);
     }
 }

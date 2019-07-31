@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config.domain;
 
-import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
@@ -30,10 +29,10 @@ public abstract class CertificateChainConfigValidator {
                 .flatMap(config -> config.getAllCertificates().stream())
                 .collect(Collectors.toList());
 
-        ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificates);
+        Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificates);
         handleInvalidCertificates(invalidCertificates);
     }
 
-    abstract void handleInvalidCertificates(ImmutableList<InvalidCertificateDto> invalidCertificates);
+    abstract void handleInvalidCertificates(Set<InvalidCertificateDto> invalidCertificates);
 
 }

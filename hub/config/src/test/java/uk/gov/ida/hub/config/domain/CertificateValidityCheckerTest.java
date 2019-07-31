@@ -14,6 +14,7 @@ import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 
 import java.security.KeyStore;
 import java.security.cert.CertPathValidatorException;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -43,12 +44,12 @@ public class CertificateValidityCheckerTest {
 
     @Test
     public void getsInvalidCertificates() {
-        String description = "Certificate invalid";
+        String description = "X509 Certificate is missing or badly formed.";
         CertPathValidatorException certPathValidatorException = new CertPathValidatorException(description);
 
-        when(certificateChainValidator.validate(certificate.getX509(), trustStore)).thenReturn(CertificateValidity.invalid(certPathValidatorException));
+        when(certificateChainValidator.validate(certificate.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.invalid(certPathValidatorException));
 
-        ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificate));
+        Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificate));
 
         InvalidCertificateDto expected = new InvalidCertificateDto(certificate.getIssuerEntityId(), certPathValidatorException.getReason(), CertificateUse.SIGNING, certificate.getFederationEntityType(), description);
 
@@ -57,16 +58,16 @@ public class CertificateValidityCheckerTest {
 
     @Test
     public void getsEmptyListWhenAllCertificatesAreValid() {
-        when(certificateChainValidator.validate(certificate.getX509(), trustStore)).thenReturn(CertificateValidity.valid());
+        when(certificateChainValidator.validate(certificate.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.valid());
 
-        ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificate));
+        Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificate));
 
         assertThat(invalidCertificates).isEmpty();
     }
 
     @Test
     public void determinesWhenSingleCertificateIsValid() {
-        when(certificateChainValidator.validate(certificate.getX509(), trustStore)).thenReturn(CertificateValidity.valid());
+        when(certificateChainValidator.validate(certificate.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.valid());
 
         Boolean isCertificateValid = certificateValidityChecker.isValid(certificate);
 
@@ -75,7 +76,7 @@ public class CertificateValidityCheckerTest {
 
     @Test
     public void determinesWhenCertificateIsInValid() {
-        when(certificateChainValidator.validate(certificate.getX509(), trustStore)).thenReturn(CertificateValidity.invalid(new CertPathValidatorException()));
+        when(certificateChainValidator.validate(certificate.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.invalid(new CertPathValidatorException()));
 
         Boolean isCertificateValid = certificateValidityChecker.isValid(certificate);
 
