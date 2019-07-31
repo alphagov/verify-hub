@@ -5,6 +5,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.junit.After;
 import org.junit.Test;
 import uk.gov.ida.hub.config.domain.Certificate;
+import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
@@ -20,7 +21,7 @@ public class CertificateHealthCheckDtoTest {
 
     @Test
     public void testCreateCertificateHealthCheckDto() {
-        final Certificate certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, true);
+        final Certificate certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
         DateTimeFreezer.freezeTime(new DateTime(certificate.getNotAfter()).plusYears(1));
 
         CertificateHealthCheckDto checked = CertificateHealthCheckDto.createCertificateHealthCheckDto("entityId", certificate, org.joda.time.Duration.millis(1000));
@@ -31,7 +32,7 @@ public class CertificateHealthCheckDtoTest {
 
     @Test
     public void testCreateCertificateHealthCheckDto_forwarning() {
-        final Certificate certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, true);
+        final Certificate certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
         final DateTime certificateExpiryDate = new DateTime(certificate.getNotAfter());
         DateTimeFreezer.freezeTime(certificateExpiryDate.minusWeeks(1));
 
@@ -43,7 +44,7 @@ public class CertificateHealthCheckDtoTest {
 
     @Test
     public void testCreateCertificateHealthCheckDto_returnsOK() {
-        final Certificate certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, true);
+        final Certificate certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
         DateTimeFreezer.freezeTime(new DateTime(certificate.getNotAfter()).minusMonths(3));
 
         CertificateHealthCheckDto checked = CertificateHealthCheckDto.createCertificateHealthCheckDto("entityId", certificate, org.joda.time.Duration.standardDays(30));

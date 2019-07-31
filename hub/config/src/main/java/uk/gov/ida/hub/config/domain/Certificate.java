@@ -24,15 +24,17 @@ public class Certificate {
     private final FederationEntityType federationEntityType;
     private final String base64EncodedCertificate;
     private final CertificateUse certificateUse;
+    private CertificateOrigin certificateOrigin;
     private final boolean enabled;
     private final X509Certificate x509Certificate;
     private final boolean valid;
 
-    public Certificate(String issuerEntityId, FederationEntityType federationEntityType, String base64EncodedCertificate, CertificateUse certificateUse, boolean enabled){
+    public Certificate(String issuerEntityId, FederationEntityType federationEntityType, String base64EncodedCertificate, CertificateUse certificateUse, CertificateOrigin certificateOrigin, boolean enabled){
         this.issuerEntityId = issuerEntityId;
         this.federationEntityType = federationEntityType;
         this.base64EncodedCertificate = base64EncodedCertificate;
         this.certificateUse = certificateUse;
+        this.certificateOrigin = certificateOrigin;
         this.enabled = enabled;
         this.x509Certificate = getCertificate(base64EncodedCertificate);
         this.valid = x509Certificate != null;

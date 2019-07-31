@@ -36,7 +36,7 @@ public class CertificateValidityCheckerTest {
 
     @Before
     public void setUp() {
-        certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, true);
+        certificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
         certificateValidityChecker = createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertProvider, certificateChainValidator);
         when(trustStoreForCertProvider.getTrustStoreFor(certificate.getFederationEntityType())).thenReturn(trustStore);
     }
