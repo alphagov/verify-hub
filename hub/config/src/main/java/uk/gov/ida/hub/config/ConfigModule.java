@@ -31,7 +31,6 @@ import uk.gov.ida.hub.config.domain.CountryConfig;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LoggingCertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
-import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.domain.filters.IdpPredicateFactory;
@@ -43,6 +42,7 @@ import uk.gov.ida.truststore.KeyStoreLoader;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 public class ConfigModule extends AbstractModule {
@@ -82,7 +82,6 @@ public class ConfigModule extends AbstractModule {
         bind(X509CertificateFactory.class).toInstance(new X509CertificateFactory());
         bind(KeyStoreCache.class);
         bind(ExceptionFactory.class);
-        bind(OCSPCertificateChainValidityChecker.class);
         bind(OCSPCertificateChainValidator.class);
         bind(IdpPredicateFactory.class);
         bind(KeyStoreLoader.class).toInstance(new KeyStoreLoader());
@@ -105,7 +104,7 @@ public class ConfigModule extends AbstractModule {
         Environment environment,
         ConfigConfiguration configConfiguration,
         CertificateService certificateService,
-        OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker) {
+        @Named("OCSP") CertificateValidityChecker ocspCertificateChainValidityChecker) {
 
         PrometheusClientService prometheusClientService = new PrometheusClientService(
             environment,
@@ -126,8 +125,16 @@ public class ConfigModule extends AbstractModule {
 
     @Provides
     @SuppressWarnings("unused")
-    public CertificateValidityChecker validityChecker(TrustStoreForCertificateProvider trustStoreForCertificateProvider, CertificateChainValidator certificateChainValidator) {
+    //@Named("NonOCSP")
+    public CertificateValidityChecker getNonOCSPValidityChecker(TrustStoreForCertificateProvider trustStoreForCertificateProvider, CertificateChainValidator certificateChainValidator) {
         return CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
+    }
+
+    @Provides
+    @SuppressWarnings("unused")
+    @Named("OCSP")
+    public CertificateValidityChecker getOCSPValidityChecker(TrustStoreForCertificateProvider trustStoreForCertificateProvider, OCSPCertificateChainValidator ocspCertificateChainValidator) {
+        return CertificateValidityChecker.createOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, ocspCertificateChainValidator);
     }
 
 }

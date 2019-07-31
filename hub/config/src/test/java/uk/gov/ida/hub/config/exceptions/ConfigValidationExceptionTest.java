@@ -2,7 +2,7 @@ package uk.gov.ida.hub.config.exceptions;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import uk.gov.ida.hub.config.domain.CertificateType;
+import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
@@ -44,7 +44,7 @@ public class ConfigValidationExceptionTest {
 
     @Test
     public void createInvalidCertificatesException() throws Exception {
-        InvalidCertificateDto invalidCertificateDto = new InvalidCertificateDto("entity-id", CertPathValidatorException.BasicReason.EXPIRED, CertificateType.ENCRYPTION, FederationEntityType.IDP, "description");
+        InvalidCertificateDto invalidCertificateDto = new InvalidCertificateDto("entity-id", CertPathValidatorException.BasicReason.EXPIRED, CertificateUse.ENCRYPTION, FederationEntityType.IDP, "description");
         ConfigValidationException exception = ConfigValidationException.createInvalidCertificatesException(asList(invalidCertificateDto));
         assertThat(exception.getMessage()).isEqualTo("Invalid certificate found.\n" +
                 "Entity Id: entity-id\n" +

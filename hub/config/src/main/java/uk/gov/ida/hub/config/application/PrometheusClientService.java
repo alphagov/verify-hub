@@ -4,7 +4,7 @@ import io.dropwizard.setup.Environment;
 import io.prometheus.client.Gauge;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.configuration.PrometheusClientServiceConfiguration;
-import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
+import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 
 import javax.inject.Inject;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,17 +23,17 @@ public class PrometheusClientService {
     private final Environment environment;
     private final ConfigConfiguration configConfiguration;
     private final CertificateService certificateService;
-    private final OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker;
+    private final CertificateValidityChecker certificateValidityChecker;
 
     @Inject
     public PrometheusClientService(final Environment environment,
                                    final ConfigConfiguration configConfiguration,
                                    final CertificateService certificateService,
-                                   final OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker) {
+                                   final CertificateValidityChecker certificateValidityChecker) {
         this.environment = environment;
         this.configConfiguration = configConfiguration;
         this.certificateService = certificateService;
-        this.ocspCertificateChainValidityChecker = ocspCertificateChainValidityChecker;
+        this.certificateValidityChecker = certificateValidityChecker;
     }
 
     public void createCertificateExpiryDateCheckMetrics() {
@@ -65,7 +65,7 @@ public class PrometheusClientService {
                                           .register();
 
             OcspCertificateChainValidationService ocspCertificateChainValidationService = new OcspCertificateChainValidationService(
-                ocspCertificateChainValidityChecker,
+                certificateValidityChecker,
                 certificateService,
                 ocspStatusGauge,
                 lastUpdatedGauge);

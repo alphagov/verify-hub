@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
-import uk.gov.ida.hub.config.domain.CertificateType;
+import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
@@ -64,7 +64,7 @@ public class CertificateServiceTest {
         Certificate certificate = certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
 
         assertThat(certificate).isEqualTo(new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP,
-                CERT_ONE_X509, CertificateType.ENCRYPTION, true));
+                CERT_ONE_X509, CertificateUse.ENCRYPTION));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class CertificateServiceTest {
         Certificate certificate = certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
 
         assertThat(certificate).isEqualTo(new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP,
-                CERT_ONE_X509, CertificateType.ENCRYPTION, true));
+                CERT_ONE_X509, CertificateUse.ENCRYPTION));
     }
 
     @Test(expected = NoCertificateFoundException.class)
@@ -121,8 +121,8 @@ public class CertificateServiceTest {
 
         assertThat(CertificateFound.size()).isEqualTo(2);
         assertThat(CertificateFound).contains(
-                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateType.SIGNING, true),
-                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateType.SIGNING, true)
+                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateUse.SIGNING),
+                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateUse.SIGNING)
         );
     }
 
@@ -142,8 +142,8 @@ public class CertificateServiceTest {
 
         assertThat(CertificateFound.size()).isEqualTo(2);
         assertThat(CertificateFound).contains(
-                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateType.SIGNING, true),
-                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateType.SIGNING, true)
+                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateUse.SIGNING),
+                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateUse.SIGNING)
         );
     }
 

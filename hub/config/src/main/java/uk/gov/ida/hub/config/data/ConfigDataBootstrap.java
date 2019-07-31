@@ -1,11 +1,10 @@
 package uk.gov.ida.hub.config.data;
 
-import com.google.common.collect.ImmutableSet;
 import io.dropwizard.lifecycle.Managed;
-import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CountryConfig;
+import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -17,9 +16,7 @@ import uk.gov.ida.hub.config.validators.TransactionConfigMatchingServiceValidato
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ConfigDataBootstrap implements Managed {
@@ -31,14 +28,12 @@ public class ConfigDataBootstrap implements Managed {
     private final ConfigDataSource<CountryConfig> countriesConfigDataSource;
 
     private final LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
-    private LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository = null;
-    private LocalConfigRepository<TransactionConfig> transactionConfigRepository = null;
+    private final LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
+    private final LocalConfigRepository<TransactionConfig> transactionConfigRepository;
     private final LocalConfigRepository<TranslationData> translationsRepository;
     private final LocalConfigRepository<CountryConfig> countryConfigRepository;
-    private CertificateChainConfigValidator certificateChainConfigValidator = null;
-    private LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator = null;
-
-    private enum EntityData {IDENTITY_PROVIDER, MATCHING_SERVICE, TRANSACTION, COUNTRIES, TRANSLATIONS}
+    private final CertificateChainConfigValidator certificateChainConfigValidator;
+    private final LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator;
 
     @Inject
     public ConfigDataBootstrap(
@@ -71,21 +66,13 @@ public class ConfigDataBootstrap implements Managed {
 
     @Override
     public void start() {
-        Map<EntityData, Collection<? extends EntityIdentifiable>> allConfig = new HashMap<>();
-        allConfig.put(EntityData.IDENTITY_PROVIDER, identityProviderConfigDataSource.loadConfig());
-        allConfig.put(EntityData.MATCHING_SERVICE, matchingServiceConfigDataSource.loadConfig());
-        allConfig.put(EntityData.TRANSACTION, transactionConfigDataSource.loadConfig());
-        allConfig.put(EntityData.COUNTRIES, countriesConfigDataSource.loadConfig());
-        allConfig.put(EntityData.TRANSLATIONS, translationsDataSource.loadConfig());
+        cacheConfigData();
 
-        cacheConfigData(allConfig);
-
-        checkForDuplicateEntityIds
-            .andThen(checkEachTransactionHasCorrespondingEntryInMatchingService)
-            .andThen(checkEachOnboardingIdentityProviderHasACorrespondingTransaction)
-            .andThen(checkThereAreNoInvalidCertificates)
-            .andThen(checkIdpAndTransactionsHaveValidLevelsOfAssurance)
-            .accept(allConfig);
+        checkForDuplicateEntityIds();
+        checkEachTransactionHasCorrespondingEntryInMatchingService();
+        checkEachOnboardingIdentityProviderHasACorrespondingTransaction();
+        checkThereAreNoInvalidCertificates();
+        checkIdpAndTransactionsHaveValidLevelsOfAssurance();
     }
 
     @Override
@@ -93,55 +80,52 @@ public class ConfigDataBootstrap implements Managed {
         // don't need to do anything
     }
 
-    private void cacheConfigData(Map<EntityData, Collection<? extends EntityIdentifiable>> allConfig) {
-        identityProviderConfigRepository.addData((Collection<IdentityProviderConfig>)allConfig.get(EntityData.IDENTITY_PROVIDER));
-        matchingServiceConfigRepository.addData((Collection<MatchingServiceConfig>)allConfig.get(EntityData.MATCHING_SERVICE));
-        transactionConfigRepository.addData((Collection<TransactionConfig>)allConfig.get(EntityData.TRANSACTION));
-        countryConfigRepository.addData((Collection<CountryConfig>)allConfig.get(EntityData.COUNTRIES));
-        translationsRepository.addData((Collection<TranslationData>)allConfig.get(EntityData.TRANSLATIONS));
+    private void cacheConfigData() {
+        identityProviderConfigRepository.addData(identityProviderConfigDataSource.loadConfig());
+        matchingServiceConfigRepository.addData(matchingServiceConfigDataSource.loadConfig());
+        transactionConfigRepository.addData(transactionConfigDataSource.loadConfig());
+        countryConfigRepository.addData(countriesConfigDataSource.loadConfig());
+        translationsRepository.addData(translationsDataSource.loadConfig());
     }
 
-    private Consumer<Map<EntityData, Collection<? extends EntityIdentifiable>>> checkForDuplicateEntityIds = dataSource -> {
+    private void checkForDuplicateEntityIds(){
         Collection<EntityIdentifiable> allConfigEntityData = new ArrayList<>();
-        allConfigEntityData.addAll(dataSource.get(EntityData.IDENTITY_PROVIDER));
-        allConfigEntityData.addAll(dataSource.get(EntityData.MATCHING_SERVICE));
-        allConfigEntityData.addAll(dataSource.get(EntityData.TRANSACTION));
-        allConfigEntityData.addAll(dataSource.get(EntityData.TRANSLATIONS));
-        allConfigEntityData.addAll(dataSource.get(EntityData.COUNTRIES));
+        allConfigEntityData.addAll(identityProviderConfigRepository.getAllData());
+        allConfigEntityData.addAll(matchingServiceConfigRepository.getAllData());
+        allConfigEntityData.addAll(transactionConfigRepository.getAllData());
+        allConfigEntityData.addAll(countryConfigRepository.getAllData());
+        allConfigEntityData.addAll(translationsRepository.getAllData());
 
         DuplicateEntityIdConfigValidator duplicateEntityIdConfigValidator = new DuplicateEntityIdConfigValidator();
         duplicateEntityIdConfigValidator.validate(allConfigEntityData);
-    };
+    }
 
-    private Consumer<Map<EntityData, Collection<? extends EntityIdentifiable>>> checkEachTransactionHasCorrespondingEntryInMatchingService = dataSource -> {
-        TransactionConfigMatchingServiceValidator transactionConfigMatchingServiceValidator = new TransactionConfigMatchingServiceValidator();
-        dataSource.get(EntityData.TRANSACTION)
-                .forEach(data -> transactionConfigMatchingServiceValidator
-                        .validate((TransactionConfig)data, matchingServiceConfigRepository));
-    };
+    private void checkEachTransactionHasCorrespondingEntryInMatchingService() {
+        TransactionConfigMatchingServiceValidator validator = new TransactionConfigMatchingServiceValidator(matchingServiceConfigRepository);
+        transactionConfigRepository.getAllData().forEach(validator::validate);
+    }
 
-    private Consumer<Map<EntityData, Collection<? extends EntityIdentifiable>>> checkEachOnboardingIdentityProviderHasACorrespondingTransaction = dataSource -> {
-        IdentityProviderConfigOnboardingTransactionValidator identityProviderConfigOnboardingTransactionValidator = new IdentityProviderConfigOnboardingTransactionValidator(transactionConfigRepository);
-        dataSource.get(EntityData.IDENTITY_PROVIDER)
-                .forEach(data -> identityProviderConfigOnboardingTransactionValidator.validate((IdentityProviderConfig)data));
-    };
+    private void checkEachOnboardingIdentityProviderHasACorrespondingTransaction() {
+        IdentityProviderConfigOnboardingTransactionValidator validator = new IdentityProviderConfigOnboardingTransactionValidator(transactionConfigRepository);
+        identityProviderConfigRepository.getAllData()
+                .forEach(idpConfig -> validator.validate(idpConfig));
+    }
 
-    private Consumer<Map<EntityData, Collection<? extends EntityIdentifiable>>> checkThereAreNoInvalidCertificates = dataSource -> {
-        final ImmutableSet<TransactionConfig> transactionConfigs = ImmutableSet.copyOf((Collection<TransactionConfig>)dataSource.get(EntityData.TRANSACTION));
+    private void checkThereAreNoInvalidCertificates() {
+        Set<TransactionConfig> transactionConfigs = transactionConfigRepository.getAllData();
+        Set<MatchingServiceConfig> matchingServiceConfigs = matchingServiceConfigRepository.getAllData();
+        certificateChainConfigValidator.validate(transactionConfigs, matchingServiceConfigs);
+    }
 
-        certificateChainConfigValidator.validate(transactionConfigs, ImmutableSet.copyOf((Collection<MatchingServiceConfig>)dataSource.get(EntityData.MATCHING_SERVICE)));
-    };
-
-    private Consumer<Map<EntityData, Collection<? extends EntityIdentifiable>>> checkIdpAndTransactionsHaveValidLevelsOfAssurance = dataSource -> {
-        final Collection<IdentityProviderConfig> enabledIdentityProviders = (Collection<IdentityProviderConfig>)dataSource.get(EntityData.IDENTITY_PROVIDER);
-        enabledIdentityProviders
+    private void checkIdpAndTransactionsHaveValidLevelsOfAssurance() {
+        final Set<IdentityProviderConfig> enabledIdentityProviders = identityProviderConfigRepository
+                .getAllData()
                 .stream()
                 .filter(input -> input.isEnabled())
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        final ImmutableSet<IdentityProviderConfig> identityProviderConfigs = ImmutableSet.copyOf(enabledIdentityProviders);
-        final ImmutableSet<TransactionConfig> transactionConfigs = ImmutableSet.copyOf((Collection<TransactionConfig>)dataSource.get(EntityData.TRANSACTION));
+        Set<TransactionConfig> transactionConfigs = transactionConfigRepository.getAllData();
+        levelsOfAssuranceConfigValidator.validateLevelsOfAssurance(enabledIdentityProviders, transactionConfigs);
+    }
 
-        levelsOfAssuranceConfigValidator.validateLevelsOfAssurance(identityProviderConfigs, transactionConfigs);
-    };
 }

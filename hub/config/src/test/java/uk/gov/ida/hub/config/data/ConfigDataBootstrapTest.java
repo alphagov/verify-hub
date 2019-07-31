@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
-import uk.gov.ida.hub.config.domain.CertificateType;
+import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.CountryConfig;
 import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
@@ -100,7 +100,7 @@ public class ConfigDataBootstrapTest {
 
         try {
             configDataBootstrap.start();
-            fail("Onboarding transaction entity id check did not fail.");
+            fail("Onboarding transaction entity id getInvalidCertificates did not fail.");
         } catch (ConfigValidationException e) {
             assertThat(e.getMessage()).isEqualTo(createAbsentOnboardingTransactionConfigException(nonExistentTransactionEntityId, idpEntityId).getMessage());
         }
@@ -152,8 +152,8 @@ public class ConfigDataBootstrapTest {
         TransactionConfig transactionConfigData = aTransactionConfigData().withMatchingServiceEntityId(matchingServiceId).withEntityId(rpEntityId).build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
 
-        InvalidCertificateDto invalidIdpCertificateDto = new InvalidCertificateDto(idpEntityId, CertPathValidatorException.BasicReason.INVALID_SIGNATURE, CertificateType.SIGNING, FederationEntityType.IDP, "certificate was bad!");
-        InvalidCertificateDto invalidMatchingServiceCertificateDto = new InvalidCertificateDto(matchingServiceId, CertPathValidatorException.BasicReason.NOT_YET_VALID, CertificateType.SIGNING, FederationEntityType.MS, "certificate was not yet valid!");
+        InvalidCertificateDto invalidIdpCertificateDto = new InvalidCertificateDto(idpEntityId, CertPathValidatorException.BasicReason.INVALID_SIGNATURE, CertificateUse.SIGNING, FederationEntityType.IDP, "certificate was bad!");
+        InvalidCertificateDto invalidMatchingServiceCertificateDto = new InvalidCertificateDto(matchingServiceId, CertPathValidatorException.BasicReason.NOT_YET_VALID, CertificateUse.SIGNING, FederationEntityType.MS, "certificate was not yet valid!");
 
         doThrow(createInvalidCertificatesException(ImmutableList.of(invalidMatchingServiceCertificateDto, invalidIdpCertificateDto))).when(certificateChainConfigValidator).validate(
                 ImmutableSet.of(transactionConfigData),

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config.domain;
 
-import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
@@ -25,15 +24,15 @@ public abstract class CertificateChainConfigValidator {
         this.certificateValidityChecker = createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
     }
 
-    public void validate(final Set<TransactionConfig> transactionConfigs, final Set<MatchingServiceConfig> matchingServiceConfigs) {
+    public void validate(final Collection<TransactionConfig> transactionConfigs, final Collection<MatchingServiceConfig> matchingServiceConfigs) {
         Collection<Certificate> certificates = getCertificates(transactionConfigs, matchingServiceConfigs);
-        ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificates);
+        Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificates);
         handleInvalidCertificates(invalidCertificates);
     }
 
-    abstract void handleInvalidCertificates(ImmutableList<InvalidCertificateDto> invalidCertificates);
+    abstract void handleInvalidCertificates(Collection<InvalidCertificateDto> invalidCertificates);
 
-    private Collection<Certificate> getCertificates(Set<TransactionConfig> transactionConfigs, Set<MatchingServiceConfig> matchingServiceConfigs) {
+    private Collection<Certificate> getCertificates(Collection<TransactionConfig> transactionConfigs, Collection<MatchingServiceConfig> matchingServiceConfigs) {
         return Stream.concat(transactionConfigs.stream(), matchingServiceConfigs.stream())
                 .flatMap(config -> config.getAllCertificates().stream())
                 .collect(Collectors.toSet());

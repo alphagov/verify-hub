@@ -6,7 +6,7 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.domain.Certificate;
-import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
+import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 
 import java.security.cert.CertificateException;
 import java.util.Set;
@@ -15,12 +15,12 @@ public class OcspCertificateChainValidationService implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(OcspCertificateChainValidationService.class);
     public static final double VALID = 1.0;
     public static final double INVALID = 0.0;
-    private final OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker;
+    private final CertificateValidityChecker ocspCertificateChainValidityChecker;
     private final CertificateService certificateService;
     private final Gauge ocspStatusGauge;
     private final Gauge lastUpdatedGauge;
 
-    public OcspCertificateChainValidationService(final OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker,
+    public OcspCertificateChainValidationService(final CertificateValidityChecker ocspCertificateChainValidityChecker,
                                                  final CertificateService certificateService,
                                                  final Gauge ocspStatusGauge,
                                                  final Gauge lastUpdatedGauge) {
@@ -37,7 +37,7 @@ public class OcspCertificateChainValidationService implements Runnable {
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
             certificatesSet.forEach(certificate -> {
                 try {
-                    if (ocspCertificateChainValidityChecker.isValid(certificate, certificate.getFederationEntityType())) {
+                    if (ocspCertificateChainValidityChecker.isValid(certificate)) {
                         updateAGauge(ocspStatusGauge, certificate, VALID);
                         updateAGauge(lastUpdatedGauge, certificate, timestamp);
                     } else {
@@ -57,7 +57,7 @@ public class OcspCertificateChainValidationService implements Runnable {
                               final Certificate certificate,
                               final double value) throws CertificateException {
         gauge.labels(certificate.getIssuerEntityId(),
-            certificate.getCertificateType().toString(),
+            certificate.getCertificateUse().toString(),
             certificate.getSubject(),
             certificate.getFingerprint(),
             String.valueOf(certificate.getSerialNumber()))

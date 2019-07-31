@@ -17,7 +17,7 @@ public class OnboardingIdpPredicateTest {
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
 
         // Doesn't need to contain the onboardingSoftDisconnectingIdp or onboardingHardDisconnectingIdp because these IDPs onboard at all levels,
-        // meaning that the second check in the OnboardingIdpPredicate's apply function will be evaluated (to false), excluding the IDP from the
+        // meaning that the second getInvalidCertificates in the OnboardingIdpPredicate's apply function will be evaluated (to false), excluding the IDP from the
         // result set.
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
                 nonOnboardingAllLevelsIdp, onboardingLoa2Idp, onboardingLoa2IdpOtherOnboardingEntity,
@@ -46,7 +46,7 @@ public class OnboardingIdpPredicateTest {
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, signInPredicateNonOnboarding);
 
         // Doesn't need to contain the onboardingSoftDisconnectingIdp or onboardingHardDisconnectingIdp because these IDPs onboard at all levels,
-        // meaning that the second check in the OnboardingIdpPredicate's apply function will be evaluated (to false), excluding the IDP from the
+        // meaning that the second getInvalidCertificates in the OnboardingIdpPredicate's apply function will be evaluated (to false), excluding the IDP from the
         // result set.
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,

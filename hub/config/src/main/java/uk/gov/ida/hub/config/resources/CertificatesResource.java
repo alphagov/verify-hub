@@ -1,14 +1,13 @@
 package uk.gov.ida.hub.config.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.collect.ImmutableList;
 import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
+import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
-import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.dto.CertificateDto;
 import uk.gov.ida.hub.config.dto.CertificateHealthCheckDto;
@@ -28,6 +27,7 @@ import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,7 +43,7 @@ public class CertificatesResource {
     private final LocalConfigRepository<MatchingServiceConfig> matchingServiceDataSource;
     private final ExceptionFactory exceptionFactory;
     private final ConfigConfiguration configuration;
-    private final OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker;
+    private final CertificateValidityChecker ocspCertificateChainValidityChecker;
     private final CertificateService certificateService;
 
 
@@ -53,7 +53,7 @@ public class CertificatesResource {
             LocalConfigRepository<MatchingServiceConfig> matchingServiceDataSource,
             ExceptionFactory exceptionFactory,
             ConfigConfiguration configuration,
-            OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker,
+            CertificateValidityChecker ocspCertificateChainValidityChecker,
             CertificateService certificateService
     ) {
         this.transactionDataSource = transactionDataSource;
@@ -70,12 +70,15 @@ public class CertificatesResource {
     public CertificateDto getEncryptionCertificate(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         try {
             Certificate certificate = certificateService.encryptionCertificateFor(entityId);
-            return aCertificateDto(
-                    entityId,
-                    certificate.getX509(),
-                    CertificateDto.KeyUse.Encryption,
-                    certificate.getFederationEntityType()
-            );
+            Optional<String> base64Encoded = certificate.getBase64Encoded();
+            if (base64Encoded.isPresent()){
+                return aCertificateDto(
+                        entityId,
+                        base64Encoded.get(),
+                        CertificateDto.KeyUse.Encryption,
+                        certificate.getFederationEntityType());
+            }
+            throw exceptionFactory.createNoDataForEntityException(entityId);
         } catch(NoCertificateFoundException ncfe) {
             throw exceptionFactory.createNoDataForEntityException(entityId);
         } catch (CertificateDisabledException cde) {
@@ -86,16 +89,15 @@ public class CertificatesResource {
     @GET
     @Path(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATE_PATH)
     @Timed
-    public Collection<CertificateDto> getSignatureVerificationCertificates(
-            @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
+    public Collection<CertificateDto> getSignatureVerificationCertificates(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         try {
-            List<Certificate> certificateDetails = certificateService.signatureVerificationCertificatesFor(entityId);
-            return certificateDetails.stream()
-                    .map(details -> aCertificateDto(
+            List<Certificate> certificates = certificateService.signatureVerificationCertificatesFor(entityId);
+            return certificates.stream()
+                    .map(cert -> aCertificateDto(
                             entityId,
-                            details.getX509(),
+                            cert.getBase64Encoded().orElseThrow(NoCertificateFoundException::new),
                             CertificateDto.KeyUse.Signing,
-                            details.getFederationEntityType()))
+                            cert.getFederationEntityType()))
                     .collect(toList());
         } catch (NoCertificateFoundException ncfe) {
             throw exceptionFactory.createNoDataForEntityException(entityId);
@@ -118,7 +120,7 @@ public class CertificatesResource {
     @Path(Urls.ConfigUrls.INVALID_CERTIFICATES_CHECK_PATH)
     public Response invalidCertificatesCheck() {
         Collection<Certificate> certificates = getCertificates(transactionDataSource.getAllData(), matchingServiceDataSource.getAllData());
-        ImmutableList<InvalidCertificateDto> invalidCertificateDtos = ocspCertificateChainValidityChecker.check(certificates);
+        Set<InvalidCertificateDto> invalidCertificateDtos = ocspCertificateChainValidityChecker.getInvalidCertificates(certificates);
         return Response.ok(invalidCertificateDtos).build();
     }
 
