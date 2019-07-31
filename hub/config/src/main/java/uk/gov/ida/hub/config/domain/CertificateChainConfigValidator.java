@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static uk.gov.ida.hub.config.domain.CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker;
 
@@ -25,17 +24,16 @@ public abstract class CertificateChainConfigValidator {
         this.certificateValidityChecker = createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
     }
 
-    public void validate(final Set<TransactionConfig> transactionConfigs, final Set<MatchingServiceConfig> matchingServiceConfigs) {
-        Collection<Certificate> certificates = getCertificates(transactionConfigs, matchingServiceConfigs);
+    public void validate(Set<CertificateConfigurable<? extends CertificateConfigurable<?>>> configs) {
+        Collection<Certificate> certificates = configs
+                .stream()
+                .flatMap(config -> config.getAllCertificates().stream())
+                .collect(Collectors.toList());
+
         ImmutableList<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(certificates);
         handleInvalidCertificates(invalidCertificates);
     }
 
     abstract void handleInvalidCertificates(ImmutableList<InvalidCertificateDto> invalidCertificates);
 
-    private Collection<Certificate> getCertificates(Set<TransactionConfig> transactionConfigs, Set<MatchingServiceConfig> matchingServiceConfigs) {
-        return Stream.concat(transactionConfigs.stream(), matchingServiceConfigs.stream())
-                .flatMap(config -> config.getAllCertificates().stream())
-                .collect(Collectors.toSet());
-    }
 }
