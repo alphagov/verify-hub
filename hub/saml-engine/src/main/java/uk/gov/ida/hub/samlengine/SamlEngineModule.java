@@ -364,7 +364,7 @@ public class SamlEngineModule extends AbstractModule {
     public Optional<EidasValidatorFactory> getEidasValidatorFactory(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository, SamlEngineConfiguration configuration){
         if (configuration.isEidasEnabled()){
             Optional<EidasValidatorFactory> eidasValidatorFactory = eidasMetadataResolverRepository
-                    .map(repository -> new  EidasValidatorFactory(repository));
+                    .map(EidasValidatorFactory::new);
             return eidasValidatorFactory;
         }
         return Optional.empty();
@@ -375,7 +375,7 @@ public class SamlEngineModule extends AbstractModule {
     public Optional<CountrySingleSignOnServiceHelper> getCountrySingleSignOnServiceHelper(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository, SamlEngineConfiguration configuration){
         if (configuration.isEidasEnabled()){
             Optional<CountrySingleSignOnServiceHelper> countrySingleSignOnServiceHelper = eidasMetadataResolverRepository
-                    .map(repository -> new CountrySingleSignOnServiceHelper(repository));
+                    .map(CountrySingleSignOnServiceHelper::new);
             return countrySingleSignOnServiceHelper;
         }
         return Optional.empty();
@@ -387,7 +387,7 @@ public class SamlEngineModule extends AbstractModule {
         Optional<EidasMetadataResolverRepository> metadataResolverRepository,
         Environment environment){
         Optional<EidasTrustAnchorHealthCheck> metadataHealthCheck = metadataResolverRepository
-                .map(repository -> new EidasTrustAnchorHealthCheck(repository));
+                .map(EidasTrustAnchorHealthCheck::new);
 
         metadataHealthCheck.ifPresent(healthCheck -> environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, healthCheck));
 

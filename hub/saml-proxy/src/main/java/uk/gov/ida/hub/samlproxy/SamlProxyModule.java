@@ -255,7 +255,7 @@ public class SamlProxyModule extends AbstractModule {
         Environment environment){
 
         Optional<EidasTrustAnchorHealthCheck> metadataHealthCheck = metadataResolverRepository
-                .map(repository -> new EidasTrustAnchorHealthCheck(repository));
+                .map(EidasTrustAnchorHealthCheck::new);
 
         metadataHealthCheck.ifPresent(healthCheck -> environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, healthCheck));
         return metadataHealthCheck;

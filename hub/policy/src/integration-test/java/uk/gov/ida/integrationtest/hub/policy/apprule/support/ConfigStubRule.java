@@ -45,7 +45,7 @@ public class ConfigStubRule extends HttpStubRule {
     public void setUpStubForEnabledCountries(String rpEntityId, Collection<EidasCountryDto> enabledCountries) throws JsonProcessingException {
         register(Urls.ConfigUrls.COUNTRIES_ROOT, OK, enabledCountries);
 
-        List<String> countryEntityIds = enabledCountries.stream().map(country -> country.getEntityId()).collect(Collectors.toList());
+        List<String> countryEntityIds = enabledCountries.stream().map(EidasCountryDto::getEntityId).collect(Collectors.toList());
         UriBuilder countriesForTransactionUriBuilder = UriBuilder.fromPath(Urls.ConfigUrls.EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE);
         String countriesForTransactionPath = countriesForTransactionUriBuilder.buildFromEncoded(StringEncoding.urlEncode(rpEntityId).replace("+", "%20")).getPath();
         register(countriesForTransactionPath, OK, countryEntityIds);

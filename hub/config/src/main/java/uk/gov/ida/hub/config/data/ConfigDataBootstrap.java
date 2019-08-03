@@ -124,7 +124,7 @@ public class ConfigDataBootstrap implements Managed {
         final Set<IdentityProviderConfig> enabledIdentityProviders = identityProviderConfigRepository
                 .getAllData()
                 .stream()
-                .filter(input -> input.isEnabled())
+                .filter(IdentityProviderConfig::isEnabled)
                 .collect(Collectors.toSet());
 
         Set<TransactionConfig> transactionConfigs = transactionConfigRepository.getAllData();
