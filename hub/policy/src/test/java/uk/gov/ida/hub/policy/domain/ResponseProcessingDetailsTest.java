@@ -37,7 +37,7 @@ public class ResponseProcessingDetailsTest {
 
     @Test
     public void testToString() {
-        final StringBuffer sb = new StringBuffer("ResponseProcessingDetails{");
+        final StringBuilder sb = new StringBuilder("ResponseProcessingDetails{");
         sb.append("sessionId=").append(responseProcessingDetails.getSessionId());
         sb.append(", responseProcessingStatus=").append(responseProcessingDetails.getResponseProcessingStatus());
         sb.append(", transactionEntityId='").append(responseProcessingDetails.getTransactionEntityId()).append('\'');

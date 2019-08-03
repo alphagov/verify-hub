@@ -28,7 +28,7 @@ public class Cycle3AttributeRequestDataTest {
 
     @Test
     public void testToString() {
-        final StringBuffer sb = new StringBuffer("Cycle3AttributeRequestData{");
+        final StringBuilder sb = new StringBuilder("Cycle3AttributeRequestData{");
         sb.append("attributeName='").append(cycle3AttributeRequestData.getAttributeName()).append('\'');
         sb.append(", requestIssuerId='").append(cycle3AttributeRequestData.getRequestIssuerId()).append('\'');
         sb.append('}');

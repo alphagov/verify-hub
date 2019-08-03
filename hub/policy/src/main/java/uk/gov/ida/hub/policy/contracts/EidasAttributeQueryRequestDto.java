@@ -58,7 +58,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("EidasAttributeQueryRequestDto{");
+        final StringBuilder sb = new StringBuilder("EidasAttributeQueryRequestDto{");
         sb.append(super.toString());
         sb.append(",encryptedIdentityAssertion='").append(encryptedIdentityAssertion).append('\'');
         sb.append('}');

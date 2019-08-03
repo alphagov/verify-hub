@@ -23,7 +23,7 @@ public class PersistentIdTest {
 
     @Test
     public void testToString() {
-        final StringBuffer sb = new StringBuffer("PersistentId{");
+        final StringBuilder sb = new StringBuilder("PersistentId{");
         sb.append("nameId='").append(NAME_ID).append('\'');
         sb.append('}');
         assertThat(persistentId.toString()).isEqualTo(sb.toString());

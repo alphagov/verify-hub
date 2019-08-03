@@ -99,7 +99,7 @@ public class EidasCycle3DTOTest {
 
     @Test
     public void testToString() throws Exception {
-        final StringBuffer sb = new StringBuffer("EidasCycle3DTO{");
+        final StringBuilder sb = new StringBuilder("EidasCycle3DTO{");
         sb.append("sessionId=").append(eidasCycle3DTO.getSessionId());
         sb.append(", requestId='").append(eidasCycle3DTO.getRequestId()).append('\'');
         sb.append(", identityProviderEntityId='").append(eidasCycle3DTO.getIdentityProviderEntityId()).append('\'');

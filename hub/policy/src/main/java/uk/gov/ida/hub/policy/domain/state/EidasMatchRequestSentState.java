@@ -42,7 +42,7 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer(this.getClass().getSimpleName() + "{");
+        final StringBuilder sb = new StringBuilder(this.getClass().getSimpleName() + "{");
         sb.append(", identityProviderEntityId='").append(getIdentityProviderEntityId()).append('\'');
         sb.append(", relayState=").append(getRelayState());
         sb.append(", requestSentTime=").append(getRequestSentTime());

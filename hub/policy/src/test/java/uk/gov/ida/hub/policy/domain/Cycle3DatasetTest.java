@@ -34,7 +34,7 @@ public class Cycle3DatasetTest {
     @Test
     public void testToString() throws Exception {
         final Cycle3Dataset cycle3Dataset = Cycle3Dataset.createFromData(DEFAULT_ATTRIBUTE, DEFAULT_ATTRIBUTE_VALUE);
-        final StringBuffer sb = new StringBuffer("Cycle3Dataset{");
+        final StringBuilder sb = new StringBuilder("Cycle3Dataset{");
         sb.append("attributes=").append(cycle3Dataset.getAttributes());
         sb.append('}');
 
