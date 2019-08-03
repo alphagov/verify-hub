@@ -245,16 +245,16 @@ public class StateControllerFactoryTest {
         exception.expectMessage("Unable to locate state for UnknownState");
 
         UnknownState unknownState = new UnknownState(
-            "requestId",
-            "requestIssuerId",
-            DateTime.now(),
-            URI.create("/some-ac-service-uri"),
-            aSessionId().build(),
-            false);
+                "requestId",
+                "requestIssuerId",
+                DateTime.now(),
+                URI.create("/some-ac-service-uri"),
+                aSessionId().build(),
+                false);
         stateControllerFactory.build(unknownState, stateTransitionAction);
     }
 
-    private class UnknownState extends AbstractState {
+    private static class UnknownState extends AbstractState {
         public UnknownState(String requestId, String requestIssuerId, DateTime sessionExpiryTimestamp, URI assertionConsumerServiceUri, SessionId sessionId, boolean transactionSupportsEidas) {
             super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
         }

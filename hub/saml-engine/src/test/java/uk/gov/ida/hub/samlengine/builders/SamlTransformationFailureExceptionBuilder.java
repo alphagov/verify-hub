@@ -16,7 +16,7 @@ public class SamlTransformationFailureExceptionBuilder {
         return new TestSamlTransformationErrorException(errorMessage, cause);
     }
 
-    private class TestSamlTransformationErrorException extends SamlTransformationErrorException {
+    private static class TestSamlTransformationErrorException extends SamlTransformationErrorException {
         protected TestSamlTransformationErrorException(String errorMessage, Exception cause) {
             super(errorMessage, cause, Level.ERROR);
         }

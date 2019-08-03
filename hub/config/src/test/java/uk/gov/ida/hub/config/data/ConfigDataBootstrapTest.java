@@ -218,7 +218,7 @@ public class ConfigDataBootstrapTest {
                 levelsOfAssuranceConfigValidator);
     }
 
-    private class TestConfigDataSource<T> implements ConfigDataSource<T> {
+    private static class TestConfigDataSource<T> implements ConfigDataSource<T> {
 
         private final Collection<T> configData = new ArrayList<>();
 
