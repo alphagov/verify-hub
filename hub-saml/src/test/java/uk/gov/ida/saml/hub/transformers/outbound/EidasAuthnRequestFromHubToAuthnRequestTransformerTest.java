@@ -32,7 +32,6 @@ import uk.gov.ida.saml.hub.domain.LevelOfAssurance;
 
 import javax.xml.namespace.QName;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,7 @@ public class EidasAuthnRequestFromHubToAuthnRequestTransformerTest {
             "theId",
             "theIssuer",
             DateTime.now(),
-            Arrays.asList(AuthnContext.LEVEL_2),
+            Collections.singletonList(AuthnContext.LEVEL_2),
             URI.create("theUri"),
             "theProviderName"
         );
@@ -120,7 +119,7 @@ public class EidasAuthnRequestFromHubToAuthnRequestTransformerTest {
                 .stream().findFirst();
         Assert.assertTrue("There should be at least one eidas:SPType element", spType.isPresent());
         XMLObject xmlObject = spType.get();
-        Assert.assertTrue("Should be an instance of SPType", xmlObject.getClass().equals(SPTypeImpl.class));
+        Assert.assertEquals("Should be an instance of SPType", xmlObject.getClass(), SPTypeImpl.class);
         Assert.assertEquals("public", ((SPTypeImpl) xmlObject).getValue());
 
         Optional<XMLObject> requestedAttributes = extensions
@@ -130,7 +129,7 @@ public class EidasAuthnRequestFromHubToAuthnRequestTransformerTest {
         Assert.assertTrue("There should be at least one eidas:RequestedAttributes", requestedAttributes.isPresent());
 
         List<XMLObject> requestedAttributeList = requestedAttributes.get().getOrderedChildren();
-        Assert.assertTrue("There should be at least one eidas:RequestedAttribute", requestedAttributeList.size() > 0);
+        Assert.assertFalse("There should be at least one eidas:RequestedAttribute", requestedAttributeList.isEmpty());
 
         Map<String, RequestedAttributeImpl> reqAttrMap = getRequestedAttributesByFriendlyName(requestedAttributeList);
 
