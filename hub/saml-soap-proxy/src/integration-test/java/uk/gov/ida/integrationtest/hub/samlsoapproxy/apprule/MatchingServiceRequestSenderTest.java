@@ -55,7 +55,6 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -118,7 +117,7 @@ public class MatchingServiceRequestSenderTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        List<String> exceptionsToCatch = Arrays.asList(new String[] {ConnectTimeoutException.class.getName(), SocketException.class.getName(), SocketTimeoutException.class.getName(), NoHttpResponseException.class.getName() });
+        final List<String> exceptionsToCatch = List.of(ConnectTimeoutException.class.getName(), SocketException.class.getName(), SocketTimeoutException.class.getName(), NoHttpResponseException.class.getName());
         JerseyClientWithRetryBackoffConfiguration jerseyClientConfiguration = aJerseyClientWithRetryBackoffHandlerConfiguration()
             .withTimeout(Duration.seconds(1))
             .withRetryBackoffPeriod(Duration.seconds(1))
