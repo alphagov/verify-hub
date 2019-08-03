@@ -23,12 +23,7 @@ public class DuplicateAuthnRequestValidatorTest {
 
     @Before
     public void initialiseTestSubject() {
-        SamlDuplicateRequestValidationConfiguration samlEngineConfiguration = new SamlDuplicateRequestValidationConfiguration() {
-            @Override
-            public Duration getAuthnRequestIdExpirationDuration() {
-                return Duration.hours(EXPIRATION_HOURS);
-            }
-        };
+        SamlDuplicateRequestValidationConfiguration samlEngineConfiguration = () -> Duration.hours(EXPIRATION_HOURS);
         ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds = new ConcurrentHashMap<>();
         IdExpirationCache idExpirationCache = new ConcurrentMapIdExpirationCache(duplicateIds);
         duplicateAuthnRequestValidator = new DuplicateAuthnRequestValidator(idExpirationCache, samlEngineConfiguration);

@@ -23,12 +23,7 @@ public class RelayStateValidatorTest {
         final String aStringMoreThanEightyCharacters = "a".repeat(82);
 
         SamlTransformationErrorManagerTestHelper.validateFail(
-                new SamlTransformationErrorManagerTestHelper.Action() {
-                    @Override
-                    public void execute() {
-                        relayStateValidator.validate(aStringMoreThanEightyCharacters);
-                    }
-                },
+                () -> relayStateValidator.validate(aStringMoreThanEightyCharacters),
                 SamlTransformationErrorFactory.invalidRelayState(aStringMoreThanEightyCharacters)
         );
 
@@ -48,12 +43,7 @@ public class RelayStateValidatorTest {
         for (final String i : asList(">", "<", "'", "\"", "%", "&", ";")) {
 
             SamlTransformationErrorManagerTestHelper.validateFail(
-                    new SamlTransformationErrorManagerTestHelper.Action() {
-                        @Override
-                        public void execute() {
-                            relayStateValidator.validate(aString + i);
-                        }
-                    },
+                    () -> relayStateValidator.validate(aString + i),
                     SamlTransformationErrorFactory.relayStateContainsInvalidCharacter(i, aString + i)
             );
         }

@@ -107,12 +107,7 @@ public class SamlEntityDescriptorValidatorTest {
     public void assertExceptionMessage(final EntityDescriptor entityDescriptor, SamlValidationSpecificationFailure failure) {
 
         SamlTransformationErrorManagerTestHelper.validateFail(
-                new SamlTransformationErrorManagerTestHelper.Action() {
-                    @Override
-                    public void execute() {
-                        validator.validate(entityDescriptor);
-                    }
-                },
+                () -> validator.validate(entityDescriptor),
                 failure
         );
 
