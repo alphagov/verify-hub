@@ -1,10 +1,7 @@
 package uk.gov.ida.saml.hub.domain;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-
 import java.io.Serializable;
+import java.util.List;
 
 public enum UserAccountCreationAttribute implements Serializable {
     FIRST_NAME("firstname"),
@@ -31,12 +28,11 @@ public enum UserAccountCreationAttribute implements Serializable {
     }
 
     public static UserAccountCreationAttribute getUserAccountCreationAttribute(final String name){
-        return Iterables.find(ImmutableList.copyOf(values()), new Predicate<>() {
-            @Override
-            public boolean apply(final UserAccountCreationAttribute input) {
-                return input.getAttributeName().equals(name);
-            }
-        });
+        return List.of(values())
+                .stream()
+                .filter(input -> input.getAttributeName().equals(name))
+                .findFirst()
+                .orElseThrow();
     }
 }
 
