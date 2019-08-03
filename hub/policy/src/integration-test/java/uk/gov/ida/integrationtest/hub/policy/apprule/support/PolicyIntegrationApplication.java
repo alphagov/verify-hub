@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 public class PolicyIntegrationApplication extends PolicyApplication {
 
     private final InfinispanCacheManager infinispanCacheManager =
-            new InfinispanCacheManager(mock(MetricRegistry.class, RETURNS_MOCKS), TestCacheManagerFactory.createCacheManager());;
+            new InfinispanCacheManager(mock(MetricRegistry.class, RETURNS_MOCKS), TestCacheManagerFactory.createCacheManager());
 
     @Override
     protected void registerResources(PolicyConfiguration configuration, Environment environment) {

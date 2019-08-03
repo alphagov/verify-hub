@@ -157,7 +157,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
         when(responseFromIdp.getStatus()).thenReturn(status);
         when(responseFromIdp.getMatchingDatasetAssertion()).thenReturn(empty());
         when(responseFromIdp.getAuthnStatementAssertion()).thenReturn(empty());
-        when(responseFromIdp.getSignature()).thenReturn(signature);;
+        when(responseFromIdp.getSignature()).thenReturn(signature);
         when(samlResponse.getIssuer()).thenReturn(issuer);
         when(stringToAssertionTransformer.apply(authStatementUnderlyingAssertionBlob)).thenReturn(authnStatementAssertion);
         when(stringToAssertionTransformer.apply(matchingDatasetUnderlyingAssertionBlob)).thenReturn(matchingDatasetAssertion);
