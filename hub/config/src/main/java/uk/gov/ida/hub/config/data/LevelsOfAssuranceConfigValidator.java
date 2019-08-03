@@ -82,9 +82,7 @@ public class LevelsOfAssuranceConfigValidator {
     }
 
     private boolean containsUnsupportedLOAs(IdentityProviderConfig identityProviderConfig) {
-        return !identityProviderConfig.getSupportedLevelsOfAssurance().stream()
-                .filter(loa -> loa != LEVEL_1 && loa != LEVEL_2)
-                .collect(Collectors.toList())
-                .isEmpty();
+        return identityProviderConfig.getSupportedLevelsOfAssurance().stream()
+                .anyMatch(loa -> loa != LEVEL_1 && loa != LEVEL_2);
     }
 }
