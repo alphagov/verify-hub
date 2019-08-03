@@ -32,7 +32,7 @@ public class PolicyAppRule extends DropwizardAppRule<PolicyConfiguration> {
                 .add(config("eventEmitterConfiguration.enabled", "false"))
                 .add(configOverrides)
                 .build();
-        return mergedConfigOverrides.toArray(new ConfigOverride[mergedConfigOverrides.size()]);
+        return mergedConfigOverrides.toArray(new ConfigOverride[0]);
     }
 
     @Override

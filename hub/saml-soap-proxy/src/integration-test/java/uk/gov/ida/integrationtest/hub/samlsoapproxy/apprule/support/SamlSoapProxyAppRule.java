@@ -61,7 +61,7 @@ public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfigu
         ).collect(Collectors.toList());
 
         overrides.addAll(Arrays.asList(configOverrides));
-        return overrides.toArray(new ConfigOverride[overrides.size()]);
+        return overrides.toArray(new ConfigOverride[0]);
     }
 
     @Override

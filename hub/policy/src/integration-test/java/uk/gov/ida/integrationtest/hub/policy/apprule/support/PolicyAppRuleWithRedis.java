@@ -38,7 +38,7 @@ public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguratio
                 .add(config("sessionStore.redis.uri", "redis://localhost:" + REDIS_PORT))
                 .add(configOverrides)
                 .build();
-        return mergedConfigOverrides.toArray(new ConfigOverride[mergedConfigOverrides.size()]);
+        return mergedConfigOverrides.toArray(new ConfigOverride[0]);
     }
 
     @Override

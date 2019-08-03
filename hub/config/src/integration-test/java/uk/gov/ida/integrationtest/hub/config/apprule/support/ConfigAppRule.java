@@ -77,7 +77,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
                 .add(config("translationsDirectory", TRANSLATIONS_RELATIVE_PATH))
                 .add(configOverrides)
                 .build();
-        return overrides.toArray(new ConfigOverride[overrides.size()]);
+        return overrides.toArray(new ConfigOverride[0]);
     }
 
     public ConfigAppRule addTransaction(TransactionConfig transaction) {

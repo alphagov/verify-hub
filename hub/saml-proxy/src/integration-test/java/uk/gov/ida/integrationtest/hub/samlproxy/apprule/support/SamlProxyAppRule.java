@@ -128,7 +128,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
             overrides.addAll(countryOverrides);
         }
         overrides.addAll(Arrays.asList(configOverrides));
-        return overrides.toArray(new ConfigOverride[overrides.size()]);
+        return overrides.toArray(new ConfigOverride[0]);
     }
 
     @Override
