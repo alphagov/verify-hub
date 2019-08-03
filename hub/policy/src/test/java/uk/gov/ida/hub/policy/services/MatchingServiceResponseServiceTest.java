@@ -91,8 +91,8 @@ public class MatchingServiceResponseServiceTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                         inResponseTo,
                         "issuer",
-                        Optional.<String>absent(),
-                        Optional.<LevelOfAssurance>absent());
+                        Optional.absent(),
+                        Optional.absent());
         when(samlEngineProxy.translateMatchingServiceResponse(any())).thenReturn(inboundResponseFromMatchingServiceDto);
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
@@ -121,8 +121,8 @@ public class MatchingServiceResponseServiceTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.RequesterError,
                         inResponseTo,
                         "issuer",
-                        Optional.<String>absent(),
-                        Optional.<LevelOfAssurance>absent());
+                        Optional.absent(),
+                        Optional.absent());
         when(samlEngineProxy.translateMatchingServiceResponse(any())).thenReturn(inboundResponseFromMatchingServiceDto);
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);

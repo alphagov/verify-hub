@@ -42,7 +42,7 @@ public class MatchingServiceHealthCheckClient {
         } catch(ApplicationException ex) {
             final String errorMessage = MessageFormat.format("Failed to complete matching service health check to {0}.", matchingServiceUri);
             LOG.warn(errorMessage, ex);
-            return new MatchingServiceHealthCheckResponseDto(Optional.<String>empty());
+            return new MatchingServiceHealthCheckResponseDto(Optional.empty());
         } finally {
             context.stop();
         }

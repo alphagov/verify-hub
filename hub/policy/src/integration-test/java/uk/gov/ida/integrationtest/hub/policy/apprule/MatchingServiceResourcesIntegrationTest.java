@@ -27,7 +27,6 @@ import uk.gov.ida.hub.policy.domain.Cycle3AttributeRequestData;
 import uk.gov.ida.hub.policy.domain.Cycle3UserInput;
 import uk.gov.ida.hub.policy.domain.IdpSelected;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromIdpDto;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
@@ -500,8 +499,8 @@ public class MatchingServiceResourcesIntegrationTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                         translatedAuthnRequest.getId(),
                         msaEntityId,
-                        Optional.<String>absent(),
-                        Optional.<LevelOfAssurance>absent());
+                        Optional.absent(),
+                        Optional.absent());
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
         List<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of(UserAccountCreationAttribute.CURRENT_ADDRESS);
         configStub.setUpStubForUserAccountCreation(rpEntityId, userAccountCreationAttributes);
@@ -522,8 +521,8 @@ public class MatchingServiceResourcesIntegrationTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                         translatedAuthnRequest.getId(),
                         msaEntityId,
-                        Optional.<String>absent(),
-                        Optional.<LevelOfAssurance>absent());
+                        Optional.absent(),
+                        Optional.absent());
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
         final String cycle3Attribute = configStub.setUpStubForEnteringAwaitingCycle3DataState(rpEntityId);
 
@@ -539,8 +538,8 @@ public class MatchingServiceResourcesIntegrationTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                         translatedAuthnRequest.getId(),
                         msaEntityId,
-                        Optional.<String>absent(),
-                        Optional.<LevelOfAssurance>absent());
+                        Optional.absent(),
+                        Optional.absent());
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         configStub.setUpStubForCycle01NoMatchCycle3Disabled(rpEntityId);

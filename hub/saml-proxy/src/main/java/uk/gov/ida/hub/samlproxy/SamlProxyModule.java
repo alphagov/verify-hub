@@ -325,7 +325,7 @@ public class SamlProxyModule extends AbstractModule {
     @Provides
     @Singleton
     public XmlObjectToElementTransformer<EntityDescriptor> entityDescriptorElementTransformer() {
-        return new CoreTransformersFactory().<EntityDescriptor>getXmlObjectToElementTransformer();
+        return new CoreTransformersFactory().getXmlObjectToElementTransformer();
     }
 
     @Provides

@@ -156,7 +156,7 @@ public class TransactionsResource {
     public List<UserAccountCreationAttribute> getUserAccountCreationAttributes(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         final TransactionConfig configData = getTransactionConfigData(entityId);
 
-        return configData.getUserAccountCreationAttributes().orElse(Collections.<UserAccountCreationAttribute>emptyList());
+        return configData.getUserAccountCreationAttributes().orElse(Collections.emptyList());
     }
 
     @GET

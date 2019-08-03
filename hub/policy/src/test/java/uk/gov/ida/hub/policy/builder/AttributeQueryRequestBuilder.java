@@ -4,13 +4,10 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.builder.domain.PersistentIdBuilder;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
-import uk.gov.ida.hub.policy.domain.Cycle3Dataset;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
-import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 public class AttributeQueryRequestBuilder {
@@ -44,8 +41,8 @@ public class AttributeQueryRequestBuilder {
             onboarding,
             levelOfAssurance,
             persistentId,
-            Optional.<Cycle3Dataset>absent(),
-            Optional.<List<UserAccountCreationAttribute>>absent(),
+            Optional.absent(),
+            Optional.absent(),
             encryptedMatchingDataSetAssertion,
             authnStatementAssertion
         );

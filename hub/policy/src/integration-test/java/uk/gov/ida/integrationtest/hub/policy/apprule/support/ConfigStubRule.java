@@ -141,7 +141,7 @@ public class ConfigStubRule extends HttpStubRule {
 
     public void setUpStubForCycle01NoMatchCycle3Disabled(String rpEntityId) throws JsonProcessingException {
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.MATCHING_PROCESS_RESOURCE).build(rpEntityId).getPath();
-        final MatchingProcessDto cycle3Attribute = new MatchingProcessDto(Optional.<String>absent());
+        final MatchingProcessDto cycle3Attribute = new MatchingProcessDto(Optional.absent());
         register(uri, OK, cycle3Attribute);
     }
 
