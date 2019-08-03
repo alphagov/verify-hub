@@ -35,15 +35,8 @@ public final class MethodAlgorithm {
 
         MethodAlgorithm methodAlgorithm = (MethodAlgorithm) o;
 
-        if (!Objects.equals(signatureMethodAlgorithm, methodAlgorithm.signatureMethodAlgorithm)) {
-            return false;
-        }
-        else if (!Objects.equals(digestMethodAlgorithm, methodAlgorithm.digestMethodAlgorithm))
-        {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(signatureMethodAlgorithm, methodAlgorithm.signatureMethodAlgorithm)
+                && Objects.equals(digestMethodAlgorithm, methodAlgorithm.digestMethodAlgorithm);
     }
 
     @Override
