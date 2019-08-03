@@ -23,7 +23,6 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.extensions.versioning.Version;
 import uk.gov.ida.saml.core.extensions.versioning.VersionImpl;
-import uk.gov.ida.saml.core.extensions.versioning.application.ApplicationVersion;
 import uk.gov.ida.saml.core.extensions.versioning.application.ApplicationVersionImpl;
 import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
 import uk.gov.ida.saml.security.DecrypterFactory;
@@ -68,7 +67,7 @@ public class AuthnRequestFromRelyingPartyUnmarshallerTest {
         authnRequest.setDestination("http://example.com");
         authnRequest.setForceAuthn(true);
         authnRequest.setAssertionConsumerServiceURL("some-url");
-        authnRequest.setAssertionConsumerServiceIndex(Integer.valueOf(5));
+        authnRequest.setAssertionConsumerServiceIndex(5);
         authnRequest.setSignature(signature);
         authnRequest.setExtensions(createApplicationVersionExtensions("some-version"));
 
@@ -78,9 +77,9 @@ public class AuthnRequestFromRelyingPartyUnmarshallerTest {
             "some-service-entity-id",
             issueInstant,
             URI.create("http://example.com"),
-            Optional.ofNullable(true),
+            Optional.of(true),
             Optional.of(URI.create("some-url")),
-            Optional.of(Integer.valueOf(5)),
+            Optional.of(5),
             Optional.of(signature),
             Optional.of("some-version")
         );
@@ -121,12 +120,11 @@ public class AuthnRequestFromRelyingPartyUnmarshallerTest {
     }
 
     private Version createApplicationVersion(String versionNumber) {
-        ApplicationVersion applicationVersion = new ApplicationVersionImpl();
-        applicationVersion.setValue(versionNumber);
-        Version version = new VersionImpl() {{
-            setApplicationVersion(applicationVersion);
+        return new VersionImpl() {{
+            setApplicationVersion(new ApplicationVersionImpl() {{
+                setValue(versionNumber);
+            }});
         }};
-        return version;
     }
 
     private BasicCredential createBasicCredential() {
