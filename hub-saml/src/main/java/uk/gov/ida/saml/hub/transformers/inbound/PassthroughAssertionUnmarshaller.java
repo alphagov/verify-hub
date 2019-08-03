@@ -64,7 +64,7 @@ public class PassthroughAssertionUnmarshaller {
 
     private Optional<String> getPrincipalIpAddress(List<AttributeStatement> attributeStatements) {
         Optional<XMLObject> attribute = getAttributeNamed(attributeStatements, IdaConstants.Attributes_1_1.IPAddress.NAME);
-        if (!attribute.isPresent()){
+        if (attribute.isEmpty()){
             return Optional.empty();
         }
         String ipAddress = ((IPAddress) attribute.get()).getValue();

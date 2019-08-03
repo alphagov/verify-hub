@@ -218,7 +218,7 @@ public class TransactionsResource {
 
     private TransactionConfig getTransactionConfigData(String entityId) {
         final Optional<TransactionConfig> configData = transactionConfigRepository.get(entityId);
-        if (!configData.isPresent()) {
+        if (configData.isEmpty()) {
             throw exceptionFactory.createNoDataForEntityException(entityId);
         }
         if (!configData.get().isEnabled()) {
@@ -229,7 +229,7 @@ public class TransactionsResource {
 
     private TranslationData getTranslationData(String simpleId) {
         final Optional<TranslationData> data = translationConfigRepository.getData(simpleId);
-        if (!data.isPresent()) throw exceptionFactory.createNoDataForEntityException(simpleId);
+        if (data.isEmpty()) throw exceptionFactory.createNoDataForEntityException(simpleId);
         return data.get();
     }
 }

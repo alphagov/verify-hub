@@ -76,8 +76,7 @@ public class EncryptedResponseFromIdpValidator<T extends Enum> {
     private void validateStatus(Status status) {
         validateStatusCode(status.getStatusCode(), 0);
 
-        Optional<T> mappedStatus = statusCodeMapper.map(status);
-        if (!mappedStatus.isPresent()) fail(status);
+        if (statusCodeMapper.map(status).isEmpty()) fail(status);
     }
 
     private void fail(Status status) {
