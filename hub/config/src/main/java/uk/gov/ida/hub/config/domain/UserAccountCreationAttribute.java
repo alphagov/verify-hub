@@ -20,7 +20,7 @@ public enum UserAccountCreationAttribute implements Serializable {
 
     private String attributeName;
 
-    private UserAccountCreationAttribute(final String attributeName) {
+    UserAccountCreationAttribute(final String attributeName) {
         this.attributeName = attributeName;
     }
 
