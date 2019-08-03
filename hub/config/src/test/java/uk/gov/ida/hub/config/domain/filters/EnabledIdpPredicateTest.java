@@ -1,8 +1,9 @@
 package uk.gov.ida.hub.config.domain.filters;
 
-import com.google.common.base.Predicate;
 import org.junit.Test;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
+
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
@@ -17,7 +18,7 @@ public class EnabledIdpPredicateTest {
                 .withEnabled(true)
                 .build();
 
-        assertThat(enabledPredicate.apply(enabledIdp)).isTrue();
+        assertThat(enabledPredicate.test(enabledIdp)).isTrue();
     }
 
     @Test
@@ -28,6 +29,6 @@ public class EnabledIdpPredicateTest {
                 .withEnabled(false)
                 .build();
 
-        assertThat(enabledPredicate.apply(disabledIdp)).isFalse();
+        assertThat(enabledPredicate.test(disabledIdp)).isFalse();
     }
 }

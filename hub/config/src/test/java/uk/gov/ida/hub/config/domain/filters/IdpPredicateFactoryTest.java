@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.config.domain.filters;
 
-import com.google.common.base.Predicate;
+import java.util.Optional;
+import java.util.function.Predicate;
+
 import com.google.common.collect.Collections2;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +11,6 @@ import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import java.util.Set;
 
-import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IdpPredicateFactoryTest {
@@ -33,26 +34,26 @@ public class IdpPredicateFactoryTest {
         Predicate<Predicate> findNewUserIdp = input -> input instanceof NewUserIdpPredicate;
 
         assertThat(predicates).hasSize(4);
-        assertThat(Collections2.filter(predicates, findEnabled)).hasSize(1);
-        assertThat(Collections2.filter(predicates, findOnboarding)).hasSize(1);
-        assertThat(Collections2.filter(predicates, supportedLoa)).hasSize(1);
-        assertThat(Collections2.filter(predicates, findNewUserIdp)).hasSize(1);
+        assertThat(Collections2.filter(predicates, findEnabled::test)).hasSize(1);
+        assertThat(Collections2.filter(predicates, findOnboarding::test)).hasSize(1);
+        assertThat(Collections2.filter(predicates, supportedLoa::test)).hasSize(1);
+        assertThat(Collections2.filter(predicates, findNewUserIdp::test)).hasSize(1);
     }
 
     @Test
     public void createPredicatesForTransactionEntity_shouldNotIncludeExtraPredicate() throws Exception {
-        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(ofNullable(TRANSACTION_ENTITY));
+        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(Optional.of(TRANSACTION_ENTITY));
 
         assertThat(predicates).hasSize(2);
     }
 
     @Test
     public void createPredicatesForTransactionEntity_shouldIncludeEnabledPredicateWhenTransactionEntityIdIsProvided() throws Exception {
-        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(ofNullable(TRANSACTION_ENTITY));
+        Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(Optional.of(TRANSACTION_ENTITY));
 
         Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
 
-        assertThat(Collections2.filter(predicates, findEnabled)).hasSize(1);
+        assertThat(Collections2.filter(predicates, findEnabled::test)).hasSize(1);
     }
 
     @Test
@@ -61,23 +62,23 @@ public class IdpPredicateFactoryTest {
 
         Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
 
-        assertThat(Collections2.filter(predicates, findEnabled)).hasSize(1);
+        assertThat(Collections2.filter(predicates, findEnabled::test)).hasSize(1);
     }
 
     @Test
     public void createPredicatesForTransactionEntity_shouldIncludeTransactionEntityPredicateWhenTransactionEntityIdIsProvided() throws Exception {
         Set<Predicate<IdentityProviderConfig>> predicates =
-                idpPredicateFactory.createPredicatesForTransactionEntity(ofNullable(TRANSACTION_ENTITY));
+                idpPredicateFactory.createPredicatesForTransactionEntity(Optional.of(TRANSACTION_ENTITY));
 
         Predicate<Predicate> findEnabled = input -> {
-            if(!(input instanceof OnboardingForTransactionEntityPredicate)){
+            if (!(input instanceof OnboardingForTransactionEntityPredicate)) {
                 return false;
             }
 
-            return ((OnboardingForTransactionEntityPredicate)input).getTransactionEntity().equals(TRANSACTION_ENTITY);
+            return ((OnboardingForTransactionEntityPredicate) input).getTransactionEntity().equals(TRANSACTION_ENTITY);
         };
 
-        assertThat(Collections2.filter(predicates, findEnabled)).hasSize(1);
+        assertThat(Collections2.filter(predicates, findEnabled::test)).hasSize(1);
     }
 
     @Test
@@ -85,13 +86,13 @@ public class IdpPredicateFactoryTest {
         Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(null);
 
         Predicate<Predicate> findEnabled = input -> {
-            if(!(input instanceof OnboardingForTransactionEntityPredicate)){
+            if (!(input instanceof OnboardingForTransactionEntityPredicate)) {
                 return false;
             }
 
-            return ((OnboardingForTransactionEntityPredicate)input).getTransactionEntity().equals(TRANSACTION_ENTITY);
+            return ((OnboardingForTransactionEntityPredicate) input).getTransactionEntity().equals(TRANSACTION_ENTITY);
         };
 
-        assertThat(Collections2.filter(predicates, findEnabled)).isEmpty();
+        assertThat(Collections2.filter(predicates, findEnabled::test)).isEmpty();
     }
 }

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config.domain.filters;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
@@ -8,6 +7,7 @@ import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.Set;
 
 public class IdpPredicateFactory {
