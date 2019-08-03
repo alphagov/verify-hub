@@ -9,7 +9,6 @@ import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.hub.exception.SamlValidationException;
 import uk.gov.ida.saml.hub.validators.response.common.IssuerValidator;
 import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
-import uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil;
 
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingId;
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSignature;

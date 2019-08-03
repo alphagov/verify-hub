@@ -13,7 +13,6 @@ import uk.gov.ida.hub.policy.contracts.SamlMessageDto;
 import uk.gov.ida.hub.policy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlRequestWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseContainerDto;
-import uk.gov.ida.hub.policy.contracts.SamlResponseDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.IdaAuthnRequestFromHubDto;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;

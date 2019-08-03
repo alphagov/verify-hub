@@ -14,8 +14,6 @@ import javax.inject.Named;
 
 import java.util.Collections;
 
-import static java.util.Optional.empty;
-
 public class RpErrorResponseGeneratorService {
 
     private final OutboundResponseFromHubToResponseTransformerFactory outboundResponseFromHubToResponseTransformerFactory;
