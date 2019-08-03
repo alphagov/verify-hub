@@ -35,7 +35,7 @@ public class MatchingServiceConfigProxy {
 
     private LoadingCache<URI, MatchingServiceConfigEntityDataDto> matchingServiceConfigEntityDataDto = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<URI, MatchingServiceConfigEntityDataDto>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public MatchingServiceConfigEntityDataDto load(URI key) {
                     return jsonClient.get(key, MatchingServiceConfigEntityDataDto.class);

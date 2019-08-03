@@ -32,7 +32,7 @@ public class TransactionsConfigProxy {
 
     private LoadingCache<URI, Boolean> booleanCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<URI, Boolean>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public Boolean load(URI key) throws Exception {
                     return jsonClient.get(key, Boolean.class);

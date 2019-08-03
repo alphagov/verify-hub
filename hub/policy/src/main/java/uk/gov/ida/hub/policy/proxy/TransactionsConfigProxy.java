@@ -36,7 +36,7 @@ public class TransactionsConfigProxy {
 
     private LoadingCache<URI, ResourceLocation> resourceLocation = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<URI, ResourceLocation>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public ResourceLocation load(@Nonnull URI key) {
                     return jsonClient.get(key, ResourceLocation.class);

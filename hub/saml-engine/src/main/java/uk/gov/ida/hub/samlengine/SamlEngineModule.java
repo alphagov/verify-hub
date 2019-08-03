@@ -428,12 +428,12 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     private XmlObjectToBase64EncodedStringTransformer<Response> responseXmlObjectToBase64EncodedStringTransformer() {
-        return new XmlObjectToBase64EncodedStringTransformer<Response>();
+        return new XmlObjectToBase64EncodedStringTransformer<>();
     }
 
     @Provides
     private XmlObjectToBase64EncodedStringTransformer<Assertion> assertionXmlObjectToBase64EncodedStringTransformer() {
-        return new XmlObjectToBase64EncodedStringTransformer<Assertion>();
+        return new XmlObjectToBase64EncodedStringTransformer<>();
     }
 
     @Provides

@@ -295,8 +295,8 @@ public class HubTransformersFactory {
             SignatureAlgorithm signatureAlgorithm,
             DigestAlgorithm digestAlgorithm) {
         return new RequestAbstractTypeToStringTransformer<>(
-                new SigningRequestAbstractTypeSignatureCreator<T>(new SignatureFactory(includeKeyInfo, new IdaKeyStoreCredentialRetriever(keyStore), signatureAlgorithm, digestAlgorithm)),
-                new SamlSignatureSigner<T>(),
+                new SigningRequestAbstractTypeSignatureCreator<>(new SignatureFactory(includeKeyInfo, new IdaKeyStoreCredentialRetriever(keyStore), signatureAlgorithm, digestAlgorithm)),
+                new SamlSignatureSigner<>(),
                 new XmlObjectToBase64EncodedStringTransformer<>()
         );
     }
@@ -525,7 +525,7 @@ public class HubTransformersFactory {
         return new AttributeQueryToElementTransformer(
                 new SigningRequestAbstractTypeSignatureCreator<>(new SignatureFactory(new IdaKeyStoreCredentialRetriever(keyStore), signatureAlgorithm, digestAlgorithm)),
                 new SamlAttributeQueryAssertionSignatureSigner(new IdaKeyStoreCredentialRetriever(keyStore), new OpenSamlXmlObjectFactory(), hubEntityId),
-                new SamlSignatureSigner<AttributeQuery>(),
+                new SamlSignatureSigner<>(),
                 new XmlObjectToElementTransformer<>(),
                 getSamlAttributeQueryAssertionEncrypter(encryptionKeyStore, entity)
         );
