@@ -187,24 +187,24 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.EIDAS_COUNTRIES_FOR_TRANSACTION_PATH)
     @Timed
     public List<String> getEidasCountries(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
-        final TransactionConfig configData = getTransactionConfigData(entityId);
-        Optional<List<String>> eidasCountries = configData.getEidasCountries();
-        return eidasCountries.isPresent() ? eidasCountries.get() : ImmutableList.of();
+        return getTransactionConfigData(entityId)
+                .getEidasCountries()
+                .orElseGet(ImmutableList::of);
     }
 
     @GET
     @Path(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_PATH)
     @Timed
     public boolean getShouldSignWithSHA1(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        final TransactionConfig configData = getTransactionConfigData(entityId);
-        return configData.getShouldSignWithSHA1();
+        return getTransactionConfigData(entityId)
+                .getShouldSignWithSHA1();
     }
     @GET
     @Path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
     public boolean isUsingMatching(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
-        final TransactionConfig configData = getTransactionConfigData(entityId);
-        return configData.isUsingMatching();
+        return getTransactionConfigData(entityId)
+                .isUsingMatching();
     }
 
     @GET
