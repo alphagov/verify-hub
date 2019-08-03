@@ -97,7 +97,7 @@ public class S3ConfigSourceTest {
      */
     public void getRemoteConfigReturnsRemoteConfigCollection() throws Exception {
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigEnabledJson, SelfServiceConfig.class);
-        when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
+        when(s3Client.getObject(new GetObjectRequest(BUCKET_NAME, OBJECT_KEY))).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(new Date());
@@ -135,7 +135,7 @@ public class S3ConfigSourceTest {
     @Test
     public void getRemoteConfigReturnsCachedConfigWhenRepeatedlyCalled() throws IOException {
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigEnabledJson, SelfServiceConfig.class);
-        when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
+        when(s3Client.getObject(new GetObjectRequest(BUCKET_NAME, OBJECT_KEY))).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(new Date());
@@ -150,7 +150,7 @@ public class S3ConfigSourceTest {
     @Test
     public void getRemoteConfigOnlyRetrievesNewContentWhenLastModifiedChanges() throws Exception {
         SelfServiceConfig selfServiceConfig = objectMapper.readValue(selfServiceConfigShortCacheJson, SelfServiceConfig.class);
-        when(s3Client.getObject(BUCKET_NAME, OBJECT_KEY)).thenReturn(s3Object);
+        when(s3Client.getObject(new GetObjectRequest(BUCKET_NAME, OBJECT_KEY))).thenReturn(s3Object);
         when(s3Object.getObjectContent()).thenReturn(getObjectStream("/remote-test-config.json"));
         when(s3Object.getObjectMetadata()).thenReturn(objectMetadata);
         when(objectMetadata.getLastModified()).thenReturn(Date.from(Instant.now().minusMillis(10000)));
