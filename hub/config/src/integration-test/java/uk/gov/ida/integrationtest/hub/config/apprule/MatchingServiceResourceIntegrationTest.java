@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collection;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
@@ -46,7 +46,7 @@ public class MatchingServiceResourceIntegrationTest {
                     .build())
             .addIdp(anIdentityProviderConfigData()
                     .withEntityId("idp-entity-id")
-                    .withOnboarding(asList("rp-entity-id"))
+                    .withOnboarding(singletonList("rp-entity-id"))
                     .build());
 
 

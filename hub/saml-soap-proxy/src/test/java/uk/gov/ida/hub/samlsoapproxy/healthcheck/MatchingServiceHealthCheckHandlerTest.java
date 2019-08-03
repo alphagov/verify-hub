@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.Collection;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -41,7 +42,7 @@ public class MatchingServiceHealthCheckHandlerTest {
     @Test
     public void handle_shouldReturnSuccessWhenMatchingServiceIsHealthy() throws Exception {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto().build();
-        when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(asList(matchingServiceConfigEntityDataDto));
+        when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(singletonList(matchingServiceConfigEntityDataDto));
         when(matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto))
                 .thenReturn(MatchingServiceHealthCheckResult.healthy(MatchingServiceHealthCheckDetailsBuilder.aMatchingServiceHealthCheckDetails().build()));
 
@@ -53,7 +54,7 @@ public class MatchingServiceHealthCheckHandlerTest {
     @Test
     public void handle_shouldReturnSuccessWhenMatchingServiceIsNotHealthy() throws Exception {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto().build();
-        when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(asList(matchingServiceConfigEntityDataDto));
+        when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(singletonList(matchingServiceConfigEntityDataDto));
         when(matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto))
                 .thenReturn(MatchingServiceHealthCheckResult.unhealthy(MatchingServiceHealthCheckDetailsBuilder.aMatchingServiceHealthCheckDetails().build()));
 
@@ -81,7 +82,7 @@ public class MatchingServiceHealthCheckHandlerTest {
     @Test
     public void handle_shouldNotExecuteHealthCheckForMatchingServiceWithHealthCheckDisabled() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = aMatchingServiceConfigEntityDataDto().withHealthCheckDisabled().build();
-        when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(asList(matchingServiceConfigEntityDataDto));
+        when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(singletonList(matchingServiceConfigEntityDataDto));
 
         matchingServiceHealthCheckHandler.handle();
 
@@ -92,7 +93,7 @@ public class MatchingServiceHealthCheckHandlerTest {
     @Test
     public void handle_shouldExecuteHealthCheckForMatchingServiceWithHealthCheckDisabledWhenForced() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = aMatchingServiceConfigEntityDataDto().withHealthCheckDisabled().build();
-        when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(asList(matchingServiceConfigEntityDataDto));
+        when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(singletonList(matchingServiceConfigEntityDataDto));
 
         matchingServiceHealthCheckHandler.forceCheckAllMSAs();
 

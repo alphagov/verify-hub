@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.dropwizard.testing.ConfigOverride.config;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.application.OcspCertificateChainValidationService.INVALID;
 import static uk.gov.ida.hub.config.application.PrometheusClientService.VERIFY_CONFIG_CERTIFICATE_EXPIRY_DATE;
@@ -61,7 +61,7 @@ public class PrometheusMetricsIntegrationTest {
     private static final MatchingServiceConfig MATCHING_SERVICE_CONFIG_ENTITY_DATA = aMatchingServiceConfig().withEntityId(RP_MS_ENTITY_ID)
                                                                                                                                  .build();
     private static final IdentityProviderConfig IDENTITY_PROVIDER_CONFIG_ENTITY_DATA = anIdentityProviderConfigData().withEntityId("idp-entity-id")
-                                                                                                                               .withOnboarding(asList(RP_ENTITY_ID))
+                                                                                                                               .withOnboarding(singletonList(RP_ENTITY_ID))
                                                                                                                                .build();
     private static final String RP_ENTITY_ID_BAD_SIGNATURE_CERT = "rp-entity-id-bad-cert";
     private static final String RP_ENTITY_ID_BAD_ENCRYPTION_CERT = "rp-entity-id-bad-encryption-cert";

@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static uk.gov.ida.hub.config.domain.LevelOfAssurance.LEVEL_1;
 import static uk.gov.ida.hub.config.domain.LevelOfAssurance.LEVEL_2;
@@ -61,7 +62,7 @@ public class LevelsOfAssuranceConfigValidator {
                 .filter(x -> {
                     List<LevelOfAssurance> levelsOfAssurance = x.getLevelsOfAssurance();
                     boolean isLoa1 = levelsOfAssurance.equals(asList(LEVEL_1, LEVEL_2));
-                    boolean isLoa2 = levelsOfAssurance.equals(asList(LEVEL_2));
+                    boolean isLoa2 = levelsOfAssurance.equals(singletonList(LEVEL_2));
                     return !(isLoa1 || isLoa2);
                 })
                 .collect(Collectors.toList());

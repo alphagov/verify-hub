@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -69,17 +70,16 @@ public class CountriesServiceTest {
     public void shouldReturnIntersectionOfEnabledSystemWideCountriesAndRPConfiguredCountries() {
         setSystemWideCountries(asList(COUNTRY_1, COUNTRY_2, DISABLED_COUNTRY));
         when(sessionRepository.getRequestIssuerEntityId(sessionId)).thenReturn(RELYING_PARTY_ID);
-        when(configProxy.getEidasSupportedCountriesForRP(RELYING_PARTY_ID)).thenReturn(asList(COUNTRY_2.getEntityId()));
-        List<EidasCountryDto> countries = service.getCountries(sessionId);
+        when(configProxy.getEidasSupportedCountriesForRP(RELYING_PARTY_ID)).thenReturn(singletonList(COUNTRY_2.getEntityId()));
 
-        assertThat(countries, equalTo(Arrays.asList(COUNTRY_2)));
+        assertThat(service.getCountries(sessionId), equalTo(singletonList(COUNTRY_2)));
     }
 
     @Test
     public void shouldSetSelectedCountry() {
         EidasCountrySelectedStateController mockEidasCountrySelectedStateController = mock(EidasCountrySelectedStateController.class);
         when(sessionRepository.getStateController(sessionId, EidasCountrySelectingState.class)).thenReturn(mockEidasCountrySelectedStateController);
-        setSystemWideCountries(asList(COUNTRY_1));
+        setSystemWideCountries(singletonList(COUNTRY_1));
 
         service.setSelectedCountry(sessionId, COUNTRY_1.getSimpleId());
 
@@ -88,7 +88,7 @@ public class CountriesServiceTest {
 
     @Test(expected = EidasCountryNotSupportedException.class)
     public void shouldReturnErrorWhenAnInvalidCountryIsSelected() {
-        setSystemWideCountries(asList(COUNTRY_1));
+        setSystemWideCountries(singletonList(COUNTRY_1));
 
         service.setSelectedCountry(sessionId, "not-a-valid-country-code");
     }

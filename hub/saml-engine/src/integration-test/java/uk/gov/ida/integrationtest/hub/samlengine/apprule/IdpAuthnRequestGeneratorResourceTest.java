@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
 
@@ -50,7 +50,7 @@ public class IdpAuthnRequestGeneratorResourceTest {
         final String idpEntityId = STUB_IDP_ONE;
         final URI ssoUri = URI.create("http://foo.com/bar");
 
-        IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = new IdaAuthnRequestFromHubDto("1", asList(AuthnContext.LEVEL_2), Optional.of(false), new DateTime(), idpEntityId, false);
+        IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = new IdaAuthnRequestFromHubDto("1", singletonList(AuthnContext.LEVEL_2), Optional.of(false), new DateTime(), idpEntityId, false);
 
         final URI uri = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_IDP_AUTHN_REQUEST_RESOURCE);
         Response clientResponse = client.target(uri)

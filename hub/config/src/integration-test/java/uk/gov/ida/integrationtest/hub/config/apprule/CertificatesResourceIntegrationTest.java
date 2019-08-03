@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collection;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
@@ -57,7 +57,7 @@ public class CertificatesResourceIntegrationTest {
                     .build())
             .addIdp(anIdentityProviderConfigData()
                     .withEntityId("idp-entity-id")
-                    .withOnboarding(asList(RP_ENTITY_ID))
+                    .withOnboarding(singletonList(RP_ENTITY_ID))
                     .build());
 
     @BeforeClass
