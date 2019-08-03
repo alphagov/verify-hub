@@ -27,7 +27,7 @@ public class StateProcessingValidationException extends RuntimeException {
     }
 
     public static StateProcessingValidationException wrongLevelOfAssurance(Optional<LevelOfAssurance> loa, List<LevelOfAssurance> expectedLevels) {
-        return new StateProcessingValidationException(format("Level of assurance in the response does not match level of assurance in the request. Was [{0}] but expected [{1}].", loa.map(LevelOfAssurance::name).orElseGet(() -> "null"), expectedLevels), Level.ERROR);
+        return new StateProcessingValidationException(format("Level of assurance in the response does not match level of assurance in the request. Was [{0}] but expected [{1}].", loa.map(LevelOfAssurance::name).orElse("null"), expectedLevels), Level.ERROR);
     }
 
     public static StateProcessingValidationException noLevelOfAssurance() {
