@@ -84,7 +84,7 @@ public class RemoteConfigCollection {
             case MS:
                 return Optional.ofNullable(matchingServiceAdapters.get(entity.getEntityId()));
             default:
-                LOG.warn("Entity (%s) has a type of '%s' that cannot be served by the remote config",
+                LOG.warn("Entity ({}) has a type of '{}' that cannot be served by the remote config",
                         entity.getEntityId(),
                         entity.getEntityType());
                 return Optional.empty();
