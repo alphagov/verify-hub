@@ -18,7 +18,6 @@ import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromIdpDto;
 
 import javax.ws.rs.core.Response;
-import java.util.List;
 import java.util.UUID;
 
 public class SamlEngineStubRule extends HttpStubRule {
@@ -78,12 +77,15 @@ public class SamlEngineStubRule extends HttpStubRule {
         register(Urls.SamlEngineUrls.GENERATE_RP_ERROR_RESPONSE_RESOURCE, Response.Status.BAD_REQUEST.getStatusCode(), ErrorStatusDto.createAuditedErrorStatus(UUID.randomUUID(), ExceptionType.INVALID_INPUT));
     }
 
+    private RecordedRequest getRecordedTranslateRequest() {
+        return getRecordedRequest()
+                .stream()
+                .filter(request -> request.getPath().equals(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE))
+                .findFirst()
+                .orElseThrow();
+    }
+
     public SamlAuthnResponseTranslatorDto getSamlAuthnResponseTranslatorDto(ObjectMapper objectMapper) throws java.io.IOException {
-        List<RecordedRequest> recordedRequest = getRecordedRequest();
-        RecordedRequest recordedTranslateRequest = recordedRequest.stream().filter(request -> {
-                    return request.getPath().equals(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE);
-                }
-        ).findFirst().get();
-        return objectMapper.readValue(new String(recordedTranslateRequest.getEntityBytes()), SamlAuthnResponseTranslatorDto.class);
+        return objectMapper.readValue(new String(getRecordedTranslateRequest().getEntityBytes()), SamlAuthnResponseTranslatorDto.class);
     }
 }
