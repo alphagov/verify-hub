@@ -20,7 +20,7 @@ public class RelayStateValidatorTest {
 
     @Test
     public void validate_shouldCheckRelayStateLengthIsLessThanEightyOneCharactersOrRaiseException() {
-        final String aStringMoreThanEightyCharacters = generateLongString();
+        final String aStringMoreThanEightyCharacters = "a".repeat(82);
 
         SamlTransformationErrorManagerTestHelper.validateFail(
                 new SamlTransformationErrorManagerTestHelper.Action() {
@@ -36,7 +36,7 @@ public class RelayStateValidatorTest {
 
     @Test
     public void validate_shouldCheckRelayStateForValidStringAndNotThrowAnException() {
-        String aStringLessThanEightyCharacters = generateShortString();
+        String aStringLessThanEightyCharacters = "short string";
 
         relayStateValidator.validate(aStringLessThanEightyCharacters);
     }
@@ -57,18 +57,5 @@ public class RelayStateValidatorTest {
                     SamlTransformationErrorFactory.relayStateContainsInvalidCharacter(i, aString + i)
             );
         }
-    }
-
-    private String generateShortString() {
-        return "short string";
-    }
-
-
-    private String generateLongString() {
-        String longString = "";
-        for (int i = 0; i < 82; i++) {
-            longString = longString + "a";
-        }
-        return longString;
     }
 }

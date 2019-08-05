@@ -1,6 +1,5 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import helpers.JerseyClientConfigurationBuilder;
 import httpstub.HttpStubRule;
 import io.dropwizard.client.JerseyClientBuilder;
@@ -43,30 +42,28 @@ public class DenialOfServiceAttacksIntegrationTests {
     }
 
     @Before
-    public void setUp() throws JsonProcessingException {
+    public void setUp() {
         eventSinkStubRule.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
     }
 
     @Test
     public void requestPost_shouldRedirectToGenericErrorWhenEntityExpansionAttackOccurs() throws Exception {
         String xmlString = "<?xml version=\"1.0\"?>\n" +
-            "<!DOCTYPE lolz [\n" +
-            " <!ENTITY lol \"lol\">\n" +
-            " <!ELEMENT lolz (#PCDATA)>\n" +
-            " <!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">\n" +
-            " <!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">\n" +
-            " <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">\n" +
-            " <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">\n" +
-            " <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">\n" +
-            " <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">\n" +
-            " <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">\n" +
-            " <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">\n" +
-            " <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\n" +
-            "]>\n" +
-            "<lolz>&lol9;</lolz>";
-        for (int i = 0; i < 80; i++) {
-            xmlString += "          ";
-        }
+                "<!DOCTYPE lolz [\n" +
+                " <!ENTITY lol \"lol\">\n" +
+                " <!ELEMENT lolz (#PCDATA)>\n" +
+                " <!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">\n" +
+                " <!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">\n" +
+                " <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">\n" +
+                " <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">\n" +
+                " <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">\n" +
+                " <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">\n" +
+                " <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">\n" +
+                " <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">\n" +
+                " <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\n" +
+                "]>\n" +
+                "<lolz>&lol9;</lolz>" +
+                "          ".repeat(80);
         String samlAuthnRequest = StringEncoding.toBase64Encoded(xmlString);
         String relayState = "aRelayState";
 
