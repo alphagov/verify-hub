@@ -42,7 +42,7 @@ public class SplunkAppenderFactory extends AbstractAppenderFactory<ILoggingEvent
 
     @Override
     public Appender<ILoggingEvent> build(LoggerContext context, String applicationName, LayoutFactory<ILoggingEvent> layoutFactory, LevelFilterFactory<ILoggingEvent> levelFilterFactory, AsyncAppenderFactory<ILoggingEvent> asyncAppenderFactory) {
-        HttpEventCollectorLogbackAppender<ILoggingEvent> appender = new HttpEventCollectorLogbackAppender<ILoggingEvent>();
+        HttpEventCollectorLogbackAppender<ILoggingEvent> appender = new HttpEventCollectorLogbackAppender<>();
         checkNotNull(context);
 
         appender.setUrl(url);

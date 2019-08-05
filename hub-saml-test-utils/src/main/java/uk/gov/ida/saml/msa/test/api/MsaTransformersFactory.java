@@ -38,8 +38,8 @@ public class MsaTransformersFactory {
                 new EncrypterFactory(),
                 entityToEncryptForLocator);
         return new ResponseToElementTransformer(
-                new XmlObjectToElementTransformer<Response>(),
-                new SamlSignatureSigner<Response>(),
+                new XmlObjectToElementTransformer<>(),
+                new SamlSignatureSigner<>(),
                 assertionEncrypter,
                 new ResponseAssertionSigner(signatureFactory),
                 new ResponseSignatureCreator(signatureFactory)

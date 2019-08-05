@@ -28,7 +28,7 @@ public class CertificatesConfigProxy {
 
     private LoadingCache<URI, CertificateDto> encryptionCertificates = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<URI, CertificateDto>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public CertificateDto load(URI key) {
                     return jsonClient.get(key, CertificateDto.class);
@@ -36,7 +36,7 @@ public class CertificatesConfigProxy {
             });
     private LoadingCache<URI, Collection<CertificateDto>> signingCertificates = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<URI, Collection<CertificateDto>>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public Collection<CertificateDto> load(URI key) {
                     return jsonClient.get(key, new GenericType<Collection<CertificateDto>>() {

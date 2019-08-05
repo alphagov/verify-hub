@@ -31,7 +31,7 @@ public enum UserAccountCreationAttribute implements Serializable {
     }
 
     public static UserAccountCreationAttribute getUserAccountCreationAttribute(final String name){
-        return Iterables.find(ImmutableList.copyOf(values()), new Predicate<UserAccountCreationAttribute>() {
+        return Iterables.find(ImmutableList.copyOf(values()), new Predicate<>() {
             @Override
             public boolean apply(final UserAccountCreationAttribute input) {
                 return input.getAttributeName().equals(name);

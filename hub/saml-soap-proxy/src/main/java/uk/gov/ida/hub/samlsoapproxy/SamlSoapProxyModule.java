@@ -96,7 +96,7 @@ public class SamlSoapProxyModule extends AbstractModule {
         bind(PublicKeyInputStreamFactory.class).toInstance(new PublicKeyFileInputStreamFactory());
         bind(RestfulClientConfiguration.class).to(SamlSoapProxyConfiguration.class);
         bind(Client.class).toProvider(DefaultClientProvider.class).asEagerSingleton();
-        bind(new TypeLiteral<ConfigurationFactoryFactory<SupportedMsaVersions>>() {}).toInstance(new DefaultConfigurationFactoryFactory<SupportedMsaVersions>() {});
+        bind(new TypeLiteral<ConfigurationFactoryFactory<SupportedMsaVersions>>() {}).toInstance(new DefaultConfigurationFactoryFactory<>(){});
         bind(new TypeLiteral<SupportedMsaVersionsRepository>() {}).asEagerSingleton();
         bind(SupportedMsaVersionsBootstrap.class).asEagerSingleton();
         bind(SupportedMsaVersionsLoader.class).asEagerSingleton();

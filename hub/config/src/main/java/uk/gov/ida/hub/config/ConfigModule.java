@@ -59,11 +59,11 @@ public class ConfigModule extends AbstractModule {
                 .annotatedWith(CertificateConfigValidator.class)
                 .to(LoggingCertificateChainConfigValidator.class);
         bind(TrustStoreConfiguration.class).to(ConfigConfiguration.class);
-        bind(new TypeLiteral<ConfigurationFactoryFactory<IdentityProviderConfig>>() {}).toInstance(new DefaultConfigurationFactoryFactory<IdentityProviderConfig>());
-        bind(new TypeLiteral<ConfigurationFactoryFactory<TransactionConfig>>(){}).toInstance(new DefaultConfigurationFactoryFactory<TransactionConfig>());
-        bind(new TypeLiteral<ConfigurationFactoryFactory<MatchingServiceConfig>>(){}).toInstance(new DefaultConfigurationFactoryFactory<MatchingServiceConfig>());
-        bind(new TypeLiteral<ConfigurationFactoryFactory<CountryConfig>>(){}).toInstance(new DefaultConfigurationFactoryFactory<CountryConfig>());
-        bind(new TypeLiteral<ConfigurationFactoryFactory<TranslationData>>(){}).toInstance(new DefaultConfigurationFactoryFactory<TranslationData>());
+        bind(new TypeLiteral<ConfigurationFactoryFactory<IdentityProviderConfig>>() {}).toInstance(new DefaultConfigurationFactoryFactory<>());
+        bind(new TypeLiteral<ConfigurationFactoryFactory<TransactionConfig>>(){}).toInstance(new DefaultConfigurationFactoryFactory<>());
+        bind(new TypeLiteral<ConfigurationFactoryFactory<MatchingServiceConfig>>(){}).toInstance(new DefaultConfigurationFactoryFactory<>());
+        bind(new TypeLiteral<ConfigurationFactoryFactory<CountryConfig>>(){}).toInstance(new DefaultConfigurationFactoryFactory<>());
+        bind(new TypeLiteral<ConfigurationFactoryFactory<TranslationData>>(){}).toInstance(new DefaultConfigurationFactoryFactory<>());
         bind(new TypeLiteral<ConfigDataSource<TransactionConfig>>() {}).to(FileBackedTransactionConfigDataSource.class).asEagerSingleton();
         bind(new TypeLiteral<ConfigDataSource<TranslationData>>() {}).to(FileBackedTranslationsDataSource.class).asEagerSingleton();
         bind(new TypeLiteral<ConfigDataSource<MatchingServiceConfig>>() {}).to(FileBackedMatchingServiceConfigDataSource.class).asEagerSingleton();
