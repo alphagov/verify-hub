@@ -12,9 +12,7 @@ import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
 import uk.gov.ida.hub.samlproxy.Urls;
-import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.hub.exception.SamlDuplicateRequestIdException;
-import uk.gov.ida.saml.hub.exception.SamlRequestTooOldException;
 import uk.gov.ida.shared.utils.logging.LevelLogger;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 

@@ -6,16 +6,11 @@ import uk.gov.ida.hub.samlengine.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.samlengine.contracts.ResponseFromHubDto;
 import uk.gov.ida.hub.samlengine.exceptions.UnableToGenerateSamlException;
 import uk.gov.ida.hub.samlengine.factories.OutboundResponseFromHubToResponseTransformerFactory;
-import uk.gov.ida.hub.samlengine.locators.AssignableEntityToEncryptForLocator;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class RpAuthnResponseGeneratorService {
 

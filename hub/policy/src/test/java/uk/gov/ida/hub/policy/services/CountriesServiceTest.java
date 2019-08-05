@@ -11,7 +11,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectedStateController;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
-import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.exception.EidasCountryNotSupportedException;
 import uk.gov.ida.hub.policy.exception.EidasNotSupportedException;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
@@ -20,10 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

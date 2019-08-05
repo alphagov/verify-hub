@@ -5,7 +5,6 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.session.SessionStore;
 
 import javax.inject.Inject;
-import java.util.concurrent.ConcurrentMap;
 
 public class TestSessionRepository {
 

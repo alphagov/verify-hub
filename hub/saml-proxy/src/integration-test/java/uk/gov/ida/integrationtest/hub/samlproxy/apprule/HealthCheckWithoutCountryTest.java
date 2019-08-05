@@ -4,9 +4,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
 
-import javax.ws.rs.client.Client;
-
-import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlproxy.SamlProxyModule.COUNTRY_METADATA_HEALTH_CHECK;
 import static uk.gov.ida.hub.samlproxy.SamlProxyModule.VERIFY_METADATA_HEALTH_CHECK;

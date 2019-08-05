@@ -2,11 +2,9 @@ package uk.gov.ida.hub.policy;
 
 import io.dropwizard.lifecycle.Managed;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.session.SessionStore;
 
 import javax.inject.Inject;
-import java.util.concurrent.ConcurrentMap;
 
 public class SessionStoreStartupTasks implements Managed {
 

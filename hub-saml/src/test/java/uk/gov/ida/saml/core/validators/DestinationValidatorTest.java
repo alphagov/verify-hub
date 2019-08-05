@@ -5,11 +5,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.fail;
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.destinationEmpty;
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.destinationMissing;
 import static uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper.*;

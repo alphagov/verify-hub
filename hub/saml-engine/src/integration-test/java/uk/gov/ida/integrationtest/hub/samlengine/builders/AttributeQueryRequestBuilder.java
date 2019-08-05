@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.samlengine.builders;
 
 import org.opensaml.core.xml.XMLObject;
-import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import uk.gov.ida.hub.samlengine.domain.AttributeQueryRequestDto;
 import uk.gov.ida.hub.samlengine.domain.PersistentId;

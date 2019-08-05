@@ -19,8 +19,6 @@ import static uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
-import static uk.gov.ida.saml.core.test.builders.StatusBuilder.aStatus;
-import static uk.gov.ida.saml.core.test.builders.StatusCodeBuilder.aStatusCode;
 import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.createStatus;
 import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.createSubStatusCode;
 

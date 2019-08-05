@@ -2,9 +2,6 @@ package uk.gov.ida.saml.core.validators.assertion;
 
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnStatement;
-import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
-import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
-import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.hub.exception.SamlValidationException;
 
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnContextClassRefMissing;

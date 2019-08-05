@@ -14,8 +14,6 @@ import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import static uk.gov.ida.saml.core.test.builders.metadata.EndpointBuilder.anEndpoint;
 import static uk.gov.ida.saml.core.test.builders.metadata.EntityDescriptorBuilder.anEntityDescriptor;
-import static uk.gov.ida.saml.core.test.builders.metadata.OrganizationBuilder.anOrganization;
-import static uk.gov.ida.saml.core.test.builders.metadata.OrganizationDisplayNameBuilder.anOrganizationDisplayName;
 import static uk.gov.ida.saml.core.test.builders.metadata.X509DataBuilder.aX509Data;
 
 @RunWith(OpenSAMLMockitoRunner.class)

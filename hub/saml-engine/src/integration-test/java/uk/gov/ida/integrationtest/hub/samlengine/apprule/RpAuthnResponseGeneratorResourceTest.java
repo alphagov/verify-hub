@@ -35,7 +35,6 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static io.dropwizard.testing.ConfigOverride.config;
