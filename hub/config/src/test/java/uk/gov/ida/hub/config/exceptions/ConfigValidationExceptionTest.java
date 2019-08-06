@@ -12,7 +12,7 @@ import java.security.cert.CertPathValidatorException;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
@@ -45,7 +45,7 @@ public class ConfigValidationExceptionTest {
     @Test
     public void createInvalidCertificatesException() throws Exception {
         InvalidCertificateDto invalidCertificateDto = new InvalidCertificateDto("entity-id", CertPathValidatorException.BasicReason.EXPIRED, CertificateType.ENCRYPTION, FederationEntityType.IDP, "description");
-        ConfigValidationException exception = ConfigValidationException.createInvalidCertificatesException(asList(invalidCertificateDto));
+        ConfigValidationException exception = ConfigValidationException.createInvalidCertificatesException(singletonList(invalidCertificateDto));
         assertThat(exception.getMessage()).isEqualTo("Invalid certificate found.\n" +
                 "Entity Id: entity-id\n" +
                 "Certificate Type: ENCRYPTION\n" +
@@ -56,13 +56,13 @@ public class ConfigValidationExceptionTest {
 
     @Test
     public void createIDPLevelsOfAssuranceUnsupportedException() throws Exception {
-        ConfigValidationException exception = ConfigValidationException.createIDPLevelsOfAssuranceUnsupportedException(asList(anIdentityProviderConfigData().build()));
+        ConfigValidationException exception = ConfigValidationException.createIDPLevelsOfAssuranceUnsupportedException(singletonList(anIdentityProviderConfigData().build()));
         assertThat(exception.getMessage()).isEqualTo("Unsupported level of assurance in IDP config.\nEntity Id: default-idp-entity-id\nLevels: [LEVEL_2]\n");
     }
 
     @Test
     public void createTransactionsRequireUnsupportedLevelOfAssurance() throws Exception {
-        ConfigValidationException exception = ConfigValidationException.createTransactionsRequireUnsupportedLevelOfAssurance(asList(aTransactionConfigData().build()));
+        ConfigValidationException exception = ConfigValidationException.createTransactionsRequireUnsupportedLevelOfAssurance(singletonList(aTransactionConfigData().build()));
         assertThat(exception.getMessage()).isEqualTo("Unsupported level of assurance in transaction config.\n" +
                 "Entity Id: default-transaction-entity-id\n" +
                 "Levels of assurance: [LEVEL_1, LEVEL_2]\n");
@@ -70,7 +70,7 @@ public class ConfigValidationExceptionTest {
 
     @Test
     public void createIncompatiblePairsOfTransactionsAndIDPs() throws Exception {
-        Map<TransactionConfig, List<IdentityProviderConfig>> incompatiblePairs = ImmutableMap.of(aTransactionConfigData().build(), asList(anIdentityProviderConfigData().build()));
+        Map<TransactionConfig, List<IdentityProviderConfig>> incompatiblePairs = ImmutableMap.of(aTransactionConfigData().build(), singletonList(anIdentityProviderConfigData().build()));
         ConfigValidationException exception = ConfigValidationException.createIncompatiblePairsOfTransactionsAndIDPs(incompatiblePairs);
         assertThat(exception.getMessage()).isEqualTo("Transaction unsupported by IDP(s).\n" +
                 "Transaction: default-transaction-entity-id\n" +

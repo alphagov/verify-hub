@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static uk.gov.ida.hub.samlproxy.Urls.FrontendUrls.SAML2_SSO_REQUEST_ENDPOINT;
 
 public class HubAsIdpMetadataHandler {
@@ -98,7 +98,7 @@ public class HubAsIdpMetadataHandler {
                 .collect(Collectors.toList());
 
         return new HubIdentityProviderMetadataDto(
-                asList(binding),
+                singletonList(binding),
                 hubEntityId,
                 organisationDto,
                 Collections.<ContactPersonDto>emptySet(),

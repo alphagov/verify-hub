@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -61,9 +61,9 @@ public class StateProcessingValidationExceptionMapperTest {
     public void shouldDoFormatMessage(){
         StateProcessingValidationException exception = StateProcessingValidationException.transactionLevelsOfAssuranceUnsupportedByIDP(
                 "requestIssuerEntityId",
-                asList(LevelOfAssurance.LEVEL_2),
+                singletonList(LevelOfAssurance.LEVEL_2),
                 "idpEntityId",
-                asList(LevelOfAssurance.LEVEL_1));
+                singletonList(LevelOfAssurance.LEVEL_1));
         assertThat(exception.getMessage()).isEqualTo("Transaction LevelsOfAssurance unsupported by IDP. Transaction: requestIssuerEntityId, LOAs: [LEVEL_2], IDP: idpEntityId, IDP LOAs: [LEVEL_1]");
     }
 }

@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.config.application;
 
 import com.google.inject.Inject;
-import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
@@ -64,15 +63,8 @@ public class CertificateService <T extends CertificateConfigurable<T>> {
         return list;
     }
 
-    private Stream<Certificate> getAllCertificates(LocalConfigRepository<T> configRepository) {
-        return configRepository.getAllData()
-                .stream()
-                .flatMap(this::getAllCertificates);
-    }
-
     private Stream<Certificate> getAllCertificates(T config){
-        List<Certificate> certs = new ArrayList();
-        certs.addAll(config.getSignatureVerificationCertificates());
+        ArrayList<Certificate> certs = new ArrayList<>(config.getSignatureVerificationCertificates());
         certs.add(config.getEncryptionCertificate());
         return certs.stream();
     }
@@ -83,6 +75,6 @@ public class CertificateService <T extends CertificateConfigurable<T>> {
                 .findFirst()
                 .orElseThrow(NoCertificateFoundException::new)
                 .get(entityId)
-                .get();
+                .orElseThrow();
     }
 }

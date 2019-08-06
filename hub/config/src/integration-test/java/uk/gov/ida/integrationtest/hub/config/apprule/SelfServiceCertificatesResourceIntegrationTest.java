@@ -24,7 +24,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
@@ -63,7 +63,7 @@ public class SelfServiceCertificatesResourceIntegrationTest {
                     .build())
             .addIdp(anIdentityProviderConfigData()
                     .withEntityId("idp-entity-id")
-                    .withOnboarding(asList("rp-entity-id"))
+                    .withOnboarding(singletonList("rp-entity-id"))
                     .build());
 
     @ClassRule

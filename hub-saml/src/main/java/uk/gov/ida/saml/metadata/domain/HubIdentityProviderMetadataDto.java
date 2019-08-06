@@ -4,9 +4,10 @@ import org.joda.time.DateTime;
 import uk.gov.ida.common.shared.security.Certificate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import static java.util.Collections.singletonList;
 
 public class HubIdentityProviderMetadataDto extends MetadataDto {
 
@@ -23,7 +24,7 @@ public class HubIdentityProviderMetadataDto extends MetadataDto {
             List<Certificate> hubSigningCertificates,
             Certificate hubEncryptionCertificate) {
 
-        super(entityId, validUntil, organisation, contactPersons, hubSigningCertificates, Arrays.asList(hubEncryptionCertificate));
+        super(entityId, validUntil, organisation, contactPersons, hubSigningCertificates, singletonList(hubEncryptionCertificate));
 
         this.singleSignOnEndpoints = singleSignOnEndpoints;
 

@@ -14,6 +14,7 @@ import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.fail;
 
 public class LevelsOfAssuranceConfigValidatorTest {
@@ -34,10 +35,10 @@ public class LevelsOfAssuranceConfigValidatorTest {
             .build();
 
     private final TransactionConfig loa1OnlyTransaction = TransactionConfigBuilder.aTransactionConfigData()
-            .withLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1))
+            .withLevelsOfAssurance(singletonList(LevelOfAssurance.LEVEL_1))
             .build();
     private final TransactionConfig loa3OnlyTransaction = TransactionConfigBuilder.aTransactionConfigData()
-            .withLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_3))
+            .withLevelsOfAssurance(singletonList(LevelOfAssurance.LEVEL_3))
             .build();
     private final TransactionConfig loa2And1Transaction = TransactionConfigBuilder.aTransactionConfigData()
             .withLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1))
@@ -46,7 +47,7 @@ public class LevelsOfAssuranceConfigValidatorTest {
             .withLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .build();
     final TransactionConfig loa2Transaction = TransactionConfigBuilder.aTransactionConfigData()
-            .withLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_2))
+            .withLevelsOfAssurance(singletonList(LevelOfAssurance.LEVEL_2))
             .build();
 
     @Before

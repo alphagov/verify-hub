@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static io.dropwizard.testing.ConfigOverride.config;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static uk.gov.ida.hub.config.domain.builders.CountryConfigBuilder.aCountryConfig;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
@@ -77,7 +77,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
                 .add(config("translationsDirectory", TRANSLATIONS_RELATIVE_PATH))
                 .add(configOverrides)
                 .build();
-        return overrides.toArray(new ConfigOverride[overrides.size()]);
+        return overrides.toArray(new ConfigOverride[0]);
     }
 
     public ConfigAppRule addTransaction(TransactionConfig transaction) {
@@ -169,7 +169,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
             idps.add(
                 anIdentityProviderConfigData()
                     .withEntityId("default-idp-entity-id")
-                    .withOnboarding(asList("default-rp-entity-id"))
+                    .withOnboarding(singletonList("default-rp-entity-id"))
                     .build()
             );
         }

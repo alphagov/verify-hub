@@ -6,7 +6,7 @@ import org.junit.Test;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -42,7 +42,7 @@ public class LevelOfAssuranceValidatorTest {
             levelOfAssuranceValidator.validate(Optional.fromNullable(LevelOfAssurance.LEVEL_2), LevelOfAssurance.LEVEL_4);
             fail("fail");
         } catch (StateProcessingValidationException e) {
-            assertThat(e.getMessage()).isEqualTo(StateProcessingValidationException.wrongLevelOfAssurance(java.util.Optional.of(LevelOfAssurance.LEVEL_2), asList(LevelOfAssurance.LEVEL_4)).getMessage());
+            assertThat(e.getMessage()).isEqualTo(StateProcessingValidationException.wrongLevelOfAssurance(java.util.Optional.of(LevelOfAssurance.LEVEL_2), singletonList(LevelOfAssurance.LEVEL_4)).getMessage());
         }
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IdaAuthnRequestTranslatorTest {
@@ -21,7 +22,7 @@ public class IdaAuthnRequestTranslatorTest {
 
     @Test
     public void shouldUseExactComparisonTypeAndLevelsOfAssurance(){
-        IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = aRequestDto(asList(AuthnContext.LEVEL_2), true);
+        IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = aRequestDto(singletonList(AuthnContext.LEVEL_2), true);
 
         IdaAuthnRequestFromHub idaAuthnRequestFromHub = idaAuthnRequestTranslator.getIdaAuthnRequestFromHub(idaAuthnRequestFromHubDto, URI.create("http://example.com"), HUB_ENTITY_ID);
 
@@ -31,7 +32,7 @@ public class IdaAuthnRequestTranslatorTest {
 
     @Test
     public void shouldUseMinimumComparisonTypeAndDuplicateSingleLevelOfAssurance(){
-        IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = aRequestDto(asList(AuthnContext.LEVEL_2), false);
+        IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = aRequestDto(singletonList(AuthnContext.LEVEL_2), false);
 
         IdaAuthnRequestFromHub idaAuthnRequestFromHub = idaAuthnRequestTranslator.getIdaAuthnRequestFromHub(idaAuthnRequestFromHubDto, URI.create("http://example.com"), HUB_ENTITY_ID);
 
@@ -51,7 +52,7 @@ public class IdaAuthnRequestTranslatorTest {
 
     @Test
     public void shouldUseMinimumComparisonTypeAndSendDuplicateLOAs(){
-        IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = aRequestDto(asList(AuthnContext.LEVEL_2), false);
+        IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = aRequestDto(singletonList(AuthnContext.LEVEL_2), false);
 
         IdaAuthnRequestFromHub idaAuthnRequestFromHub = idaAuthnRequestTranslator.getIdaAuthnRequestFromHub(idaAuthnRequestFromHubDto, URI.create("http://example.com"), HUB_ENTITY_ID);
 
