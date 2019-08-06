@@ -11,21 +11,19 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
 import uk.gov.ida.hub.config.data.ConfigDataSource;
-import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.data.FileBackedCountryConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedIdentityProviderConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedMatchingServiceConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTransactionConfigDataSource;
 import uk.gov.ida.hub.config.data.FileBackedTranslationsDataSource;
 import uk.gov.ida.hub.config.data.LevelsOfAssuranceConfigValidator;
+import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CountryConfig;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
-import uk.gov.ida.hub.config.domain.ThrowingCertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.TranslationData;
 import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
@@ -65,9 +63,7 @@ public class ConfigValidCommand extends ConfiguredCommand<ConfigConfiguration> {
                         bind(LevelsOfAssuranceConfigValidator.class).toInstance(new LevelsOfAssuranceConfigValidator());
                         bind(TrustStoreConfiguration.class).to(ConfigConfiguration.class);
                         bind(TrustStoreForCertificateProvider.class);
-                        bind(CertificateChainConfigValidator.class)
-                                .annotatedWith(CertificateConfigValidator.class)
-                                .to(ThrowingCertificateChainConfigValidator.class);
+                        bind(CertificateChainConfigValidator.class);
                     }
                 });
 

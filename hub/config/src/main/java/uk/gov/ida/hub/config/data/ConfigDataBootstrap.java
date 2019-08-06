@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.config.data;
 
 import io.dropwizard.lifecycle.Managed;
-import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CountryConfig;
 import uk.gov.ida.hub.config.domain.EntityIdentifiable;
@@ -48,7 +47,7 @@ public class ConfigDataBootstrap implements Managed {
             LocalConfigRepository<TransactionConfig> transactionConfigRepository,
             LocalConfigRepository<TranslationData> translationsRepository,
             LocalConfigRepository<CountryConfig> countryConfigRepository,
-            @CertificateConfigValidator CertificateChainConfigValidator certificateChainConfigValidator,
+            CertificateChainConfigValidator certificateChainConfigValidator,
             LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator) {
 
         this.identityProviderConfigDataSource = identityProviderConfigDataSource;

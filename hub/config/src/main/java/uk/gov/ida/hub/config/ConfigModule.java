@@ -12,7 +12,6 @@ import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPPKIXParametersProvider;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
-import uk.gov.ida.hub.config.annotations.CertificateConfigValidator;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.application.PrometheusClientService;
 import uk.gov.ida.hub.config.data.ConfigDataBootstrap;
@@ -29,7 +28,6 @@ import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.CountryConfig;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
-import uk.gov.ida.hub.config.domain.LoggingCertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -55,9 +53,7 @@ public class ConfigModule extends AbstractModule {
     protected void configure() {
         bind(ConfigHealthCheck.class).asEagerSingleton();
         bind(ConfigDataBootstrap.class).asEagerSingleton();
-        bind(CertificateChainConfigValidator.class)
-                .annotatedWith(CertificateConfigValidator.class)
-                .to(LoggingCertificateChainConfigValidator.class);
+        bind(CertificateChainConfigValidator.class).asEagerSingleton();
         bind(TrustStoreConfiguration.class).to(ConfigConfiguration.class);
         bind(new TypeLiteral<ConfigurationFactoryFactory<IdentityProviderConfig>>() {}).toInstance(new DefaultConfigurationFactoryFactory<>());
         bind(new TypeLiteral<ConfigurationFactoryFactory<TransactionConfig>>(){}).toInstance(new DefaultConfigurationFactoryFactory<>());

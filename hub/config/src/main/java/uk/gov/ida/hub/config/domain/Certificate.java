@@ -82,6 +82,7 @@ public class Certificate {
                     .getInstance("X.509")
                     .generateCertificate(new ByteArrayInputStream(certBytes));
         } catch (IllegalArgumentException | CertificateException e) {
+            LOG.error("Certificate ({}) in entity {} could not be instantiated as X509Certificate", certificateUse, issuerEntityId, e);
             //Any problems creating the certificate should return null.
             return null;
         }
@@ -122,6 +123,10 @@ public class Certificate {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public CertificateOrigin getCertificateOrigin(){
+        return certificateOrigin;
     }
 
     @Override

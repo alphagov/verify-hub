@@ -37,6 +37,13 @@ public class CertificateValidityChecker {
                 .collect(Collectors.toSet());
     }
 
+    public Optional<CertificateValidity> validate(Certificate certificate) {
+        return certificate.getX509Certificate()
+                .map(x509 -> certificateChainValidator.validate(
+                        x509,
+                        trustStoreForCertificateProvider.getTrustStoreFor(certificate.getFederationEntityType())));
+    }
+
     public boolean isValid(Certificate certificate) {
         return getCertificateValidity(certificate)
                 .map(CertificateValidity::isValid)
