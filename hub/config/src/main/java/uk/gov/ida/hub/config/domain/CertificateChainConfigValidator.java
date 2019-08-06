@@ -52,7 +52,7 @@ public class CertificateChainConfigValidator {
     }
 
     private void validateMissing(CertificateConfigurable<? extends CertificateConfigurable<?>> config, Certificate certificate) {
-        if(config.isSelfService() && !certificate.isValid()){
+        if(!config.isSelfService() && !certificate.isValid()){
             logBadMissingCertificate(certificate);
         }
     }

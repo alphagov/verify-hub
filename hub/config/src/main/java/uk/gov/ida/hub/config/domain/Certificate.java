@@ -59,7 +59,7 @@ public class Certificate {
             try {
                 return Base64.getEncoder().encodeToString(x509.getEncoded());
             } catch (CertificateEncodingException e) {
-                //this should never happen as the x509 should be valid.
+                LOG.warn("Certificate ({}) in entity {} could not be Base64Encoded.", certificateUse, issuerEntityId, e);
                 return null;
             }
         });

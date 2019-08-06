@@ -14,6 +14,7 @@ import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 
 import java.security.KeyStore;
 import java.security.cert.CertPathValidatorException;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +64,23 @@ public class CertificateValidityCheckerTest {
         Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(certificate));
 
         assertThat(invalidCertificates).isEmpty();
+    }
+
+    @Test
+    public void validateReturnsCertificateValidityWhenValid() {
+        when(certificateChainValidator.validate(certificate.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.valid());
+        Optional<CertificateValidity> result = certificateValidityChecker.validate(certificate);
+        assertThat(result).isPresent();
+        assertThat(result.get().isValid()).isTrue();
+    }
+
+    @Test
+    public void validateReturnsCertificateValidityWhenNotValid() {
+        CertPathValidatorException certPathValidatorException = new CertPathValidatorException("Bad Certificate chain");
+        when(certificateChainValidator.validate(certificate.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.invalid(certPathValidatorException));
+        Optional<CertificateValidity> result = certificateValidityChecker.validate(certificate);
+        assertThat(result).isPresent();
+        assertThat(result.get().isValid()).isFalse();
     }
 
     @Test
