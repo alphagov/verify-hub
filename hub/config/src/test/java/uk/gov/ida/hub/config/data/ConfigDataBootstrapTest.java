@@ -1,16 +1,14 @@
 package uk.gov.ida.hub.config.data;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
-import uk.gov.ida.hub.config.domain.CertificateType;
+import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.CountryConfig;
-import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -23,11 +21,11 @@ import java.security.cert.CertPathValidatorException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
@@ -43,11 +41,10 @@ public class ConfigDataBootstrapTest {
     @Mock
     private CertificateChainConfigValidator certificateChainConfigValidator;
 
-    private final LocalConfigRepository<? extends EntityIdentifiable> nullConfigRepository = new LocalConfigRepository<>();
     private final LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator = new LevelsOfAssuranceConfigValidator();
 
     @Test
-    public void start_shouldThrowExceptionWhenDuplicateEntityIdsExist() throws Exception {
+    public void start_shouldThrowExceptionWhenDuplicateEntityIdsExist(){
         final String entityId = "entity-id";
         final String simpleId = "simple-id";
         final String matchingServiceEntityId = "matching-service-entity-id";
@@ -152,12 +149,11 @@ public class ConfigDataBootstrapTest {
         TransactionConfig transactionConfigData = aTransactionConfigData().withMatchingServiceEntityId(matchingServiceId).withEntityId(rpEntityId).build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
 
-        InvalidCertificateDto invalidIdpCertificateDto = new InvalidCertificateDto(idpEntityId, CertPathValidatorException.BasicReason.INVALID_SIGNATURE, CertificateType.SIGNING, FederationEntityType.IDP, "certificate was bad!");
-        InvalidCertificateDto invalidMatchingServiceCertificateDto = new InvalidCertificateDto(matchingServiceId, CertPathValidatorException.BasicReason.NOT_YET_VALID, CertificateType.SIGNING, FederationEntityType.MS, "certificate was not yet valid!");
+        InvalidCertificateDto invalidIdpCertificateDto = new InvalidCertificateDto(idpEntityId, CertPathValidatorException.BasicReason.INVALID_SIGNATURE, CertificateUse.SIGNING, FederationEntityType.IDP, "certificate was bad!");
+        InvalidCertificateDto invalidMatchingServiceCertificateDto = new InvalidCertificateDto(matchingServiceId, CertPathValidatorException.BasicReason.NOT_YET_VALID, CertificateUse.SIGNING, FederationEntityType.MS, "certificate was not yet valid!");
 
-        doThrow(createInvalidCertificatesException(ImmutableList.of(invalidMatchingServiceCertificateDto, invalidIdpCertificateDto))).when(certificateChainConfigValidator).validate(
-                ImmutableSet.of(transactionConfigData),
-                ImmutableSet.of(matchingServiceConfigData));
+        doThrow(createInvalidCertificatesException(ImmutableList.of(invalidMatchingServiceCertificateDto, invalidIdpCertificateDto))).when(certificateChainConfigValidator)
+                .validate(Set.of(transactionConfigData, matchingServiceConfigData));
 
         CountryConfig countryConfig = createCountriesConfig();
         ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(
@@ -168,30 +164,6 @@ public class ConfigDataBootstrapTest {
                 countryConfig
         );
         configDataBootstrap.start();
-    }
-
-    @Test
-    public void start_shouldOnlyValidateCertificateChainIfIdentityProviderIsEnabled() {
-        final String simpleId = "simple-id";
-        IdentityProviderConfig disabledIdp = anIdentityProviderConfigData().withEntityId("idp1EntityId").withEnabled(false).build();
-        MatchingServiceConfig matchingServiceConfigData = aMatchingServiceConfig().withEntityId("matchingServiceId").build();
-        TransactionConfig transactionConfigData = aTransactionConfigData()
-                .withMatchingServiceEntityId("matchingServiceId")
-                .withEntityId("rpEntityId")
-                .build();
-        final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
-        CountryConfig countriesConfigData = new CountryConfig() {};
-
-        ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(
-                disabledIdp, 
-                matchingServiceConfigData, 
-                transactionConfigData, 
-                translationData,
-                countriesConfigData
-        );
-        configDataBootstrap.start();
-
-        verify(certificateChainConfigValidator).validate(ImmutableSet.of(transactionConfigData), ImmutableSet.of(matchingServiceConfigData));
     }
 
     private CountryConfig createCountriesConfig() {
@@ -209,11 +181,11 @@ public class ConfigDataBootstrapTest {
                 new TestConfigDataSource<>(transactionConfigData),
                 new TestConfigDataSource<>(translationData),
                 new TestConfigDataSource<>(countriesConfigData),
-                (LocalConfigRepository<IdentityProviderConfig>) nullConfigRepository,
-                (LocalConfigRepository<MatchingServiceConfig>) nullConfigRepository,
-                (LocalConfigRepository<TransactionConfig>) nullConfigRepository,
-                (LocalConfigRepository<TranslationData>) nullConfigRepository,
-                (LocalConfigRepository<CountryConfig>) nullConfigRepository,
+                new LocalConfigRepository<IdentityProviderConfig>(),
+                new LocalConfigRepository<MatchingServiceConfig>(),
+                new LocalConfigRepository<TransactionConfig>(),
+                new LocalConfigRepository<TranslationData>(),
+                new LocalConfigRepository<CountryConfig>(),
                 certificateChainConfigValidator,
                 levelsOfAssuranceConfigValidator);
     }

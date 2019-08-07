@@ -47,6 +47,8 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
     @JsonProperty
     protected boolean selfService = false;
 
+    private CertificateOrigin certificateOrigin = CertificateOrigin.FEDERATION;
+
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected MatchingServiceConfig() {
     }
@@ -82,13 +84,13 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
     }
 
     public Certificate getEncryptionCertificate() {
-        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.isEnabled());
+        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateUse.ENCRYPTION, certificateOrigin, this.isEnabled());
     }
 
     public Collection<Certificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.isEnabled()))
+                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateUse.SIGNING, certificateOrigin, this.isEnabled()))
                 .collect(Collectors.toList());
     }
 
@@ -118,8 +120,12 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
         return selfService;
     }
 
+    public CertificateOrigin getCertificateOrigin() {
+        return certificateOrigin;
+    }
+
     @Override
-    public MatchingServiceConfig override(List<String> signatureVerificationCertificateList, String encryptionCertificate) {
+    public MatchingServiceConfig override(List<String> signatureVerificationCertificates, String encryptionCertificate, CertificateOrigin certificateOrigin) {
         MatchingServiceConfig clone = new MatchingServiceConfig();
         clone.entityId = this.entityId;
         clone.encryptionCertificate = encryptionCertificate;
@@ -129,6 +135,7 @@ public class MatchingServiceConfig implements CertificateConfigurable<MatchingSe
         clone.healthCheckEnabled = this.healthCheckEnabled;
         clone.onboarding = this.onboarding;
         clone.selfService = this.selfService;
+        clone.certificateOrigin = certificateOrigin;
 
         return clone;
     }

@@ -3,6 +3,7 @@ package uk.gov.ida.hub.config.data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
+import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteComponentConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 
@@ -48,7 +49,8 @@ public class ManagedEntityConfigRepository<T extends CertificateConfigurable<T>>
                 return remoteComponentConfigOptional
                         .map(remote -> local.override(
                                 remote.getSignatureVerificationCertificates(),
-                                remote.getEncryptionCertificate()))
+                                remote.getEncryptionCertificate(),
+                                CertificateOrigin.SELFSERVICE))
                         .get();
             } else {
                 LOG.warn("Local config for '{}' expects there to be remote config but it could not be found", local.getEntityId());

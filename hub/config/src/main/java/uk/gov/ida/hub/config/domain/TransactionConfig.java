@@ -113,6 +113,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @JsonProperty
     protected boolean selfService = false;
 
+    private CertificateOrigin certificateOrigin = CertificateOrigin.FEDERATION;
 
     @SuppressWarnings("unused") // needed to prevent guice injection
     protected TransactionConfig() {
@@ -205,7 +206,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     }
 
     public Certificate getEncryptionCertificate() {
-        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateType.ENCRYPTION, this.enabled);
+        return new Certificate(this.entityId, getEntityType(), encryptionCertificate, CertificateUse.ENCRYPTION, certificateOrigin, this.enabled);
     }
 
     public Optional<MatchingProcess> getMatchingProcess() {
@@ -235,7 +236,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     public Collection<Certificate> getSignatureVerificationCertificates() {
         return signatureVerificationCertificates
                 .stream()
-                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateType.SIGNING, this.enabled))
+                .map(svc -> new Certificate(this.entityId, getEntityType(), svc, CertificateUse.SIGNING, certificateOrigin, this.enabled))
                 .collect(Collectors.toList());
     }
 
@@ -276,8 +277,12 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return selfService;
     }
 
+    public CertificateOrigin getCertificateOrigin() {
+        return certificateOrigin;
+    }
+
     @Override
-    public TransactionConfig override(List<String> signatureVerificationCertificates, String encryptionCertificate){
+    public TransactionConfig override(List<String> signatureVerificationCertificates, String encryptionCertificate, CertificateOrigin certificateOrigin){
         TransactionConfig clone = new TransactionConfig();
 
         clone.assertionConsumerServices = this.assertionConsumerServices;
@@ -302,6 +307,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         clone.usingMatching = this.usingMatching;
         clone.eidasProxyNode = this.eidasProxyNode;
         clone.selfService = this.selfService;
+        clone.certificateOrigin = certificateOrigin;
 
         return clone;
     }

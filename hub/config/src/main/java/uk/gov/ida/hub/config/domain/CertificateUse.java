@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.config.domain;
 
-public enum CertificateType {
+public enum CertificateUse {
     ENCRYPTION,
     SIGNING
 }

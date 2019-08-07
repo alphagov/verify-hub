@@ -4,7 +4,7 @@ import org.joda.time.Duration;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import uk.gov.ida.hub.config.domain.Certificate;
-import uk.gov.ida.hub.config.domain.CertificateType;
+import uk.gov.ida.hub.config.domain.CertificateUse;
 
 import java.util.Date;
 
@@ -13,7 +13,7 @@ public class CertificateHealthCheckDto {
 
     private CertificateExpiryStatus status;
     private String message;
-    private CertificateType type;
+    private CertificateUse type;
     private String entityId;
 
     @SuppressWarnings("unused")
@@ -22,7 +22,7 @@ public class CertificateHealthCheckDto {
 
     private CertificateHealthCheckDto(
             final String entityId,
-            final CertificateType type,
+            final CertificateUse type,
             final CertificateExpiryStatus status,
             final String message) {
         this.entityId = entityId;
@@ -39,14 +39,14 @@ public class CertificateHealthCheckDto {
         String expiryDate = new LocalDate(certificate.getNotAfter()).toString(EXPIRY_DATE_FORMAT);
         String message = getExpiryStatusMessage(status, expiryDate);
 
-        return new CertificateHealthCheckDto(entityId, certificate.getCertificateType(), status, message);
+        return new CertificateHealthCheckDto(entityId, certificate.getCertificateUse(), status, message);
     }
 
     public String getEntityId() {
         return entityId;
     }
 
-    public CertificateType getType() {
+    public CertificateUse getType() {
         return type;
     }
 

@@ -7,7 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
-import uk.gov.ida.hub.config.domain.CertificateType;
+import uk.gov.ida.hub.config.domain.CertificateOrigin;
+import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -70,7 +71,7 @@ public class CertificateServiceTest {
         Certificate certificate = certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
 
         assertThat(certificate).isEqualTo(new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP,
-                CERT_ONE_X509, CertificateType.ENCRYPTION, true));
+                CERT_ONE_X509, CertificateUse.ENCRYPTION, CertificateOrigin.FEDERATION, true));
     }
 
     @Test(expected = NoCertificateFoundException.class)
@@ -102,7 +103,7 @@ public class CertificateServiceTest {
         Certificate certificate = certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
 
         assertThat(certificate).isEqualTo(new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP,
-                CERT_ONE_X509, CertificateType.ENCRYPTION, true));
+                CERT_ONE_X509, CertificateUse.ENCRYPTION, CertificateOrigin.FEDERATION, true));
     }
 
     @Test(expected = NoCertificateFoundException.class)
@@ -158,8 +159,8 @@ public class CertificateServiceTest {
 
         assertThat(CertificateFound.size()).isEqualTo(2);
         assertThat(CertificateFound).contains(
-                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateType.SIGNING, true),
-                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateType.SIGNING, true)
+                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true),
+                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true)
         );
     }
 
@@ -172,8 +173,8 @@ public class CertificateServiceTest {
                 .addSignatureVerificationCertificate(CERT_TWO_X509)
                 .build();
 
-        Certificate validCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateType.SIGNING, true);
-        Certificate invalidCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateType.SIGNING, true);
+        Certificate validCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
+        Certificate invalidCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
 
         when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
         when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
@@ -203,8 +204,8 @@ public class CertificateServiceTest {
 
         assertThat(CertificateFound.size()).isEqualTo(2);
         assertThat(CertificateFound).contains(
-                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateType.SIGNING, true),
-                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateType.SIGNING, true)
+                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_ONE_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true),
+                new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.RP, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true)
         );
     }
 
@@ -217,8 +218,8 @@ public class CertificateServiceTest {
                 .addSignatureVerificationCertificate(CERT_TWO_X509)
                 .build();
 
-        Certificate validCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_ONE_X509, CertificateType.SIGNING, true);
-        Certificate invalidCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_TWO_X509, CertificateType.SIGNING, true);
+        Certificate validCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_ONE_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
+        Certificate invalidCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
 
         when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
         when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
@@ -240,7 +241,7 @@ public class CertificateServiceTest {
                 .addSignatureVerificationCertificate(CERT_TWO_X509)
                 .build();
 
-        Certificate invalidCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_TWO_X509, CertificateType.SIGNING, true);
+        Certificate invalidCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
 
         when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
         when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
