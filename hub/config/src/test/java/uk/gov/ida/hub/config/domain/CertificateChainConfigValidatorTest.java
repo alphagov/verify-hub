@@ -89,4 +89,25 @@ public class CertificateChainConfigValidatorTest {
 
     }
 
+    @Test
+    public void validateDoesNotLogWhenX509CertsArePresentAndValid() {
+        Logger logger = (Logger) LoggerFactory.getLogger(CertificateChainConfigValidator.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        TransactionConfig config = aTransactionConfigData().withSelfService(false).build();
+        Certificate encryptionCert = config.getEncryptionCertificate();
+        Certificate signingCert = config.getSignatureVerificationCertificates().stream().findFirst().get();
+
+        when(certificateChainValidator.validate(encryptionCert.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.valid());
+        when(certificateChainValidator.validate(signingCert.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.valid());
+
+        validator.validate(Set.of(config));
+
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertThat(logsList.isEmpty()).isTrue();
+
+    }
+
 }

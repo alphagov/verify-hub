@@ -21,10 +21,10 @@ import java.security.cert.CertPathValidatorException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
@@ -152,7 +152,8 @@ public class ConfigDataBootstrapTest {
         InvalidCertificateDto invalidIdpCertificateDto = new InvalidCertificateDto(idpEntityId, CertPathValidatorException.BasicReason.INVALID_SIGNATURE, CertificateUse.SIGNING, FederationEntityType.IDP, "certificate was bad!");
         InvalidCertificateDto invalidMatchingServiceCertificateDto = new InvalidCertificateDto(matchingServiceId, CertPathValidatorException.BasicReason.NOT_YET_VALID, CertificateUse.SIGNING, FederationEntityType.MS, "certificate was not yet valid!");
 
-        doThrow(createInvalidCertificatesException(ImmutableList.of(invalidMatchingServiceCertificateDto, invalidIdpCertificateDto))).when(certificateChainConfigValidator).validate(any());
+        doThrow(createInvalidCertificatesException(ImmutableList.of(invalidMatchingServiceCertificateDto, invalidIdpCertificateDto))).when(certificateChainConfigValidator)
+                .validate(Set.of(transactionConfigData, matchingServiceConfigData));
 
         CountryConfig countryConfig = createCountriesConfig();
         ConfigDataBootstrap configDataBootstrap = createConfigDataBootstrap(
