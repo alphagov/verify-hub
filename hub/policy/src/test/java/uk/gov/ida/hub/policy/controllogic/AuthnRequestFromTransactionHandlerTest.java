@@ -104,7 +104,7 @@ public class AuthnRequestFromTransactionHandlerTest {
         verify(restartJourneyStateController).transitionToSessionStartedState();
     }
 
-    private class IdpSelectingStateControllerSpy implements IdpSelectingStateController, StateController {
+    private static class IdpSelectingStateControllerSpy implements IdpSelectingStateController, StateController {
         private String idpEntityId = null;
         private String principalIpAddress = null;
         private boolean registering = false;

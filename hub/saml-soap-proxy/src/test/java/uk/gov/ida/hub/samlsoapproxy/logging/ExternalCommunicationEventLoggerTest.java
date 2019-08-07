@@ -131,7 +131,7 @@ public class ExternalCommunicationEventLoggerTest {
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
     }
 
-    private class EventMatching implements ArgumentMatcher<EventSinkHubEvent> {
+    private static class EventMatching implements ArgumentMatcher<EventSinkHubEvent> {
 
         private EventSinkHubEvent expectedEvent;
 

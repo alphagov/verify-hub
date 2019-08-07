@@ -96,7 +96,7 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
         verify(levelLogger).log(eq(logLevel), eq(exception), any(UUID.class));
     }
 
-    private class TestSamlTransformationErrorException extends SamlTransformationErrorException {
+    private static class TestSamlTransformationErrorException extends SamlTransformationErrorException {
         protected TestSamlTransformationErrorException(String errorMessage, Exception cause, Level logLevel) {
             super(errorMessage, cause, logLevel);
         }

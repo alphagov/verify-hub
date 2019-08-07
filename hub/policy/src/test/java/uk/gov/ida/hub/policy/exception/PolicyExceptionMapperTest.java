@@ -96,7 +96,7 @@ public class PolicyExceptionMapperTest {
         assertThat(response.getEntity()).isEqualTo(expectedMessage);
     }
 
-    private class TestExceptionMapper extends PolicyExceptionMapper<RuntimeException> {
+    private static class TestExceptionMapper extends PolicyExceptionMapper<RuntimeException> {
         @Override
         protected Response handleException(RuntimeException e) {
             return Response.ok().entity(e.getMessage()).build();

@@ -493,7 +493,7 @@ public class HubEventLoggerTest {
         );
     }
 
-    private class EventMatching implements ArgumentMatcher<EventSinkHubEvent> {
+    private static class EventMatching implements ArgumentMatcher<EventSinkHubEvent> {
 
         private EventSinkHubEvent expectedEvent;
 

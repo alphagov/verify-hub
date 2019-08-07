@@ -90,7 +90,7 @@ public class AbstractContextExceptionMapperTest {
         assertThat(response.getEntity()).isEqualTo(expectedMessage);
     }
 
-    private class TestExceptionMapper extends AbstractContextExceptionMapper<RuntimeException> {
+    private static class TestExceptionMapper extends AbstractContextExceptionMapper<RuntimeException> {
         private TestExceptionMapper(Provider<HttpServletRequest> context) {
             super(context);
         }
