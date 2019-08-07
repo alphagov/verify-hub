@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 import uk.gov.ida.hub.config.domain.remoteconfig.SelfServiceMetadata;
@@ -87,6 +88,7 @@ public class ManagedEntityConfigRepositoryTest {
 
         assertThat(result.get().getEntityId()).isEqualTo(LOCAL_ONLY_ENTITY_ID);
         assertThat(result.get().getEncryptionCertificate().getBase64Encoded().get()).isEqualTo(localOnlyTransaction.getEncryptionCertificate().getBase64Encoded().get());
+        assertThat(result.get().getEncryptionCertificate().getCertificateOrigin()).isEqualTo(CertificateOrigin.FEDERATION);
     }
 
     @Test
@@ -96,6 +98,7 @@ public class ManagedEntityConfigRepositoryTest {
 
         assertThat(result.get().getEntityId()).isEqualTo(REMOTE_DISABLED_ENTITY_ID);
         assertThat(result.get().getEncryptionCertificate().getBase64Encoded().get()).isEqualTo(remoteDisabledTransaction.getEncryptionCertificate().getBase64Encoded().get());
+        assertThat(result.get().getEncryptionCertificate().getCertificateOrigin()).isEqualTo(CertificateOrigin.FEDERATION);
     }
 
     @Test
@@ -105,6 +108,7 @@ public class ManagedEntityConfigRepositoryTest {
 
         assertThat(result.get().getEntityId()).isEqualTo(REMOTE_ENABLED_ENTITY_ID);
         assertThat(result.get().getEncryptionCertificate().getBase64Encoded().get()).isEqualTo(REMOTE_CERT);
+        assertThat(result.get().getEncryptionCertificate().getCertificateOrigin()).isEqualTo(CertificateOrigin.SELFSERVICE);
     }
 
 }
