@@ -20,26 +20,12 @@ public class CertificateHealthCheckDto {
     private CertificateHealthCheckDto() {
     }
 
-    private CertificateHealthCheckDto(
-            final String entityId,
-            final CertificateUse type,
-            final CertificateExpiryStatus status,
-            final String message) {
-        this.entityId = entityId;
-        this.type = type;
-        this.status = status;
-        this.message = message;
-    }
-
-    public static CertificateHealthCheckDto createCertificateHealthCheckDto(
-            String entityId,
-            Certificate certificate,
-            Duration warningPeriod) {
-        CertificateExpiryStatus status = getExpiryStatus(certificate, warningPeriod);
+    public CertificateHealthCheckDto(Certificate certificate, Duration warningPeriod) {
+        this.entityId = certificate.getIssuerEntityId();
+        this.type = certificate.getCertificateUse();
+        this.status = getExpiryStatus(certificate, warningPeriod);
         String expiryDate = new LocalDate(certificate.getNotAfter()).toString(EXPIRY_DATE_FORMAT);
-        String message = getExpiryStatusMessage(status, expiryDate);
-
-        return new CertificateHealthCheckDto(entityId, certificate.getCertificateUse(), status, message);
+        this.message = getExpiryStatusMessage(this.status, expiryDate);
     }
 
     public String getEntityId() {
