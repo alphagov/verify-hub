@@ -7,6 +7,7 @@ import uk.gov.ida.hub.config.dto.InvalidCertificateDto;
 import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 
 import java.security.cert.CertPathValidatorException;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -31,7 +32,7 @@ public class CertificateValidityChecker {
 
     public Set<InvalidCertificateDto> getInvalidCertificates(Collection<Certificate> certificates) {
         return certificates.stream()
-                .map(cert -> new CertAndValidityPair(cert, getCertificateValidity(cert).orElse(createNoX509CertificateValidity())))
+                .map(cert -> new CertAndValidityPair(cert, validate(cert).orElse(createNoX509CertificateValidity())))
                 .filter(p -> !p.certificateValidity.isValid())
                 .map(this::toInvalidCertificates)
                 .collect(Collectors.toSet());
@@ -39,22 +40,24 @@ public class CertificateValidityChecker {
 
     public Optional<CertificateValidity> validate(Certificate certificate) {
         return certificate.getX509Certificate()
-                .map(x509 -> certificateChainValidator.validate(
-                        x509,
-                        trustStoreForCertificateProvider.getTrustStoreFor(certificate.getFederationEntityType())));
+                .map(x509 -> getCertificateValidity(certificate, x509));
     }
 
     public boolean isValid(Certificate certificate) {
-        return getCertificateValidity(certificate)
+        return validate(certificate)
                 .map(CertificateValidity::isValid)
                 .orElse(false);
     }
 
-    private Optional<CertificateValidity> getCertificateValidity(Certificate certificate){
-        return certificate.getX509Certificate()
-                .map(x509 -> certificateChainValidator.validate(
-                        x509,
-                        trustStoreForCertificateProvider.getTrustStoreFor(certificate.getFederationEntityType())));
+    private CertificateValidity getCertificateValidity(Certificate certificate, X509Certificate x509) {
+        if (certificate.getCertificateOrigin().shouldCheckTrustChain()) {
+            return certificateChainValidator.validate(
+                    x509,
+                    trustStoreForCertificateProvider.getTrustStoreFor(certificate.getFederationEntityType()));
+        }
+        else {
+            return CertificateValidity.valid();
+        }
     }
 
     private InvalidCertificateDto toInvalidCertificates(CertAndValidityPair cavPair) {
