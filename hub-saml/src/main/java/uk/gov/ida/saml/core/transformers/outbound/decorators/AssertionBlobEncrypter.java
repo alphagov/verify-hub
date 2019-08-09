@@ -26,7 +26,7 @@ public class AssertionBlobEncrypter {
     public String encryptAssertionBlob(String entityId, String matchingDatasetAssertionBlob) {
         return Optional
                 .ofNullable(matchingDatasetAssertionBlob)
-                .map(stringToAssertionTransformer::apply)
+                .map(stringToAssertionTransformer)
                 .map(assertion -> assertionEncrypter.encrypt(assertion, entityId))
                 .map(assertionToBase64EncodedStringTransformer::apply)
                 .get();

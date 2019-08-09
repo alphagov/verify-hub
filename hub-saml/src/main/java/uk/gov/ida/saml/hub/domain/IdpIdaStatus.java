@@ -59,9 +59,7 @@ public final class IdpIdaStatus implements IdaStatus {
 
         IdpIdaStatus idpIdaStatus = (IdpIdaStatus) o;
 
-        if (status != idpIdaStatus.status) return false;
-
-        return true;
+        return status == idpIdaStatus.status;
     }
 
     @Override

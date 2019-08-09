@@ -11,6 +11,8 @@ import java.net.URL;
 import java.util.Scanner;
 import java.util.Timer;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class EidasMetadataResolver extends JerseyClientMetadataResolver {
     private final URI metadataUri;
 
@@ -34,7 +36,7 @@ public class EidasMetadataResolver extends JerseyClientMetadataResolver {
 
     protected byte[] fetchMetadata() {
         try {
-            return new Scanner(new URL(metadataUri.toString()).openStream(), "UTF-8").useDelimiter("\\A").next().getBytes();
+            return new Scanner(new URL(metadataUri.toString()).openStream(), UTF_8).useDelimiter("\\A").next().getBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

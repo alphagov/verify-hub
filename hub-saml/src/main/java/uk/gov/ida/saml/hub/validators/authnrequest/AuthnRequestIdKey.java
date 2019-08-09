@@ -1,6 +1,7 @@
 package uk.gov.ida.saml.hub.validators.authnrequest;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class AuthnRequestIdKey implements Serializable {
     private final String requestId;
@@ -20,9 +21,7 @@ public class AuthnRequestIdKey implements Serializable {
 
         AuthnRequestIdKey that = (AuthnRequestIdKey) o;
 
-        if (requestId != null ? !requestId.equals(that.requestId) : that.requestId != null) return false;
-
-        return true;
+        return Objects.equals(requestId, that.requestId);
     }
 
     @Override
