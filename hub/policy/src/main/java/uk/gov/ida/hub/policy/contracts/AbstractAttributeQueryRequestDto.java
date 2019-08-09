@@ -105,7 +105,7 @@ public abstract class AbstractAttributeQueryRequestDto {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append("requestId='").append(requestId).append('\'');
         sb.append(",authnRequestIssuerEntityId='").append(authnRequestIssuerEntityId).append('\'');
         sb.append(",assertionConsumerServiceUri=").append(assertionConsumerServiceUri);

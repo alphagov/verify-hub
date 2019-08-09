@@ -92,7 +92,7 @@ public final class EidasCycle3DTO {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("EidasCycle3DTO{");
+        final StringBuilder sb = new StringBuilder("EidasCycle3DTO{");
         sb.append("sessionId=").append(sessionId);
         sb.append(", requestId='").append(requestId).append('\'');
         sb.append(", identityProviderEntityId='").append(identityProviderEntityId).append('\'');

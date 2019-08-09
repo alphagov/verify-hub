@@ -155,7 +155,7 @@ public class TestResponse extends Response {
 
     public <T> T readEntity(GenericType<T> entityType, Annotation[] annotations) {
         throw new UnsupportedOperationException();
-    };
+    }
 
     public Link.Builder getLinkBuilder(String relation) {
         throw new UnsupportedOperationException();

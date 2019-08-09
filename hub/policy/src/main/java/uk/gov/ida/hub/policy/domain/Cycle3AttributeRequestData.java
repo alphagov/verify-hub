@@ -30,7 +30,7 @@ public final class Cycle3AttributeRequestData {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Cycle3AttributeRequestData{");
+        final StringBuilder sb = new StringBuilder("Cycle3AttributeRequestData{");
         sb.append("attributeName='").append(attributeName).append('\'');
         sb.append(", requestIssuerId='").append(requestIssuerId).append('\'');
         sb.append('}');

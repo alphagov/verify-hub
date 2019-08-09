@@ -28,7 +28,7 @@ public final class PersistentId implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("PersistentId{");
+        final StringBuilder sb = new StringBuilder("PersistentId{");
         sb.append("nameId='").append(nameId).append('\'');
         sb.append('}');
         return sb.toString();

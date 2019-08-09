@@ -69,7 +69,7 @@ public class ResponseFromHubTest {
 
     @Test
     public void testToString() {
-        final StringBuffer sb = new StringBuffer("uk.gov.ida.hub.policy.domain.ResponseFromHub[");
+        final StringBuilder sb = new StringBuilder("uk.gov.ida.hub.policy.domain.ResponseFromHub[");
         sb.append("authnRequestIssuerEntityId=").append(responseFromHub.getAuthnRequestIssuerEntityId());
         sb.append(",responseId=").append(responseFromHub.getResponseId());
         sb.append(",inResponseTo=").append(responseFromHub.getInResponseTo());

@@ -37,7 +37,7 @@ public final class ResponseProcessingDetails {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ResponseProcessingDetails{");
+        final StringBuilder sb = new StringBuilder("ResponseProcessingDetails{");
         sb.append("sessionId=").append(sessionId);
         sb.append(", responseProcessingStatus=").append(responseProcessingStatus);
         sb.append(", transactionEntityId='").append(transactionEntityId).append('\'');

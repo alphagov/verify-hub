@@ -137,7 +137,7 @@ public class EidasAttributeQueryRequestDtoTest {
 
     @Test
     public void testToString() {
-        final StringBuffer sb = new StringBuffer("EidasAttributeQueryRequestDto{");
+        final StringBuilder sb = new StringBuilder("EidasAttributeQueryRequestDto{");
         sb.append("requestId='").append(REQUEST_ID).append('\'');
         sb.append(",authnRequestIssuerEntityId='").append(AUTHN_REQUEST_ISSUER_ENTITY_ID).append('\'');
         sb.append(",assertionConsumerServiceUri=").append(ASSERTION_CONSUMER_SERVICE_URI);

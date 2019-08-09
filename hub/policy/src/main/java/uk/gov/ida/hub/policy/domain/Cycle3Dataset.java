@@ -31,7 +31,7 @@ public final class Cycle3Dataset implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Cycle3Dataset{");
+        final StringBuilder sb = new StringBuilder("Cycle3Dataset{");
         sb.append("attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
