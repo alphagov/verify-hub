@@ -17,12 +17,7 @@ public class AuthnRequestIssueInstantValidatorTest {
 
     @Before
     public void setup() {
-        SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration = new SamlAuthnRequestValidityDurationConfiguration() {
-            @Override
-            public Duration getAuthnRequestValidityDuration() {
-                return Duration.minutes(AUTHN_REQUEST_VALIDITY_MINS);
-            }
-        };
+        SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration = () -> Duration.minutes(AUTHN_REQUEST_VALIDITY_MINS);
 
         authnRequestIssueInstantValidator = new AuthnRequestIssueInstantValidator(samlAuthnRequestValidityDurationConfiguration);
     }

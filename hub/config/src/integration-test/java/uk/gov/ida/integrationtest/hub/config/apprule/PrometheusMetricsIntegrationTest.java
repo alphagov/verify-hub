@@ -130,7 +130,7 @@ public class PrometheusMetricsIntegrationTest {
         assertThat(entity).contains(String.format(GAUGE_TYPE_TEMPLATE, VERIFY_CONFIG_CERTIFICATE_OCSP_LAST_SUCCESS_TIMESTAMP));
 
         getExpectedCertificatesMetrics().stream()
-                                        .filter(expectedMessage -> expectedMessage.isPresent())
+                                        .filter(Message::isPresent)
                                         .forEach(expectedMessage -> assertThat(entity).contains(expectedMessage.getMessage()));
         getExpectedCertificatesMetrics().stream()
                                         .filter(expectedMessage -> !expectedMessage.isPresent())
@@ -154,14 +154,14 @@ public class PrometheusMetricsIntegrationTest {
                         .forEach(
                             certificate -> {
                                 getExpectedCertificateExpiryDateMetrics(configEntityData.getEntityId(), certificate).ifPresent(
-                                    expectedCertificateExpiryMetrics -> expectedCertificatesMetrics.add(expectedCertificateExpiryMetrics));
+                                        expectedCertificatesMetrics::add);
                                 getExpectedCertificateOcspRevocationStatusMetrics(configEntityData.getEntityId(), certificate).ifPresent(
-                                    expectedCertificateOcspRevocationStatusMetrics -> expectedCertificatesMetrics.addAll(expectedCertificateOcspRevocationStatusMetrics));
+                                        expectedCertificatesMetrics::addAll);
                             });
         getExpectedCertificateExpiryDateMetrics(configEntityData.getEntityId(), configEntityData.getEncryptionCertificate()).ifPresent(
-            expectedCertificateExpiryMetrics -> expectedCertificatesMetrics.add(expectedCertificateExpiryMetrics));
+                expectedCertificatesMetrics::add);
         getExpectedCertificateOcspRevocationStatusMetrics(configEntityData.getEntityId(), configEntityData.getEncryptionCertificate()).ifPresent(
-            expectedCertificateOcspRevocationStatusMetrics -> expectedCertificatesMetrics.addAll(expectedCertificateOcspRevocationStatusMetrics));
+                expectedCertificatesMetrics::addAll);
         addExpectedCertificateExpiryDateLastUpdate(expectedCertificatesMetrics);
         return expectedCertificatesMetrics;
     }

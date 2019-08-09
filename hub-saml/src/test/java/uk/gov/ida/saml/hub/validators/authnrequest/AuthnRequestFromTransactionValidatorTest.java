@@ -38,18 +38,8 @@ public class AuthnRequestFromTransactionValidatorTest {
 
     @Before
     public void setup() {
-        SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration = new SamlDuplicateRequestValidationConfiguration() {
-            @Override
-            public Duration getAuthnRequestIdExpirationDuration() {
-                return Duration.hours(2);
-            }
-        };
-        SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration = new SamlAuthnRequestValidityDurationConfiguration() {
-            @Override
-            public Duration getAuthnRequestValidityDuration() {
-                return Duration.minutes(5);
-            }
-        };
+        SamlDuplicateRequestValidationConfiguration samlDuplicateRequestValidationConfiguration = () -> Duration.hours(2);
+        SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration = () -> Duration.minutes(5);
         IdExpirationCache idExpirationCache = new ConcurrentMapIdExpirationCache(new ConcurrentHashMap<>());
         validator = new AuthnRequestFromTransactionValidator(
                 new IssuerValidator(),
