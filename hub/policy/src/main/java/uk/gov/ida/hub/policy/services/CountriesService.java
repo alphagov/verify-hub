@@ -41,15 +41,13 @@ public class CountriesService {
         ensureTransactionSupportsEidas(sessionId);
 
         List<EidasCountryDto> supportedCountries = getCountries(sessionId);
-        Optional<EidasCountryDto> selectedCountry = supportedCountries.stream()
+        EidasCountryDto selectedCountry = supportedCountries.stream()
             .filter(country -> country.getSimpleId().equals(countryCode))
-            .findFirst();
-        if ( !selectedCountry.isPresent() ) {
-            throw new EidasCountryNotSupportedException(sessionId, countryCode);
-        }
+            .findFirst()
+            .orElseThrow(() -> new EidasCountryNotSupportedException(sessionId, countryCode));
 
         EidasCountrySelectingStateController eidasCountrySelectingStateController = (EidasCountrySelectingStateController) sessionRepository.getStateController(sessionId, EidasCountrySelectingState.class);
-        eidasCountrySelectingStateController.selectCountry(selectedCountry.get().getEntityId());
+        eidasCountrySelectingStateController.selectCountry(selectedCountry.getEntityId());
     }
 
     private void ensureTransactionSupportsEidas(uk.gov.ida.hub.policy.domain.SessionId sessionId) {

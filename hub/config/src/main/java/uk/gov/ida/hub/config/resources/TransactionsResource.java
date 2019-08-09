@@ -58,13 +58,9 @@ public class TransactionsResource {
         final TransactionConfig configData = getTransactionConfigData(entityId);
 
         final Optional<URI> assertionConsumerServiceUri = configData.getAssertionConsumerServiceUri(assertionConsumerServiceIndex);
-        if (!assertionConsumerServiceUri.isPresent()) {
-            // we know that the index must be here because we will have pre-validated that there will be a default for the transaction
-            throw exceptionFactory.createInvalidAssertionConsumerServiceIndexException(
-                    entityId,
-                    assertionConsumerServiceIndex.get());
-        }
-        return new ResourceLocationDto(assertionConsumerServiceUri.get());
+        // we know that the index must be here because we will have pre-validated that there will be a default for the transaction
+        return new ResourceLocationDto(assertionConsumerServiceUri
+                .orElseThrow(() -> exceptionFactory.createInvalidAssertionConsumerServiceIndexException( entityId, assertionConsumerServiceIndex.get())));
     }
 
     @GET
@@ -131,10 +127,9 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.TRANSLATIONS_LOCALE_PATH)
     @Timed
     public TranslationData.Translation getTranslation(@PathParam(Urls.SharedUrls.SIMPLE_ID_PARAM) String simpleId, @PathParam(Urls.SharedUrls.LOCALE_PARAM) String locale) {
-        final TranslationData translationData = getTranslationData(simpleId);
-        Optional<TranslationData.Translation> translation = translationData.getTranslationsByLocale(locale);
-        if (!translation.isPresent()) throw exceptionFactory.createNoTranslationForLocaleException(locale);
-        return translation.get();
+        return getTranslationData(simpleId)
+                .getTranslationsByLocale(locale)
+                .orElseThrow(() -> exceptionFactory.createNoTranslationForLocaleException(locale));
     }
 
     @GET

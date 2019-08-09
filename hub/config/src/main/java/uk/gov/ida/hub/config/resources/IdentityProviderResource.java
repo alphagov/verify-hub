@@ -166,14 +166,14 @@ public class IdentityProviderResource {
     }
 
     private IdentityProviderConfig getIdentityProviderConfigData(String identityProviderEntityId) {
-        final Optional<IdentityProviderConfig> configData = identityProviderConfigRepository.getData(identityProviderEntityId);
-        if (!configData.isPresent()) {
-            throw exceptionFactory.createNoDataForEntityException(identityProviderEntityId);
-        }
-        if (!configData.get().isEnabled()) {
+        final IdentityProviderConfig configData = identityProviderConfigRepository.getData(identityProviderEntityId)
+                .orElseThrow(() -> exceptionFactory.createNoDataForEntityException(identityProviderEntityId));
+
+        if (!configData.isEnabled()) {
             throw exceptionFactory.createDisabledIdentityProviderException(identityProviderEntityId);
         }
-        return configData.get();
+
+        return configData;
     }
 
     @Deprecated
