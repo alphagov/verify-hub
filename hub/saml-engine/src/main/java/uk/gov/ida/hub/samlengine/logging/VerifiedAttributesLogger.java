@@ -37,12 +37,11 @@ public final class VerifiedAttributesLogger {
         Assertion assertion,
         LevelOfAssurance levelOfAssurance
     ) {
-        assertion.getAttributeStatements().stream()
+        assertion.getAttributeStatements()
             .forEach(attributeStatement -> {
-                List<Attribute> attributes = attributeStatement.getAttributes();
                 String issuerValue = Optional.of(assertion.getIssuer()).map(NameIDType::getValue).orElse("");
                 try {
-                    LOG.info(formatAttributes(issuerValue, levelOfAssurance, attributes));
+                    LOG.info(formatAttributes(issuerValue, levelOfAssurance, attributeStatement.getAttributes()));
                 } catch (JsonProcessingException e) {
                     LOG.error(format("Could not generate json object: {0}", e));
                 }

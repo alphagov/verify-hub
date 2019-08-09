@@ -84,7 +84,7 @@ public class EidasAttributeStatementAssertionValidator {
         Set<String> attributeNames = attributes.stream().map(Attribute::getName).collect(Collectors.toSet());
         if (!attributeNames.containsAll(MANDATORY_ATTRIBUTES.keySet())) {
             throw new SamlTransformationErrorException(String.format("Mandatory attributes not provided. Expected %s but got %s",
-                    MANDATORY_ATTRIBUTES.values().stream().collect(Collectors.joining(",")),
+                    String.join(",", MANDATORY_ATTRIBUTES.values()),
                     attributes.stream().map(Attribute::getFriendlyName).collect(Collectors.joining(","))), Level.ERROR);
         }
 
