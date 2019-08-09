@@ -77,7 +77,7 @@ public abstract class AbstractContextExceptionMapper<TException extends Exceptio
     }
 
     private boolean noSessionIdInQueryString() {
-        return !getSessionId().isPresent();
+        return getSessionId().isEmpty();
     }
 
 }

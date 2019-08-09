@@ -58,13 +58,9 @@ public class TransactionsResource {
         final TransactionConfig configData = getTransactionConfigData(entityId);
 
         final Optional<URI> assertionConsumerServiceUri = configData.getAssertionConsumerServiceUri(assertionConsumerServiceIndex);
-        if (!assertionConsumerServiceUri.isPresent()) {
-            // we know that the index must be here because we will have pre-validated that there will be a default for the transaction
-            throw exceptionFactory.createInvalidAssertionConsumerServiceIndexException(
-                    entityId,
-                    assertionConsumerServiceIndex.get());
-        }
-        return new ResourceLocationDto(assertionConsumerServiceUri.get());
+        // we know that the index must be here because we will have pre-validated that there will be a default for the transaction
+        return new ResourceLocationDto(assertionConsumerServiceUri
+                .orElseThrow(() -> exceptionFactory.createInvalidAssertionConsumerServiceIndexException( entityId, assertionConsumerServiceIndex.get())));
     }
 
     @GET
@@ -131,10 +127,9 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.TRANSLATIONS_LOCALE_PATH)
     @Timed
     public TranslationData.Translation getTranslation(@PathParam(Urls.SharedUrls.SIMPLE_ID_PARAM) String simpleId, @PathParam(Urls.SharedUrls.LOCALE_PARAM) String locale) {
-        final TranslationData translationData = getTranslationData(simpleId);
-        Optional<TranslationData.Translation> translation = translationData.getTranslationsByLocale(locale);
-        if (!translation.isPresent()) throw exceptionFactory.createNoTranslationForLocaleException(locale);
-        return translation.get();
+        return getTranslationData(simpleId)
+                .getTranslationsByLocale(locale)
+                .orElseThrow(() -> exceptionFactory.createNoTranslationForLocaleException(locale));
     }
 
     @GET
@@ -192,24 +187,24 @@ public class TransactionsResource {
     @Path(Urls.ConfigUrls.EIDAS_COUNTRIES_FOR_TRANSACTION_PATH)
     @Timed
     public List<String> getEidasCountries(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
-        final TransactionConfig configData = getTransactionConfigData(entityId);
-        Optional<List<String>> eidasCountries = configData.getEidasCountries();
-        return eidasCountries.isPresent() ? eidasCountries.get() : ImmutableList.of();
+        return getTransactionConfigData(entityId)
+                .getEidasCountries()
+                .orElseGet(ImmutableList::of);
     }
 
     @GET
     @Path(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_PATH)
     @Timed
     public boolean getShouldSignWithSHA1(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        final TransactionConfig configData = getTransactionConfigData(entityId);
-        return configData.getShouldSignWithSHA1();
+        return getTransactionConfigData(entityId)
+                .getShouldSignWithSHA1();
     }
     @GET
     @Path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
     public boolean isUsingMatching(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
-        final TransactionConfig configData = getTransactionConfigData(entityId);
-        return configData.isUsingMatching();
+        return getTransactionConfigData(entityId)
+                .isUsingMatching();
     }
 
     @GET
@@ -223,7 +218,7 @@ public class TransactionsResource {
 
     private TransactionConfig getTransactionConfigData(String entityId) {
         final Optional<TransactionConfig> configData = transactionConfigRepository.get(entityId);
-        if (!configData.isPresent()) {
+        if (configData.isEmpty()) {
             throw exceptionFactory.createNoDataForEntityException(entityId);
         }
         if (!configData.get().isEnabled()) {
@@ -234,7 +229,7 @@ public class TransactionsResource {
 
     private TranslationData getTranslationData(String simpleId) {
         final Optional<TranslationData> data = translationConfigRepository.getData(simpleId);
-        if (!data.isPresent()) throw exceptionFactory.createNoDataForEntityException(simpleId);
+        if (data.isEmpty()) throw exceptionFactory.createNoDataForEntityException(simpleId);
         return data.get();
     }
 }

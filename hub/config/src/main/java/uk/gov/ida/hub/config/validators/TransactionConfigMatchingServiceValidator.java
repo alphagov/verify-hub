@@ -17,9 +17,8 @@ public class TransactionConfigMatchingServiceValidator {
             if (transactionConfig.getMatchingServiceEntityId() == null) {
                 throw ConfigValidationException.createMissingMatchingEntityIdException(transactionConfig.getEntityId());
             }
-            if (!matchingServiceConfigRepository.getData(transactionConfig.getMatchingServiceEntityId()).isPresent()) {
-                throw ConfigValidationException.createAbsentMatchingServiceConfigException(transactionConfig.getMatchingServiceEntityId(), transactionConfig.getEntityId());
-            }
+            matchingServiceConfigRepository.getData(transactionConfig.getMatchingServiceEntityId())
+                    .orElseThrow(() -> ConfigValidationException.createAbsentMatchingServiceConfigException(transactionConfig.getMatchingServiceEntityId(), transactionConfig.getEntityId()));
         }
     }
 }

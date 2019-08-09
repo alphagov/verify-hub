@@ -79,7 +79,7 @@ public class HubEidasAttributeQueryRequestBuilder {
     }
 
     public HubEidasAttributeQueryRequestBuilder addUserAccountCreationAttribute(final UserAccountCreationAttribute userAccountCreationAttribute) {
-        if(!userAccountCreationAttributes.isPresent()){
+        if(userAccountCreationAttributes.isEmpty()){
            List<UserAccountCreationAttribute> userAccountCreationAttributeList = new ArrayList<>();
 
            userAccountCreationAttributes = Optional.ofNullable(userAccountCreationAttributeList);

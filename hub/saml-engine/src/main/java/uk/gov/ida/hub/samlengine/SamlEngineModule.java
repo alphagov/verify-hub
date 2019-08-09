@@ -264,10 +264,12 @@ public class SamlEngineModule extends AbstractModule {
                                                                                        Function<EidasAuthnRequestFromHub, String> eidasRequestStringTransformer,
                                                                                        EidasAuthnRequestTranslator eidasAuthnRequestTranslator,
                                                                                        @Named("HubEidasEntityId") Optional<String> hubEidasEntityId) {
-        if (!hubEidasEntityId.isPresent()) {
-            throw new InvalidConfigurationException(EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE);
-        }
-        return new CountryAuthnRequestGeneratorService(countrySingleSignOnServiceHelper.get(), eidasRequestStringTransformer, eidasAuthnRequestTranslator, hubEidasEntityId.get());
+        return new CountryAuthnRequestGeneratorService(
+                countrySingleSignOnServiceHelper.orElseThrow(),
+                eidasRequestStringTransformer,
+                eidasAuthnRequestTranslator,
+                hubEidasEntityId.orElseThrow(
+                        () -> new InvalidConfigurationException(EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE)));
     }
 
     @Provides
@@ -279,16 +281,14 @@ public class SamlEngineModule extends AbstractModule {
                                                                                            AssertionBlobEncrypter assertionBlobEncrypter,
                                                                                            Optional<EidasValidatorFactory> eidasValidatorFactory,
                                                                                            PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller) {
-        if (!responseAssertionFromCountryValidator.isPresent() || !validateSamlResponseIssuedByIdpDestination.isPresent() || !eidasValidatorFactory.isPresent()) {
-            throw new InvalidConfigurationException("Eidas not configured correctly");
-        }
-        return new CountryAuthnResponseTranslatorService(stringToOpenSamlResponseTransformer,
+        return new CountryAuthnResponseTranslatorService(
+                stringToOpenSamlResponseTransformer,
                 responseFromCountryValidator,
-                responseAssertionFromCountryValidator.get(),
-                validateSamlResponseIssuedByIdpDestination.get(),
+                responseAssertionFromCountryValidator.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
+                validateSamlResponseIssuedByIdpDestination.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
                 assertionDecrypter,
                 assertionBlobEncrypter,
-                eidasValidatorFactory.get(),
+                eidasValidatorFactory.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
                 passthroughAssertionUnmarshaller,
                 new CountryAuthenticationStatusUnmarshaller());
     }

@@ -532,11 +532,7 @@ public class HubTransformersFactory {
     }
 
     private SamlAttributeQueryAssertionEncrypter getSamlAttributeQueryAssertionEncrypter(EncryptionKeyStore encryptionKeyStore, Optional<EntityToEncryptForLocator> entity) {
-        if (entity.isPresent()) {
-            return new SamlAttributeQueryAssertionEncrypter(new KeyStoreBackedEncryptionCredentialResolver(encryptionKeyStore), new EncrypterFactory(), entity.get());
-        } else {
-            return new NoOpSamlAttributeQueryAssertionEncrypter();
-        }
+        return entity.map(entityToEncryptForLocator -> new SamlAttributeQueryAssertionEncrypter(new KeyStoreBackedEncryptionCredentialResolver(encryptionKeyStore), new EncrypterFactory(), entityToEncryptForLocator)).orElseGet(NoOpSamlAttributeQueryAssertionEncrypter::new);
     }
 
     private ResponseAssertionsFromIdpValidator getResponseAssertionsFromIdpValidator(final IdExpirationCache<String> assertionIdCache, String hubEntityId) {

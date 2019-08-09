@@ -194,7 +194,7 @@ public class MatchingServiceHealthChecker {
             String eidasEnabled,
             String shouldSignWithSha1) {
 
-        if (!response.isPresent()) {
+        if (response.isEmpty()) {
             return generateHealthCheckDescription("no response", matchingServiceUri, versionNumber, isOnboarding, eidasEnabled, shouldSignWithSha1);
         }
 
@@ -206,7 +206,7 @@ public class MatchingServiceHealthChecker {
             final URI matchingServiceUri,
             Optional<String> response) {
 
-        if (!response.isPresent()) {
+        if (response.isEmpty()) {
             return false;
         }
 
