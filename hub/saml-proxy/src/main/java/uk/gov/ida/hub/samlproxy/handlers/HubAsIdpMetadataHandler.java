@@ -18,7 +18,6 @@ import uk.gov.ida.common.shared.security.Certificate;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.samlproxy.SamlProxyConfiguration;
 import uk.gov.ida.saml.metadata.EntitiesDescriptorNameCriterion;
-import uk.gov.ida.saml.metadata.domain.ContactPersonDto;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.domain.OrganisationDto;
 import uk.gov.ida.saml.metadata.domain.SamlEndpointDto;
@@ -101,7 +100,7 @@ public class HubAsIdpMetadataHandler {
                 singletonList(binding),
                 hubEntityId,
                 organisationDto,
-                Collections.<ContactPersonDto>emptySet(),
+                Collections.emptySet(),
                 ImmutableList.copyOf(Iterables.concat(idpSigningCertificates)),
                 DateTime.now().plus(samlProxyConfiguration.getMetadataValidDuration().toMilliseconds()),
                 ImmutableList.copyOf(Iterables.concat(hubSigningCertificates)),

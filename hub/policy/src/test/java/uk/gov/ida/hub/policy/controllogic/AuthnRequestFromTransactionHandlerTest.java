@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.controllogic;
 
 import com.google.common.base.Optional;
-import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +73,7 @@ public class AuthnRequestFromTransactionHandlerTest {
 
         authnRequestFromTransactionHandler.handleRequestFromTransaction(samlResponseWithAuthnRequestInformationDto, relayState, ipAddress, assertionConsumerServiceUri, false);
 
-        verify(hubEventLogger, times(1)).logSessionStartedEvent(any(), anyString(), ArgumentMatchers.<DateTime>any(), ArgumentMatchers.<SessionId>any(), ArgumentMatchers.<LevelOfAssurance>any(), ArgumentMatchers.<LevelOfAssurance>any());
+        verify(hubEventLogger, times(1)).logSessionStartedEvent(any(), anyString(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
 
     }
 

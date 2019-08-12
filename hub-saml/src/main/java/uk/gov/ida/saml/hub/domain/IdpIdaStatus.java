@@ -36,7 +36,7 @@ public final class IdpIdaStatus implements IdaStatus {
     }
 
     private IdpIdaStatus(Status status) {
-        this(status, Optional.<String>empty());
+        this(status, Optional.empty());
     }
 
     private IdpIdaStatus(Status status, Optional<String> message) {

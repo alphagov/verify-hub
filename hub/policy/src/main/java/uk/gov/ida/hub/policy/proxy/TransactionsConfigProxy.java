@@ -77,7 +77,7 @@ public class TransactionsConfigProxy {
                 entityId,
                 Urls.ConfigUrls.MATCHING_PROCESS_RESOURCE,
                 MatchingProcess.class,
-                ImmutableMap.<String, String>of());
+                ImmutableMap.of());
     }
 
     @Timed
@@ -110,12 +110,12 @@ public class TransactionsConfigProxy {
                 entityId,
                 Urls.ConfigUrls.MATCHING_SERVICE_ENTITY_ID_RESOURCE,
                 String.class,
-                ImmutableMap.<String, String>of());
+                ImmutableMap.of());
     }
 
     @Timed
     public List<UserAccountCreationAttribute> getUserAccountCreationAttributes(String entityId) {
-        final URI uri = getEncodedUri(Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE, ImmutableMap.<String, String>of(), entityId);
+        final URI uri = getEncodedUri(Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE, ImmutableMap.of(), entityId);
 
         return jsonClient.get(uri, new GenericType<List<UserAccountCreationAttribute>>() {
         });

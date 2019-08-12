@@ -29,7 +29,7 @@ public class LevelOfAssuranceValidatorTest {
     public void validate_shouldThrowExceptionIfLevelOfAssuranceFromMatchingServiceDoesNotExist() throws Exception {
         LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
         try {
-            levelOfAssuranceValidator.validate(Optional.<LevelOfAssurance>absent(), levelOfAssurance);
+            levelOfAssuranceValidator.validate(Optional.absent(), levelOfAssurance);
             fail("fail");
         } catch (StateProcessingValidationException e) {
             assertThat(e.getMessage()).isEqualTo(StateProcessingValidationException.noLevelOfAssurance().getMessage());

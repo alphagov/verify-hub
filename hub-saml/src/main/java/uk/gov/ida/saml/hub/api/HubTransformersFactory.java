@@ -42,7 +42,6 @@ import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
-import uk.gov.ida.saml.hub.domain.InboundResponseFromMatchingService;
 import uk.gov.ida.saml.hub.domain.MatchingServiceHealthCheckRequest;
 import uk.gov.ida.saml.hub.factories.AttributeFactory_1_1;
 import uk.gov.ida.saml.hub.factories.AttributeQueryAttributeFactory;
@@ -318,7 +317,7 @@ public class HubTransformersFactory {
                         new MatchingServiceIdaStatusUnmarshaller()
                 ),
                 getSamlResponseSignatureValidator(getSignatureValidator(signingKeyStore)),
-                this.<InboundResponseFromMatchingService>getSamlResponseAssertionDecrypter(keyStore),
+                this.getSamlResponseAssertionDecrypter(keyStore),
                 getSamlAssertionsSignatureValidator(getSignatureValidator(signingKeyStore)),
                 new EncryptedResponseFromMatchingServiceValidator(),
                 new ResponseAssertionsFromMatchingServiceValidator(
