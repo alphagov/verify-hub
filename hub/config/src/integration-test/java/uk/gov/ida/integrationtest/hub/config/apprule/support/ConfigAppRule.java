@@ -205,7 +205,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
 
     private void writeFile(File folder, int index, Object content) {
         try {
-            FileUtils.write(new File(folder.getAbsolutePath(), folder.getName() + Integer.toString(index) + ".yml"), mapper.writeValueAsString(content));
+            FileUtils.write(new File(folder.getAbsolutePath(), folder.getName() + index + ".yml"), mapper.writeValueAsString(content));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

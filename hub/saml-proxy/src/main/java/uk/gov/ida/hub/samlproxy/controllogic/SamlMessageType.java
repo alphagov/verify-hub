@@ -4,7 +4,7 @@ public enum SamlMessageType {
     SAML_REQUEST  ("SAMLRequest"),
     SAML_RESPONSE ("SAMLResponse") ;
 
-    private SamlMessageType(String formName) {
+    SamlMessageType(String formName) {
         this.formName = formName;
     }
 
