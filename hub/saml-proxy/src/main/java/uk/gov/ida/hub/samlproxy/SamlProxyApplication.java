@@ -69,7 +69,7 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
     }
 
     @Override
-    public void run(SamlProxyConfiguration configuration, Environment environment) throws Exception {
+    public void run(SamlProxyConfiguration configuration, Environment environment) {
         environment.getObjectMapper().setDateFormat(new StdDateFormat());
 
         IdaSamlBootstrap.bootstrap();

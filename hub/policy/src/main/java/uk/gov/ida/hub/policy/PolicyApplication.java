@@ -81,7 +81,7 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
     }
 
     @Override
-    public void run(PolicyConfiguration configuration, Environment environment) throws Exception {
+    public void run(PolicyConfiguration configuration, Environment environment) {
         environment.getObjectMapper().setDateFormat(new StdDateFormat());
         registerResources(configuration, environment);
         registerExceptionMappers(environment);

@@ -97,7 +97,7 @@ public class EidasCycle3DataResourceTest {
     }
 
     @Test
-    public void shouldUpdateSessionStateToCancelledCycle3InputStateWhenInputToCycle3IsCancelled() throws JsonProcessingException {
+    public void shouldUpdateSessionStateToCancelledCycle3InputStateWhenInputToCycle3IsCancelled() {
         final SessionId sessionId = SessionIdBuilder.aSessionId().build();
         final Response sessionCreatedResponse = createSessionInEidasAwaitingCycle3DataState(sessionId);
         assertThat(sessionCreatedResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

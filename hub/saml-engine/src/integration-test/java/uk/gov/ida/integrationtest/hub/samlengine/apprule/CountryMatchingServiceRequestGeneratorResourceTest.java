@@ -58,7 +58,7 @@ public class CountryMatchingServiceRequestGeneratorResourceTest {
         assertThat(attributeQueryContainerDto.getSamlRequest()).contains("saml2p:AttributeQuery");
     }
 
-    private Response generateEidasAttributeQueryRequest(EidasAttributeQueryRequestDto dto) throws InterruptedException {
+    private Response generateEidasAttributeQueryRequest(EidasAttributeQueryRequestDto dto) {
         final URI uri = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_COUNTRY_ATTRIBUTE_QUERY_RESOURCE);
         return client.target(uri)
             .request()

@@ -13,7 +13,7 @@ import java.io.IOException;
 public class SessionIdQueryParamLoggingFilter implements Filter {
 
     @Override
-    public void init(final FilterConfig filterConfig) throws ServletException {
+    public void init(final FilterConfig filterConfig) {
         // this method intentionally left blank
     }
 

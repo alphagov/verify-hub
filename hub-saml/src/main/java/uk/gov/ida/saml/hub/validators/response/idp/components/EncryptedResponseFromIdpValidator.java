@@ -13,7 +13,6 @@ import uk.gov.ida.saml.hub.validators.response.common.IssuerValidator;
 import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
 
 import java.util.List;
-import java.util.Optional;
 
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidStatusCode;
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalidSubStatusCode;

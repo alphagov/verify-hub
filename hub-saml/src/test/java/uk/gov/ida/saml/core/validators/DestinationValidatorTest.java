@@ -7,7 +7,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.destinationEmpty;
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.destinationMissing;
@@ -22,7 +21,7 @@ public class DestinationValidatorTest {
     private DestinationValidator validator;
 
     @Before
-    public void setup() throws URISyntaxException {
+    public void setup() {
         validator = new DestinationValidator(URI.create(EXPECTED_DESTINATION), EXPECTED_ENDPOINT);
     }
 

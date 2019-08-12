@@ -1,6 +1,5 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import helpers.JerseyClientConfigurationBuilder;
 import httpstub.HttpStubRule;
 import io.dropwizard.client.JerseyClientBuilder;
@@ -303,7 +302,7 @@ public class SamlMessageReceiverApiResourceTest {
         assertThat(entity.getExceptionType()).isEqualTo(exceptionType);
     }
 
-    private SamlRequestDto createAuthnRequest(String issuer, String relayState, String publicCert, String privateKey) throws JsonProcessingException {
+    private SamlRequestDto createAuthnRequest(String issuer, String relayState, String publicCert, String privateKey) {
         String id = AuthnRequestIdGenerator.generateRequestId();
         Optional<Boolean> forceAuthentication = Optional.of(false);
         Optional<Integer> assertionConsumerServiceIndex = Optional.of(1);

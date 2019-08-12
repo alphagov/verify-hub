@@ -5,7 +5,6 @@ import org.infinispan.test.fwk.TestCacheManagerFactory;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.model.InitializationError;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.reflect.InvocationTargetException;
@@ -15,7 +14,7 @@ public class InfinispanJunitRunner extends MockitoJUnitRunner {
     public static final EmbeddedCacheManager EMBEDDED_CACHE_MANAGER = TestCacheManagerFactory.createCacheManager();
     private static boolean initialized = false;
 
-    public InfinispanJunitRunner(Class<?> klass) throws InitializationError, InvocationTargetException {
+    public InfinispanJunitRunner(Class<?> klass) throws InvocationTargetException {
         super(klass);
         if (!initialized) {
             setInitialized();

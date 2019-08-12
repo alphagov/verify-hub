@@ -13,7 +13,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.opensaml.saml.saml2.core.StatusCode;
-import org.xml.sax.SAXException;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.samlengine.Urls;
@@ -32,8 +31,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 
@@ -171,7 +168,7 @@ public class RpAuthnResponseGeneratorResourceTest {
         return new XmlObjectToBase64EncodedStringTransformer<>().apply(AssertionBuilder.anAssertion().build());
     }
 
-    private org.opensaml.saml.saml2.core.Response extractResponse(AuthnResponseFromHubContainerDto actualResult) throws org.opensaml.core.xml.io.UnmarshallingException, IOException, SAXException, ParserConfigurationException, XMLParserException {
+    private org.opensaml.saml.saml2.core.Response extractResponse(AuthnResponseFromHubContainerDto actualResult) throws org.opensaml.core.xml.io.UnmarshallingException, XMLParserException {
         return new SamlObjectParser().getSamlObject(new String(Base64Support.decode(actualResult.getSamlResponse())));
     }
 

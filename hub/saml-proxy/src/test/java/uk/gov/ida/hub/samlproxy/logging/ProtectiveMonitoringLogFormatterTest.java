@@ -58,7 +58,7 @@ public class ProtectiveMonitoringLogFormatterTest {
     }
 
     @Test
-    public void shouldFormatAuthnSuccessResponse() throws IOException, URISyntaxException, MarshallingException, SignatureException {
+    public void shouldFormatAuthnSuccessResponse() throws MarshallingException, SignatureException {
         Response response = aResponse().build();
 
         String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(response, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
@@ -77,7 +77,7 @@ public class ProtectiveMonitoringLogFormatterTest {
     }
 
     @Test
-    public void shouldFormatResponseWithNoIssuer() throws IOException, URISyntaxException, MarshallingException, SignatureException {
+    public void shouldFormatResponseWithNoIssuer() throws MarshallingException, SignatureException {
         Response response = aResponse().withIssuer(null).build();
 
         String logString = new ProtectiveMonitoringLogFormatter().formatAuthnResponse(response, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
@@ -86,7 +86,7 @@ public class ProtectiveMonitoringLogFormatterTest {
     }
 
     @Test
-    public void shouldFormatAuthnRequest() throws IOException, URISyntaxException {
+    public void shouldFormatAuthnRequest() {
         AuthnRequest authnRequest = anAuthnRequest().withId("test-id").withDestination("veganistan").build();
 
         String logString = new ProtectiveMonitoringLogFormatter().formatAuthnRequest(authnRequest, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);
@@ -101,7 +101,7 @@ public class ProtectiveMonitoringLogFormatterTest {
     }
 
     @Test
-    public void shouldFormatAuthnRequestWithoutIssuer() throws IOException, URISyntaxException {
+    public void shouldFormatAuthnRequestWithoutIssuer() {
         AuthnRequest authnRequest = anAuthnRequest().withId("test-id").withDestination("veganistan").withIssuer(null).build();
 
         String logString = new ProtectiveMonitoringLogFormatter().formatAuthnRequest(authnRequest, Direction.INBOUND, SignatureStatus.VALID_SIGNATURE);

@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlengine.resources.translators;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.ResponseFromHubDto;
 import uk.gov.ida.hub.samlengine.services.RpAuthnResponseGeneratorService;
@@ -28,7 +27,7 @@ public class RpAuthnResponseGeneratorResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Response generate(ResponseFromHubDto responseFromHub) throws JsonProcessingException {
+    public Response generate(ResponseFromHubDto responseFromHub) {
         return Response.ok().entity(service.generate(responseFromHub)).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 }

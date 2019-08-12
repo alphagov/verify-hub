@@ -12,7 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path(Urls.SamlEngineUrls.GENERATE_MSA_HEALTHCHECK_ATTRIBUTE_QUERY_RESOURCE)
@@ -27,7 +26,7 @@ public class MatchingServiceHealthcheckRequestGeneratorResource {
 
     @POST
     @Timed
-    public Response generateAttributeQuery(final MatchingServiceHealthCheckerRequestDto dto) throws IOException {
+    public Response generateAttributeQuery(final MatchingServiceHealthCheckerRequestDto dto) {
         return Response.ok().entity(service.generate(dto)).build();
     }
 

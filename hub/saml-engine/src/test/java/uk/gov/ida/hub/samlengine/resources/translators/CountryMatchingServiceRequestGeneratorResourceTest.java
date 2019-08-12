@@ -8,8 +8,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.samlengine.domain.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.samlengine.services.CountryMatchingServiceRequestGeneratorService;
 
-import java.io.IOException;
-
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -25,7 +23,7 @@ public class CountryMatchingServiceRequestGeneratorResourceTest {
     private EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto;
 
     @Test
-    public void generateAttributeQueryIsSuccessful() throws IOException {
+    public void generateAttributeQueryIsSuccessful() {
         resource.generateAttributeQuery(eidasAttributeQueryRequestDto);
 
         verify(service).generate(eidasAttributeQueryRequestDto);
