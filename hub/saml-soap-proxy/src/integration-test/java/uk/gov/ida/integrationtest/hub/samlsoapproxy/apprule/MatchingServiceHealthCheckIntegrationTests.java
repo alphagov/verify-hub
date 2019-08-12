@@ -5,7 +5,6 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import org.apache.ws.commons.util.NamespaceContextImpl;
-import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -209,7 +208,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
 
     }
 
-    private String anUnhealthyHealthCheckResponse(String msaEntityId, String msaVersion) throws Base64DecodingException {
+    private String anUnhealthyHealthCheckResponse(String msaEntityId, String msaVersion) {
         Function<HealthCheckResponseFromMatchingService, Element> transformer = new MsaTransformersFactory().getHealthcheckResponseFromMatchingServiceToElementTransformer(
                 null,
                 getKeyStore(),
@@ -226,7 +225,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
         return XmlUtils.writeToString(soapMessageManager.wrapWithSoapEnvelope(healthyResponse));
     }
 
-    private String aHealthyHealthCheckResponse(String msaEntityId, String msaVersion) throws Base64DecodingException {
+    private String aHealthyHealthCheckResponse(String msaEntityId, String msaVersion) {
         Function<uk.gov.ida.saml.msa.test.outbound.HealthCheckResponseFromMatchingService, Element> transformer = new MsaTransformersFactory().getHealthcheckResponseFromMatchingServiceToElementTransformer(
                 null,
                 getKeyStore(),
@@ -249,7 +248,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
                 .get();
     }
 
-    private IdaKeyStore getKeyStore() throws Base64DecodingException {
+    private IdaKeyStore getKeyStore() {
         List<KeyPair> encryptionKeyPairs = new ArrayList<>();
         PublicKeyFactory publicKeyFactory = new PublicKeyFactory(new X509CertificateFactory());
         PrivateKeyFactory privateKeyFactory = new PrivateKeyFactory();

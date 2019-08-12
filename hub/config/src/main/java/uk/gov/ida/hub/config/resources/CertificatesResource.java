@@ -21,7 +21,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -98,7 +97,7 @@ public class CertificatesResource {
      */
     @GET
     @Path(Urls.ConfigUrls.CERTIFICATES_HEALTH_CHECK_PATH)
-    public Response getHealthCheck() throws CertificateException {
+    public Response getHealthCheck() {
         return Response.ok(getCertHealthCheckDtos()).build();
     }
 

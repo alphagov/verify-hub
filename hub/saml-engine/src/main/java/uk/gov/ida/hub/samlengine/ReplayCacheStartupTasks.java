@@ -19,12 +19,12 @@ public class ReplayCacheStartupTasks implements Managed {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         assertionIdReplayCache.getExpiration("some-string");
         authnRequestIdReplayCache.getExpiration(new AuthnRequestIdKeyForInitilization("some-id"));
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
     }
 }

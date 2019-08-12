@@ -101,7 +101,7 @@ public class Cycle3DataResourceTest {
     }
 
     @Test
-    public void shouldUpdateSessionStateToCancelledCycle3InputStateWhenInputToCycle3IsCancelled() throws JsonProcessingException {
+    public void shouldUpdateSessionStateToCancelledCycle3InputStateWhenInputToCycle3IsCancelled() {
         //Given
         SessionId sessionId = SessionIdBuilder.aSessionId().build();
         Response sessionCreatedResponse = createSessionInAwaitingCycle3DataState(sessionId);

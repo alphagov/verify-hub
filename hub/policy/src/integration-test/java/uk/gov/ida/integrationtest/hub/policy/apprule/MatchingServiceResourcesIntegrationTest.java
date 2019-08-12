@@ -488,7 +488,7 @@ public class MatchingServiceResourcesIntegrationTest {
         DateTimeFreezer.freezeTime(DateTime.now().plusSeconds(matchingServiceResponseWaitPeriodSeconds + 1));
     }
 
-    private void aMatchingServiceFailureResponseHasBeenReceived(SessionId sessionId) throws JsonProcessingException {
+    private void aMatchingServiceFailureResponseHasBeenReceived(SessionId sessionId) {
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.MATCHING_SERVICE_REQUEST_FAILURE_RESOURCE).build(sessionId);
         postResponse(policy.uri(uri.toASCIIString()), null);
     }

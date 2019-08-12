@@ -34,7 +34,7 @@ public class TransactionsConfigProxy {
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build(new CacheLoader<>() {
                 @Override
-                public Boolean load(URI key) throws Exception {
+                public Boolean load(URI key) {
                     return jsonClient.get(key, Boolean.class);
                 }
             });

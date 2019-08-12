@@ -193,7 +193,7 @@ public class MatchingServiceRequestSenderTest {
     }
 
     @Test
-    public void socketTimeoutRetryWithBackoffTests_thirdCallSucceeds() throws IOException{
+    public void socketTimeoutRetryWithBackoffTests_thirdCallSucceeds() {
         final String firstCallState = "Call 1 Complete";
         final String secondCallState = "Call 2 Complete";
         final String thirdCallState = "Call 3 Complete";

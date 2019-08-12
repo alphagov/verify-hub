@@ -85,7 +85,7 @@ public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfigura
     }
 
     @Override
-    public void run(SamlSoapProxyConfiguration configuration, Environment environment) throws Exception {
+    public void run(SamlSoapProxyConfiguration configuration, Environment environment) {
         IdaSamlBootstrap.bootstrap();
         environment.getObjectMapper().setDateFormat(new StdDateFormat());
         registerResources(environment);

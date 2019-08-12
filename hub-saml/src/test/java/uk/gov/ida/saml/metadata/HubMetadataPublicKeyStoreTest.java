@@ -17,7 +17,6 @@ import uk.gov.ida.saml.metadata.test.factories.metadata.MetadataFactory;
 import uk.gov.ida.saml.security.PublicKeyFactory;
 
 import java.io.ByteArrayInputStream;
-import java.net.URISyntaxException;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -41,7 +40,7 @@ public class HubMetadataPublicKeyStoreTest {
         emptyMetadataResolver = initializeMetadata(metadataFactory.emptyMetadata());
     }
 
-    private static MetadataResolver initializeMetadata(String xml) throws URISyntaxException, ComponentInitializationException {
+    private static MetadataResolver initializeMetadata(String xml) throws ComponentInitializationException {
         AbstractReloadingMetadataResolver metadataResolver = new StringBackedMetadataResolver(xml);
         BasicParserPool basicParserPool = new BasicParserPool();
         basicParserPool.initialize();

@@ -37,7 +37,6 @@ import java.net.URI;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -208,7 +207,7 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
                 .build();
     }
 
-    private String buildTrustAnchorString() throws ParseException, JOSEException, CertificateEncodingException {
+    private String buildTrustAnchorString() throws JOSEException, CertificateEncodingException {
         X509CertificateFactory x509CertificateFactory = new X509CertificateFactory();
         PrivateKey trustAnchorKey = new PrivateKeyFactory().createPrivateKey(Base64.decodeBase64(TestCertificateStrings.METADATA_SIGNING_A_PRIVATE_KEY));
         X509Certificate trustAnchorCert = new X509CertificateFactory().createCertificate(TestCertificateStrings.METADATA_SIGNING_A_PUBLIC_CERT);

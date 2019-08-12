@@ -222,7 +222,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
 
 
     @Test
-    public void responsePost_shouldReturnBadRequestSessionDoesNotExist() throws JsonProcessingException{
+    public void responsePost_shouldReturnBadRequestSessionDoesNotExist() {
         Response response = postIdpResponse(SessionId.createNewSessionId(), samlResponseDto);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto responseEntity = response.readEntity(ErrorStatusDto.class);

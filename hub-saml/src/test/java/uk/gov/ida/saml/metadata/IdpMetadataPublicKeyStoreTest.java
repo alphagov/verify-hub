@@ -34,7 +34,6 @@ import uk.gov.ida.saml.metadata.test.factories.metadata.EntityDescriptorFactory;
 import uk.gov.ida.saml.metadata.test.factories.metadata.MetadataFactory;
 
 import java.io.ByteArrayInputStream;
-import java.net.URISyntaxException;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -54,7 +53,7 @@ public class IdpMetadataPublicKeyStoreTest {
         metadataResolver = initializeMetadata();
     }
 
-    private static MetadataResolver initializeMetadata() throws URISyntaxException {
+    private static MetadataResolver initializeMetadata() {
         try {
             EntityDescriptorFactory descriptorFactory = new EntityDescriptorFactory();
             String metadata = new MetadataFactory().metadata(asList(

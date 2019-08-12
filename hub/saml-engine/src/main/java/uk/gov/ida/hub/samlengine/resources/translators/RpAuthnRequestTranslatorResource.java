@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlengine.resources.translators;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.SamlRequestWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.samlengine.contracts.TranslatedAuthnRequestDto;
@@ -29,7 +28,7 @@ public class RpAuthnRequestTranslatorResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Response translate(SamlRequestWithAuthnRequestInformationDto samlRequestWithAuthnRequestInformationDto) throws JsonProcessingException {
+    public Response translate(SamlRequestWithAuthnRequestInformationDto samlRequestWithAuthnRequestInformationDto) {
         TranslatedAuthnRequestDto translated = rpAuthnRequestTranslatorService.translate(samlRequestWithAuthnRequestInformationDto);
 
         return Response.ok().entity(translated).type(MediaType.APPLICATION_JSON_TYPE).build();

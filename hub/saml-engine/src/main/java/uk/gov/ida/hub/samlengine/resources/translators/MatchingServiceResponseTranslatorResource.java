@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlengine.resources.translators;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.InboundResponseFromMatchingServiceDto;
@@ -29,7 +28,7 @@ public class MatchingServiceResponseTranslatorResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Response translate(SamlResponseContainerDto samlResponseContainerDto) throws JsonProcessingException {
+    public Response translate(SamlResponseContainerDto samlResponseContainerDto) {
         InboundResponseFromMatchingServiceDto translated = matchingServiceResponseTranslatorService.translate(samlResponseContainerDto);
 
         return Response.ok().entity(translated).type(MediaType.APPLICATION_JSON_TYPE).build();

@@ -39,7 +39,7 @@ public class ConfigValidCommand extends ConfiguredCommand<ConfigConfiguration> {
     }
 
     @Override
-    public void run(Bootstrap<ConfigConfiguration> bootstrap, Namespace namespace, ConfigConfiguration configuration) throws Exception {
+    public void run(Bootstrap<ConfigConfiguration> bootstrap, Namespace namespace, ConfigConfiguration configuration) {
         Injector injector = Guice.createInjector(
                 new AbstractModule() {
                     @Override

@@ -16,12 +16,12 @@ public class SessionStoreStartupTasks implements Managed {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         SessionId newSessionId = SessionId.createNewSessionId();
         sessionStore.get(newSessionId);
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
     }
 }

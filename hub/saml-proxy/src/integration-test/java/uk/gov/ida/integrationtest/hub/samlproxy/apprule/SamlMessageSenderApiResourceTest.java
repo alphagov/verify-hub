@@ -6,7 +6,6 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.util.Duration;
-import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -281,7 +280,7 @@ public class SamlMessageSenderApiResourceTest {
         return client.target(samlProxyAppRule.getUri(url)).queryParam(Urls.SharedUrls.SESSION_ID_PARAM, sessionId.toString()).request().get();
     }
 
-    private static IdaKeyStore getKeyStore() throws Base64DecodingException {
+    private static IdaKeyStore getKeyStore() {
         List<KeyPair> encryptionKeyPairs = new ArrayList<>();
         PublicKeyFactory publicKeyFactory = new PublicKeyFactory(new X509CertificateFactory());
         PrivateKeyFactory privateKeyFactory = new PrivateKeyFactory();
