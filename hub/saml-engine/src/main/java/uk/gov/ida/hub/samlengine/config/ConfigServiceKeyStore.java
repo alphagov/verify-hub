@@ -13,7 +13,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 
@@ -43,10 +42,8 @@ public class ConfigServiceKeyStore {
         for (CertificateDto keyFromConfig : certificates) {
             String base64EncodedCertificateValue = keyFromConfig.getCertificate();
             final X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
-            Optional<KeyStore> trustStore = trustStoreForCertificateProvider.getTrustStoreFor(keyFromConfig.getFederationEntityType());
-            if (trustStore.isPresent()){
-                validate(certificate, trustStore.get());
-            }
+            trustStoreForCertificateProvider.getTrustStoreFor(keyFromConfig.getFederationEntityType())
+                    .ifPresent(keyStore -> validate(certificate, keyStore));
             publicKeys.add(certificate.getPublicKey());
         }
 
@@ -57,10 +54,8 @@ public class ConfigServiceKeyStore {
         CertificateDto certificateDto = certificatesConfigProxy.getEncryptionCertificate(entityId);
         String base64EncodedCertificateValue = certificateDto.getCertificate();
         final X509Certificate certificate = x509CertificateFactory.createCertificate(base64EncodedCertificateValue);
-        Optional<KeyStore> trustStore = trustStoreForCertificateProvider.getTrustStoreFor(certificateDto.getFederationEntityType());
-        if (trustStore.isPresent()){
-            validate(certificate, trustStore.get());
-        }
+        trustStoreForCertificateProvider.getTrustStoreFor(certificateDto.getFederationEntityType())
+                .ifPresent(keyStore -> validate(certificate, keyStore));
         return certificate.getPublicKey();
     }
 
