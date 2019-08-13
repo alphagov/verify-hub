@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.partitioningBy;
 
 public class CertificateService <T extends CertificateConfigurable<T>> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ManagedEntityConfigRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CertificateService.class);
 
     private final ManagedEntityConfigRepository<T> connectedServiceConfigRepository;
     private final ManagedEntityConfigRepository<T> matchingServiceConfigRepository;
@@ -63,8 +63,11 @@ public class CertificateService <T extends CertificateConfigurable<T>> {
                 .stream()
                 .collect(partitioningBy(cd -> certificateValidityChecker.isValid(cd)));
 
-        certsByValidity.get(false)
-                .forEach(cd -> LOG.warn("Signature verification certificates were requested for entityId '{}' but at least one is invalid", entityId));
+        int numberOfBadCerts = certsByValidity.get(false).size();
+        String isOrAre = numberOfBadCerts == 1 ? "is" : "are";
+        if (numberOfBadCerts > 0) {
+            LOG.warn("Signature verification certificates were requested for entityId '{}'; {} of them {} invalid", entityId, numberOfBadCerts, isOrAre);
+        }
 
         return certsByValidity.get(true)
                 .stream()
