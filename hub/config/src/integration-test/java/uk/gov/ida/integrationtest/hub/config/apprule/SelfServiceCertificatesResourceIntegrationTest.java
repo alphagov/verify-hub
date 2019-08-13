@@ -29,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC_SIGNING_CERT;
 
 
 public class SelfServiceCertificatesResourceIntegrationTest {
@@ -37,8 +36,7 @@ public class SelfServiceCertificatesResourceIntegrationTest {
 
     private static final String LOCAL_ONLY_ENTITY_ID = "https://msa.local.test.com";
     private static final String REMOTE_ENABLED_ENTITY_ID = "https://msa.bananaregistry.test.com";
-    private static final String REMOTE_CERT_REGEX = "MIIDFDCCAfwCCQDEj/3MbRb8jzANBgkqhkiG9w0BAQsFADBMMQswCQYDVQQGEwJVSzEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANHRFMxHjAcBgNVBAMMFUJhbmFuYSBNU0EgRW5jcnlwdGlvbjAeFw0xOTA2MjgxNDI0MzFaFw0zOTA2MjgxNDI0MzFaMEwxCzAJBgNVBAYTAlVLMQ8wDQYDVQQHDAZMb25kb24xDDAKBgNVBAoMA0dEUzEeMBwGA1UEAwwVQmFuYW5hIE1TQSBFbmNyeXB0aW9uMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1FuGXjWgeNNJ7a5todg/\\+gQO\\+xKUf6/tJ0wIW4dHS1lEOnk3mWu5fCtyTbDG9O\\+O22EOqmxMzsF6Kl/U6qRhmqs8bmc5pW9AQ67JMlMYCmrLq/VhF2aQ9rZV/Dx9rd2xuU6IkJPWWryY6qFfNrh6CDHzFzM5y\\+iGAXNLj1Z0TY8J38hjgRWCjSq9XD8tYW3SFfsonMRm71CvLGNl0WQu3WEGMu4yDqQjH8QT7LF1IF3obSeUPJKDnVIKa5/7THu/Lrekon8LJ5BbBYeBvahqpbQbvf2UK\\+lEvgCOUupGoPjz6mQ97tjHXCtE04xMyDEkMFy2urnNv2e2eVuy0VHE4wIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQCacP1D5haveoTdwhxnWnCwgc6TFiMd4g5Io31bXOvwShmqcYoJ7t9gdD7ZiPMJPbcF/YGCCk/BSEUtvYOPaRJV7C3BIZEPnewoQXyhX1uKzSqsYFIssl7DyUuItnmLZCQ4\\+OHpp1JMprDaWoF5hk2TdgqSv/fNlxt0193ayLzV\\+Dt34LhaS/pwXEBG/WtmJW3fygEOnmqmL4SMfG6nvvd/pOxAUeMEnzct3lJ5j2Qv/c0k43fUsy267gIRz/dpB/zlEzA6uUnrCNVdz\\+1AVjzvo9kf7H/4cA348mnBnh/USbRoIXhPkbPp5GuD3Q2CHvAL\\+bqVcQVNAJr6HKl\\+OwC4";
-    private static final String REMOTE_CERT_SUB = TEST_RP_MS_PUBLIC_SIGNING_CERT.replaceAll("\n","");
+    private static final String REMOTE_CERT = "MIIDFDCCAfwCCQDEj/3MbRb8jzANBgkqhkiG9w0BAQsFADBMMQswCQYDVQQGEwJVSzEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANHRFMxHjAcBgNVBAMMFUJhbmFuYSBNU0EgRW5jcnlwdGlvbjAeFw0xOTA2MjgxNDI0MzFaFw0zOTA2MjgxNDI0MzFaMEwxCzAJBgNVBAYTAlVLMQ8wDQYDVQQHDAZMb25kb24xDDAKBgNVBAoMA0dEUzEeMBwGA1UEAwwVQmFuYW5hIE1TQSBFbmNyeXB0aW9uMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1FuGXjWgeNNJ7a5todg/+gQO+xKUf6/tJ0wIW4dHS1lEOnk3mWu5fCtyTbDG9O+O22EOqmxMzsF6Kl/U6qRhmqs8bmc5pW9AQ67JMlMYCmrLq/VhF2aQ9rZV/Dx9rd2xuU6IkJPWWryY6qFfNrh6CDHzFzM5y+iGAXNLj1Z0TY8J38hjgRWCjSq9XD8tYW3SFfsonMRm71CvLGNl0WQu3WEGMu4yDqQjH8QT7LF1IF3obSeUPJKDnVIKa5/7THu/Lrekon8LJ5BbBYeBvahqpbQbvf2UK+lEvgCOUupGoPjz6mQ97tjHXCtE04xMyDEkMFy2urnNv2e2eVuy0VHE4wIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQCacP1D5haveoTdwhxnWnCwgc6TFiMd4g5Io31bXOvwShmqcYoJ7t9gdD7ZiPMJPbcF/YGCCk/BSEUtvYOPaRJV7C3BIZEPnewoQXyhX1uKzSqsYFIssl7DyUuItnmLZCQ4+OHpp1JMprDaWoF5hk2TdgqSv/fNlxt0193ayLzV+Dt34LhaS/pwXEBG/WtmJW3fygEOnmqmL4SMfG6nvvd/pOxAUeMEnzct3lJ5j2Qv/c0k43fUsy267gIRz/dpB/zlEzA6uUnrCNVdz+1AVjzvo9kf7H/4cA348mnBnh/USbRoIXhPkbPp5GuD3Q2CHvAL+bqVcQVNAJr6HKl+OwC4";
     private static final String BUCKET_NAME = "s3bucket";
     private static final String OBJECT_KEY = "src/test/resources/remote-test-config.json";
 
@@ -85,16 +83,15 @@ public class SelfServiceCertificatesResourceIntegrationTest {
     public static void setUp() throws Exception {
         AmazonS3 s3Client = s3MockRule.createS3Client();
         s3Client.createBucket(BUCKET_NAME);
-        s3Client.putObject(BUCKET_NAME, OBJECT_KEY, substituteCerts("/remote-test-config.json", REMOTE_CERT_SUB));
+        s3Client.putObject(BUCKET_NAME, OBJECT_KEY, getTestJson("/remote-test-config.json"));
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client = new JerseyClientBuilder(configAppRule.getEnvironment()).using(jerseyClientConfiguration).build(SelfServiceCertificatesResourceIntegrationTest.class.getSimpleName());
     }
 
 
-    private static String substituteCerts(String resource, String remoteCertSub) throws URISyntaxException, IOException {
+    private static String getTestJson(String resource) throws URISyntaxException, IOException {
         URI uri = SelfServiceCertificatesResourceIntegrationTest.class.getResource(resource).toURI();
-        String original = new String(Files.readAllBytes(Path.of(uri)));
-        return original.replaceAll(REMOTE_CERT_REGEX, remoteCertSub);
+        return new String(Files.readAllBytes(Path.of(uri)));
     }
 
     @Test
@@ -110,7 +107,7 @@ public class SelfServiceCertificatesResourceIntegrationTest {
         Response response = getForEntityIdAndPath(entityId, Urls.ConfigUrls.ENCRYPTION_CERTIFICATES_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         CertificateDto certDto = response.readEntity(CertificateDto.class);
-        assertThat(certDto.getCertificate()).contains(REMOTE_CERT_SUB);
+        assertThat(certDto.getCertificate()).contains(REMOTE_CERT);
     }
 
     private void assertForEntityId(String entityId, Response response){
