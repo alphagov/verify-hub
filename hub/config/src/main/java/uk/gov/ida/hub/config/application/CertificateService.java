@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.config.application;
 
 import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
@@ -10,11 +12,16 @@ import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.partitioningBy;
+
 public class CertificateService <T extends CertificateConfigurable<T>> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CertificateService.class);
 
     private final ManagedEntityConfigRepository<T> connectedServiceConfigRepository;
     private final ManagedEntityConfigRepository<T> matchingServiceConfigRepository;
@@ -40,6 +47,7 @@ public class CertificateService <T extends CertificateConfigurable<T>> {
         T config = getConfig(entityId);
         Certificate cert = config.getEncryptionCertificate();
         if (!certificateValidityChecker.isValid(cert)){
+            LOG.warn("Encryption certificate for entityId '{}' was requested but is invalid", entityId);
             throw new NoCertificateFoundException();
         }
         if (!cert.isEnabled()){
@@ -50,9 +58,19 @@ public class CertificateService <T extends CertificateConfigurable<T>> {
 
     public List<Certificate> signatureVerificationCertificatesFor(String entityId) {
         T config = getConfig(entityId);
-        return config.getSignatureVerificationCertificates()
+
+        Map<Boolean, List<Certificate>> certsByValidity = config.getSignatureVerificationCertificates()
                 .stream()
-                .filter(cd -> certificateValidityChecker.isValid(cd))
+                .collect(partitioningBy(cd -> certificateValidityChecker.isValid(cd)));
+
+        int numberOfBadCerts = certsByValidity.get(false).size();
+        String isOrAre = numberOfBadCerts == 1 ? "is" : "are";
+        if (numberOfBadCerts > 0) {
+            LOG.warn("Signature verification certificates were requested for entityId '{}'; {} of them {} invalid", entityId, numberOfBadCerts, isOrAre);
+        }
+
+        return certsByValidity.get(true)
+                .stream()
                 .collect(Collectors.collectingAndThen(Collectors.toList(), this::throwIfEmpty));
     }
 

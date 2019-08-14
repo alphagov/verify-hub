@@ -1,12 +1,18 @@
 package uk.gov.ida.hub.config.application;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
+import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
@@ -49,11 +55,17 @@ public class CertificateServiceTest {
     private CertificateValidityChecker certificateValidityChecker;
 
 
-    private CertificateService certificateService;
+    private CertificateService<? extends CertificateConfigurable<?>> certificateService;
+    private ListAppender<ILoggingEvent> logsListAppender = null;
 
     @Before
     public void createService() {
         certificateService = new CertificateService(connectedServiceConfigRepository, matchingServiceConfigRepository, certificateValidityChecker);
+
+        Logger certificateServiceLogger = (Logger) LoggerFactory.getLogger(CertificateService.class);
+        logsListAppender = new ListAppender<>();
+        logsListAppender.start();
+        certificateServiceLogger.addAppender(logsListAppender);
     }
 
     @Test
@@ -75,7 +87,7 @@ public class CertificateServiceTest {
     }
 
     @Test(expected = NoCertificateFoundException.class)
-    public void encryptionCertificateForEntityIdThrowsWhenTransactionCertificateExistsButIsInvalid() {
+    public void encryptionCertificateForEntityIdWarnsAndThrowsWhenTransactionCertificateExistsButIsInvalid() {
         TransactionConfig transactionConfig = aTransactionConfigData()
                 .withEntityId(RP_ONE_ENTITY_ID)
                 .withEnabled(true)
@@ -85,7 +97,13 @@ public class CertificateServiceTest {
         when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
         when(certificateValidityChecker.isValid(any(Certificate.class))).thenReturn(false);
 
-        certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+        try {
+            certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+        }
+        finally {
+            String expectedLogMessage = "Encryption certificate for entityId '" + RP_ONE_ENTITY_ID + "' was requested but is invalid";
+            checkForExpectedLogWarnings(List.of(expectedLogMessage));
+        }
     }
 
     @Test
@@ -107,7 +125,7 @@ public class CertificateServiceTest {
     }
 
     @Test(expected = NoCertificateFoundException.class)
-    public void encryptionCertificateForEntityIdThrowsWhenMatchCertificateExistsButIsInvalid() {
+    public void encryptionCertificateForEntityIdWarnsAndThrowsWhenMatchCertificateExistsButIsInvalid() {
         MatchingServiceConfig matchingServiceConfig = aMatchingServiceConfig()
                 .withEntityId(RP_ONE_ENTITY_ID)
                 .build();
@@ -116,7 +134,13 @@ public class CertificateServiceTest {
         when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
         when(certificateValidityChecker.isValid(any(Certificate.class))).thenReturn(false);
 
-        certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+        try {
+            certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+        }
+        finally {
+            String expectedLogMessage = "Encryption certificate for entityId '" + RP_ONE_ENTITY_ID + "' was requested but is invalid";
+            checkForExpectedLogWarnings(List.of(expectedLogMessage));
+        }
     }
 
 
@@ -231,24 +255,36 @@ public class CertificateServiceTest {
 
         assertThat(CertificateFound.size()).isEqualTo(1);
         assertThat(CertificateFound.get(0)).isEqualTo(validCertificate);
+
+        String expectedLogMessage = String.format("Signature verification certificates were requested for entityId '%s'; 1 of them is invalid", RP_ONE_ENTITY_ID);
+        checkForExpectedLogWarnings(List.of(expectedLogMessage));
     }
 
     @Test(expected = NoCertificateFoundException.class)
-    public void signatureVerificationCertificatesForEntityIdThrowsWhenMatchingSignatureCertificatesExistButAreInvalid() {
+    public void signatureVerificationCertificatesForEntityIdWarnsAndThrowsWhenMatchingSignatureCertificatesExistButAreInvalid() {
 
         MatchingServiceConfig matchingServiceConfig = aMatchingServiceConfig()
                 .withEntityId(RP_ONE_ENTITY_ID)
+                .addSignatureVerificationCertificate(CERT_ONE_X509)
                 .addSignatureVerificationCertificate(CERT_TWO_X509)
                 .build();
 
-        Certificate invalidCertificate = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
+        Certificate invalidCertificate1 = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_ONE_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
+        Certificate invalidCertificate2 = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
 
         when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
         when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
         when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
-        when(certificateValidityChecker.isValid(invalidCertificate)).thenReturn(false);
+        when(certificateValidityChecker.isValid(invalidCertificate1)).thenReturn(false);
+        when(certificateValidityChecker.isValid(invalidCertificate2)).thenReturn(false);
 
-        certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
+        try {
+            certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
+        }
+        finally {
+            String expectedLogMessage = String.format("Signature verification certificates were requested for entityId '%s'; 2 of them are invalid", RP_ONE_ENTITY_ID);
+            checkForExpectedLogWarnings(List.of(expectedLogMessage));
+        }
     }
 
     @Test(expected = NoCertificateFoundException.class)
@@ -286,6 +322,16 @@ public class CertificateServiceTest {
 
         assertThat(actualCertificateSet.size()).isEqualTo(6);
         assertThat(actualCertificateSet).containsAll(expectedCertificateSet);
+    }
+
+    private void checkForExpectedLogWarnings(Iterable<String> expectedMessages) {
+        for (String expectedMessage : expectedMessages) {
+            assertThat(logsListAppender.list.stream()
+                    .anyMatch(logEvent ->
+                            logEvent.getFormattedMessage().contentEquals(expectedMessage) && logEvent.getLevel() == Level.WARN)
+            ).isTrue();
+        }
+
     }
 
 }
