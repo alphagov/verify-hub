@@ -7,6 +7,7 @@ import org.opensaml.saml.saml2.core.Subject;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
+import uk.gov.ida.hub.samlengine.domain.OriginalSamlWithAssertionDecryptionKeys;
 import uk.gov.ida.hub.samlengine.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlengine.logging.MdcHelper;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
@@ -14,13 +15,18 @@ import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
+import uk.gov.ida.saml.core.validation.assertion.AssertionAttributeStatementValidator;
+import uk.gov.ida.saml.core.validation.assertion.AssertionValidator;
+import uk.gov.ida.saml.core.validation.subjectconfirmation.BasicAssertionSubjectConfirmationValidator;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
+import uk.gov.ida.saml.core.validators.subject.AssertionSubjectValidator;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.CountryAuthenticationStatus;
 import uk.gov.ida.saml.hub.transformers.inbound.CountryAuthenticationStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
+import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -66,7 +72,25 @@ public class CountryAuthnResponseTranslatorService {
         ValidatedResponse validatedResponse = validateResponse(response);
         List<Assertion> assertions = assertionDecrypter.decryptAssertions(validatedResponse);
         Optional<Assertion> validatedIdentityAssertion = validateAssertion(validatedResponse, assertions);
-        return toModel(validatedResponse, validatedIdentityAssertion, samlResponseDto.getMatchingServiceEntityId());
+        InboundResponseFromCountry inboundResponseFromCountry =
+                toModel(validatedResponse, validatedIdentityAssertion, samlResponseDto.getMatchingServiceEntityId());
+
+        if (areAssertionsUnsigned(assertions)) {
+            inboundResponseFromCountry.setOriginalSamlWithAssertionDecryptionKey(
+                    new OriginalSamlWithAssertionDecryptionKeys(samlResponseDto.getSamlResponse(),
+                            assertionDecrypter.getAssertionEncryptionKeyMap()));
+        }
+        return inboundResponseFromCountry;
+    }
+
+    private boolean areAssertionsUnsigned(List<Assertion> assertions) {
+        AssertionValidator assertionValidator = new AssertionValidator(
+                new IssuerValidator(),
+                new AssertionSubjectValidator(),
+                new AssertionAttributeStatementValidator(),
+                new BasicAssertionSubjectConfirmationValidator());
+
+        return assertions.stream().filter(assertion -> assertionValidator.isAssertionUnsigned(assertion)).findAny().isPresent();
     }
 
     private Response unmarshall(SamlAuthnResponseTranslatorDto dto) {

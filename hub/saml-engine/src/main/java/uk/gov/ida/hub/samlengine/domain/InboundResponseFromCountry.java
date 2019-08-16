@@ -10,7 +10,7 @@ public class InboundResponseFromCountry {
     private Optional<String> statusMessage;
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
-
+    private Optional<OriginalSamlWithAssertionDecryptionKeys> originalSamlWithAssertionDecryptionKey;
     private InboundResponseFromCountry() {
     }
 
@@ -28,6 +28,7 @@ public class InboundResponseFromCountry {
         this.statusMessage = statusMessage;
         this.encryptedIdentityAssertionBlob = encryptedIdentityAssertionBlob;
         this.levelOfAssurance = levelOfAssurance;
+        this.originalSamlWithAssertionDecryptionKey = Optional.empty();
     }
 
     public String getIssuer() {
@@ -52,5 +53,13 @@ public class InboundResponseFromCountry {
 
     public Optional<LevelOfAssurance> getLevelOfAssurance() {
         return levelOfAssurance;
+    }
+
+    public void setOriginalSamlWithAssertionDecryptionKey(OriginalSamlWithAssertionDecryptionKeys originalSamlWithAssertionDecryptionKey) {
+        this.originalSamlWithAssertionDecryptionKey = Optional.of(originalSamlWithAssertionDecryptionKey);
+    }
+
+    public Optional<OriginalSamlWithAssertionDecryptionKeys> getOriginalSamlWithAssertionDecryptionKey() {
+        return originalSamlWithAssertionDecryptionKey;
     }
 }
