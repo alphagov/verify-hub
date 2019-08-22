@@ -31,7 +31,6 @@ allprojects {
 
 repositories {
     jcenter()
-    mavenLocal()
 }
 
 ext {

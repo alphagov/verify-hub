@@ -7,7 +7,6 @@ import org.opensaml.saml.saml2.core.Subject;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
-import uk.gov.ida.hub.samlengine.domain.OriginalSamlWithAssertionDecryptionKeys;
 import uk.gov.ida.hub.samlengine.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlengine.logging.MdcHelper;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
@@ -73,13 +72,12 @@ public class CountryAuthnResponseTranslatorService {
         List<Assertion> assertions = assertionDecrypter.decryptAssertions(validatedResponse);
         Optional<Assertion> validatedIdentityAssertion = validateAssertion(validatedResponse, assertions);
         InboundResponseFromCountry inboundResponseFromCountry =
-                toModel(validatedResponse, validatedIdentityAssertion, samlResponseDto.getMatchingServiceEntityId());
+                toModel(validatedResponse,
+                        validatedIdentityAssertion,
+                        samlResponseDto.getMatchingServiceEntityId(),
+                        areAssertionsUnsigned(assertions),
+                        samlResponseDto.getSamlResponse());
 
-        if (areAssertionsUnsigned(assertions)) {
-            inboundResponseFromCountry.setOriginalSamlWithAssertionDecryptionKey(
-                    new OriginalSamlWithAssertionDecryptionKeys(samlResponseDto.getSamlResponse(),
-                            assertionDecrypter.getAssertionEncryptionKeyMap()));
-        }
         return inboundResponseFromCountry;
     }
 
@@ -90,11 +88,11 @@ public class CountryAuthnResponseTranslatorService {
                 new AssertionAttributeStatementValidator(),
                 new BasicAssertionSubjectConfirmationValidator());
 
-        return assertions.stream().filter(assertion -> assertionValidator.isAssertionUnsigned(assertion)).findAny().isPresent();
+        return assertions.stream().anyMatch(assertionValidator::isAssertionUnsigned);
     }
 
     private Response unmarshall(SamlAuthnResponseTranslatorDto dto) {
-        Response response =  stringToOpenSamlResponseTransformer.apply(dto.getSamlResponse());
+        Response response = stringToOpenSamlResponseTransformer.apply(dto.getSamlResponse());
         MdcHelper.addContextToMdc(response);
         return response;
     }
@@ -112,7 +110,11 @@ public class CountryAuthnResponseTranslatorService {
         return identityAssertion;
     }
 
-    private InboundResponseFromCountry toModel(ValidatedResponse response, Optional<Assertion> validatedIdentityAssertionOptional, String matchingServiceEntityId) {
+    private InboundResponseFromCountry toModel(ValidatedResponse response,
+                                               Optional<Assertion> validatedIdentityAssertionOptional,
+                                               String matchingServiceEntityId,
+                                               boolean areAssertionsUnsigned,
+                                               String samlFromCountry) {
 
         Optional<PassthroughAssertion> passthroughAssertion = validatedIdentityAssertionOptional.map(validatedIdentityAssertion -> passthroughAssertionUnmarshaller.fromAssertion(validatedIdentityAssertion, true));
 
@@ -125,11 +127,14 @@ public class CountryAuthnResponseTranslatorService {
         CountryAuthenticationStatus status = countryAuthenticationStatusUnmarshaller.fromSaml(response.getStatus());
 
         return new InboundResponseFromCountry(
-            response.getIssuer().getValue(),
-            validatedIdentityAssertionOptional.map(Assertion::getSubject).map(Subject::getNameID).map(NameID::getValue),
-            Optional.ofNullable(status).map(CountryAuthenticationStatus::getStatusCode).map(CountryAuthenticationStatus.Status::name),
-            status.getMessage(),
-            passthroughAssertion.map(assertion -> assertionBlobEncrypter.encryptAssertionBlob(matchingServiceEntityId, assertion.getUnderlyingAssertionBlob())),
-            levelOfAssurance);
+                response.getIssuer().getValue(),
+                validatedIdentityAssertionOptional.map(Assertion::getSubject).map(Subject::getNameID).map(NameID::getValue),
+                Optional.ofNullable(status).map(CountryAuthenticationStatus::getStatusCode).map(CountryAuthenticationStatus.Status::name),
+                status.getMessage(),
+                passthroughAssertion.map(assertion -> assertionBlobEncrypter.encryptAssertionBlob(matchingServiceEntityId, assertion.getUnderlyingAssertionBlob())),
+                levelOfAssurance,
+                areAssertionsUnsigned,
+                samlFromCountry
+                );
     }
 }

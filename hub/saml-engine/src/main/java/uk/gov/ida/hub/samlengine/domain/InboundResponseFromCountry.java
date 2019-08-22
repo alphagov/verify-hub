@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.samlengine.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Optional;
 
 public class InboundResponseFromCountry {
@@ -10,7 +12,11 @@ public class InboundResponseFromCountry {
     private Optional<String> statusMessage;
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
-    private Optional<OriginalSamlWithAssertionDecryptionKeys> originalSamlWithAssertionDecryptionKey;
+    @JsonProperty
+    private boolean areAssertionsUnsigned;
+
+    private String samlFromCountry;
+
     private InboundResponseFromCountry() {
     }
 
@@ -20,7 +26,9 @@ public class InboundResponseFromCountry {
             Optional<String> status,
             Optional<String> statusMessage,
             Optional<String> encryptedIdentityAssertionBlob,
-            Optional<LevelOfAssurance> levelOfAssurance
+            Optional<LevelOfAssurance> levelOfAssurance,
+            boolean areAssertionsUnsigned,
+            String samlFromCountry
     ) {
         this.issuer = issuer;
         this.persistentId = persistentId;
@@ -28,7 +36,8 @@ public class InboundResponseFromCountry {
         this.statusMessage = statusMessage;
         this.encryptedIdentityAssertionBlob = encryptedIdentityAssertionBlob;
         this.levelOfAssurance = levelOfAssurance;
-        this.originalSamlWithAssertionDecryptionKey = Optional.empty();
+        this.areAssertionsUnsigned = areAssertionsUnsigned;
+        this.samlFromCountry = samlFromCountry;
     }
 
     public String getIssuer() {
@@ -55,11 +64,11 @@ public class InboundResponseFromCountry {
         return levelOfAssurance;
     }
 
-    public void setOriginalSamlWithAssertionDecryptionKey(OriginalSamlWithAssertionDecryptionKeys originalSamlWithAssertionDecryptionKey) {
-        this.originalSamlWithAssertionDecryptionKey = Optional.of(originalSamlWithAssertionDecryptionKey);
+    public boolean areAssertionsUnsigned() {
+        return areAssertionsUnsigned;
     }
 
-    public Optional<OriginalSamlWithAssertionDecryptionKeys> getOriginalSamlWithAssertionDecryptionKey() {
-        return originalSamlWithAssertionDecryptionKey;
+    public String getSamlFromCountry() {
+        return samlFromCountry;
     }
 }
