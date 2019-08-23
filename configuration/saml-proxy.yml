@@ -32,6 +32,7 @@ serviceInfo:
 rpTrustStoreConfiguration:
   path: /tmp/truststores/${DEPLOYMENT}/rp_ca_certs.ts
   password: puppet
+  enabled: ${RP_TRUSTSTORE_ENABLED:-true}
 metadataValidDuration: 1h
 featureFlagConfiguration: {}
 logging:
