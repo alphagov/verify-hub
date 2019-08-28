@@ -46,6 +46,7 @@ featureFlagConfiguration: {}
 rpTrustStoreConfiguration:
   path: /tmp/truststores/${DEPLOYMENT}/rp_ca_certs.ts
   password: puppet
+  enabled: ${RP_TRUSTSTORE_ENABLED:-true}
 logging:
   loggers:
     uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger:
