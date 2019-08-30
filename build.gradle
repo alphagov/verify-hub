@@ -1,15 +1,13 @@
 buildscript {
     repositories {
         if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
-          logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/whitelisted-repos for production builds.\n\n')
-          maven { url 'https://dl.bintray.com/alphagov/maven-test' }
-          maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
-          jcenter()
-            mavenLocal()
+            logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/whitelisted-repos for production builds.\n\n')
+            maven { url 'https://dl.bintray.com/alphagov/maven-test' }
+            maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
+            jcenter()
         }
         else {
-          maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
-            mavenLocal()
+            maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
         }
     }
     dependencies {
@@ -40,15 +38,15 @@ ext {
 }
 
 def dependencyVersions = [
-            ida_utils:'370',
-            dropwizard:"$dropwizard_version",
-            dropwizard_infinispan:"$dropwizard_version-48",
-            pact:'3.5.6',
-            ida_test_utils:"2.0.0-46",
-            opensaml:"$opensaml_version",
-            dev_pki: '1.1.0-37',
-            saml_lib:"$opensaml_version-SNAPSHOT"
-        ]
+        ida_utils:'370',
+        dropwizard:"$dropwizard_version",
+        dropwizard_infinispan:"$dropwizard_version-48",
+        pact:'3.5.6',
+        ida_test_utils:"2.0.0-46",
+        opensaml:"$opensaml_version",
+        dev_pki: '1.1.0-37',
+        saml_lib:"$opensaml_version-213"
+]
 
 subprojects {
     apply plugin: 'java'
@@ -64,11 +62,9 @@ subprojects {
             maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
             maven { url 'https://splunk.jfrog.io/splunk/ext-releases-local' }
             jcenter()
-            mavenLocal()
         }
         else {
             maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
-            mavenLocal()
         }
     }
 
@@ -151,7 +147,7 @@ subprojects {
         prometheus 'engineering.gds-reliability:gds-metrics-dropwizard:0.1.0'
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
-             project(":hub-saml")
+                project(":hub-saml")
 
         saml_lib "uk.gov.ida:saml-lib:$dependencyVersions.saml_lib"
 
@@ -228,13 +224,13 @@ task(outputDependencies) doLast {
 
 import javax.crypto.Cipher
 task(checkJceInstalled) doLast {
-  if (Cipher.getMaxAllowedKeyLength('AES') <= 128) {
-    throw new GradleException("""ERROR: You need to have the unlimited strength JCE installed.
+    if (Cipher.getMaxAllowedKeyLength('AES') <= 128) {
+        throw new GradleException("""ERROR: You need to have the unlimited strength JCE installed.
 
 See http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
 
 +Note this is installed by default in Java 8 1.6.1 or later""")
-  }
+    }
 }
 
 defaultTasks 'clean', 'test', 'jar'
