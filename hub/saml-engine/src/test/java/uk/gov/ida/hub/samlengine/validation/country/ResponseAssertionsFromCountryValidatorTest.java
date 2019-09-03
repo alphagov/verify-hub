@@ -59,7 +59,7 @@ public class ResponseAssertionsFromCountryValidatorTest {
     public void shouldValidateAssertion() {
         validator.validate(validatedResponse, assertion);
 
-        verify(assertionValidator).validate(assertion, validatedResponse.getInResponseTo(), EXPECTED_RECIPIENT_ID);
+        verify(assertionValidator).validateEidas(assertion, validatedResponse.getInResponseTo(), EXPECTED_RECIPIENT_ID);
         verify(authnStatementAssertionValidator).validate(assertion);
         verify(eidasAttributeStatementAssertionValidator).validate(assertion);
     }

@@ -31,7 +31,6 @@ public class CountryAuthnResponseTranslatorResource {
     @Timed
     public Response translate(@Valid SamlAuthnResponseTranslatorDto samlResponseDto) {
         InboundResponseFromCountry translated = countryAuthnResponseTranslatorService.translate(samlResponseDto);
-
         return Response.ok().entity(translated).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 }
