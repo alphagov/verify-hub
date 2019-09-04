@@ -11,7 +11,6 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
-import uk.gov.ida.hub.samlengine.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
@@ -23,6 +22,7 @@ import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
 import uk.gov.ida.saml.hub.transformers.inbound.CountryAuthenticationStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.security.AssertionDecrypter;
+import uk.gov.ida.saml.security.EidasValidatorFactory;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
