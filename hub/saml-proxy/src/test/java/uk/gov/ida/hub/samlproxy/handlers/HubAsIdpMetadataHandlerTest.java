@@ -1,8 +1,6 @@
 package uk.gov.ida.hub.samlproxy.handlers;
 
 import java.util.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import io.dropwizard.util.Duration;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
@@ -27,6 +25,7 @@ import uk.gov.ida.saml.metadata.test.factories.metadata.MetadataFactory;
 
 import java.net.URI;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,7 +85,7 @@ public class HubAsIdpMetadataHandlerTest {
 
         final List<Certificate> encryptionCertificates = metadataAsAnIdentityProvider.getEncryptionCertificates();
         assertThat(encryptionCertificates).hasSize(1);
-        final Optional<Certificate> hubEncryptionCertificate = Iterables.tryFind(encryptionCertificates, getPredicateByIssuerId(TestEntityIds.HUB_ENTITY_ID)).toJavaUtil();
+        final Optional<Certificate> hubEncryptionCertificate = encryptionCertificates.stream().filter(getPredicateByIssuerId(TestEntityIds.HUB_ENTITY_ID)).findFirst();
         assertThat(hubEncryptionCertificate.isPresent()).isTrue();
         assertThat(hubEncryptionCertificate.get().getKeyUse()).isEqualTo(Certificate.KeyUse.Encryption);
     }

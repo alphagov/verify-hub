@@ -1,30 +1,30 @@
 package uk.gov.ida.hub.config.domain.filters;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder;
 
+import java.util.function.Predicate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 
 final class PredicateTestHelper {
 
-    private PredicateTestHelper() { }
+    private PredicateTestHelper() {
+    }
 
     private static final IdentityProviderConfigDataBuilder builder = anIdentityProviderConfigData();
 
     static final String transactionEntityNonOnboarding = "transactionEntityNonOnboarding";
     static final String transactionEntityOnboarding = "transactionEntityOnboarding";
     static final String transactionEntityOnboardingOther = "transactionEntityOnboardingOther";
-    
+
     static final DateTime expiredDatetime = DateTime.now().minusDays(1);
     static final DateTime futureDatetime = DateTime.now().plusDays(1);
 
@@ -86,7 +86,7 @@ final class PredicateTestHelper {
             .withProvideAuthenticationUntil(expiredDatetime)
             .withSimpleId("onboardingHardDisconnectingIdp")
             .build();
-    
+
     static final IdentityProviderConfig onboardingLoa1IdpOtherOnboardingEntity = anIdentityProviderConfigData()
             .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
             .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
@@ -124,17 +124,19 @@ final class PredicateTestHelper {
 
     static final Set<IdentityProviderConfig> allIdps = new HashSet<>(Arrays.asList(nonOnboardingLoa1Idp,
             nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp, nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp,
-            onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa1IdpOtherOnboardingEntity, 
+            onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa1IdpOtherOnboardingEntity,
             onboardingLoa2IdpOtherOnboardingEntity, onboardingAllLevelsIdpOtherOnboardingEntity, onboardingSoftDisconnectingIdp,
             onboardingHardDisconnectingIdp));
 
     static Set<IdentityProviderConfig> getFilteredIdps(Set<IdentityProviderConfig> idpSet,
                                                        Set<Predicate<IdentityProviderConfig>> predicateSet) {
-        return Sets.filter(idpSet, Predicates.and(predicateSet));
+        return idpSet.stream()
+                .filter(predicateSet.stream().reduce(Predicate::and).orElseThrow())
+                .collect(Collectors.toSet());
     }
 
     static Set<IdentityProviderConfig> getFilteredIdps(Set<IdentityProviderConfig> idpSet,
                                                        Predicate<IdentityProviderConfig> predicate) {
-        return Sets.filter(idpSet, predicate);
+        return idpSet.stream().filter(predicate).collect(Collectors.toSet());
     }
 }

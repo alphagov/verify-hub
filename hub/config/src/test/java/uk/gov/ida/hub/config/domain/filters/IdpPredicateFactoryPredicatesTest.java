@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.config.domain.filters;
 
-import com.google.common.base.Predicate;
 import org.junit.Test;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
+import java.util.function.Predicate;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,22 +42,21 @@ public class IdpPredicateFactoryPredicatesTest {
 
     @Test
     public void shouldReturnIdpsForSignInForNonOnboardingTransactionEntity() {
-        final Set<Predicate<IdentityProviderConfig>> signInPredicateNonOnboarding= idpPredicateFactory
+        final Set<Predicate<IdentityProviderConfig>> signInPredicateNonOnboarding = idpPredicateFactory
                 .createPredicatesForSignIn(transactionEntityNonOnboarding);
 
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, signInPredicateNonOnboarding);
 
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp,
                 nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp,
-                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity, 
+                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,
                 nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
 
     @Test
-    public void shouldReturnIdpsForSignInForOnboardingTransactionEntity()
-    {
+    public void shouldReturnIdpsForSignInForOnboardingTransactionEntity() {
         final Set<Predicate<IdentityProviderConfig>> signInPredicateOnboarding = idpPredicateFactory
                 .createPredicatesForSignIn(transactionEntityOnboarding);
 
@@ -65,7 +64,7 @@ public class IdpPredicateFactoryPredicatesTest {
 
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
                 nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp,
-                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity, 
+                onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,
                 onboardingSoftDisconnectingIdp, onboardingHardDisconnectingIdp,
                 nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
 

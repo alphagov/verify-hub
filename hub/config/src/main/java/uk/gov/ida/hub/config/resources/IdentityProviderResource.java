@@ -1,9 +1,6 @@
 package uk.gov.ida.hub.config.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Sets;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
@@ -20,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.util.function.Predicate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -49,8 +47,7 @@ public class IdentityProviderResource {
     @Path(Urls.ConfigUrls.IDP_LIST_PATH)
     @Timed
     @Deprecated
-    public List<IdpDto> getIdpList(@QueryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM)
-                                   final Optional<String> transactionEntityId) {
+    public List<IdpDto> getIdpList(@QueryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
 
         Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfig(transactionEntityId);
         return matchingIdps.stream().map(configData ->
@@ -202,6 +199,9 @@ public class IdentityProviderResource {
     }
 
     private Set<IdentityProviderConfig> idpsFilteredBy(Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity) {
-        return Sets.filter(identityProviderConfigRepository.getAllData(), Predicates.and(predicatesForTransactionEntity));
+        return identityProviderConfigRepository.getAllData()
+                .stream()
+                .filter(predicatesForTransactionEntity.stream().reduce(Predicate::and).orElseThrow())
+                .collect(Collectors.toSet());
     }
 }
