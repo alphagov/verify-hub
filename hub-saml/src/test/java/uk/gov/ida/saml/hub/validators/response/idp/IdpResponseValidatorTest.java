@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.hub.validators.response.idp;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,7 +74,7 @@ public class IdpResponseValidatorTest {
     @Test
     public void shouldValidateSamlAssertionSignature() {
         Assertion assertion = mock(Assertion.class);
-        List<Assertion> assertions = ImmutableList.of(assertion);
+        List<Assertion> assertions = List.of(assertion);
         ValidatedResponse validatedResponse = mock(ValidatedResponse.class);
 
         when(samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(validatedResponse);

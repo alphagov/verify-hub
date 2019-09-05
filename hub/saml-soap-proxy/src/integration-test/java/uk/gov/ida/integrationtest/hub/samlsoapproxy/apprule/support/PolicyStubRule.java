@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableMap;
 import httpstub.HttpStubRule;
 import httpstub.RegisteredResponse;
 import httpstub.builders.RegisteredResponseBuilder;
@@ -14,6 +13,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
@@ -27,7 +27,7 @@ public class PolicyStubRule extends HttpStubRule {
         URI locationUri = baseUri().path(SESSION_RESOURCE_ROOT + SESSION_ID_PARAM_PATH).build(sessionId.getSessionId());
         RegisteredResponse responseFromPolicy = RegisteredResponseBuilder.aRegisteredResponse()
                 .withStatus(Status.CREATED.getStatusCode())
-                .withHeaders(ImmutableMap.of(HttpHeaders.LOCATION, locationUri.toASCIIString()))
+                .withHeaders(Map.of(HttpHeaders.LOCATION, locationUri.toASCIIString()))
                 .withBody(sessionId)
                 .build();
         register(NEW_SESSION_RESOURCE, responseFromPolicy);

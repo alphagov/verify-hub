@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.validation.country;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +11,8 @@ import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.assertion.IdentityProviderAssertionValidator;
 import uk.gov.ida.saml.core.validators.assertion.AuthnStatementAssertionValidator;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
+
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -45,12 +46,12 @@ public class ResponseAssertionsFromCountryValidatorTest {
             EXPECTED_RECIPIENT_ID);
 
         when(validatedResponse.isSuccess()).thenReturn(true);
-        when(assertion.getAuthnStatements()).thenReturn(ImmutableList.of(authnStatement));
+        when(assertion.getAuthnStatements()).thenReturn(List.of(authnStatement));
     }
 
     @Test(expected = SamlTransformationErrorException.class)
     public void shouldThrowIfMultipleAuthnStatements() {
-        when(assertion.getAuthnStatements()).thenReturn(ImmutableList.of(authnStatement, authnStatement));
+        when(assertion.getAuthnStatements()).thenReturn(List.of(authnStatement, authnStatement));
 
         validator.validate(validatedResponse, assertion);
     }

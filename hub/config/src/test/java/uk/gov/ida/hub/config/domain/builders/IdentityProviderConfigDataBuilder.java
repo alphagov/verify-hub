@@ -1,12 +1,13 @@
 package uk.gov.ida.hub.config.domain.builders;
 
 
-import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 
 public class IdentityProviderConfigDataBuilder {
@@ -15,10 +16,10 @@ public class IdentityProviderConfigDataBuilder {
     private String simpleId = "default-idp-simple-id";
     private Boolean enabled = true;
     private Boolean enabledForSingleIdp = false;
-    private List<String> transactionEntityIds = ImmutableList.of();
-    private List<String> transactionEntityIdsTemp = ImmutableList.of();
-    private List<LevelOfAssurance> onboardingLevelsOfAssurance = ImmutableList.of();
-    private List<LevelOfAssurance> supportedLevelsOfAssurance = ImmutableList.of(LevelOfAssurance.LEVEL_2);
+    private List<String> transactionEntityIds = emptyList();
+    private List<String> transactionEntityIdsTemp = emptyList();
+    private List<LevelOfAssurance> onboardingLevelsOfAssurance = emptyList();
+    private List<LevelOfAssurance> supportedLevelsOfAssurance = List.of(LevelOfAssurance.LEVEL_2);
     private boolean useExactComparisonType = false;
     private String provideRegistrationUntil;
     private String provideAuthenticationUntil;
@@ -84,8 +85,8 @@ public class IdentityProviderConfigDataBuilder {
     }
 
     public IdentityProviderConfigDataBuilder withoutOnboarding() {
-        this.transactionEntityIds = ImmutableList.of();
-        this.onboardingLevelsOfAssurance = ImmutableList.of();
+        this.transactionEntityIds = emptyList();
+        this.onboardingLevelsOfAssurance = emptyList();
         return this;
     }
 

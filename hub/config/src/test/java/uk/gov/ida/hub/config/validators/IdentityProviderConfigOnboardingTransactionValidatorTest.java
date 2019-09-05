@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config.validators;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +10,7 @@ import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +38,7 @@ public class IdentityProviderConfigOnboardingTransactionValidatorTest {
     @Test
     public void validate_shouldNotThrowExceptionWhenOnboardingTransactionEntityIdExists() throws Exception {
         String transactionEntityID = "transactionEntityID";
-        IdentityProviderConfig identityProviderConfig = anIdentityProviderConfigData().withOnboarding(ImmutableList.of(transactionEntityID)).build();
+        IdentityProviderConfig identityProviderConfig = anIdentityProviderConfigData().withOnboarding(List.of(transactionEntityID)).build();
 
         TransactionConfig transactionConfigEntity = aTransactionConfigData().build();
         when(transactionConfigRepository.getData(transactionEntityID)).thenReturn(Optional.ofNullable(transactionConfigEntity));
@@ -58,7 +58,7 @@ public class IdentityProviderConfigOnboardingTransactionValidatorTest {
         String idpEntityId = "idpEntityId";
         IdentityProviderConfig identityProviderConfig = anIdentityProviderConfigData()
                 .withEntityId(idpEntityId)
-                .withOnboarding(ImmutableList.of(transactionEntityID))
+                .withOnboarding(List.of(transactionEntityID))
                 .build();
 
         when(transactionConfigRepository.getData(transactionEntityID))

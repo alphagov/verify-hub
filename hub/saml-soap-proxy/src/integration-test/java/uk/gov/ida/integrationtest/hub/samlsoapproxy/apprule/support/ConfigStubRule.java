@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableList;
 import httpstub.HttpStubRule;
 import uk.gov.ida.hub.samlsoapproxy.Urls;
 import uk.gov.ida.hub.samlsoapproxy.builders.CertificateDtoBuilder;
@@ -16,6 +15,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.collectingAndThen;
@@ -25,7 +25,7 @@ import static javax.ws.rs.core.Response.Status.OK;
 public class ConfigStubRule extends HttpStubRule {
 
     public void setupStubForMatchingServiceHealthChecks(URI matchingServiceUri) throws JsonProcessingException {
-        Collection<MatchingServiceConfigEntityDataDto> matchingServiceConfigEntityDataDtos = ImmutableList.of(MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto().withUri(matchingServiceUri).build());
+        Collection<MatchingServiceConfigEntityDataDto> matchingServiceConfigEntityDataDtos = List.of(MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto().withUri(matchingServiceUri).build());
         register(Urls.ConfigUrls.ENABLED_MATCHING_SERVICES_RESOURCE, Response.Status.OK.getStatusCode(), matchingServiceConfigEntityDataDtos);
     }
 
@@ -53,14 +53,14 @@ public class ConfigStubRule extends HttpStubRule {
 
     public void setUpStubForMatchingServiceHealthCheckRequest(URI msaUri, String msaEntityId) throws JsonProcessingException {
         final MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = new MatchingServiceConfigEntityDataDto(msaEntityId, msaUri, "rp-entity-id", true, false, null);
-        Collection<MatchingServiceConfigEntityDataDto> matchingServices = ImmutableList.of(matchingServiceConfigEntityDataDto);
+        Collection<MatchingServiceConfigEntityDataDto> matchingServices = List.of(matchingServiceConfigEntityDataDto);
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_MATCHING_SERVICES_RESOURCE).build().getPath();
         register(uri, OK.getStatusCode(), matchingServices);
     }
 
     public void setUpStubForForcedMatchingServiceHealthCheckRequest(URI msaUri, String msaEntityId) throws JsonProcessingException {
         final MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = new MatchingServiceConfigEntityDataDto(msaEntityId, msaUri, "rp-entity-id", false, false, null);
-        Collection<MatchingServiceConfigEntityDataDto> matchingServices = ImmutableList.of(matchingServiceConfigEntityDataDto);
+        Collection<MatchingServiceConfigEntityDataDto> matchingServices = List.of(matchingServiceConfigEntityDataDto);
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_MATCHING_SERVICES_RESOURCE).build().getPath();
         register(uri, OK.getStatusCode(), matchingServices);
     }
@@ -68,7 +68,7 @@ public class ConfigStubRule extends HttpStubRule {
     public void setUpStubForTwoMatchingServiceHealthCheckRequests(URI msaUri, String msaEntityId, URI msaUri2, String msaEntityId2) throws JsonProcessingException {
         final MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = new MatchingServiceConfigEntityDataDto(msaEntityId, msaUri, "rp-entity-id", true, false, null);
         final MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto2 = new MatchingServiceConfigEntityDataDto(msaEntityId2, msaUri2, "rp-entity-id2", true, false, null);
-        Collection<MatchingServiceConfigEntityDataDto> matchingServices = ImmutableList.of(matchingServiceConfigEntityDataDto, matchingServiceConfigEntityDataDto2);
+        Collection<MatchingServiceConfigEntityDataDto> matchingServices = List.of(matchingServiceConfigEntityDataDto, matchingServiceConfigEntityDataDto2);
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_MATCHING_SERVICES_RESOURCE).build().getPath();
         register(uri, OK.getStatusCode(), matchingServices);
     }

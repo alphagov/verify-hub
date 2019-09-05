@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -35,6 +34,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +71,7 @@ public class EidasSessionResourceIntegrationTest {
     private static final String MS_ENTITY_ID = "Matching-service-entity-id";
     private static final EidasCountryDto NETHERLANDS = new EidasCountryDto("http://netherlandsEnitity.nl", "NL", true);
     private static final EidasCountryDto SPAIN = new EidasCountryDto("http://spainEnitity.es", "ES", true);
-    private static final ImmutableList<EidasCountryDto> EIDAS_COUNTRIES = ImmutableList.of(NETHERLANDS, SPAIN);
+    private static final List<EidasCountryDto> EIDAS_COUNTRIES = List.of(NETHERLANDS, SPAIN);
 
     @BeforeClass
     public static void beforeClass() {

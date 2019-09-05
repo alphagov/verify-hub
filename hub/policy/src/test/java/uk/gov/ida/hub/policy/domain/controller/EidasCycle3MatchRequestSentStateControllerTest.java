@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +41,10 @@ import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import java.net.URI;
+import java.util.List;
 
 import static java.text.MessageFormat.format;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -120,7 +121,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
         ArgumentCaptor<EventSinkHubEvent> eventSinkArgumentCaptor = ArgumentCaptor.forClass(EventSinkHubEvent.class);
         URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().withForceAuthentication(false).build();
-        ImmutableList<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of(UserAccountCreationAttribute.DATE_OF_BIRTH);
+        List<UserAccountCreationAttribute> userAccountCreationAttributes = List.of(UserAccountCreationAttribute.DATE_OF_BIRTH);
         when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(userAccountCreationAttributes);
         when(matchingServiceConfigProxy.getMatchingService(anyString()))
                 .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
@@ -154,7 +155,7 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
     public void shouldTransitionToNoMatchStateForNoMatchResponseWhenNoAttributesArePresent(){
         ArgumentCaptor<NoMatchState> capturedState = ArgumentCaptor.forClass(NoMatchState.class);
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().build();
-        ImmutableList<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of();
+        List<UserAccountCreationAttribute> userAccountCreationAttributes = emptyList();
         when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(userAccountCreationAttributes);
         EidasCycle3MatchRequestSentStateController controller =
                 new EidasCycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory,

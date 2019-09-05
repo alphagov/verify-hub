@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.validation.country;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,6 +16,7 @@ import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToCountryAuthenticationStatusCodeMapper;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
@@ -54,7 +54,7 @@ public class ResponseFromCountryValidatorTest {
     public void shouldThrowIfResponseIsSuccessfulAndHasUnencryptedAssertions() {
         exception.expect(SamlTransformationErrorException.class);
         exception.expectMessage("Response has unencrypted assertion.");
-        when(response.getAssertions()).thenReturn(ImmutableList.of(assertion));
+        when(response.getAssertions()).thenReturn(List.of(assertion));
 
         validator.validateAssertionPresence(response);
     }
@@ -80,7 +80,7 @@ public class ResponseFromCountryValidatorTest {
         exception.expect(SamlTransformationErrorException.class);
         exception.expectMessage("Non-success response has unencrypted assertions. Should contain no assertions.");
         when(statusCode.getValue()).thenReturn(StatusCode.AUTHN_FAILED);
-        when(response.getEncryptedAssertions()).thenReturn(ImmutableList.of(encryptedAssertion));
+        when(response.getEncryptedAssertions()).thenReturn(List.of(encryptedAssertion));
 
         validator.validateAssertionPresence(response);
     }
@@ -89,7 +89,7 @@ public class ResponseFromCountryValidatorTest {
     public void shouldThrowIfResponseIsSuccessfulButHasMultipleEncryptedAssertions() {
         exception.expect(SamlTransformationErrorException.class);
         exception.expectMessage("Response expected to contain 1 assertions. 2 assertion(s) found.");
-        when(response.getEncryptedAssertions()).thenReturn(ImmutableList.of(encryptedAssertion, encryptedAssertion));
+        when(response.getEncryptedAssertions()).thenReturn(List.of(encryptedAssertion, encryptedAssertion));
 
         validator.validateAssertionPresence(response);
     }

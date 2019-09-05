@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -31,6 +30,7 @@ import uk.gov.ida.saml.security.EncrypterFactory;
 import java.net.URI;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +50,7 @@ public class AuthnRequestFromRelyingPartyUnmarshallerTest {
         final BasicCredential basicCredential = createBasicCredential();
         encrypter = new EncrypterFactory().createEncrypter(basicCredential);
 
-        unmarshaller = new AuthnRequestFromRelyingPartyUnmarshaller(new DecrypterFactory().createDecrypter(ImmutableList.of(basicCredential)));
+        unmarshaller = new AuthnRequestFromRelyingPartyUnmarshaller(new DecrypterFactory().createDecrypter(List.of(basicCredential)));
     }
 
     @Test

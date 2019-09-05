@@ -1,18 +1,15 @@
 package uk.gov.ida.hub.policy.builder.domain;
 
-import com.google.common.collect.ImmutableList;
 import uk.gov.ida.hub.policy.domain.IdpConfigDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 
 import java.util.List;
 
-import static com.google.common.collect.ImmutableList.of;
-
 public class IdpConfigDtoBuilder {
 
     private String simpleId = "an-idp";
     private Boolean enabled = true;
-    private List<LevelOfAssurance> supportedLevelsOfAssurance = of(LevelOfAssurance.LEVEL_1);
+    private List<LevelOfAssurance> supportedLevelsOfAssurance = List.of(LevelOfAssurance.LEVEL_1);
 
     public static IdpConfigDtoBuilder anIdpConfigDto() {
         return new IdpConfigDtoBuilder();
@@ -24,7 +21,7 @@ public class IdpConfigDtoBuilder {
     }
 
     public IdpConfigDtoBuilder withLevelsOfAssurance(LevelOfAssurance... levelsOfAssurance) {
-        this.supportedLevelsOfAssurance = ImmutableList.copyOf(levelsOfAssurance);
+        this.supportedLevelsOfAssurance = List.of(levelsOfAssurance);
         return this;
     }
 
