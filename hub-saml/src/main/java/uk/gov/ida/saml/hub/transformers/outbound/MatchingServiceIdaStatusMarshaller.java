@@ -1,21 +1,20 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.DetailedStatusCode;
 import uk.gov.ida.saml.core.domain.MatchingServiceIdaStatus;
 import uk.gov.ida.saml.core.transformers.outbound.IdaStatusMarshaller;
 
+import java.util.Map;
+
 public class MatchingServiceIdaStatusMarshaller extends IdaStatusMarshaller<MatchingServiceIdaStatus> {
 
-    private static final ImmutableMap<MatchingServiceIdaStatus, DetailedStatusCode> REST_TO_SAML_CODES =
-            ImmutableMap.<MatchingServiceIdaStatus, DetailedStatusCode>builder()
-                    .put(MatchingServiceIdaStatus.MatchingServiceMatch, DetailedStatusCode.MatchingServiceMatch)
-                    .put(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService, DetailedStatusCode.NoMatchingServiceMatchFromMatchingService)
-                    .put(MatchingServiceIdaStatus.RequesterError, DetailedStatusCode.RequesterErrorFromIdp)
-                    .put(MatchingServiceIdaStatus.Healthy, DetailedStatusCode.Healthy)
-                    .build();
+    private static final Map<MatchingServiceIdaStatus, DetailedStatusCode> REST_TO_SAML_CODES = Map.of(
+                    MatchingServiceIdaStatus.MatchingServiceMatch, DetailedStatusCode.MatchingServiceMatch,
+                    MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService, DetailedStatusCode.NoMatchingServiceMatchFromMatchingService,
+                    MatchingServiceIdaStatus.RequesterError, DetailedStatusCode.RequesterErrorFromIdp,
+                    MatchingServiceIdaStatus.Healthy, DetailedStatusCode.Healthy);
 
     @Inject
     public MatchingServiceIdaStatusMarshaller(OpenSamlXmlObjectFactory samlObjectFactory) {

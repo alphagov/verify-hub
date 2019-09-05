@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlsoapproxy.logging;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.exceptions.ApplicationException;
 
 import java.net.URI;
+import java.util.Map;
 
 import static uk.gov.ida.common.SessionId.NO_SESSION_CONTEXT_IN_ERROR;
 import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
@@ -39,7 +39,7 @@ public class HealthCheckEventLogger {
             return;
         }
 
-        ImmutableMap<EventDetailsKey, String> details = ImmutableMap.of(
+        Map<EventDetailsKey, String> details = Map.of(
                 downstream_uri, exception.getUri().or(URI.create("uri-not-present")).toASCIIString(),
                 EventDetailsKey.message, exception.getMessage());
 

@@ -12,8 +12,6 @@ import uk.gov.ida.saml.metadata.domain.SamlEndpointDto;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class HubIdentityProviderMetadataDtoToEntityDescriptorTransformer implements Function<HubIdentityProviderMetadataDto,EntityDescriptor> {
 
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
@@ -54,7 +52,7 @@ public class HubIdentityProviderMetadataDtoToEntityDescriptorTransformer impleme
 
         transformSingleSignOnServiceEndpoints(idpSsoDescriptor, dto);
 
-        List <KeyDescriptor> signingKeyDescriptors = keyDescriptorsUnmarshaller.fromCertificates(newArrayList(dto.getSigningCertificates()));
+        List <KeyDescriptor> signingKeyDescriptors = keyDescriptorsUnmarshaller.fromCertificates(List.copyOf(dto.getSigningCertificates()));
         idpSsoDescriptor.getKeyDescriptors().addAll(signingKeyDescriptors);
 
         entityDescriptor.getRoleDescriptors().add(idpSsoDescriptor);

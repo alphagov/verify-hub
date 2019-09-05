@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.shared.eventsink;
 
-import com.google.common.collect.ImmutableMap;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventemitter.EventDetailsKey;
@@ -23,7 +22,7 @@ public class EventSinkMessageSender {
     }
 
     public void audit(Exception exception, UUID errorId, SessionId sessionId, EventDetails... additionalDetails) {
-        Map<EventDetailsKey, String> details = new HashMap<>(ImmutableMap.of(
+        Map<EventDetailsKey, String> details = new HashMap<>(Map.of(
                 EventDetailsKey.error_id, errorId.toString(),
                 EventDetailsKey.message, exception.getMessage())
         );

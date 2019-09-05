@@ -1,11 +1,11 @@
 package uk.gov.ida.saml.metadata.domain;
 
-import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import uk.gov.ida.common.shared.security.Certificate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class MetadataDto {
@@ -53,10 +53,9 @@ public abstract class MetadataDto {
     }
 
     public Collection<Certificate> getCertificates() {
-        return ImmutableList.<Certificate>builder()
-            .addAll(hubSigningCertificates)
-            .addAll(encryptionCertificates)
-            .build();
+        List<Certificate> allCertificates = new ArrayList<>(hubSigningCertificates);
+        allCertificates.addAll(encryptionCertificates);
+        return Collections.unmodifiableList(allCertificates);
     }
 
     public List<Certificate> getEncryptionCertificates() {

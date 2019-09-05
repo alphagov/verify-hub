@@ -1,8 +1,7 @@
 package uk.gov.ida.hub.config.domain;
 
-import com.google.common.collect.ImmutableList;
-
 import java.io.Serializable;
+import java.util.List;
 
 public enum UserAccountCreationAttribute implements Serializable {
     FIRST_NAME("firstname"),
@@ -29,7 +28,7 @@ public enum UserAccountCreationAttribute implements Serializable {
     }
 
     public static UserAccountCreationAttribute getUserAccountCreationAttribute(final String name) {
-        return ImmutableList.copyOf(values())
+        return List.of(values())
                 .stream()
                 .filter(input -> input.getAttributeName().equals(name))
                 .findFirst()

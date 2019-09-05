@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.logging;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -305,21 +304,21 @@ public class HubEventLogger {
     }
 
     public void logErrorEvent(final UUID errorId, final SessionId sessionId, final String errorMessage) {
-        final Map<EventDetailsKey, String> details = ImmutableMap.of(
+        final Map<EventDetailsKey, String> details = Map.of(
             message, errorMessage,
             error_id, errorId.toString());
         logErrorEvent(details, sessionId);
     }
 
     public void logErrorEvent(final UUID errorId, final String entityId, final SessionId sessionId) {
-        final Map<EventDetailsKey, String> details = ImmutableMap.of(
+        final Map<EventDetailsKey, String> details = Map.of(
             idp_entity_id, entityId,
             error_id, errorId.toString());
         logErrorEvent(details, sessionId);
     }
 
     public void logErrorEvent(final UUID errorId, final SessionId sessionId, final String errorMessage, final String downstreamUri) {
-        final Map<EventDetailsKey, String> details = ImmutableMap.of(
+        final Map<EventDetailsKey, String> details = Map.of(
             downstream_uri, downstreamUri,
             message, errorMessage,
             error_id, errorId.toString());
@@ -327,7 +326,7 @@ public class HubEventLogger {
     }
 
     public void logErrorEvent(final String errorMessage, final SessionId sessionId) {
-        final Map<EventDetailsKey, String> details = ImmutableMap.of(
+        final Map<EventDetailsKey, String> details = Map.of(
             message, errorMessage);
         logErrorEvent(details, sessionId);
     }

@@ -1,18 +1,16 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 
 public class MatchingServiceIdaStatusUnmarshaller extends IdaStatusUnmarshaller<MatchingServiceIdaStatus> {
 
-    private static final ImmutableMap<IdaStatusMapperStatus, MatchingServiceIdaStatus> SAML_TO_REST_CODES =
-            ImmutableMap.<IdaStatusMapperStatus, MatchingServiceIdaStatus>builder()
-                    .put(IdaStatusMapperStatus.RequesterError, MatchingServiceIdaStatus.RequesterError)
-                    .put(IdaStatusMapperStatus.NoMatchingServiceMatchFromMatchingService, MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService)
-                    .put(IdaStatusMapperStatus.MatchingServiceMatch, MatchingServiceIdaStatus.MatchingServiceMatch)
-                    .put(IdaStatusMapperStatus.Healthy, MatchingServiceIdaStatus.Healthy)
-                    .put(IdaStatusMapperStatus.Created, MatchingServiceIdaStatus.UserAccountCreated)
-                    .put(IdaStatusMapperStatus.CreateFailed, MatchingServiceIdaStatus.UserAccountCreationFailed)
-                    .build();
+    private static final Map<IdaStatusMapperStatus, MatchingServiceIdaStatus> SAML_TO_REST_CODES = Map.of(
+                    IdaStatusMapperStatus.RequesterError, MatchingServiceIdaStatus.RequesterError,
+                    IdaStatusMapperStatus.NoMatchingServiceMatchFromMatchingService, MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
+                    IdaStatusMapperStatus.MatchingServiceMatch, MatchingServiceIdaStatus.MatchingServiceMatch,
+                    IdaStatusMapperStatus.Healthy, MatchingServiceIdaStatus.Healthy,
+                    IdaStatusMapperStatus.Created, MatchingServiceIdaStatus.UserAccountCreated,
+                    IdaStatusMapperStatus.CreateFailed, MatchingServiceIdaStatus.UserAccountCreationFailed);
 
     public MatchingServiceIdaStatusUnmarshaller() {
         super(SAML_TO_REST_CODES);

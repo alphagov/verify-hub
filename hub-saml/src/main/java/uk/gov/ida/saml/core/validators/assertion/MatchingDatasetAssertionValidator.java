@@ -1,7 +1,5 @@
 package uk.gov.ida.saml.core.validators.assertion;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -29,35 +27,32 @@ import static uk.gov.ida.saml.core.validation.SamlTransformationErrorManager.war
 
 public class MatchingDatasetAssertionValidator {
 
+    private static final Set<String> VALID_ATTRIBUTE_NAMES_1_1 = Set.of(
+            IdaConstants.Attributes_1_1.Firstname.NAME,
+            IdaConstants.Attributes_1_1.Middlename.NAME,
+            IdaConstants.Attributes_1_1.Surname.NAME,
+            IdaConstants.Attributes_1_1.Gender.NAME,
+            IdaConstants.Attributes_1_1.DateOfBirth.NAME,
+            IdaConstants.Attributes_1_1.CurrentAddress.NAME,
+            IdaConstants.Attributes_1_1.PreviousAddress.NAME
+    );
+
+    private static final Set<String> VALID_ATTRIBUTE_NAME_FORMATS = Set.of(Attribute.UNSPECIFIED);
+
+    private static final Map<String, QName> VALID_TYPE_FOR_ATTRIBUTE = Map.of(
+            IdaConstants.Attributes_1_1.Firstname.NAME, PersonName.TYPE_NAME,
+            IdaConstants.Attributes_1_1.Middlename.NAME, PersonName.TYPE_NAME,
+            IdaConstants.Attributes_1_1.Surname.NAME, PersonName.TYPE_NAME,
+            IdaConstants.Attributes_1_1.Gender.NAME, Gender.TYPE_NAME,
+            IdaConstants.Attributes_1_1.DateOfBirth.NAME, Date.TYPE_NAME,
+            IdaConstants.Attributes_1_1.CurrentAddress.NAME, Address.TYPE_NAME,
+            IdaConstants.Attributes_1_1.PreviousAddress.NAME, Address.TYPE_NAME);
+
     private final DuplicateAssertionValidator duplicateAssertionValidator;
 
     public MatchingDatasetAssertionValidator(DuplicateAssertionValidator duplicateAssertionValidator) {
         this.duplicateAssertionValidator = duplicateAssertionValidator;
     }
-
-    private static final Set<String> VALID_ATTRIBUTE_NAMES_1_1 = ImmutableSet.of(
-        IdaConstants.Attributes_1_1.Firstname.NAME,
-        IdaConstants.Attributes_1_1.Middlename.NAME,
-        IdaConstants.Attributes_1_1.Surname.NAME,
-        IdaConstants.Attributes_1_1.Gender.NAME,
-        IdaConstants.Attributes_1_1.DateOfBirth.NAME,
-        IdaConstants.Attributes_1_1.CurrentAddress.NAME,
-        IdaConstants.Attributes_1_1.PreviousAddress.NAME
-    );
-
-    private static final Set<String> VALID_ATTRIBUTE_NAME_FORMATS = ImmutableSet.of(
-        Attribute.UNSPECIFIED
-    );
-
-    private static final Map<String, QName> VALID_TYPE_FOR_ATTRIBUTE = ImmutableMap.<String, QName>builder()
-        .put(IdaConstants.Attributes_1_1.Firstname.NAME, PersonName.TYPE_NAME)
-        .put(IdaConstants.Attributes_1_1.Middlename.NAME, PersonName.TYPE_NAME)
-        .put(IdaConstants.Attributes_1_1.Surname.NAME, PersonName.TYPE_NAME)
-        .put(IdaConstants.Attributes_1_1.Gender.NAME, Gender.TYPE_NAME)
-        .put(IdaConstants.Attributes_1_1.DateOfBirth.NAME, Date.TYPE_NAME)
-        .put(IdaConstants.Attributes_1_1.CurrentAddress.NAME, Address.TYPE_NAME)
-        .put(IdaConstants.Attributes_1_1.PreviousAddress.NAME, Address.TYPE_NAME)
-        .build();
 
     public void validate(Assertion assertion, String responseIssuerId) {
         duplicateAssertionValidator.validateMatchingDataSetAssertion(assertion, responseIssuerId);

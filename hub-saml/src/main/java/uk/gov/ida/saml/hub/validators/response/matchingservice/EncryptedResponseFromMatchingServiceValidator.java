@@ -1,7 +1,6 @@
 package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.xmlsec.signature.Signature;
@@ -9,6 +8,8 @@ import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.hub.exception.SamlValidationException;
 import uk.gov.ida.saml.hub.validators.response.common.IssuerValidator;
 import uk.gov.ida.saml.hub.validators.response.common.RequestIdValidator;
+
+import java.util.List;
 
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingId;
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.missingSignature;
@@ -60,7 +61,7 @@ public class EncryptedResponseFromMatchingServiceValidator {
     }
 
     private void validateResponderError(String subStatusCodeValue) {
-        if (ImmutableList.of(
+        if (List.of(
             SamlStatusCode.NO_MATCH,
             SamlStatusCode.MULTI_MATCH,
             SamlStatusCode.CREATE_FAILURE).contains(subStatusCodeValue)) {
@@ -72,7 +73,7 @@ public class EncryptedResponseFromMatchingServiceValidator {
 
     private void validateSuccessResponse(String statusCodeValue, String subStatusCodeValue) {
         if (!StatusCode.SUCCESS.equals(statusCodeValue)) return;
-        if (ImmutableList.of(
+        if (List.of(
                 SamlStatusCode.MATCH,
                 SamlStatusCode.NO_MATCH,
                 SamlStatusCode.CREATED).contains(subStatusCodeValue)) {

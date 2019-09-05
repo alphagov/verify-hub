@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.metadata;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
@@ -66,7 +65,7 @@ public class IdpMetadataPublicKeyStore implements SigningKeyStore {
         return descriptor.getKeyDescriptors().stream()
                 .filter(keyDescriptor -> keyDescriptor.getUse().equals(keyType))
                 .flatMap(this::getPublicKeys)
-                .collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
+                .collect(Collectors.collectingAndThen(Collectors.toList(), List::copyOf));
     }
 
     private Stream<PublicKey> getPublicKeys(KeyDescriptor keyDescriptor) {

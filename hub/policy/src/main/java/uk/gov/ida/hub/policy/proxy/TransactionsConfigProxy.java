@@ -6,7 +6,6 @@ import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.annotations.Config;
@@ -27,6 +26,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.Collections.emptyMap;
 
 @Singleton
 public class TransactionsConfigProxy {
@@ -55,10 +56,10 @@ public class TransactionsConfigProxy {
     @Timed
     public ResourceLocation getAssertionConsumerServiceUri(String entityId, Optional<Integer> assertionConsumerServiceIndex) {
 
-        ImmutableMap<String, String> queryParams = ImmutableMap.of();
+        Map<String, String> queryParams = emptyMap();
 
         if (assertionConsumerServiceIndex.isPresent()) {
-            queryParams = ImmutableMap.of(
+            queryParams = Map.of(
                     Urls.ConfigUrls.ASSERTION_CONSUMER_SERVICE_INDEX_PARAM,
                     assertionConsumerServiceIndex.get().toString());
         }
@@ -77,7 +78,7 @@ public class TransactionsConfigProxy {
                 entityId,
                 Urls.ConfigUrls.MATCHING_PROCESS_RESOURCE,
                 MatchingProcess.class,
-                ImmutableMap.of());
+                emptyMap());
     }
 
     @Timed
@@ -86,7 +87,7 @@ public class TransactionsConfigProxy {
             entityId,
             Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_RESOURCE,
             boolean.class,
-            ImmutableMap.of());
+            emptyMap());
     }
 
     @Timed
@@ -95,12 +96,12 @@ public class TransactionsConfigProxy {
                 entityId,
                 Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE,
                 boolean.class,
-                ImmutableMap.of());
+                emptyMap());
     }
 
     @Timed
     public List<LevelOfAssurance> getLevelsOfAssurance(String entityId) {
-        final URI uriBuilder = getEncodedUri(Urls.ConfigUrls.LEVELS_OF_ASSURANCE_RESOURCE, ImmutableMap.of(), entityId);
+        final URI uriBuilder = getEncodedUri(Urls.ConfigUrls.LEVELS_OF_ASSURANCE_RESOURCE, emptyMap(), entityId);
         return jsonClient.get(uriBuilder, new GenericType<List<LevelOfAssurance>>() {});
     }
 
@@ -110,12 +111,12 @@ public class TransactionsConfigProxy {
                 entityId,
                 Urls.ConfigUrls.MATCHING_SERVICE_ENTITY_ID_RESOURCE,
                 String.class,
-                ImmutableMap.of());
+                emptyMap());
     }
 
     @Timed
     public List<UserAccountCreationAttribute> getUserAccountCreationAttributes(String entityId) {
-        final URI uri = getEncodedUri(Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE, ImmutableMap.of(), entityId);
+        final URI uri = getEncodedUri(Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE, emptyMap(), entityId);
 
         return jsonClient.get(uri, new GenericType<List<UserAccountCreationAttribute>>() {
         });
@@ -155,7 +156,7 @@ public class TransactionsConfigProxy {
                 Urls.ConfigUrls.EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE,
                 new GenericType<List<String>>() {
                 },
-                ImmutableMap.of());
+                emptyMap());
     }
 
 }
