@@ -2,7 +2,6 @@ package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -502,7 +501,7 @@ public class MatchingServiceResourcesIntegrationTest {
                         Optional.absent(),
                         Optional.absent());
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
-        List<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of(UserAccountCreationAttribute.CURRENT_ADDRESS);
+        List<UserAccountCreationAttribute> userAccountCreationAttributes = List.of(UserAccountCreationAttribute.CURRENT_ADDRESS);
         configStub.setUpStubForUserAccountCreation(rpEntityId, userAccountCreationAttributes);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
@@ -544,7 +543,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
         configStub.setUpStubForCycle01NoMatchCycle3Disabled(rpEntityId);
 
-        List<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of(UserAccountCreationAttribute.CURRENT_ADDRESS);
+        List<UserAccountCreationAttribute> userAccountCreationAttributes = List.of(UserAccountCreationAttribute.CURRENT_ADDRESS);
         configStub.setUpStubForUserAccountCreation(rpEntityId, userAccountCreationAttributes);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config.domain;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +13,7 @@ import uk.gov.ida.hub.config.truststore.TrustStoreForCertificateProvider;
 
 import java.security.KeyStore;
 import java.security.cert.CertPathValidatorException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -53,7 +53,7 @@ public class CertificateValidityCheckerTest {
 
         when(certificateChainValidator.validate(localCertificate.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.invalid(certPathValidatorException));
 
-        Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(localCertificate));
+        Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(List.of(localCertificate));
 
         InvalidCertificateDto expected = new InvalidCertificateDto(localCertificate.getIssuerEntityId(), certPathValidatorException.getReason(), CertificateUse.SIGNING, localCertificate.getFederationEntityType(), description);
 
@@ -64,7 +64,7 @@ public class CertificateValidityCheckerTest {
     public void getsEmptyListWhenAllCertificatesAreValid() {
         when(certificateChainValidator.validate(localCertificate.getX509Certificate().get(), trustStore)).thenReturn(CertificateValidity.valid());
 
-        Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(ImmutableList.of(localCertificate));
+        Set<InvalidCertificateDto> invalidCertificates = certificateValidityChecker.getInvalidCertificates(List.of(localCertificate));
 
         assertThat(invalidCertificates).isEmpty();
     }

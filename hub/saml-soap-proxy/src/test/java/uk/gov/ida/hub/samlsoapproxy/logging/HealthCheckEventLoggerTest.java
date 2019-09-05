@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlsoapproxy.logging;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +15,7 @@ import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.exceptions.ApplicationException;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +48,7 @@ public class HealthCheckEventLoggerTest {
     public void shouldLogToEventSinkIfTheExceptionIsUnaudited() {
         URI uri = URI.create("uri-geller");
         ApplicationException unauditedException = ApplicationException.createUnauditedException(ExceptionType.INVALID_SAML, UUID.randomUUID(), uri);
-        ImmutableMap<EventDetailsKey, String> details = ImmutableMap.of(
+        Map<EventDetailsKey, String> details = Map.of(
                 downstream_uri, unauditedException.getUri().or(URI.create("uri-not-present")).toASCIIString(),
                 message, unauditedException.getMessage());
         EventSinkHubEvent event = new EventSinkHubEvent(serviceInfo, NO_SESSION_CONTEXT_IN_ERROR, ERROR_EVENT,details);

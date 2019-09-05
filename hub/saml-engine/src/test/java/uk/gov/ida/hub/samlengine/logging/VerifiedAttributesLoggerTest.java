@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlengine.logging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +76,7 @@ public class VerifiedAttributesLoggerTest {
         Map<String, List<VerifiedAttributeLogData>> attributesMap = actual.getAttributes();
 
         assertThat(attributesMap.get(IdaConstants.Attributes_1_1.DateOfBirth.NAME))
-            .isEqualTo(ImmutableList.of(
+            .isEqualTo(List.of(
                 new VerifiedAttributeLogData(true, "less than 180 days"),
                 new VerifiedAttributeLogData(false, null)
             ));
@@ -112,7 +111,7 @@ public class VerifiedAttributesLoggerTest {
         Map<String, List<VerifiedAttributeLogData>> attributesMap = actual.getAttributes();
 
         assertThat(attributesMap.get(IdaConstants.Attributes_1_1.Firstname.NAME))
-            .isEqualTo(ImmutableList.of(
+            .isEqualTo(List.of(
                 new VerifiedAttributeLogData(true, "more than 180 days"),
                 new VerifiedAttributeLogData(false, null)
             ));
@@ -148,7 +147,7 @@ public class VerifiedAttributesLoggerTest {
         Map<String, List<VerifiedAttributeLogData>> attributesMap = actual.getAttributes();
 
         assertThat(attributesMap.get(IdaConstants.Attributes_1_1.Middlename.NAME))
-            .isEqualTo(ImmutableList.of(
+            .isEqualTo(List.of(
                 new VerifiedAttributeLogData(true, "more than 405 days"),
                 new VerifiedAttributeLogData(true, null)
             ));
@@ -178,7 +177,7 @@ public class VerifiedAttributesLoggerTest {
         Map<String, List<VerifiedAttributeLogData>> attributesMap = actual.getAttributes();
 
         assertThat(attributesMap.get(IdaConstants.Attributes_1_1.Surname.NAME))
-            .isEqualTo(ImmutableList.of(
+            .isEqualTo(List.of(
                 new VerifiedAttributeLogData(true, null)
             ));
     }
@@ -207,7 +206,7 @@ public class VerifiedAttributesLoggerTest {
         Map<String, List<VerifiedAttributeLogData>> attributesMap = actual.getAttributes();
 
         assertThat(attributesMap.get(IdaConstants.Attributes_1_1.CurrentAddress.NAME))
-            .isEqualTo(ImmutableList.of(
+            .isEqualTo(List.of(
                 new VerifiedAttributeLogData(true, null)
             ));
     }
@@ -237,7 +236,7 @@ public class VerifiedAttributesLoggerTest {
         Map<String, List<VerifiedAttributeLogData>> attributesMap = actual.getAttributes();
 
         assertThat(attributesMap.get(IdaConstants.Attributes_1_1.PreviousAddress.NAME))
-            .isEqualTo(ImmutableList.of(
+            .isEqualTo(List.of(
                 new VerifiedAttributeLogData(false, "more than 180 days")
             ));
     }

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
@@ -26,7 +25,7 @@ public class IdpSelectedStateBuilder {
     private boolean isRegistration = false;
     private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_2;
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
-    private List<String> availableIdentityProviders = ImmutableList.of("idp-a", "idp-b", "idp-c");
+    private List<String> availableIdentityProviders = List.of("idp-a", "idp-b", "idp-c");
     private boolean transactionSupportsEidas = false;
 
     public static IdpSelectedStateBuilder anIdpSelectedState() {

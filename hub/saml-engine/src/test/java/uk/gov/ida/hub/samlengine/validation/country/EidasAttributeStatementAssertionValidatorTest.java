@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.validation.country;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,6 +20,7 @@ import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -47,8 +47,8 @@ public class EidasAttributeStatementAssertionValidatorTest {
         dateOfBirth = generateAttribute(Eidas_Attributes.DateOfBirth.NAME, Eidas_Attributes.DateOfBirth.FRIENDLY_NAME, DateOfBirth.TYPE_NAME);
         personIdentifier = generateAttribute(Eidas_Attributes.PersonIdentifier.NAME, Eidas_Attributes.PersonIdentifier.FRIENDLY_NAME, PersonIdentifier.TYPE_NAME);
         validator = new EidasAttributeStatementAssertionValidator();
-        when(assertion.getAttributeStatements()).thenReturn(ImmutableList.of(attributeStatement));
-        when(attributeStatement.getAttributes()).thenReturn(ImmutableList.of(firstName, lastName, dateOfBirth, personIdentifier));
+        when(assertion.getAttributeStatements()).thenReturn(List.of(attributeStatement));
+        when(attributeStatement.getAttributes()).thenReturn(List.of(firstName, lastName, dateOfBirth, personIdentifier));
     }
 
     @Test(expected = SamlTransformationErrorException.class)
@@ -60,7 +60,7 @@ public class EidasAttributeStatementAssertionValidatorTest {
 
     @Test(expected = SamlTransformationErrorException.class)
     public void shouldThrowIfMultipleAttributeStatements() {
-        when(assertion.getAttributeStatements()).thenReturn(ImmutableList.of(attributeStatement, attributeStatement));
+        when(assertion.getAttributeStatements()).thenReturn(List.of(attributeStatement, attributeStatement));
 
         validator.validate(assertion);
     }
@@ -82,7 +82,7 @@ public class EidasAttributeStatementAssertionValidatorTest {
     @Test(expected = SamlTransformationErrorException.class)
     public void shouldThrowIfAttributeValueHasInvalidSchemaType() {
         XMLObject xmlObject = mock(XMLObject.class);
-        when(firstName.getAttributeValues()).thenReturn(ImmutableList.of(xmlObject));
+        when(firstName.getAttributeValues()).thenReturn(List.of(xmlObject));
         when(xmlObject.getSchemaType()).thenReturn(CurrentFamilyName.TYPE_NAME);
 
         validator.validate(assertion);
@@ -93,7 +93,7 @@ public class EidasAttributeStatementAssertionValidatorTest {
         exception.expect(SamlTransformationErrorException.class);
         exception.expectMessage("Mandatory attributes not provided.");
 
-        when(attributeStatement.getAttributes()).thenReturn(ImmutableList.of(firstName, lastName, dateOfBirth));
+        when(attributeStatement.getAttributes()).thenReturn(List.of(firstName, lastName, dateOfBirth));
 
         validator.validate(assertion);
     }
@@ -103,7 +103,7 @@ public class EidasAttributeStatementAssertionValidatorTest {
         XMLObject xmlObject = mock(XMLObject.class);
         when(attribute.getName()).thenReturn(name);
         when(attribute.getFriendlyName()).thenReturn(friendlyName);
-        when(attribute.getAttributeValues()).thenReturn(ImmutableList.of(xmlObject));
+        when(attribute.getAttributeValues()).thenReturn(List.of(xmlObject));
         return attribute;
     }
 

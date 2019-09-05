@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.samlengine.builders;
 
 import java.util.Optional;
-import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -45,18 +44,16 @@ public class AuthnResponseFactory {
 
     TestCredentialFactory hubEncryptionCredentialFactory =
             new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY);
-    Map<String, String> publicSigningCerts = ImmutableMap.<String, String>builder()
-            .put(TestEntityIds.STUB_IDP_ONE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT)
-            .put(TestEntityIds.TEST_RP, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT)
-            .put(TestEntityIds.STUB_IDP_TWO, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT)
-            .put(TestEntityIds.STUB_IDP_THREE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT)
-            .build();
-    Map<String, String> privateSigningKeys = ImmutableMap.<String, String>builder()
-            .put(TestEntityIds.STUB_IDP_ONE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY)
-            .put(TestEntityIds.TEST_RP, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY)
-            .put(TestEntityIds.STUB_IDP_TWO, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY)
-            .put(TestEntityIds.STUB_IDP_THREE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY)
-            .build();
+    Map<String, String> publicSigningCerts = Map.of(
+            TestEntityIds.STUB_IDP_ONE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+            TestEntityIds.TEST_RP, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+            TestEntityIds.STUB_IDP_TWO, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
+            TestEntityIds.STUB_IDP_THREE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT);
+    Map<String, String> privateSigningKeys = Map.of(
+            TestEntityIds.STUB_IDP_ONE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+            TestEntityIds.TEST_RP, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+            TestEntityIds.STUB_IDP_TWO, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
+            TestEntityIds.STUB_IDP_THREE, TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY);
 
     public AuthnResponseFactory() {
     }

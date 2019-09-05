@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableList;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -41,6 +40,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 import static io.dropwizard.testing.ConfigOverride.config;
@@ -99,7 +99,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         samlResponse = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(THE_TRANSACTION_ID).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
-        configStub.setupStubForEnabledIdps(THE_TRANSACTION_ID, REGISTERING, REQUESTED_LOA, ImmutableList.of(idpEntityId, "differentIdp"));
+        configStub.setupStubForEnabledIdps(THE_TRANSACTION_ID, REGISTERING, REQUESTED_LOA, List.of(idpEntityId, "differentIdp"));
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         configStub.setupStubForEidasEnabledForTransaction(THE_TRANSACTION_ID, false);
         eventSinkStub.setupStubForLogging();

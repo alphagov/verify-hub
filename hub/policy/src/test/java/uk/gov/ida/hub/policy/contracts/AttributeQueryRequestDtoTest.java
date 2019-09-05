@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.contracts;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -205,7 +204,7 @@ public class AttributeQueryRequestDtoTest {
 
     @Test
     public void createUserAccountRequiredMatchingServiceRequest() {
-        final List<UserAccountCreationAttribute> userAccountCreationAttributes = ImmutableList.of(UserAccountCreationAttribute.CURRENT_ADDRESS);
+        final List<UserAccountCreationAttribute> userAccountCreationAttributes = List.of(UserAccountCreationAttribute.CURRENT_ADDRESS);
         AttributeQueryRequestDto expected = new AttributeQueryRequestDto(
             REQUEST_ID,
             AUTHN_REQUEST_ISSUER_ENTITY_ID,

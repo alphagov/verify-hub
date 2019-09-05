@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
@@ -35,6 +34,8 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+
+import java.util.List;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,7 +94,7 @@ public class EidasCountrySelectedStateControllerTest {
 
     private EidasCountrySelectedState state = anEidasCountrySelectedState()
             .withSelectedCountry(SELECTED_COUNTRY)
-            .withLevelOfAssurance(ImmutableList.of(LevelOfAssurance.LEVEL_2))
+            .withLevelOfAssurance(List.of(LEVEL_2))
             .withTransactionSupportsEidas(true)
             .withForceAuthentication(false)
             .build();
@@ -182,7 +183,7 @@ public class EidasCountrySelectedStateControllerTest {
         exception.expect(StateProcessingValidationException.class);
         exception.expectMessage(
                 String.format("Level of assurance in the response does not match level of assurance in the request. Was [%s] but expected [%s].",
-                        LEVEL_1, ImmutableList.of(LEVEL_2)));
+                        LEVEL_1, List.of(LEVEL_2)));
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
                 CountryAuthenticationStatus.Status.Success,

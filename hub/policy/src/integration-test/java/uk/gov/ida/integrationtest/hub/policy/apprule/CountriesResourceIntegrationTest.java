@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableList;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -95,7 +94,7 @@ public class CountriesResourceIntegrationTest {
 
         List<EidasCountryDto> configuredCountries = listCountriesForSession();
 
-        assertThat(configuredCountries).isEqualTo(ImmutableList.of(NETHERLANDS, SPAIN));
+        assertThat(configuredCountries).isEqualTo(List.of(NETHERLANDS, SPAIN));
     }
 
     @Test
@@ -105,7 +104,9 @@ public class CountriesResourceIntegrationTest {
 
         List<EidasCountryDto> configuredCountries = listCountriesForSession();
 
-        assertThat(configuredCountries).isEqualTo(ImmutableList.of(NETHERLANDS));
+
+
+        assertThat(configuredCountries).isEqualTo(List.of(NETHERLANDS));
     }
 
     @Test
@@ -115,7 +116,7 @@ public class CountriesResourceIntegrationTest {
 
         List<EidasCountryDto> configuredCountries = listCountriesForSession();
 
-        assertThat(configuredCountries).isEqualTo(ImmutableList.of(NETHERLANDS));
+        assertThat(configuredCountries).isEqualTo(List.of(NETHERLANDS));
     }
 
     @Test
@@ -125,7 +126,7 @@ public class CountriesResourceIntegrationTest {
 
         List<EidasCountryDto> configuredCountries = listCountriesForSession();
 
-        assertThat(configuredCountries).isEqualTo(ImmutableList.of(NETHERLANDS, SPAIN));
+        assertThat(configuredCountries).isEqualTo(List.of(NETHERLANDS, SPAIN));
     }
 
     @Test

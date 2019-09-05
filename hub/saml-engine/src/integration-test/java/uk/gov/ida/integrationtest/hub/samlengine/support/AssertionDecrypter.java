@@ -1,7 +1,5 @@
 package uk.gov.ida.integrationtest.hub.samlengine.support;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.apache.commons.codec.binary.Base64;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Unmarshaller;
@@ -33,6 +31,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class AssertionDecrypter {
 
@@ -51,8 +50,8 @@ public class AssertionDecrypter {
         IdaKeyStore keyStore = new IdaKeyStore(signingKeyPair, Collections.singletonList(encryptionKeyPair));
         IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever = new IdaKeyStoreCredentialRetriever(keyStore);
         Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
-        ImmutableSet<String> contentEncryptionAlgorithms = ImmutableSet.of(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM);
-        ImmutableSet<String> keyTransportAlgorithms = ImmutableSet.of(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP, EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
+        Set<String> contentEncryptionAlgorithms = Set.of(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256, EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM);
+        Set<String> keyTransportAlgorithms = Set.of(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP, EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
 
         uk.gov.ida.saml.security.AssertionDecrypter assertionDecrypter = new uk.gov.ida.saml.security.AssertionDecrypter(
             new EncryptionAlgorithmValidator(contentEncryptionAlgorithms, keyTransportAlgorithms),
@@ -89,7 +88,7 @@ public class AssertionDecrypter {
     }
 
     private Assertion decrypt(EncryptedAssertion encryptedAssertion) {
-        Decrypter decrypter = new DecrypterFactory().createDecrypter(ImmutableList.of(new BasicCredential(publicKey, privateKey)));
+        Decrypter decrypter = new DecrypterFactory().createDecrypter(List.of(new BasicCredential(publicKey, privateKey)));
         decrypter.setRootInNewDocument(true);
         try {
             return decrypter.decrypt(encryptedAssertion);

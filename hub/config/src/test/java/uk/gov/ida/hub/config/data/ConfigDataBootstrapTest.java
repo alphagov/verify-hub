@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config.data;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +20,7 @@ import java.security.cert.CertPathValidatorException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +82,7 @@ public class ConfigDataBootstrapTest {
         final String simpleId = "simple-id";
         final String matchingServiceEntityId = "matching-service-entity-id";
         final String nonExistentTransactionEntityId = "non-existent-transaction";
-        final IdentityProviderConfig identityProviderConfigData = anIdentityProviderConfigData().withEntityId(idpEntityId).withOnboarding(ImmutableList.of(nonExistentTransactionEntityId)).build();
+        final IdentityProviderConfig identityProviderConfigData = anIdentityProviderConfigData().withEntityId(idpEntityId).withOnboarding(List.of(nonExistentTransactionEntityId)).build();
         final TransactionConfig transactionConfigData = aTransactionConfigData().withEntityId("transaction-entity-id").withMatchingServiceEntityId(matchingServiceEntityId).build();
         final TranslationData translationData = aTranslationData().withSimpleId(simpleId).build();
         final CountryConfig countryConfig = new CountryConfig() {};
@@ -152,7 +152,7 @@ public class ConfigDataBootstrapTest {
         InvalidCertificateDto invalidIdpCertificateDto = new InvalidCertificateDto(idpEntityId, CertPathValidatorException.BasicReason.INVALID_SIGNATURE, CertificateUse.SIGNING, FederationEntityType.IDP, "certificate was bad!");
         InvalidCertificateDto invalidMatchingServiceCertificateDto = new InvalidCertificateDto(matchingServiceId, CertPathValidatorException.BasicReason.NOT_YET_VALID, CertificateUse.SIGNING, FederationEntityType.MS, "certificate was not yet valid!");
 
-        doThrow(createInvalidCertificatesException(ImmutableList.of(invalidMatchingServiceCertificateDto, invalidIdpCertificateDto))).when(certificateChainConfigValidator)
+        doThrow(createInvalidCertificatesException(List.of(invalidMatchingServiceCertificateDto, invalidIdpCertificateDto))).when(certificateChainConfigValidator)
                 .validate(Set.of(transactionConfigData, matchingServiceConfigData));
 
         CountryConfig countryConfig = createCountriesConfig();
