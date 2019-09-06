@@ -17,26 +17,33 @@ public class IdpPredicateFactory {
 
     @Deprecated
     public Set<Predicate<IdentityProviderConfig>> createPredicatesForTransactionEntity(Optional<String> transactionEntity) {
-        EnabledIdpPredicate enabledIdpPredicate = new EnabledIdpPredicate();
         Set<Predicate<IdentityProviderConfig>> predicates = new HashSet<>();
-        predicates.add(enabledIdpPredicate);
+        predicates.add(IdentityProviderConfig::isEnabled);
 
-        Optional.ofNullable(transactionEntity).ifPresent(s -> predicates.add(new OnboardingForTransactionEntityPredicate(s.get())));
+        Optional.ofNullable(transactionEntity).ifPresent(s -> predicates.add((idpConfig) -> idpConfig.isOnboardingForTransactionEntity(s.get())));
 
         return predicates;
     }
 
-    public Set<Predicate<IdentityProviderConfig>> createPredicatesForTransactionEntityAndLoa(String transactionEntity,
-                                                                                             LevelOfAssurance levelOfAssurance) {
-        return Set.of(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntity, levelOfAssurance),
-                new SupportedLoaIdpPredicate(levelOfAssurance), new NewUserIdpPredicate());
+    public Set<Predicate<IdentityProviderConfig>> createPredicatesForTransactionEntityAndLoa(String transactionEntity, LevelOfAssurance levelOfAssurance) {
+        return Set.of(
+                IdentityProviderConfig::isEnabled,
+                (idpConfig)->idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntity, levelOfAssurance),
+                (idpConfig)->idpConfig.supportsLoa(levelOfAssurance),
+                IdentityProviderConfig::isRegistrationEnabled);
     }
 
     public Set<Predicate<IdentityProviderConfig>> createPredicatesForSignIn(String transactionEntityId) {
-        return Set.of(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null));
+        return Set.of(
+                IdentityProviderConfig::isEnabled,
+                (idpConfig)->idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityId, null));
     }
 
     public Set<Predicate<IdentityProviderConfig>> createPredicatesForSingleIdp(String transactionEntityId) {
-        return Set.of(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null), new SingleIdpEnabledPredicate(), new NewUserIdpPredicate());
+        return Set.of(
+                IdentityProviderConfig::isEnabled,
+                (idpConfig)->idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityId, null),
+                IdentityProviderConfig::isEnabledForSingleIdp,
+                IdentityProviderConfig::isRegistrationEnabled);
     }
 }
