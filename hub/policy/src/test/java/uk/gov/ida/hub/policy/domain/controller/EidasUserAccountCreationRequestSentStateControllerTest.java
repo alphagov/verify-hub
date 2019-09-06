@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +13,8 @@ import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
 import uk.gov.ida.hub.policy.domain.UserAccountCreatedFromMatchingService;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
-import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
@@ -25,12 +24,14 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationRequestSentStateBuilder.anEidasUserAccountCreationRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreatedStateBuilder.aUserAccountCreatedState;
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState;
@@ -77,7 +78,7 @@ public class EidasUserAccountCreationRequestSentStateControllerTest {
 
     @Test
     public void shouldThrowStateProcessingValidationExceptionIfResponseIsNotFromTheExpectedMatchingService() {
-        ResponseFromMatchingService responseFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.absent());
+        ResponseFromMatchingService responseFromMatchingService = new UserAccountCreatedFromMatchingService("issuer-id", "", "", Optional.empty());
 
         try {
             controller.validateResponse(responseFromMatchingService);
@@ -118,7 +119,7 @@ public class EidasUserAccountCreationRequestSentStateControllerTest {
         final EidasSuccessfulMatchState expectedState = anEidasSuccessfulMatchState()
                 .withCountryEntityId(state.getIdentityProviderEntityId())
                 .withMatchingServiceAssertion(matchingServiceAssertion)
-                .withRelayState(state.getRelayState().orNull())
+                .withRelayState(state.getRelayState().orElse(null))
                 .withRequestId(state.getRequestId())
                 .withRequestIssuerId(state.getRequestIssuerEntityId())
                 .withSessionExpiryTimestamp(state.getSessionExpiryTimestamp())
@@ -168,7 +169,7 @@ public class EidasUserAccountCreationRequestSentStateControllerTest {
                 .withRequestIssuerId(state.getRequestIssuerEntityId())
                 .withRequestid(state.getRequestId())
                 .withSessionId(state.getSessionId())
-                .withForceAuthentication(state.getForceAuthentication().orNull())
+                .withForceAuthentication(state.getForceAuthentication().orElse(null))
                 .build();
 
         controller.handleUserAccountCreationFailedResponseFromMatchingService();

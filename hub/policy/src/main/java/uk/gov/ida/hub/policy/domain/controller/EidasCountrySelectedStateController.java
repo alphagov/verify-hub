@@ -28,8 +28,6 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import java.util.Collections;
 import java.util.Optional;
 
-import static java.util.Collections.emptySet;
-
 public class EidasCountrySelectedStateController implements ErrorResponsePreparedStateController, EidasCountrySelectingStateController, AuthnRequestCapableController, RestartJourneyStateController {
 
     private final EidasCountrySelectedState state;
@@ -85,7 +83,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getLevelsOfAssurance(),
                 false,
                 state.getCountryEntityId(),
-                com.google.common.base.Optional.of(true),
+                Optional.of(true),
                 state.getSessionExpiryTimestamp(),
                 false,
                 countryDto.map(EidasCountryDto::getOverriddenSsoUrl).orElse(null));
@@ -111,8 +109,8 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 matchingServiceConfig.isOnboarding(),
                 translatedResponse.getLevelOfAssurance().get(),
                 new PersistentId(translatedResponse.getPersistentId().get()),
-                com.google.common.base.Optional.absent(),
-                com.google.common.base.Optional.absent(),
+                Optional.empty(),
+                Optional.empty(),
                 translatedResponse.getEncryptedIdentityAssertionBlob().get()
         );
     }
@@ -130,7 +128,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
     public void selectCountry(String countryEntityId) {
         EidasCountrySelectedState countrySelectedState = new EidasCountrySelectedState(
                 countryEntityId,
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -138,7 +136,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getSessionId(),
                 state.getTransactionSupportsEidas(),
                 state.getLevelsOfAssurance(),
-                state.getForceAuthentication().orNull()
+                state.getForceAuthentication().orElse(null)
         );
 
         stateTransitionAction.transitionTo(countrySelectedState);
@@ -161,7 +159,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getLevelsOfAssurance().get(0),
                 state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
                 translatedResponse.getLevelOfAssurance().get(),
-                com.google.common.base.Optional.absent(),
+                Optional.empty(),
                 principalIpAddressAsSeenByHub,
                 analyticsSessionId,
                 journeyType);
@@ -230,12 +228,12 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 new SessionId(state.getSessionId().getSessionId()),
                 state.getTransactionSupportsEidas(),
                 translatedResponse.getIssuer(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 translatedResponse.getLevelOfAssurance().get(),
                 getMatchingServiceEntityId(),
                 translatedResponse.getEncryptedIdentityAssertionBlob().get(),
                 new PersistentId(translatedResponse.getPersistentId().get()),
-                state.getForceAuthentication().orNull()
+                state.getForceAuthentication().orElse(null)
         );
     }
 
@@ -247,8 +245,8 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getAssertionConsumerServiceUri(),
                 new SessionId(state.getSessionId().getSessionId()),
                 state.getTransactionSupportsEidas(),
-                state.getRelayState().orNull(),
-                translatedResponse.getEncryptedIdentityAssertionBlob().transform(Collections::singleton).or(emptySet())
+                state.getRelayState().orElse(null),
+                translatedResponse.getEncryptedIdentityAssertionBlob().map(Collections::singleton).orElse(Collections.emptySet())
         );
     }
 
@@ -258,11 +256,11 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getSessionId(),
                 state.getCountryEntityId(),
                 state.getLevelsOfAssurance(),
-                state.getForceAuthentication().orNull());
+                state.getForceAuthentication().orElse(null));
     }
 
     @Override
@@ -275,10 +273,10 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
     private SessionStartedState createSessionStartedState() {
         return new SessionStartedState(
                 state.getRequestId(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
-                state.getForceAuthentication().orNull(),
+                state.getForceAuthentication().orElse(null),
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas());

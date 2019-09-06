@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.StandardToStringStyle;
 import org.joda.time.DateTime;
@@ -12,6 +11,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Objects;
+import java.util.Optional;
 
 public abstract class AbstractSuccessfulMatchState extends AbstractState implements ResponseProcessingState, ResponsePreparedState, Serializable {
 

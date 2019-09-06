@@ -2,13 +2,13 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 
 import java.net.URI;
+import java.util.Optional;
 
 public class PausedRegistrationState extends AbstractState implements State {
 
@@ -37,7 +37,7 @@ public class PausedRegistrationState extends AbstractState implements State {
                 null
         );
 
-        this.relayState = Optional.fromNullable(relayState);
+        this.relayState = Optional.ofNullable(relayState);
     }
 
     @Override

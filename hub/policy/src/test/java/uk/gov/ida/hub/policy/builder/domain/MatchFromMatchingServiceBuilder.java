@@ -1,15 +1,16 @@
 package uk.gov.ida.hub.policy.builder.domain;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
+
+import java.util.Optional;
 
 public class MatchFromMatchingServiceBuilder {
 
     private String issuer = "default issuer";
     private String inResponseTo = "default in response to";
     private String matchingServiceAssertion = "aPassthroughAssertion().buildAuthnStatementAssertion()";
-    private Optional<LevelOfAssurance> levelOfAssurance = Optional.absent();
+    private Optional<LevelOfAssurance> levelOfAssurance = Optional.empty();
 
     public static MatchFromMatchingServiceBuilder aMatchFromMatchingService() {
         return new MatchFromMatchingServiceBuilder();

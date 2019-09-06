@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.base.Optional;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -27,9 +26,9 @@ import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
-import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
+import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
@@ -50,6 +49,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,8 +155,8 @@ public class EidasMatchingServiceResourceIntegrationTest {
                 MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                 translatedAuthnRequest.getId(),
                 MSA_ENTITY_ID,
-                Optional.absent(),
-                Optional.absent());
+                Optional.empty(),
+                Optional.empty());
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
         configStub.setUpStubForCycle01NoMatchCycle3Disabled(RP_ENTITY_ID);
         configStub.setUpStubForUserAccountCreation(RP_ENTITY_ID, Collections.singletonList(UserAccountCreationAttribute.FIRST_NAME));
@@ -324,8 +324,8 @@ public class EidasMatchingServiceResourceIntegrationTest {
                 MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                 translatedAuthnRequest.getId(),
                 MSA_ENTITY_ID,
-                Optional.absent(),
-                Optional.absent());
+                Optional.empty(),
+                Optional.empty());
     }
 
     private InboundResponseFromMatchingServiceDto aMatchResponse(){
@@ -391,7 +391,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
 
     private void stubSamlEngineTranslationLOAForCountry(final LevelOfAssurance loa, final EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        InboundResponseFromCountry translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.absent());
+        InboundResponseFromCountry translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.empty(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.empty());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 

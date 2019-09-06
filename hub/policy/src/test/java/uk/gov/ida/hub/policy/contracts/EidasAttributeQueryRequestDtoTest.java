@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.contracts;
 
-import com.google.common.base.Optional;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -16,6 +15,7 @@ import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -38,7 +38,7 @@ public class EidasAttributeQueryRequestDtoTest {
     private static final DateTime MATCHING_SERVICE_REQUEST_TIME_OUT = DateTime.now();
     private static final boolean ONBOARDING = true;
     private static final Optional<Cycle3Dataset> CYCLE_3_DATASET = Optional.of(Cycle3Dataset.createFromData("attributeName", "attributeValue"));
-    private static final Optional<List<UserAccountCreationAttribute>> USER_ACCOUNT_CREATION_ATTRIBUTES = Optional.absent();
+    private static final Optional<List<UserAccountCreationAttribute>> USER_ACCOUNT_CREATION_ATTRIBUTES = Optional.empty();
     private static final DateTime ASSERTION_EXPIRY = DateTime.now();
     private EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto;
 

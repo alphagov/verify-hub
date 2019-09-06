@@ -1,11 +1,11 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.common.shared.security.IdGenerator;
 
 import javax.inject.Inject;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;

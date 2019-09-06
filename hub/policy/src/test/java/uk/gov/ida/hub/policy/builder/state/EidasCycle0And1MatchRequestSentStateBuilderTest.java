@@ -52,7 +52,7 @@ public class EidasCycle0And1MatchRequestSentStateBuilderTest {
         assertThat(state.getIdpLevelOfAssurance()).isEqualTo(LevelOfAssurance.LEVEL_2);
         assertThat(state.getPersistentId()).isEqualTo(new PersistentId("default-name-id"));
         assertThat(state.getTransactionSupportsEidas()).isEqualTo(true);
-        assertThat(state.getForceAuthentication().orNull()).isEqualTo(false);
+        assertThat(state.getForceAuthentication().orElse(null)).isEqualTo(false);
     }
 
     @Test

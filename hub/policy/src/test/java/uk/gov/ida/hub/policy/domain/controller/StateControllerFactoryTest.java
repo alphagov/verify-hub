@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import com.google.inject.Injector;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -24,21 +23,22 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
-import static uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState;
-import static uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder.anEidasCountrySelectedState;
-import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateBuilder.aCycle3DataInputCancelledState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
+import static uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBuilder.anEidasAwaitingCycle3DataState;
+import static uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder.anEidasCountrySelectedState;
 import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationRequestSentStateBuilder.anEidasUserAccountCreationRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.FraudEventDetectedStateBuilder.aFraudEventDetectedState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
@@ -261,7 +261,7 @@ public class StateControllerFactoryTest {
 
         @Override
         public Optional<String> getRelayState() {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 }

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
@@ -20,6 +19,7 @@ import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class EidasMatchRequestSentStateController<T extends EidasMatchRequestSentState> extends AbstractMatchRequestSentStateController<T, EidasSuccessfulMatchState> {
 
@@ -53,7 +53,7 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
                 state.getSessionExpiryTimestamp(),
                 state.getIdentityProviderEntityId(),
                 matchingServiceAssertion,
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
@@ -71,10 +71,10 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
                 state.getIdentityProviderEntityId(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getIdpLevelOfAssurance(),
                 state.getMatchingServiceAdapterEntityId(),
-                state.getForceAuthentication().orNull());
+                state.getForceAuthentication().orElse(null));
     }
 
     public EidasAttributeQueryRequestDto createAttributeQuery(
@@ -93,7 +93,7 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
                 matchingServiceConfig.isOnboarding(),
                 state.getIdpLevelOfAssurance(),
                 persistentId,
-                Optional.absent(),
+                Optional.empty(),
                 Optional.of(userAccountCreationAttributes),
                 encryptedIdentityAssertion);
     }

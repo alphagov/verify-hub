@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.services;
 
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +19,7 @@ import uk.gov.ida.hub.policy.domain.state.WaitingForMatchingServiceResponseState
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.text.MessageFormat.format;
@@ -91,8 +91,8 @@ public class MatchingServiceResponseServiceTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                         inResponseTo,
                         "issuer",
-                        Optional.absent(),
-                        Optional.absent());
+                        Optional.empty(),
+                        Optional.empty());
         when(samlEngineProxy.translateMatchingServiceResponse(any())).thenReturn(inboundResponseFromMatchingServiceDto);
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
@@ -121,8 +121,8 @@ public class MatchingServiceResponseServiceTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.RequesterError,
                         inResponseTo,
                         "issuer",
-                        Optional.absent(),
-                        Optional.absent());
+                        Optional.empty(),
+                        Optional.empty());
         when(samlEngineProxy.translateMatchingServiceResponse(any())).thenReturn(inboundResponseFromMatchingServiceDto);
 
         matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);

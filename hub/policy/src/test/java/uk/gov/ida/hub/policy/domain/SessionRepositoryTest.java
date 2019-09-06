@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,10 +20,10 @@ import uk.gov.ida.hub.policy.session.InfinispanSessionStore;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.google.common.base.Optional.absent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -188,7 +187,7 @@ public class SessionRepositoryTest {
 
         SessionId sessionId = sessionRepository.createSession(state);
 
-        assertThat(sessionRepository.getLevelOfAssuranceFromIdp(sessionId)).isEqualTo(Optional.absent());
+        assertThat(sessionRepository.getLevelOfAssuranceFromIdp(sessionId)).isEqualTo(Optional.empty());
     }
 
     private class TestState extends AbstractState implements ResponsePreparedState {
@@ -198,7 +197,7 @@ public class SessionRepositoryTest {
 
         @Override
         public Optional<String> getRelayState() {
-            return absent();
+            return Optional.empty();
         }
     }
 }

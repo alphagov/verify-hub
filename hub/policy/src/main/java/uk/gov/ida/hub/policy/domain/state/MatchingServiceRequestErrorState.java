@@ -2,13 +2,13 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Optional;
 
 public class MatchingServiceRequestErrorState extends AbstractState implements ResponseProcessingState, Serializable {
 
@@ -41,7 +41,7 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
         );
 
         this.identityProviderEntityId = identityProviderEntityId;
-        this.relayState = Optional.fromNullable(relayState);
+        this.relayState = Optional.ofNullable(relayState);
     }
 
     public String getIdentityProviderEntityId() {

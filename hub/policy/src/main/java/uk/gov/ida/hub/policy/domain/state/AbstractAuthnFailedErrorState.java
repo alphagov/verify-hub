@@ -1,12 +1,12 @@
 package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
+import java.util.Optional;
 
 public abstract class AbstractAuthnFailedErrorState extends AbstractState implements ResponsePreparedState {
 
@@ -40,6 +40,6 @@ public abstract class AbstractAuthnFailedErrorState extends AbstractState implem
 
     @Override
     public Optional<String> getRelayState() {
-        return Optional.fromNullable(relayState);
+        return Optional.ofNullable(relayState);
     }
 }

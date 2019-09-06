@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
@@ -17,6 +16,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
+import java.util.Optional;
 
 public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycle3DataStateController<EidasAttributeQueryRequestDto, EidasAwaitingCycle3DataState> implements StateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
@@ -56,8 +56,8 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
             matchingServiceConfigData.isOnboarding(),
             getState().getLevelOfAssurance(),
             getState().getPersistentId(),
-            Optional.fromNullable(cycle3Dataset),
-            Optional.absent(),
+            Optional.ofNullable(cycle3Dataset),
+            Optional.empty(),
             getState().getEncryptedIdentityAssertion()
         );
     }
@@ -80,12 +80,12 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
             getState().getSessionId(),
             getState().getTransactionSupportsEidas(),
             getState().getIdentityProviderEntityId(),
-            getState().getRelayState().orNull(),
+            getState().getRelayState().orElse(null),
             getState().getLevelOfAssurance(),
             getState().getMatchingServiceEntityId(),
             getState().getEncryptedIdentityAssertion(),
             getState().getPersistentId(),
-            getState().getForceAuthentication().orNull()
+            getState().getForceAuthentication().orElse(null)
         );
 
         getStateTransitionAction().transitionTo(eidasCycle3MatchRequestSentState);

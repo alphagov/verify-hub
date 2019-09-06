@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +39,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -179,7 +179,7 @@ public class IdpSelectedStateControllerTest {
                 fraudFromIdp.getPersistentId(),
                 SESSION_EXPIRY_TIMESTAMP,
                 idpFraudDetectedDetails,
-                Optional.fromNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP),
+                Optional.ofNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP),
                 PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
                 REQUEST_ID,
                 ANALYTICS_SESSION_ID,
@@ -387,7 +387,7 @@ public class IdpSelectedStateControllerTest {
                 LEVELS_OF_ASSURANCE.get(0),
                 LEVELS_OF_ASSURANCE.get(1),
                 PROVIDED_LOA,
-                Optional.fromNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP),
+                Optional.ofNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP),
                 PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
                 ANALYTICS_SESSION_ID,
                 JOURNEY_TYPE);
@@ -428,7 +428,7 @@ public class IdpSelectedStateControllerTest {
                 TRANSACTION_ENTITY_ID,
                 SESSION_EXPIRY_TIMESTAMP,
                 REQUEST_ID,
-                Optional.fromNullable(errorMessage),
+                Optional.ofNullable(errorMessage),
                 PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
                 ANALYTICS_SESSION_ID,
                 JOURNEY_TYPE);

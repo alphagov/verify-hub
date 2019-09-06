@@ -1,11 +1,11 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;

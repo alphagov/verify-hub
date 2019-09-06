@@ -2,13 +2,13 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Optional;
 
 public class SessionStartedState extends AbstractState implements IdpSelectingState, EidasCountrySelectingState, ResponseProcessingState, Serializable {
 
@@ -42,6 +42,6 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
     }
 
     public Optional<String> getRelayState() {
-        return Optional.fromNullable(relayState);
+        return Optional.ofNullable(relayState);
     }
 }

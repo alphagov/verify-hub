@@ -1,6 +1,5 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
-import com.google.common.base.Optional;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -35,6 +34,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -218,13 +218,13 @@ public class EidasSessionResourceIntegrationTest {
 
     private void stubSamlEngineTranslationLOAForCountry(LevelOfAssurance loa, EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.absent(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.absent());
+        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.empty(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.empty());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 
     private void stubSamlEngineTranslationToFailForCountry(EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Failure, Optional.absent(), country.getEntityId(), Optional.absent(), Optional.absent(), Optional.absent(), Optional.absent());
+        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Failure, Optional.empty(), country.getEntityId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 

@@ -1,14 +1,11 @@
 package uk.gov.ida.hub.policy.builder.domain;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SuccessFromIdp;
 
+import java.util.Optional;
 import java.util.UUID;
-
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
 
 public class SuccessFromIdpBuilder {
 
@@ -18,7 +15,7 @@ public class SuccessFromIdpBuilder {
     private PersistentId persistentIdDto = PersistentIdBuilder.aPersistentId().build();
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_3;
     private String principalIpAsSeenByHub = "principal ip address as seen by hub";
-    private Optional<String> principalIpAddressAsSeenByIdp = absent();
+    private Optional<String> principalIpAddressAsSeenByIdp = Optional.empty();
     private String analyticsSessionId = UUID.randomUUID().toString();
     private String journeyType = "some-journey-type";
 
@@ -56,7 +53,7 @@ public class SuccessFromIdpBuilder {
     }
 
     public SuccessFromIdpBuilder withPrincipalIpAddressSeenByIdp(String principalIpAddressAsSeenByIdp) {
-        this.principalIpAddressAsSeenByIdp = fromNullable(principalIpAddressAsSeenByIdp);
+        this.principalIpAddressAsSeenByIdp = Optional.ofNullable(principalIpAddressAsSeenByIdp);
         return this;
     }
 

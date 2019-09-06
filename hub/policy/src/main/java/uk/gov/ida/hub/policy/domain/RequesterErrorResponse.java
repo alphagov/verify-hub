@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class RequesterErrorResponse {
 

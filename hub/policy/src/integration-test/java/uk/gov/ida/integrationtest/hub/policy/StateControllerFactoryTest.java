@@ -1,6 +1,5 @@
 package uk.gov.ida.integrationtest.hub.policy;
 
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -12,36 +11,58 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
-import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.PolicyModule;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.controller.*;
+import uk.gov.ida.hub.policy.domain.controller.AuthnFailedErrorStateController;
+import uk.gov.ida.hub.policy.domain.controller.AwaitingCycle3DataStateController;
+import uk.gov.ida.hub.policy.domain.controller.Cycle0And1MatchRequestSentStateController;
+import uk.gov.ida.hub.policy.domain.controller.Cycle3DataInputCancelledStateController;
+import uk.gov.ida.hub.policy.domain.controller.Cycle3MatchRequestSentStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasAuthnFailedErrorStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasAwaitingCycle3DataStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasCycle0And1MatchRequestSentStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasSuccessfulMatchStateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasUserAccountCreationFailedStateController;
+import uk.gov.ida.hub.policy.domain.controller.FraudEventDetectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
+import uk.gov.ida.hub.policy.domain.controller.MatchingServiceRequestErrorStateController;
+import uk.gov.ida.hub.policy.domain.controller.NoMatchStateController;
+import uk.gov.ida.hub.policy.domain.controller.RequesterErrorStateController;
+import uk.gov.ida.hub.policy.domain.controller.SessionStartedStateController;
+import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
+import uk.gov.ida.hub.policy.domain.controller.SuccessfulMatchStateController;
+import uk.gov.ida.hub.policy.domain.controller.TimeoutStateController;
+import uk.gov.ida.hub.policy.domain.controller.UserAccountCreatedStateController;
+import uk.gov.ida.hub.policy.domain.controller.UserAccountCreationFailedStateController;
+import uk.gov.ida.hub.policy.domain.controller.UserAccountCreationRequestSentStateController;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 
 import javax.ws.rs.client.Client;
 import java.net.URI;
+import java.util.Optional;
 
-import static com.google.common.base.Optional.absent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
-import static uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState;
-import static uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder.anEidasCountrySelectedState;
-import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateBuilder.aCycle3DataInputCancelledState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
+import static uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBuilder.anEidasAwaitingCycle3DataState;
+import static uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder.anEidasCountrySelectedState;
 import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
+import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.FraudEventDetectedStateBuilder.aFraudEventDetectedState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.MatchingServiceRequestErrorStateBuilder.aMatchingServiceRequestErrorState;
@@ -257,7 +278,7 @@ public class StateControllerFactoryTest {
             ) {
                 @Override
                 public Optional<String> getRelayState() {
-                    return absent();
+                    return Optional.empty();
                 }
             },
             mock(StateTransitionAction.class)

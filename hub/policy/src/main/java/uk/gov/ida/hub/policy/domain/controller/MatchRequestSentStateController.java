@@ -19,6 +19,7 @@ import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class MatchRequestSentStateController<T extends MatchRequestSentState> extends AbstractMatchRequestSentStateController<T, SuccessfulMatchState> {
 
@@ -52,7 +53,7 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
                 state.getSessionExpiryTimestamp(),
                 state.getIdentityProviderEntityId(),
                 matchingServiceAssertion,
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
@@ -72,7 +73,7 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
                 state.getSessionId(),
                 state.getTransactionSupportsEidas(),
                 state.getIdentityProviderEntityId(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getIdpLevelOfAssurance(),
                 state.isRegistering(),
                 state.getMatchingServiceAdapterEntityId()
@@ -92,7 +93,7 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
                 state.getRequestId(),
                 encryptedMatchingDatasetAssertion,
                 authnStatementAssertion,
-                com.google.common.base.Optional.absent(),
+                Optional.empty(),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
                 state.getMatchingServiceAdapterEntityId(),
