@@ -94,14 +94,15 @@ public class IdentityProviderConfigTest {
     @Test
     public void shouldCheckThatIsOnboardingForTransactionEntity() {
         final IdentityProviderConfig dataWithoutOnboarding = dataBuilder.withEntityId("EID").build();
-        assertThat(dataWithoutOnboarding.isOnboardingForTransactionEntity("EID")).isFalse();
+        assertThat(dataWithoutOnboarding.isOnboardingForTransactionEntity("EID")).isTrue();
 
         final IdentityProviderConfig data = dataBuilder
-                .withOnboarding(List.of("EID_O","EID_OT"))
+                .withOnboarding(List.of("EID_O1","EID_O2"))
                 .build();
 
-        assertThat(data.isOnboardingForTransactionEntity("EID_O")).isTrue();
-        assertThat(data.isOnboardingForTransactionEntity("EID_OT")).isTrue();
+        assertThat(data.isOnboardingForTransactionEntity("EID_O1")).isTrue();
+        assertThat(data.isOnboardingForTransactionEntity("EID_O2")).isTrue();
+        assertThat(data.isOnboardingForTransactionEntity("EID")).isFalse();
     }
 
     @Test
