@@ -2,7 +2,6 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
@@ -11,6 +10,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 public class IdpSelectedState extends AbstractState implements IdpSelectingState, RestartJourneyState, Serializable {
 
@@ -73,7 +73,7 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     }
 
     public Optional<String> getRelayState() {
-        return Optional.fromNullable(relayState);
+        return Optional.ofNullable(relayState);
     }
 
     public List<String> getAvailableIdentityProviders() {

@@ -1,12 +1,13 @@
 package uk.gov.ida.hub.policy.builder.domain;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.domain.RequesterErrorResponse;
+
+import java.util.Optional;
 
 public class RequesterErrorResponseBuilder {
 
     private String issuer = "issuer";
-    private Optional<String> errorMessage = Optional.absent();
+    private Optional<String> errorMessage = Optional.empty();
     private String principalIpAddressAsSeenByHub = "principal ip address as seen by hub";
     private String analyticsSessionId = "some-analytics-session-id";
     private String journeyType = "some-journey-type";
@@ -25,7 +26,7 @@ public class RequesterErrorResponseBuilder {
     }
 
     public RequesterErrorResponseBuilder withErrorMessage(String errorMessage) {
-        this.errorMessage = Optional.fromNullable(errorMessage);
+        this.errorMessage = Optional.ofNullable(errorMessage);
         return this;
     }
 

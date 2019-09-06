@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +11,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.common.shared.security.IdGenerator;
-import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventemitter.EventDetailsKey;
-import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
-import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
@@ -40,9 +37,12 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 import static java.util.Collections.emptyList;
@@ -54,12 +54,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_MATCH;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_NO_MATCH;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.USER_ACCOUNT_CREATION_REQUEST_SENT;
 import static uk.gov.ida.hub.policy.builder.MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto;
 import static uk.gov.ida.hub.policy.builder.domain.MatchFromMatchingServiceBuilder.aMatchFromMatchingService;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_MATCH;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_NO_MATCH;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.USER_ACCOUNT_CREATION_REQUEST_SENT;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Cycle3MatchRequestSentStateControllerTest {
@@ -147,7 +147,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
 
         AttributeQueryRequestDto actualAttributeQueryRequestDto = attributeQueryRequestCaptor.getValue();
         assertThat(actualAttributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(userAccountCreationUri);
-        assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.fromNullable(userAccountCreationAttributes));
+        assertThat(actualAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.ofNullable(userAccountCreationAttributes));
         assertThat(actualAttributeQueryRequestDto.getEncryptedMatchingDatasetAssertion()).isEqualTo(state.getEncryptedMatchingDatasetAssertion());
 
         assertThat(capturedState.getValue()).isInstanceOf(UserAccountCreationRequestSentState.class);

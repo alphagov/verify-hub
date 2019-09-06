@@ -14,6 +14,7 @@ import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRequestSentStateController<EidasCycle0And1MatchRequestSentState> {
 
@@ -53,7 +54,7 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
 
     @Override
     protected void transitionToNextStateForNoMatchResponse() {
-        com.google.common.base.Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
+        Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
         if (selfAssertedAttributeName.isPresent()) {
             hubEventLogger.logWaitingForCycle3AttributesEvent(
                     state.getSessionId(),
@@ -91,10 +92,10 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
                 state.getTransactionSupportsEidas(),
                 state.getIdentityProviderEntityId(),
                 state.getMatchingServiceAdapterEntityId(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getPersistentId(),
                 state.getIdpLevelOfAssurance(),
                 state.getEncryptedIdentityAssertion(),
-                state.getForceAuthentication().orNull());
+                state.getForceAuthentication().orElse(null));
     }
 }

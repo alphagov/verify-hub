@@ -1,8 +1,9 @@
 package uk.gov.ida.hub.policy.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
+
+import java.util.Optional;
 
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)

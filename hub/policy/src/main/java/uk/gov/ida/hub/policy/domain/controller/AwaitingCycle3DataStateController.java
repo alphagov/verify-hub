@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
@@ -17,6 +16,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
+import java.util.Optional;
 
 public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3DataStateController<AttributeQueryRequestDto, AwaitingCycle3DataState> implements StateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
@@ -55,7 +55,7 @@ public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3Dat
             getState().getMatchingServiceEntityId(),
             DateTime.now().plus(getPolicyConfiguration().getMatchingServiceResponseWaitPeriod()),
             getState().getLevelOfAssurance(),
-            Optional.absent(),
+            Optional.empty(),
             getState().getPersistentId(),
             getAssertionRestrictionsFactory().getAssertionExpiry(),
             matchingServiceAdapterUri,
@@ -82,7 +82,7 @@ public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3Dat
             getState().getSessionId(),
             getState().getTransactionSupportsEidas(),
             getState().getIdentityProviderEntityId(),
-            getState().getRelayState().orNull(),
+            getState().getRelayState().orElse(null),
             getState().getLevelOfAssurance(),
             getState().isRegistering(),
             getState().getMatchingServiceEntityId(),

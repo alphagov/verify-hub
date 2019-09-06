@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 public class AuthnRequestFromHub {
 

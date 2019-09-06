@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Before;
@@ -27,6 +26,7 @@ import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,7 +112,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getSessionExpiryTimestamp(),
             state.getIdentityProviderEntityId(),
             matchFromMatchingService.getMatchingServiceAssertion(),
-            state.getRelayState().orNull(),
+            state.getRelayState().orElse(null),
             state.getRequestIssuerEntityId(),
             state.getAssertionConsumerServiceUri(),
             state.getSessionId(),
@@ -145,11 +145,11 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getTransactionSupportsEidas(),
             state.getIdentityProviderEntityId(),
             state.getMatchingServiceAdapterEntityId(),
-            state.getRelayState().orNull(),
+            state.getRelayState().orElse(null),
             state.getPersistentId(),
             state.getIdpLevelOfAssurance(),
             state.getEncryptedIdentityAssertion(),
-            state.getForceAuthentication().orNull()
+            state.getForceAuthentication().orElse(null)
         );
 
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
@@ -163,7 +163,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
         final ArgumentCaptor<EidasUserAccountCreationRequestSentState> capturedState = ArgumentCaptor.forClass(EidasUserAccountCreationRequestSentState.class);
         URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
 
-        when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.absent()));
+        when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.empty()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(singletonList(FIRST_NAME));
         when(matchingServiceConfigProxy.getMatchingService(anyString()))
                 .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
@@ -180,10 +180,10 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
                 state.getIdentityProviderEntityId(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getIdpLevelOfAssurance(),
                 state.getMatchingServiceAdapterEntityId(),
-                state.getForceAuthentication().orNull());
+                state.getForceAuthentication().orElse(null));
 
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
 
@@ -196,7 +196,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
     public void shouldReturnNoMatchStateWhenUserAccountCreationIsDisabled() {
         final ArgumentCaptor<NoMatchState> capturedState = ArgumentCaptor.forClass(NoMatchState.class);
 
-        when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.absent()));
+        when(transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.empty()));
         when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(Lists.emptyList());
         doNothing().when(hubEventLogger).logCycle01NoMatchEvent(
             state.getSessionId(),
@@ -210,7 +210,7 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getRequestIssuerEntityId(),
             state.getSessionExpiryTimestamp(),
             state.getAssertionConsumerServiceUri(),
-            state.getRelayState().orNull(),
+            state.getRelayState().orElse(null),
             state.getSessionId(),
             state.getTransactionSupportsEidas()
         );

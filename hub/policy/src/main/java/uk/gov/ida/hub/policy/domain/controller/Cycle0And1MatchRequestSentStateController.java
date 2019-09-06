@@ -15,6 +15,7 @@ import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentStateController<Cycle0And1MatchRequestSentState> {
 
@@ -59,7 +60,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
 
     @Override
     protected void transitionToNextStateForNoMatchResponse() {
-        com.google.common.base.Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
+        Optional<String> selfAssertedAttributeName = transactionsConfigProxy.getMatchingProcess(state.getRequestIssuerEntityId()).getAttributeName();
         if (selfAssertedAttributeName.isPresent()) {
             hubEventLogger.logWaitingForCycle3AttributesEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getRequestId(), state.getSessionExpiryTimestamp());
             stateTransitionAction.transitionTo(createAwaitingCycle3DataState());
@@ -96,7 +97,7 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 state.getRequestIssuerEntityId(),
                 state.getEncryptedMatchingDatasetAssertion(),
                 state.getAuthnStatementAssertion(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getAssertionConsumerServiceUri(),
                 state.getMatchingServiceAdapterEntityId(),
                 state.getSessionId(),

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
@@ -33,6 +32,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -145,7 +145,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
         final Cycle3DataInputCancelledState expectedState = new Cycle3DataInputCancelledState(
             state.getRequestId(),
             state.getSessionExpiryTimestamp(),
-            state.getRelayState().orNull(),
+            state.getRelayState().orElse(null),
             state.getRequestIssuerEntityId(),
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),
@@ -177,7 +177,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
             state.getLevelOfAssurance(),
             state.getPersistentId(),
             Optional.of(cycle3Dataset),
-            Optional.absent(),
+            Optional.empty(),
             state.getEncryptedIdentityAssertion()
         );
 
@@ -204,12 +204,12 @@ public class EidasAwaitingCycle3DataStateControllerTest {
             state.getSessionId(),
             state.getTransactionSupportsEidas(),
             state.getIdentityProviderEntityId(),
-            state.getRelayState().orNull(),
+            state.getRelayState().orElse(null),
             state.getLevelOfAssurance(),
             state.getMatchingServiceEntityId(),
             state.getEncryptedIdentityAssertion(),
             state.getPersistentId(),
-            state.getForceAuthentication().orNull()
+            state.getForceAuthentication().orElse(null)
         );
 
         controller.handleCycle3DataSubmitted(principalIpAddressAsSeenByHub);

@@ -1,7 +1,8 @@
 package uk.gov.ida.hub.policy.domain.state;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.domain.State;
+
+import java.util.Optional;
 
 public interface ErrorResponsePreparedState extends State {
     Optional<String> getRelayState();

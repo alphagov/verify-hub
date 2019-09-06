@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.Cycle3Dataset;
@@ -10,6 +9,7 @@ import uk.gov.ida.hub.policy.domain.PersistentId;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class EidasAttributeQueryRequestDtoBuilder {
     public static EidasAttributeQueryRequestDtoBuilder anEidasAttributeQueryRequestDto() {
@@ -29,7 +29,7 @@ public class EidasAttributeQueryRequestDtoBuilder {
             LevelOfAssurance.LEVEL_2,
             new PersistentId("nameId"),
             Optional.of(aCycle3Dataset()),
-            Optional.absent(),
+            Optional.empty(),
             "encryptedIdentityAssertion"
         );
     }

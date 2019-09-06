@@ -39,7 +39,7 @@ public class EidasUserAccountCreationRequestSentStateController extends EidasMat
                 state.getSessionId(),
                 state.getIdentityProviderEntityId(),
                 responseFromMatchingService.getMatchingServiceAssertion(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getIdpLevelOfAssurance(),
                 false,
                 state.getTransactionSupportsEidas());
@@ -54,9 +54,9 @@ public class EidasUserAccountCreationRequestSentStateController extends EidasMat
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getSessionId(),
-                state.getForceAuthentication().orNull()
+                state.getForceAuthentication().orElse(null)
         );
 
         stateTransitionAction.transitionTo(eidasUserAccountCreationFailedState);

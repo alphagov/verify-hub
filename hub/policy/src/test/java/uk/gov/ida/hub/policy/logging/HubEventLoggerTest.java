@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.logging;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -12,9 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
-import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventemitter.EventDetailsKey;
-import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
@@ -23,6 +21,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import javax.validation.constraints.NotNull;
@@ -30,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.argThat;
@@ -54,6 +54,10 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.required_level_of_assuranc
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_expiry_time;
 import static uk.gov.ida.eventemitter.EventDetailsKey.transaction_entity_id;
+import static uk.gov.ida.hub.policy.builder.domain.FraudDetectedDetailsBuilder.aFraudDetectedDetails;
+import static uk.gov.ida.hub.policy.builder.domain.PersistentIdBuilder.aPersistentId;
+import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
+import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.ERROR_EVENT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.HUB_EVENT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.SESSION_EVENT;
@@ -69,10 +73,6 @@ import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.Session
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.SESSION_STARTED;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.SESSION_TIMEOUT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.USER_ACCOUNT_CREATION_REQUEST_SENT;
-import static uk.gov.ida.hub.policy.builder.domain.FraudDetectedDetailsBuilder.aFraudDetectedDetails;
-import static uk.gov.ida.hub.policy.builder.domain.PersistentIdBuilder.aPersistentId;
-import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
-import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HubEventLoggerTest {
@@ -161,7 +161,7 @@ public class HubEventLoggerTest {
             MINIMUM_LEVEL_OF_ASSURANCE,
             REQUIRED_LEVEL_OF_ASSURANCE,
             PROVIDED_LEVEL_OF_ASSURANCE,
-            Optional.fromNullable(PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP),
+            Optional.ofNullable(PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP),
             PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
             ANALYTICS_SESSION_ID,
             JOURNEY_TYPE
@@ -275,7 +275,7 @@ public class HubEventLoggerTest {
             TRANSACTION_ENTITY_ID,
             SESSION_EXPIRY_TIMESTAMP,
             REQUEST_ID,
-            Optional.fromNullable(errorMessage),
+            Optional.ofNullable(errorMessage),
             PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
             ANALYTICS_SESSION_ID,
             JOURNEY_TYPE

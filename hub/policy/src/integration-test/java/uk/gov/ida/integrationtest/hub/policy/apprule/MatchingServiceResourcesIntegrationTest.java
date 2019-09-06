@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.base.Optional;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -56,6 +55,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static io.dropwizard.testing.ConfigOverride.config;
@@ -498,8 +498,8 @@ public class MatchingServiceResourcesIntegrationTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                         translatedAuthnRequest.getId(),
                         msaEntityId,
-                        Optional.absent(),
-                        Optional.absent());
+                        Optional.empty(),
+                        Optional.empty());
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
         List<UserAccountCreationAttribute> userAccountCreationAttributes = List.of(UserAccountCreationAttribute.CURRENT_ADDRESS);
         configStub.setUpStubForUserAccountCreation(rpEntityId, userAccountCreationAttributes);
@@ -520,8 +520,8 @@ public class MatchingServiceResourcesIntegrationTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                         translatedAuthnRequest.getId(),
                         msaEntityId,
-                        Optional.absent(),
-                        Optional.absent());
+                        Optional.empty(),
+                        Optional.empty());
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
         final String cycle3Attribute = configStub.setUpStubForEnteringAwaitingCycle3DataState(rpEntityId);
 
@@ -537,8 +537,8 @@ public class MatchingServiceResourcesIntegrationTest {
                 new InboundResponseFromMatchingServiceDto(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService,
                         translatedAuthnRequest.getId(),
                         msaEntityId,
-                        Optional.absent(),
-                        Optional.absent());
+                        Optional.empty(),
+                        Optional.empty());
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         configStub.setUpStubForCycle01NoMatchCycle3Disabled(rpEntityId);

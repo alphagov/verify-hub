@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.contracts;
 
-import com.google.common.base.Optional;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -16,6 +15,7 @@ import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -40,7 +40,7 @@ public class AttributeQueryRequestDtoTest {
     private static final DateTime MATCHING_SERVICE_REQUEST_TIME_OUT = DateTime.now();
     private static final boolean ONBOARDING = true;
     private static final Optional<Cycle3Dataset> CYCLE_3_DATASET = Optional.of(Cycle3Dataset.createFromData("attributeName", "attributeValue"));
-    private static final Optional<List<UserAccountCreationAttribute>> USER_ACCOUNT_CREATION_ATTRIBUTES = Optional.absent();
+    private static final Optional<List<UserAccountCreationAttribute>> USER_ACCOUNT_CREATION_ATTRIBUTES = Optional.empty();
     private static final DateTime ASSERTION_EXPIRY = DateTime.now();
     private AttributeQueryRequestDto attributeQueryRequestDto;
 
@@ -156,7 +156,7 @@ public class AttributeQueryRequestDtoTest {
             ONBOARDING,
             LevelOfAssurance.LEVEL_2,
             PERSISTENT_ID,
-            Optional.absent(),
+            Optional.empty(),
             USER_ACCOUNT_CREATION_ATTRIBUTES,
             ENCRYPTED_MATCHING_DATASET_ASSERTION,
             AUTHN_STATEMENT_ASSERTION
@@ -192,7 +192,7 @@ public class AttributeQueryRequestDtoTest {
             MATCHING_SERVICE_ADAPTER_ENTITY_ID,
             MATCHING_SERVICE_REQUEST_TIME_OUT,
             LevelOfAssurance.LEVEL_2,
-            Optional.absent(),
+            Optional.empty(),
             PERSISTENT_ID,
             ASSERTION_EXPIRY,
             MATCHING_SERVICE_ADAPTER_URI,

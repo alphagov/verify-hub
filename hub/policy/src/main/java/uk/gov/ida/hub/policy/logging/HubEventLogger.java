@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.logging;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -8,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.eventemitter.EventEmitter;
-import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
-import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
 import uk.gov.ida.hub.policy.domain.FraudDetectedDetails;
@@ -19,6 +16,8 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
@@ -26,6 +25,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static uk.gov.ida.eventemitter.EventDetailsKey.analytics_session_id;

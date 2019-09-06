@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.contracts;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.Cycle3Dataset;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
@@ -13,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)

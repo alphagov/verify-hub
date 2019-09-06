@@ -108,7 +108,7 @@ public class SessionStartedStateControllerTest {
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue().getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_2);
         assertTrue(capturedState.getValue().getTransactionSupportsEidas());
-        assertFalse(capturedState.getValue().getForceAuthentication().orNull());
+        assertFalse(capturedState.getValue().getForceAuthentication().orElse(null));
         verify(hubEventLogger, times(1)).logCountrySelectedEvent(capturedState.getValue());
     }
 }
