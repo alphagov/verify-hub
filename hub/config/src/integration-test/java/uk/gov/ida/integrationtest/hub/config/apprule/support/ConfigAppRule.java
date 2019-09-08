@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.google.common.collect.ImmutableList;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
@@ -30,6 +29,7 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static io.dropwizard.testing.ConfigOverride.config;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static uk.gov.ida.hub.config.domain.builders.CountryConfigBuilder.aCountryConfig;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
@@ -67,16 +67,17 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
         );
     }
 
-    public static ConfigOverride[] withDefaultOverrides(ConfigOverride ... configOverrides) {
-        ImmutableList<ConfigOverride> overrides = ImmutableList.<ConfigOverride>builder()
-                .add(config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()))
-                .add(config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()))
-                .add(config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()))
-                .add(config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()))
-                .add(config("rootDataDirectory", FED_CONFIG_ROOT.getAbsolutePath()))
-                .add(config("translationsDirectory", TRANSLATIONS_RELATIVE_PATH))
-                .add(configOverrides)
-                .build();
+    private static ConfigOverride[] withDefaultOverrides(ConfigOverride ... configOverrides) {
+        List<ConfigOverride> overrides = new ArrayList<>(List.of(
+                config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()),
+                config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()),
+                config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()),
+                config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
+                config("rootDataDirectory", FED_CONFIG_ROOT.getAbsolutePath()),
+                config("translationsDirectory", TRANSLATIONS_RELATIVE_PATH)));
+        if (configOverrides != null) {
+            overrides.addAll(asList(configOverrides));
+        }
         return overrides.toArray(new ConfigOverride[0]);
     }
 

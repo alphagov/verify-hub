@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import certificates.values.CACertificates;
-import com.google.common.collect.ImmutableList;
 import helpers.ResourceHelpers;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
@@ -16,9 +15,12 @@ import uk.gov.ida.hub.policy.domain.State;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import static io.dropwizard.testing.ConfigOverride.config;
+import static java.util.Arrays.asList;
 
 public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguration> {
 
@@ -31,14 +33,17 @@ public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguratio
     }
 
     public static ConfigOverride[] withDefaultOverrides(final ConfigOverride... configOverrides) {
-        ImmutableList<ConfigOverride> mergedConfigOverrides = ImmutableList.<ConfigOverride>builder()
-                .add(config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()))
-                .add(config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()))
-                .add(config("eventEmitterConfiguration.enabled", "false"))
-                .add(config("sessionStore.redis.uri", "redis://localhost:" + REDIS_PORT))
-                .add(configOverrides)
-                .build();
-        return mergedConfigOverrides.toArray(new ConfigOverride[0]);
+        List<ConfigOverride> overrides = new ArrayList<>(List.of(
+                config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()),
+                config("clientTrustStoreConfiguration.password", clientTrustStore.getPassword()),
+                config("eventEmitterConfiguration.enabled", "false"),
+                config("sessionStore.redis.uri", "redis://localhost:" + REDIS_PORT)));
+
+        if (configOverrides != null) {
+            overrides.addAll(asList(configOverrides));
+        }
+
+        return overrides.toArray(new ConfigOverride[0]);
     }
 
     @Override

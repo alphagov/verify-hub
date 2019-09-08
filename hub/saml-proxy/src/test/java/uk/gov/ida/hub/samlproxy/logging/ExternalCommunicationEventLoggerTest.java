@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlproxy.logging;
 
-import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +10,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventemitter.EventEmitter;
-import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.hub.shared.eventsink.EventSinkHubEvent;
 import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.shared.utils.IpAddressResolver;
@@ -74,18 +72,16 @@ public class ExternalCommunicationEventLoggerTest {
     public void logMatchingServiceRequest_shouldPassHubEventToEventSinkProxy() {
         externalCommunicationEventLogger.logMatchingServiceRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(external_communication_type, MATCHING_SERVICE_REQUEST);
-        details.put(message_id, MESSAGE_ID);
-        details.put(external_endpoint, ENDPOINT_URL.toString());
-        details.put(external_ip_address, ENDPOINT_IP_ADDRESS);
-
         final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
             SERVICE_INFO,
             SESSION_ID,
             EXTERNAL_COMMUNICATION_EVENT,
-            details
-        );
+            Map.of(
+                    external_communication_type, MATCHING_SERVICE_REQUEST,
+                    message_id, MESSAGE_ID,
+                    external_endpoint, ENDPOINT_URL.toString(),
+                    external_ip_address, ENDPOINT_IP_ADDRESS
+            ));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -95,18 +91,16 @@ public class ExternalCommunicationEventLoggerTest {
     public void logAuthenticationRequest_shouldPassHubEventToEventSinkProxy() {
         externalCommunicationEventLogger.logIdpAuthnRequest(MESSAGE_ID, SESSION_ID, ENDPOINT_URL, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(external_communication_type, AUTHN_REQUEST);
-        details.put(message_id, MESSAGE_ID);
-        details.put(external_endpoint, ENDPOINT_URL.toString());
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
-
         final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
             SERVICE_INFO,
             SESSION_ID,
             EXTERNAL_COMMUNICATION_EVENT,
-            details
-        );
+            Map.of(
+                    external_communication_type, AUTHN_REQUEST,
+                    message_id, MESSAGE_ID,
+                    external_endpoint, ENDPOINT_URL.toString(),
+                    principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB
+            ));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -116,18 +110,16 @@ public class ExternalCommunicationEventLoggerTest {
     public void logResponseFromHub_shouldPassHubEventToEventSinkProxy() {
         externalCommunicationEventLogger.logResponseFromHub(MESSAGE_ID, SESSION_ID, ENDPOINT_URL, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(external_communication_type, RESPONSE_FROM_HUB);
-        details.put(message_id, MESSAGE_ID);
-        details.put(external_endpoint, ENDPOINT_URL.toString());
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB);
-
         final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
             SERVICE_INFO,
             SESSION_ID,
             EXTERNAL_COMMUNICATION_EVENT,
-            details
-        );
+            Map.of(
+                external_communication_type, RESPONSE_FROM_HUB,
+                message_id, MESSAGE_ID,
+                external_endpoint, ENDPOINT_URL.toString(),
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_THE_HUB
+            ));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
