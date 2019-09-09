@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.metadata;
 
-import com.google.common.base.Throwables;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.apache.xml.security.exceptions.Base64DecodingException;
@@ -39,7 +38,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 
-import static com.google.common.base.Throwables.propagate;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,7 +69,7 @@ public class IdpMetadataPublicKeyStoreTest {
             stringBackedMetadataResolver.initialize();
             return stringBackedMetadataResolver;
         } catch (InitializationException | ComponentInitializationException e) {
-            throw propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -95,7 +93,7 @@ public class IdpMetadataPublicKeyStoreTest {
                     .setAddDefaultSpServiceDescriptor(false)
                     .build();
         } catch (MarshallingException | SignatureException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
