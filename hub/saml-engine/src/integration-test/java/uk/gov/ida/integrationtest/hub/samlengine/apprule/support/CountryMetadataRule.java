@@ -1,13 +1,10 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.base.Throwables;
 import httpstub.HttpStub;
 import httpstub.HttpStubRule;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
-
-import static com.google.common.base.Throwables.propagate;
 
 public class CountryMetadataRule extends HttpStubRule {
 
@@ -26,7 +23,7 @@ public class CountryMetadataRule extends HttpStubRule {
         try {
             InitializationService.initialize();
         } catch (InitializationException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
 
         countryMetadataUri = entityId;
@@ -35,7 +32,7 @@ public class CountryMetadataRule extends HttpStubRule {
         try {
             this.register(entityId, 200, "application/samlmetadata+xml", countryMetadata);
         } catch (JsonProcessingException e) {
-            propagate(e);
+            throw new RuntimeException(e);
         }
     }
 

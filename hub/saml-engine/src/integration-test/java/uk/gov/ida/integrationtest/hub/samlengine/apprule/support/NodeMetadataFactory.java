@@ -1,6 +1,5 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule.support;
 
-import com.google.common.base.Throwables;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
@@ -40,7 +39,7 @@ public class NodeMetadataFactory {
         try {
             return getEntityDescriptor(entityID, idpssoDescriptor, entityDescriptorSignature);
         } catch (MarshallingException | SignatureException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
