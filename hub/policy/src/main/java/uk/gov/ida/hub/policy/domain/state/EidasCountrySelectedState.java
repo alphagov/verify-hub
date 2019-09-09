@@ -20,8 +20,6 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
     private String countryEntityId;
     @JsonProperty
     private final Optional<String> relayState;
-    @JsonProperty
-    private List<LevelOfAssurance> levelsOfAssurance;
 
     @JsonCreator
     public EidasCountrySelectedState(
@@ -42,12 +40,12 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
             assertionConsumerServiceUri,
             sessionId,
             transactionSupportsEidas,
+            levelsOfAssurance,
             forceAuthentication
         );
 
         this.relayState = Optional.fromNullable(relayState);
         this.countryEntityId = countryEntityId;
-        this.levelsOfAssurance = levelsOfAssurance;
     }
 
     @Override
@@ -56,8 +54,4 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
     }
 
     public String getCountryEntityId() { return countryEntityId; }
-
-    public List<LevelOfAssurance> getLevelsOfAssurance() {
-        return levelsOfAssurance;
-    }
 }

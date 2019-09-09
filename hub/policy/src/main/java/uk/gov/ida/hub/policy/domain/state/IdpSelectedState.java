@@ -22,8 +22,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     @JsonProperty
     private Boolean useExactComparisonType;
     @JsonProperty
-    private List<LevelOfAssurance> levelsOfAssurance;
-    @JsonProperty
     private final String relayState;
     @JsonProperty
     private final boolean registering;
@@ -56,11 +54,11 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             assertionConsumerServiceUri,
             sessionId,
             transactionSupportsEidas,
+            levelsOfAssurance,
             forceAuthentication
         );
 
         this.idpEntityId = idpEntityId;
-        this.levelsOfAssurance = levelsOfAssurance;
         this.useExactComparisonType = useExactComparisonType;
         this.relayState = relayState;
         this.registering = registering;
@@ -90,9 +88,5 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
 
     public Boolean getUseExactComparisonType() {
         return useExactComparisonType;
-    }
-
-    public List<LevelOfAssurance> getLevelsOfAssurance() {
-        return levelsOfAssurance;
     }
 }

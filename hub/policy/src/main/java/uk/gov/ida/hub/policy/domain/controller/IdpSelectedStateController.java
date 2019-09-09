@@ -33,6 +33,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -233,7 +234,8 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getForceAuthentication().orNull(),
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                state.getLevelsOfAssurance());
     }
 
     private State createAuthnFailedErrorState() {
@@ -246,7 +248,8 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getSessionId(),
                 state.getIdpEntityId(),
                 state.getForceAuthentication().orNull(),
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                state.getLevelsOfAssurance());
     }
 
     private State createPausedRegistrationState() {

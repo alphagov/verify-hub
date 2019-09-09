@@ -7,6 +7,7 @@ import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.List;
 
 public abstract class AbstractState implements State, Serializable, ErrorResponsePreparedState {
 
@@ -26,6 +27,8 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
     private final boolean transactionSupportsEidas;
     @JsonProperty
     private final Boolean forceAuthentication;
+    @JsonProperty
+    private final List<LevelOfAssurance> transactionLevelsOfAssurance;
 
     protected AbstractState(
         final String requestId,
@@ -34,6 +37,7 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
         final URI assertionConsumerServiceUri,
         final SessionId sessionId,
         final boolean transactionSupportsEidas,
+        final List<LevelOfAssurance> transactionLevelsOfAssurance,
         final Boolean forceAuthentication) {
 
         this.requestId = requestId;
@@ -42,6 +46,7 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         this.sessionId = sessionId;
         this.transactionSupportsEidas = transactionSupportsEidas;
+        this.transactionLevelsOfAssurance = transactionLevelsOfAssurance;
         this.forceAuthentication = forceAuthentication;
     }
 
@@ -80,4 +85,9 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
 
     @Override
     public Optional<Boolean> getForceAuthentication() { return Optional.fromNullable(forceAuthentication); }
+
+    @Override
+    public List<LevelOfAssurance> getLevelsOfAssurance() {
+        return this.transactionLevelsOfAssurance;
+    }
 }

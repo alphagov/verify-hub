@@ -38,6 +38,7 @@ public class EidasAuthnFailedErrorState extends AbstractAuthnFailedErrorState im
             relayState,
             sessionId,
             true,
+            levelsOfAssurance,
             forceAuthentication
         );
 

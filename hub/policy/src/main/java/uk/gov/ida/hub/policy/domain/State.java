@@ -5,6 +5,7 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
 import java.net.URI;
+import java.util.List;
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property="@class")
 public interface State {
@@ -22,6 +23,8 @@ public interface State {
     URI getAssertionConsumerServiceUri();
 
     boolean getTransactionSupportsEidas();
+
+    List<LevelOfAssurance> getLevelsOfAssurance();
 
     Optional<Boolean> getForceAuthentication();
 }

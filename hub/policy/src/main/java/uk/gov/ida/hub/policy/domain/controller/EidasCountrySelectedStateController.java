@@ -281,6 +281,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getForceAuthentication().orNull(),
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                state.getLevelsOfAssurance());
     }
 }

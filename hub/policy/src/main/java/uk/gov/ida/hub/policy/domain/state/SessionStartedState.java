@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.List;
 
 public class SessionStartedState extends AbstractState implements IdpSelectingState, EidasCountrySelectingState, ResponseProcessingState, Serializable {
 
@@ -16,6 +18,7 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
 
     @JsonProperty
     private final String relayState;
+
 
     @JsonCreator
     public SessionStartedState(
@@ -26,8 +29,8 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
             @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
             @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
             @JsonProperty("sessionId") final SessionId sessionId,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
-
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
+            @JsonProperty("transactionLevelsOfAssurance") final List<LevelOfAssurance> transactionLevelsOfAssurance) {
         super(
                 requestId,
                 requestIssuerId,
@@ -35,6 +38,7 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
                 assertionConsumerServiceUri,
                 sessionId,
                 transactionSupportsEidas,
+                transactionLevelsOfAssurance,
                 forceAuthentication
         );
 

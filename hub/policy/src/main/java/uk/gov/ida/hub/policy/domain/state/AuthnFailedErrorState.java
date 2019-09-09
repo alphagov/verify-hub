@@ -3,9 +3,11 @@ package uk.gov.ida.hub.policy.domain.state;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
+import java.util.List;
 
 public class AuthnFailedErrorState extends AbstractAuthnFailedErrorState implements IdpSelectingState {
 
@@ -24,9 +26,20 @@ public class AuthnFailedErrorState extends AbstractAuthnFailedErrorState impleme
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("idpEntityId") final String idpEntityId,
             @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
+            @JsonProperty("levelOfAssurance")final List<LevelOfAssurance> levelsOfAssurance) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, transactionSupportsEidas, forceAuthentication);
+        super(
+                requestId,
+                authnRequestIssuerEntityId,
+                sessionExpiryTimestamp,
+                assertionConsumerServiceUri,
+                relayState,
+                sessionId,
+                transactionSupportsEidas,
+                levelsOfAssurance,
+                forceAuthentication
+        );
         this.idpEntityId = idpEntityId;
     }
 

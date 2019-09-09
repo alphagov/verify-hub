@@ -14,8 +14,6 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
-import java.util.Collections;
-
 public class SessionStartedStateController implements IdpSelectingStateController, EidasCountrySelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
     private final SessionStartedState state;
@@ -92,7 +90,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
                 state.getTransactionSupportsEidas(),
-                Collections.singletonList(LevelOfAssurance.LEVEL_2), // TODO: EID-154 will plug in a real LOA
+                state.getLevelsOfAssurance(),
                 state.getForceAuthentication().orNull()
         );
         stateTransitionAction.transitionTo(eidasCountrySelectedState);

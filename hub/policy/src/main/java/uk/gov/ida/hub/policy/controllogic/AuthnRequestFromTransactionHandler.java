@@ -57,6 +57,9 @@ public class AuthnRequestFromTransactionHandler {
         Duration sessionLength = policyConfiguration.getSessionLength();
         DateTime sessionExpiryTimestamp = DateTime.now().plus(sessionLength);
         SessionId sessionId = SessionId.createNewSessionId();
+
+        final List<LevelOfAssurance> transactionLevelsOfAssurance = transactionsConfigProxy.getLevelsOfAssurance(samlResponse.getIssuer());
+
         SessionStartedState sessionStartedState = new SessionStartedState(
                 samlResponse.getId(),
                 relayState.orNull(),
@@ -65,8 +68,8 @@ public class AuthnRequestFromTransactionHandler {
                 samlResponse.getForceAuthentication().orNull(),
                 sessionExpiryTimestamp,
                 sessionId,
-                transactionSupportsEidas);
-        final List<LevelOfAssurance> transactionLevelsOfAssurance = transactionsConfigProxy.getLevelsOfAssurance(samlResponse.getIssuer());
+                transactionSupportsEidas,
+                transactionLevelsOfAssurance);
 
         hubEventLogger.logSessionStartedEvent(samlResponse, ipAddress, sessionExpiryTimestamp, sessionId, transactionLevelsOfAssurance.get(0), transactionLevelsOfAssurance.get(transactionLevelsOfAssurance.size() -1));
 

@@ -57,6 +57,7 @@ public abstract class AbstractAuthnFailedErrorStateController<S extends Abstract
                 state.getForceAuthentication().orNull(),
                 state.getSessionExpiryTimestamp(),
                 state.getSessionId(),
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                state.getLevelsOfAssurance());
     }
 }
