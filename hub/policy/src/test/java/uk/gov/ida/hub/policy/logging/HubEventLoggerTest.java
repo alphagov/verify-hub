@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.logging;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -122,14 +121,12 @@ public class HubEventLoggerTest {
 
         eventLogger.logSessionStartedEvent(samlResponse, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, SESSION_EXPIRY_TIMESTAMP, SESSION_ID, MINIMUM_LEVEL_OF_ASSURANCE, REQUIRED_LEVEL_OF_ASSURANCE);
 
-        final Map<EventDetailsKey, String> details = new HashMap<>();
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(message_id, samlResponse.getId());
-        details.put(minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name());
-        details.put(required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name());
-        details.put(session_event_type, SESSION_STARTED);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                message_id, samlResponse.getId(),
+                minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name(),
+                required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name(),
+                session_event_type, SESSION_STARTED));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -139,11 +136,9 @@ public class HubEventLoggerTest {
     public void logEventSinkHubEvent_shouldSendEvent() {
         eventLogger.logRequestFromHub(SESSION_ID, TRANSACTION_ENTITY_ID);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(hub_event_type, RECEIVED_AUTHN_REQUEST_FROM_HUB);
-        details.put(transaction_entity_id, TRANSACTION_ENTITY_ID);
-
-        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(SERVICE_INFO, SESSION_ID, HUB_EVENT, details);
+        final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(SERVICE_INFO, SESSION_ID, HUB_EVENT, Map.of(
+                hub_event_type, RECEIVED_AUTHN_REQUEST_FROM_HUB,
+                transaction_entity_id, TRANSACTION_ENTITY_ID));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -167,19 +162,17 @@ public class HubEventLoggerTest {
             JOURNEY_TYPE
         );
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(idp_entity_id, IDP_ENTITY_ID);
-        details.put(pid, PERSISTENT_ID.getNameId());
-        details.put(minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name());
-        details.put(required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name());
-        details.put(provided_level_of_assurance, PROVIDED_LEVEL_OF_ASSURANCE.name());
-        details.put(principal_ip_address_as_seen_by_idp, PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP);
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(session_event_type, IDP_AUTHN_SUCCEEDED);
-        details.put(analytics_session_id, ANALYTICS_SESSION_ID);
-        details.put(journey_type, JOURNEY_TYPE);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                idp_entity_id, IDP_ENTITY_ID,
+                pid, PERSISTENT_ID.getNameId(),
+                minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name(),
+                required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name(),
+                provided_level_of_assurance, PROVIDED_LEVEL_OF_ASSURANCE.name(),
+                principal_ip_address_as_seen_by_idp, PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP,
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                session_event_type, IDP_AUTHN_SUCCEEDED,
+                analytics_session_id, ANALYTICS_SESSION_ID,
+                journey_type, JOURNEY_TYPE));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -208,18 +201,16 @@ public class HubEventLoggerTest {
             JOURNEY_TYPE
         );
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(session_event_type, FRAUD_DETECTED);
-        details.put(idp_entity_id, IDP_ENTITY_ID);
-        details.put(pid, PERSISTENT_ID.getNameId());
-        details.put(idp_fraud_event_id, fraudEventId);
-        details.put(gpg45_status, fraudIndicator);
-        details.put(principal_ip_address_as_seen_by_idp, PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP);
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(analytics_session_id, ANALYTICS_SESSION_ID);
-        details.put(journey_type, JOURNEY_TYPE);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                session_event_type, FRAUD_DETECTED,
+                idp_entity_id, IDP_ENTITY_ID,
+                pid, PERSISTENT_ID.getNameId(),
+                idp_fraud_event_id, fraudEventId,
+                gpg45_status, fraudIndicator,
+                principal_ip_address_as_seen_by_idp, PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP,
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                analytics_session_id, ANALYTICS_SESSION_ID,
+                journey_type, JOURNEY_TYPE));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -229,10 +220,9 @@ public class HubEventLoggerTest {
     public void logSessionTimeoutEvent_shouldSendEvent() {
         eventLogger.logSessionTimeoutEvent(SESSION_ID, SESSION_EXPIRY_TIMESTAMP, TRANSACTION_ENTITY_ID, REQUEST_ID);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(session_event_type, SESSION_TIMEOUT);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(
+                Map.of(session_event_type, SESSION_TIMEOUT)
+        );
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -251,16 +241,14 @@ public class HubEventLoggerTest {
 
         eventLogger.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(session_event_type, IDP_SELECTED);
-        details.put(idp_entity_id, IDP_ENTITY_ID);
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name());
-        details.put(required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name());
-        details.put(analytics_session_id, ANALYTICS_SESSION_ID);
-        details.put(journey_type, JOURNEY_TYPE);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                session_event_type, IDP_SELECTED,
+                idp_entity_id, IDP_ENTITY_ID,
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name(),
+                required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name(),
+                analytics_session_id, ANALYTICS_SESSION_ID,
+                journey_type, JOURNEY_TYPE));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -281,14 +269,12 @@ public class HubEventLoggerTest {
             JOURNEY_TYPE
         );
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(message, errorMessage);
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(session_event_type, REQUESTER_ERROR);
-        details.put(analytics_session_id, ANALYTICS_SESSION_ID);
-        details.put(journey_type, JOURNEY_TYPE);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                message, errorMessage,
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                session_event_type, REQUESTER_ERROR,
+                analytics_session_id, ANALYTICS_SESSION_ID,
+                journey_type, JOURNEY_TYPE));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -307,13 +293,11 @@ public class HubEventLoggerTest {
             JOURNEY_TYPE
         );
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(session_event_type, IDP_AUTHN_FAILED);
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(analytics_session_id, ANALYTICS_SESSION_ID);
-        details.put(journey_type, JOURNEY_TYPE);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                session_event_type, IDP_AUTHN_FAILED,
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                analytics_session_id, ANALYTICS_SESSION_ID,
+                journey_type, JOURNEY_TYPE));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -331,13 +315,11 @@ public class HubEventLoggerTest {
             JOURNEY_TYPE
         );
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(session_event_type, IDP_AUTHN_PENDING);
-        details.put(analytics_session_id, ANALYTICS_SESSION_ID);
-        details.put(journey_type, JOURNEY_TYPE);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                session_event_type, IDP_AUTHN_PENDING,
+                analytics_session_id, ANALYTICS_SESSION_ID,
+                journey_type, JOURNEY_TYPE));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -355,13 +337,12 @@ public class HubEventLoggerTest {
             JOURNEY_TYPE
         );
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(session_event_type, NO_AUTHN_CONTEXT);
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(analytics_session_id, ANALYTICS_SESSION_ID);
-        details.put(journey_type, JOURNEY_TYPE);
 
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                session_event_type, NO_AUTHN_CONTEXT,
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                analytics_session_id, ANALYTICS_SESSION_ID,
+                journey_type, JOURNEY_TYPE));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -371,11 +352,9 @@ public class HubEventLoggerTest {
     public void logCycle3DataObtained_shouldLogEvent() {
         eventLogger.logCycle3DataObtained(SESSION_ID, TRANSACTION_ENTITY_ID, SESSION_EXPIRY_TIMESTAMP, REQUEST_ID, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB);
-        details.put(session_event_type, CYCLE3_DATA_OBTAINED);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+                session_event_type, CYCLE3_DATA_OBTAINED));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -390,10 +369,8 @@ public class HubEventLoggerTest {
             REQUEST_ID
         );
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(session_event_type, USER_ACCOUNT_CREATION_REQUEST_SENT);
-
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(details);
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
+                session_event_type, USER_ACCOUNT_CREATION_REQUEST_SENT));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -403,16 +380,14 @@ public class HubEventLoggerTest {
     public void shouldLogErrorEvent() {
         eventLogger.logErrorEvent(ERROR_ID, SESSION_ID, ERROR_MESSAGE);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(message, ERROR_MESSAGE);
-        details.put(error_id, ERROR_ID.toString());
-
         final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
             SERVICE_INFO,
             SESSION_ID,
             ERROR_EVENT,
-            details
-        );
+            Map.of(
+                    message, ERROR_MESSAGE,
+                    error_id, ERROR_ID.toString()
+            ));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -424,16 +399,14 @@ public class HubEventLoggerTest {
 
         eventLogger.logErrorEvent(ERROR_ID, idpEntityId, SESSION_ID);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(idp_entity_id, idpEntityId);
-        details.put(error_id, ERROR_ID.toString());
-
         final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
             SERVICE_INFO,
             SESSION_ID,
             ERROR_EVENT,
-            details
-        );
+            Map.of(
+                    idp_entity_id, idpEntityId,
+                    error_id, ERROR_ID.toString()
+            ));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -445,17 +418,15 @@ public class HubEventLoggerTest {
 
         eventLogger.logErrorEvent(ERROR_ID, SESSION_ID, ERROR_MESSAGE, downstreamUri);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(downstream_uri, downstreamUri);
-        details.put(message, ERROR_MESSAGE);
-        details.put(error_id, ERROR_ID.toString());
-
         final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
             SERVICE_INFO,
             SESSION_ID,
             ERROR_EVENT,
-            details
-        );
+            Map.of(
+                    downstream_uri, downstreamUri,
+                    message, ERROR_MESSAGE,
+                    error_id, ERROR_ID.toString()
+            ));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -465,14 +436,12 @@ public class HubEventLoggerTest {
     public void shouldLogErrorEventContainingAnErrorMessage() {
         eventLogger.logErrorEvent(ERROR_MESSAGE, SESSION_ID);
 
-        final Map<EventDetailsKey, String> details = Maps.newHashMap();
-        details.put(message, ERROR_MESSAGE);
 
         final EventSinkHubEvent expectedEvent = new EventSinkHubEvent(
             SERVICE_INFO,
             SESSION_ID,
             ERROR_EVENT,
-            details
+            Map.of(message, ERROR_MESSAGE)
         );
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
@@ -480,16 +449,19 @@ public class HubEventLoggerTest {
     }
 
     @NotNull
-    private EventSinkHubEvent createExpectedEventSinkHubEvent(Map<EventDetailsKey, String> details) {
-        details.put(session_expiry_time, SESSION_EXPIRY_TIMESTAMP.toString());
-        details.put(transaction_entity_id, TRANSACTION_ENTITY_ID);
-        details.put(request_id, REQUEST_ID);
+    private EventSinkHubEvent createExpectedEventSinkHubEvent(Map<EventDetailsKey, String> extraDetails) {
+        Map<EventDetailsKey, String> details = new HashMap<>(Map.of(
+                session_expiry_time, SESSION_EXPIRY_TIMESTAMP.toString(),
+                transaction_entity_id, TRANSACTION_ENTITY_ID,
+                request_id, REQUEST_ID));
+
+        details.putAll(extraDetails);
 
         return new EventSinkHubEvent(
             SERVICE_INFO,
             SESSION_ID,
             SESSION_EVENT,
-            details
+            Map.copyOf(details)
         );
     }
 

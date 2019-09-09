@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Sets;
 import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
@@ -158,7 +157,7 @@ public class PrometheusMetricsIntegrationTest {
             msaStubThree.getAttributeQueryRequestUri(), MSA_THREE_ENTITY_ID, RP_THREE_ENTITY_ID);
         final MatchingServiceDetails msaFourDetails = new MatchingServiceDetails(
             msaStubFour.getAttributeQueryRequestUri(), MSA_FOUR_ENTITY_ID, RP_FOUR_ENTITY_ID);
-        Set<MatchingServiceDetails> msaDetailsSet = new HashSet<>(Sets.newHashSet(msaOneDetails, msaTwoDetails, msaThreeDetails, msaFourDetails));
+        Set<MatchingServiceDetails> msaDetailsSet = new HashSet<>(Set.of(msaOneDetails, msaTwoDetails, msaThreeDetails, msaFourDetails));
         final Element msaOneResponse = aHealthyHealthCheckResponse(MSA_ONE_ENTITY_ID, MSA_ONE_RESPONSE_ID, MSA_ONE_VERSION);
         final Element msaTwoResponse = aHealthyHealthCheckResponse(MSA_TWO_ENTITY_ID, MSA_TWO_RESPONSE_ID, MSA_TWO_VERSION);
         final Element msaFourResponse = aHealthyHealthCheckResponse(MSA_FOUR_ENTITY_ID, MSA_FOUR_RESPONSE_ID, MSA_FOUR_VERSION);

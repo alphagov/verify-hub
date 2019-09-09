@@ -15,7 +15,8 @@ import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
@@ -49,7 +50,7 @@ public class IdaResponseFromIdpUnmarshallerTest {
         Assertion mdsAssertion = anAssertion().addAttributeStatement(anAttributeStatement().build()).buildUnencrypted();
         Assertion authnStatementAssertion = anAssertion().addAuthnStatement(anAuthnStatement().build()).buildUnencrypted();
 
-        when(response.getAssertions()).thenReturn(newArrayList(mdsAssertion, authnStatementAssertion));
+        when(response.getAssertions()).thenReturn(List.of(mdsAssertion, authnStatementAssertion));
         PassthroughAssertion passthroughMdsAssertion = aPassthroughAssertion().buildMatchingDatasetAssertion();
         when(passthroughAssertionUnmarshaller.fromAssertion(mdsAssertion)).thenReturn(passthroughMdsAssertion);
         PassthroughAssertion passthroughAuthnAssertion = aPassthroughAssertion().buildAuthnStatementAssertion();

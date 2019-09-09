@@ -3,7 +3,6 @@ package uk.gov.ida.hub.config.domain.filters;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import com.google.common.collect.Collections2;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
@@ -28,16 +27,11 @@ public class IdpPredicateFactoryTest {
     public void createPredicatesForTransactionEntityAndLoA_shouldNotIncludeExtraPredicate() throws Exception {
         Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntityAndLoa(TRANSACTION_ENTITY, LEVEL_OF_ASSURANCE);
 
-        Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
-        Predicate<Predicate> findOnboarding = input -> input instanceof OnboardingIdpPredicate;
-        Predicate<Predicate> supportedLoa = input -> input instanceof SupportedLoaIdpPredicate;
-        Predicate<Predicate> findNewUserIdp = input -> input instanceof NewUserIdpPredicate;
-
         assertThat(predicates).hasSize(4);
-        assertThat(Collections2.filter(predicates, findEnabled::test)).hasSize(1);
-        assertThat(Collections2.filter(predicates, findOnboarding::test)).hasSize(1);
-        assertThat(Collections2.filter(predicates, supportedLoa::test)).hasSize(1);
-        assertThat(Collections2.filter(predicates, findNewUserIdp::test)).hasSize(1);
+        assertThat(predicates.stream().filter(predicate -> predicate instanceof EnabledIdpPredicate)).hasSize(1);
+        assertThat(predicates.stream().filter(predicate -> predicate instanceof OnboardingIdpPredicate)).hasSize(1);
+        assertThat(predicates.stream().filter(predicate -> predicate instanceof SupportedLoaIdpPredicate)).hasSize(1);
+        assertThat(predicates.stream().filter(predicate -> predicate instanceof NewUserIdpPredicate)).hasSize(1);
     }
 
     @Test
@@ -51,18 +45,14 @@ public class IdpPredicateFactoryTest {
     public void createPredicatesForTransactionEntity_shouldIncludeEnabledPredicateWhenTransactionEntityIdIsProvided() throws Exception {
         Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(Optional.of(TRANSACTION_ENTITY));
 
-        Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
-
-        assertThat(Collections2.filter(predicates, findEnabled::test)).hasSize(1);
+        assertThat(predicates.stream().filter(predicate -> predicate instanceof EnabledIdpPredicate)).hasSize(1);
     }
 
     @Test
     public void createPredicatesForTransactionEntity_shouldIncludeEnabledPredicateWhenTransactionEntityIdIsNotProvided() throws Exception {
         Set<Predicate<IdentityProviderConfig>> predicates = idpPredicateFactory.createPredicatesForTransactionEntity(null);
 
-        Predicate<Predicate> findEnabled = input -> input instanceof EnabledIdpPredicate;
-
-        assertThat(Collections2.filter(predicates, findEnabled::test)).hasSize(1);
+        assertThat(predicates.stream().filter(predicate -> predicate instanceof EnabledIdpPredicate)).hasSize(1);
     }
 
     @Test
@@ -78,7 +68,7 @@ public class IdpPredicateFactoryTest {
             return ((OnboardingForTransactionEntityPredicate) input).getTransactionEntity().equals(TRANSACTION_ENTITY);
         };
 
-        assertThat(Collections2.filter(predicates, findEnabled::test)).hasSize(1);
+        assertThat(predicates.stream().filter(findEnabled)).hasSize(1);
     }
 
     @Test
@@ -93,6 +83,6 @@ public class IdpPredicateFactoryTest {
             return ((OnboardingForTransactionEntityPredicate) input).getTransactionEntity().equals(TRANSACTION_ENTITY);
         };
 
-        assertThat(Collections2.filter(predicates, findEnabled::test)).isEmpty();
+        assertThat(predicates.stream().filter(findEnabled)).isEmpty();
     }
 }

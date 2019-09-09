@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.hub.domain;
 
-import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +19,8 @@ import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.extensions.Date;
 import uk.gov.ida.saml.core.extensions.PersonName;
 import uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger;
+
+import java.util.List;
 
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -76,9 +77,9 @@ public class EidasAttributesLoggerTest {
         when(attributeValue.getDOM()).thenReturn(element);
         Attribute attribute = mock(Attribute.class);
         when(attribute.getName()).thenReturn(IdaConstants.Attributes_1_1.Firstname.NAME);
-        when(attribute.getAttributeValues()).thenReturn(Lists.newArrayList(attributeValue));
-        when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
-        when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attribute));
+        when(attribute.getAttributeValues()).thenReturn(List.of(attributeValue));
+        when(assertion.getAttributeStatements()).thenReturn(List.of(attributeStatement));
+        when(attributeStatement.getAttributes()).thenReturn(List.of(attribute));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
         verify(response).getInResponseTo();
         verify(response).getDestination();
@@ -103,10 +104,10 @@ public class EidasAttributesLoggerTest {
 
         Attribute attribute = mock(Attribute.class);
         when(attribute.getName()).thenReturn(IdaConstants.Attributes_1_1.Firstname.NAME);
-        when(attribute.getAttributeValues()).thenReturn(Lists.newArrayList(attributeValue0, attributeValue1, attributeValue2));
+        when(attribute.getAttributeValues()).thenReturn(List.of(attributeValue0, attributeValue1, attributeValue2));
 
-        when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
-        when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attribute));
+        when(assertion.getAttributeStatements()).thenReturn(List.of(attributeStatement));
+        when(attributeStatement.getAttributes()).thenReturn(List.of(attribute));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
         verify(hashLogger).setPid(hashedPid);
         verify(hashLogger).setFirstName("Paul");
@@ -133,10 +134,10 @@ public class EidasAttributesLoggerTest {
 
         Attribute attribute = mock(Attribute.class);
         when(attribute.getName()).thenReturn(IdaConstants.Attributes_1_1.Firstname.NAME);
-        when(attribute.getAttributeValues()).thenReturn(Lists.newArrayList(attributeValue0, attributeValue1));
+        when(attribute.getAttributeValues()).thenReturn(List.of(attributeValue0, attributeValue1));
 
-        when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
-        when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attribute));
+        when(assertion.getAttributeStatements()).thenReturn(List.of(attributeStatement));
+        when(attributeStatement.getAttributes()).thenReturn(List.of(attribute));
 
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
 
@@ -164,10 +165,10 @@ public class EidasAttributesLoggerTest {
 
         Attribute attribute = mock(Attribute.class);
         when(attribute.getName()).thenReturn(IdaConstants.Attributes_1_1.DateOfBirth.NAME);
-        when(attribute.getAttributeValues()).thenReturn(Lists.newArrayList(attributeValue0, attributeValue1, attributeValue2));
+        when(attribute.getAttributeValues()).thenReturn(List.of(attributeValue0, attributeValue1, attributeValue2));
 
-        when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
-        when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attribute));
+        when(assertion.getAttributeStatements()).thenReturn(List.of(attributeStatement));
+        when(attributeStatement.getAttributes()).thenReturn(List.of(attribute));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
         verify(hashLogger).setPid(hashedPid);
         verify(hashLogger).setDateOfBirth(DateTime.parse("2000-01-25"));
@@ -196,10 +197,10 @@ public class EidasAttributesLoggerTest {
 
         Attribute attributeMiddleName = mock(Attribute.class);
         when(attributeMiddleName.getName()).thenReturn(IdaConstants.Attributes_1_1.Middlename.NAME);
-        when(attributeMiddleName.getAttributeValues()).thenReturn(Lists.newArrayList(attributeValue0, attributeValue1));
+        when(attributeMiddleName.getAttributeValues()).thenReturn(List.of(attributeValue0, attributeValue1));
 
-        when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
-        when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attributeMiddleName));
+        when(assertion.getAttributeStatements()).thenReturn(List.of(attributeStatement));
+        when(attributeStatement.getAttributes()).thenReturn(List.of(attributeMiddleName));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
         verify(hashLogger).setPid(hashedPid);
 
@@ -228,10 +229,10 @@ public class EidasAttributesLoggerTest {
 
         Attribute attributeSurname = mock(Attribute.class);
         when(attributeSurname.getName()).thenReturn(IdaConstants.Attributes_1_1.Surname.NAME);
-        when(attributeSurname.getAttributeValues()).thenReturn(Lists.newArrayList(attributeValue0, attributeValue1));
+        when(attributeSurname.getAttributeValues()).thenReturn(List.of(attributeValue0, attributeValue1));
 
-        when(assertion.getAttributeStatements()).thenReturn(Lists.newArrayList(attributeStatement));
-        when(attributeStatement.getAttributes()).thenReturn(Lists.newArrayList(attributeSurname));
+        when(assertion.getAttributeStatements()).thenReturn(List.of(attributeStatement));
+        when(attributeStatement.getAttributes()).thenReturn(List.of(attributeSurname));
         eidasAttributesLogger.logEidasAttributesAsHash(assertion, response);
         verify(hashLogger).setPid(hashedPid);
 
