@@ -97,7 +97,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
         when(assertionBlobEncrypter.encryptAssertionBlob(eq("mid"), any(String.class))).thenReturn(identityUnderlyingAssertionBlob);
     }
 
-    public void setupUnisigned() throws Exception {
+    public void setupUnsigned() throws Exception {
         IdaSamlBootstrap.bootstrap();
         service = new CountryAuthnResponseTranslatorService(
                 stringToOpenSamlResponseTransformer,
@@ -153,9 +153,9 @@ public class CountryAuthnResponseTranslatorServiceTest {
     }
 
     @Test public void shouldExtractAuthnStatementAssertionDetailsUnsignedAssertions() throws Exception {
-        setupUnisigned();
+        setupUnsigned();
         InboundResponseFromCountry result = service.translate(samlAuthnResponseTranslatorDto);
         assertThat(result.areAssertionsUnsigned()).isTrue();
-        assertThat(result.getBase64Keys().size()).isEqualTo(1);
+        assertThat(result.getBase64Keys()).isEqualTo(List.of("key"));
     }
 }
