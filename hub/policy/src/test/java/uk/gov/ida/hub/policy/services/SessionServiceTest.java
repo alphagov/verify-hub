@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.services;
 
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +33,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
@@ -13,6 +12,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ public class EidasCycle3MatchRequestSentStateBuilderTest {
         assertThat(state.getRequestId()).isEqualTo("requestId");
         assertThat(state.getIdentityProviderEntityId()).isEqualTo("identityProviderEntityId");
         assertThat(state.getSessionExpiryTimestamp()).isEqualTo(DateTime.now(DateTimeZone.UTC).plusMinutes(10));
-        assertThat(state.getRelayState()).isEqualTo(Optional.absent());
+        assertThat(state.getRelayState()).isEqualTo(Optional.empty());
         assertThat(state.getRequestIssuerEntityId()).isEqualTo("requestIssuerId");
         assertThat(state.getEncryptedIdentityAssertion()).isEqualTo("encryptedIdentityAssertion");
         assertThat(state.getAssertionConsumerServiceUri()).isEqualTo(URI.create("assertionConsumerServiceUri"));

@@ -1,8 +1,7 @@
 package uk.gov.ida.hub.policy.contracts;
 
-import com.google.common.base.Optional;
-
 import java.net.URI;
+import java.util.Optional;
 
 public class SamlResponseWithAuthnRequestInformationDto {
 

@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.domain;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +19,7 @@ import uk.gov.ida.hub.policy.exception.SessionTimeoutException;
 import uk.gov.ida.hub.policy.session.SessionStore;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 
@@ -89,7 +89,7 @@ public class SessionRepository {
             return Optional.of(((UserAccountCreatedState) currentState).getLevelOfAssurance());
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private <T extends State> boolean isAKindOf(

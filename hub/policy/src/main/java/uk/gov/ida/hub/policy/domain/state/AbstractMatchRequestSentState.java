@@ -17,7 +17,7 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
     @JsonProperty
     private final String identityProviderEntityId;
     @JsonProperty
-    private final Optional<String> relayState;
+    private final String relayState;
     @JsonProperty
     private final LevelOfAssurance idpLevelOfAssurance;
     @JsonProperty
@@ -33,7 +33,7 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
             final SessionId sessionId,
             final boolean transactionSupportsEidas,
             final String identityProviderEntityId,
-            final Optional<String> relayState,
+            final String relayState,
             final LevelOfAssurance idpLevelOfAssurance,
             final String matchingServiceAdapterEntityId,
             final Boolean forceAuthentication) {
@@ -57,7 +57,7 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public String getIdentityProviderEntityId() {

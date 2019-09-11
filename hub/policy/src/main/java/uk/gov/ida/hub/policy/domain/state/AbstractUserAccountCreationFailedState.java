@@ -13,7 +13,7 @@ public abstract class AbstractUserAccountCreationFailedState extends AbstractSta
     private static final long serialVersionUID = 1388066257920569091L;
 
     @JsonProperty
-    private Optional<String> relayState;
+    private String relayState;
 
     public AbstractUserAccountCreationFailedState(
         final String requestId,
@@ -35,11 +35,11 @@ public abstract class AbstractUserAccountCreationFailedState extends AbstractSta
             forceAuthentication
         );
 
-        this.relayState = Optional.ofNullable(relayState);
+        this.relayState = relayState;
     }
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 }

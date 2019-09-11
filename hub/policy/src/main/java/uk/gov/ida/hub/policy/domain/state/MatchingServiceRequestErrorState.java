@@ -17,7 +17,7 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
     @JsonProperty
     private final String identityProviderEntityId;
     @JsonProperty
-    private Optional<String> relayState;
+    private String relayState;
 
     @JsonCreator
     public MatchingServiceRequestErrorState(
@@ -41,7 +41,7 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
         );
 
         this.identityProviderEntityId = identityProviderEntityId;
-        this.relayState = Optional.ofNullable(relayState);
+        this.relayState = relayState;
     }
 
     public String getIdentityProviderEntityId() {
@@ -50,6 +50,6 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 }

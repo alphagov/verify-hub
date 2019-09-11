@@ -6,7 +6,6 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
 import java.util.Objects;
-import java.util.Optional;
 
 public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSentState {
 
@@ -33,7 +32,7 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
             sessionId,
             transactionSupportsEidas,
             identityProviderEntityId,
-            Optional.ofNullable(relayState),
+            relayState,
             idpLevelOfAssurance,
             matchingServiceAdapterEntityId,
             forceAuthentication

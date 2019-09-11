@@ -68,10 +68,10 @@ import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationFailedState
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState;
 
 /**
- * Tests that check that the "State" JSON which we store in redis can has not changed.
+ * Tests that check that the "State" JSON which we store in redis has not changed.
  *
- * These tests are intended to catch the situation where a change is made to a State that changes format of the serialized
- * JSON, which may cause problems when it is subsequently deserialized to the state objects. This could causes issues during
+ * These tests are intended to catch the situation where a change is made to a State that changes the format of the serialized
+ * JSON, which may cause problems when it is subsequently deserialized to the state objects. This could cause issues during
  * deployment, since there would then be existing States in the data store which the new code may not handle.
  *
  * If you change a State in a way that breaks these tests you should first see if your change is actually breaking, or
@@ -91,14 +91,14 @@ public class StateJsonSerializationTest {
     private ObjectMapper objectMapper = getRedisObjectMapper();
 
     @Before
-    public void setup() {
+    public void setUp() {
         // Some of the states and some of the builders call DateTime.now() in their constructor.
         // That means they don't serialize deterministically unless we freeze time.
         DateTimeFreezer.freezeTime(new DateTime(1988, 1, 1, 0, 0));
     }
 
     @After
-    public void teardown() {
+    public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }
 

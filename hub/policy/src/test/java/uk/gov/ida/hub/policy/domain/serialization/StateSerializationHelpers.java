@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StateSerializationHelpers {
 
     static void assertDeserializedForm(String actualBase64Form, Object expectedObject) {
+        System.out.println("Expected: "+serialize(expectedObject));
         assertThat(expectedObject).isInstanceOf(Serializable.class);
         assertThat(deserialize(actualBase64Form))
             .as(

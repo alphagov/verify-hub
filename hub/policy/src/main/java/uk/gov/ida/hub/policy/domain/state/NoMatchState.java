@@ -15,7 +15,7 @@ public class NoMatchState extends AbstractState implements ResponseProcessingSta
     private static final long serialVersionUID = 4256395503097984488L;
 
     private final String identityProviderEntityId;
-    private final Optional<String> relayState;
+    private final String relayState;
 
     @JsonCreator
     public NoMatchState(
@@ -39,7 +39,7 @@ public class NoMatchState extends AbstractState implements ResponseProcessingSta
         );
 
         this.identityProviderEntityId = identityProviderEntityId;
-        this.relayState = Optional.ofNullable(relayState);
+        this.relayState = relayState;
     }
 
     public String getIdentityProviderEntityId() {
@@ -47,6 +47,6 @@ public class NoMatchState extends AbstractState implements ResponseProcessingSta
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 }

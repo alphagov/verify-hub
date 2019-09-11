@@ -7,7 +7,6 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
-import java.util.Optional;
 
 public class EidasSuccessfulMatchState extends AbstractSuccessfulMatchState {
 
@@ -31,7 +30,7 @@ public class EidasSuccessfulMatchState extends AbstractSuccessfulMatchState {
                 sessionExpiryTimestamp,
                 identityProviderEntityId,
                 matchingServiceAssertion,
-                Optional.ofNullable(relayState),
+                relayState,
                 requestIssuerId,
                 assertionConsumerServiceUri,
                 sessionId,

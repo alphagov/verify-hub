@@ -15,7 +15,7 @@ public class PausedRegistrationState extends AbstractState implements State {
     private static final long serialVersionUID = 8208525157755502287L;
 
     @JsonProperty
-    private Optional<String> relayState;
+    private String relayState;
 
     @JsonCreator
     public PausedRegistrationState(
@@ -37,11 +37,11 @@ public class PausedRegistrationState extends AbstractState implements State {
                 null
         );
 
-        this.relayState = Optional.ofNullable(relayState);
+        this.relayState = relayState;
     }
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 }

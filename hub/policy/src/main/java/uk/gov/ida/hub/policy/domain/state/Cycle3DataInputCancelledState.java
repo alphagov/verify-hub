@@ -15,7 +15,7 @@ public class Cycle3DataInputCancelledState extends AbstractState implements Resp
     private static final long serialVersionUID = 9016732137997928472L;
 
     @JsonProperty
-    private final Optional<String> relayState;
+    private final String relayState;
 
     @JsonCreator
     public Cycle3DataInputCancelledState(
@@ -36,10 +36,10 @@ public class Cycle3DataInputCancelledState extends AbstractState implements Resp
             transactionSupportsEidas,
             null);
 
-        this.relayState = Optional.ofNullable(relayState);
+        this.relayState = relayState;
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 }

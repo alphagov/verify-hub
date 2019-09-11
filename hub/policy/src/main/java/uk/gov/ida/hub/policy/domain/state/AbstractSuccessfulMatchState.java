@@ -22,7 +22,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
     @JsonProperty
     protected final String matchingServiceAssertion;
     @JsonProperty
-    protected final Optional<String> relayState;
+    protected final String relayState;
     @JsonProperty
     protected final LevelOfAssurance levelOfAssurance;
 
@@ -31,7 +31,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
             DateTime sessionExpiryTimestamp,
             String identityProviderEntityId,
             String matchingServiceAssertion,
-            Optional<String> relayState,
+            String relayState,
             String requestIssuerId,
             URI assertionConsumerServiceUri,
             SessionId sessionId,
@@ -63,7 +63,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public LevelOfAssurance getLevelOfAssurance() {
@@ -91,7 +91,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
 
         return Objects.equals(identityProviderEntityId, that.getIdentityProviderEntityId()) &&
                 Objects.equals(matchingServiceAssertion, that.getMatchingServiceAssertion()) &&
-                Objects.equals(relayState, that.getRelayState()) &&
+                Objects.equals(relayState, that.relayState) &&
                 levelOfAssurance == that.getLevelOfAssurance() &&
                 getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
                 Objects.equals(getRequestId(), that.getRequestId()) &&

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.logging;
 
-import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;

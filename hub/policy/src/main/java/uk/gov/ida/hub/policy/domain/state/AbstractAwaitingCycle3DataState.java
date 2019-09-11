@@ -20,7 +20,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
     @JsonProperty
     private final String matchingServiceEntityId;
     @JsonProperty
-    private final Optional<String> relayState;
+    private final String relayState;
     @JsonProperty
     private final PersistentId persistentId;
     @JsonProperty
@@ -52,7 +52,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceEntityId = matchingServiceEntityId;
-        this.relayState = Optional.ofNullable(relayState);
+        this.relayState = relayState;
         this.persistentId = persistentId;
         this.levelOfAssurance = levelOfAssurance;
     }
@@ -66,7 +66,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public PersistentId getPersistentId() {
