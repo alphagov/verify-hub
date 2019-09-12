@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
@@ -161,6 +160,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Timer;
 import java.util.function.Function;
 
@@ -708,10 +708,10 @@ public class SamlEngineModule extends AbstractModule {
     @Named("EidasAssertionDecrypter")
     private AssertionDecrypter getEidasAssertionDecrypter(IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever) {
         Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
-        ImmutableSet<String> contentEncryptionAlgorithms = ImmutableSet.of(
+        Set<String> contentEncryptionAlgorithms = Set.of(
                 EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128_GCM,
                 EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM);
-        ImmutableSet<String> keyTransportAlgorithms = ImmutableSet.of(
+        Set<String> keyTransportAlgorithms = Set.of(
                 EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP,
                 EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
         return new AssertionDecrypter(

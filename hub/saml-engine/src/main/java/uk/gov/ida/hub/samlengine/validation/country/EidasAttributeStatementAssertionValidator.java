@@ -1,7 +1,5 @@
 package uk.gov.ida.hub.samlengine.validation.country;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -29,10 +27,7 @@ import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.invalid
 
 public class EidasAttributeStatementAssertionValidator {
 
-    public EidasAttributeStatementAssertionValidator() {
-    }
-
-    private static final Set<String> VALID_EIDAS_ATTRIBUTE_NAMES = ImmutableSet.of(
+    private static final Set<String> VALID_EIDAS_ATTRIBUTE_NAMES = Set.of(
             Eidas_Attributes.FirstName.NAME,
             Eidas_Attributes.FamilyName.NAME,
             Eidas_Attributes.DateOfBirth.NAME,
@@ -41,24 +36,26 @@ public class EidasAttributeStatementAssertionValidator {
             Eidas_Attributes.Gender.NAME
     );
 
-    private static final Set<String> VALID_ATTRIBUTE_NAME_FORMATS = ImmutableSet.of(
+    private static final Set<String> VALID_ATTRIBUTE_NAME_FORMATS = Set.of(
             Attribute.URI_REFERENCE
     );
 
-    private static final Map<String, QName> VALID_TYPE_FOR_ATTRIBUTE = ImmutableMap.<String, QName>builder()
-            .put(Eidas_Attributes.FirstName.NAME, CurrentGivenName.TYPE_NAME)
-            .put(Eidas_Attributes.FamilyName.NAME, CurrentFamilyName.TYPE_NAME)
-            .put(Eidas_Attributes.DateOfBirth.NAME, DateOfBirth.TYPE_NAME)
-            .put(Eidas_Attributes.PersonIdentifier.NAME, PersonIdentifier.TYPE_NAME)
-            .put(Eidas_Attributes.CurrentAddress.NAME, CurrentAddress.TYPE_NAME)
-            .put(Eidas_Attributes.Gender.NAME, Gender.TYPE_NAME)
-            .build();
+    private static final Map<String, QName> VALID_TYPE_FOR_ATTRIBUTE = Map.of(
+            Eidas_Attributes.FirstName.NAME, CurrentGivenName.TYPE_NAME,
+            Eidas_Attributes.FamilyName.NAME, CurrentFamilyName.TYPE_NAME,
+            Eidas_Attributes.DateOfBirth.NAME, DateOfBirth.TYPE_NAME,
+            Eidas_Attributes.PersonIdentifier.NAME, PersonIdentifier.TYPE_NAME,
+            Eidas_Attributes.CurrentAddress.NAME, CurrentAddress.TYPE_NAME,
+            Eidas_Attributes.Gender.NAME, Gender.TYPE_NAME);
 
-    private static final Map<String, String> MANDATORY_ATTRIBUTES = ImmutableMap.of(
+    private static final Map<String, String> MANDATORY_ATTRIBUTES = Map.of(
             Eidas_Attributes.FirstName.NAME, Eidas_Attributes.FirstName.FRIENDLY_NAME,
             Eidas_Attributes.FamilyName.NAME, Eidas_Attributes.FamilyName.FRIENDLY_NAME,
             Eidas_Attributes.DateOfBirth.NAME, Eidas_Attributes.DateOfBirth.FRIENDLY_NAME,
             Eidas_Attributes.PersonIdentifier.NAME, Eidas_Attributes.PersonIdentifier.FRIENDLY_NAME);
+
+    public EidasAttributeStatementAssertionValidator() {
+    }
 
     public void validate(Assertion assertion) {
         validateAttributes(assertion);

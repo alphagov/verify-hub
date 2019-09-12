@@ -3,7 +3,6 @@ package uk.gov.ida.hub.config.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections.ListUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -12,25 +11,23 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IdentityProviderConfig implements EntityIdentifiable {
-
-    @SuppressWarnings("unused") // needed to prevent guice injection
-    protected IdentityProviderConfig() {
-    }
 
     // If present, the IDP will only be visible when fulfilling a request from
     // the specified onboardingTransactionEntity.
     // If absent, this IDP will be available to all
     @Valid
     @JsonProperty
-    protected List<String> onboardingTransactionEntityIds = ImmutableList.of();
+    protected List<String> onboardingTransactionEntityIds = emptyList();
 
     // This is a temporary field to be used for zero down time while we change how we configure onboarding idps
     @Valid
     @JsonProperty
-    protected List<String> onboardingTransactionEntityIdsTemp = ImmutableList.of();
+    protected List<String> onboardingTransactionEntityIdsTemp = emptyList();
 
     @Valid
     @NotNull
@@ -67,7 +64,7 @@ public class IdentityProviderConfig implements EntityIdentifiable {
     @Valid
     @NotNull
     @JsonProperty
-    protected List<LevelOfAssurance> onboardingLevelsOfAssurance = ImmutableList.of();
+    protected List<LevelOfAssurance> onboardingLevelsOfAssurance = emptyList();
 
     @Valid
     @NotNull
@@ -77,6 +74,10 @@ public class IdentityProviderConfig implements EntityIdentifiable {
     @Valid
     @JsonProperty
     protected Boolean temporarilyUnavailable = false;
+
+    @SuppressWarnings("unused") // needed to prevent guice injection
+    protected IdentityProviderConfig() {
+    }
 
     @Override
     public String getEntityId() {

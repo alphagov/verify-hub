@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import com.google.common.collect.ImmutableMap;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.StatusDetail;
@@ -9,6 +8,7 @@ import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toList;
 
 public class SamlStatusToIdaStatusCodeMapper extends SamlStatusToAuthenticationStatusCodeMapper<IdpIdaStatus.Status> {
 
-    private final ImmutableMap<SamlStatusToIdpIdaStatusMappingsFactory.SamlStatusDefinitions, IdpIdaStatus.Status> statusMappings;
+    private final Map<SamlStatusToIdpIdaStatusMappingsFactory.SamlStatusDefinitions, IdpIdaStatus.Status> statusMappings;
 
     public SamlStatusToIdaStatusCodeMapper() {
         this.statusMappings = SamlStatusToIdpIdaStatusMappingsFactory.getSamlToIdpIdaStatusMappings();

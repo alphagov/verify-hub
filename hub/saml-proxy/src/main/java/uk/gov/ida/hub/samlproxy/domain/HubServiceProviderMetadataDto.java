@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class HubServiceProviderMetadataDto extends MetadataDto {
 
     private List<AssertionConsumerServiceEndpointDto> assertionConsumerServiceBindings = new ArrayList<>();
@@ -30,7 +28,7 @@ public class HubServiceProviderMetadataDto extends MetadataDto {
             List<Certificate> encryptionCertificates,
             List<AssertionConsumerServiceEndpointDto> assertionConsumerServiceBindings) {
 
-        this(entityId, validUntil, organisation, contactPersons, newArrayList(signingCertificate),encryptionCertificates, assertionConsumerServiceBindings);
+        this(entityId, validUntil, organisation, contactPersons, List.of(signingCertificate), encryptionCertificates, assertionConsumerServiceBindings);
     }
 
     public HubServiceProviderMetadataDto(

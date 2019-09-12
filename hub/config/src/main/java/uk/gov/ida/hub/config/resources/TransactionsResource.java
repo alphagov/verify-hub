@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.config.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.collect.ImmutableList;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
@@ -189,7 +188,7 @@ public class TransactionsResource {
     public List<String> getEidasCountries(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
         return getTransactionConfigData(entityId)
                 .getEidasCountries()
-                .orElseGet(ImmutableList::of);
+                .orElseGet(Collections::emptyList);
     }
 
     @GET

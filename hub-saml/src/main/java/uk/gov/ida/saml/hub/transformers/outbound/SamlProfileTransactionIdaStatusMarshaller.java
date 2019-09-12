@@ -1,11 +1,12 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.DetailedStatusCode;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 import uk.gov.ida.saml.core.transformers.outbound.IdaStatusMarshaller;
+
+import java.util.Map;
 
 /**
  * This class is the same as TransactionIdaStatusMarshaller except that TransactionIdaStatus.NoMatchingServiceMatchFromHub
@@ -16,14 +17,12 @@ import uk.gov.ida.saml.core.transformers.outbound.IdaStatusMarshaller;
  */
 public class SamlProfileTransactionIdaStatusMarshaller extends IdaStatusMarshaller<TransactionIdaStatus> {
 
-    private static final ImmutableMap<TransactionIdaStatus, DetailedStatusCode> REST_TO_SAML_CODES =
-            ImmutableMap.<TransactionIdaStatus, DetailedStatusCode>builder()
-                    .put(TransactionIdaStatus.Success, DetailedStatusCode.Success)
-                    .put(TransactionIdaStatus.NoAuthenticationContext, DetailedStatusCode.NoAuthenticationContext)
-                    .put(TransactionIdaStatus.NoMatchingServiceMatchFromHub, DetailedStatusCode.SamlProfileNoMatchingServiceMatchFromHub)
-                    .put(TransactionIdaStatus.AuthenticationFailed, DetailedStatusCode.AuthenticationFailed)
-                    .put(TransactionIdaStatus.RequesterError, DetailedStatusCode.RequesterErrorFromIdpAsSentByHub)
-                    .build();
+    private static final Map<TransactionIdaStatus, DetailedStatusCode> REST_TO_SAML_CODES = Map.of(
+                    TransactionIdaStatus.Success, DetailedStatusCode.Success,
+                    TransactionIdaStatus.NoAuthenticationContext, DetailedStatusCode.NoAuthenticationContext,
+                    TransactionIdaStatus.NoMatchingServiceMatchFromHub, DetailedStatusCode.SamlProfileNoMatchingServiceMatchFromHub,
+                    TransactionIdaStatus.AuthenticationFailed, DetailedStatusCode.AuthenticationFailed,
+                    TransactionIdaStatus.RequesterError, DetailedStatusCode.RequesterErrorFromIdpAsSentByHub);
 
     @Inject
     public SamlProfileTransactionIdaStatusMarshaller(OpenSamlXmlObjectFactory samlObjectFactory) {

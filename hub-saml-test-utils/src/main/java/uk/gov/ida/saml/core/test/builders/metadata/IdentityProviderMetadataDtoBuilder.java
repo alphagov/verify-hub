@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.core.test.builders.metadata;
 
-import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import uk.gov.ida.common.shared.security.Certificate;
@@ -85,7 +84,7 @@ public class IdentityProviderMetadataDtoBuilder {
     }
 
     public IdentityProviderMetadataDtoBuilder withSigningCertificate(Certificate certificate) {
-        this.signingCertificates = ImmutableList.of(certificate);
+        this.signingCertificates = List.of(certificate);
         return this;
     }
 

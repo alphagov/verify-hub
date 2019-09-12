@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlproxy.logging;
 
-import com.google.common.collect.ImmutableMap;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
@@ -28,13 +27,12 @@ public class ProtectiveMonitoringLogger {
 
     public void logAuthnRequest(AuthnRequest request, Direction direction, SignatureStatus signatureStatus) {
         Map<String, String> copyOfContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElse(Collections.emptyMap());
-        MDC.setContextMap(ImmutableMap.<String, String>builder()
-                .put("requestId", request.getID())
-                .put("direction", direction.name())
-                .put("issuerId", Optional.ofNullable(request.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
-                .put("destination", Optional.ofNullable(request.getDestination()).orElse("NoDestination"))
-                .put("signatureStatus", signatureStatus.name())
-                .build());
+        MDC.setContextMap(Map.of(
+                "requestId", request.getID(),
+                "direction", direction.name(),
+                "issuerId", Optional.ofNullable(request.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"),
+                "destination", Optional.ofNullable(request.getDestination()).orElse("NoDestination"),
+                "signatureStatus", signatureStatus.name()));
         LOG.info(formatter.formatAuthnRequest(request, direction, signatureStatus));
         MDC.clear();
         MDC.setContextMap(copyOfContextMap);
@@ -43,16 +41,15 @@ public class ProtectiveMonitoringLogger {
     public void logAuthnResponse(Response samlResponse, Direction direction, SignatureStatus signatureStatus) {
         Map<String, String> copyOfContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElse(Collections.emptyMap());
         StatusCode statusCode = samlResponse.getStatus().getStatusCode();
-        MDC.setContextMap(ImmutableMap.<String, String>builder()
-                .put("responseId", samlResponse.getID())
-                .put("inResponseTo", samlResponse.getInResponseTo())
-                .put("status", statusCode.getValue())
-                .put("subStatus", Optional.ofNullable(statusCode.getStatusCode()).map(StatusCode::getValue).orElse("NoSubStatus"))
-                .put("direction", direction.name())
-                .put("issuerId", Optional.ofNullable(samlResponse.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"))
-                .put("destination", Optional.ofNullable(samlResponse.getDestination()).orElse("NoDestination"))
-                .put("signatureStatus", signatureStatus.name())
-                .build());
+        MDC.setContextMap(Map.of(
+                "responseId", samlResponse.getID(),
+                "inResponseTo", samlResponse.getInResponseTo(),
+                "status", statusCode.getValue(),
+                "subStatus", Optional.ofNullable(statusCode.getStatusCode()).map(StatusCode::getValue).orElse("NoSubStatus"),
+                "direction", direction.name(),
+                "issuerId", Optional.ofNullable(samlResponse.getIssuer()).map(Issuer::getValue).orElse("NoIssuer"),
+                "destination", Optional.ofNullable(samlResponse.getDestination()).orElse("NoDestination"),
+                "signatureStatus", signatureStatus.name()));
         LOG.info(formatter.formatAuthnResponse(samlResponse, direction, signatureStatus));
         MDC.clear();
         MDC.setContextMap(copyOfContextMap);

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.config.data;
 
-import com.google.common.collect.ImmutableSet;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -40,7 +39,7 @@ public class LevelsOfAssuranceConfigValidator {
     }
 
     private List<IdentityProviderConfig> unsupportedIdpsForATransaction(Set<IdentityProviderConfig> identityProviderConfig, TransactionConfig transactionConfig) {
-        Set<LevelOfAssurance> transactionLOAs = ImmutableSet.copyOf(transactionConfig.getLevelsOfAssurance());
+        Set<LevelOfAssurance> transactionLOAs = Set.copyOf(transactionConfig.getLevelsOfAssurance());
         return identityProviderConfig.stream()
                 .filter(idp -> isIdpForTransaction(transactionConfig, idp))
                 .filter(idp -> idpCannotFulfillLoaRequirements(transactionLOAs, idp))

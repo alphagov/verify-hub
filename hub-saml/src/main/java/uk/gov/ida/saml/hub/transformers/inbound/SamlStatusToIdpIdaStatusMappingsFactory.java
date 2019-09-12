@@ -1,52 +1,56 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import com.google.common.collect.ImmutableMap;
 import uk.gov.ida.saml.core.domain.DetailedStatusCode;
 import uk.gov.ida.saml.core.extensions.StatusValue;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 
 public class SamlStatusToIdpIdaStatusMappingsFactory {
     enum SamlStatusDefinitions {
-        Success(DetailedStatusCode.Success, Optional.empty()),
-        AuthenticationCancelled(DetailedStatusCode.NoAuthenticationContext, Optional.of(StatusValue.CANCEL)),
-        AuthenticationPending(DetailedStatusCode.NoAuthenticationContext, Optional.of(StatusValue.PENDING)),
-        NoAuthenticationContext(DetailedStatusCode.NoAuthenticationContext, Optional.empty()),
-        AuthenticationFailed(DetailedStatusCode.AuthenticationFailed, Optional.empty()),
-        RequesterErrorFromIdp(DetailedStatusCode.RequesterErrorFromIdp, Optional.empty()),
-        RequesterErrorRequestDeniedFromIdp(DetailedStatusCode.RequesterErrorRequestDeniedFromIdp, Optional.empty()),
-        UpliftFailed(DetailedStatusCode.NoAuthenticationContext, Optional.of(StatusValue.UPLIFT_FAILED));
+        Success(DetailedStatusCode.Success, (v) -> true),
+        AuthenticationCancelled(DetailedStatusCode.NoAuthenticationContext, StatusValue.CANCEL::equals),
+        AuthenticationPending(DetailedStatusCode.NoAuthenticationContext, StatusValue.PENDING::equals),
+        NoAuthenticationContext(DetailedStatusCode.NoAuthenticationContext, Objects::isNull),
+        AuthenticationFailed(DetailedStatusCode.AuthenticationFailed, Objects::isNull),
+        RequesterErrorFromIdp(DetailedStatusCode.RequesterErrorFromIdp, Objects::isNull),
+        RequesterErrorRequestDeniedFromIdp(DetailedStatusCode.RequesterErrorRequestDeniedFromIdp, Objects::isNull),
+        UpliftFailed(DetailedStatusCode.NoAuthenticationContext, StatusValue.UPLIFT_FAILED::equals);
 
         private final DetailedStatusCode statusCode;
-        private final Optional<String> statusDetailValue;
+        private final Predicate<String> statusDetailValuePredicate;
 
-        SamlStatusDefinitions(DetailedStatusCode statusCode, Optional<String> statusDetailValue) {
+        SamlStatusDefinitions(DetailedStatusCode statusCode, Predicate<String> statusDetailValuePredicate) {
             this.statusCode = statusCode;
-            this.statusDetailValue = statusDetailValue;
+            this.statusDetailValuePredicate = statusDetailValuePredicate;
         }
 
         public boolean matches(String samlStatusValue, Optional<String> samlSubStatusValue, List<String> statusDetailValues) {
             boolean statusCodesMatch = statusCode.getStatus().equals(samlStatusValue) && statusCode.getSubStatus().equals(samlSubStatusValue);
-            boolean statusDetailsMatch = statusDetailValue.map(statusDetailValues::contains).orElse(true);
+            boolean statusDetailsMatch = false;
+            if (statusDetailValues.isEmpty()){
+                statusDetailsMatch = statusDetailValuePredicate.test(null);
+            }else {
+                statusDetailsMatch = statusDetailValues.stream().anyMatch(statusDetailValuePredicate);
+            }
             return statusCodesMatch && statusDetailsMatch;
         }
     }
 
-    public static ImmutableMap<SamlStatusDefinitions, IdpIdaStatus.Status> getSamlToIdpIdaStatusMappings() {
-        // Matching SAML statuses to their IdpIdaStatus counterparts is dependent on the ordering of these put()
-        // statements. There must be a better way of doing this.
-        return ImmutableMap.<SamlStatusDefinitions, IdpIdaStatus.Status>builder()
-                .put(SamlStatusDefinitions.Success, IdpIdaStatus.Status.Success)
-                .put(SamlStatusDefinitions.AuthenticationCancelled, IdpIdaStatus.Status.AuthenticationCancelled)
-                .put(SamlStatusDefinitions.AuthenticationPending, IdpIdaStatus.Status.AuthenticationPending)
-                .put(SamlStatusDefinitions.UpliftFailed, IdpIdaStatus.Status.UpliftFailed)
-                .put(SamlStatusDefinitions.NoAuthenticationContext, IdpIdaStatus.Status.NoAuthenticationContext)
-                .put(SamlStatusDefinitions.AuthenticationFailed, IdpIdaStatus.Status.AuthenticationFailed)
-                .put(SamlStatusDefinitions.RequesterErrorFromIdp, IdpIdaStatus.Status.RequesterError)
-                .put(SamlStatusDefinitions.RequesterErrorRequestDeniedFromIdp, IdpIdaStatus.Status.RequesterError)
-                .build();
+    public static Map<SamlStatusDefinitions, IdpIdaStatus.Status> getSamlToIdpIdaStatusMappings() {
+        return Map.of(
+                SamlStatusDefinitions.Success, IdpIdaStatus.Status.Success,
+                SamlStatusDefinitions.AuthenticationCancelled, IdpIdaStatus.Status.AuthenticationCancelled,
+                SamlStatusDefinitions.AuthenticationPending, IdpIdaStatus.Status.AuthenticationPending,
+                SamlStatusDefinitions.UpliftFailed, IdpIdaStatus.Status.UpliftFailed,
+                SamlStatusDefinitions.NoAuthenticationContext, IdpIdaStatus.Status.NoAuthenticationContext,
+                SamlStatusDefinitions.AuthenticationFailed, IdpIdaStatus.Status.AuthenticationFailed,
+                SamlStatusDefinitions.RequesterErrorFromIdp, IdpIdaStatus.Status.RequesterError,
+                SamlStatusDefinitions.RequesterErrorRequestDeniedFromIdp, IdpIdaStatus.Status.RequesterError);
     }
 }

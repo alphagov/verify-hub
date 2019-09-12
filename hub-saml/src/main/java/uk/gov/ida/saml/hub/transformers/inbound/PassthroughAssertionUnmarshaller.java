@@ -1,6 +1,5 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import com.google.common.collect.ImmutableList;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -22,7 +21,7 @@ import java.util.Optional;
 
 public class PassthroughAssertionUnmarshaller {
 
-    private static final List<String> VALID_GPG45_STATUSES = ImmutableList.of("DF01", "FI01", "IT01");
+    private static final List<String> VALID_GPG45_STATUSES = List.of("DF01", "FI01", "IT01");
     private final XmlObjectToBase64EncodedStringTransformer<Assertion> assertionStringTransformer;
 
     private final AuthnContextFactory authnContextFactory;
