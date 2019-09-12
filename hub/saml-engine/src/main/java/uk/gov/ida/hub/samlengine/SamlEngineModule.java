@@ -140,6 +140,7 @@ import uk.gov.ida.saml.security.IdaKeyStore;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
 import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 import uk.gov.ida.saml.security.MetadataBackedSignatureValidator;
+import uk.gov.ida.saml.security.SecretKeyEncrypter;
 import uk.gov.ida.saml.security.SigningKeyStore;
 import uk.gov.ida.saml.security.validators.encryptedelementtype.EncryptionAlgorithmValidator;
 import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
@@ -278,6 +279,7 @@ public class SamlEngineModule extends AbstractModule {
                                                                                            @Named("ResponseAssertionsFromCountryValidator") Optional<ResponseAssertionsFromCountryValidator> responseAssertionFromCountryValidator,
                                                                                            Optional<DestinationValidator> validateSamlResponseIssuedByIdpDestination,
                                                                                            @Named("EidasAssertionDecrypter") AssertionDecrypter assertionDecrypter,
+                                                                                           SecretKeyEncrypter secretKeyEncrypter,
                                                                                            AssertionBlobEncrypter assertionBlobEncrypter,
                                                                                            Optional<EidasValidatorFactory> eidasValidatorFactory,
                                                                                            PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller) {
@@ -287,6 +289,7 @@ public class SamlEngineModule extends AbstractModule {
                 responseAssertionFromCountryValidator.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
                 validateSamlResponseIssuedByIdpDestination.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
                 assertionDecrypter,
+                secretKeyEncrypter,
                 assertionBlobEncrypter,
                 eidasValidatorFactory.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
                 passthroughAssertionUnmarshaller,
@@ -717,6 +720,10 @@ public class SamlEngineModule extends AbstractModule {
         );
     }
 
+    @Provides
+    private SecretKeyEncrypter getSecretKeyEncrypter(KeyStoreBackedEncryptionCredentialResolver keyStoreBackedEncryptionCredentialResolver) {
+        return new SecretKeyEncrypter(keyStoreBackedEncryptionCredentialResolver);
+    }
     @Provides
     @Singleton
     @Named("ResponseAssertionsFromCountryValidator")

@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlengine.services;
 
 import io.dropwizard.testing.ResourceHelpers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -23,6 +22,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.CountryAuthenticationStatusUnmar
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.EidasValidatorFactory;
+import uk.gov.ida.saml.security.SecretKeyEncrypter;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
@@ -51,6 +51,8 @@ public class CountryAuthnResponseTranslatorServiceTest {
     @Mock
     private AssertionDecrypter assertionDecrypter;
     @Mock
+    private SecretKeyEncrypter secretKeyEncrypter;
+    @Mock
     private AssertionBlobEncrypter assertionBlobEncrypter;
     @Mock
     private EidasValidatorFactory eidasValidatorFactory;
@@ -68,8 +70,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
         return (Response) new SamlObjectParser().getSamlObject(xmlString);
     }
 
-    @Before
-    public void setup() throws Exception {
+    public void setupSigned() throws Exception {
         IdaSamlBootstrap.bootstrap();
         service = new CountryAuthnResponseTranslatorService(
                 stringToOpenSamlResponseTransformer,
@@ -77,6 +78,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
                 responseAssertionsFromCountryValidator,
                 validateSamlResponseIssuedByIdpDestination,
                 assertionDecrypter,
+                secretKeyEncrypter,
                 assertionBlobEncrypter,
                 eidasValidatorFactory,
                 new PassthroughAssertionUnmarshaller(new XmlObjectToBase64EncodedStringTransformer<>(), new AuthnContextFactory()),
@@ -95,8 +97,39 @@ public class CountryAuthnResponseTranslatorServiceTest {
         when(assertionBlobEncrypter.encryptAssertionBlob(eq("mid"), any(String.class))).thenReturn(identityUnderlyingAssertionBlob);
     }
 
+    public void setupUnsigned() throws Exception {
+        IdaSamlBootstrap.bootstrap();
+        service = new CountryAuthnResponseTranslatorService(
+                stringToOpenSamlResponseTransformer,
+                responseFromCountryValidator,
+                responseAssertionsFromCountryValidator,
+                validateSamlResponseIssuedByIdpDestination,
+                assertionDecrypter,
+                secretKeyEncrypter,
+                assertionBlobEncrypter,
+                eidasValidatorFactory,
+                new PassthroughAssertionUnmarshaller(new XmlObjectToBase64EncodedStringTransformer<>(), new AuthnContextFactory()),
+                new CountryAuthenticationStatusUnmarshaller());
+
+        Response eidasSAMLResponse = (Response) buildResponseFromFile();
+        ValidatedResponse validateEIDASSAMLResponse = new ValidatedResponse(eidasSAMLResponse);
+        List<Assertion> decryptedAssertions = eidasSAMLResponse.getAssertions();
+        decryptedAssertions.get(0).setSignature(null);
+        List<String> reEncryptedKeys = List.of("key");
+
+        when(samlAuthnResponseTranslatorDto.getSamlResponse()).thenReturn("eidas");
+        when(samlAuthnResponseTranslatorDto.getMatchingServiceEntityId()).thenReturn("mid");
+        when(stringToOpenSamlResponseTransformer.apply("eidas")).thenReturn(eidasSAMLResponse);
+        doNothing().when(responseFromCountryValidator).validate(eidasSAMLResponse);
+        when(eidasValidatorFactory.getValidatedResponse(eidasSAMLResponse)).thenReturn(validateEIDASSAMLResponse);
+        when(assertionDecrypter.decryptAssertions(validateEIDASSAMLResponse)).thenReturn(decryptedAssertions);
+        when(assertionDecrypter.getReEncryptedKeys(validateEIDASSAMLResponse, secretKeyEncrypter,"mid" )).thenReturn(reEncryptedKeys);
+        when(assertionBlobEncrypter.encryptAssertionBlob(eq("mid"), any(String.class))).thenReturn(identityUnderlyingAssertionBlob);
+    }
+
     @Test
-    public void shouldExtractAuthnStatementAssertionDetails() {
+    public void shouldExtractAuthnStatementAssertionDetailsSignedAssertions() throws Exception {
+        setupSigned();
         InboundResponseFromCountry result = service.translate(samlAuthnResponseTranslatorDto);
 
         assertThat(result.getIssuer()).isEqualTo(responseIssuer);
@@ -114,5 +147,15 @@ public class CountryAuthnResponseTranslatorServiceTest {
 
         assertThat(result.getEncryptedIdentityAssertionBlob().isPresent()).isTrue();
         assertThat(result.getEncryptedIdentityAssertionBlob().get()).isEqualTo(identityUnderlyingAssertionBlob);
+
+        assertThat(result.areAssertionsUnsigned()).isFalse();
+        assertThat(result.getBase64Keys().size()).isEqualTo(0);
+    }
+
+    @Test public void shouldExtractAuthnStatementAssertionDetailsUnsignedAssertions() throws Exception {
+        setupUnsigned();
+        InboundResponseFromCountry result = service.translate(samlAuthnResponseTranslatorDto);
+        assertThat(result.areAssertionsUnsigned()).isTrue();
+        assertThat(result.getBase64Keys()).isEqualTo(List.of("key"));
     }
 }

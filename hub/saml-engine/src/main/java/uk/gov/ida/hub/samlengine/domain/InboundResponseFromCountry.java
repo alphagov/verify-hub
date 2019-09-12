@@ -2,6 +2,7 @@ package uk.gov.ida.hub.samlengine.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
 import java.util.Optional;
 
 public class InboundResponseFromCountry {
@@ -16,6 +17,7 @@ public class InboundResponseFromCountry {
     private boolean areAssertionsUnsigned;
 
     private String samlFromCountry;
+    private List<String> base64Keys;
 
     private InboundResponseFromCountry() {
     }
@@ -28,7 +30,8 @@ public class InboundResponseFromCountry {
             Optional<String> encryptedIdentityAssertionBlob,
             Optional<LevelOfAssurance> levelOfAssurance,
             boolean areAssertionsUnsigned,
-            String samlFromCountry
+            String samlFromCountry,
+            List<String> base64Keys
     ) {
         this.issuer = issuer;
         this.persistentId = persistentId;
@@ -38,6 +41,7 @@ public class InboundResponseFromCountry {
         this.levelOfAssurance = levelOfAssurance;
         this.areAssertionsUnsigned = areAssertionsUnsigned;
         this.samlFromCountry = samlFromCountry;
+        this.base64Keys = base64Keys;
     }
 
     public String getIssuer() {
@@ -70,5 +74,9 @@ public class InboundResponseFromCountry {
 
     public String getSamlFromCountry() {
         return samlFromCountry;
+    }
+
+    public List<String> getBase64Keys() {
+        return this.base64Keys;
     }
 }
