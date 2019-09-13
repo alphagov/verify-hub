@@ -27,7 +27,7 @@ public class EidasCountryNotSupportedExceptionMapper extends PolicyExceptionMapp
         UUID errorId = UUID.randomUUID();
         LOG.warn(LogFormatter.formatLog(errorId, exception.getMessage()), exception);
 
-        eventLogger.logErrorEvent(errorId, getSessionId().or(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
+        eventLogger.logErrorEvent(errorId, getSessionId().orElse(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
 
         ErrorStatusDto entity = ErrorStatusDto.createAuditedErrorStatus(errorId, ExceptionType.EIDAS_COUNTRY_NOT_SUPPORTED, exception.getMessage());
         return Response.status(Response.Status.BAD_REQUEST).entity(entity).build();

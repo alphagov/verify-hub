@@ -33,7 +33,7 @@ public class SessionNotFoundExceptionMapper extends PolicyExceptionMapper<Sessio
         UUID errorId = UUID.randomUUID();
         LOG.info(MessageFormat.format("{0} - Exception while processing request.", errorId), exception);
 
-        eventLogger.logErrorEvent(errorId, getSessionId().or(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
+        eventLogger.logErrorEvent(errorId, getSessionId().orElse(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
 
         ErrorStatusDto entity = createUnauditedErrorStatus(errorId, SESSION_NOT_FOUND);
         return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE).entity(entity).build();

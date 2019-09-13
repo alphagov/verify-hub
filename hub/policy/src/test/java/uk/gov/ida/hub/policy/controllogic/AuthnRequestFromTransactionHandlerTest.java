@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.controllogic;
 
-import com.google.common.base.Optional;
 import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,15 +15,16 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
-import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
-import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
+import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
+import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

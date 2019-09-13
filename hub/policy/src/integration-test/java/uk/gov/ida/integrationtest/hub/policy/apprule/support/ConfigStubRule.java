@@ -1,7 +1,6 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.base.Optional;
 import httpstub.HttpStubRule;
 import org.apache.http.entity.ContentType;
 import uk.gov.ida.common.ErrorStatusDto;
@@ -22,6 +21,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -59,7 +59,7 @@ public class ConfigStubRule extends HttpStubRule {
     }
 
     public void setUpStubForAssertionConsumerServiceUri(String entityId) throws JsonProcessingException {
-        setUpStubForAssertionConsumerServiceUri(entityId, Optional.absent());
+        setUpStubForAssertionConsumerServiceUri(entityId, Optional.empty());
     }
 
     public void setUpStubForAssertionConsumerServiceUri(String entityId, Optional<Integer> assertionConsumerServiceIndex) throws JsonProcessingException {
@@ -141,7 +141,7 @@ public class ConfigStubRule extends HttpStubRule {
 
     public void setUpStubForCycle01NoMatchCycle3Disabled(String rpEntityId) throws JsonProcessingException {
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.MATCHING_PROCESS_RESOURCE).build(rpEntityId).getPath();
-        final MatchingProcessDto cycle3Attribute = new MatchingProcessDto(Optional.absent());
+        final MatchingProcessDto cycle3Attribute = new MatchingProcessDto(Optional.empty());
         register(uri, OK, cycle3Attribute);
     }
 

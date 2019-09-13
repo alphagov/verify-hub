@@ -1,11 +1,11 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class SamlAuthnRequestContainerDto {
 
     private String samlRequest;
-    private Optional<String> relayState = Optional.absent();
+    private String relayState;
     private String principalIPAddressAsSeenByHub;
 
 
@@ -13,7 +13,7 @@ public class SamlAuthnRequestContainerDto {
     private SamlAuthnRequestContainerDto() {
     }
 
-    public SamlAuthnRequestContainerDto(String samlRequest, Optional<String> relayState, String principalIPAddressAsSeenByHub) {
+    public SamlAuthnRequestContainerDto(String samlRequest, String relayState, String principalIPAddressAsSeenByHub) {
         this.samlRequest = samlRequest;
         this.relayState = relayState;
         this.principalIPAddressAsSeenByHub = principalIPAddressAsSeenByHub;
@@ -24,7 +24,7 @@ public class SamlAuthnRequestContainerDto {
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public String getPrincipalIPAddressAsSeenByHub() {return principalIPAddressAsSeenByHub; }

@@ -1,6 +1,5 @@
 package uk.gov.ida.integrationtest.hub.policy.rest;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
@@ -10,6 +9,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.net.URI;
 import java.util.Objects;
+import java.util.Optional;
 
 // TODO haven't considered class location - test only!
 @Immutable
@@ -21,7 +21,7 @@ public final class EidasCycle3DTO {
     private DateTime sessionExpiryTimestamp = DateTime.now().plusMinutes(10);
     private String requestIssuerEntityId = "requestIssuerEntityId";
     private String matchingServiceAssertion = "matchingServiceAssertion";
-    private Optional<String> relayState = Optional.fromNullable("relayState");
+    private String relayState = "relayState";
     private URI assertionConsumerServiceUri = URI.create("http://assertionconsumeruri");
     private String matchingServiceAdapterEntityId = "matchingServiceAdapterEntityId";
     private PersistentId persistentId = new PersistentId("nameId");
@@ -63,7 +63,7 @@ public final class EidasCycle3DTO {
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public URI getAssertionConsumerServiceUri() {

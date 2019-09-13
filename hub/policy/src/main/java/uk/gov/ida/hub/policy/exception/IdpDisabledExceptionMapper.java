@@ -30,7 +30,7 @@ public class IdpDisabledExceptionMapper extends PolicyExceptionMapper<IdpDisable
         UUID errorId = UUID.randomUUID();
         LOG.error(LogFormatter.formatLog(errorId, exception.getMessage()), exception);
 
-        eventLogger.logErrorEvent(errorId, exception.getEntityId(), getSessionId().or(SessionId.SESSION_ID_DOES_NOT_EXIST_YET));
+        eventLogger.logErrorEvent(errorId, exception.getEntityId(), getSessionId().orElse(SessionId.SESSION_ID_DOES_NOT_EXIST_YET));
 
         return Response.status(Response.Status.FORBIDDEN).entity(ErrorStatusDto.createAuditedErrorStatus(errorId, ExceptionType
                 .IDP_DISABLED)).build();

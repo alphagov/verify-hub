@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class MatchingProcessDto {
 
-    private Optional<String> attributeName = Optional.absent();
+    private Optional<String> attributeName = Optional.empty();
 
     @SuppressWarnings("unused") // needed by jaxb
     private MatchingProcessDto() {}

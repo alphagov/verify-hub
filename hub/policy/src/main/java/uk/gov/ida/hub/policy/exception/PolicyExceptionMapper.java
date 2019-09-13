@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.exception;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 public abstract class PolicyExceptionMapper<TException extends Exception> implements ExceptionMapper<TException> {
 
@@ -68,9 +68,9 @@ public abstract class PolicyExceptionMapper<TException extends Exception> implem
             parameter = pathParameters.getFirst(Urls.SharedUrls.SESSION_ID_PARAM);
         }
         if (Strings.isNullOrEmpty(parameter)) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
-            return Optional.fromNullable(new SessionId(parameter));
+            return Optional.ofNullable(new SessionId(parameter));
         }
     }
 
