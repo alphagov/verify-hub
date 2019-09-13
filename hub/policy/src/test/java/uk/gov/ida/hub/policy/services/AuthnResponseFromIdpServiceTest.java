@@ -163,7 +163,7 @@ public class AuthnResponseFromIdpServiceTest {
         ResponseAction responseAction = service.receiveAuthnResponseFromIdp(sessionId, samlAuthnResponseContainerDto);
 
         // Then
-        verify(idpSelectedStateController).handlePausedRegistrationResponseFromIdp(entityId, PRINCIPAL_IP_ADDRESS, authnPendingResponse.getLevelOfAssurance().toJavaUtil(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        verify(idpSelectedStateController).handlePausedRegistrationResponseFromIdp(entityId, PRINCIPAL_IP_ADDRESS, authnPendingResponse.getLevelOfAssurance(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
         ResponseAction expectedResponseAction = ResponseAction.pending(sessionId);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
     }

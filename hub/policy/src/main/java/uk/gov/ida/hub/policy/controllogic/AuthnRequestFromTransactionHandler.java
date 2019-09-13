@@ -62,7 +62,7 @@ public class AuthnRequestFromTransactionHandler {
                 relayState.orNull(),
                 samlResponse.getIssuer(),
                 assertionConsumerServiceUri,
-                samlResponse.getForceAuthentication().orNull(),
+                samlResponse.getForceAuthentication().orElse(null),
                 sessionExpiryTimestamp,
                 sessionId,
                 transactionSupportsEidas);

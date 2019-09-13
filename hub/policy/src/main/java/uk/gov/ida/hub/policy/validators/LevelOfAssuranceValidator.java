@@ -1,7 +1,8 @@
 package uk.gov.ida.hub.policy.validators;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
+
+import java.util.Optional;
 
 import static java.util.Collections.singletonList;
 import static uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException.noLevelOfAssurance;

@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.AbstractState;
@@ -9,6 +8,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
+import java.util.Optional;
 
 public abstract class AbstractMatchRequestSentState extends AbstractState implements ResponseProcessingState, WaitingForMatchingServiceResponseState {
 
@@ -17,7 +17,7 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
     @JsonProperty
     private final String identityProviderEntityId;
     @JsonProperty
-    private final Optional<String> relayState;
+    private final String relayState;
     @JsonProperty
     private final LevelOfAssurance idpLevelOfAssurance;
     @JsonProperty
@@ -33,7 +33,7 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
             final SessionId sessionId,
             final boolean transactionSupportsEidas,
             final String identityProviderEntityId,
-            final Optional<String> relayState,
+            final String relayState,
             final LevelOfAssurance idpLevelOfAssurance,
             final String matchingServiceAdapterEntityId,
             final Boolean forceAuthentication) {
@@ -57,7 +57,7 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public String getIdentityProviderEntityId() {

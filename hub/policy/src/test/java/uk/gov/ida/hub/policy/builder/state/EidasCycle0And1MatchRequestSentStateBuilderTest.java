@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
@@ -13,6 +12,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ public class EidasCycle0And1MatchRequestSentStateBuilderTest {
         assertThat(state.getRequestId()).isEqualTo("requestId");
         assertThat(state.getIdentityProviderEntityId()).isEqualTo("identityProviderEntityId");
         assertThat(state.getSessionExpiryTimestamp()).isEqualTo(DateTime.now(DateTimeZone.UTC).plusMinutes(10));
-        assertThat(state.getRelayState()).isEqualTo(Optional.absent());
+        assertThat(state.getRelayState()).isEqualTo(Optional.empty());
         assertThat(state.getRequestIssuerEntityId()).isEqualTo("requestIssuerId");
         assertThat(state.getEncryptedIdentityAssertion()).isEqualTo("encryptedIdentityAssertion");
         assertThat(state.getAssertionConsumerServiceUri()).isEqualTo(URI.create("assertionConsumerServiceUri"));
@@ -52,7 +52,7 @@ public class EidasCycle0And1MatchRequestSentStateBuilderTest {
         assertThat(state.getIdpLevelOfAssurance()).isEqualTo(LevelOfAssurance.LEVEL_2);
         assertThat(state.getPersistentId()).isEqualTo(new PersistentId("default-name-id"));
         assertThat(state.getTransactionSupportsEidas()).isEqualTo(true);
-        assertThat(state.getForceAuthentication().orNull()).isEqualTo(false);
+        assertThat(state.getForceAuthentication().orElse(null)).isEqualTo(false);
     }
 
     @Test

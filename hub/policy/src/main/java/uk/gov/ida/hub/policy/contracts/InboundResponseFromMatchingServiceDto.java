@@ -1,8 +1,9 @@
 package uk.gov.ida.hub.policy.contracts;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchingServiceIdaStatus;
+
+import java.util.Optional;
 
 // keep in sync with Dto in saml-engine
 public class InboundResponseFromMatchingServiceDto {

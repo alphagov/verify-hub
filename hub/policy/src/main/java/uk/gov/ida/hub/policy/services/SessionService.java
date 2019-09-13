@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.services;
 
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.RequestForErrorResponseFromHubDto;
 import uk.gov.ida.hub.policy.contracts.SamlMessageDto;
@@ -24,6 +23,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import java.net.URI;
+import java.util.Optional;
 
 public class SessionService {
     private final SamlEngineProxy samlEngineProxy;
@@ -101,7 +101,7 @@ public class SessionService {
             URI uri = configProxy.getAssertionConsumerServiceUri(samlResponse.getIssuer(), samlResponse.getAssertionConsumerServiceIndex()).getTarget();
             if (doesNotMatchProvidedAssertionConsumerServiceUrl(samlResponse.getAssertionConsumerServiceUrl(), uri)) {
                 throw SessionCreationFailureException.assertionConsumerServiceUrlNotMatching(
-                    samlResponse.getAssertionConsumerServiceUrl().transform(URI::toString).or("unknown"),
+                    samlResponse.getAssertionConsumerServiceUrl().map(URI::toString).orElse("unknown"),
                     uri.toString(),
                     samlResponse.getIssuer()
                 );

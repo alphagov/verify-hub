@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.base.Optional;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseContainerDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
@@ -21,6 +20,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.util.Optional;
 
 import static uk.gov.ida.hub.policy.Urls.PolicyUrls.IDP_AUTHN_REQUEST_PATH;
 import static uk.gov.ida.hub.policy.Urls.PolicyUrls.IDP_AUTHN_RESPONSE_PATH;

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.StandardToStringStyle;
 
@@ -8,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Immutable
 public final class ResponseFromHub {

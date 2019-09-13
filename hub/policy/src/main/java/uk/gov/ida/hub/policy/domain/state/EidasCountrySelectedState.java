@@ -2,7 +2,6 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
@@ -11,6 +10,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 public class EidasCountrySelectedState extends AbstractState implements EidasCountrySelectingState, RestartJourneyState, Serializable {
 
@@ -19,7 +19,7 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
     @JsonProperty
     private String countryEntityId;
     @JsonProperty
-    private final Optional<String> relayState;
+    private final String relayState;
     @JsonProperty
     private List<LevelOfAssurance> levelsOfAssurance;
 
@@ -45,14 +45,14 @@ public class EidasCountrySelectedState extends AbstractState implements EidasCou
             forceAuthentication
         );
 
-        this.relayState = Optional.fromNullable(relayState);
+        this.relayState = relayState;
         this.countryEntityId = countryEntityId;
         this.levelsOfAssurance = levelsOfAssurance;
     }
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public String getCountryEntityId() { return countryEntityId; }

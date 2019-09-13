@@ -1,19 +1,19 @@
 package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.net.URI;
+import java.util.Optional;
 
 public abstract class AbstractUserAccountCreationFailedState extends AbstractState implements ResponseProcessingState, ResponsePreparedState {
 
     private static final long serialVersionUID = 1388066257920569091L;
 
     @JsonProperty
-    private Optional<String> relayState;
+    private String relayState;
 
     public AbstractUserAccountCreationFailedState(
         final String requestId,
@@ -35,11 +35,11 @@ public abstract class AbstractUserAccountCreationFailedState extends AbstractSta
             forceAuthentication
         );
 
-        this.relayState = Optional.fromNullable(relayState);
+        this.relayState = relayState;
     }
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 }

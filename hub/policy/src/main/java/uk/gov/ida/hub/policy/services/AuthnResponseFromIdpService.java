@@ -131,10 +131,10 @@ public class AuthnResponseFromIdpService {
             idpSelectedStateController.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
             AttributeQueryRequestDto attributeQuery = idpSelectedStateController.createAttributeQuery(successFromIdp);
             attributeQueryService.sendAttributeQueryRequest(sessionId, attributeQuery);
-            return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved, inboundResponseFromIdpDto.getNotOnOrAfter().orNull());
+            return success(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved, inboundResponseFromIdpDto.getNotOnOrAfter().orElse(null));
         } else {
             idpSelectedStateController.handleNonMatchingJourneySuccessResponseFromIdp(successFromIdp);
-            return nonMatchingJourneySuccess(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved, inboundResponseFromIdpDto.getNotOnOrAfter().orNull());
+            return nonMatchingJourneySuccess(sessionId, idpSelectedStateController.isRegistrationContext(), loaAchieved, inboundResponseFromIdpDto.getNotOnOrAfter().orElse(null));
         }
     }
 
@@ -188,7 +188,7 @@ public class AuthnResponseFromIdpService {
     }
 
     private ResponseAction handlePendingResponse(InboundResponseFromIdpDto inboundResponseFromIdpDto, SessionId sessionId, String principalIpAddressAsSeenByHub, IdpSelectedStateController idpSelectedStateController, String analyticsSessionId, String journeyType) {
-        idpSelectedStateController.handlePausedRegistrationResponseFromIdp(inboundResponseFromIdpDto.getIssuer(), principalIpAddressAsSeenByHub, inboundResponseFromIdpDto.getLevelOfAssurance().toJavaUtil(), analyticsSessionId, journeyType);
+        idpSelectedStateController.handlePausedRegistrationResponseFromIdp(inboundResponseFromIdpDto.getIssuer(), principalIpAddressAsSeenByHub, inboundResponseFromIdpDto.getLevelOfAssurance(), analyticsSessionId, journeyType);
         return pending(sessionId);
     }
 }

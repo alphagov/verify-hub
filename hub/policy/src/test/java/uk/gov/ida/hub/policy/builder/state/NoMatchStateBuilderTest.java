@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
@@ -11,6 +10,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.NoMatchState;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ public class NoMatchStateBuilderTest {
         assertThat(noMatchState.getRequestIssuerEntityId()).isEqualTo("requestIssuerId");
         assertThat(noMatchState.getSessionExpiryTimestamp()).isEqualTo(DateTime.now(DateTimeZone.UTC).plusMinutes(10));
         assertThat(noMatchState.getAssertionConsumerServiceUri()).isEqualTo(URI.create("/someUri"));
-        assertThat(noMatchState.getRelayState()).isEqualTo(Optional.absent());
+        assertThat(noMatchState.getRelayState()).isEqualTo(Optional.empty());
         assertThat(noMatchState.getSessionId()).isEqualTo(new SessionId("sessionId"));
         assertThat(noMatchState.getTransactionSupportsEidas()).isEqualTo(false);
     }

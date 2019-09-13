@@ -2,7 +2,6 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -35,7 +34,7 @@ public class SuccessfulMatchState extends AbstractSuccessfulMatchState {
                 sessionExpiryTimestamp,
                 identityProviderEntityId,
                 matchingServiceAssertion,
-                Optional.fromNullable(relayState),
+                relayState,
                 requestIssuerId,
                 assertionConsumerServiceUri,
                 sessionId,

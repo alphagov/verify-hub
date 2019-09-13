@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.state;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -33,7 +32,7 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
             sessionId,
             transactionSupportsEidas,
             identityProviderEntityId,
-            Optional.fromNullable(relayState),
+            relayState,
             idpLevelOfAssurance,
             matchingServiceAdapterEntityId,
             forceAuthentication
@@ -54,7 +53,7 @@ public abstract class EidasMatchRequestSentState extends AbstractMatchRequestSen
         sb.append(", sessionExpiryTimestamp=").append(getSessionExpiryTimestamp());
         sb.append(", assertionConsumerServiceUri=").append(getAssertionConsumerServiceUri());
         sb.append(", transactionSupportsEidas=").append(getTransactionSupportsEidas());
-        sb.append(", forceAuthentication=").append(getForceAuthentication().orNull());
+        sb.append(", forceAuthentication=").append(getForceAuthentication().orElse(null));
         sb.append('}');
         return sb.toString();
     }

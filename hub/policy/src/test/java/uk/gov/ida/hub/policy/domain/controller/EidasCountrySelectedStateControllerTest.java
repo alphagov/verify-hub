@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
@@ -19,7 +18,6 @@ import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.CountryAuthenticationStatus;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
-import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -36,6 +34,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,12 +63,12 @@ public class EidasCountrySelectedStateControllerTest {
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY  = new InboundResponseFromCountry(
             CountryAuthenticationStatus.Status.Success,
-            Optional.absent(),
+            Optional.empty(),
             STUB_COUNTRY_ONE,
             Optional.of(BLOB),
             Optional.of(PID),
             Optional.of(LEVEL_2),
-            Optional.absent());
+            Optional.empty());
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -134,12 +133,12 @@ public class EidasCountrySelectedStateControllerTest {
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
                 CountryAuthenticationStatus.Status.Success,
-                Optional.absent(),
+                Optional.empty(),
                 STUB_COUNTRY_ONE,
                 Optional.of(BLOB),
-                Optional.absent(),
+                Optional.empty(),
                 Optional.of(LEVEL_2),
-                Optional.absent());
+                Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -151,12 +150,12 @@ public class EidasCountrySelectedStateControllerTest {
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
                 CountryAuthenticationStatus.Status.Success,
-                Optional.absent(),
+                Optional.empty(),
                 STUB_COUNTRY_ONE,
-                Optional.absent(),
+                Optional.empty(),
                 Optional.of(PID),
                 Optional.of(LEVEL_2),
-                Optional.absent());
+                Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -168,12 +167,12 @@ public class EidasCountrySelectedStateControllerTest {
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
                 CountryAuthenticationStatus.Status.Success,
-                Optional.absent(),
+                Optional.empty(),
                 STUB_COUNTRY_ONE,
                 Optional.of(BLOB),
                 Optional.of(PID),
-                Optional.absent(),
-                Optional.absent());
+                Optional.empty(),
+                Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -187,12 +186,12 @@ public class EidasCountrySelectedStateControllerTest {
 
         final InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
                 CountryAuthenticationStatus.Status.Success,
-                Optional.absent(),
+                Optional.empty(),
                 STUB_IDP_ONE,
                 Optional.of(BLOB),
                 Optional.of(PID),
                 Optional.of(LEVEL_1),
-                Optional.absent());
+                Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -215,7 +214,7 @@ public class EidasCountrySelectedStateControllerTest {
             new SessionId(state.getSessionId().getSessionId()),
             state.getTransactionSupportsEidas(),
             STUB_COUNTRY_ONE,
-            state.getRelayState().orNull(),
+            state.getRelayState().orElse(null),
             eidasAttributeQueryRequestDto.getLevelOfAssurance(),
             MSA_ID,
             eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion(),
@@ -225,12 +224,12 @@ public class EidasCountrySelectedStateControllerTest {
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
                 CountryAuthenticationStatus.Status.Success,
-                Optional.absent(),
+                Optional.empty(),
                 STUB_COUNTRY_ONE,
                 Optional.of(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
                 Optional.of(LEVEL_2),
-                Optional.absent());
+                Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
@@ -244,7 +243,7 @@ public class EidasCountrySelectedStateControllerTest {
             state.getLevelsOfAssurance().get(0),
             state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
             eidasAttributeQueryRequestDto.getLevelOfAssurance(),
-            com.google.common.base.Optional.absent(),
+            Optional.empty(),
             IP_ADDRESS,
             ANALYTICS_SESSION_ID,
             JOURNEY_TYPE
@@ -259,12 +258,12 @@ public class EidasCountrySelectedStateControllerTest {
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
                 CountryAuthenticationStatus.Status.Success,
-                Optional.absent(),
+                Optional.empty(),
                 STUB_COUNTRY_ONE,
                 Optional.of(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
                 Optional.of(LEVEL_2),
-                Optional.absent());
+                Optional.empty());
 
         controller.handleNonMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
@@ -278,7 +277,7 @@ public class EidasCountrySelectedStateControllerTest {
                 state.getLevelsOfAssurance().get(0),
                 state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
                 eidasAttributeQueryRequestDto.getLevelOfAssurance(),
-                com.google.common.base.Optional.absent(),
+                Optional.empty(),
                 IP_ADDRESS,
                 ANALYTICS_SESSION_ID,
                 JOURNEY_TYPE
@@ -291,7 +290,7 @@ public class EidasCountrySelectedStateControllerTest {
                 state.getAssertionConsumerServiceUri(),
                 new SessionId(state.getSessionId().getSessionId()),
                 state.getTransactionSupportsEidas(),
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 singleton(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion())
         );
 
@@ -351,6 +350,6 @@ public class EidasCountrySelectedStateControllerTest {
         assertThat(capturedState.getValue().getSessionId()).isEqualTo(state.getSessionId());
         assertThat(capturedState.getValue().getRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
         assertThat(capturedState.getValue().getTransactionSupportsEidas()).isEqualTo(true);
-        assertThat(capturedState.getValue().getForceAuthentication().orNull()).isEqualTo(false);
+        assertThat(capturedState.getValue().getForceAuthentication().orElse(null)).isEqualTo(false);
     }
 }

@@ -85,7 +85,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
     public void selectCountry(String countryEntityId) {
         EidasCountrySelectedState eidasCountrySelectedState = new EidasCountrySelectedState(
                 countryEntityId,
-                state.getRelayState().orNull(),
+                state.getRelayState().orElse(null),
                 state.getRequestId(),
                 state.getRequestIssuerEntityId(),
                 state.getSessionExpiryTimestamp(),
@@ -93,7 +93,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
                 state.getSessionId(),
                 state.getTransactionSupportsEidas(),
                 Collections.singletonList(LevelOfAssurance.LEVEL_2), // TODO: EID-154 will plug in a real LOA
-                state.getForceAuthentication().orNull()
+                state.getForceAuthentication().orElse(null)
         );
         stateTransitionAction.transitionTo(eidasCountrySelectedState);
         hubEventLogger.logCountrySelectedEvent(eidasCountrySelectedState);

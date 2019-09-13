@@ -2,20 +2,20 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 
 import java.net.URI;
+import java.util.Optional;
 
 public class PausedRegistrationState extends AbstractState implements State {
 
     private static final long serialVersionUID = 8208525157755502287L;
 
     @JsonProperty
-    private Optional<String> relayState;
+    private String relayState;
 
     @JsonCreator
     public PausedRegistrationState(
@@ -37,11 +37,11 @@ public class PausedRegistrationState extends AbstractState implements State {
                 null
         );
 
-        this.relayState = Optional.fromNullable(relayState);
+        this.relayState = relayState;
     }
 
     @Override
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 }

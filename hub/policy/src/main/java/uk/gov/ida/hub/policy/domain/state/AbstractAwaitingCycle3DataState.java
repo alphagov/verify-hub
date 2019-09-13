@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
@@ -10,6 +9,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Optional;
 
 public abstract class AbstractAwaitingCycle3DataState extends AbstractState implements ResponseProcessingState, Serializable {
 
@@ -20,7 +20,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
     @JsonProperty
     private final String matchingServiceEntityId;
     @JsonProperty
-    private final Optional<String> relayState;
+    private final String relayState;
     @JsonProperty
     private final PersistentId persistentId;
     @JsonProperty
@@ -52,7 +52,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
 
         this.identityProviderEntityId = identityProviderEntityId;
         this.matchingServiceEntityId = matchingServiceEntityId;
-        this.relayState = Optional.fromNullable(relayState);
+        this.relayState = relayState;
         this.persistentId = persistentId;
         this.levelOfAssurance = levelOfAssurance;
     }
@@ -66,7 +66,7 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public PersistentId getPersistentId() {

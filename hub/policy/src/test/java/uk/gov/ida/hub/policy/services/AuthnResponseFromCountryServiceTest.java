@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.services;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
@@ -37,6 +36,7 @@ import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -76,12 +76,12 @@ public class AuthnResponseFromCountryServiceTest {
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY = new InboundResponseFromCountry(
             Status.Success,
-            Optional.absent(),
+            Optional.empty(),
             STUB_IDP_ONE,
             Optional.of(BLOB),
             Optional.of(PID),
             Optional.of(LEVEL_2),
-            Optional.absent());
+            Optional.empty());
 
     private static final EidasAttributeQueryRequestDto EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO = new EidasAttributeQueryRequestDto(
             REQUEST_ID,
@@ -94,8 +94,8 @@ public class AuthnResponseFromCountryServiceTest {
             IS_ONBOARDING,
             LEVEL_2,
             new PersistentId(PID),
-            Optional.absent(),
-            Optional.absent(),
+            Optional.empty(),
+            Optional.empty(),
             BLOB
     );
 
@@ -200,7 +200,7 @@ public class AuthnResponseFromCountryServiceTest {
                         Optional.of("blob"),
                         Optional.of("pid"),
                         Optional.of(LEVEL_2),
-                        Optional.absent());
+                        Optional.empty());
 
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
                 .thenReturn(inboundResponseFromCountry);
@@ -214,7 +214,7 @@ public class AuthnResponseFromCountryServiceTest {
     @Test
     public void shouldReturnNonMatchingJourneySuccessResponseIfTranslationResponseFromSamlEngineIsSuccessfulAndNotUsingMatching() {
         final InboundResponseFromCountry inboundResponseFromCountry =
-                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob-encrypted-for-test-rp"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.absent());
+                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob-encrypted-for-test-rp"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.empty());
 
         when(stateController.isMatchingJourney()).thenReturn(false);
         when(samlEngineProxy.translateAuthnResponseFromCountry(NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
@@ -246,7 +246,7 @@ public class AuthnResponseFromCountryServiceTest {
                         Optional.of("blob"),
                         Optional.of("pid"),
                         Optional.of(LEVEL_2),
-                        Optional.absent()));
+                        Optional.empty()));
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 

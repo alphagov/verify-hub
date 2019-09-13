@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.builder;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
@@ -15,6 +14,7 @@ import uk.gov.ida.hub.policy.domain.PersistentId;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,7 +54,7 @@ public class EidasAttributeQueryRequestDtoBuilderTest {
         assertThat(eidasAttributeQueryRequestDto.getMatchingServiceRequestTimeOut()).isEqualTo(DateTime.now().plusHours(1));
         assertThat(eidasAttributeQueryRequestDto.isOnboarding()).isTrue();
         assertThat(eidasAttributeQueryRequestDto.getCycle3Dataset()).isEqualTo(Optional.of(new Cycle3Dataset(map)));
-        assertThat(eidasAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.absent());
+        assertThat(eidasAttributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(Optional.empty());
         assertThat(eidasAttributeQueryRequestDto.getAssertionExpiry()).isEqualTo(DateTime.now().plusHours(2));
     }
 }
