@@ -1,5 +1,7 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.saml.core.domain.DetailedStatusCode;
 import uk.gov.ida.saml.core.extensions.StatusValue;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
@@ -12,18 +14,28 @@ import java.util.function.Predicate;
 
 
 public class SamlStatusToIdpIdaStatusMappingsFactory {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SamlStatusToIdpIdaStatusMappingsFactory.class);
+
     enum SamlStatusDefinitions {
         Success(DetailedStatusCode.Success, (v) -> true),
         AuthenticationCancelled(DetailedStatusCode.NoAuthenticationContext, StatusValue.CANCEL::equals),
         AuthenticationPending(DetailedStatusCode.NoAuthenticationContext, StatusValue.PENDING::equals),
         NoAuthenticationContext(DetailedStatusCode.NoAuthenticationContext, Objects::isNull),
-        AuthenticationFailed(DetailedStatusCode.AuthenticationFailed, Objects::isNull),
+        AuthenticationFailed(DetailedStatusCode.AuthenticationFailed, SamlStatusDefinitions::checkNullWithLogging),
         RequesterErrorFromIdp(DetailedStatusCode.RequesterErrorFromIdp, Objects::isNull),
         RequesterErrorRequestDeniedFromIdp(DetailedStatusCode.RequesterErrorRequestDeniedFromIdp, Objects::isNull),
         UpliftFailed(DetailedStatusCode.NoAuthenticationContext, StatusValue.UPLIFT_FAILED::equals);
 
         private final DetailedStatusCode statusCode;
         private final Predicate<String> statusDetailValuePredicate;
+
+        private static boolean checkNullWithLogging(String value) {
+            if (Objects.nonNull(value)) {
+                LOG.info(String.format("Detail value: %s", value));
+            }
+            return Objects.isNull(value);
+        }
 
         SamlStatusDefinitions(DetailedStatusCode statusCode, Predicate<String> statusDetailValuePredicate) {
             this.statusCode = statusCode;
