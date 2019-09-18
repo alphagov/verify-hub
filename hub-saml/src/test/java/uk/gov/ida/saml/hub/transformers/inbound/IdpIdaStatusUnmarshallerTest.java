@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.impl.StatusDetailImpl;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLRunner;
@@ -76,6 +77,16 @@ public class IdpIdaStatusUnmarshallerTest {
         subStatusCode.setValue(StatusCode.AUTHN_FAILED);
         topLevelStatusCode.setStatusCode(subStatusCode);
         IdpIdaStatus transformedStatus = unmarshaller.fromSaml(status);
+
+        assertThat(transformedStatus).isEqualTo(IdpIdaStatus.authenticationFailed());
+    }
+
+    @Test
+    public void transform_shouldTransformAuthnFailedWithDetail() throws Exception {
+        String authnFailedWithDetailXml = readXmlFile("status-authnfailed-with-detail.xml");
+        Response response = stringToOpenSamlObjectTransformer.apply(authnFailedWithDetailXml);
+
+        IdpIdaStatus transformedStatus = unmarshaller.fromSaml(response.getStatus());
 
         assertThat(transformedStatus).isEqualTo(IdpIdaStatus.authenticationFailed());
     }
