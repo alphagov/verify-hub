@@ -15,27 +15,18 @@ import java.util.function.Predicate;
 
 public class SamlStatusToIdpIdaStatusMappingsFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SamlStatusToIdpIdaStatusMappingsFactory.class);
-
     enum SamlStatusDefinitions {
         Success(DetailedStatusCode.Success, (v) -> true),
         AuthenticationCancelled(DetailedStatusCode.NoAuthenticationContext, StatusValue.CANCEL::equals),
         AuthenticationPending(DetailedStatusCode.NoAuthenticationContext, StatusValue.PENDING::equals),
         NoAuthenticationContext(DetailedStatusCode.NoAuthenticationContext, Objects::isNull),
-        AuthenticationFailed(DetailedStatusCode.AuthenticationFailed, SamlStatusDefinitions::checkNullWithLogging),
+        AuthenticationFailed(DetailedStatusCode.AuthenticationFailed, (v) -> true),
         RequesterErrorFromIdp(DetailedStatusCode.RequesterErrorFromIdp, Objects::isNull),
         RequesterErrorRequestDeniedFromIdp(DetailedStatusCode.RequesterErrorRequestDeniedFromIdp, Objects::isNull),
         UpliftFailed(DetailedStatusCode.NoAuthenticationContext, StatusValue.UPLIFT_FAILED::equals);
 
         private final DetailedStatusCode statusCode;
         private final Predicate<String> statusDetailValuePredicate;
-
-        private static boolean checkNullWithLogging(String value) {
-            if (Objects.nonNull(value)) {
-                LOG.info(String.format("Detail value: %s", value));
-            }
-            return Objects.isNull(value);
-        }
 
         SamlStatusDefinitions(DetailedStatusCode statusCode, Predicate<String> statusDetailValuePredicate) {
             this.statusCode = statusCode;
@@ -44,10 +35,10 @@ public class SamlStatusToIdpIdaStatusMappingsFactory {
 
         public boolean matches(String samlStatusValue, Optional<String> samlSubStatusValue, List<String> statusDetailValues) {
             boolean statusCodesMatch = statusCode.getStatus().equals(samlStatusValue) && statusCode.getSubStatus().equals(samlSubStatusValue);
-            boolean statusDetailsMatch = false;
+            boolean statusDetailsMatch;
             if (statusDetailValues.isEmpty()){
                 statusDetailsMatch = statusDetailValuePredicate.test(null);
-            }else {
+            } else {
                 statusDetailsMatch = statusDetailValues.stream().anyMatch(statusDetailValuePredicate);
             }
             return statusCodesMatch && statusDetailsMatch;
