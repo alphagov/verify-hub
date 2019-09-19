@@ -111,7 +111,8 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 new PersistentId(translatedResponse.getPersistentId().get()),
                 Optional.empty(),
                 Optional.empty(),
-                translatedResponse.getEncryptedIdentityAssertionBlob().get()
+                translatedResponse.getEncryptedIdentityAssertionBlob().get(),
+                translatedResponse.getUnsignedAssertions()
         );
     }
 

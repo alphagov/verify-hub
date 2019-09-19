@@ -32,6 +32,7 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +61,7 @@ public class EidasCountrySelectedStateControllerTest {
     private static final String SELECTED_COUNTRY = STUB_COUNTRY_ONE;
     private static final String ANALYTICS_SESSION_ID = "some-session-id";
     private static final String JOURNEY_TYPE = "some-journey-type";
+    private static final Optional<CountrySignedResponseContainer> EMPTY_UNSIGNED_ASSERTIONS = Optional.empty();
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY  = new InboundResponseFromCountry(
             CountryAuthenticationStatus.Status.Success,
@@ -69,7 +71,7 @@ public class EidasCountrySelectedStateControllerTest {
             Optional.of(PID),
             Optional.of(LEVEL_2),
             Optional.empty(),
-            Optional.empty());
+            EMPTY_UNSIGNED_ASSERTIONS);
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -140,7 +142,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.empty(),
                 Optional.of(LEVEL_2),
                 Optional.empty(),
-                Optional.empty());
+                EMPTY_UNSIGNED_ASSERTIONS);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -158,7 +160,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(PID),
                 Optional.of(LEVEL_2),
                 Optional.empty(),
-                Optional.empty());
+                EMPTY_UNSIGNED_ASSERTIONS);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -176,7 +178,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(PID),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.empty());
+                EMPTY_UNSIGNED_ASSERTIONS);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -196,7 +198,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(PID),
                 Optional.of(LEVEL_1),
                 Optional.empty(),
-                Optional.empty());
+                EMPTY_UNSIGNED_ASSERTIONS);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -235,7 +237,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
                 Optional.of(LEVEL_2),
                 Optional.empty(),
-                Optional.empty());
+                EMPTY_UNSIGNED_ASSERTIONS);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
@@ -270,7 +272,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
                 Optional.of(LEVEL_2),
                 Optional.empty(),
-                Optional.empty());
+                EMPTY_UNSIGNED_ASSERTIONS);
 
         controller.handleNonMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 

@@ -1,10 +1,13 @@
 package uk.gov.ida.hub.policy.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
+
 import java.util.Optional;
+import java.util.List;
 
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)

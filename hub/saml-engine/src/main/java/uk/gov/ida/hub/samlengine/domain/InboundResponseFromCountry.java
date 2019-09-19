@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.samlengine.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.ida.saml.core.domain.EidasUnsignedAssertions;
+import uk.gov.ida.saml.core.domain.UnsignedAssertions;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +15,7 @@ public class InboundResponseFromCountry {
     private Optional<String> statusMessage;
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
-    @JsonProperty
-    private boolean areAssertionsUnsigned;
-
-    private String samlFromCountry;
-    private List<String> base64Keys;
+    private Optional<EidasUnsignedAssertions> unsignedAssertions;
 
     private InboundResponseFromCountry() {
     }
@@ -29,9 +27,7 @@ public class InboundResponseFromCountry {
             Optional<String> statusMessage,
             Optional<String> encryptedIdentityAssertionBlob,
             Optional<LevelOfAssurance> levelOfAssurance,
-            boolean areAssertionsUnsigned,
-            String samlFromCountry,
-            List<String> base64Keys
+            Optional<EidasUnsignedAssertions> unsignedAssertions
     ) {
         this.issuer = issuer;
         this.persistentId = persistentId;
@@ -39,9 +35,7 @@ public class InboundResponseFromCountry {
         this.statusMessage = statusMessage;
         this.encryptedIdentityAssertionBlob = encryptedIdentityAssertionBlob;
         this.levelOfAssurance = levelOfAssurance;
-        this.areAssertionsUnsigned = areAssertionsUnsigned;
-        this.samlFromCountry = samlFromCountry;
-        this.base64Keys = base64Keys;
+        this.unsignedAssertions = unsignedAssertions;
     }
 
     public String getIssuer() {
@@ -68,15 +62,7 @@ public class InboundResponseFromCountry {
         return levelOfAssurance;
     }
 
-    public boolean areAssertionsUnsigned() {
-        return areAssertionsUnsigned;
-    }
-
-    public String getSamlFromCountry() {
-        return samlFromCountry;
-    }
-
-    public List<String> getBase64Keys() {
-        return this.base64Keys;
+    public Optional<EidasUnsignedAssertions> getUnsignedAssertions() {
+        return this.unsignedAssertions;
     }
 }

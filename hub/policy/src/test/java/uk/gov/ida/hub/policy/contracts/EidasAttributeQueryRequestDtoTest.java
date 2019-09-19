@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.contracts;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -158,6 +159,7 @@ public class EidasAttributeQueryRequestDtoTest {
 
     @Test
     public void equalsContract() {
-        EqualsVerifier.forClass(EidasAttributeQueryRequestDto.class).verify();
+
+        EqualsVerifier.forClass(EidasAttributeQueryRequestDto.class).suppress(Warning.NONFINAL_FIELDS).verify();
     }
 }
