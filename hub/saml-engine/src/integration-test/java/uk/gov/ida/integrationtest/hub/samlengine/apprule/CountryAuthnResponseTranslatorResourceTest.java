@@ -218,7 +218,7 @@ public class CountryAuthnResponseTranslatorResourceTest {
                 EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
         Response response = postAuthnResponseToSamlEngine(dto);
 
-        assertThat((response.readEntity(InboundResponseFromCountry.class)).areAssertionsUnsigned()).isEqualTo(false);    }
+        assertThat((response.readEntity(InboundResponseFromCountry.class)).getCountrySignedResponse().isPresent()).isEqualTo(false);    }
 
     @Test
     public void shouldReturnACountryResponseDtoWithAreAssertionsUnsignedEqualsTrueWhenUnsigned() throws Exception {
@@ -229,7 +229,7 @@ public class CountryAuthnResponseTranslatorResourceTest {
                 EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
         Response response = postAuthnResponseToSamlEngine(dto);
         InboundResponseFromCountry inboundResponseFromCountry = response.readEntity(InboundResponseFromCountry.class);
-        assertThat(inboundResponseFromCountry.areAssertionsUnsigned()).isEqualTo(true);    }
+        assertThat(inboundResponseFromCountry.getCountrySignedResponse().isPresent()).isEqualTo(true);    }
 
     private void assertThatDecryptedAssertionsAreTheSame(InboundResponseFromCountry response, org.opensaml.saml.saml2.core.Response originalResponse) {
         AssertionDecrypter hubDecrypter = new AssertionDecrypter(TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY, TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT);
@@ -285,14 +285,15 @@ public class CountryAuthnResponseTranslatorResourceTest {
                 DESTINATION,
                 samlEngineAppRule.getCountryMetadataUri(),
                 keyTransportEncryptionAlgorithm,
-                includeEncryptedAssertion);
+                includeEncryptedAssertion,
+                true);
         return new SamlAuthnResponseTranslatorDto(samlResponse, sessionId, "127.0.0.1", matchingServiceEntityId);
     }
 
     private SamlAuthnResponseTranslatorDto createAuthnResponseSignedByKeyPairWithUnsignedAssertions(
             String publicKey, String privateKey, String contentEncryptionAlgorithm, String keyTransportEncryptionAlgorithm, String statusCode, String subStatusCode, boolean includeEncryptedAssertion) throws Exception {
         SessionId sessionId = SessionId.createNewSessionId();
-        String samlResponse = aResponseFromCountryWithUnsignedAssertions("a-request",
+        String samlResponse = aResponseFromCountry("a-request",
                 samlEngineAppRule.getCountryMetadataUri(),
                 publicKey,
                 privateKey,
@@ -306,7 +307,8 @@ public class CountryAuthnResponseTranslatorResourceTest {
                 DESTINATION,
                 samlEngineAppRule.getCountryMetadataUri(),
                 keyTransportEncryptionAlgorithm,
-                includeEncryptedAssertion);
+                includeEncryptedAssertion,
+                false);
         return new SamlAuthnResponseTranslatorDto(samlResponse, sessionId, "127.0.0.1", matchingServiceEntityId);
     }
 
@@ -336,7 +338,8 @@ public class CountryAuthnResponseTranslatorResourceTest {
             String recipient,
             String audienceId,
             String keyTransportAlgorithm,
-            boolean includeEncryptedAssertion) throws Exception {
+            boolean includeEncryptedAssertion,
+            boolean signAssertions) throws Exception {
         TestCredentialFactory hubEncryptionCredentialFactory =
                 new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY);
         TestCredentialFactory idpSigningCredentialFactory = new TestCredentialFactory(publicCert, privateKey);
@@ -412,108 +415,10 @@ public class CountryAuthnResponseTranslatorResourceTest {
                                     .withConditions(conditions)
                                     .addAuthnStatement(authnStatement)
                                     .addAttributeStatement(attributeStatement)
-                                    .withSignature(SignatureBuilder.aSignature()
+                                    .withSignature(signAssertions ? SignatureBuilder.aSignature()
                                             .withSigningCredential(signingCredential)
                                             .withSignatureAlgorithm(signatureAlgorithm)
-                                            .withDigestAlgorithm(assertionID, digestAlgorithm).build())
-                                    .buildWithEncrypterCredential(encryptingCredential, encryptionAlgorithm, keyTransportAlgorithm));
-        }
-
-        return new XmlObjectToBase64EncodedStringTransformer<>().apply(responseBuilder.build());
-    }
-
-    public String aResponseFromCountryWithUnsignedAssertions(
-            String requestId,
-            String idpEntityId,
-            String publicCert,
-            String privateKey,
-            String destination,
-            String statusCode,
-            String subStatusCode,
-            SignatureAlgorithm signatureAlgorithm,
-            DigestAlgorithm digestAlgorithm,
-            String encryptionAlgorithm,
-            String authnContext,
-            String recipient,
-            String audienceId,
-            String keyTransportAlgorithm,
-            boolean includeEncryptedAssertion) throws Exception {
-        TestCredentialFactory hubEncryptionCredentialFactory =
-                new TestCredentialFactory(TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT, TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY);
-        TestCredentialFactory idpSigningCredentialFactory = new TestCredentialFactory(publicCert, privateKey);
-
-        final String persistentId = "UK/GB/12345";
-        final Subject authnAssertionSubject =
-                SubjectBuilder.aSubject()
-                        .withNameId(aNameId().withValue(persistentId).build())
-                        .withSubjectConfirmation(
-                                SubjectConfirmationBuilder.aSubjectConfirmation()
-                                        .withSubjectConfirmationData(SubjectConfirmationDataBuilder.aSubjectConfirmationData()
-                                                .withInResponseTo(requestId)
-                                                .withRecipient(recipient)
-                                                .build())
-                                        .build())
-                        .build();
-        final Conditions conditions =
-                ConditionsBuilder.aConditions()
-                        .addAudienceRestriction(
-                                AudienceRestrictionBuilder.anAudienceRestriction()
-                                        .withAudienceId(audienceId)
-                                        .build()
-                        ).build();
-        final AuthnStatement authnStatement = AuthnStatementBuilder.anAuthnStatement()
-                .withAuthnContext(AuthnContextBuilder.anAuthnContext()
-                        .withAuthnContextClassRef(
-                                AuthnContextClassRefBuilder.anAuthnContextClassRef().
-                                        withAuthnContextClasRefValue(authnContext)
-                                        .build())
-                        .build())
-                .build();
-
-        Attribute firstNameAttribute = new EidasAttributeFactory().createFirstNameAttribute("Javier");
-        Attribute familyNameAttribute = new EidasAttributeFactory().createFamilyName("Garcia");
-        Attribute dateOfBirthAttribute = new EidasAttributeFactory().createDateOfBirth(new LocalDate("1965-01-01"));
-
-        PersonIdentifier personIdentifier = new PersonIdentifierBuilder().buildObject();
-        personIdentifier.setPersonIdentifier(persistentId);
-        Attribute personIdentifierAttribute = PersonIdentifierAttributeBuilder.aPersonIdentifier().withValue(personIdentifier).build();
-
-        Status status = StatusBuilder.aStatus().withStatusCode(
-                StatusCodeBuilder.aStatusCode().withValue(statusCode).withSubStatusCode(
-                        StatusCodeBuilder.aStatusCode().withValue(subStatusCode)
-                                .build())
-                        .build())
-                .build();
-
-        final AttributeStatement attributeStatement = new AttributeStatementBuilder().buildObject();
-        attributeStatement.getAttributes().addAll(Arrays.asList(firstNameAttribute, familyNameAttribute, dateOfBirthAttribute, personIdentifierAttribute));
-
-        final Credential encryptingCredential = hubEncryptionCredentialFactory.getEncryptingCredential();
-        final Credential signingCredential = idpSigningCredentialFactory.getSigningCredential();
-
-        final String assertionID = UUID.randomUUID().toString();
-
-        final ResponseBuilder responseBuilder = ResponseBuilder.aResponse()
-                .withIssuer(IssuerBuilder.anIssuer().withIssuerId(idpEntityId).build())
-                .withSigningCredential(signingCredential)
-                .withSignatureAlgorithm(signatureAlgorithm)
-                .withDigestAlgorithm(digestAlgorithm)
-                .withInResponseTo(requestId)
-                .withDestination(destination)
-                .withNoDefaultAssertion()
-                .withStatus(status);
-
-        if (includeEncryptedAssertion) {
-            responseBuilder
-                    .addEncryptedAssertion(
-                            AssertionBuilder.anAssertion()
-                                    .withId(assertionID)
-                                    .withIssuer(IssuerBuilder.anIssuer().withIssuerId(idpEntityId).build())
-                                    .withSubject(authnAssertionSubject)
-                                    .withConditions(conditions)
-                                    .addAuthnStatement(authnStatement)
-                                    .addAttributeStatement(attributeStatement)
-                                    .withSignature(null)
+                                            .withDigestAlgorithm(assertionID, digestAlgorithm).build(): null)
                                     .buildWithEncrypterCredential(encryptingCredential, encryptionAlgorithm, keyTransportAlgorithm));
         }
         return new XmlObjectToBase64EncodedStringTransformer<>().apply(responseBuilder.build());

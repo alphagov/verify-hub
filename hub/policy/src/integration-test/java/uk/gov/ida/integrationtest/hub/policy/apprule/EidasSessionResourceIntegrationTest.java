@@ -234,7 +234,7 @@ public class EidasSessionResourceIntegrationTest {
     }
 
     private void stubSamlEngineGenerationOfAQR() throws Exception {
-        aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true);
+        aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true, Optional.empty());
         samlEngineStub.setupStubForEidasAttributeQueryRequestGeneration(aqrDto);
     }
 

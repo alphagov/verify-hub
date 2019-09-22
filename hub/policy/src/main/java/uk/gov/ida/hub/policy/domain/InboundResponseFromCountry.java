@@ -16,7 +16,7 @@ public class InboundResponseFromCountry {
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
     private Optional<DateTime> notOnOrAfter;
-    private Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
+    private Optional<CountrySignedResponseContainer> countrySignedResponse;
 
     public InboundResponseFromCountry(
             CountryAuthenticationStatus.Status status,
@@ -26,7 +26,7 @@ public class InboundResponseFromCountry {
             Optional<String> persistentId,
             Optional<LevelOfAssurance> levelOfAssurance,
             Optional<DateTime> notOnOrAfter,
-            Optional<CountrySignedResponseContainer> countrySignedResponseContainer) {
+            Optional<CountrySignedResponseContainer> countrySignedResponse) {
         this.status = status;
         this.statusMessage = statusMessage;
         this.issuer = issuer;
@@ -34,7 +34,7 @@ public class InboundResponseFromCountry {
         this.persistentId = persistentId;
         this.levelOfAssurance = levelOfAssurance;
         this.notOnOrAfter = notOnOrAfter;
-        this.countrySignedResponseContainer = countrySignedResponseContainer;
+        this.countrySignedResponse = countrySignedResponse;
     }
 
     protected InboundResponseFromCountry() {
@@ -68,7 +68,7 @@ public class InboundResponseFromCountry {
         return notOnOrAfter;
     }
 
-    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
-        return countrySignedResponseContainer;
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponse() {
+        return countrySignedResponse;
     }
 }

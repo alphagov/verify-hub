@@ -61,6 +61,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseT
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AttributeQueryToElementTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EidasAuthnRequestFromHubToAuthnRequestTransformer;
+import uk.gov.ida.saml.hub.transformers.outbound.EidasUnsignedAssertionsTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EncryptedAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.HubAssertionMarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.HubAttributeQueryRequestToSamlAttributeQueryTransformer;
@@ -491,17 +492,23 @@ public class HubTransformersFactory {
     }
 
     private HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer() {
+        HubAssertionMarshaller hubAssertionMarshaller = new HubAssertionMarshaller(
+                new OpenSamlXmlObjectFactory(),
+                new AttributeFactory_1_1(new OpenSamlXmlObjectFactory()),
+                new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory()));
+
+        EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer = new EidasUnsignedAssertionsTransformer(
+                new OpenSamlXmlObjectFactory()
+        );
         return new HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
                 new OpenSamlXmlObjectFactory(),
-                new HubAssertionMarshaller(
-                        new OpenSamlXmlObjectFactory(),
-                        new AttributeFactory_1_1(new OpenSamlXmlObjectFactory()),
-                        new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory())),
+                hubAssertionMarshaller,
                 new AssertionFromIdpToAssertionTransformer(
                         getStringToAssertionTransformer()
                 ),
                 new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory()),
-                getEncryptedAssertionUnmarshaller());
+                getEncryptedAssertionUnmarshaller(),
+                eidasUnsignedAssertionsTransformer);
     }
 
     public EncryptedAssertionUnmarshaller getEncryptedAssertionUnmarshaller() {

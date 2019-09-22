@@ -2,6 +2,7 @@ package uk.gov.ida.hub.samlengine.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.joda.time.DateTime;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;
 
 import javax.validation.constraints.NotNull;
@@ -27,24 +28,27 @@ public class EidasAttributeQueryRequestDto {
     private Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes;
     @NotNull
     private String encryptedIdentityAssertion;
+    @NotNull
+    private Optional<CountrySignedResponseContainer> countrySignedResponse;
 
     @SuppressWarnings("unused") // needed by jaxb
     private EidasAttributeQueryRequestDto() {}
 
     public EidasAttributeQueryRequestDto(
-        final String requestId,
-        final String authnRequestIssuerEntityId,
-        final URI assertionConsumerServiceUri,
-        final DateTime assertionExpiry,
-        final String matchingServiceEntityId,
-        final URI attributeQueryUri,
-        final DateTime matchingServiceRequestTimeOut,
-        final boolean onboarding,
-        final LevelOfAssurance levelOfAssurance,
-        final PersistentId persistentId,
-        final Optional<Cycle3Dataset> cycle3Dataset,
-        final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
-        final String encryptedIdentityAssertion) {
+            final String requestId,
+            final String authnRequestIssuerEntityId,
+            final URI assertionConsumerServiceUri,
+            final DateTime assertionExpiry,
+            final String matchingServiceEntityId,
+            final URI attributeQueryUri,
+            final DateTime matchingServiceRequestTimeOut,
+            final boolean onboarding,
+            final LevelOfAssurance levelOfAssurance,
+            final PersistentId persistentId,
+            final Optional<Cycle3Dataset> cycle3Dataset,
+            final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
+            final String encryptedIdentityAssertion,
+            Optional<CountrySignedResponseContainer> countrySignedResponse) {
 
         this.requestId = requestId;
         this.authnRequestIssuerEntityId = authnRequestIssuerEntityId;
@@ -59,6 +63,7 @@ public class EidasAttributeQueryRequestDto {
         this.cycle3Dataset = cycle3Dataset;
         this.userAccountCreationAttributes = userAccountCreationAttributes;
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
+        this.countrySignedResponse = countrySignedResponse;
     }
 
     public String getRequestId() {
@@ -111,5 +116,9 @@ public class EidasAttributeQueryRequestDto {
 
     public DateTime getAssertionExpiry() {
         return assertionExpiry;
+    }
+
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponse() {
+        return countrySignedResponse;
     }
 }

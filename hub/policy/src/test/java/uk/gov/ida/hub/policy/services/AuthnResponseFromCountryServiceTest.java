@@ -9,6 +9,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.builder.SamlAuthnResponseTranslatorDtoBuilder;
@@ -33,6 +35,7 @@ import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 import java.util.Collections;
@@ -41,6 +44,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto;
@@ -74,6 +78,8 @@ public class AuthnResponseFromCountryServiceTest {
     private static final SamlAuthnResponseTranslatorDto SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
     private static final SamlAuthnResponseTranslatorDto NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().withMatchingServiceEntityId(TEST_RP).build();
 
+    private static final CountrySignedResponseContainer COUNTRY_SIGNED_RESPONSE_CONTAINER = mock(CountrySignedResponseContainer.class);
+
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY = new InboundResponseFromCountry(
             Status.Success,
             Optional.empty(),
@@ -82,7 +88,7 @@ public class AuthnResponseFromCountryServiceTest {
             Optional.of(PID),
             Optional.of(LEVEL_2),
             Optional.empty(),
-            Optional.empty());
+            Optional.of(COUNTRY_SIGNED_RESPONSE_CONTAINER));
 
     private static final EidasAttributeQueryRequestDto EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO = new EidasAttributeQueryRequestDto(
             REQUEST_ID,
@@ -97,7 +103,8 @@ public class AuthnResponseFromCountryServiceTest {
             new PersistentId(PID),
             Optional.empty(),
             Optional.empty(),
-            BLOB
+            BLOB,
+            Optional.of(COUNTRY_SIGNED_RESPONSE_CONTAINER)
     );
 
     private static final AttributeQueryContainerDto ATTRIBUTE_QUERY_CONTAINER_DTO = new AttributeQueryContainerDto(
@@ -106,15 +113,8 @@ public class AuthnResponseFromCountryServiceTest {
             REQUEST_ID,
             TIMESTAMP,
             TEST_RP,
-            IS_ONBOARDING);
-
-    private static final AttributeQueryRequest ATTRIBUTE_QUERY_REQUEST = new AttributeQueryRequest(
-            REQUEST_ID,
-            TEST_RP,
-            SAML_REQUEST,
-            MSA_URI,
-            TIMESTAMP,
-            IS_ONBOARDING);
+            IS_ONBOARDING,
+            Optional.of(COUNTRY_SIGNED_RESPONSE_CONTAINER));
 
     private AuthnResponseFromCountryService service;
 
@@ -138,6 +138,9 @@ public class AuthnResponseFromCountryServiceTest {
 
     @Mock
     private CountriesService countriesService;
+
+    @Captor
+    private ArgumentCaptor<AttributeQueryRequest> attributeQueryRequestCaptor;
 
     @Before
     public void setup() {
@@ -174,9 +177,12 @@ public class AuthnResponseFromCountryServiceTest {
         verify(samlAuthnResponseTranslatorDtoFactory).fromSamlAuthnResponseContainerDto(SAML_AUTHN_RESPONSE_CONTAINER_DTO, TEST_RP_MS);
         verify(samlEngineProxy).generateEidasAttributeQuery(EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO);
         verify(stateController).handleMatchingJourneySuccessResponseFromCountry(INBOUND_RESPONSE_FROM_COUNTRY, SAML_AUTHN_RESPONSE_CONTAINER_DTO.getPrincipalIPAddressAsSeenByHub(), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
-        verify(samlSoapProxyProxy).sendHubMatchingServiceRequest(SESSION_ID, ATTRIBUTE_QUERY_REQUEST);
+        verify(samlSoapProxyProxy).sendHubMatchingServiceRequest(eq(SESSION_ID), attributeQueryRequestCaptor.capture());
         ResponseAction expectedResponseAction = ResponseAction.success(SESSION_ID, false, LEVEL_2, null);
         assertThat(responseAction).isEqualToComparingFieldByField(expectedResponseAction);
+        AttributeQueryRequest attributeQueryRequest = attributeQueryRequestCaptor.getValue();
+        Optional<CountrySignedResponseContainer> countrySignedResponse = attributeQueryRequest.getCountrySignedResponse();
+        assertThat(countrySignedResponse.get()).isEqualTo(COUNTRY_SIGNED_RESPONSE_CONTAINER);
     }
 
     @Test(expected = InvalidSessionStateException.class)

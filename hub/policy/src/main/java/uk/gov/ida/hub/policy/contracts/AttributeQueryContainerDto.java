@@ -3,8 +3,10 @@ package uk.gov.ida.hub.policy.contracts;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
+import java.util.Optional;
 
 public class AttributeQueryContainerDto {
     private String samlRequest;
@@ -13,6 +15,7 @@ public class AttributeQueryContainerDto {
     private String id;
     private String issuer;
     private boolean onboarding;
+    private Optional<CountrySignedResponseContainer> countrySignedResponse;
 
     @SuppressWarnings("unused") //Required by JAXB
     private AttributeQueryContainerDto() {}
@@ -23,7 +26,8 @@ public class AttributeQueryContainerDto {
             String id,
             DateTime attributeQueryClientTimeOut,
             String issuer,
-            boolean onboarding) {
+            boolean onboarding,
+            Optional<CountrySignedResponseContainer> countrySignedResponse) {
 
         this.id = id;
         this.issuer = issuer;
@@ -31,6 +35,7 @@ public class AttributeQueryContainerDto {
         this.matchingServiceUri = matchingServiceUri;
         this.onboarding = onboarding;
         this.attributeQueryClientTimeOut = attributeQueryClientTimeOut;
+        this.countrySignedResponse = countrySignedResponse;
     }
 
     public String getSamlRequest() {
@@ -53,6 +58,10 @@ public class AttributeQueryContainerDto {
 
     public boolean isOnboarding() {
         return onboarding;
+    }
+
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponse() {
+        return countrySignedResponse;
     }
 
     @Override

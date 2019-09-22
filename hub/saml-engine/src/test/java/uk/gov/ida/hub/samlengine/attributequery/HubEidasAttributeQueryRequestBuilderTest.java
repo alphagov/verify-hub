@@ -9,6 +9,7 @@ import uk.gov.ida.hub.samlengine.domain.Cycle3Dataset;
 import uk.gov.ida.hub.samlengine.domain.EidasAttributeQueryRequestDto;
 import uk.gov.ida.saml.core.domain.AssertionRestrictions;
 import uk.gov.ida.saml.core.domain.AuthnContext;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.domain.HubAssertion;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;
@@ -27,7 +28,7 @@ public class HubEidasAttributeQueryRequestBuilderTest {
     private static final String HUB_EIDAS_ENTITY_ID = "Eidas";
     private static final Optional<List<UserAccountCreationAttribute>> USER_ACCOUNT_CREATION_ATTRIBUTES = Optional.empty();
     private static final DateTime NOW = DateTime.now();
-
+    private Optional<CountrySignedResponseContainer> COUNTRY_SIGNED_RESPONSE = Optional.empty();
     private static HubEidasAttributeQueryRequestBuilder builder;
 
     @Before
@@ -56,7 +57,8 @@ public class HubEidasAttributeQueryRequestBuilderTest {
             eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion(),
             AuthnContext.LEVEL_2,
             cycle3AttributeAssertion,
-            USER_ACCOUNT_CREATION_ATTRIBUTES);
+            USER_ACCOUNT_CREATION_ATTRIBUTES,
+            COUNTRY_SIGNED_RESPONSE);
 
         HubEidasAttributeQueryRequest hubEidasAttributeQueryRequest = builder.createHubAttributeQueryRequest(eidasAttributeQueryRequestDto);
 
@@ -70,6 +72,7 @@ public class HubEidasAttributeQueryRequestBuilderTest {
         assertThat(hubEidasAttributeQueryRequest.getIssueInstant()).isEqualTo(expectedResult.getIssueInstant());
         assertThat(hubEidasAttributeQueryRequest.getCycle3AttributeAssertion()).isEqualTo(cycle3AttributeAssertion);
         assertThat(hubEidasAttributeQueryRequest.getUserAccountCreationAttributes()).isEqualTo(USER_ACCOUNT_CREATION_ATTRIBUTES);
+        assertThat(hubEidasAttributeQueryRequest.getCountrySignedResponse()).isEqualTo(COUNTRY_SIGNED_RESPONSE);
     }
 
     @Test
@@ -102,7 +105,8 @@ public class HubEidasAttributeQueryRequestBuilderTest {
             eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion(),
             AuthnContext.LEVEL_2,
             cycle3Assertion,
-            USER_ACCOUNT_CREATION_ATTRIBUTES);
+            USER_ACCOUNT_CREATION_ATTRIBUTES,
+            COUNTRY_SIGNED_RESPONSE);
 
         HubEidasAttributeQueryRequest hubEidasAttributeQueryRequest = builder.createHubAttributeQueryRequest(eidasAttributeQueryRequestDto);
 
@@ -124,5 +128,6 @@ public class HubEidasAttributeQueryRequestBuilderTest {
         assertThat(hubEidasAttributeQueryRequest.getCycle3AttributeAssertion().get().getCycle3Data().isPresent()).isTrue();
         assertThat(hubEidasAttributeQueryRequest.getCycle3AttributeAssertion().get().getCycle3Data().get().getAttributes()).isEqualTo(hubAssertion.getCycle3Data().get().getAttributes());
         assertThat(hubEidasAttributeQueryRequest.getUserAccountCreationAttributes()).isEqualTo(USER_ACCOUNT_CREATION_ATTRIBUTES);
+        assertThat(hubEidasAttributeQueryRequest.getCountrySignedResponse()).isEqualTo(COUNTRY_SIGNED_RESPONSE);
     }
 }

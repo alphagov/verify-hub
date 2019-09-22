@@ -12,6 +12,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 import java.util.List;
@@ -41,6 +42,7 @@ public class EidasAttributeQueryRequestDtoTest {
     private static final Optional<List<UserAccountCreationAttribute>> USER_ACCOUNT_CREATION_ATTRIBUTES = Optional.empty();
     private static final DateTime ASSERTION_EXPIRY = DateTime.now();
     private EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto;
+    private Optional<CountrySignedResponseContainer> COUNTRY_SIGNED_RESPONSE = Optional.empty();
 
     @Before
     public void setUp() throws Exception {
@@ -57,7 +59,8 @@ public class EidasAttributeQueryRequestDtoTest {
             PERSISTENT_ID,
             CYCLE_3_DATASET,
             USER_ACCOUNT_CREATION_ATTRIBUTES,
-            ENCRYPTED_IDENTITY_ASSERTION
+            ENCRYPTED_IDENTITY_ASSERTION,
+            COUNTRY_SIGNED_RESPONSE
         );
     }
 

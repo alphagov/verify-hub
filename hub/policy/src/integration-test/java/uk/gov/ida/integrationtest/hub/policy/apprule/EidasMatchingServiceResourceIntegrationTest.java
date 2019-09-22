@@ -39,6 +39,7 @@ import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResourceHelper;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -294,6 +295,23 @@ public class EidasMatchingServiceResourceIntegrationTest {
         assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreatedState.class.getName());
     }
 
+    @Test
+    public void shouldTransitionToEidasSuccessfulMatchStateWhenMatchIsReceivedWithCountrySignedResponseContainerPresent() throws Exception {
+        CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer("saml", List.of("keys"), "country entity id");
+        AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true, Optional.of(countrySignedResponseContainer));
+        samlEngineStub.setupStubForEidasAttributeQueryRequestGeneration(aqrDto);
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
+        samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
+        postAuthnResponseToPolicy(sessionId);
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aMatchResponse());
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(EidasSuccessfulMatchState.class.getName());
+    }
+
     private SessionId aSessionIsCreated() throws JsonProcessingException {
         configStub.setUpStubForAssertionConsumerServiceUri(RP_ENTITY_ID);
         samlEngineStub.setupStubForAuthnRequestTranslate(translatedAuthnRequest);
@@ -396,7 +414,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     private void stubSamlEngineGenerationOfAQR() throws Exception {
-        AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true);
+        AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true, Optional.empty());
         samlEngineStub.setupStubForEidasAttributeQueryRequestGeneration(aqrDto);
     }
 }

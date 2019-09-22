@@ -2,6 +2,7 @@ package uk.gov.ida.saml.hub.builders;
 
 import org.joda.time.DateTime;
 import uk.gov.ida.saml.core.domain.AuthnContext;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.domain.HubAssertion;
 import uk.gov.ida.saml.core.domain.PersistentId;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
@@ -23,6 +24,7 @@ public class HubEidasAttributeQueryRequestBuilder {
     private AuthnContext authnContext = AuthnContext.LEVEL_1;
     private String encryptedIdentityAssertion = "encryptedIdentityAssertion";
     private String hubEidasEntityId = "hubEntityId";
+    private Optional<CountrySignedResponseContainer> countrySignedResponseContainer = Optional.empty();
 
     public static HubEidasAttributeQueryRequestBuilder aHubEidasAttributeQueryRequest() {
         return new HubEidasAttributeQueryRequestBuilder();
@@ -39,7 +41,8 @@ public class HubEidasAttributeQueryRequestBuilder {
                 encryptedIdentityAssertion,
                 authnContext,
                 cycle3AttributeAssertion,
-                userAccountCreationAttributes
+                userAccountCreationAttributes,
+                countrySignedResponseContainer
         );
     }
 
@@ -75,6 +78,11 @@ public class HubEidasAttributeQueryRequestBuilder {
 
     public HubEidasAttributeQueryRequestBuilder withAuthnContext(AuthnContext authnContext) {
         this.authnContext = authnContext;
+        return this;
+    }
+
+    public HubEidasAttributeQueryRequestBuilder withCountrySignedResponseContainer(CountrySignedResponseContainer countrySignedResponseContainer) {
+        this.countrySignedResponseContainer = Optional.ofNullable(countrySignedResponseContainer);
         return this;
     }
 

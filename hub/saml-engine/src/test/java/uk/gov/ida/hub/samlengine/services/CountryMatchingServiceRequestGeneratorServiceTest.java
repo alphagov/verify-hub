@@ -11,6 +11,7 @@ import uk.gov.ida.hub.samlengine.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlengine.domain.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
 import uk.gov.ida.saml.core.domain.AuthnContext;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.domain.PersistentId;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
@@ -43,7 +44,7 @@ public class CountryMatchingServiceRequestGeneratorServiceTest {
     private static final boolean IS_ONBOARDING = true;
     private static final String HUB_EIDAS_ENTITY_ID = "hub-eidas-entity-id";
     private static final String SAML_REQUEST = "SAML_REQUEST";
-
+    private static Optional<CountrySignedResponseContainer> COUNTRY_SIGNED_RESPONSE = Optional.empty();
     private static final EidasAttributeQueryRequestDto EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO = new EidasAttributeQueryRequestDto(
         REQUEST_ID,
         TEST_RP,
@@ -57,7 +58,8 @@ public class CountryMatchingServiceRequestGeneratorServiceTest {
         new uk.gov.ida.hub.samlengine.domain.PersistentId(PERSISTENT_ID.getNameId()),
         Optional.empty(),
         Optional.empty(),
-        ENCRYPTED_IDENTITY_ASSERTION
+        ENCRYPTED_IDENTITY_ASSERTION,
+        COUNTRY_SIGNED_RESPONSE
     );
     private static final HubEidasAttributeQueryRequest HUB_EIDAS_ATTRIBUTE_QUERY_REQUEST = new HubEidasAttributeQueryRequest(
         REQUEST_ID,
@@ -69,7 +71,8 @@ public class CountryMatchingServiceRequestGeneratorServiceTest {
         TEST_RP,
         AuthnContext.LEVEL_2,
         Optional.empty(),
-        Optional.empty());
+        Optional.empty(),
+        COUNTRY_SIGNED_RESPONSE);
     private static final AttributeQueryContainerDto ATTRIBUTE_QUERY_CONTAINER_DTO = new AttributeQueryContainerDto(
         REQUEST_ID,
         TEST_RP,

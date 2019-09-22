@@ -95,6 +95,7 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
                 persistentId,
                 Optional.empty(),
                 Optional.of(userAccountCreationAttributes),
-                encryptedIdentityAssertion);
+                encryptedIdentityAssertion,
+                Optional.empty());
     }
 }

@@ -178,7 +178,8 @@ public class EidasAwaitingCycle3DataStateControllerTest {
             state.getPersistentId(),
             Optional.of(cycle3Dataset),
             Optional.empty(),
-            state.getEncryptedIdentityAssertion()
+            state.getEncryptedIdentityAssertion(),
+            Optional.empty()
         );
 
         EidasAttributeQueryRequestDto actualDto = controller.createAttributeQuery(cycle3Dataset);

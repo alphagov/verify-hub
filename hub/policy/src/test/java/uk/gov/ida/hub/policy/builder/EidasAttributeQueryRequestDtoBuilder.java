@@ -30,7 +30,8 @@ public class EidasAttributeQueryRequestDtoBuilder {
             new PersistentId("nameId"),
             Optional.of(aCycle3Dataset()),
             Optional.empty(),
-            "encryptedIdentityAssertion"
+            "encryptedIdentityAssertion",
+            Optional.empty()
         );
     }
 
