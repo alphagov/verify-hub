@@ -19,6 +19,7 @@ public interface Urls {
         // Start of new saml-engine is a real microservice resources
 
         String GENERATE_RP_AUTHN_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-authn-response";
+        String GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-authn-response-wrapping-country-response";
         String GENERATE_RP_ERROR_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-error-response";
         String TRANSLATE_RP_AUTHN_REQUEST_RESOURCE = SAML_ENGINE_ROOT + "/translate-rp-authn-request";
 

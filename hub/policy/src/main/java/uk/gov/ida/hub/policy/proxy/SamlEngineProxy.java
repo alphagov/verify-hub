@@ -4,6 +4,7 @@ import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.annotations.SamlEngine;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
+import uk.gov.ida.hub.policy.contracts.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
@@ -83,6 +84,14 @@ public class SamlEngineProxy {
                 .path(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE)
                 .build();
         return jsonClient.post(responseFromHub, uri, AuthnResponseFromHubContainerDto.class);
+    }
+
+    public AuthnResponseFromHubContainerDto generateRpAuthnResponseWrappingCountrySaml(AuthnResponseFromCountryContainerDto authnResponseFromCountryContainerDto) {
+        URI uri = UriBuilder
+                .fromUri(samlEngineUri)
+                .path(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE)
+                .build();
+        return jsonClient.post(authnResponseFromCountryContainerDto, uri, AuthnResponseFromHubContainerDto.class);
     }
 
     public AttributeQueryContainerDto generateAttributeQuery(AttributeQueryRequestDto attributeQueryRequestDto) {

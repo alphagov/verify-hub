@@ -33,6 +33,7 @@ import uk.gov.ida.hub.samlengine.resources.translators.MatchingServiceRequestGen
 import uk.gov.ida.hub.samlengine.resources.translators.MatchingServiceResponseTranslatorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnRequestTranslatorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseGeneratorResource;
+import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseWrappingCountryResponseGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpErrorResponseGeneratorResource;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
@@ -125,6 +126,7 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
         environment.jersey().register(IdpAuthnResponseTranslatorResource.class);
         environment.jersey().register(RpAuthnRequestTranslatorResource.class);
         environment.jersey().register(RpAuthnResponseGeneratorResource.class);
+        environment.jersey().register(RpAuthnResponseWrappingCountryResponseGeneratorResource.class);
         environment.jersey().register(RpErrorResponseGeneratorResource.class);
         environment.jersey().register(MatchingServiceRequestGeneratorResource.class);
         environment.jersey().register(MatchingServiceResponseTranslatorResource.class);

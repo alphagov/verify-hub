@@ -7,25 +7,21 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
-import uk.gov.ida.saml.core.domain.EidasUnsignedAssertions;
-import uk.gov.ida.saml.core.domain.UnsignedAssertions;
 
 import javax.validation.constraints.NotNull;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 // This annotation is required for ZDD where we may add fields to newer versions of this DTO
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryRequestDto implements UnsignedAssertions {
+public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryRequestDto {
 
     @NotNull
     private final String encryptedIdentityAssertion;
-    private Optional<EidasUnsignedAssertions> unsignedAssertions;
 
-    public EidasAttributeQueryRequestDto (
+    public EidasAttributeQueryRequestDto(
         final String requestId,
         final String authnRequestIssuerEntityId,
         final URI assertionConsumerServiceUri,
@@ -54,42 +50,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             cycle3Dataset,
             userAccountCreationAttributes);
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
-        this.unsignedAssertions = Optional.empty();
     }
-
-    public EidasAttributeQueryRequestDto (
-            final String requestId,
-            final String authnRequestIssuerEntityId,
-            final URI assertionConsumerServiceUri,
-            final DateTime assertionExpiry,
-            final String matchingServiceEntityId,
-            final URI attributeQueryUri,
-            final DateTime matchingServiceRequestTimeOut,
-            final boolean onboarding,
-            final LevelOfAssurance levelOfAssurance,
-            final PersistentId persistentId,
-            final Optional<Cycle3Dataset> cycle3Dataset,
-            final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
-            final String encryptedIdentityAssertion,
-            final Optional<EidasUnsignedAssertions> unsignedAssertions) {
-
-        super(
-                requestId,
-                authnRequestIssuerEntityId,
-                assertionConsumerServiceUri,
-                assertionExpiry,
-                matchingServiceEntityId,
-                attributeQueryUri,
-                matchingServiceRequestTimeOut,
-                onboarding,
-                levelOfAssurance,
-                persistentId,
-                cycle3Dataset,
-                userAccountCreationAttributes);
-        this.encryptedIdentityAssertion = encryptedIdentityAssertion;
-        this.unsignedAssertions = unsignedAssertions;
-    }
-
 
     public String getEncryptedIdentityAssertion() {
         return encryptedIdentityAssertion;
@@ -128,8 +89,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             Objects.equals(getPersistentId(), that.getPersistentId()) &&
             Objects.equals(getCycle3Dataset(), that.getCycle3Dataset()) &&
             Objects.equals(getUserAccountCreationAttributes(), that.getUserAccountCreationAttributes()) &&
-            Objects.equals(encryptedIdentityAssertion, that.encryptedIdentityAssertion) &&
-            Objects.equals(getUnsignedAssertions(), that.getUnsignedAssertions());
+            Objects.equals(encryptedIdentityAssertion, that.encryptedIdentityAssertion);
     }
 
     @Override
@@ -147,22 +107,11 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             getPersistentId(),
             getCycle3Dataset(),
             getUserAccountCreationAttributes(),
-            encryptedIdentityAssertion,
-            getUnsignedAssertions());
+            encryptedIdentityAssertion);
     }
 
     @Override
     public AttributeQueryContainerDto sendToSamlEngine(SamlEngineProxy samlEngineProxy) {
         return samlEngineProxy.generateEidasAttributeQuery(this);
-    }
-
-    @Override
-    public Optional<EidasUnsignedAssertions> getUnsignedAssertions() {
-        return this.unsignedAssertions;
-    }
-
-    @Override
-    public void setUnisgnedAssertions(EidasUnsignedAssertions unsignedAssertions) {
-        this.unsignedAssertions = Optional.of(unsignedAssertions);
     }
 }

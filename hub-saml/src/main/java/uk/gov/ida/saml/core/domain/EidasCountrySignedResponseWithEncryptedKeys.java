@@ -3,14 +3,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EidasUnsignedAssertions {
+public class EidasCountrySignedResponseWithEncryptedKeys {
     private String saml;
     private List<String> base64encryptedKeys;
 
-    private EidasUnsignedAssertions() {
+    private EidasCountrySignedResponseWithEncryptedKeys() {
     }
 
-    public EidasUnsignedAssertions(String saml, List<String> base64encryptedKeys) {
+    public EidasCountrySignedResponseWithEncryptedKeys(String saml, List<String> base64encryptedKeys) {
         this.saml = saml;
         this.base64encryptedKeys = base64encryptedKeys;
     }

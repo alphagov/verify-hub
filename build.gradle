@@ -56,6 +56,7 @@ subprojects {
 
     repositories {
         if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
+            mavenLocal()
             logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/whitelisted-repos for production builds.\n\n')
             maven { url 'https://dl.bintray.com/alphagov/maven' } // For dropwizard-logstash
             maven { url 'https://dl.bintray.com/alphagov/maven-test' } // For other public verify binaries
@@ -64,6 +65,7 @@ subprojects {
             jcenter()
         }
         else {
+            mavenLocal()
             maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
         }
     }
@@ -149,7 +151,7 @@ subprojects {
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
                 project(":hub-saml")
 
-        saml_lib "uk.gov.ida:saml-lib:$dependencyVersions.saml_lib"
+        saml_lib "uk.gov.ida:saml-lib:3.4.3-SNAPSHOT"
 
         saml_test "uk.gov.ida:saml-test:$dependencyVersions.saml_lib"
 

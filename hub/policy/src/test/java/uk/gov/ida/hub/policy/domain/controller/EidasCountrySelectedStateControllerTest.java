@@ -34,6 +34,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -300,7 +301,8 @@ public class EidasCountrySelectedStateControllerTest {
                 new SessionId(state.getSessionId().getSessionId()),
                 state.getTransactionSupportsEidas(),
                 state.getRelayState().orElse(null),
-                singleton(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion())
+                singleton(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
+                null
         );
 
         ArgumentCaptor<NonMatchingJourneySuccessState> stateArgumentCaptor = ArgumentCaptor.forClass(NonMatchingJourneySuccessState.class);

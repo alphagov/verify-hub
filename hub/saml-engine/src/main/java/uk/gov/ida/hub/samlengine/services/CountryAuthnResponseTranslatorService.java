@@ -11,7 +11,7 @@ import uk.gov.ida.hub.samlengine.logging.MdcHelper;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator;
 import uk.gov.ida.saml.core.domain.AuthnContext;
-import uk.gov.ida.saml.core.domain.EidasUnsignedAssertions;
+import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.core.validation.assertion.AssertionAttributeStatementValidator;
@@ -30,7 +30,6 @@ import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,26 +77,26 @@ public class CountryAuthnResponseTranslatorService {
         List<Assertion> assertions = assertionDecrypter.decryptAssertions(validatedResponse);
         Optional<Assertion> validatedIdentityAssertion = validateAssertion(validatedResponse, assertions);
         List<String> base64EncryptedSecretKeys;
-        Optional<EidasUnsignedAssertions> unsignedAssertions;
+        Optional<EidasCountrySignedResponseWithEncryptedKeys> responseWithEncryptedKeys;
 
-        if (this.areAssertionsUnsigned(assertions)) {
+        if (areAssertionsUnsigned(assertions)) {
             base64EncryptedSecretKeys = assertionDecrypter.getReEncryptedKeys(
                     validatedResponse,
                     secretKeyEncrypter,
                     samlResponseDto.getMatchingServiceEntityId()
             );
-            unsignedAssertions = Optional.of(
-                    new EidasUnsignedAssertions(samlResponseDto.getSamlResponse(), base64EncryptedSecretKeys)
+            responseWithEncryptedKeys = Optional.of(
+                    new EidasCountrySignedResponseWithEncryptedKeys(samlResponseDto.getSamlResponse(), base64EncryptedSecretKeys)
             );
         } else {
-            unsignedAssertions = Optional.empty();
+            responseWithEncryptedKeys = Optional.empty();
         }
 
 
         return toModel(validatedResponse,
                 validatedIdentityAssertion,
                 samlResponseDto.getMatchingServiceEntityId(),
-                unsignedAssertions);
+                responseWithEncryptedKeys);
     }
 
     protected boolean areAssertionsUnsigned(List<Assertion> assertions) {
@@ -132,7 +131,7 @@ public class CountryAuthnResponseTranslatorService {
     private InboundResponseFromCountry toModel(ValidatedResponse response,
                                                Optional<Assertion> validatedIdentityAssertionOptional,
                                                String matchingServiceEntityId,
-                                               Optional<EidasUnsignedAssertions> unsignedAssertions) {
+                                               Optional<EidasCountrySignedResponseWithEncryptedKeys> responseWithEncryptedKeys) {
 
         Optional<PassthroughAssertion> passthroughAssertion = validatedIdentityAssertionOptional.map(validatedIdentityAssertion -> passthroughAssertionUnmarshaller.fromAssertion(validatedIdentityAssertion, true));
 
@@ -151,7 +150,7 @@ public class CountryAuthnResponseTranslatorService {
                 status.getMessage(),
                 passthroughAssertion.map(assertion -> assertionBlobEncrypter.encryptAssertionBlob(matchingServiceEntityId, assertion.getUnderlyingAssertionBlob())),
                 levelOfAssurance,
-                unsignedAssertions
+                responseWithEncryptedKeys
         );
     }
 }

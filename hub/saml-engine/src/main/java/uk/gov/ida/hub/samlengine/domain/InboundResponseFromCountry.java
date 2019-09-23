@@ -1,10 +1,7 @@
 package uk.gov.ida.hub.samlengine.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.ida.saml.core.domain.EidasUnsignedAssertions;
-import uk.gov.ida.saml.core.domain.UnsignedAssertions;
+import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
 
-import java.util.List;
 import java.util.Optional;
 
 public class InboundResponseFromCountry {
@@ -15,7 +12,7 @@ public class InboundResponseFromCountry {
     private Optional<String> statusMessage;
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
-    private Optional<EidasUnsignedAssertions> unsignedAssertions;
+    private Optional<EidasCountrySignedResponseWithEncryptedKeys> countrySignedResponseWithEncryptedKeys;
 
     private InboundResponseFromCountry() {
     }
@@ -27,7 +24,7 @@ public class InboundResponseFromCountry {
             Optional<String> statusMessage,
             Optional<String> encryptedIdentityAssertionBlob,
             Optional<LevelOfAssurance> levelOfAssurance,
-            Optional<EidasUnsignedAssertions> unsignedAssertions
+            Optional<EidasCountrySignedResponseWithEncryptedKeys> countrySignedResponseWithEncryptedKeys
     ) {
         this.issuer = issuer;
         this.persistentId = persistentId;
@@ -35,7 +32,7 @@ public class InboundResponseFromCountry {
         this.statusMessage = statusMessage;
         this.encryptedIdentityAssertionBlob = encryptedIdentityAssertionBlob;
         this.levelOfAssurance = levelOfAssurance;
-        this.unsignedAssertions = unsignedAssertions;
+        this.countrySignedResponseWithEncryptedKeys = countrySignedResponseWithEncryptedKeys;
     }
 
     public String getIssuer() {
@@ -62,7 +59,7 @@ public class InboundResponseFromCountry {
         return levelOfAssurance;
     }
 
-    public Optional<EidasUnsignedAssertions> getUnsignedAssertions() {
-        return this.unsignedAssertions;
+    public Optional<EidasCountrySignedResponseWithEncryptedKeys> getCountrySignedResponseWithEncryptedKeys() {
+        return countrySignedResponseWithEncryptedKeys;
     }
 }

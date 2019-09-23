@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
@@ -42,6 +43,7 @@ public class AuthnRequestFromTransactionHandlerTest {
     private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
     private static final String ANALYTICS_SESSION_ID = "anAnalyticsSessionId";
     private static final String JOURNEY_TYPE = "aJourneyType";
+    private static final IdGenerator idGenerator = new IdGenerator();
 
     @Mock
     private SessionRepository sessionRepository;
@@ -58,7 +60,7 @@ public class AuthnRequestFromTransactionHandlerTest {
 
     @Before
     public void setUp() {
-        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, hubEventLogger, policyConfiguration, transactionsConfigProxy);
+        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, hubEventLogger, policyConfiguration, transactionsConfigProxy, idGenerator);
     }
 
     @Test

@@ -160,6 +160,6 @@ public class EidasAttributeQueryRequestDtoTest {
     @Test
     public void equalsContract() {
 
-        EqualsVerifier.forClass(EidasAttributeQueryRequestDto.class).suppress(Warning.NONFINAL_FIELDS).verify();
+        EqualsVerifier.forClass(EidasAttributeQueryRequestDto.class).verify();
     }
 }

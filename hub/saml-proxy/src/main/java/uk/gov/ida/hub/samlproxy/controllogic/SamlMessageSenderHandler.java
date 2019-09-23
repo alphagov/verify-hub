@@ -30,6 +30,7 @@ public class SamlMessageSenderHandler {
     private final ProtectiveMonitoringLogger protectiveMonitoringLogger;
     private final SessionProxy sessionProxy;
 
+
     @Inject
     public SamlMessageSenderHandler(
             StringToOpenSamlObjectTransformer<Response> responseTransformer,
@@ -59,7 +60,13 @@ public class SamlMessageSenderHandler {
         public SamlMessage() {
         }
 
-        public SamlMessage(String samlMessage, SamlMessageType samlMessageType, Optional<String> relayState, String postEndpoint, Optional<Boolean> registration) {
+        public SamlMessage(
+                String samlMessage,
+                SamlMessageType samlMessageType,
+                Optional<String> relayState,
+                String postEndpoint,
+                Optional<Boolean> registration
+        ) {
             this.samlMessage = samlMessage;
             this.samlMessageType = samlMessageType;
             this.relayState = relayState;
@@ -92,7 +99,13 @@ public class SamlMessageSenderHandler {
         AuthnResponseFromHubContainerDto authnResponseFromHub = sessionProxy.getAuthnResponseFromHub(sessionId);
         Response samlResponse = responseTransformer.apply(authnResponseFromHub.getSamlResponse());
         validateAndLogSamlResponseSignature(samlResponse);
-        SamlMessage samlMessage = new SamlMessage(authnResponseFromHub.getSamlResponse(), SamlMessageType.SAML_RESPONSE, authnResponseFromHub.getRelayState(), authnResponseFromHub.getPostEndpoint().toString(), Optional.empty());
+        SamlMessage samlMessage = new SamlMessage(
+                authnResponseFromHub.getSamlResponse(),
+                SamlMessageType.SAML_RESPONSE,
+                authnResponseFromHub.getRelayState(),
+                authnResponseFromHub.getPostEndpoint().toString(),
+                Optional.empty()
+        );
         externalCommunicationEventLogger.logResponseFromHub(samlResponse.getID(), sessionId, authnResponseFromHub.getPostEndpoint(), principalIpAddressAsSeenByHub);
         return samlMessage;
     }
@@ -101,7 +114,13 @@ public class SamlMessageSenderHandler {
         AuthnResponseFromHubContainerDto authnResponseFromHub = sessionProxy.getErrorResponseFromHub(sessionId);
         Response samlResponse = responseTransformer.apply(authnResponseFromHub.getSamlResponse());
         validateAndLogSamlResponseSignature(samlResponse);
-        SamlMessage samlMessage = new SamlMessage(authnResponseFromHub.getSamlResponse(), SamlMessageType.SAML_RESPONSE, authnResponseFromHub.getRelayState(), authnResponseFromHub.getPostEndpoint().toString(), Optional.empty());
+        SamlMessage samlMessage = new SamlMessage(
+                authnResponseFromHub.getSamlResponse(),
+                SamlMessageType.SAML_RESPONSE,
+                authnResponseFromHub.getRelayState(),
+                authnResponseFromHub.getPostEndpoint().toString(),
+                Optional.empty()
+        );
         externalCommunicationEventLogger.logResponseFromHub(authnResponseFromHub.getResponseId(), sessionId, authnResponseFromHub.getPostEndpoint(), principalIpAddressAsSeenByHub);
         return samlMessage;
     }
@@ -118,7 +137,13 @@ public class SamlMessageSenderHandler {
             SamlValidationSpecificationFailure failure = samlSignatureValidationResponse.getSamlValidationSpecificationFailure();
             throw new SamlTransformationErrorException(failure.getErrorMessage(), samlSignatureValidationResponse.getCause(), Level.ERROR);
         }
-        SamlMessage samlMessage = new SamlMessage(authnRequestFromHub.getSamlRequest(), SamlMessageType.SAML_REQUEST, Optional.ofNullable(sessionId.toString()), authnRequestFromHub.getPostEndpoint().toString(), Optional.of(authnRequestFromHub.getRegistering()));
+        SamlMessage samlMessage = new SamlMessage(
+                authnRequestFromHub.getSamlRequest(),
+                SamlMessageType.SAML_REQUEST,
+                Optional.ofNullable(sessionId.toString()),
+                authnRequestFromHub.getPostEndpoint().toString(),
+                Optional.of(authnRequestFromHub.getRegistering())
+        );
 
         externalCommunicationEventLogger.logIdpAuthnRequest(request.getID(), sessionId, authnRequestFromHub.getPostEndpoint(), principalIpAddress);
         return samlMessage;
