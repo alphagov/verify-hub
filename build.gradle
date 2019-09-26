@@ -144,7 +144,7 @@ subprojects {
 
         dropwizard_infinispan "uk.gov.ida:dropwizard-infinispan:$dependencyVersions.dropwizard_infinispan"
 
-        prometheus 'engineering.gds-reliability:gds-metrics-dropwizard:0.1.0'
+        prometheus 'engineering.gds-reliability:gds-metrics-dropwizard:0.7.0'
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
                 project(":hub-saml")
