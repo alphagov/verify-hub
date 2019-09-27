@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.services;
 
-import uk.gov.ida.hub.policy.contracts.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.RequestForErrorResponseFromHubDto;
 import uk.gov.ida.hub.policy.contracts.SamlMessageDto;
@@ -20,6 +19,7 @@ import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;

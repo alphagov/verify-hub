@@ -5,7 +5,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
-import uk.gov.ida.hub.policy.contracts.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.AuthnRequestFromHub;
 import uk.gov.ida.hub.policy.domain.AuthnRequestSignInProcess;
@@ -33,6 +32,7 @@ import uk.gov.ida.hub.policy.domain.state.ResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
 import java.net.URI;

@@ -4,7 +4,6 @@ import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.annotations.SamlEngine;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
-import uk.gov.ida.hub.policy.contracts.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
@@ -20,6 +19,7 @@ import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.jerseyclient.JsonClient;
+import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
