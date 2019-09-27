@@ -12,6 +12,7 @@ import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
+import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.saml.core.domain.DetailedStatusCode;
@@ -20,8 +21,6 @@ import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.extensions.eidas.impl.CountrySamlResponseBuilder;
 import uk.gov.ida.saml.core.extensions.eidas.impl.EncryptedAssertionKeysBuilder;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -30,6 +29,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
 
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
     private final String hubEntityId;
+    private final IdGenerator idGenerator = new IdGenerator();
 
     public OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(
             OpenSamlXmlObjectFactory openSamlXmlObjectFactory,
@@ -55,14 +55,15 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
         topLevelStatusCode.setValue(detailedStatusCode.getStatus());
         status.setStatusCode(topLevelStatusCode);
         transformedResponse.setStatus(status);
-//        transformedResponse.setDestination();
+
+        transformedResponse.setDestination(countryResponseDto.getPostEndpoint().toASCIIString());
 
         XMLObjectBuilderFactory factory = XMLObjectProviderRegistrySupport.getBuilderFactory();
         Assertion assertion = (Assertion) factory
                 .getBuilder(Assertion.DEFAULT_ELEMENT_NAME)
                 .buildObject(Assertion.DEFAULT_ELEMENT_NAME, Assertion.TYPE_NAME);
 
-        assertion.setID("somecoolId");
+        assertion.setID(idGenerator.getId());
 
 
 //        XMLObjectBuilder<? extends CountrySamlResponse> typeBuilder = (XMLObjectBuilder<? extends CountrySamlResponse>) XMLObjectSupport.getBuilder(CountrySamlResponse.TYPE_NAME);
