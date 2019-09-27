@@ -7,8 +7,6 @@ import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
-import org.opensaml.saml.saml2.core.AttributeValue;
-import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
@@ -42,56 +40,73 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
     public Response apply(AuthnResponseFromCountryContainerDto countryResponseDto) {
         Response transformedResponse = openSamlXmlObjectFactory.createResponse();
 
-        Issuer issuer = openSamlXmlObjectFactory.createIssuer(hubEntityId);
-
+        transformedResponse.setIssuer(openSamlXmlObjectFactory.createIssuer(hubEntityId));
         transformedResponse.setID(countryResponseDto.getResponseId());
-        transformedResponse.setIssuer(issuer);
         transformedResponse.setInResponseTo(countryResponseDto.getInResponseTo());
         transformedResponse.setIssueInstant(DateTime.now());
+        transformedResponse.setDestination(countryResponseDto.getPostEndpoint().toASCIIString());
 
+        setSuccessStatusCode(transformedResponse);
+        setAssertion(transformedResponse, countryResponseDto);
+
+        return transformedResponse;
+    }
+
+    private void setSuccessStatusCode(Response transformedResponse) {
         Status status = openSamlXmlObjectFactory.createStatus();
         StatusCode topLevelStatusCode = openSamlXmlObjectFactory.createStatusCode();
         DetailedStatusCode detailedStatusCode = DetailedStatusCode.Success;
+
         topLevelStatusCode.setValue(detailedStatusCode.getStatus());
         status.setStatusCode(topLevelStatusCode);
         transformedResponse.setStatus(status);
+    }
 
-        transformedResponse.setDestination(countryResponseDto.getPostEndpoint().toASCIIString());
-
+    private void setAssertion(Response transformedResponse, AuthnResponseFromCountryContainerDto countryResponseDto) {
         XMLObjectBuilderFactory factory = XMLObjectProviderRegistrySupport.getBuilderFactory();
         Assertion assertion = (Assertion) factory
                 .getBuilder(Assertion.DEFAULT_ELEMENT_NAME)
                 .buildObject(Assertion.DEFAULT_ELEMENT_NAME, Assertion.TYPE_NAME);
-
         assertion.setID(idGenerator.getId());
 
+        List<Attribute> attributes = getAttribtuesList(countryResponseDto);
 
-//        XMLObjectBuilder<? extends CountrySamlResponse> typeBuilder = (XMLObjectBuilder<? extends CountrySamlResponse>) XMLObjectSupport.getBuilder(CountrySamlResponse.TYPE_NAME);
-        CountrySamlResponse countrySamlResponse = new CountrySamlResponseBuilder().buildObject();
-        countrySamlResponse.setCountrySamlResponse(countryResponseDto.getSamlResponse());
+        AttributeStatement attributeStatement = openSamlXmlObjectFactory.createAttributeStatement();
+        attributeStatement.getAttributes().addAll(attributes);
 
-        EncryptedAssertionKeys encryptedAssertionKeys = new EncryptedAssertionKeysBuilder().buildObject();
-        encryptedAssertionKeys.setEncryptedAssertionKeys(String.join(".", countryResponseDto.getEncryptedKeys()));
+        assertion.getAttributeStatements().add(attributeStatement);
+        transformedResponse.getAssertions().add(assertion);
+    }
 
-        List<AttributeValue> attributeValues = Arrays.asList(countrySamlResponse, encryptedAssertionKeys);
+    private List<Attribute> getAttribtuesList(AuthnResponseFromCountryContainerDto countryResponseDto) {
+        Attribute countrySamlResponseAttribute = createCountrySamlResponseAttribute(countryResponseDto);
+        Attribute encryptedAssertionKeysAttribute = createEncryptedAssertionKeysAttribute(countryResponseDto);
+        return Arrays.asList(countrySamlResponseAttribute, encryptedAssertionKeysAttribute);
+    }
+
+    private Attribute createCountrySamlResponseAttribute(AuthnResponseFromCountryContainerDto countryResponseDto) {
+        CountrySamlResponse attributeValue = new CountrySamlResponseBuilder().buildObject();
+        attributeValue.setCountrySamlResponse(countryResponseDto.getSamlResponse());
 
         Attribute attribute = (Attribute) XMLObjectSupport.buildXMLObject(Attribute.DEFAULT_ELEMENT_NAME);
         attribute.setName("countrySamlResponse");
         attribute.setFriendlyName("friendlyCountrySamlResponse");
         attribute.setNameFormat(Attribute.URI_REFERENCE);
 
-//        Attribute attribute = openSamlXmlObjectFactory.createAttribute();
-//        attribute.setName("countrySamlResponse");
+        attribute.getAttributeValues().add(attributeValue);
+        return attribute;
+    }
 
-        attribute.getAttributeValues().addAll(attributeValues);
+    private Attribute createEncryptedAssertionKeysAttribute(AuthnResponseFromCountryContainerDto countryResponseDto) {
+        EncryptedAssertionKeys attributeValue = new EncryptedAssertionKeysBuilder().buildObject();
+        attributeValue.setEncryptedAssertionKeys(String.join(".", countryResponseDto.getEncryptedKeys()));
 
-        AttributeStatement attributeStatement = openSamlXmlObjectFactory.createAttributeStatement();
-        attributeStatement.getAttributes().add(attribute);
+        Attribute attribute = (Attribute) XMLObjectSupport.buildXMLObject(Attribute.DEFAULT_ELEMENT_NAME);
+        attribute.setName("encryptedAssertionKeys");
+        attribute.setFriendlyName("friendlyEncryptedAssertionKeys");
+        attribute.setNameFormat(Attribute.URI_REFERENCE);
 
-        assertion.getAttributeStatements().add(attributeStatement);
-
-        transformedResponse.getAssertions().add(assertion);
-        return transformedResponse;
-
+        attribute.getAttributeValues().add(attributeValue);
+        return attribute;
     }
 }
