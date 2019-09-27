@@ -3,6 +3,8 @@ package uk.gov.ida.saml.hub.transformers.inbound;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.StatusDetail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.saml.core.extensions.StatusValue;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 
@@ -16,6 +18,8 @@ import static java.util.stream.Collectors.toList;
 
 public class SamlStatusToIdaStatusCodeMapper extends SamlStatusToAuthenticationStatusCodeMapper<IdpIdaStatus.Status> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SamlStatusToIdaStatusCodeMapper.class);
+
     private final Map<SamlStatusToIdpIdaStatusMappingsFactory.SamlStatusDefinitions, IdpIdaStatus.Status> statusMappings;
 
     public SamlStatusToIdaStatusCodeMapper() {
@@ -28,10 +32,16 @@ public class SamlStatusToIdaStatusCodeMapper extends SamlStatusToAuthenticationS
         final Optional<String> subStatusCodeValue = getSubStatusCodeValue(samlStatus);
         final List<String> statusDetailValues = getStatusDetailValues(samlStatus);
 
-        return statusMappings.keySet().stream()
+        Optional<IdpIdaStatus.Status> result =  statusMappings.keySet().stream()
                 .filter(k -> k.matches(statusCodeValue, subStatusCodeValue, statusDetailValues))
                 .findFirst()
                 .map(statusMappings::get);
+
+        if (result.isEmpty()){
+            LOG.info(String.format("Could not map SAML Status: %s, %s, %s", statusCodeValue, subStatusCodeValue, String.join(",", statusDetailValues)));
+        }
+
+        return result;
     }
 
     private Optional<String> getSubStatusCodeValue(final Status status) {

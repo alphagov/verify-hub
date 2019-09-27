@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
-import org.opensaml.saml.saml2.core.impl.StatusDetailImpl;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.test.OpenSAMLRunner;
@@ -177,6 +176,23 @@ public class IdpIdaStatusUnmarshallerTest {
         IdpIdaStatus idpIdaStatus = getStatusFrom(cancelResponse);
 
         assertThat(idpIdaStatus.getStatusCode()).isEqualTo(IdpIdaStatus.Status.NoAuthenticationContext);
+    }
+
+    @Test
+    public void shouldRemainNoAuthnContextIfStatusDetailPresentButUnknown() throws Exception {
+        String xml = readXmlFile("status-noauthncontext-withotherdetail.xml");
+        Response response = stringToOpenSamlObjectTransformer.apply(xml);
+
+        IdpIdaStatus idpIdaStatus = getStatusFrom(response);
+
+        assertThat(idpIdaStatus.getStatusCode()).isEqualTo(IdpIdaStatus.Status.NoAuthenticationContext);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowWhenNoMatch() throws Exception {
+        String xml = readXmlFile("status-unknown.xml");
+        Response response = stringToOpenSamlObjectTransformer.apply(xml);
+        getStatusFrom(response);
     }
 
 
