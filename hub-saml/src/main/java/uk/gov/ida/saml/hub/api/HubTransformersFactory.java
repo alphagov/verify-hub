@@ -186,8 +186,9 @@ public class HubTransformersFactory {
             final IdaKeyStore keystore,
             final ResponseAssertionSigner responseAssertionSigner,
             final SignatureAlgorithm signatureAlgorithm,
-            final DigestAlgorithm digestAlgorithm) {
-        Function<AuthnResponseFromCountryContainerDto, Response> countryResponseToResponseTransformer = getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer();
+            final DigestAlgorithm digestAlgorithm,
+            final String hubEntityId) {
+        Function<AuthnResponseFromCountryContainerDto, Response> countryResponseToResponseTransformer = getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(hubEntityId);
         Function<Response, String> responseStringTransformer = coreTransformersFactory.getResponseStringTransformer(
                 keystore,
                 responseAssertionSigner,
@@ -479,8 +480,8 @@ public class HubTransformersFactory {
                 getEncryptedAssertionUnmarshaller());
     }
 
-    private OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer() {
-        return new OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(new OpenSamlXmlObjectFactory());
+    private OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(String hubEntityId) {
+        return new OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(new OpenSamlXmlObjectFactory(), hubEntityId);
     }
 
     private HubIdentityProviderMetadataDtoToEntityDescriptorTransformer getHubIdentityProviderMetadataDtoToEntityDescriptorTransformer() {

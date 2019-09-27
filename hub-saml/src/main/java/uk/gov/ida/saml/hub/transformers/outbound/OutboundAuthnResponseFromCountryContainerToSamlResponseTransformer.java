@@ -21,6 +21,7 @@ import uk.gov.ida.saml.core.extensions.eidas.impl.CountrySamlResponseBuilder;
 import uk.gov.ida.saml.core.extensions.eidas.impl.EncryptedAssertionKeysBuilder;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -28,17 +29,20 @@ import java.util.function.Function;
 public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer implements Function<AuthnResponseFromCountryContainerDto, Response> {
 
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
-    private final String HUB_ENTITY_ID = "https://signing.service.gov.uk";
+    private final String hubEntityId;
 
-    @Inject
-    public OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(OpenSamlXmlObjectFactory openSamlXmlObjectFactory) {
+    public OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(
+            OpenSamlXmlObjectFactory openSamlXmlObjectFactory,
+            String hubEntityId
+    ) {
         this.openSamlXmlObjectFactory = openSamlXmlObjectFactory;
+        this.hubEntityId = hubEntityId;
     }
     @Override
     public Response apply(AuthnResponseFromCountryContainerDto countryResponseDto) {
         Response transformedResponse = openSamlXmlObjectFactory.createResponse();
 
-        Issuer issuer = openSamlXmlObjectFactory.createIssuer(HUB_ENTITY_ID);
+        Issuer issuer = openSamlXmlObjectFactory.createIssuer(hubEntityId);
 
         transformedResponse.setID(countryResponseDto.getResponseId());
         transformedResponse.setIssuer(issuer);

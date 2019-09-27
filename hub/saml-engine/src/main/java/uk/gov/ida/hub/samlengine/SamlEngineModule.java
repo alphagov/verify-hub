@@ -582,14 +582,16 @@ public class SamlEngineModule extends AbstractModule {
     private OutboundAuthnResponseFromCountryContainerToStringFunction getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformerProvider(
             IdaKeyStore keyStore,
             ResponseAssertionSigner responseAssertionSigner,
-            DigestAlgorithm digestAlgorithm) {
+            DigestAlgorithm digestAlgorithm,
+            @Named("HubEntityId") String hubEntityId) {
 
         return new OutboundAuthnResponseFromCountryContainerToStringFunction (
                 hubTransformersFactory.getOutboundAuthnResponseFromCountryContainerToStringTransformer(
                         keyStore,
                         responseAssertionSigner,
                         new SignatureRSASHA256(),
-                        digestAlgorithm
+                        digestAlgorithm,
+                        hubEntityId
                 )
         );
     }
