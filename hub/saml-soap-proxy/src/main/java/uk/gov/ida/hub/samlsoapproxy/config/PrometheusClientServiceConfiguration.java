@@ -15,12 +15,27 @@ public class PrometheusClientServiceConfiguration {
     @NotNull
     @Valid
     @JsonProperty
-    private Duration initialDelay = Duration.seconds(10);
+    private Duration initialDelay = Duration.seconds(10L);
 
     @NotNull
     @Valid
     @JsonProperty
-    private Duration delay =  Duration.minutes(1);
+    private Duration delay =  Duration.minutes(1L);
+
+    @NotNull
+    @Valid
+    @JsonProperty
+    private Integer minNumOfThreads = 0;
+
+    @NotNull
+    @Valid
+    @JsonProperty
+    private Integer maxNumOfThreads = 50;
+
+    @NotNull
+    @Valid
+    @JsonProperty
+    private Duration keepAliveTime = Duration.seconds(60L);
 
     public PrometheusClientServiceConfiguration() { }
 
@@ -34,5 +49,17 @@ public class PrometheusClientServiceConfiguration {
 
     public Duration getDelay() {
         return delay;
+    }
+
+    public Integer getMinNumOfThreads() {
+        return minNumOfThreads;
+    }
+
+    public Integer getMaxNumOfThreads() {
+        return maxNumOfThreads;
+    }
+
+    public Duration getKeepAliveTime() {
+        return keepAliveTime;
     }
 }

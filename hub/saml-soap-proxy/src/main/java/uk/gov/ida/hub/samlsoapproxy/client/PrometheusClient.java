@@ -2,7 +2,6 @@ package uk.gov.ida.hub.samlsoapproxy.client;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.dropwizard.setup.Environment;
-import io.dropwizard.util.Duration;
 import io.prometheus.client.Gauge;
 import uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyConfiguration;
 import uk.gov.ida.hub.samlsoapproxy.config.PrometheusClientServiceConfiguration;
@@ -57,9 +56,9 @@ public class PrometheusClient {
                 environment.lifecycle()
                            .executorService(MSA_HEALTH_CHECK_TASK_MANAGER)
                            .threadFactory(new ThreadFactoryBuilder().setNameFormat(MSA_HEALTH_CHECK_TASK_MANAGER).setDaemon(USE_DAEMON_THREADS).build())
-                           .minThreads(0)
-                           .maxThreads(Integer.MAX_VALUE)
-                           .keepAliveTime(Duration.seconds(60L))
+                           .minThreads(configuration.getMinNumOfThreads())
+                           .maxThreads(configuration.getMaxNumOfThreads())
+                           .keepAliveTime(configuration.getKeepAliveTime())
                            .workQueue(new SynchronousQueue<>())
                            .build();
             MatchingServiceHealthCheckService matchingServiceHealthCheckService = new MatchingServiceHealthCheckService(
