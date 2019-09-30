@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.joda.time.DateTime;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.util.Optional;
 
@@ -15,8 +16,17 @@ public class InboundResponseFromCountry {
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
     private Optional<DateTime> notOnOrAfter;
+    private Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
-    public InboundResponseFromCountry(CountryAuthenticationStatus.Status status, Optional<String> statusMessage, String issuer, Optional<String> encryptedIdentityAssertionBlob, Optional<String> persistentId, Optional<LevelOfAssurance> levelOfAssurance, Optional<DateTime> notOnOrAfter) {
+    public InboundResponseFromCountry(
+            CountryAuthenticationStatus.Status status,
+            Optional<String> statusMessage,
+            String issuer,
+            Optional<String> encryptedIdentityAssertionBlob,
+            Optional<String> persistentId,
+            Optional<LevelOfAssurance> levelOfAssurance,
+            Optional<DateTime> notOnOrAfter,
+            Optional<CountrySignedResponseContainer> countrySignedResponseContainer) {
         this.status = status;
         this.statusMessage = statusMessage;
         this.issuer = issuer;
@@ -24,6 +34,7 @@ public class InboundResponseFromCountry {
         this.persistentId = persistentId;
         this.levelOfAssurance = levelOfAssurance;
         this.notOnOrAfter = notOnOrAfter;
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     protected InboundResponseFromCountry() {
@@ -55,5 +66,9 @@ public class InboundResponseFromCountry {
 
     public Optional<DateTime> getNotOnOrAfter() {
         return notOnOrAfter;
+    }
+
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
+        return countrySignedResponseContainer;
     }
 }

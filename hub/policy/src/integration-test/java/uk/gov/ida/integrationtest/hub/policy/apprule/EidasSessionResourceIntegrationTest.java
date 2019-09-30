@@ -218,13 +218,13 @@ public class EidasSessionResourceIntegrationTest {
 
     private void stubSamlEngineTranslationLOAForCountry(LevelOfAssurance loa, EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.empty(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.empty());
+        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.empty(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.empty(), Optional.empty());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 
     private void stubSamlEngineTranslationToFailForCountry(EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Failure, Optional.empty(), country.getEntityId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Failure, Optional.empty(), country.getEntityId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 

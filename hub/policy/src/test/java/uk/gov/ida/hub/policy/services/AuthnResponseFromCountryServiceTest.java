@@ -81,6 +81,7 @@ public class AuthnResponseFromCountryServiceTest {
             Optional.of(BLOB),
             Optional.of(PID),
             Optional.of(LEVEL_2),
+            Optional.empty(),
             Optional.empty());
 
     private static final EidasAttributeQueryRequestDto EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO = new EidasAttributeQueryRequestDto(
@@ -200,6 +201,7 @@ public class AuthnResponseFromCountryServiceTest {
                         Optional.of("blob"),
                         Optional.of("pid"),
                         Optional.of(LEVEL_2),
+                        Optional.empty(),
                         Optional.empty());
 
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
@@ -214,7 +216,7 @@ public class AuthnResponseFromCountryServiceTest {
     @Test
     public void shouldReturnNonMatchingJourneySuccessResponseIfTranslationResponseFromSamlEngineIsSuccessfulAndNotUsingMatching() {
         final InboundResponseFromCountry inboundResponseFromCountry =
-                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob-encrypted-for-test-rp"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.empty());
+                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob-encrypted-for-test-rp"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.empty(), Optional.empty());
 
         when(stateController.isMatchingJourney()).thenReturn(false);
         when(samlEngineProxy.translateAuthnResponseFromCountry(NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
@@ -246,6 +248,7 @@ public class AuthnResponseFromCountryServiceTest {
                         Optional.of("blob"),
                         Optional.of("pid"),
                         Optional.of(LEVEL_2),
+                        Optional.empty(),
                         Optional.empty()));
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
