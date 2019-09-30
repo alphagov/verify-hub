@@ -1,7 +1,5 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.ida.saml.core.domain.DetailedStatusCode;
 import uk.gov.ida.saml.core.extensions.StatusValue;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
@@ -19,7 +17,7 @@ public class SamlStatusToIdpIdaStatusMappingsFactory {
         Success(DetailedStatusCode.Success, (v) -> true),
         AuthenticationCancelled(DetailedStatusCode.NoAuthenticationContext, StatusValue.CANCEL::equals),
         AuthenticationPending(DetailedStatusCode.NoAuthenticationContext, StatusValue.PENDING::equals),
-        NoAuthenticationContext(DetailedStatusCode.NoAuthenticationContext, Objects::isNull),
+        NoAuthenticationContext(DetailedStatusCode.NoAuthenticationContext, (v) -> v == null || !isKnownNoAuthenticationContextDetail(v)),
         AuthenticationFailed(DetailedStatusCode.AuthenticationFailed, (v) -> true),
         RequesterErrorFromIdp(DetailedStatusCode.RequesterErrorFromIdp, Objects::isNull),
         RequesterErrorRequestDeniedFromIdp(DetailedStatusCode.RequesterErrorRequestDeniedFromIdp, Objects::isNull),
@@ -43,6 +41,12 @@ public class SamlStatusToIdpIdaStatusMappingsFactory {
             }
             return statusCodesMatch && statusDetailsMatch;
         }
+    }
+
+    private static boolean isKnownNoAuthenticationContextDetail(String value){
+        return value.equals(StatusValue.CANCEL) ||
+                value.equals(StatusValue.PENDING) ||
+                value.equals(StatusValue.UPLIFT_FAILED);
     }
 
     public static Map<SamlStatusDefinitions, IdpIdaStatus.Status> getSamlToIdpIdaStatusMappings() {
