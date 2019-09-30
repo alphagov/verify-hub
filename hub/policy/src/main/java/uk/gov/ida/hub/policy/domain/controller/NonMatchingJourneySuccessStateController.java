@@ -31,7 +31,5 @@ public class NonMatchingJourneySuccessStateController implements StateController
         );
     }
 
-    public NonMatchingJourneySuccessState getState() {
-      return state;
-    };
+    public NonMatchingJourneySuccessState getState() { return state; };
 }

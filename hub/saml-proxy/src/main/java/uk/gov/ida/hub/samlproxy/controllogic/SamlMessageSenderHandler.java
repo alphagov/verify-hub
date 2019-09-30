@@ -30,7 +30,6 @@ public class SamlMessageSenderHandler {
     private final ProtectiveMonitoringLogger protectiveMonitoringLogger;
     private final SessionProxy sessionProxy;
 
-
     @Inject
     public SamlMessageSenderHandler(
             StringToOpenSamlObjectTransformer<Response> responseTransformer,

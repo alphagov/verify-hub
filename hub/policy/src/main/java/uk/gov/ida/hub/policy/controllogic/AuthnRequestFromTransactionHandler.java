@@ -144,14 +144,9 @@ public class AuthnRequestFromTransactionHandler {
     }
 
     public boolean isResponseFromCountry(SessionId sessionId) {
-        try {
-            NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
-                    sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
-            NonMatchingJourneySuccessState state = stateController.getState();
-            return state.getCountrySignedResponseWithEncryptedKeys().isPresent();
-        } catch (Exception e) {
-            System.out.println(e.toString());
-            return false;
-        }
+        NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
+                sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
+        NonMatchingJourneySuccessState state = stateController.getState();
+        return state.getCountrySignedResponseWithEncryptedKeys().isPresent();
     }
 }

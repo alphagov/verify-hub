@@ -36,17 +36,11 @@ public class AuthnResponseFromCountryContainerDto {
 
     public List<String> getEncryptedKeys() { return encryptedKeys; }
 
-    public URI getPostEndpoint() {
-        return postEndpoint;
-    }
+    public URI getPostEndpoint() { return postEndpoint; }
 
-    public Optional<String> getRelayState() {
-        return relayState;
-    }
+    public Optional<String> getRelayState() { return relayState; }
 
     public String getInResponseTo() { return inResponseTo; }
 
-    public String getResponseId() {
-        return responseId;
-    }
+    public String getResponseId() { return responseId; }
 }
