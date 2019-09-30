@@ -11,6 +11,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.common.shared.security.IdGenerator;
+import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.saml.core.domain.DetailedStatusCode;
@@ -19,6 +20,7 @@ import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.extensions.eidas.impl.CountrySamlResponseBuilder;
 import uk.gov.ida.saml.core.extensions.eidas.impl.EncryptedAssertionKeysBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -27,14 +29,16 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
 
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
     private final String hubEntityId;
-    private final IdGenerator idGenerator = new IdGenerator();
+    private final IdGenerator idGenerator;
 
     public OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(
             OpenSamlXmlObjectFactory openSamlXmlObjectFactory,
-            String hubEntityId
+            String hubEntityId,
+            IdGenerator idGenerator
     ) {
         this.openSamlXmlObjectFactory = openSamlXmlObjectFactory;
         this.hubEntityId = hubEntityId;
+        this.idGenerator = idGenerator;
     }
     @Override
     public Response apply(AuthnResponseFromCountryContainerDto countryResponseDto) {
@@ -89,8 +93,8 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
         attributeValue.setCountrySamlResponse(countryResponseDto.getSamlResponse());
 
         Attribute attribute = (Attribute) XMLObjectSupport.buildXMLObject(Attribute.DEFAULT_ELEMENT_NAME);
-        attribute.setName("countrySamlResponse");
-        attribute.setFriendlyName("friendlyCountrySamlResponse");
+        attribute.setName(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
+        attribute.setFriendlyName(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.FRIENDLY_NAME);
         attribute.setNameFormat(Attribute.URI_REFERENCE);
 
         attribute.getAttributeValues().add(attributeValue);
@@ -98,15 +102,19 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
     }
 
     private Attribute createEncryptedAssertionKeysAttribute(AuthnResponseFromCountryContainerDto countryResponseDto) {
-        EncryptedAssertionKeys attributeValue = new EncryptedAssertionKeysBuilder().buildObject();
-        attributeValue.setEncryptedAssertionKeys(String.join(".", countryResponseDto.getEncryptedKeys()));
+        List<EncryptedAssertionKeys> assertionKeysValues = new ArrayList<>();
+        for (String key : countryResponseDto.getEncryptedKeys()) {
+            EncryptedAssertionKeys attributeValue = new EncryptedAssertionKeysBuilder().buildObject();
+            attributeValue.setEncryptedAssertionKeys(key);
+            assertionKeysValues.add(attributeValue);
+        }
 
         Attribute attribute = (Attribute) XMLObjectSupport.buildXMLObject(Attribute.DEFAULT_ELEMENT_NAME);
-        attribute.setName("encryptedAssertionKeys");
-        attribute.setFriendlyName("friendlyEncryptedAssertionKeys");
+        attribute.setName(IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
+        attribute.setFriendlyName(IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.FRIENDLY_NAME);
         attribute.setNameFormat(Attribute.URI_REFERENCE);
 
-        attribute.getAttributeValues().add(attributeValue);
+        attribute.getAttributeValues().addAll(assertionKeysValues);
         return attribute;
     }
 }

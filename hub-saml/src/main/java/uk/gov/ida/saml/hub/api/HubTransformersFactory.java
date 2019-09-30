@@ -481,7 +481,11 @@ public class HubTransformersFactory {
     }
 
     private OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(String hubEntityId) {
-        return new OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(new OpenSamlXmlObjectFactory(), hubEntityId);
+        return new OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(
+                new OpenSamlXmlObjectFactory(),
+                hubEntityId,
+                new IdGenerator()
+        );
     }
 
     private HubIdentityProviderMetadataDtoToEntityDescriptorTransformer getHubIdentityProviderMetadataDtoToEntityDescriptorTransformer() {
