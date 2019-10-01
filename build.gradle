@@ -166,7 +166,8 @@ subprojects {
                 'com.github.tomakehurst:wiremock-standalone:2.23.2',
                 "uk.gov.ida:saml-test:$dependencyVersions.saml_lib",
                 'org.assertj:assertj-core:3.9.1',
-                'io.dropwizard:dropwizard-testing:' + dependencyVersions.dropwizard]
+                'io.dropwizard:dropwizard-testing:' + dependencyVersions.dropwizard,
+                'org.mockito:mockito-core:2.28.2']
 
         test_deps_deps.each { dep ->
             test_deps_runtime(dep)
