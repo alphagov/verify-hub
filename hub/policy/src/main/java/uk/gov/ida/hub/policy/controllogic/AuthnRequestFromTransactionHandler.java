@@ -130,7 +130,7 @@ public class AuthnRequestFromTransactionHandler {
         return stateController.getErrorResponse();
     }
 
-    public AuthnResponseFromCountryContainerDto getAuthResponseFromCountryContainerDto(SessionId sessionId) {
+    public AuthnResponseFromCountryContainerDto getAuthnResponseFromCountryContainerDto(SessionId sessionId) {
         NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
                 sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
         NonMatchingJourneySuccessState state = stateController.getState();

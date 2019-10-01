@@ -21,8 +21,8 @@ public class AuthnResponseFromCountryContainerDto {
             final EidasCountrySignedResponseWithEncryptedKeys signedResponseWithEncryptedKeys,
             final URI postEndpoint,
             final Optional<String> relayState,
-            String responseId,
-            String inResponseTo) {
+            String inResponseTo,
+            String responseId) {
 
         this.samlResponse = signedResponseWithEncryptedKeys.getSaml();
         this.encryptedKeys = signedResponseWithEncryptedKeys.getBase64encryptedKeys();
