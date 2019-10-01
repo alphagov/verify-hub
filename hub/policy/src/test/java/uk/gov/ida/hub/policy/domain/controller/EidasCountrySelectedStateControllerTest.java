@@ -62,7 +62,7 @@ public class EidasCountrySelectedStateControllerTest {
     private static final String SELECTED_COUNTRY = STUB_COUNTRY_ONE;
     private static final String ANALYTICS_SESSION_ID = "some-session-id";
     private static final String JOURNEY_TYPE = "some-journey-type";
-    private static final Optional<CountrySignedResponseContainer> EMPTY_UNSIGNED_ASSERTIONS = Optional.empty();
+    private static final Optional<CountrySignedResponseContainer> EMPTY_COUNTRY_SIGNED_RESPONSE = Optional.empty();
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY  = new InboundResponseFromCountry(
             CountryAuthenticationStatus.Status.Success,
@@ -72,7 +72,7 @@ public class EidasCountrySelectedStateControllerTest {
             Optional.of(PID),
             Optional.of(LEVEL_2),
             Optional.empty(),
-            EMPTY_UNSIGNED_ASSERTIONS);
+            EMPTY_COUNTRY_SIGNED_RESPONSE);
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -143,7 +143,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.empty(),
                 Optional.of(LEVEL_2),
                 Optional.empty(),
-                EMPTY_UNSIGNED_ASSERTIONS);
+                EMPTY_COUNTRY_SIGNED_RESPONSE);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -161,7 +161,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(PID),
                 Optional.of(LEVEL_2),
                 Optional.empty(),
-                EMPTY_UNSIGNED_ASSERTIONS);
+                EMPTY_COUNTRY_SIGNED_RESPONSE);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -179,7 +179,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(PID),
                 Optional.empty(),
                 Optional.empty(),
-                EMPTY_UNSIGNED_ASSERTIONS);
+                EMPTY_COUNTRY_SIGNED_RESPONSE);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -199,7 +199,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(PID),
                 Optional.of(LEVEL_1),
                 Optional.empty(),
-                EMPTY_UNSIGNED_ASSERTIONS);
+                EMPTY_COUNTRY_SIGNED_RESPONSE);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
@@ -238,7 +238,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
                 Optional.of(LEVEL_2),
                 Optional.empty(),
-                EMPTY_UNSIGNED_ASSERTIONS);
+                EMPTY_COUNTRY_SIGNED_RESPONSE);
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
@@ -262,7 +262,7 @@ public class EidasCountrySelectedStateControllerTest {
     }
 
     @Test
-    public void shouldTransitionNonMatchingJourneySuccessStateWhenNotUsingMatching() {
+    public void shouldTransitionNonMatchingJourneySuccessStateWhenNotUsingMatchingWithoutCountrySignedAssertions() {
         EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = anEidasAttributeQueryRequestDto().build();
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
@@ -273,7 +273,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
                 Optional.of(LEVEL_2),
                 Optional.empty(),
-                EMPTY_UNSIGNED_ASSERTIONS);
+                EMPTY_COUNTRY_SIGNED_RESPONSE);
 
         controller.handleNonMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
@@ -303,6 +303,61 @@ public class EidasCountrySelectedStateControllerTest {
                 state.getRelayState().orElse(null),
                 singleton(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
                 null
+        );
+
+        ArgumentCaptor<NonMatchingJourneySuccessState> stateArgumentCaptor = ArgumentCaptor.forClass(NonMatchingJourneySuccessState.class);
+        verify(stateTransitionAction).transitionTo(stateArgumentCaptor.capture());
+        assertThat(stateArgumentCaptor.getValue()).isEqualToComparingFieldByField(nonMatchingJourneySuccessState);
+    }
+
+    @Test
+    public void shouldTransitionNonMatchingJourneySuccessStateWhenNotUsingMatchingWithCountrySignedAssertions() {
+        EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto = anEidasAttributeQueryRequestDto().build();
+
+        CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer(
+                "base64SamlResponse",
+                List.of("base64EncryptedKey"),
+                "countryEntityId"
+        );
+
+        InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
+                CountryAuthenticationStatus.Status.Success,
+                Optional.empty(),
+                STUB_COUNTRY_ONE,
+                Optional.of(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
+                Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
+                Optional.of(LEVEL_2),
+                Optional.empty(),
+                Optional.of(countrySignedResponseContainer));
+
+        controller.handleNonMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+
+        verify(hubEventLogger).logIdpAuthnSucceededEvent(
+                state.getSessionId(),
+                state.getSessionExpiryTimestamp(),
+                state.getCountryEntityId(),
+                state.getRequestIssuerEntityId(),
+                eidasAttributeQueryRequestDto.getPersistentId(),
+                state.getRequestId(),
+                state.getLevelsOfAssurance().get(0),
+                state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
+                eidasAttributeQueryRequestDto.getLevelOfAssurance(),
+                Optional.empty(),
+                IP_ADDRESS,
+                ANALYTICS_SESSION_ID,
+                JOURNEY_TYPE
+        );
+
+        NonMatchingJourneySuccessState nonMatchingJourneySuccessState = new NonMatchingJourneySuccessState(
+                state.getRequestId(),
+                state.getRequestIssuerEntityId(),
+                state.getSessionExpiryTimestamp(),
+                state.getAssertionConsumerServiceUri(),
+                new SessionId(state.getSessionId().getSessionId()),
+                state.getTransactionSupportsEidas(),
+                state.getRelayState().orElse(null),
+                singleton(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
+                countrySignedResponseContainer
         );
 
         ArgumentCaptor<NonMatchingJourneySuccessState> stateArgumentCaptor = ArgumentCaptor.forClass(NonMatchingJourneySuccessState.class);

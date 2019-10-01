@@ -8,8 +8,8 @@ import java.util.List;
 public class CountrySignedResponseContainer {
 
     private String base64SamlResponse;
-    private String countryEntityId;
     private List<String> base64encryptedKeys;
+    private String countryEntityId;
 
     @SuppressWarnings("unused")
     private CountrySignedResponseContainer() {
