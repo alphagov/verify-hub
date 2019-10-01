@@ -1,6 +1,5 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -8,6 +7,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TestSessionDto {
 
@@ -116,7 +116,7 @@ public class TestSessionDto {
     }
 
     public Optional<String> getRelayState() {
-        return Optional.fromNullable(relayState);
+        return Optional.ofNullable(relayState);
     }
 
     public String getRequestIssuerId() {
@@ -128,7 +128,7 @@ public class TestSessionDto {
     }
 
     public Optional<Boolean> getForceAuthentication() {
-        return Optional.fromNullable(forceAuthentication);
+        return Optional.ofNullable(forceAuthentication);
     }
 
     public boolean isRegistering() {

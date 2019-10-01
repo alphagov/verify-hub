@@ -1,6 +1,5 @@
 package uk.gov.ida.integrationtest.hub.policy.rest;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
@@ -8,6 +7,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.Optional;
 
 // TODO haven't considered class location - test only!
 public class Cycle3DTO {
@@ -66,7 +66,7 @@ public class Cycle3DTO {
     }
 
     public Optional<String> getRelayState() {
-        return Optional.fromNullable(relayState);
+        return Optional.ofNullable(relayState);
     }
 
     public URI getAssertionConsumerServiceUri() {

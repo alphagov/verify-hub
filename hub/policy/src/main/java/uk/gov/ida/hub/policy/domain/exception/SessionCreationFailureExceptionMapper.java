@@ -29,7 +29,7 @@ public class SessionCreationFailureExceptionMapper extends PolicyExceptionMapper
         UUID errorId = UUID.randomUUID();
         levelLogger.log(exception.getLogLevel(), exception);
 
-        eventLogger.logErrorEvent(errorId, getSessionId().or(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
+        eventLogger.logErrorEvent(errorId, getSessionId().orElse(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
 
         final ErrorStatusDto entity = ErrorStatusDto.createAuditedErrorStatus(errorId, exception.getExceptionType(), exception.getMessage());
         return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE).entity(entity).build();

@@ -33,7 +33,7 @@ public class StateProcessingValidationExceptionMapper extends PolicyExceptionMap
 
         LOG.log(exception.getLevel(), exception, errorId);
 
-        eventLogger.logErrorEvent(errorId, getSessionId().or(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
+        eventLogger.logErrorEvent(errorId, getSessionId().orElse(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
 
         ErrorStatusDto entity = createUnauditedErrorStatus(errorId, STATE_PROCESSING_VALIDATION);
         return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE).entity(entity).build();

@@ -31,7 +31,7 @@ public class InvalidSessionStateExceptionMapper extends PolicyExceptionMapper<In
         UUID errorId = UUID.randomUUID();
         LOG.warn(LogFormatter.formatLog(errorId, exception.getMessage()), exception);
 
-        eventLogger.logErrorEvent(errorId, getSessionId().or(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
+        eventLogger.logErrorEvent(errorId, getSessionId().orElse(SessionId.SESSION_ID_DOES_NOT_EXIST_YET), exception.getMessage());
 
         ExceptionType type = getExceptionType(exception);
 

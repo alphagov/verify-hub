@@ -1,18 +1,18 @@
 package uk.gov.ida.hub.policy.domain;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 
 import java.net.URI;
+import java.util.Optional;
 
 public class ReceivedAuthnRequest {
 
-    private Optional<String> relayState;
+    private String relayState;
     private DateTime receivedTime;
     private DateTime issueInstant;
     private String id;
     private String issuer;
-    private Optional<Boolean> forceAuthentication;
+    private Boolean forceAuthentication;
     private URI assertionConsumerServiceUri;
     private String principalIpAddress;
 
@@ -24,9 +24,9 @@ public class ReceivedAuthnRequest {
             String id,
             String issuer,
             DateTime issueInstant,
-            Optional<Boolean> forceAuthentication,
+            Boolean forceAuthentication,
             URI assertionConsumerServiceUri,
-            Optional<String> relayState,
+            String relayState,
             DateTime receivedTime,
             String principalIpAddress) {
 
@@ -41,7 +41,7 @@ public class ReceivedAuthnRequest {
     }
 
     public Optional<String> getRelayState() {
-        return relayState;
+        return Optional.ofNullable(relayState);
     }
 
     public DateTime getReceivedTime() {
@@ -57,7 +57,7 @@ public class ReceivedAuthnRequest {
     }
 
     public Optional<Boolean> getForceAuthentication() {
-        return forceAuthentication;
+        return Optional.ofNullable(forceAuthentication);
     }
 
     public DateTime getIssueInstant() {

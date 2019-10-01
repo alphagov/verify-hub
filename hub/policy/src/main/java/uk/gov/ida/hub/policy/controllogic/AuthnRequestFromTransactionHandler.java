@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.controllogic;
 
-import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
@@ -33,6 +32,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import javax.inject.Inject;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 public class AuthnRequestFromTransactionHandler {
 
@@ -60,7 +60,7 @@ public class AuthnRequestFromTransactionHandler {
         SessionId sessionId = SessionId.createNewSessionId();
         SessionStartedState sessionStartedState = new SessionStartedState(
                 samlResponse.getId(),
-                relayState.orNull(),
+                relayState.orElse(null),
                 samlResponse.getIssuer(),
                 assertionConsumerServiceUri,
                 samlResponse.getForceAuthentication().orElse(null),
