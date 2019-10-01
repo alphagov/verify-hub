@@ -13,6 +13,7 @@ import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
 import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
@@ -62,6 +63,10 @@ public class CountryAuthnResponseTranslatorServiceTest {
     private String persistentIdName = "UK/GB/12345";
     private String responseIssuer = "http://localhost:56002/ServiceMetadata";
     private String identityUnderlyingAssertionBlob = "encryptedBlob";
+    private String samlResponse = "samlResponse";
+    private String matchinServiceEntityId = "matchingServiceEntityId";
+    private String reEncryptedKey = "reEncryptedKey";
+    private String successStatus = "Success";
 
     private CountryAuthnResponseTranslatorService service;
 
@@ -88,13 +93,13 @@ public class CountryAuthnResponseTranslatorServiceTest {
         ValidatedResponse validateEIDASSAMLResponse = new ValidatedResponse(eidasSAMLResponse);
         List<Assertion> decryptedAssertions = eidasSAMLResponse.getAssertions();
 
-        when(samlAuthnResponseTranslatorDto.getSamlResponse()).thenReturn("eidas");
-        when(samlAuthnResponseTranslatorDto.getMatchingServiceEntityId()).thenReturn("mid");
-        when(stringToOpenSamlResponseTransformer.apply("eidas")).thenReturn(eidasSAMLResponse);
+        when(samlAuthnResponseTranslatorDto.getSamlResponse()).thenReturn(samlResponse);
+        when(samlAuthnResponseTranslatorDto.getMatchingServiceEntityId()).thenReturn(matchinServiceEntityId);
+        when(stringToOpenSamlResponseTransformer.apply(samlResponse)).thenReturn(eidasSAMLResponse);
         doNothing().when(responseFromCountryValidator).validate(eidasSAMLResponse);
         when(eidasValidatorFactory.getValidatedResponse(eidasSAMLResponse)).thenReturn(validateEIDASSAMLResponse);
         when(assertionDecrypter.decryptAssertions(validateEIDASSAMLResponse)).thenReturn(decryptedAssertions);
-        when(assertionBlobEncrypter.encryptAssertionBlob(eq("mid"), any(String.class))).thenReturn(identityUnderlyingAssertionBlob);
+        when(assertionBlobEncrypter.encryptAssertionBlob(eq(matchinServiceEntityId), any(String.class))).thenReturn(identityUnderlyingAssertionBlob);
     }
 
     public void setupUnsigned() throws Exception {
@@ -115,16 +120,16 @@ public class CountryAuthnResponseTranslatorServiceTest {
         ValidatedResponse validateEIDASSAMLResponse = new ValidatedResponse(eidasSAMLResponse);
         List<Assertion> decryptedAssertions = eidasSAMLResponse.getAssertions();
         decryptedAssertions.get(0).setSignature(null);
-        List<String> reEncryptedKeys = List.of("key");
+        List<String> reEncryptedKeys = List.of(reEncryptedKey);
 
-        when(samlAuthnResponseTranslatorDto.getSamlResponse()).thenReturn("eidas");
-        when(samlAuthnResponseTranslatorDto.getMatchingServiceEntityId()).thenReturn("mid");
-        when(stringToOpenSamlResponseTransformer.apply("eidas")).thenReturn(eidasSAMLResponse);
+        when(samlAuthnResponseTranslatorDto.getSamlResponse()).thenReturn(samlResponse);
+        when(samlAuthnResponseTranslatorDto.getMatchingServiceEntityId()).thenReturn(matchinServiceEntityId);
+        when(stringToOpenSamlResponseTransformer.apply(samlResponse)).thenReturn(eidasSAMLResponse);
         doNothing().when(responseFromCountryValidator).validate(eidasSAMLResponse);
         when(eidasValidatorFactory.getValidatedResponse(eidasSAMLResponse)).thenReturn(validateEIDASSAMLResponse);
         when(assertionDecrypter.decryptAssertions(validateEIDASSAMLResponse)).thenReturn(decryptedAssertions);
-        when(assertionDecrypter.getReEncryptedKeys(validateEIDASSAMLResponse, secretKeyEncrypter,"mid" )).thenReturn(reEncryptedKeys);
-        when(assertionBlobEncrypter.encryptAssertionBlob(eq("mid"), any(String.class))).thenReturn(identityUnderlyingAssertionBlob);
+        when(assertionDecrypter.getReEncryptedKeys(validateEIDASSAMLResponse, secretKeyEncrypter,matchinServiceEntityId )).thenReturn(reEncryptedKeys);
+        when(assertionBlobEncrypter.encryptAssertionBlob(eq(matchinServiceEntityId), any(String.class))).thenReturn(identityUnderlyingAssertionBlob);
     }
 
     @Test
@@ -135,7 +140,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
         assertThat(result.getIssuer()).isEqualTo(responseIssuer);
 
         assertThat(result.getStatus().isPresent()).isTrue();
-        assertThat(result.getStatus().get()).isEqualTo("Success");
+        assertThat(result.getStatus().get()).isEqualTo(successStatus);
 
         assertThat(result.getStatusMessage().isPresent()).isFalse();
 
@@ -148,14 +153,16 @@ public class CountryAuthnResponseTranslatorServiceTest {
         assertThat(result.getEncryptedIdentityAssertionBlob().isPresent()).isTrue();
         assertThat(result.getEncryptedIdentityAssertionBlob().get()).isEqualTo(identityUnderlyingAssertionBlob);
 
-        assertThat(result.areAssertionsUnsigned()).isFalse();
-        assertThat(result.getBase64Keys().size()).isEqualTo(0);
+        assertThat(result.getCountrySignedResponseContainer().isEmpty()).isTrue();
     }
 
     @Test public void shouldExtractAuthnStatementAssertionDetailsUnsignedAssertions() throws Exception {
         setupUnsigned();
         InboundResponseFromCountry result = service.translate(samlAuthnResponseTranslatorDto);
-        assertThat(result.areAssertionsUnsigned()).isTrue();
-        assertThat(result.getBase64Keys()).isEqualTo(List.of("key"));
+        assertThat(result.getCountrySignedResponseContainer().isPresent()).isTrue();
+        CountrySignedResponseContainer countrySignedResponseContainer = result.getCountrySignedResponseContainer().get();
+        assertThat(countrySignedResponseContainer.getBase64SamlResponse()).isEqualTo(samlResponse);
+        assertThat(countrySignedResponseContainer.getCountryEntityId()).isEqualTo(matchinServiceEntityId);
+        assertThat(countrySignedResponseContainer.getBase64encryptedKeys()).isEqualTo(List.of(reEncryptedKey));
     }
 }

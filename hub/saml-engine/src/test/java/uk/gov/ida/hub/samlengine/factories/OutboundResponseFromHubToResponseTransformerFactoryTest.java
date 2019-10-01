@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
@@ -42,6 +43,9 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
     private Function<OutboundResponseFromHub, String> simpleProfileOutboundResponseFromHubToResponseTransformer;
 
     @Mock
+    private OutboundAuthnResponseFromCountryContainerToStringFunction outboundAuthnResponseFromCountryContainerToStringFunction;
+
+    @Mock
     private TransactionsConfigProxy transactionsConfigProxy;
 
     public static final String ENTITY_ID = "entity-id";
@@ -54,7 +58,8 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
                 simpleProfileOutboundResponseFromHubToResponseTransformerProvider,
                 transactionsConfigProxy,
                 outboundSamlProfileResponseFromHubToStringFunctionSHA256,
-                outboundLegacyResponseFromHubToStringFunctionSHA256);
+                outboundLegacyResponseFromHubToStringFunctionSHA256,
+                outboundAuthnResponseFromCountryContainerToStringFunction);
     }
 
     @Test
