@@ -68,6 +68,7 @@ public class EidasCountrySelectedStateControllerTest {
             Optional.of(BLOB),
             Optional.of(PID),
             Optional.of(LEVEL_2),
+            Optional.empty(),
             Optional.empty());
 
     @Rule
@@ -138,6 +139,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(BLOB),
                 Optional.empty(),
                 Optional.of(LEVEL_2),
+                Optional.empty(),
                 Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
@@ -155,6 +157,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.empty(),
                 Optional.of(PID),
                 Optional.of(LEVEL_2),
+                Optional.empty(),
                 Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
@@ -171,6 +174,7 @@ public class EidasCountrySelectedStateControllerTest {
                 STUB_COUNTRY_ONE,
                 Optional.of(BLOB),
                 Optional.of(PID),
+                Optional.empty(),
                 Optional.empty(),
                 Optional.empty());
 
@@ -191,6 +195,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(BLOB),
                 Optional.of(PID),
                 Optional.of(LEVEL_1),
+                Optional.empty(),
                 Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
@@ -229,6 +234,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
                 Optional.of(LEVEL_2),
+                Optional.empty(),
                 Optional.empty());
 
         controller.handleMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
@@ -263,6 +269,7 @@ public class EidasCountrySelectedStateControllerTest {
                 Optional.of(eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion()),
                 Optional.of(eidasAttributeQueryRequestDto.getPersistentId().getNameId()),
                 Optional.of(LEVEL_2),
+                Optional.empty(),
                 Optional.empty());
 
         controller.handleNonMatchingJourneySuccessResponseFromCountry(inboundResponseFromCountry, IP_ADDRESS, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
