@@ -99,7 +99,7 @@ public final class EidasCycle3DTO {
         sb.append(", sessionExpiryTimestamp=").append(sessionExpiryTimestamp);
         sb.append(", requestIssuerEntityId='").append(requestIssuerEntityId).append('\'');
         sb.append(", matchingServiceAssertion='").append(matchingServiceAssertion).append('\'');
-        sb.append(", relayState=").append(relayState);
+        sb.append(", relayState=").append(getRelayState());
         sb.append(", assertionConsumerServiceUri=").append(assertionConsumerServiceUri);
         sb.append(", matchingServiceAdapterEntityId='").append(matchingServiceAdapterEntityId).append('\'');
         sb.append(", persistentId=").append(persistentId);
