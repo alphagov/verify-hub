@@ -29,7 +29,7 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
-import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,6 +49,7 @@ import static org.mockito.Mockito.when;
 public class AuthnRequestFromTransactionHandlerTest {
     private static final String ANALYTICS_SESSION_ID = "anAnalyticsSessionId";
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("https://assertionConsumerServiceUri");
+    private static final String COUNTRY_ENTITY_ID = "aCountryEntityId";
     private static final String ENCRYPTED_KEY = "base64EncryptedKey";
     private static final String GENERATED_ID = "generatedId";
     private static final String IDP_ENTITY_ID = "anIdpEntityId";
@@ -202,9 +203,10 @@ public class AuthnRequestFromTransactionHandlerTest {
     }
 
     private NonMatchingJourneySuccessState setupNonMatchingJourneySuccessState(SessionId sessionId, boolean withResponse) {
-        EidasCountrySignedResponseWithEncryptedKeys countryResponseWithKeys = new EidasCountrySignedResponseWithEncryptedKeys(
+        CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer(
                 SAML_RESPONSE,
-                Arrays.asList(ENCRYPTED_KEY)
+                Arrays.asList(ENCRYPTED_KEY),
+                COUNTRY_ENTITY_ID
         );
         return new NonMatchingJourneySuccessState(
                 REQUEST_ID,
@@ -215,7 +217,7 @@ public class AuthnRequestFromTransactionHandlerTest {
                 true,
                 RELAY_STATE,
                 Set.of(),
-                withResponse ? countryResponseWithKeys : null
+                withResponse ? countrySignedResponseContainer : null
         );
     }
 }

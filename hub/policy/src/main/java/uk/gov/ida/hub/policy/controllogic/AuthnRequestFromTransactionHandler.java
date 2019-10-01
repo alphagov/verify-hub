@@ -135,7 +135,7 @@ public class AuthnRequestFromTransactionHandler {
                 sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
         NonMatchingJourneySuccessState state = stateController.getState();
         return new AuthnResponseFromCountryContainerDto(
-                state.getCountrySignedResponseWithEncryptedKeys().get(),
+                state.getCountrySignedResponseContainer().get(),
                 state.getAssertionConsumerServiceUri(),
                 state.getRelayState(),
                 state.getRequestId(),
@@ -147,6 +147,6 @@ public class AuthnRequestFromTransactionHandler {
         NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
                 sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
         NonMatchingJourneySuccessState state = stateController.getState();
-        return state.getCountrySignedResponseWithEncryptedKeys().isPresent();
+        return state.getCountrySignedResponseContainer().isPresent();
     }
 }

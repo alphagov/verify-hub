@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 import java.util.Optional;
@@ -18,7 +18,7 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
     @JsonProperty
     private final Set<String> encryptedAssertions;
     @JsonProperty
-    private final Optional<EidasCountrySignedResponseWithEncryptedKeys> countrySignedResponseWithEncryptedKeys;
+    private final Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
     @JsonCreator
     public NonMatchingJourneySuccessState(
@@ -30,7 +30,7 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
             @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
             @JsonProperty("relayState") final String relayState,
             @JsonProperty("encryptedAssertions") final Set<String> encryptedAssertions,
-            @JsonProperty("countrySignedResponseWithEncryptedKeys") final EidasCountrySignedResponseWithEncryptedKeys countrySignedResponseWithEncryptedKeys
+            @JsonProperty("countrySignedResponseContainer") final CountrySignedResponseContainer countrySignedResponseContainer
     ) {
 
         super(
@@ -45,7 +45,7 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
 
         this.relayState = Optional.ofNullable(relayState);
         this.encryptedAssertions = encryptedAssertions;
-        this.countrySignedResponseWithEncryptedKeys = Optional.ofNullable(countrySignedResponseWithEncryptedKeys);
+        this.countrySignedResponseContainer = Optional.ofNullable(countrySignedResponseContainer);
     }
 
     @Override
@@ -57,6 +57,6 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
         return encryptedAssertions;
     }
 
-    public Optional<EidasCountrySignedResponseWithEncryptedKeys> getCountrySignedResponseWithEncryptedKeys() { return countrySignedResponseWithEncryptedKeys; }
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() { return countrySignedResponseContainer; }
 
 }

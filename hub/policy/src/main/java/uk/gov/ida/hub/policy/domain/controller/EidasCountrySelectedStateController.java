@@ -247,7 +247,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getTransactionSupportsEidas(),
                 state.getRelayState().orElse(null),
                 translatedResponse.getEncryptedIdentityAssertionBlob().map(Collections::singleton).orElse(Collections.emptySet()),
-                translatedResponse.getCountrySignedResponseWithEncryptedKeys().orElse(null)
+                translatedResponse.getCountrySignedResponseContainer().orElse(null)
         );
     }
 

@@ -13,7 +13,7 @@ import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
-import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.extensions.eidas.CountrySamlResponse;
 import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
@@ -43,6 +43,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
     private final String RESPONSE_ID = "responseID";
     private final String IN_RESPONSE_TO_ID = "responseID";
     private final String STATUS_SUCCESS_STRING = "urn:oasis:names:tc:SAML:2.0:status:Success";
+    private final String COUNTRY_ENTITY_ID = "http://country-entity-id.gov.uk";
 
     @Mock
     private IdGenerator idGenerator;
@@ -65,12 +66,13 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
 
     @Test
     public void shouldReturnASamlResponseWithCountryResponseAndEncryptedKeysAsAttributes() {
-        EidasCountrySignedResponseWithEncryptedKeys responseWithKeys = new EidasCountrySignedResponseWithEncryptedKeys(
+        CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer(
                 BASE_64_SAML,
-                Arrays.asList(BASE_64_KEY_1)
+                Arrays.asList(BASE_64_KEY_1),
+                COUNTRY_ENTITY_ID
         );
         AuthnResponseFromCountryContainerDto countryResponse = new AuthnResponseFromCountryContainerDto(
-                responseWithKeys,
+                countrySignedResponseContainer,
                 URI.create(DESTINATION),
                 Optional.of(RELAY_STATE),
                 RESPONSE_ID,
@@ -109,12 +111,13 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
                 BASE_64_KEY_2,
                 BASE_64_KEY_3
         );
-        EidasCountrySignedResponseWithEncryptedKeys responseWithKeys = new EidasCountrySignedResponseWithEncryptedKeys(
+        CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer(
                 BASE_64_SAML,
-                keys
+                keys,
+                COUNTRY_ENTITY_ID
         );
         AuthnResponseFromCountryContainerDto countryResponse = new AuthnResponseFromCountryContainerDto(
-                responseWithKeys,
+                countrySignedResponseContainer,
                 URI.create(DESTINATION),
                 Optional.of(RELAY_STATE),
                 RESPONSE_ID,

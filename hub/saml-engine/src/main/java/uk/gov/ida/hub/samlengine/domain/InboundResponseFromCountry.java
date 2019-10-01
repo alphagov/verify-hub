@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlengine.domain;
 
-import uk.gov.ida.saml.core.domain.EidasCountrySignedResponseWithEncryptedKeys;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.util.Optional;
 
@@ -12,7 +12,7 @@ public class InboundResponseFromCountry {
     private Optional<String> statusMessage;
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
-    private Optional<EidasCountrySignedResponseWithEncryptedKeys> countrySignedResponseWithEncryptedKeys;
+    private Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
     private InboundResponseFromCountry() {
     }
@@ -24,7 +24,7 @@ public class InboundResponseFromCountry {
             Optional<String> statusMessage,
             Optional<String> encryptedIdentityAssertionBlob,
             Optional<LevelOfAssurance> levelOfAssurance,
-            Optional<EidasCountrySignedResponseWithEncryptedKeys> countrySignedResponseWithEncryptedKeys
+            Optional<CountrySignedResponseContainer> countrySignedResponseContainer
     ) {
         this.issuer = issuer;
         this.persistentId = persistentId;
@@ -32,7 +32,7 @@ public class InboundResponseFromCountry {
         this.statusMessage = statusMessage;
         this.encryptedIdentityAssertionBlob = encryptedIdentityAssertionBlob;
         this.levelOfAssurance = levelOfAssurance;
-        this.countrySignedResponseWithEncryptedKeys = countrySignedResponseWithEncryptedKeys;
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public String getIssuer() {
@@ -59,7 +59,7 @@ public class InboundResponseFromCountry {
         return levelOfAssurance;
     }
 
-    public Optional<EidasCountrySignedResponseWithEncryptedKeys> getCountrySignedResponseWithEncryptedKeys() {
-        return countrySignedResponseWithEncryptedKeys;
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
+        return countrySignedResponseContainer;
     }
 }

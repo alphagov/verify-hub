@@ -18,14 +18,14 @@ public class AuthnResponseFromCountryContainerDto {
     }
 
     public AuthnResponseFromCountryContainerDto(
-            final EidasCountrySignedResponseWithEncryptedKeys signedResponseWithEncryptedKeys,
+            final CountrySignedResponseContainer countrySignedResponseContainer,
             final URI postEndpoint,
             final Optional<String> relayState,
             String inResponseTo,
             String responseId) {
 
-        this.samlResponse = signedResponseWithEncryptedKeys.getSaml();
-        this.encryptedKeys = signedResponseWithEncryptedKeys.getBase64encryptedKeys();
+        this.samlResponse = countrySignedResponseContainer.getBase64SamlResponse();
+        this.encryptedKeys = countrySignedResponseContainer.getBase64encryptedKeys();
         this.postEndpoint = postEndpoint;
         this.relayState = relayState;
         this.inResponseTo = inResponseTo;
