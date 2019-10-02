@@ -32,6 +32,7 @@ import uk.gov.ida.hub.samlengine.domain.InboundResponseFromCountry;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 import uk.gov.ida.integrationtest.hub.samlengine.support.AssertionDecrypter;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.extensions.EidasAuthnContext;
 import uk.gov.ida.saml.core.extensions.eidas.PersonIdentifier;
 import uk.gov.ida.saml.core.extensions.eidas.impl.PersonIdentifierBuilder;
@@ -210,7 +211,7 @@ public class CountryAuthnResponseTranslatorResourceTest {
     }
 
     @Test
-    public void shouldReturnACountryResponseDtoWithAreAssertionsUnsignedEqualsFalseWhenSigned() throws Exception {
+    public void shouldReturnACountryResponseDtoWithoutCountrySignedResponseContainerWhenAssertionsAreSigned() throws Exception {
         SamlAuthnResponseTranslatorDto dto = createAuthnResponseSignedByKeyPair(
                 TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
                 TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
@@ -218,10 +219,11 @@ public class CountryAuthnResponseTranslatorResourceTest {
                 EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
         Response response = postAuthnResponseToSamlEngine(dto);
 
-        assertThat((response.readEntity(InboundResponseFromCountry.class)).areAssertionsUnsigned()).isEqualTo(false);    }
+        assertThat((response.readEntity(InboundResponseFromCountry.class)).getCountrySignedResponseContainer().isPresent()).isEqualTo(false);
+    }
 
     @Test
-    public void shouldReturnACountryResponseDtoWithAreAssertionsUnsignedEqualsTrueWhenUnsigned() throws Exception {
+    public void shouldReturnACountryResponseDtoWithCountrySignedResponseContainerWhenAssertionsAreUnSigned() throws Exception {
         SamlAuthnResponseTranslatorDto dto = createAuthnResponseSignedByKeyPairAndUnsignedAssertions(
                 TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT,
                 TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY,
@@ -229,7 +231,14 @@ public class CountryAuthnResponseTranslatorResourceTest {
                 EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
         Response response = postAuthnResponseToSamlEngine(dto);
         InboundResponseFromCountry inboundResponseFromCountry = response.readEntity(InboundResponseFromCountry.class);
-        assertThat(inboundResponseFromCountry.areAssertionsUnsigned()).isEqualTo(true);    }
+
+        CountrySignedResponseContainer countrySignedResponseContainer = inboundResponseFromCountry.getCountrySignedResponseContainer().get();
+
+        assertThat(countrySignedResponseContainer.getBase64SamlResponse()).isEqualTo(dto.getSamlResponse());
+        List<String> base64encryptedKeys = countrySignedResponseContainer.getBase64encryptedKeys();
+        assertThat(base64encryptedKeys.size()).isEqualTo(1);
+        assertThat(base64encryptedKeys.get(0)).containsPattern("[a-zA-Z0-9+/=]+");
+    }
 
     private void assertThatDecryptedAssertionsAreTheSame(InboundResponseFromCountry response, org.opensaml.saml.saml2.core.Response originalResponse) {
         AssertionDecrypter hubDecrypter = new AssertionDecrypter(TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY, TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT);
