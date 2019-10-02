@@ -1,7 +1,9 @@
 package uk.gov.ida.hub.samlengine.factories;
 
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
@@ -19,6 +21,7 @@ public class OutboundResponseFromHubToResponseTransformerFactory {
     private final OutboundSamlProfileResponseFromHubToStringFunctionSHA256 outboundSamlProfileResponseFromHubToStringFunctionSHA256;
     private final SimpleProfileOutboundResponseFromHubToResponseTransformerProvider simpleProfileOutboundResponseFromHubToResponseTransformerProvider;
     private final TransactionsConfigProxy transactionsConfigProxy;
+    private final OutboundAuthnResponseFromCountryContainerToStringFunction outboundAuthnResponseFromCountryContainerToStringFunction;
 
     @Inject
     public OutboundResponseFromHubToResponseTransformerFactory(OutboundLegacyResponseFromHubToStringFunction outboundLegacyResponseFromHubToStringFunction,
@@ -26,12 +29,14 @@ public class OutboundResponseFromHubToResponseTransformerFactory {
                                                                SimpleProfileOutboundResponseFromHubToResponseTransformerProvider simpleProfileOutboundResponseFromHubToResponseTransformerProvider,
                                                                TransactionsConfigProxy transactionsConfigProxy,
                                                                OutboundSamlProfileResponseFromHubToStringFunctionSHA256 outboundSamlProfileResponseFromHubToStringFunctionSHA256,
-                                                               OutboundLegacyResponseFromHubToStringFunctionSHA256 outboundLegacyResponseFromHubToStringFunctionSHA256) {
+                                                               OutboundLegacyResponseFromHubToStringFunctionSHA256 outboundLegacyResponseFromHubToStringFunctionSHA256,
+                                                               OutboundAuthnResponseFromCountryContainerToStringFunction outboundAuthnResponseFromCountryContainerToStringFunction) {
         this.outboundLegacyResponseFromHubToStringFunction = outboundLegacyResponseFromHubToStringFunction;
         this.outboundLegacyResponseFromHubToStringFunctionSHA256 = outboundLegacyResponseFromHubToStringFunctionSHA256;
         this.outboundSamlProfileResponseFromHubToStringFunction = outboundSamlProfileResponseFromHubToStringFunction;
         this.outboundSamlProfileResponseFromHubToStringFunctionSHA256 = outboundSamlProfileResponseFromHubToStringFunctionSHA256;
         this.simpleProfileOutboundResponseFromHubToResponseTransformerProvider = simpleProfileOutboundResponseFromHubToResponseTransformerProvider;
+        this.outboundAuthnResponseFromCountryContainerToStringFunction = outboundAuthnResponseFromCountryContainerToStringFunction;
         this.transactionsConfigProxy = transactionsConfigProxy;
     }
 
@@ -48,5 +53,9 @@ public class OutboundResponseFromHubToResponseTransformerFactory {
             }
         }
         return simpleProfileOutboundResponseFromHubToResponseTransformerProvider.get();
+    }
+
+    public Function<AuthnResponseFromCountryContainerDto, String> getCountryTransformer() {
+        return outboundAuthnResponseFromCountryContainerToStringFunction;
     }
 }

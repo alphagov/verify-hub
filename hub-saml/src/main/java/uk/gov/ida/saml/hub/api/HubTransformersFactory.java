@@ -15,6 +15,7 @@ import org.w3c.dom.Element;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
+import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.domain.SamlAttributeQueryAssertionEncrypter;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
@@ -68,6 +69,7 @@ import uk.gov.ida.saml.hub.transformers.outbound.HubAttributeQueryRequestToSamlA
 import uk.gov.ida.saml.hub.transformers.outbound.HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.IdaAuthnRequestFromHubToAuthnRequestTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.MatchingServiceHealthCheckRequestToSamlAttributeQueryTransformer;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundResponseFromHubToSamlResponseTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.RequestAbstractTypeToStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.SamlAttributeQueryAssertionSignatureSigner;
@@ -179,6 +181,22 @@ public class HubTransformersFactory {
         );
 
         return responseStringTransformer.compose(outboundToResponseTransformer);
+    }
+
+    public Function<AuthnResponseFromCountryContainerDto, String> getOutboundAuthnResponseFromCountryContainerToStringTransformer(
+            final IdaKeyStore keystore,
+            final ResponseAssertionSigner responseAssertionSigner,
+            final SignatureAlgorithm signatureAlgorithm,
+            final DigestAlgorithm digestAlgorithm,
+            final String hubEntityId) {
+        Function<AuthnResponseFromCountryContainerDto, Response> countryResponseToResponseTransformer = getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(hubEntityId);
+        Function<Response, String> responseStringTransformer = coreTransformersFactory.getResponseStringTransformer(
+                keystore,
+                responseAssertionSigner,
+                signatureAlgorithm,
+                digestAlgorithm
+        );
+        return responseStringTransformer.compose(countryResponseToResponseTransformer);
     }
 
     public Function<HubIdentityProviderMetadataDto, Element> getHubIdentityProviderMetadataDtoToElementTransformer() {
@@ -462,6 +480,14 @@ public class HubTransformersFactory {
                 new SamlProfileTransactionIdaStatusMarshaller(new OpenSamlXmlObjectFactory()),
                 new OpenSamlXmlObjectFactory(),
                 getEncryptedAssertionUnmarshaller());
+    }
+
+    private OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(String hubEntityId) {
+        return new OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(
+                new OpenSamlXmlObjectFactory(),
+                hubEntityId,
+                new IdGenerator()
+        );
     }
 
     private HubIdentityProviderMetadataDtoToEntityDescriptorTransformer getHubIdentityProviderMetadataDtoToEntityDescriptorTransformer() {
