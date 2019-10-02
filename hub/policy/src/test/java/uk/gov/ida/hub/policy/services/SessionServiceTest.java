@@ -225,7 +225,7 @@ public class SessionServiceTest {
         SessionId sessionId = createNewSessionId();
 
         when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
-        when(authnRequestHandler.isResponseFromCountry(sessionId)).thenReturn(true);
+        when(authnRequestHandler.isResponseFromCountryWithUnsignedAssertions(sessionId)).thenReturn(true);
         when(authnRequestHandler.getAuthnResponseFromCountryContainerDto(sessionId)).thenReturn(authnResponseFromCountryContainerDto);
 
         service.getRpAuthnResponse(sessionId);

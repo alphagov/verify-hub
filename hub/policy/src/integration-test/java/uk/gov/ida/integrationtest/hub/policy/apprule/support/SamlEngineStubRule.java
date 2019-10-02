@@ -25,6 +25,10 @@ public class SamlEngineStubRule extends HttpStubRule {
         register(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
     }
 
+    public void setUpStubForAuthnResponseWrappingCountryResponseGenerate(AuthnResponseFromHubContainerDto translatedMessage) throws JsonProcessingException {
+        register(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
+    }
+
     public void setupStubForAuthnRequestTranslate(SamlResponseWithAuthnRequestInformationDto translatedMessage) throws JsonProcessingException {
         register(Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
     }

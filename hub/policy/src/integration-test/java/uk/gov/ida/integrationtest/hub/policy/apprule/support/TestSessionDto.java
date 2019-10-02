@@ -4,10 +4,12 @@ import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class TestSessionDto {
 
@@ -27,6 +29,8 @@ public class TestSessionDto {
     private List<String> availableIdentityProviders;
     private boolean transactionSupportsEidas;
     private LevelOfAssurance requestedLoa;
+    private Set<String> encryptedAssertions;
+    private CountrySignedResponseContainer countrySignedResponseContainer;
 
     @SuppressWarnings("unused") //Needed for JAXB
     private TestSessionDto() {
@@ -58,7 +62,9 @@ public class TestSessionDto {
                 LevelOfAssurance.LEVEL_2,
                 false,
                 new ArrayList<>(),
-                transactionSupportsEidas);
+                transactionSupportsEidas,
+                null,
+                null);
     }
 
     public TestSessionDto(
@@ -76,7 +82,9 @@ public class TestSessionDto {
             LevelOfAssurance requestedLoa,
             Boolean forceAuthentication,
             List<String> availableIdentityProviders,
-            boolean transactionSupportsEidas) {
+            boolean transactionSupportsEidas,
+            Set<String> encryptedAssertions,
+            CountrySignedResponseContainer countrySignedResponseContainer) {
 
         this.sessionId = sessionId;
         this.requestId = requestId;
@@ -93,6 +101,8 @@ public class TestSessionDto {
         this.forceAuthentication = forceAuthentication;
         this.availableIdentityProviders = availableIdentityProviders;
         this.transactionSupportsEidas = transactionSupportsEidas;
+        this.encryptedAssertions = encryptedAssertions;
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public SessionId getSessionId() {
@@ -154,4 +164,8 @@ public class TestSessionDto {
     public boolean getTransactionSupportsEidas() {
         return transactionSupportsEidas;
     }
+
+    public Set<String> getEncryptedAssertions() { return encryptedAssertions; }
+
+    public CountrySignedResponseContainer getCountrySignedResponseContainer() { return countrySignedResponseContainer; }
 }

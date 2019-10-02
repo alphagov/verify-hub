@@ -115,7 +115,7 @@ public class SessionService {
 
     public AuthnResponseFromHubContainerDto getRpAuthnResponse(SessionId sessionId) {
         getSessionIfItExists(sessionId);
-        if (authnRequestHandler.isResponseFromCountry(sessionId)) {
+        if (authnRequestHandler.isResponseFromCountryWithUnsignedAssertions(sessionId)) {
             AuthnResponseFromCountryContainerDto authResponseFromCountryContainerDto = authnRequestHandler.getAuthnResponseFromCountryContainerDto(sessionId);
             return samlEngineProxy.generateRpAuthnResponseWrappingCountrySaml(authResponseFromCountryContainerDto);
         }

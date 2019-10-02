@@ -143,10 +143,14 @@ public class AuthnRequestFromTransactionHandler {
         );
     }
 
-    public boolean isResponseFromCountry(SessionId sessionId) {
-        NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
-                sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
-        NonMatchingJourneySuccessState state = stateController.getState();
-        return state.getCountrySignedResponseContainer().isPresent();
+    public boolean isResponseFromCountryWithUnsignedAssertions(SessionId sessionId) {
+        try {
+            NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
+                    sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
+            NonMatchingJourneySuccessState state = stateController.getState();
+            return state.getCountrySignedResponseContainer().isPresent();
+        } catch (ClassCastException e) {
+            return false;
+        }
     }
 }

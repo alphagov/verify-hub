@@ -144,7 +144,7 @@ public class AuthnRequestFromTransactionHandlerTest {
         when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
         when(stateContoller.getState()).thenReturn(setupNonMatchingJourneySuccessState(SESSION_ID, true));
 
-        assertThat(authnRequestFromTransactionHandler.isResponseFromCountry(SESSION_ID)).isTrue();
+        assertThat(authnRequestFromTransactionHandler.isResponseFromCountryWithUnsignedAssertions(SESSION_ID)).isTrue();
     }
 
     @Test
@@ -153,7 +153,7 @@ public class AuthnRequestFromTransactionHandlerTest {
         when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
         when(stateContoller.getState()).thenReturn(setupNonMatchingJourneySuccessState(SESSION_ID, false));
 
-        assertThat(authnRequestFromTransactionHandler.isResponseFromCountry(SESSION_ID)).isFalse();
+        assertThat(authnRequestFromTransactionHandler.isResponseFromCountryWithUnsignedAssertions(SESSION_ID)).isFalse();
     }
 
     private static class IdpSelectingStateControllerSpy implements IdpSelectingStateController, StateController {

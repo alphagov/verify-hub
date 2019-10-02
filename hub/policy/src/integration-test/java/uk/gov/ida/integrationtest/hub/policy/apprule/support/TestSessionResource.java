@@ -9,6 +9,7 @@ import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 import uk.gov.ida.integrationtest.hub.policy.rest.Cycle3DTO;
@@ -48,6 +49,7 @@ public class TestSessionResource {
     public static final String GET_SESSION_STATE_NAME = "/session-state-name" + SESSION_ID_PARAM_PATH;
     public static final String AUTHN_FAILED_STATE = "/session-authn-failed-state";
     public static final String EIDAS_AUTHN_FAILED_STATE = "/session-eidas-authn-failed-state";
+    public static final String NON_MATCHING_JOURNEY_SUCCESS_STATE = "/session-non-matching-journey-success-state";
 
     private TestSessionRepository testSessionRepository;
 
@@ -200,6 +202,26 @@ public class TestSessionResource {
                         testSessionDto.getIdentityProviderEntityId(),
                         testSessionDto.getForceAuthentication().orNull(),
                         testSessionDto.getTransactionSupportsEidas())
+        );
+        return Response.ok().build();
+    }
+
+    @Path(NON_MATCHING_JOURNEY_SUCCESS_STATE)
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createSessionInNonMatchingJourneySuccessState(TestSessionDto testSessionDto) {
+        testSessionRepository.createSession(testSessionDto.getSessionId(),
+                new NonMatchingJourneySuccessState(
+                        testSessionDto.getRequestId(),
+                        testSessionDto.getRequestIssuerId(),
+                        testSessionDto.getSessionExpiryTimestamp(),
+                        testSessionDto.getAssertionConsumerServiceUri(),
+                        testSessionDto.getSessionId(),
+                        testSessionDto.getTransactionSupportsEidas(),
+                        testSessionDto.getRelayState().orNull(),
+                        testSessionDto.getEncryptedAssertions(),
+                        testSessionDto.getCountrySignedResponseContainer()
+                )
         );
         return Response.ok().build();
     }
