@@ -119,6 +119,16 @@ public class ConfigStubRule extends HttpStubRule {
         register(msaUri, OK, matchingServiceUri);
     }
 
+    public void setUpStubForNonMatchingServiceRequest(String rpEntityId) throws JsonProcessingException {
+        String isUsingMatchingUri = UriBuilder
+                .fromPath(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
+                .buildFromEncoded(StringEncoding.urlEncode(rpEntityId)
+                        .replace("+", "%20"))
+                .getPath();
+
+        register(isUsingMatchingUri, OK, ContentType.APPLICATION_JSON.toString(), "false");
+    }
+
     public void setUpStubForMatchingServiceEntityId(String rpEntityId, String matchingServiceEntityId) throws JsonProcessingException {
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.MATCHING_SERVICE_ENTITY_ID_RESOURCE)
             .build(StringEncoding.urlEncode(rpEntityId).replace("+", "%20"))

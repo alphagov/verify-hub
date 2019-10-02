@@ -29,6 +29,7 @@ import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.UriBuilder;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.AuthnResponseFromHubContainerDtoBuilder.anAuthnResponseFromHubContainerDto;
 import static uk.gov.ida.hub.policy.builder.domain.AuthnRequestFromHubBuilder.anAuthnRequestFromHub;
+import static uk.gov.ida.hub.policy.builder.domain.AuthnResponseFromCountryContainerDtoBuilder.anAuthnResponseFromCountryContainerDto;
 import static uk.gov.ida.hub.policy.builder.domain.ResponseFromHubBuilder.aResponseFromHubDto;
 import static uk.gov.ida.hub.policy.domain.SessionId.createNewSessionId;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
@@ -214,6 +216,23 @@ public class SessionServiceTest {
 
         // Then
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void shouldCallSamlEngineCountrySamlAuthnResponseGenerationEndpointIfIsResponseFromCountry() {
+        ArgumentCaptor<AuthnResponseFromCountryContainerDto> capturedDto = ArgumentCaptor.forClass(AuthnResponseFromCountryContainerDto.class);
+        AuthnResponseFromCountryContainerDto authnResponseFromCountryContainerDto = anAuthnResponseFromCountryContainerDto().build();
+        SessionId sessionId = createNewSessionId();
+
+        when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
+        when(authnRequestHandler.isResponseFromCountryWithUnsignedAssertions(sessionId)).thenReturn(true);
+        when(authnRequestHandler.getAuthnResponseFromCountryContainerDto(sessionId)).thenReturn(authnResponseFromCountryContainerDto);
+
+        service.getRpAuthnResponse(sessionId);
+
+        verify(samlEngineProxy).generateRpAuthnResponseWrappingCountrySaml(capturedDto.capture());
+        assertThat(capturedDto.getValue()).isEqualTo(authnResponseFromCountryContainerDto);
+
     }
 
     @Test

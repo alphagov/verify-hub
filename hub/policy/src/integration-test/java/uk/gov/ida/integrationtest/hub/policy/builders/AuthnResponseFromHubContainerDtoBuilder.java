@@ -21,5 +21,10 @@ public class AuthnResponseFromHubContainerDtoBuilder {
     public AuthnResponseFromHubContainerDto build() {
         return new AuthnResponseFromHubContainerDto(samlResponse, postEndPoint, relayState, responseId);
     }
+
+    public AuthnResponseFromHubContainerDtoBuilder withSamlResponse(String samlResponse) {
+        this.samlResponse = samlResponse;
+        return this;
+    }
 }
 

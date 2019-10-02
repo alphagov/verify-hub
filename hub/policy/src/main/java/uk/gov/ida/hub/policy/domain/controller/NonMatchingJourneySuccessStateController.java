@@ -30,4 +30,6 @@ public class NonMatchingJourneySuccessStateController implements StateController
                 state.getAssertionConsumerServiceUri()
         );
     }
+
+    public NonMatchingJourneySuccessState getState() { return state; };
 }

@@ -74,6 +74,7 @@ public class AuthnResponseFromCountryServiceTest {
     private static final SamlAuthnResponseContainerDto SAML_AUTHN_RESPONSE_CONTAINER_DTO = aSamlAuthnResponseContainerDto().withSessionId(SESSION_ID).withPrincipalIPAddressAsSeenByHub("1.1.1.1").withAnalyticsSessionId(ANALYTICS_SESSION_ID).withJourneyType(JOURNEY_TYPE).build();
     private static final SamlAuthnResponseTranslatorDto SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
     private static final SamlAuthnResponseTranslatorDto NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().withMatchingServiceEntityId(TEST_RP).build();
+    private static final Optional<CountrySignedResponseContainer> EMPTY_UNSIGNED_ASSERTIONS = Optional.empty();
 
     private static final CountrySignedResponseContainer COUNTRY_SIGNED_RESPONSE_CONTAINER = mock(CountrySignedResponseContainer.class);
 
@@ -197,7 +198,7 @@ public class AuthnResponseFromCountryServiceTest {
                         Optional.of("pid"),
                         Optional.of(LEVEL_2),
                         Optional.empty(),
-                        Optional.empty());
+                        EMPTY_UNSIGNED_ASSERTIONS);
 
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
                 .thenReturn(inboundResponseFromCountry);
@@ -211,7 +212,14 @@ public class AuthnResponseFromCountryServiceTest {
     @Test
     public void shouldReturnNonMatchingJourneySuccessResponseIfTranslationResponseFromSamlEngineIsSuccessfulAndNotUsingMatching() {
         final InboundResponseFromCountry inboundResponseFromCountry =
-                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob-encrypted-for-test-rp"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.empty(), Optional.empty());
+                new InboundResponseFromCountry(Status.Success,
+                        Optional.of("status"),
+                        "issuer",
+                        Optional.of("blob-encrypted-for-test-rp"),
+                        Optional.of("pid"),
+                        Optional.of(LEVEL_2),
+                        Optional.empty(),
+                        EMPTY_UNSIGNED_ASSERTIONS);
 
         when(stateController.isMatchingJourney()).thenReturn(false);
         when(samlEngineProxy.translateAuthnResponseFromCountry(NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
@@ -244,7 +252,7 @@ public class AuthnResponseFromCountryServiceTest {
                         Optional.of("pid"),
                         Optional.of(LEVEL_2),
                         Optional.empty(),
-                        Optional.empty()));
+                        EMPTY_UNSIGNED_ASSERTIONS));
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 

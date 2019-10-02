@@ -19,12 +19,14 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResourceHelper;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -85,14 +87,9 @@ public class EidasSessionResourceIntegrationTest {
     public void setUp() throws Exception {
         stubSamlEngineTranslationLOAForCountry(LevelOfAssurance.LEVEL_2, NETHERLANDS);
         stubSamlEngineGenerationOfAQR();
-        configStub.reset();
-        configStub.setUpStubForMatchingServiceRequest(RP_ENTITY_ID, MS_ENTITY_ID, true);
-        configStub.setUpStubForLevelsOfAssurance(RP_ENTITY_ID);
-        configStub.setupStubForEidasEnabledForTransaction(RP_ENTITY_ID, false);
-        configStub.setupStubForEidasCountries(EIDAS_COUNTRIES);
+        setUpStubConfigForMatchingService();
         eventSinkStub.reset();
         eventSinkStub.setupStubForLogging();
-        enableCountriesForRp(RP_ENTITY_ID, NETHERLANDS, SPAIN);
     }
 
     @Test
@@ -107,6 +104,21 @@ public class EidasSessionResourceIntegrationTest {
         assertThat(response.readEntity(ResponseAction.class)).isEqualToComparingFieldByField(expectedResult);
 
         assertThatCurrentStateForSesssionIs(sessionId, EidasCycle0And1MatchRequestSentState.class);
+    }
+
+    @Test
+    public void shouldReturnOkWhenSuccessAuthnResponseIsReceivedForUnsignedAssertionsResponseForNonMatchingService() throws Exception {
+        SessionId sessionId = selectACountry(SPAIN);
+        stubSamlEngineTranslationForCountryUnsignedAssertions(SPAIN);
+        setUpStubConfigForNonMatchingService();
+
+        Response response = postAuthnResponseToPolicy(sessionId);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ResponseAction expectedResult = ResponseAction.nonMatchingJourneySuccess(sessionId, false, LevelOfAssurance.LEVEL_2, null);
+        assertThat(response.readEntity(ResponseAction.class)).isEqualToComparingFieldByField(expectedResult);
+
+        assertThatCurrentStateForSesssionIs(sessionId, NonMatchingJourneySuccessState.class);
     }
 
     @Test
@@ -218,13 +230,51 @@ public class EidasSessionResourceIntegrationTest {
 
     private void stubSamlEngineTranslationLOAForCountry(LevelOfAssurance loa, EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Success, Optional.empty(), country.getEntityId(), Optional.of("BLOB"), Optional.of("PID"), Optional.of(loa), Optional.empty(), Optional.empty());
+        translationDto = new InboundResponseFromCountry(
+                CountryAuthenticationStatus.Status.Success,
+                Optional.empty(),
+                country.getEntityId(),
+                Optional.of("BLOB"),
+                Optional.of("PID"),
+                Optional.of(loa),
+                Optional.empty(),
+                Optional.empty()
+        );
+        samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
+    }
+
+    private void stubSamlEngineTranslationForCountryUnsignedAssertions(EidasCountryDto country) throws Exception {
+        samlEngineStub.reset();
+        CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer(
+                "base64SamlResponse",
+                List.of("base64EncryptedKey"),
+                "countryEntityId"
+        );
+        translationDto = new InboundResponseFromCountry(
+                CountryAuthenticationStatus.Status.Success,
+                Optional.empty(),
+                country.getEntityId(),
+                Optional.of("BLOB"),
+                Optional.of("PID"),
+                Optional.of(LevelOfAssurance.LEVEL_2),
+                Optional.empty(),
+                Optional.of(countrySignedResponseContainer)
+        );
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 
     private void stubSamlEngineTranslationToFailForCountry(EidasCountryDto country) throws Exception {
         samlEngineStub.reset();
-        translationDto = new InboundResponseFromCountry(CountryAuthenticationStatus.Status.Failure, Optional.empty(), country.getEntityId(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+        translationDto = new InboundResponseFromCountry(
+                CountryAuthenticationStatus.Status.Failure,
+                Optional.empty(),
+                country.getEntityId(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
         samlEngineStub.setupStubForCountryAuthnResponseTranslate(translationDto);
     }
 
@@ -240,5 +290,24 @@ public class EidasSessionResourceIntegrationTest {
 
     private void enableCountriesForRp(String rpEntityId, EidasCountryDto... countries) throws Exception {
         configStub.setupStubForEidasRPCountries(rpEntityId, Arrays.stream(countries).map(EidasCountryDto::getEntityId).collect(toList()));
+    }
+
+    private void setUpStubConfigForMatchingService() throws Exception {
+        configStub.reset();
+        configStub.setUpStubForLevelsOfAssurance(RP_ENTITY_ID);
+        configStub.setUpStubForMatchingServiceRequest(RP_ENTITY_ID, MS_ENTITY_ID, true);
+        configStub.setupStubForEidasEnabledForTransaction(RP_ENTITY_ID, false);
+        configStub.setupStubForEidasCountries(EIDAS_COUNTRIES);
+        enableCountriesForRp(RP_ENTITY_ID, NETHERLANDS, SPAIN);
+
+    }
+
+    private void setUpStubConfigForNonMatchingService() throws Exception {
+        configStub.reset();
+        configStub.setUpStubForLevelsOfAssurance(RP_ENTITY_ID);
+        configStub.setUpStubForNonMatchingServiceRequest(RP_ENTITY_ID);
+        configStub.setupStubForEidasEnabledForTransaction(RP_ENTITY_ID, false);
+        configStub.setupStubForEidasCountries(EIDAS_COUNTRIES);
+        enableCountriesForRp(RP_ENTITY_ID, NETHERLANDS, SPAIN);
     }
 }
