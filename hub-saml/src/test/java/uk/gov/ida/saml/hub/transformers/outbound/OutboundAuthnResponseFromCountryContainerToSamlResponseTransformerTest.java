@@ -44,6 +44,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
     private final String IN_RESPONSE_TO_ID = "responseID";
     private final String STATUS_SUCCESS_STRING = "urn:oasis:names:tc:SAML:2.0:status:Success";
     private final String COUNTRY_ENTITY_ID = "http://country-entity-id.gov.uk";
+    private final String SERVICE_ENTITY_ID = "serviceEntityId";
 
     @Mock
     private IdGenerator idGenerator;
@@ -76,6 +77,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
                 URI.create(DESTINATION),
                 Optional.of(RELAY_STATE),
                 RESPONSE_ID,
+                SERVICE_ENTITY_ID,
                 IN_RESPONSE_TO_ID
         );
 
@@ -121,7 +123,8 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
                 URI.create(DESTINATION),
                 Optional.of(RELAY_STATE),
                 RESPONSE_ID,
-                IN_RESPONSE_TO_ID
+                IN_RESPONSE_TO_ID,
+                COUNTRY_ENTITY_ID
         );
 
         Response apply = transformer.apply(countryResponse);

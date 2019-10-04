@@ -8,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.samlengine.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.samlengine.exceptions.UnableToGenerateSamlException;
 import uk.gov.ida.hub.samlengine.factories.OutboundResponseFromHubToResponseTransformerFactory;
+import uk.gov.ida.hub.samlengine.locators.AssignableEntityToEncryptForLocator;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToStringFunction;
@@ -32,6 +33,7 @@ public class RpAuthnResponseGeneratorServiceTest {
     private static final String RESPONSE_ID = "responseId";
     private static final String HUB_ENTITY_ID = "hubEntityId";
     private static final String TRANSFORMED_SAML_RESPONSE = "transformedSamlResponse";
+    private static final String SERVICE_ENTITY_ID = "serviceEntityId";
 
     private AuthnResponseFromCountryContainerDto countryContainer;
     private RpAuthnResponseGeneratorService generatorService;
@@ -50,11 +52,13 @@ public class RpAuthnResponseGeneratorServiceTest {
                 POST_ENDPOINT,
                 Optional.of(RELAY_STATE),
                 IN_RESPONSE_TO,
+                SERVICE_ENTITY_ID,
                 RESPONSE_ID
         );
         generatorService = new RpAuthnResponseGeneratorService(
                 outboundResponseFromHubToResponseTransformerFactory,
-                HUB_ENTITY_ID
+                HUB_ENTITY_ID,
+                new AssignableEntityToEncryptForLocator()
         );
     }
 

@@ -16,6 +16,7 @@ public class AuthnResponseFromCountryContainerDtoBuilder {
     private static final String RELAY_STATE = "relayState";
     private static final String IN_RESPONSE_TO = "inResponseTo";
     private static final String RESPONSE_ID = "responseId";
+    private static final String SERVICE_ENTITY_ID = "serviceEntityId";
 
     public static AuthnResponseFromCountryContainerDtoBuilder anAuthnResponseFromCountryContainerDto() {
         return new AuthnResponseFromCountryContainerDtoBuilder();
@@ -32,6 +33,7 @@ public class AuthnResponseFromCountryContainerDtoBuilder {
                 POST_ENDPOINT,
                 Optional.of(RELAY_STATE),
                 IN_RESPONSE_TO,
+                SERVICE_ENTITY_ID,
                 RESPONSE_ID
         );
     }

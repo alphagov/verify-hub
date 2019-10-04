@@ -184,14 +184,18 @@ public class HubTransformersFactory {
     }
 
     public Function<AuthnResponseFromCountryContainerDto, String> getOutboundAuthnResponseFromCountryContainerToStringTransformer(
+            final EncryptionKeyStore encryptionKeyStore,
             final IdaKeyStore keystore,
+            final EntityToEncryptForLocator entityToEncryptForLocator,
             final ResponseAssertionSigner responseAssertionSigner,
             final SignatureAlgorithm signatureAlgorithm,
             final DigestAlgorithm digestAlgorithm,
             final String hubEntityId) {
         Function<AuthnResponseFromCountryContainerDto, Response> countryResponseToResponseTransformer = getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(hubEntityId);
         Function<Response, String> responseStringTransformer = coreTransformersFactory.getResponseStringTransformer(
+                encryptionKeyStore,
                 keystore,
+                entityToEncryptForLocator,
                 responseAssertionSigner,
                 signatureAlgorithm,
                 digestAlgorithm

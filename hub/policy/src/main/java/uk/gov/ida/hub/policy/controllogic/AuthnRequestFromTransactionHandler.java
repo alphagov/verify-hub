@@ -139,6 +139,7 @@ public class AuthnRequestFromTransactionHandler {
                 state.getAssertionConsumerServiceUri(),
                 state.getRelayState(),
                 state.getRequestId(),
+                state.getRequestIssuerEntityId(),
                 idGenerator.getId()
         );
     }

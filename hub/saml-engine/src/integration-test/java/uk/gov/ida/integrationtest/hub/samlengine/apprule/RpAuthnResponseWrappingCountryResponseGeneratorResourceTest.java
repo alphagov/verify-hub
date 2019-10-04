@@ -6,19 +6,18 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import net.shibboleth.utilities.java.support.codec.Base64Support;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.AuthnResponseFromHubContainerDto;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
-import uk.gov.ida.saml.core.extensions.eidas.CountrySamlResponse;
-import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
 
@@ -30,6 +29,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RpAuthnResponseWrappingCountryResponseGeneratorResourceTest {
@@ -46,9 +46,13 @@ public class RpAuthnResponseWrappingCountryResponseGeneratorResourceTest {
     private CountrySignedResponseContainer countrySignedResponseContainer;
     private URI endpoint;
 
+    @ClassRule
+    public static ConfigStubRule configStub = new ConfigStubRule();
 
     @Rule
-    public SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule();
+    public SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule(
+            config("configUri", configStub.baseUri().build().toASCIIString())
+    );
 
     @Before
     public void setUp() {
@@ -61,16 +65,19 @@ public class RpAuthnResponseWrappingCountryResponseGeneratorResourceTest {
                 List.of(ENCRYPTED_KEY),
                 COUNTRY_ENTITY_ID
         );
+        configStub.reset();
         endpoint = samlEngineAppRule.getUri(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE);
     }
 
     @Test
     public void testShouldReturnAResponseWithOriginalCountryResponseAndEncryptedAssertionKeysAsAttributes() throws Exception {
+        configStub.setupCertificatesForEntity(TestEntityIds.TEST_RP);
         AuthnResponseFromCountryContainerDto countryContainerDto = new AuthnResponseFromCountryContainerDto(
                 countrySignedResponseContainer,
                 POST_ENDPOINT,
                 Optional.of(RELAY_STATE),
                 IN_RESPONSE_TO,
+                TestEntityIds.TEST_RP,
                 RESPONSE_ID
         );
 
@@ -82,19 +89,14 @@ public class RpAuthnResponseWrappingCountryResponseGeneratorResourceTest {
         org.opensaml.saml.saml2.core.Response response = extractResponse(result);
 
         assertThat(response.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
-        assertThat(response.getEncryptedAssertions()).isEmpty();
+        assertThat(response.getAssertions()).isEmpty();
         assertThat(response.getID()).isEqualTo(countryContainerDto.getResponseId());
         assertThat(response.getInResponseTo()).isEqualTo(countryContainerDto.getInResponseTo());
         assertThat(response.getIssuer().getValue()).isEqualTo(TestEntityIds.HUB_ENTITY_ID);
         assertThat(response.getDestination()).isEqualTo(countryContainerDto.getPostEndpoint().toString());
         assertThat(response.getSignature()).isNotNull();
+        assertThat(response.getEncryptedAssertions()).isNotEmpty();
 
-        List<Attribute> attributes = response.getAssertions().get(0).getAttributeStatements().get(0).getAttributes();
-        CountrySamlResponse countrySamlResponse = (CountrySamlResponse) attributes.get(0).getAttributeValues().get(0);
-        EncryptedAssertionKeys encryptedAssertionKeys = (EncryptedAssertionKeys) attributes.get(1).getAttributeValues().get(0);
-
-        assertThat(countrySamlResponse.getCountrySamlResponse()).isEqualTo(BASE_64_SAML_RESPONSE);
-        assertThat(encryptedAssertionKeys.getEncryptedAssertionKeys()).isEqualTo(ENCRYPTED_KEY);
     }
 
     @Test
@@ -104,6 +106,7 @@ public class RpAuthnResponseWrappingCountryResponseGeneratorResourceTest {
                 null,
                 Optional.of(RELAY_STATE),
                 IN_RESPONSE_TO,
+                TestEntityIds.TEST_RP,
                 RESPONSE_ID
         );
 

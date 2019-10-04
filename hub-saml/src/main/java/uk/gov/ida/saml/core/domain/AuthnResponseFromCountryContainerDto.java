@@ -12,6 +12,7 @@ public class AuthnResponseFromCountryContainerDto {
     private Optional<String> relayState = Optional.empty();
     private String inResponseTo;
     private String responseId;
+    private String requestIssuerEntityId;
 
     @SuppressWarnings("unused") //Needed for JAXB
     private AuthnResponseFromCountryContainerDto() {
@@ -22,6 +23,7 @@ public class AuthnResponseFromCountryContainerDto {
             final URI postEndpoint,
             final Optional<String> relayState,
             String inResponseTo,
+            String requestIssuerEntityId,
             String responseId) {
 
         this.samlResponse = countrySignedResponseContainer.getBase64SamlResponse();
@@ -29,6 +31,7 @@ public class AuthnResponseFromCountryContainerDto {
         this.postEndpoint = postEndpoint;
         this.relayState = relayState;
         this.inResponseTo = inResponseTo;
+        this.requestIssuerEntityId = requestIssuerEntityId;
         this.responseId = responseId;
     }
 
@@ -41,6 +44,8 @@ public class AuthnResponseFromCountryContainerDto {
     public Optional<String> getRelayState() { return relayState; }
 
     public String getInResponseTo() { return inResponseTo; }
+
+    public String getRequestIssuerEntityId() { return requestIssuerEntityId; }
 
     public String getResponseId() { return responseId; }
 }

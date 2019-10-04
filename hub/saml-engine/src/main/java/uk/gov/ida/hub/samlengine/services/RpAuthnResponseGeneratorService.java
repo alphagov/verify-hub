@@ -2,6 +2,7 @@ package uk.gov.ida.hub.samlengine.services;
 
 import org.joda.time.DateTime;
 import org.slf4j.event.Level;
+import uk.gov.ida.hub.samlengine.locators.AssignableEntityToEncryptForLocator;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.hub.samlengine.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.samlengine.contracts.ResponseFromHubDto;
@@ -17,12 +18,15 @@ public class RpAuthnResponseGeneratorService {
 
     private final OutboundResponseFromHubToResponseTransformerFactory outboundResponseFromHubToResponseTransformerFactory;
     private final String hubEntityId;
+    private final AssignableEntityToEncryptForLocator entityToEncryptForLocator;
 
     @Inject
     public RpAuthnResponseGeneratorService(OutboundResponseFromHubToResponseTransformerFactory outboundResponseFromHubToResponseTransformerFactory,
-                                           @Named("HubEntityId") String hubEntityId) {
+                                           @Named("HubEntityId") String hubEntityId,
+                                           final AssignableEntityToEncryptForLocator entityToEncryptForLocator) {
         this.outboundResponseFromHubToResponseTransformerFactory = outboundResponseFromHubToResponseTransformerFactory;
         this.hubEntityId = hubEntityId;
+        this.entityToEncryptForLocator = entityToEncryptForLocator;
     }
 
     public AuthnResponseFromHubContainerDto generate(ResponseFromHubDto responseFromHub) {
@@ -63,6 +67,10 @@ public class RpAuthnResponseGeneratorService {
     }
 
     private AuthnResponseFromHubContainerDto createSuccessResponseFromCountryDto(AuthnResponseFromCountryContainerDto responseFromCountryDto) {
+        entityToEncryptForLocator.addEntityIdForRequestId(
+                responseFromCountryDto.getInResponseTo(),
+                responseFromCountryDto.getRequestIssuerEntityId()
+        );
         String samlMessage = outboundResponseFromHubToResponseTransformerFactory.getCountryTransformer().apply(responseFromCountryDto);
         return new AuthnResponseFromHubContainerDto(
                 samlMessage,
