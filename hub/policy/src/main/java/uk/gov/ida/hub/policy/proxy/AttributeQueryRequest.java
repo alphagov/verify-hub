@@ -3,10 +3,8 @@ package uk.gov.ida.hub.policy.proxy;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
-import java.util.Optional;
 
 public class AttributeQueryRequest {
 
@@ -16,7 +14,6 @@ public class AttributeQueryRequest {
     private String id;
     private String issuer;
     private boolean onboarding;
-    private Optional<CountrySignedResponseContainer> countrySignedResponse;
 
     @SuppressWarnings("unused") //Required by JAXB
     private AttributeQueryRequest() {}
@@ -27,8 +24,7 @@ public class AttributeQueryRequest {
             String samlRequest,
             URI matchingServiceUri,
             DateTime attributeQueryClientTimeOut,
-            boolean onboarding,
-            Optional<CountrySignedResponseContainer> countrySignedResponse) {
+            boolean onboarding) {
 
         this.id = id;
         this.issuer = issuer;
@@ -36,7 +32,6 @@ public class AttributeQueryRequest {
         this.matchingServiceUri = matchingServiceUri;
         this.onboarding = onboarding;
         this.attributeQueryClientTimeOut = attributeQueryClientTimeOut;
-        this.countrySignedResponse = countrySignedResponse;
     }
 
     public URI getMatchingServiceUri() {
@@ -59,10 +54,6 @@ public class AttributeQueryRequest {
 
     public String getSamlRequest() {
         return samlRequest;
-    }
-
-    public Optional<CountrySignedResponseContainer> getCountrySignedResponse() {
-        return countrySignedResponse;
     }
 
     @Override

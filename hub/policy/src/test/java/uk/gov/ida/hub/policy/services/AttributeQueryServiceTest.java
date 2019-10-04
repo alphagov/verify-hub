@@ -3,13 +3,11 @@ package uk.gov.ida.hub.policy.services;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.builder.AttributeQueryRequestBuilder;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
-import uk.gov.ida.hub.policy.contracts.AbstractAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
@@ -17,15 +15,11 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
-import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -90,8 +84,7 @@ public class AttributeQueryServiceTest {
             attributeQueryContainerDto.getSamlRequest(),
             attributeQueryContainerDto.getMatchingServiceUri(),
             attributeQueryContainerDto.getAttributeQueryClientTimeOut(),
-            eidasAttributeQueryRequestDto.isOnboarding(),
-            eidasAttributeQueryRequestDto.getCountrySignedResponse()
+            eidasAttributeQueryRequestDto.isOnboarding()
         );
         when(samlEngineProxy.generateEidasAttributeQuery(eidasAttributeQueryRequestDto)).thenReturn(attributeQueryContainerDto);
 
@@ -99,20 +92,5 @@ public class AttributeQueryServiceTest {
 
         verify(samlEngineProxy).generateEidasAttributeQuery(eidasAttributeQueryRequestDto);
         verify(samlSoapProxyProxy).sendHubMatchingServiceRequest(sessionId, attributeQueryRequest);
-    }
-
-    @Test
-    public void shouldSendOptionalCountrySignedResponseContainerToSamlSoapService() {
-        SessionId sessionId = mock(SessionId.class);
-        AbstractAttributeQueryRequestDto attributeQueryRequestDto = mock(AbstractAttributeQueryRequestDto.class);
-        AttributeQueryContainerDto attributeQueryContainerDto = mock(AttributeQueryContainerDto.class);
-        CountrySignedResponseContainer countrySignedResponseContainer = mock(CountrySignedResponseContainer.class);
-        ArgumentCaptor<AttributeQueryRequest> argumentCaptor = ArgumentCaptor.forClass(AttributeQueryRequest.class);
-        when(attributeQueryRequestDto.sendToSamlEngine(samlEngineProxy)).thenReturn(attributeQueryContainerDto);
-        when(attributeQueryContainerDto.getCountrySignedResponse()).thenReturn(Optional.of(countrySignedResponseContainer));
-        service.sendAttributeQueryRequest(sessionId, attributeQueryRequestDto);
-        verify(attributeQueryContainerDto).getCountrySignedResponse();
-        verify(samlSoapProxyProxy).sendHubMatchingServiceRequest(eq(sessionId), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getCountrySignedResponse().get()).isEqualTo(countrySignedResponseContainer);
     }
 }

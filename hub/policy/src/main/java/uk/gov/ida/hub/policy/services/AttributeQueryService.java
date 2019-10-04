@@ -36,8 +36,7 @@ public class AttributeQueryService {
                 attributeQueryContainerDto.getSamlRequest(),
                 attributeQueryContainerDto.getMatchingServiceUri(),
                 attributeQueryContainerDto.getAttributeQueryClientTimeOut(),
-                isOnBoarding,
-                attributeQueryContainerDto.getCountrySignedResponse());
+                isOnBoarding);
         samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, attributeQueryRequest);
     }
 }

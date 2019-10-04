@@ -93,7 +93,7 @@ public class AuthnResponseFromCountryService {
                     responseFromCountry.getAnalyticsSessionId(),
                     responseFromCountry.getJourneyType());
             AttributeQueryContainerDto aqr = samlEngineProxy.generateEidasAttributeQuery(stateController.getEidasAttributeQueryRequestDto(translatedResponse));
-            samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr, translatedResponse));
+            samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, getAttributeQueryRequest(aqr));
             return success(sessionId, false, LevelOfAssurance.LEVEL_2, null);
         } else {
             stateController.handleNonMatchingJourneySuccessResponseFromCountry(translatedResponse,
@@ -116,8 +116,8 @@ public class AuthnResponseFromCountryService {
         return other(sessionId, false);
     }
 
-    private AttributeQueryRequest getAttributeQueryRequest(AttributeQueryContainerDto aqr, InboundResponseFromCountry translatedResponse) {
-        return new AttributeQueryRequest(aqr.getId(), aqr.getIssuer(), aqr.getSamlRequest(), aqr.getMatchingServiceUri(), aqr.getAttributeQueryClientTimeOut(), aqr.isOnboarding(), translatedResponse.getCountrySignedResponse());
+    private AttributeQueryRequest getAttributeQueryRequest(AttributeQueryContainerDto aqr) {
+        return new AttributeQueryRequest(aqr.getId(), aqr.getIssuer(), aqr.getSamlRequest(), aqr.getMatchingServiceUri(), aqr.getAttributeQueryClientTimeOut(), aqr.isOnboarding());
     }
 
     private void validateCountryIsIn(List<EidasCountryDto> countries, String countryEntityId) {

@@ -298,7 +298,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     @Test
     public void shouldTransitionToEidasSuccessfulMatchStateWhenMatchIsReceivedWithCountrySignedResponseContainerPresent() throws Exception {
         CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer("saml", List.of("keys"), "country entity id");
-        AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true, Optional.of(countrySignedResponseContainer));
+        AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true);
         samlEngineStub.setupStubForEidasAttributeQueryRequestGeneration(aqrDto);
         SessionId sessionId = aSessionIsCreated();
         aCountryWasSelected(sessionId, NETHERLANDS);
@@ -414,7 +414,7 @@ public class EidasMatchingServiceResourceIntegrationTest {
     }
 
     private void stubSamlEngineGenerationOfAQR() throws Exception {
-        AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true, Optional.empty());
+        AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true);
         samlEngineStub.setupStubForEidasAttributeQueryRequestGeneration(aqrDto);
     }
 }

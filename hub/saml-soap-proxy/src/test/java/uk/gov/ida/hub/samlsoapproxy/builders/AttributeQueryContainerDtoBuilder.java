@@ -3,11 +3,9 @@ package uk.gov.ida.hub.samlsoapproxy.builders;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import java.net.URI;
-import java.util.Optional;
 
 public class AttributeQueryContainerDtoBuilder {
 
@@ -17,7 +15,6 @@ public class AttributeQueryContainerDtoBuilder {
     private URI matchingServiceUri = URI.create("/default-matching-service-uri");
     private DateTime attributeQueryClientTimeout = DateTime.now().plusSeconds(45);
     private boolean onboarding = false;
-    private Optional<CountrySignedResponseContainer> COUNTRY_SIGNED_RESPONSE = Optional.empty();
 
     private AttributeQueryContainerDtoBuilder(AttributeQuery attributeQuery) {
         this.samlRequest = XmlUtils.writeToString(attributeQuery.getDOM());
@@ -28,7 +25,7 @@ public class AttributeQueryContainerDtoBuilder {
     }
 
     public AttributeQueryContainerDto build() {
-        return new AttributeQueryContainerDto(id, issuer, samlRequest, matchingServiceUri, attributeQueryClientTimeout, onboarding, COUNTRY_SIGNED_RESPONSE);
+        return new AttributeQueryContainerDto(id, issuer, samlRequest, matchingServiceUri, attributeQueryClientTimeout, onboarding);
     }
 
     public AttributeQueryContainerDtoBuilder withMatchingServiceUri(URI matchingServiceUri) {
