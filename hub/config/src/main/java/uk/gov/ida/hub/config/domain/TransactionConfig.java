@@ -87,7 +87,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     @Valid
     @NotNull
     @JsonProperty
-    protected boolean shouldSignWithSHA1 = true;
+    protected boolean shouldSignWithSHA1 = false;
 
     @Valid
     @JsonProperty
