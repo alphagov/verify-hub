@@ -46,6 +46,7 @@ import java.util.List;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.ida.saml.core.extensions.EidasAuthnContext.EIDAS_LOA_SUBSTANTIAL;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PRIVATE_ENCRYPTION_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC_ENCRYPTION_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC_SIGNING_CERT;
@@ -111,6 +112,7 @@ public class CountryMatchingServiceRequestGeneratorResourceTest {
         Assertion assertion = assertions.iterator().next();
         List<AuthnStatement> authnStatements = assertion.getAuthnStatements();
         assertThat(authnStatements.size()).isEqualTo(1);
+        assertThat(authnStatements.get(0).getAuthnContext().getAuthnContextClassRef().getAuthnContextClassRef()).isEqualTo(EIDAS_LOA_SUBSTANTIAL);
         List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
         assertThat(attributeStatements.size()).isEqualTo(1);
         AttributeStatement attributeStatement = attributeStatements.iterator().next();

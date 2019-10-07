@@ -498,7 +498,8 @@ public class HubTransformersFactory {
                 new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory()));
 
         EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer = new EidasUnsignedAssertionsTransformer(
-                new OpenSamlXmlObjectFactory()
+                new OpenSamlXmlObjectFactory(),
+                new AuthnContextFactory()
         );
         return new HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
                 new OpenSamlXmlObjectFactory(),

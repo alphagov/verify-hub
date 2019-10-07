@@ -5,6 +5,8 @@ import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AuthnContext;
+import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
@@ -16,6 +18,7 @@ import uk.gov.ida.saml.core.extensions.eidas.CountrySamlResponse;
 import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.extensions.eidas.impl.CountrySamlResponseBuilder;
 import uk.gov.ida.saml.core.extensions.eidas.impl.EncryptedAssertionKeysBuilder;
+import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 
 import java.util.List;
@@ -24,9 +27,11 @@ import java.util.UUID;
 public class EidasUnsignedAssertionsTransformer {
 
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
+    private final AuthnContextFactory authnContextFactory;
 
-    public EidasUnsignedAssertionsTransformer(OpenSamlXmlObjectFactory openSamlXmlObjectFactory) {
+    public EidasUnsignedAssertionsTransformer(OpenSamlXmlObjectFactory openSamlXmlObjectFactory, AuthnContextFactory authnContextFactory) {
         this.openSamlXmlObjectFactory = openSamlXmlObjectFactory;
+        this.authnContextFactory = authnContextFactory;
     }
 
     public Assertion transform(HubEidasAttributeQueryRequest originalQuery) {
@@ -55,8 +60,17 @@ public class EidasUnsignedAssertionsTransformer {
         attributes.add(keysAttribute);
         assertion.getAttributeStatements().add(attributeStatement);
         assertion.getAuthnStatements().add(authnStatement);
-
+        setAuthnContextWithEidasLOA(originalQuery, authnStatement);
         return assertion;
+    }
+
+    private void setAuthnContextWithEidasLOA(HubEidasAttributeQueryRequest originalQuery, AuthnStatement authnStatement) {
+        String levelOfAssurance = originalQuery.getAuthnContext().getUri();
+        String eidasLOA = authnContextFactory.mapFromLoAToEidas(authnContextFactory.authnContextForLevelOfAssurance(levelOfAssurance));
+        AuthnContext authnContext = openSamlXmlObjectFactory.createAuthnContext();
+        AuthnContextClassRef authnContextClassReference = openSamlXmlObjectFactory.createAuthnContextClassReference(eidasLOA);
+        authnContext.setAuthnContextClassRef(authnContextClassReference);
+        authnStatement.setAuthnContext(authnContext);
     }
 
     private Attribute createCountrySamlResponseAttribute(String value) {

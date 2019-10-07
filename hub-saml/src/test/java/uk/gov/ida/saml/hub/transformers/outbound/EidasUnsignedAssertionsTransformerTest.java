@@ -10,11 +10,13 @@ import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AuthnStatement;
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
+import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.domain.PersistentId;
 import uk.gov.ida.saml.core.extensions.eidas.CountrySamlResponse;
 import uk.gov.ida.saml.core.extensions.eidas.EncryptedAssertionKeys;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 
 import java.util.List;
@@ -22,6 +24,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static uk.gov.ida.saml.core.extensions.EidasAuthnContext.EIDAS_LOA_SUBSTANTIAL;
+import static uk.gov.ida.saml.core.extensions.IdaAuthnContext.LEVEL_2_AUTHN_CTX;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class EidasUnsignedAssertionsTransformerTest {
@@ -37,9 +41,12 @@ public class EidasUnsignedAssertionsTransformerTest {
     @Mock
     private PersistentId persistentId;
 
+    @Mock
+    private AuthnContext authnContext;
+
     @Before
     public void setUp() throws Exception {
-        transformer = new EidasUnsignedAssertionsTransformer(new OpenSamlXmlObjectFactory());
+        transformer = new EidasUnsignedAssertionsTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory());
     }
 
     @Test
@@ -47,6 +54,8 @@ public class EidasUnsignedAssertionsTransformerTest {
         when(attributeQueryRequest.getCountrySignedResponseContainer()).thenReturn(Optional.of(countrySignedResponseContainer));
         when(attributeQueryRequest.getId()).thenReturn("attributeQueryRequest id");
         when(attributeQueryRequest.getPersistentId()).thenReturn(persistentId);
+        when(attributeQueryRequest.getAuthnContext()).thenReturn(authnContext);
+        when(authnContext.getUri()).thenReturn(LEVEL_2_AUTHN_CTX);
         when(persistentId.getNameId()).thenReturn("persistentId name id");
         when(countrySignedResponseContainer.getCountryEntityId()).thenReturn("a country entity id");
         when(countrySignedResponseContainer.getBase64SamlResponse()).thenReturn("original unsigned eidas saml response");
@@ -57,6 +66,8 @@ public class EidasUnsignedAssertionsTransformerTest {
         assertThat(assertion.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().getInResponseTo()).isEqualTo("attributeQueryRequest id");
         List<AuthnStatement> authnStatements = assertion.getAuthnStatements();
         assertThat(authnStatements.size()).isEqualTo(1);
+        AuthnStatement authnStatement = authnStatements.iterator().next();
+        assertThat(authnStatement.getAuthnContext().getAuthnContextClassRef().getAuthnContextClassRef()).isEqualTo(EIDAS_LOA_SUBSTANTIAL);
         List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
         assertThat(attributeStatements.size()).isEqualTo(1);
         AttributeStatement attributeStatement = attributeStatements.get(0);
