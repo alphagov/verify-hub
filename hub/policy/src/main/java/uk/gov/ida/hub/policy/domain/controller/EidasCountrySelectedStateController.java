@@ -112,7 +112,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 Optional.empty(),
                 Optional.empty(),
                 translatedResponse.getEncryptedIdentityAssertionBlob().get(),
-                translatedResponse.getCountrySignedResponse()
+                translatedResponse.getCountrySignedResponseContainer()
         );
     }
 

@@ -39,7 +39,6 @@ import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResourceHelper;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -297,7 +296,6 @@ public class EidasMatchingServiceResourceIntegrationTest {
 
     @Test
     public void shouldTransitionToEidasSuccessfulMatchStateWhenMatchIsReceivedWithCountrySignedResponseContainerPresent() throws Exception {
-        CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer("saml", List.of("keys"), "country entity id");
         AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true);
         samlEngineStub.setupStubForEidasAttributeQueryRequestGeneration(aqrDto);
         SessionId sessionId = aSessionIsCreated();

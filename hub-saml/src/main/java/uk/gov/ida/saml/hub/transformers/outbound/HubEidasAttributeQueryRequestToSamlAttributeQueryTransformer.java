@@ -81,7 +81,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer implem
 
         transformedQuery.setSubject(subject);
 
-        Optional<CountrySignedResponseContainer> countrySignedResponseContainer = originalQuery.getCountrySignedResponse();
+        Optional<CountrySignedResponseContainer> countrySignedResponseContainer = originalQuery.getCountrySignedResponseContainer();
         if (countrySignedResponseContainer.isPresent()) {
             Assertion unsignedAssertion = eidasUnsignedAssertionsTransformer.transform(originalQuery);
             subjectConfirmationData.getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).add(unsignedAssertion);

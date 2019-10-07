@@ -148,13 +148,13 @@ public class CountryAuthnResponseTranslatorServiceTest {
         assertThat(result.getEncryptedIdentityAssertionBlob().isPresent()).isTrue();
         assertThat(result.getEncryptedIdentityAssertionBlob().get()).isEqualTo(identityUnderlyingAssertionBlob);
 
-        assertThat(result.getCountrySignedResponse().isPresent()).isFalse();
+        assertThat(result.getCountrySignedResponseContainer().isPresent()).isFalse();
     }
 
     @Test public void shouldExtractAuthnStatementAssertionDetailsUnsignedAssertions() throws Exception {
         setupUnsigned();
         InboundResponseFromCountry result = service.translate(samlAuthnResponseTranslatorDto);
-        assertThat(result.getCountrySignedResponse().isPresent()).isTrue();
-        assertThat(result.getCountrySignedResponse().get().getBase64encryptedKeys()).isEqualTo(List.of("key"));
+        assertThat(result.getCountrySignedResponseContainer().isPresent()).isTrue();
+        assertThat(result.getCountrySignedResponseContainer().get().getBase64encryptedKeys()).isEqualTo(List.of("key"));
     }
 }

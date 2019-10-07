@@ -1,10 +1,9 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -22,18 +21,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class EidasUnsignedAssertionsTransformerTest {
 
-    @InjectMocks
     private EidasUnsignedAssertionsTransformer transformer;
-
-    @Spy
-    private OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
 
     @Mock
     private HubEidasAttributeQueryRequest attributeQueryRequest;
@@ -44,9 +37,14 @@ public class EidasUnsignedAssertionsTransformerTest {
     @Mock
     private PersistentId persistentId;
 
+    @Before
+    public void setUp() throws Exception {
+        transformer = new EidasUnsignedAssertionsTransformer(new OpenSamlXmlObjectFactory());
+    }
+
     @Test
     public void shouldCreateAnUnsignedAssertionContainingOriginalEidasSamlResponseAndEncryptedKeys() {
-        when(attributeQueryRequest.getCountrySignedResponse()).thenReturn(Optional.of(countrySignedResponseContainer));
+        when(attributeQueryRequest.getCountrySignedResponseContainer()).thenReturn(Optional.of(countrySignedResponseContainer));
         when(attributeQueryRequest.getId()).thenReturn("attributeQueryRequest id");
         when(attributeQueryRequest.getPersistentId()).thenReturn(persistentId);
         when(persistentId.getNameId()).thenReturn("persistentId name id");
@@ -55,24 +53,6 @@ public class EidasUnsignedAssertionsTransformerTest {
         when(countrySignedResponseContainer.getBase64encryptedKeys()).thenReturn(List.of("an encrypted key"));
 
         Assertion assertion = transformer.transform(attributeQueryRequest);
-
-        verify(countrySignedResponseContainer).getCountryEntityId();
-        verify(countrySignedResponseContainer).getBase64SamlResponse();
-        verify(countrySignedResponseContainer).getBase64encryptedKeys();
-        verify(attributeQueryRequest).getCountrySignedResponse();
-        verify(attributeQueryRequest).getId();
-        verify(attributeQueryRequest).getPersistentId();
-        verify(persistentId).getNameId();
-        verify(openSamlXmlObjectFactory).createAssertion();
-        verify(openSamlXmlObjectFactory).createIssuer("a country entity id");
-        verify(openSamlXmlObjectFactory).createSubject();
-        verify(openSamlXmlObjectFactory).createSubjectConfirmation();
-        verify(openSamlXmlObjectFactory).createAuthnStatement();
-        verify(openSamlXmlObjectFactory).createAttributeStatement();
-        verify(openSamlXmlObjectFactory).createSubjectConfirmationData();
-        verify(openSamlXmlObjectFactory).createNameId("persistentId name id");
-
-        verifyNoMoreInteractions(attributeQueryRequest, countrySignedResponseContainer, openSamlXmlObjectFactory);
 
         assertThat(assertion.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().getInResponseTo()).isEqualTo("attributeQueryRequest id");
         List<AuthnStatement> authnStatements = assertion.getAuthnStatements();

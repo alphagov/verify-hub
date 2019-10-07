@@ -22,7 +22,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
     @NotNull
     private final String encryptedIdentityAssertion;
     @NotNull
-    private final Optional<CountrySignedResponseContainer> countrySignedResponse;
+    private final Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
     public EidasAttributeQueryRequestDto(
             final String requestId,
@@ -38,7 +38,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             final Optional<Cycle3Dataset> cycle3Dataset,
             final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
             final String encryptedIdentityAssertion,
-            final Optional<CountrySignedResponseContainer> countrySignedResponse) {
+            final Optional<CountrySignedResponseContainer> countrySignedResponseContainer) {
 
         super(
             requestId,
@@ -54,15 +54,15 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             cycle3Dataset,
             userAccountCreationAttributes);
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
-        this.countrySignedResponse = countrySignedResponse;
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public String getEncryptedIdentityAssertion() {
         return encryptedIdentityAssertion;
     }
 
-    public Optional<CountrySignedResponseContainer> getCountrySignedResponse() {
-        return countrySignedResponse;
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
+        return countrySignedResponseContainer;
     }
 
     @Override
@@ -70,6 +70,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
         final StringBuilder sb = new StringBuilder("EidasAttributeQueryRequestDto{");
         sb.append(super.toString());
         sb.append(",encryptedIdentityAssertion='").append(encryptedIdentityAssertion).append('\'');
+        sb.append(",countrySignedResponseContainer='").append(countrySignedResponseContainer).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -99,7 +100,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             Objects.equals(getCycle3Dataset(), that.getCycle3Dataset()) &&
             Objects.equals(getUserAccountCreationAttributes(), that.getUserAccountCreationAttributes()) &&
             Objects.equals(encryptedIdentityAssertion, that.encryptedIdentityAssertion) &&
-            Objects.equals(countrySignedResponse, that.countrySignedResponse);
+            Objects.equals(countrySignedResponseContainer, that.countrySignedResponseContainer);
     }
 
     @Override
@@ -118,7 +119,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             getCycle3Dataset(),
             getUserAccountCreationAttributes(),
             encryptedIdentityAssertion,
-            countrySignedResponse);
+            countrySignedResponseContainer);
     }
 
     @Override

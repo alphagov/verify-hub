@@ -72,7 +72,7 @@ public class HubEidasAttributeQueryRequestBuilderTest {
         assertThat(hubEidasAttributeQueryRequest.getIssueInstant()).isEqualTo(expectedResult.getIssueInstant());
         assertThat(hubEidasAttributeQueryRequest.getCycle3AttributeAssertion()).isEqualTo(cycle3AttributeAssertion);
         assertThat(hubEidasAttributeQueryRequest.getUserAccountCreationAttributes()).isEqualTo(USER_ACCOUNT_CREATION_ATTRIBUTES);
-        assertThat(hubEidasAttributeQueryRequest.getCountrySignedResponse()).isEqualTo(COUNTRY_SIGNED_RESPONSE);
+        assertThat(hubEidasAttributeQueryRequest.getCountrySignedResponseContainer()).isEqualTo(COUNTRY_SIGNED_RESPONSE);
     }
 
     @Test
@@ -128,6 +128,6 @@ public class HubEidasAttributeQueryRequestBuilderTest {
         assertThat(hubEidasAttributeQueryRequest.getCycle3AttributeAssertion().get().getCycle3Data().isPresent()).isTrue();
         assertThat(hubEidasAttributeQueryRequest.getCycle3AttributeAssertion().get().getCycle3Data().get().getAttributes()).isEqualTo(hubAssertion.getCycle3Data().get().getAttributes());
         assertThat(hubEidasAttributeQueryRequest.getUserAccountCreationAttributes()).isEqualTo(USER_ACCOUNT_CREATION_ATTRIBUTES);
-        assertThat(hubEidasAttributeQueryRequest.getCountrySignedResponse()).isEqualTo(COUNTRY_SIGNED_RESPONSE);
+        assertThat(hubEidasAttributeQueryRequest.getCountrySignedResponseContainer()).isEqualTo(COUNTRY_SIGNED_RESPONSE);
     }
 }

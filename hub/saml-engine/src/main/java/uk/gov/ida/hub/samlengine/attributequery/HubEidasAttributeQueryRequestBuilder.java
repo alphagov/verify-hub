@@ -35,7 +35,7 @@ public class HubEidasAttributeQueryRequestBuilder {
                 AuthnContext.valueOf(dto.getLevelOfAssurance().name()),
                 createCycle3Assertion(dto),
                 dto.getUserAccountCreationAttributes(),
-                dto.getCountrySignedResponse());
+                dto.getCountrySignedResponseContainer());
     }
 
     private Optional<HubAssertion> createCycle3Assertion(EidasAttributeQueryRequestDto attributeQueryRequestDto) {

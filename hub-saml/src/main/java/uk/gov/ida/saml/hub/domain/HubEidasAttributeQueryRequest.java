@@ -16,7 +16,7 @@ public class HubEidasAttributeQueryRequest extends BaseHubAttributeQueryRequest 
     private final AuthnContext authnContext;
     private final Optional<HubAssertion> cycle3AttributeAssertion;
     private final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes;
-    private final Optional<CountrySignedResponseContainer> countrySignedResponse;
+    private final Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
     public HubEidasAttributeQueryRequest(
             String requestId,
@@ -29,14 +29,14 @@ public class HubEidasAttributeQueryRequest extends BaseHubAttributeQueryRequest 
             AuthnContext authnContext,
             Optional<HubAssertion> cycle3AttributeAssertion,
             Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
-            Optional<CountrySignedResponseContainer> countrySignedResponse) {
+            Optional<CountrySignedResponseContainer> countrySignedResponseContainer) {
 
         super(requestId, issuer, issueInstant, null, persistentId, assertionConsumerServiceUrl, authnRequestIssuerEntityId);
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
         this.authnContext = authnContext;
         this.cycle3AttributeAssertion = cycle3AttributeAssertion;
         this.userAccountCreationAttributes = userAccountCreationAttributes;
-        this.countrySignedResponse = countrySignedResponse;
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public String getEncryptedIdentityAssertion() {
@@ -55,7 +55,7 @@ public class HubEidasAttributeQueryRequest extends BaseHubAttributeQueryRequest 
         return userAccountCreationAttributes;
     }
 
-    public Optional<CountrySignedResponseContainer> getCountrySignedResponse() {
-        return countrySignedResponse;
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
+        return countrySignedResponseContainer;
     }
 }

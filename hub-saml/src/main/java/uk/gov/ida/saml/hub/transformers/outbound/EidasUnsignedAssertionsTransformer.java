@@ -26,26 +26,25 @@ public class EidasUnsignedAssertionsTransformer {
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
 
     public EidasUnsignedAssertionsTransformer(OpenSamlXmlObjectFactory openSamlXmlObjectFactory) {
-
         this.openSamlXmlObjectFactory = openSamlXmlObjectFactory;
     }
 
     public Assertion transform(HubEidasAttributeQueryRequest originalQuery) {
 
-        CountrySignedResponseContainer countrySignedResponseContainer = originalQuery.getCountrySignedResponse().get();
+        CountrySignedResponseContainer countrySignedResponseContainer = originalQuery.getCountrySignedResponseContainer().get();
         Assertion assertion = openSamlXmlObjectFactory.createAssertion();
         assertion.setIssueInstant(DateTime.now());
         String unsignedCountryIssuer = countrySignedResponseContainer.getCountryEntityId();
         assertion.setIssuer(openSamlXmlObjectFactory.createIssuer(unsignedCountryIssuer));
         assertion.setID(UUID.randomUUID().toString());
 
-        Subject newSub = openSamlXmlObjectFactory.createSubject();
+        Subject subject = openSamlXmlObjectFactory.createSubject();
         SubjectConfirmation subjectConfirmation = openSamlXmlObjectFactory.createSubjectConfirmation();
         SubjectConfirmationData subjectConfirmationData = createSubjectConfirmationData(originalQuery);
         subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
-        newSub.getSubjectConfirmations().add(subjectConfirmation);
-        newSub.setNameID(openSamlXmlObjectFactory.createNameId(originalQuery.getPersistentId().getNameId()));
-        assertion.setSubject(newSub);
+        subject.getSubjectConfirmations().add(subjectConfirmation);
+        subject.setNameID(openSamlXmlObjectFactory.createNameId(originalQuery.getPersistentId().getNameId()));
+        assertion.setSubject(subject);
 
         AuthnStatement authnStatement = openSamlXmlObjectFactory.createAuthnStatement();
         AttributeStatement attributeStatement = openSamlXmlObjectFactory.createAttributeStatement();

@@ -29,7 +29,7 @@ public class EidasAttributeQueryRequestDto {
     @NotNull
     private String encryptedIdentityAssertion;
     @NotNull
-    private Optional<CountrySignedResponseContainer> countrySignedResponse;
+    private Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
     @SuppressWarnings("unused") // needed by jaxb
     private EidasAttributeQueryRequestDto() {}
@@ -48,7 +48,7 @@ public class EidasAttributeQueryRequestDto {
             final Optional<Cycle3Dataset> cycle3Dataset,
             final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
             final String encryptedIdentityAssertion,
-            Optional<CountrySignedResponseContainer> countrySignedResponse) {
+            final Optional<CountrySignedResponseContainer> countrySignedResponseContainer) {
 
         this.requestId = requestId;
         this.authnRequestIssuerEntityId = authnRequestIssuerEntityId;
@@ -63,7 +63,7 @@ public class EidasAttributeQueryRequestDto {
         this.cycle3Dataset = cycle3Dataset;
         this.userAccountCreationAttributes = userAccountCreationAttributes;
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
-        this.countrySignedResponse = countrySignedResponse;
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public String getRequestId() {
@@ -118,7 +118,7 @@ public class EidasAttributeQueryRequestDto {
         return assertionExpiry;
     }
 
-    public Optional<CountrySignedResponseContainer> getCountrySignedResponse() {
-        return countrySignedResponse;
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
+        return countrySignedResponseContainer;
     }
 }

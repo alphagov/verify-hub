@@ -373,9 +373,9 @@ public class EidasCountrySelectedStateControllerTest {
         when(inboundResponseFromCountry.getPersistentId()).thenReturn(Optional.of("pid"));
         when(inboundResponseFromCountry.getEncryptedIdentityAssertionBlob()).thenReturn(Optional.of("blob"));
         when(inboundResponseFromCountry.getLevelOfAssurance()).thenReturn(Optional.of(LEVEL_2));
-        when(inboundResponseFromCountry.getCountrySignedResponse()).thenReturn(Optional.of(countrySignedResponseContainer));
+        when(inboundResponseFromCountry.getCountrySignedResponseContainer()).thenReturn(Optional.of(countrySignedResponseContainer));
         EidasAttributeQueryRequestDto requestDto = controller.getEidasAttributeQueryRequestDto(inboundResponseFromCountry);
-        assertThat(requestDto.getCountrySignedResponse().isPresent()).isTrue();
-        assertThat(requestDto.getCountrySignedResponse().get()).isEqualTo(countrySignedResponseContainer);
+        assertThat(requestDto.getCountrySignedResponseContainer().isPresent()).isTrue();
+        assertThat(requestDto.getCountrySignedResponseContainer().get()).isEqualTo(countrySignedResponseContainer);
     }
 }

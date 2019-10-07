@@ -42,7 +42,7 @@ public class EidasAttributeQueryRequestDtoTest {
     private static final Optional<List<UserAccountCreationAttribute>> USER_ACCOUNT_CREATION_ATTRIBUTES = Optional.empty();
     private static final DateTime ASSERTION_EXPIRY = DateTime.now();
     private EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto;
-    private Optional<CountrySignedResponseContainer> COUNTRY_SIGNED_RESPONSE = Optional.empty();
+    private Optional<CountrySignedResponseContainer> COUNTRY_SIGNED_RESPONSE = Optional.of(new CountrySignedResponseContainer("saml", List.of("keys"), "entity id"));
 
     @Before
     public void setUp() throws Exception {
@@ -139,6 +139,11 @@ public class EidasAttributeQueryRequestDtoTest {
     }
 
     @Test
+    public void getCountrySignedResponseContainer() {
+        assertThat(eidasAttributeQueryRequestDto.getCountrySignedResponseContainer()).isEqualTo(COUNTRY_SIGNED_RESPONSE);
+    }
+
+    @Test
     public void testToString() {
         final StringBuilder sb = new StringBuilder("EidasAttributeQueryRequestDto{");
         sb.append("requestId='").append(REQUEST_ID).append('\'');
@@ -154,6 +159,7 @@ public class EidasAttributeQueryRequestDtoTest {
         sb.append(",cycle3Dataset=").append(CYCLE_3_DATASET);
         sb.append(",userAccountCreationAttributes=").append(USER_ACCOUNT_CREATION_ATTRIBUTES);
         sb.append(",encryptedIdentityAssertion='").append(ENCRYPTED_IDENTITY_ASSERTION).append('\'');
+        sb.append(",countrySignedResponseContainer='").append(COUNTRY_SIGNED_RESPONSE).append('\'');
         sb.append('}');
 
         assertThat(eidasAttributeQueryRequestDto.toString()).isEqualTo(sb.toString());

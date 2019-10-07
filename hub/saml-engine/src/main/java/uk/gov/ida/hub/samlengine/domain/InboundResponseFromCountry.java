@@ -12,7 +12,7 @@ public class InboundResponseFromCountry {
     private Optional<String> statusMessage;
     private Optional<String> encryptedIdentityAssertionBlob;
     private Optional<LevelOfAssurance> levelOfAssurance;
-    private Optional<CountrySignedResponseContainer> countrySignedResponse;
+    private Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
     private InboundResponseFromCountry() {
     }
@@ -24,7 +24,7 @@ public class InboundResponseFromCountry {
             Optional<String> statusMessage,
             Optional<String> encryptedIdentityAssertionBlob,
             Optional<LevelOfAssurance> levelOfAssurance,
-            Optional<CountrySignedResponseContainer> countrySignedResponse
+            Optional<CountrySignedResponseContainer> countrySignedResponseContainer
     ) {
         this.issuer = issuer;
         this.persistentId = persistentId;
@@ -32,7 +32,7 @@ public class InboundResponseFromCountry {
         this.statusMessage = statusMessage;
         this.encryptedIdentityAssertionBlob = encryptedIdentityAssertionBlob;
         this.levelOfAssurance = levelOfAssurance;
-        this.countrySignedResponse = countrySignedResponse;
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public String getIssuer() {
@@ -59,7 +59,7 @@ public class InboundResponseFromCountry {
         return levelOfAssurance;
     }
 
-    public Optional<CountrySignedResponseContainer> getCountrySignedResponse() {
-        return countrySignedResponse;
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
+        return countrySignedResponseContainer;
     }
 }
