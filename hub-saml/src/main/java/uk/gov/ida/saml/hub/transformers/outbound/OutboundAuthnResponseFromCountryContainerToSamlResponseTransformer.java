@@ -72,6 +72,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
                 .getBuilder(Assertion.DEFAULT_ELEMENT_NAME)
                 .buildObject(Assertion.DEFAULT_ELEMENT_NAME, Assertion.TYPE_NAME);
         assertion.setID(idGenerator.getId());
+        assertion.setIssuer(openSamlXmlObjectFactory.createIssuer(hubEntityId));
 
         List<Attribute> attributes = getAttribtuesList(countryResponseDto);
 

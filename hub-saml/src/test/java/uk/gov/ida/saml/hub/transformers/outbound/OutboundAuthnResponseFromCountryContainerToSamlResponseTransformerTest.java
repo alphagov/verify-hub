@@ -90,6 +90,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
         assertThat(apply.getDestination()).isEqualTo(DESTINATION);
         assertThat(apply.getStatus().getStatusCode().getValue()).isEqualTo(STATUS_SUCCESS_STRING);
         assertThat(apply.getAssertions().get(0).getID()).isEqualTo(GENERATED_ID);
+        assertThat(apply.getAssertions().get(0).getIssuer().getValue()).isEqualTo(HUB_ENTITY_ID);
 
         List<Attribute> attributes = apply.getAssertions().get(0).getAttributeStatements().get(0).getAttributes();
 
