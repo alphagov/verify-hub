@@ -7,7 +7,10 @@ import org.mockito.Mock;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.Audience;
+import org.opensaml.saml.saml2.core.AudienceRestriction;
 import org.opensaml.saml.saml2.core.AuthnStatement;
+import org.opensaml.saml.saml2.core.Conditions;
 import uk.gov.ida.saml.core.IdaConstants;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.AuthnContext;
@@ -46,7 +49,7 @@ public class EidasUnsignedAssertionsTransformerTest {
 
     @Before
     public void setUp() throws Exception {
-        transformer = new EidasUnsignedAssertionsTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory());
+        transformer = new EidasUnsignedAssertionsTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory(), "hub connector entity id");
     }
 
     @Test
@@ -62,6 +65,17 @@ public class EidasUnsignedAssertionsTransformerTest {
         when(countrySignedResponseContainer.getBase64encryptedKeys()).thenReturn(List.of("an encrypted key"));
 
         Assertion assertion = transformer.transform(attributeQueryRequest);
+
+        Conditions conditions = assertion.getConditions();
+        List<AudienceRestriction> audienceRestrictions = conditions.getAudienceRestrictions();
+        assertThat(audienceRestrictions.size()).isEqualTo(1);
+        List<Audience> audiences = audienceRestrictions.get(0).getAudiences();
+        assertThat(audiences.size()).isEqualTo(1);
+        Audience audience = audiences.get(0);
+        assertThat(audience.getAudienceURI()).isEqualTo("hub connector entity id");
+        assertThat(conditions.getNotOnOrAfter()).isNotNull();
+        assertThat(conditions.getNotBefore()).isNotNull();
+        assertThat(conditions.getNotBefore()).isLessThan(conditions.getNotOnOrAfter());
 
         assertThat(assertion.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().getInResponseTo()).isEqualTo("attributeQueryRequest id");
         List<AuthnStatement> authnStatements = assertion.getAuthnStatements();
@@ -80,7 +94,7 @@ public class EidasUnsignedAssertionsTransformerTest {
             assertThat(samlResponse.getName()).isEqualTo(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
             assertThat(samlResponse.getAttributeValues().size()).isEqualTo(1);
             CountrySamlResponse countrySamlResponseValue = (CountrySamlResponse) samlResponse.getAttributeValues().get(0);
-            assertThat(countrySamlResponseValue.getCountrySamlResponse()).isEqualTo("original unsigned eidas saml response");
+            assertThat(countrySamlResponseValue.getValue()).isEqualTo("original unsigned eidas saml response");
 
         }
 
@@ -89,7 +103,7 @@ public class EidasUnsignedAssertionsTransformerTest {
             assertThat(encryptedKeys.getName()).isEqualTo(IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
             assertThat(encryptedKeys.getAttributeValues().size()).isEqualTo(1);
             EncryptedAssertionKeys encryptedAssertionKeys = (EncryptedAssertionKeys) encryptedKeys.getAttributeValues().get(0);
-            assertThat(encryptedAssertionKeys.getEncryptedAssertionKeys()).isEqualTo("an encrypted key");
+            assertThat(encryptedAssertionKeys.getValue()).isEqualTo("an encrypted key");
         }
     }
 }

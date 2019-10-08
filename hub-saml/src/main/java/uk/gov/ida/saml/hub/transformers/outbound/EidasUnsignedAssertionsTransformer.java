@@ -5,9 +5,11 @@ import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AudienceRestriction;
 import org.opensaml.saml.saml2.core.AuthnContext;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnStatement;
+import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
@@ -28,20 +30,30 @@ public class EidasUnsignedAssertionsTransformer {
 
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
     private final AuthnContextFactory authnContextFactory;
+    private final String hubEidasEntityId;
 
-    public EidasUnsignedAssertionsTransformer(OpenSamlXmlObjectFactory openSamlXmlObjectFactory, AuthnContextFactory authnContextFactory) {
+    public EidasUnsignedAssertionsTransformer(OpenSamlXmlObjectFactory openSamlXmlObjectFactory, AuthnContextFactory authnContextFactory, String hubEidasEntityId) {
         this.openSamlXmlObjectFactory = openSamlXmlObjectFactory;
         this.authnContextFactory = authnContextFactory;
+        this.hubEidasEntityId = hubEidasEntityId;
     }
 
     public Assertion transform(HubEidasAttributeQueryRequest originalQuery) {
 
         CountrySignedResponseContainer countrySignedResponseContainer = originalQuery.getCountrySignedResponseContainer().get();
         Assertion assertion = openSamlXmlObjectFactory.createAssertion();
-        assertion.setIssueInstant(DateTime.now());
+        DateTime now = DateTime.now();
+        assertion.setIssueInstant(now);
         String unsignedCountryIssuer = countrySignedResponseContainer.getCountryEntityId();
         assertion.setIssuer(openSamlXmlObjectFactory.createIssuer(unsignedCountryIssuer));
         assertion.setID(UUID.randomUUID().toString());
+
+        Conditions conditions = openSamlXmlObjectFactory.createConditions();
+        conditions.setNotBefore(now);
+        conditions.setNotOnOrAfter(now.plusMinutes(5));
+        AudienceRestriction audienceRestriction = openSamlXmlObjectFactory.createAudienceRestriction(hubEidasEntityId);
+        conditions.getAudienceRestrictions().add(audienceRestriction);
+        assertion.setConditions(conditions);
 
         Subject subject = openSamlXmlObjectFactory.createSubject();
         SubjectConfirmation subjectConfirmation = openSamlXmlObjectFactory.createSubjectConfirmation();
@@ -75,7 +87,7 @@ public class EidasUnsignedAssertionsTransformer {
 
     private Attribute createCountrySamlResponseAttribute(String value) {
         CountrySamlResponse attributeValue = new CountrySamlResponseBuilder().buildObject();
-        attributeValue.setCountrySamlResponse(value);
+        attributeValue.setValue(value);
         Attribute attribute = (Attribute) XMLObjectSupport.buildXMLObject(Attribute.DEFAULT_ELEMENT_NAME);
         attribute.setName(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
         attribute.setFriendlyName(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.FRIENDLY_NAME);
@@ -92,7 +104,7 @@ public class EidasUnsignedAssertionsTransformer {
         EncryptedAssertionKeysBuilder encryptedAssertionKeysBuilder = new EncryptedAssertionKeysBuilder();
         values.forEach(value -> {
             EncryptedAssertionKeys attributeValue = encryptedAssertionKeysBuilder.buildObject();
-            attributeValue.setEncryptedAssertionKeys(value);
+            attributeValue.setValue(value);
             attribute.getAttributeValues().add(attributeValue);
         });
         return attribute;

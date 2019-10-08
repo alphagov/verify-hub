@@ -269,9 +269,10 @@ public class HubTransformersFactory {
         EntityToEncryptForLocator entity,
         SignatureAlgorithm signatureAlgorithm,
         DigestAlgorithm digestAlgorithm,
-        String hubEntityId) {
+        String hubEntityId,
+        String hubEidasEntityId) {
 
-        Function<HubEidasAttributeQueryRequest, AttributeQuery> t1 = getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer();
+        Function<HubEidasAttributeQueryRequest, AttributeQuery> t1 = getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(hubEidasEntityId);
         Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.ofNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
 
         return t2.compose(t1);
@@ -491,7 +492,7 @@ public class HubTransformersFactory {
                 getEncryptedAssertionUnmarshaller());
     }
 
-    private HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer() {
+    private HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(String hubEidasEntityId) {
         HubAssertionMarshaller hubAssertionMarshaller = new HubAssertionMarshaller(
                 new OpenSamlXmlObjectFactory(),
                 new AttributeFactory_1_1(new OpenSamlXmlObjectFactory()),
@@ -499,7 +500,8 @@ public class HubTransformersFactory {
 
         EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer = new EidasUnsignedAssertionsTransformer(
                 new OpenSamlXmlObjectFactory(),
-                new AuthnContextFactory()
+                new AuthnContextFactory(),
+                hubEidasEntityId
         );
         return new HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
                 new OpenSamlXmlObjectFactory(),
