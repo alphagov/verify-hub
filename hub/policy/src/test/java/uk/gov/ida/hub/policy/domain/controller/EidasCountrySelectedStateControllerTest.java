@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
+import uk.gov.ida.hub.policy.contracts.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.CountryAuthenticationStatus;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
@@ -32,12 +33,14 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -358,5 +361,21 @@ public class EidasCountrySelectedStateControllerTest {
         assertThat(capturedState.getValue().getRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
         assertThat(capturedState.getValue().getTransactionSupportsEidas()).isEqualTo(true);
         assertThat(capturedState.getValue().getForceAuthentication().orElse(null)).isEqualTo(false);
+    }
+
+    @Test
+    public void shouldBuildEidasAttributeQueryRequestDtoWithCountrySignedResponseContainerIfPresent() {
+        MatchingServiceConfigEntityDataDto matchingServiceConfig = mock(MatchingServiceConfigEntityDataDto.class);
+        CountrySignedResponseContainer countrySignedResponseContainer = mock(CountrySignedResponseContainer.class);
+        when(transactionsConfigProxy.getMatchingServiceEntityId(state.getRequestIssuerEntityId())).thenReturn(MSA_ID);
+        when(matchingServiceConfigProxy.getMatchingService(MSA_ID)).thenReturn(matchingServiceConfig);
+        InboundResponseFromCountry inboundResponseFromCountry = mock(InboundResponseFromCountry.class);
+        when(inboundResponseFromCountry.getPersistentId()).thenReturn(Optional.of("pid"));
+        when(inboundResponseFromCountry.getEncryptedIdentityAssertionBlob()).thenReturn(Optional.of("blob"));
+        when(inboundResponseFromCountry.getLevelOfAssurance()).thenReturn(Optional.of(LEVEL_2));
+        when(inboundResponseFromCountry.getCountrySignedResponseContainer()).thenReturn(Optional.of(countrySignedResponseContainer));
+        EidasAttributeQueryRequestDto requestDto = controller.getEidasAttributeQueryRequestDto(inboundResponseFromCountry);
+        assertThat(requestDto.getCountrySignedResponseContainer().isPresent()).isTrue();
+        assertThat(requestDto.getCountrySignedResponseContainer().get()).isEqualTo(countrySignedResponseContainer);
     }
 }

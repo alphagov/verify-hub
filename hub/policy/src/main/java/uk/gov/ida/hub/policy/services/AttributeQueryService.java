@@ -31,13 +31,12 @@ public class AttributeQueryService {
         final boolean isOnBoarding,
         final AttributeQueryContainerDto attributeQueryContainerDto) {
         AttributeQueryRequest attributeQueryRequest = new AttributeQueryRequest(
-            attributeQueryContainerDto.getId(),
-            attributeQueryContainerDto.getIssuer(),
-            attributeQueryContainerDto.getSamlRequest(),
-            attributeQueryContainerDto.getMatchingServiceUri(),
-            attributeQueryContainerDto.getAttributeQueryClientTimeOut(),
-            isOnBoarding
-        );
+                attributeQueryContainerDto.getId(),
+                attributeQueryContainerDto.getIssuer(),
+                attributeQueryContainerDto.getSamlRequest(),
+                attributeQueryContainerDto.getMatchingServiceUri(),
+                attributeQueryContainerDto.getAttributeQueryClientTimeOut(),
+                isOnBoarding);
         samlSoapProxyProxy.sendHubMatchingServiceRequest(sessionId, attributeQueryRequest);
     }
 }

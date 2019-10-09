@@ -11,6 +11,7 @@ import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.domain.HubAssertion;
 import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;
@@ -29,19 +30,22 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer implem
     private final AssertionFromIdpToAssertionTransformer assertionFromIdpTransformer;
     private final AttributeQueryAttributeFactory attributeQueryAttributeFactory;
     private final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
+    private final EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer;
 
     public HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
             final OpenSamlXmlObjectFactory samlObjectFactory,
             final HubAssertionMarshaller hubAssertionMarshaller,
             final AssertionFromIdpToAssertionTransformer assertionFromIdpTransformer,
             final AttributeQueryAttributeFactory attributeQueryAttributeFactory,
-            final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller) {
+            final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller,
+            EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer) {
 
         this.samlObjectFactory = samlObjectFactory;
         this.hubAssertionMarshaller = hubAssertionMarshaller;
         this.assertionFromIdpTransformer = assertionFromIdpTransformer;
         this.attributeQueryAttributeFactory = attributeQueryAttributeFactory;
         this.encryptedAssertionUnmarshaller = encryptedAssertionUnmarshaller;
+        this.eidasUnsignedAssertionsTransformer = eidasUnsignedAssertionsTransformer;
     }
 
     public AttributeQuery apply(HubEidasAttributeQueryRequest originalQuery) {
@@ -66,10 +70,6 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer implem
         SubjectConfirmation subjectConfirmation = samlObjectFactory.createSubjectConfirmation();
         SubjectConfirmationData subjectConfirmationData = samlObjectFactory.createSubjectConfirmationData();
 
-        final String encryptedIdentityAssertion = originalQuery.getEncryptedIdentityAssertion();
-        EncryptedAssertion encryptedAssertion = encryptedAssertionUnmarshaller.transform(encryptedIdentityAssertion);
-        subjectConfirmationData.getUnknownXMLObjects(EncryptedAssertion.DEFAULT_ELEMENT_NAME).add(encryptedAssertion);
-
         final Optional<HubAssertion> cycle3DatasetAssertion = originalQuery.getCycle3AttributeAssertion();
         if (cycle3DatasetAssertion.isPresent()) {
             Assertion transformedCycle3DatasetAssertion = hubAssertionMarshaller.toSaml(cycle3DatasetAssertion.get());
@@ -81,6 +81,15 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer implem
 
         transformedQuery.setSubject(subject);
 
+        Optional<CountrySignedResponseContainer> countrySignedResponseContainer = originalQuery.getCountrySignedResponseContainer();
+        if (countrySignedResponseContainer.isPresent()) {
+            Assertion unsignedAssertion = eidasUnsignedAssertionsTransformer.transform(originalQuery);
+            subjectConfirmationData.getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).add(unsignedAssertion);
+        } else {
+            final String encryptedIdentityAssertion = originalQuery.getEncryptedIdentityAssertion();
+            EncryptedAssertion encryptedAssertion = encryptedAssertionUnmarshaller.transform(encryptedIdentityAssertion);
+            subjectConfirmationData.getUnknownXMLObjects(EncryptedAssertion.DEFAULT_ELEMENT_NAME).add(encryptedAssertion);
+        }
         return transformedQuery;
     }
 

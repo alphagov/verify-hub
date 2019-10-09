@@ -25,16 +25,17 @@ public class HubEidasAttributeQueryRequestBuilder {
 
     public HubEidasAttributeQueryRequest createHubAttributeQueryRequest(EidasAttributeQueryRequestDto dto) {
         return new HubEidasAttributeQueryRequest(
-            dto.getRequestId(),
-            hubEntityId,
-            DateTime.now(),
-            new PersistentId(dto.getPersistentId().getNameId()),
-            dto.getAssertionConsumerServiceUri(),
-            dto.getAuthnRequestIssuerEntityId(),
-            dto.getEncryptedIdentityAssertion(),
-            AuthnContext.valueOf(dto.getLevelOfAssurance().name()),
-            createCycle3Assertion(dto),
-            dto.getUserAccountCreationAttributes());
+                dto.getRequestId(),
+                hubEntityId,
+                DateTime.now(),
+                new PersistentId(dto.getPersistentId().getNameId()),
+                dto.getAssertionConsumerServiceUri(),
+                dto.getAuthnRequestIssuerEntityId(),
+                dto.getEncryptedIdentityAssertion(),
+                AuthnContext.valueOf(dto.getLevelOfAssurance().name()),
+                createCycle3Assertion(dto),
+                dto.getUserAccountCreationAttributes(),
+                dto.getCountrySignedResponseContainer());
     }
 
     private Optional<HubAssertion> createCycle3Assertion(EidasAttributeQueryRequestDto attributeQueryRequestDto) {

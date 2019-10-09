@@ -52,4 +52,5 @@ public class AttributeQueryContainerDto {
     public boolean isOnboarding() {
         return onboarding;
     }
+
 }

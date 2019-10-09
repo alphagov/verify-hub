@@ -7,6 +7,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.UserAccountCreationAttribute;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import javax.validation.constraints.NotNull;
 import java.net.URI;
@@ -20,21 +21,24 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
 
     @NotNull
     private final String encryptedIdentityAssertion;
+    @NotNull
+    private final Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
     public EidasAttributeQueryRequestDto(
-        final String requestId,
-        final String authnRequestIssuerEntityId,
-        final URI assertionConsumerServiceUri,
-        final DateTime assertionExpiry,
-        final String matchingServiceEntityId,
-        final URI attributeQueryUri,
-        final DateTime matchingServiceRequestTimeOut,
-        final boolean onboarding,
-        final LevelOfAssurance levelOfAssurance,
-        final PersistentId persistentId,
-        final Optional<Cycle3Dataset> cycle3Dataset,
-        final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
-        final String encryptedIdentityAssertion) {
+            final String requestId,
+            final String authnRequestIssuerEntityId,
+            final URI assertionConsumerServiceUri,
+            final DateTime assertionExpiry,
+            final String matchingServiceEntityId,
+            final URI attributeQueryUri,
+            final DateTime matchingServiceRequestTimeOut,
+            final boolean onboarding,
+            final LevelOfAssurance levelOfAssurance,
+            final PersistentId persistentId,
+            final Optional<Cycle3Dataset> cycle3Dataset,
+            final Optional<List<UserAccountCreationAttribute>> userAccountCreationAttributes,
+            final String encryptedIdentityAssertion,
+            final Optional<CountrySignedResponseContainer> countrySignedResponseContainer) {
 
         super(
             requestId,
@@ -50,10 +54,15 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             cycle3Dataset,
             userAccountCreationAttributes);
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public String getEncryptedIdentityAssertion() {
         return encryptedIdentityAssertion;
+    }
+
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
+        return countrySignedResponseContainer;
     }
 
     @Override
@@ -61,6 +70,7 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
         final StringBuilder sb = new StringBuilder("EidasAttributeQueryRequestDto{");
         sb.append(super.toString());
         sb.append(",encryptedIdentityAssertion='").append(encryptedIdentityAssertion).append('\'');
+        sb.append(",countrySignedResponseContainer='").append(countrySignedResponseContainer).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -89,7 +99,8 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             Objects.equals(getPersistentId(), that.getPersistentId()) &&
             Objects.equals(getCycle3Dataset(), that.getCycle3Dataset()) &&
             Objects.equals(getUserAccountCreationAttributes(), that.getUserAccountCreationAttributes()) &&
-            Objects.equals(encryptedIdentityAssertion, that.encryptedIdentityAssertion);
+            Objects.equals(encryptedIdentityAssertion, that.encryptedIdentityAssertion) &&
+            Objects.equals(countrySignedResponseContainer, that.countrySignedResponseContainer);
     }
 
     @Override
@@ -107,7 +118,8 @@ public final class EidasAttributeQueryRequestDto extends AbstractAttributeQueryR
             getPersistentId(),
             getCycle3Dataset(),
             getUserAccountCreationAttributes(),
-            encryptedIdentityAssertion);
+            encryptedIdentityAssertion,
+            countrySignedResponseContainer);
     }
 
     @Override

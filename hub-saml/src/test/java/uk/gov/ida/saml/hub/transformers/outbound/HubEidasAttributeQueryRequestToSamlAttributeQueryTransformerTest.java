@@ -13,6 +13,7 @@ import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.impl.EncryptedAssertionBuilder;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.saml.core.domain.HubAssertion;
 import uk.gov.ida.saml.core.domain.PersistentId;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
@@ -26,11 +27,15 @@ import java.net.URI;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.HubAssertionBuilder.aHubAssertion;
+import static uk.gov.ida.saml.hub.builders.HubEidasAttributeQueryRequestBuilder.aHubEidasAttributeQueryRequest;
 import static uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute.CURRENT_ADDRESS;
 import static uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute.DATE_OF_BIRTH;
-import static uk.gov.ida.saml.hub.builders.HubEidasAttributeQueryRequestBuilder.aHubEidasAttributeQueryRequest;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
@@ -56,6 +61,9 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     @Mock
     private EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
 
+    @Mock
+    private EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer;
+
     @Before
     public void setup() {
         openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
@@ -67,7 +75,8 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
             assertionTransformer,
             assertionFromIdpAssertionTransformer,
             attributeQueryAttributeFactory,
-            encryptedAssertionUnmarshaller);
+            encryptedAssertionUnmarshaller,
+            eidasUnsignedAssertionsTransformer);
     }
 
     @Test
@@ -84,6 +93,8 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
         assertThat(transformedQuery.getSubject().getNameID().getValue()).isEqualTo(persistentId.getNameId());
         assertThat(transformedQuery.getIssuer().getValue()).isEqualTo(hubEidasAttributeQueryRequest.getIssuer());
         assertThat(transformedQuery.getVersion()).isEqualTo(SAMLVersion.VERSION_20);
+        verifyZeroInteractions(eidasUnsignedAssertionsTransformer);
+        verify(encryptedAssertionUnmarshaller).transform(eq(hubEidasAttributeQueryRequest.getEncryptedIdentityAssertion()));
     }
 
     @Test
@@ -193,5 +204,27 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
 
         List<Attribute> transformedQueryAttributes = transformedQuery.getAttributes();
         assertThat(transformedQueryAttributes.size()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldCreateUnsignedAssertionsUsingEidasUnsignedAssertionsMarshaller() {
+        CountrySignedResponseContainer countrySignedResponseContainer = mock(CountrySignedResponseContainer.class);
+        Assertion unsignedAssertion = mock(Assertion.class);
+        PersistentId persistentId = new PersistentId("default-name-id");
+        HubEidasAttributeQueryRequest hubEidasAttributeQueryRequest = aHubEidasAttributeQueryRequest()
+                .withId("originalId")
+                .withPersistentId(persistentId)
+                .withCountrySignedResponseContainer(countrySignedResponseContainer)
+                .build();
+        when(eidasUnsignedAssertionsTransformer.transform(hubEidasAttributeQueryRequest)).thenReturn(unsignedAssertion);
+
+        AttributeQuery transformedQuery = transformer.apply(hubEidasAttributeQueryRequest);
+
+        assertThat(transformedQuery.getID()).isEqualTo(hubEidasAttributeQueryRequest.getId());
+        assertThat(transformedQuery.getSubject().getNameID().getValue()).isEqualTo(persistentId.getNameId());
+        assertThat(transformedQuery.getIssuer().getValue()).isEqualTo(hubEidasAttributeQueryRequest.getIssuer());
+        assertThat(transformedQuery.getVersion()).isEqualTo(SAMLVersion.VERSION_20);
+        verifyZeroInteractions(encryptedAssertionUnmarshaller);
+        verify(eidasUnsignedAssertionsTransformer).transform(hubEidasAttributeQueryRequest);
     }
 }

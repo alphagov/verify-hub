@@ -58,7 +58,8 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
             getState().getPersistentId(),
             Optional.ofNullable(cycle3Dataset),
             Optional.empty(),
-            getState().getEncryptedIdentityAssertion()
+            getState().getEncryptedIdentityAssertion(),
+            Optional.empty()
         );
     }
 

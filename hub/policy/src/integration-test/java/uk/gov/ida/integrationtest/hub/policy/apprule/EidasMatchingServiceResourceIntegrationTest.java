@@ -294,6 +294,22 @@ public class EidasMatchingServiceResourceIntegrationTest {
         assertThat(getSessionStateName(sessionId)).isEqualTo(UserAccountCreatedState.class.getName());
     }
 
+    @Test
+    public void shouldTransitionToEidasSuccessfulMatchStateWhenMatchIsReceivedWithCountrySignedResponseContainerPresent() throws Exception {
+        AttributeQueryContainerDto aqrDto = new AttributeQueryContainerDto("SAML", URI.create("/foo"), "id", DateTime.now(), "issuer", true);
+        samlEngineStub.setupStubForEidasAttributeQueryRequestGeneration(aqrDto);
+        SessionId sessionId = aSessionIsCreated();
+        aCountryWasSelected(sessionId, NETHERLANDS);
+        samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
+        postAuthnResponseToPolicy(sessionId);
+
+        samlEngineStub.setupStubForAttributeResponseTranslate(aMatchResponse());
+        Response response = postAttributeQueryResponseToPolicy(sessionId);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(getSessionStateName(sessionId)).isEqualTo(EidasSuccessfulMatchState.class.getName());
+    }
+
     private SessionId aSessionIsCreated() throws JsonProcessingException {
         configStub.setUpStubForAssertionConsumerServiceUri(RP_ENTITY_ID);
         samlEngineStub.setupStubForAuthnRequestTranslate(translatedAuthnRequest);
