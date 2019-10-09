@@ -98,13 +98,13 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
         assertThat(attributes.get(0).getFriendlyName()).isEqualTo(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.FRIENDLY_NAME);
 
         CountrySamlResponse countrySamlResponseValue = (CountrySamlResponse) attributes.get(0).getAttributeValues().get(0);
-        assertThat(countrySamlResponseValue.getCountrySamlResponse()).isEqualTo(BASE_64_SAML);
+        assertThat(countrySamlResponseValue.getValue()).isEqualTo(BASE_64_SAML);
 
         assertThat(attributes.get(1).getName()).isEqualTo(IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.NAME);
         assertThat(attributes.get(1).getFriendlyName()).isEqualTo(IdaConstants.Eidas_Attributes.UnsignedAssertions.EncryptedSecretKeys.FRIENDLY_NAME);
 
         EncryptedAssertionKeys encryptedAssertionKeysValue = (EncryptedAssertionKeys) attributes.get(1).getAttributeValues().get(0);
-        assertThat(encryptedAssertionKeysValue.getEncryptedAssertionKeys()).isEqualTo(BASE_64_KEY_1);
+        assertThat(encryptedAssertionKeysValue.getValue()).isEqualTo(BASE_64_KEY_1);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformerT
 
         List<String> encryptedAssertionKeyStrings = encryptedAssertionKeyValues.stream()
                 .map(key -> (EncryptedAssertionKeys) key)
-                .map(key -> key.getEncryptedAssertionKeys())
+                .map(key -> key.getValue())
                 .collect(Collectors.toList());
 
         assertThat(encryptedAssertionKeyStrings).isEqualTo(keys);

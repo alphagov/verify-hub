@@ -91,7 +91,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
 
     private Attribute createCountrySamlResponseAttribute(AuthnResponseFromCountryContainerDto countryResponseDto) {
         CountrySamlResponse attributeValue = new CountrySamlResponseBuilder().buildObject();
-        attributeValue.setCountrySamlResponse(countryResponseDto.getSamlResponse());
+        attributeValue.setValue(countryResponseDto.getSamlResponse());
 
         Attribute attribute = (Attribute) XMLObjectSupport.buildXMLObject(Attribute.DEFAULT_ELEMENT_NAME);
         attribute.setName(IdaConstants.Eidas_Attributes.UnsignedAssertions.EidasSamlResponse.NAME);
@@ -106,7 +106,7 @@ public class OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer 
         List<EncryptedAssertionKeys> assertionKeysValues = new ArrayList<>();
         for (String key : countryResponseDto.getEncryptedKeys()) {
             EncryptedAssertionKeys attributeValue = new EncryptedAssertionKeysBuilder().buildObject();
-            attributeValue.setEncryptedAssertionKeys(key);
+            attributeValue.setValue(key);
             assertionKeysValues.add(attributeValue);
         }
 
