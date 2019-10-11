@@ -31,11 +31,13 @@ public class EidasUnsignedAssertionsTransformer {
     private final OpenSamlXmlObjectFactory openSamlXmlObjectFactory;
     private final AuthnContextFactory authnContextFactory;
     private final String hubEidasEntityId;
+    private final String hubEntityId;
 
-    public EidasUnsignedAssertionsTransformer(OpenSamlXmlObjectFactory openSamlXmlObjectFactory, AuthnContextFactory authnContextFactory, String hubEidasEntityId) {
+    public EidasUnsignedAssertionsTransformer(OpenSamlXmlObjectFactory openSamlXmlObjectFactory, AuthnContextFactory authnContextFactory, String hubEidasEntityId, String hubEntityId) {
         this.openSamlXmlObjectFactory = openSamlXmlObjectFactory;
         this.authnContextFactory = authnContextFactory;
         this.hubEidasEntityId = hubEidasEntityId;
+        this.hubEntityId = hubEntityId;
     }
 
     public Assertion transform(HubEidasAttributeQueryRequest originalQuery) {
@@ -45,7 +47,7 @@ public class EidasUnsignedAssertionsTransformer {
         DateTime now = DateTime.now();
         assertion.setIssueInstant(now);
         String unsignedCountryIssuer = countrySignedResponseContainer.getCountryEntityId();
-        assertion.setIssuer(openSamlXmlObjectFactory.createIssuer(unsignedCountryIssuer));
+        assertion.setIssuer(openSamlXmlObjectFactory.createIssuer(hubEntityId));
         assertion.setID(UUID.randomUUID().toString());
 
         Conditions conditions = openSamlXmlObjectFactory.createConditions();

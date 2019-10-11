@@ -49,7 +49,7 @@ public class EidasUnsignedAssertionsTransformerTest {
 
     @Before
     public void setUp() throws Exception {
-        transformer = new EidasUnsignedAssertionsTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory(), "hub connector entity id");
+        transformer = new EidasUnsignedAssertionsTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory(), "hub connector entity id", null);
     }
 
     @Test

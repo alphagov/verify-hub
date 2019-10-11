@@ -272,7 +272,7 @@ public class HubTransformersFactory {
         String hubEntityId,
         String hubEidasEntityId) {
 
-        Function<HubEidasAttributeQueryRequest, AttributeQuery> t1 = getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(hubEidasEntityId);
+        Function<HubEidasAttributeQueryRequest, AttributeQuery> t1 = getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(hubEidasEntityId, keyStore, hubEntityId);
         Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.ofNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
 
         return t2.compose(t1);
@@ -492,16 +492,21 @@ public class HubTransformersFactory {
                 getEncryptedAssertionUnmarshaller());
     }
 
-    private HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(String hubEidasEntityId) {
+    private HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
+            String hubEidasEntityId,
+            IdaKeyStore keyStore,
+            String hubEntityId) {
         HubAssertionMarshaller hubAssertionMarshaller = new HubAssertionMarshaller(
                 new OpenSamlXmlObjectFactory(),
                 new AttributeFactory_1_1(new OpenSamlXmlObjectFactory()),
                 new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory()));
+        SamlAttributeQueryAssertionSignatureSigner signatureSigner = new SamlAttributeQueryAssertionSignatureSigner(new IdaKeyStoreCredentialRetriever(keyStore), new OpenSamlXmlObjectFactory(), hubEntityId);
 
         EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer = new EidasUnsignedAssertionsTransformer(
                 new OpenSamlXmlObjectFactory(),
                 new AuthnContextFactory(),
-                hubEidasEntityId
+                hubEidasEntityId,
+                hubEntityId
         );
         return new HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
                 new OpenSamlXmlObjectFactory(),
@@ -511,7 +516,8 @@ public class HubTransformersFactory {
                 ),
                 new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory()),
                 getEncryptedAssertionUnmarshaller(),
-                eidasUnsignedAssertionsTransformer);
+                eidasUnsignedAssertionsTransformer,
+                signatureSigner);
     }
 
     public EncryptedAssertionUnmarshaller getEncryptedAssertionUnmarshaller() {

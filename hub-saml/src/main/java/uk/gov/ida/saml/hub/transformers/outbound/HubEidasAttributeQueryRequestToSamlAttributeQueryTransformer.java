@@ -31,6 +31,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer implem
     private final AttributeQueryAttributeFactory attributeQueryAttributeFactory;
     private final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
     private final EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer;
+    private final SamlAttributeQueryAssertionSignatureSigner signatureSigner;
 
     public HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
             final OpenSamlXmlObjectFactory samlObjectFactory,
@@ -38,7 +39,8 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer implem
             final AssertionFromIdpToAssertionTransformer assertionFromIdpTransformer,
             final AttributeQueryAttributeFactory attributeQueryAttributeFactory,
             final EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller,
-            EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer) {
+            EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer,
+            SamlAttributeQueryAssertionSignatureSigner signatureSigner) {
 
         this.samlObjectFactory = samlObjectFactory;
         this.hubAssertionMarshaller = hubAssertionMarshaller;
@@ -46,6 +48,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer implem
         this.attributeQueryAttributeFactory = attributeQueryAttributeFactory;
         this.encryptedAssertionUnmarshaller = encryptedAssertionUnmarshaller;
         this.eidasUnsignedAssertionsTransformer = eidasUnsignedAssertionsTransformer;
+        this.signatureSigner = signatureSigner;
     }
 
     public AttributeQuery apply(HubEidasAttributeQueryRequest originalQuery) {
@@ -85,6 +88,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer implem
         if (countrySignedResponseContainer.isPresent()) {
             Assertion unsignedAssertion = eidasUnsignedAssertionsTransformer.transform(originalQuery);
             subjectConfirmationData.getUnknownXMLObjects(Assertion.DEFAULT_ELEMENT_NAME).add(unsignedAssertion);
+            signatureSigner.signAssertions(transformedQuery);
         } else {
             final String encryptedIdentityAssertion = originalQuery.getEncryptedIdentityAssertion();
             EncryptedAssertion encryptedAssertion = encryptedAssertionUnmarshaller.transform(encryptedIdentityAssertion);

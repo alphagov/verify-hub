@@ -76,7 +76,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
             assertionFromIdpAssertionTransformer,
             attributeQueryAttributeFactory,
             encryptedAssertionUnmarshaller,
-            eidasUnsignedAssertionsTransformer);
+            eidasUnsignedAssertionsTransformer, null);
     }
 
     @Test
