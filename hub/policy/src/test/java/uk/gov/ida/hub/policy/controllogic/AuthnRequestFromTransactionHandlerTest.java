@@ -17,6 +17,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
+import uk.gov.ida.hub.policy.domain.controller.EidasSuccessfulMatchStateController;
 import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.controller.NonMatchingJourneySuccessStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
@@ -100,6 +101,7 @@ public class AuthnRequestFromTransactionHandlerTest {
     public void stateControllerInvokedFromSessionRepositoryForselectedIdp() {
         IdpSelected idpSelected = new IdpSelected(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS, REGISTERING, REQUESTED_LOA, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
+
         IdpSelectingStateControllerSpy idpSelectingStateController = new IdpSelectingStateControllerSpy();
         when(sessionRepository.getStateController(SESSION_ID, IdpSelectingState.class)).thenReturn((idpSelectingStateController));
 
@@ -138,7 +140,7 @@ public class AuthnRequestFromTransactionHandlerTest {
     }
 
     @Test
-    public void isResponseFromCountryReturnsTrueIfCountrySignedResponseWithKeysIsPresent() {
+    public void isResponseFromCountryWithUnsignedAssertionsReturnsTrueIfCountrySignedResponseWithKeysIsPresent() {
         NonMatchingJourneySuccessStateController stateContoller = mock(NonMatchingJourneySuccessStateController.class);
         when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
         when(stateContoller.getState()).thenReturn(setupNonMatchingJourneySuccessState(SESSION_ID, true));
@@ -147,10 +149,18 @@ public class AuthnRequestFromTransactionHandlerTest {
     }
 
     @Test
-    public void isResponseFromCountryReturnsFalseIfCountrySignedResponseWithKeysIsNotPresent() {
+    public void isResponseFromCountryWithUnsignedAssertionsReturnsFalseIfCountrySignedResponseWithKeysIsNotPresent() {
         NonMatchingJourneySuccessStateController stateContoller = mock(NonMatchingJourneySuccessStateController.class);
         when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
         when(stateContoller.getState()).thenReturn(setupNonMatchingJourneySuccessState(SESSION_ID, false));
+
+        assertThat(authnRequestFromTransactionHandler.isResponseFromCountryWithUnsignedAssertions(SESSION_ID)).isFalse();
+    }
+
+    @Test
+    public void isResponseFromCountryWithUnsignedAssertionsReturnsFalseIfStateControllerIsNotNonMatchingJourneySuccess() {
+        EidasSuccessfulMatchStateController stateContoller = mock(EidasSuccessfulMatchStateController.class);
+        when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
 
         assertThat(authnRequestFromTransactionHandler.isResponseFromCountryWithUnsignedAssertions(SESSION_ID)).isFalse();
     }

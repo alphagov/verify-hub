@@ -13,6 +13,7 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.State;
+import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.controller.AuthnFailedErrorStateController;
 import uk.gov.ida.hub.policy.domain.controller.AuthnRequestCapableController;
 import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
@@ -145,13 +146,11 @@ public class AuthnRequestFromTransactionHandler {
     }
 
     public boolean isResponseFromCountryWithUnsignedAssertions(SessionId sessionId) {
-        try {
-            NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
-                    sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
-            NonMatchingJourneySuccessState state = stateController.getState();
+        StateController stateController = sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
+        if (stateController instanceof NonMatchingJourneySuccessStateController) {
+            NonMatchingJourneySuccessState state = ((NonMatchingJourneySuccessStateController) stateController).getState();
             return state.getCountrySignedResponseContainer().isPresent();
-        } catch (ClassCastException e) {
-            return false;
         }
+        return false;
     }
 }
