@@ -38,6 +38,7 @@ import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -120,9 +121,9 @@ public class StateJsonSerializationTest {
 
     @Test
     public void shouldSerializeEidasAwaitingCycle3DataState() throws JsonProcessingException  {
-        EidasAwaitingCycle3DataState expectedState = anEidasAwaitingCycle3DataState().withSessionId(SESSION_ID).build();
+        EidasAwaitingCycle3DataState expectedState = anEidasAwaitingCycle3DataState().withSessionId(SESSION_ID).withCountrySignedResponseContainer().build();
         String actual = objectMapper.writeValueAsString(expectedState);
-        String expected = "{\"@class\":\"uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState\",\"requestId\":\"requestId\",\"sessionExpiryTimestamp\":567994200000,\"assertionConsumerServiceUri\":\"assertionConsumerServiceUri\",\"sessionId\":{\"sessionId\":\"some-session-id\"},\"transactionSupportsEidas\":true,\"identityProviderEntityId\":\"identityProviderEntityId\",\"relayState\":\"relayState\",\"persistentId\":{\"nameId\":\"nameId\"},\"levelOfAssurance\":\"LEVEL_2\",\"encryptedIdentityAssertion\":\"encryptedIdentityAssertion\",\"forceAuthentication\":null,\"requestIssuerEntityId\":\"requestIssuerId\",\"matchingServiceEntityId\":\"matchingServiceAdapterEntityId\"}";
+        String expected = "{\"@class\":\"uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState\",\"requestId\":\"requestId\",\"sessionExpiryTimestamp\":567994200000,\"assertionConsumerServiceUri\":\"assertionConsumerServiceUri\",\"sessionId\":{\"sessionId\":\"some-session-id\"},\"transactionSupportsEidas\":true,\"identityProviderEntityId\":\"identityProviderEntityId\",\"relayState\":\"relayState\",\"persistentId\":{\"nameId\":\"nameId\"},\"levelOfAssurance\":\"LEVEL_2\",\"encryptedIdentityAssertion\":\"encryptedIdentityAssertion\",\"forceAuthentication\":null,\"countrySignedResponseContainer\":{\"base64SamlResponse\":\"MIEBASE64STRING==\",\"countryEntityId\":\"http://country.com\",\"base64encryptedKeys\":[\"MIEKEY==\"]},\"requestIssuerEntityId\":\"requestIssuerId\",\"matchingServiceEntityId\":\"matchingServiceAdapterEntityId\"}";
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -216,17 +217,17 @@ public class StateJsonSerializationTest {
 
     @Test
     public void shouldSerializeEidasCycle0And1MatchRequestSentState() throws JsonProcessingException { 
-        EidasCycle0And1MatchRequestSentState expectedState = anEidasCycle0And1MatchRequestSentState().build();
+        EidasCycle0And1MatchRequestSentState expectedState = anEidasCycle0And1MatchRequestSentState().withCountrySignedResponseContainer().build();
         String actual = objectMapper.writeValueAsString(expectedState);
-        String expected = "{\"@class\":\"uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState\",\"requestId\":\"requestId\",\"requestIssuerEntityId\":\"requestIssuerId\",\"sessionExpiryTimestamp\":567994200000,\"assertionConsumerServiceUri\":\"assertionConsumerServiceUri\",\"sessionId\":{\"sessionId\":\"sessionId\"},\"transactionSupportsEidas\":true,\"identityProviderEntityId\":\"identityProviderEntityId\",\"relayState\":null,\"idpLevelOfAssurance\":\"LEVEL_2\",\"matchingServiceAdapterEntityId\":\"matchingServiceAdapterEntityId\",\"encryptedIdentityAssertion\":\"encryptedIdentityAssertion\",\"persistentId\":{\"nameId\":\"default-name-id\"},\"forceAuthentication\":false,\"requestSentTime\":567993600000}";
+        String expected = "{\"@class\":\"uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState\",\"requestId\":\"requestId\",\"requestIssuerEntityId\":\"requestIssuerId\",\"sessionExpiryTimestamp\":567994200000,\"assertionConsumerServiceUri\":\"assertionConsumerServiceUri\",\"sessionId\":{\"sessionId\":\"sessionId\"},\"transactionSupportsEidas\":true,\"identityProviderEntityId\":\"identityProviderEntityId\",\"relayState\":null,\"idpLevelOfAssurance\":\"LEVEL_2\",\"matchingServiceAdapterEntityId\":\"matchingServiceAdapterEntityId\",\"encryptedIdentityAssertion\":\"encryptedIdentityAssertion\",\"persistentId\":{\"nameId\":\"default-name-id\"},\"forceAuthentication\":false,\"countrySignedResponseContainer\":{\"base64SamlResponse\":\"MIEBASE64STRING==\",\"countryEntityId\":\"http://country.com\",\"base64encryptedKeys\":[\"MIEKEY==\"]},\"requestSentTime\":567993600000}";
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     public void shouldSerializeEidasCycle3MatchRequestSentState() throws JsonProcessingException { 
-        EidasCycle3MatchRequestSentState expectedState = anEidasCycle3MatchRequestSentState().build();
+        EidasCycle3MatchRequestSentState expectedState = anEidasCycle3MatchRequestSentState().withCountrySignedResponseContainer().build();
         String actual = objectMapper.writeValueAsString(expectedState);
-        String expected = "{\"@class\":\"uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState\",\"requestId\":\"requestId\",\"requestIssuerEntityId\":\"requestIssuerId\",\"sessionExpiryTimestamp\":567994200000,\"assertionConsumerServiceUri\":\"assertionConsumerServiceUri\",\"sessionId\":{\"sessionId\":\"sessionId\"},\"transactionSupportsEidas\":true,\"identityProviderEntityId\":\"identityProviderEntityId\",\"relayState\":null,\"idpLevelOfAssurance\":\"LEVEL_2\",\"matchingServiceAdapterEntityId\":\"matchingServiceAdapterEntityId\",\"encryptedIdentityAssertion\":\"encryptedIdentityAssertion\",\"persistentId\":{\"nameId\":\"default-name-id\"},\"forceAuthentication\":false,\"requestSentTime\":567993600000}";
+        String expected = "{\"@class\":\"uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState\",\"requestId\":\"requestId\",\"requestIssuerEntityId\":\"requestIssuerId\",\"sessionExpiryTimestamp\":567994200000,\"assertionConsumerServiceUri\":\"assertionConsumerServiceUri\",\"sessionId\":{\"sessionId\":\"sessionId\"},\"transactionSupportsEidas\":true,\"identityProviderEntityId\":\"identityProviderEntityId\",\"relayState\":null,\"idpLevelOfAssurance\":\"LEVEL_2\",\"matchingServiceAdapterEntityId\":\"matchingServiceAdapterEntityId\",\"encryptedIdentityAssertion\":\"encryptedIdentityAssertion\",\"persistentId\":{\"nameId\":\"default-name-id\"},\"forceAuthentication\":false,\"countrySignedResponseContainer\":{\"base64SamlResponse\":\"MIEBASE64STRING==\",\"countryEntityId\":\"http://country.com\",\"base64encryptedKeys\":[\"MIEKEY==\"]},\"requestSentTime\":567993600000}";
         assertThat(actual).isEqualTo(expected);
     }
 

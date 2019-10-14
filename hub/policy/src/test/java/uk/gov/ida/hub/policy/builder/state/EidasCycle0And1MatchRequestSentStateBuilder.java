@@ -6,8 +6,10 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
+import java.util.List;
 
 import static uk.gov.ida.hub.policy.builder.domain.PersistentIdBuilder.aPersistentId;
 
@@ -16,6 +18,7 @@ public class EidasCycle0And1MatchRequestSentStateBuilder {
     private String encryptedIdentityAssertion = "encryptedIdentityAssertion";
     private PersistentId persistentId = aPersistentId().build();
     private Boolean forceAuthentication = false;
+    private CountrySignedResponseContainer countrySignedResponseContainer;
 
     public static EidasCycle0And1MatchRequestSentStateBuilder anEidasCycle0And1MatchRequestSentState() {
         return new EidasCycle0And1MatchRequestSentStateBuilder();
@@ -35,7 +38,8 @@ public class EidasCycle0And1MatchRequestSentStateBuilder {
             "matchingServiceAdapterEntityId",
             encryptedIdentityAssertion,
             persistentId,
-            forceAuthentication
+            forceAuthentication,
+            countrySignedResponseContainer
         );
     }
 
@@ -53,6 +57,14 @@ public class EidasCycle0And1MatchRequestSentStateBuilder {
         this.forceAuthentication = forceAuthentication;
         return this;
     }
-
-
+    public EidasCycle0And1MatchRequestSentStateBuilder withCountrySignedResponseContainer(CountrySignedResponseContainer countrySignedResponseContainer) {
+        this.countrySignedResponseContainer = countrySignedResponseContainer;
+        return this;
+    }
+    public EidasCycle0And1MatchRequestSentStateBuilder withCountrySignedResponseContainer() {
+        this.countrySignedResponseContainer = new CountrySignedResponseContainer(
+                "MIEBASE64STRING==", List.of("MIEKEY=="), "http://country.com"
+        );
+        return this;
+    }
 }

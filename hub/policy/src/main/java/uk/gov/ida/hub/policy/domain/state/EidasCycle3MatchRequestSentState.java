@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 
@@ -27,7 +28,8 @@ public class EidasCycle3MatchRequestSentState extends EidasCycle0And1MatchReques
             @JsonProperty("matchingServiceAdapterEntityId") final String matchingServiceAdapterEntityId,
             @JsonProperty("encryptedIdentityAssertion") final String encryptedIdentityAssertion,
             @JsonProperty("persistentId") final PersistentId persistentId,
-            @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
+            @JsonProperty("countrySignedResponseContainer") final CountrySignedResponseContainer countrySignedResponseContainer) {
 
         super(
                 requestId,
@@ -42,7 +44,8 @@ public class EidasCycle3MatchRequestSentState extends EidasCycle0And1MatchReques
                 matchingServiceAdapterEntityId,
                 encryptedIdentityAssertion,
                 persistentId,
-                forceAuthentication
+                forceAuthentication,
+                countrySignedResponseContainer
         );
     }
 }
