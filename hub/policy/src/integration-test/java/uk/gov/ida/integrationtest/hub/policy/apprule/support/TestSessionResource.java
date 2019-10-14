@@ -180,7 +180,7 @@ public class TestSessionResource {
                 dto.getLevelOfAssurance(),
                 dto.getEncryptedIdentityAssertion(),
                 null,
-                    null
+                null
             )
         );
 
