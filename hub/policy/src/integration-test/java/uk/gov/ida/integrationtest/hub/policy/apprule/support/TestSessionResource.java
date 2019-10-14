@@ -179,7 +179,8 @@ public class TestSessionResource {
                 dto.getPersistentId(),
                 dto.getLevelOfAssurance(),
                 dto.getEncryptedIdentityAssertion(),
-                null
+                null,
+                    null
             )
         );
 
