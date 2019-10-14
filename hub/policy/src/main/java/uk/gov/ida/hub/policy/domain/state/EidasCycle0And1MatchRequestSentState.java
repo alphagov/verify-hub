@@ -6,10 +6,8 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
-import java.util.Optional;
 
 public class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentState {
 
@@ -19,8 +17,6 @@ public class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentS
     private final String encryptedIdentityAssertion;
     @JsonProperty
     private final PersistentId persistentId;
-    @JsonProperty
-    private final CountrySignedResponseContainer countrySignedResponseContainer;
 
     @JsonCreator
     public EidasCycle0And1MatchRequestSentState(
@@ -36,8 +32,7 @@ public class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentS
             @JsonProperty("matchingServiceAdapterEntityId") final String matchingServiceAdapterEntityId,
             @JsonProperty("encryptedIdentityAssertion") final String encryptedIdentityAssertion,
             @JsonProperty("persistentId") final PersistentId persistentId,
-            @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
-            @JsonProperty("countrySignedResponseContainer") final CountrySignedResponseContainer countrySignedResponseContainer) {
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 
         super(
                 requestId,
@@ -54,7 +49,6 @@ public class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentS
 
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
         this.persistentId = persistentId;
-        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public String getEncryptedIdentityAssertion() {
@@ -63,9 +57,5 @@ public class EidasCycle0And1MatchRequestSentState extends EidasMatchRequestSentS
 
     public PersistentId getPersistentId() {
         return persistentId;
-    }
-
-    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
-        return Optional.ofNullable(countrySignedResponseContainer);
     }
 }

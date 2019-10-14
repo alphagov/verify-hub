@@ -6,10 +6,8 @@ import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
-import java.util.Optional;
 
 public class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
 
@@ -17,8 +15,6 @@ public class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataStat
 
     @JsonProperty
     private final String encryptedIdentityAssertion;
-    @JsonProperty
-    private final CountrySignedResponseContainer countrySignedResponseContainer;
 
     @JsonCreator
     public EidasAwaitingCycle3DataState(
@@ -34,8 +30,7 @@ public class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataStat
         @JsonProperty("persistentId") final PersistentId persistentId,
         @JsonProperty("levelOfAssurance") final LevelOfAssurance levelOfAssurance,
         @JsonProperty("encryptedIdentityAssertion") final String encryptedIdentityAssertion,
-        @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
-        @JsonProperty("countrySignedResponseContainer") final CountrySignedResponseContainer countrySignedResponseContainer) {
+        @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 
         super(
             requestId,
@@ -53,14 +48,9 @@ public class EidasAwaitingCycle3DataState extends AbstractAwaitingCycle3DataStat
         );
 
         this.encryptedIdentityAssertion = encryptedIdentityAssertion;
-        this.countrySignedResponseContainer = countrySignedResponseContainer;
     }
 
     public String getEncryptedIdentityAssertion() {
         return encryptedIdentityAssertion;
-    }
-
-    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() {
-        return Optional.ofNullable(countrySignedResponseContainer);
     }
 }

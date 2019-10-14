@@ -59,7 +59,7 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
             Optional.ofNullable(cycle3Dataset),
             Optional.empty(),
             getState().getEncryptedIdentityAssertion(),
-            getState().getCountrySignedResponseContainer()
+            Optional.empty()
         );
     }
 
@@ -86,8 +86,7 @@ public class EidasAwaitingCycle3DataStateController extends AbstractAwaitingCycl
             getState().getMatchingServiceEntityId(),
             getState().getEncryptedIdentityAssertion(),
             getState().getPersistentId(),
-            getState().getForceAuthentication().orElse(null),
-            getState().getCountrySignedResponseContainer().orElse(null)
+            getState().getForceAuthentication().orElse(null)
         );
 
         getStateTransitionAction().transitionTo(eidasCycle3MatchRequestSentState);
