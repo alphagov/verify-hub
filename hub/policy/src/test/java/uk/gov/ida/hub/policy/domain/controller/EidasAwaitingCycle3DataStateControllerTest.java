@@ -210,8 +210,7 @@ public class EidasAwaitingCycle3DataStateControllerTest {
             state.getMatchingServiceEntityId(),
             state.getEncryptedIdentityAssertion(),
             state.getPersistentId(),
-            state.getForceAuthentication().orElse(null),
-            state.getCountrySignedResponseContainer().orElse(null)
+            state.getForceAuthentication().orElse(null)
         );
 
         controller.handleCycle3DataSubmitted(principalIpAddressAsSeenByHub);

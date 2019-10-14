@@ -234,8 +234,7 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 getMatchingServiceEntityId(),
                 translatedResponse.getEncryptedIdentityAssertionBlob().get(),
                 new PersistentId(translatedResponse.getPersistentId().get()),
-                state.getForceAuthentication().orElse(null),
-                translatedResponse.getCountrySignedResponseContainer().orElse(null)
+                state.getForceAuthentication().orElse(null)
         );
     }
 

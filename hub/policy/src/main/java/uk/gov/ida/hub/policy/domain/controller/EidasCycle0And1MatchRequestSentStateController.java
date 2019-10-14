@@ -96,7 +96,6 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
                 state.getPersistentId(),
                 state.getIdpLevelOfAssurance(),
                 state.getEncryptedIdentityAssertion(),
-                state.getForceAuthentication().orElse(null),
-                state.getCountrySignedResponseContainer().orElse(null));
+                state.getForceAuthentication().orElse(null));
     }
 }
