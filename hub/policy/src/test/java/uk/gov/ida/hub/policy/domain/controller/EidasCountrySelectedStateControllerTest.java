@@ -227,7 +227,8 @@ public class EidasCountrySelectedStateControllerTest {
             MSA_ID,
             eidasAttributeQueryRequestDto.getEncryptedIdentityAssertion(),
             eidasAttributeQueryRequestDto.getPersistentId(),
-                false
+                false,
+            INBOUND_RESPONSE_FROM_COUNTRY.getCountrySignedResponseContainer().orElse(null)
         );
 
         InboundResponseFromCountry inboundResponseFromCountry = new InboundResponseFromCountry(
