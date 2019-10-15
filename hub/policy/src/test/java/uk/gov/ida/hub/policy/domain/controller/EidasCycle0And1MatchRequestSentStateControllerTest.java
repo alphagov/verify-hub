@@ -149,7 +149,8 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
             state.getPersistentId(),
             state.getIdpLevelOfAssurance(),
             state.getEncryptedIdentityAssertion(),
-            state.getForceAuthentication().orElse(null)
+            state.getForceAuthentication().orElse(null),
+            state.getCountrySignedResponseContainer().orElse(null)
         );
 
         eidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
