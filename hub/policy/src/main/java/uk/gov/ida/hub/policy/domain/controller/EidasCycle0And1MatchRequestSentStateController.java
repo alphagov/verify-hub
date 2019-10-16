@@ -68,7 +68,11 @@ public class EidasCycle0And1MatchRequestSentStateController extends EidasMatchRe
 
         List<UserAccountCreationAttribute> userAccountCreationAttributes = transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId());
         if (!userAccountCreationAttributes.isEmpty()) {
-            EidasAttributeQueryRequestDto attributeQueryRequestDto = createAttributeQuery(userAccountCreationAttributes, state.getEncryptedIdentityAssertion(), state.getPersistentId());
+            EidasAttributeQueryRequestDto attributeQueryRequestDto = createAttributeQuery(
+                    userAccountCreationAttributes,
+                    state.getEncryptedIdentityAssertion(),
+                    state.getPersistentId(),
+                    state.getCountrySignedResponseContainer());
             transitionToUserAccountCreationRequestSentState(attributeQueryRequestDto);
             return;
         }

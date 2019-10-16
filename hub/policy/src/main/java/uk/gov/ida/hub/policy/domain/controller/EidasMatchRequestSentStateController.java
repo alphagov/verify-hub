@@ -17,6 +17,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +79,10 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
     }
 
     public EidasAttributeQueryRequestDto createAttributeQuery(
-            List<UserAccountCreationAttribute> userAccountCreationAttributes, String encryptedIdentityAssertion, PersistentId persistentId) {
+            List<UserAccountCreationAttribute> userAccountCreationAttributes,
+            String encryptedIdentityAssertion,
+            PersistentId persistentId,
+            Optional<CountrySignedResponseContainer> countrySignedResponseContainer) {
 
         MatchingServiceConfigEntityDataDto matchingServiceConfig = matchingServiceConfigProxy.getMatchingService(state.getMatchingServiceAdapterEntityId());
 
@@ -96,6 +100,6 @@ public abstract class EidasMatchRequestSentStateController<T extends EidasMatchR
                 Optional.empty(),
                 Optional.of(userAccountCreationAttributes),
                 encryptedIdentityAssertion,
-                Optional.empty());
+                countrySignedResponseContainer);
     }
 }
