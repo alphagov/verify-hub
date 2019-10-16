@@ -20,7 +20,7 @@ public class OnboardingIdpPredicate implements Predicate<IdentityProviderConfig>
                 identityProviderConfig.isOnboardingAtLoa(levelOfAssurance) :
                 identityProviderConfig.isOnboardingAtAllLevels();
 
-        return !isOnboarding || identityProviderConfig.getOnboardingTransactionEntityIdsTemp().contains(transactionEntity);
+        return !isOnboarding || identityProviderConfig.getOnboardingTransactionEntityIds().contains(transactionEntity);
     }
 
 }

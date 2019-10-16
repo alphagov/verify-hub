@@ -90,12 +90,6 @@ public class IdentityProviderResourceIntegrationTest {
                 .withOnboarding(Collections.singletonList(LOA_1_TEST_RP))
                 .build())
         .addIdp(anIdentityProviderConfigData()
-                .withEntityId(ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST)
-                .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
-                .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
-                .withOnboardingTemp(Collections.singletonList(LOA_1_TEST_RP))
-                .build())
-        .addIdp(anIdentityProviderConfigData()
                 .withEntityId(DISABLED_IDP)
                 .withEnabled(false)
                 .build())
@@ -128,8 +122,7 @@ public class IdentityProviderResourceIntegrationTest {
         List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>(){});
         assertThat(idps).extracting("entityId").containsOnly(
                 ENABLED_ALL_RP_IDP,
-                ONBOARDING_TO_LOA_1_IDP,
-                ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST
+                ONBOARDING_TO_LOA_1_IDP
         );
     }
 
@@ -155,8 +148,7 @@ public class IdentityProviderResourceIntegrationTest {
         List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>(){});
         assertThat(idps).extracting("entityId").containsOnly(
                 ENABLED_ALL_RP_IDP,
-                ONBOARDING_TO_LOA_1_IDP,
-                ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST
+                ONBOARDING_TO_LOA_1_IDP
         );
     }
 
@@ -172,7 +164,6 @@ public class IdentityProviderResourceIntegrationTest {
         assertThat(idps).extracting("entityId").containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ONBOARDING_TO_LOA_1_IDP,
-                ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST,
                 SOFT_DISCONNECTING_IDP,
                 HARD_DISCONNECTING_IDP
         );
@@ -266,7 +257,6 @@ public class IdentityProviderResourceIntegrationTest {
         assertThat(providerEntityIds).containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ONBOARDING_TO_LOA_1_IDP,
-                ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST,
                 SOFT_DISCONNECTING_IDP,
                 HARD_DISCONNECTING_IDP
         );

@@ -92,33 +92,12 @@ public class IdentityProviderConfigTest {
     }
 
     @Test
-    public void shouldReturnAllOnboardingEntityIds() {
-        IdentityProviderConfig data = dataBuilder
-                .withOnboarding(Arrays.asList("EID1", "EID2"))
-                .withOnboardingTemp(Arrays.asList("EID_OT1", "EID_OT2"))
-                .build();
-
-        final List<String> onboardingEntityIds = data.getOnboardingTransactionEntityIds();
-        assertThat(onboardingEntityIds.size()).isEqualTo(2);
-        assertThat(onboardingEntityIds).contains("EID1");
-        assertThat(onboardingEntityIds).contains("EID2");
-
-        final List<String> onboardingEntityIdsTemp = data.getOnboardingTransactionEntityIdsTemp();
-        assertThat(onboardingEntityIdsTemp.size()).isEqualTo(4);
-        assertThat(onboardingEntityIdsTemp).contains("EID1");
-        assertThat(onboardingEntityIdsTemp).contains("EID2");
-        assertThat(onboardingEntityIdsTemp).contains("EID_OT1");
-        assertThat(onboardingEntityIdsTemp).contains("EID_OT2");
-    }
-
-    @Test
     public void shouldCheckThatIsOnboardingForTransactionEntity() {
         final IdentityProviderConfig dataWithoutOnboarding = dataBuilder.withEntityId("EID").build();
         assertThat(dataWithoutOnboarding.isOnboardingForTransactionEntity("EID")).isFalse();
 
         final IdentityProviderConfig data = dataBuilder
-                .withOnboarding(Collections.singletonList("EID_O"))
-                .withOnboardingTemp(Collections.singletonList("EID_OT"))
+                .withOnboarding(List.of("EID_O","EID_OT"))
                 .build();
 
         assertThat(data.isOnboardingForTransactionEntity("EID_O")).isTrue();

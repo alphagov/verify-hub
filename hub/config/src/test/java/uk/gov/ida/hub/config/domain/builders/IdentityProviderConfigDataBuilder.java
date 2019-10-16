@@ -17,7 +17,6 @@ public class IdentityProviderConfigDataBuilder {
     private Boolean enabled = true;
     private Boolean enabledForSingleIdp = false;
     private List<String> transactionEntityIds = emptyList();
-    private List<String> transactionEntityIdsTemp = emptyList();
     private List<LevelOfAssurance> onboardingLevelsOfAssurance = emptyList();
     private List<LevelOfAssurance> supportedLevelsOfAssurance = List.of(LevelOfAssurance.LEVEL_2);
     private boolean useExactComparisonType = false;
@@ -35,7 +34,6 @@ public class IdentityProviderConfigDataBuilder {
                 enabled,
                 enabledForSingleIdp,
                 transactionEntityIds,
-                transactionEntityIdsTemp,
                 onboardingLevelsOfAssurance,
                 supportedLevelsOfAssurance,
                 useExactComparisonType,
@@ -74,11 +72,6 @@ public class IdentityProviderConfigDataBuilder {
         return this;
     }
 
-    public IdentityProviderConfigDataBuilder withOnboardingTemp(List<String> transactionEntityIdsTemp) {
-        this.transactionEntityIdsTemp = transactionEntityIdsTemp;
-        return this;
-    }
-
     public IdentityProviderConfigDataBuilder withOnboardingLevels(List<LevelOfAssurance> onboardingLevelsOfAssurance) {
         this.onboardingLevelsOfAssurance = onboardingLevelsOfAssurance;
         return this;
@@ -108,7 +101,6 @@ public class IdentityProviderConfigDataBuilder {
                 boolean enabled,
                 boolean enabledForSingleIdp,
                 List<String> transactionEntityIds,
-                List<String> transactionEntityIdsTemp,
                 List<LevelOfAssurance> onboardingLevelsOfAssurance,
                 List<LevelOfAssurance> supportedLevelsOfAssurance,
                 boolean useExactComparisonType,
@@ -121,7 +113,6 @@ public class IdentityProviderConfigDataBuilder {
             this.enabledForSingleIdp = enabledForSingleIdp;
             this.onboardingTransactionEntityIds = transactionEntityIds;
             this.onboardingLevelsOfAssurance = onboardingLevelsOfAssurance;
-            this.onboardingTransactionEntityIdsTemp = transactionEntityIdsTemp;
             this.supportedLevelsOfAssurance = supportedLevelsOfAssurance;
             this.useExactComparisonType = useExactComparisonType;
             this.provideRegistrationUntil = provideRegistrationUntil;
