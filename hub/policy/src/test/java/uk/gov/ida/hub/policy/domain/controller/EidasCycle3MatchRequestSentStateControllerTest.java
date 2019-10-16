@@ -152,6 +152,26 @@ public class EidasCycle3MatchRequestSentStateControllerTest {
     }
 
     @Test
+    public void shouldIncludeCountrySignedResponseContainerIfInStateWhenUserAccountCreationIsEnabled() {
+        URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
+        EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().withCountrySignedResponseContainer().build();
+        List<UserAccountCreationAttribute> userAccountCreationAttributes = List.of(UserAccountCreationAttribute.DATE_OF_BIRTH);
+        when(transactionsConfigProxy.getUserAccountCreationAttributes(state.getRequestIssuerEntityId())).thenReturn(userAccountCreationAttributes);
+        when(matchingServiceConfigProxy.getMatchingService(anyString()))
+                .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
+
+        EidasCycle3MatchRequestSentStateController controller =
+                new EidasCycle3MatchRequestSentStateController(state, hubEventLogger, stateTransitionAction, policyConfiguration, levelOfAssuranceValidator, responseFromHubFactory,
+                        attributeQueryService, transactionsConfigProxy, matchingServiceConfigProxy);
+
+        controller.transitionToNextStateForNoMatchResponse();
+
+        verify(attributeQueryService).sendAttributeQueryRequest(eq(state.getSessionId()), attributeQueryRequestCaptor.capture());
+
+        assertThat(attributeQueryRequestCaptor.getValue().getCountrySignedResponseContainer()).isEqualTo(state.getCountrySignedResponseContainer());
+    }
+
+    @Test
     public void shouldTransitionToNoMatchStateForNoMatchResponseWhenNoAttributesArePresent(){
         ArgumentCaptor<NoMatchState> capturedState = ArgumentCaptor.forClass(NoMatchState.class);
         EidasCycle3MatchRequestSentState state = anEidasCycle3MatchRequestSentState().build();

@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
+import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.MatchFromMatchingService;
 import uk.gov.ida.hub.policy.domain.MatchingProcess;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
@@ -191,6 +192,39 @@ public class EidasCycle0And1MatchRequestSentStateControllerTest {
         verify(attributeQueryService).sendAttributeQueryRequest(eq(state.getSessionId()), any());
         verify(stateTransitionAction).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue()).isEqualToComparingFieldByField(expectedState);
+    }
+
+    @Test
+    public void shouldIncludeCountrySignedResponseContainerIfInStateWhenUserAccountCreationIsEnabled() {
+        EidasCycle0And1MatchRequestSentState unsignedState = anEidasCycle0And1MatchRequestSentState().withCountrySignedResponseContainer().build();
+        EidasCycle0And1MatchRequestSentStateController unsignedEidasCycle0And1MatchRequestSentStateController = new EidasCycle0And1MatchRequestSentStateController(
+                unsignedState,
+                stateTransitionAction,
+                hubEventLogger,
+                policyConfiguration,
+                levelOfAssuranceValidator,
+                responseFromHubFactory,
+                attributeQueryService,
+                transactionsConfigProxy,
+                matchingServiceConfigProxy
+        );
+        final ArgumentCaptor<EidasAttributeQueryRequestDto> capturedDto = ArgumentCaptor.forClass(EidasAttributeQueryRequestDto.class);
+        URI userAccountCreationUri = URI.create("a-test-user-account-creation-uri");
+
+        when(transactionsConfigProxy.getMatchingProcess(unsignedState.getRequestIssuerEntityId())).thenReturn(new MatchingProcess(Optional.empty()));
+        when(transactionsConfigProxy.getUserAccountCreationAttributes(unsignedState.getRequestIssuerEntityId())).thenReturn(singletonList(FIRST_NAME));
+        when(matchingServiceConfigProxy.getMatchingService(anyString()))
+                .thenReturn(aMatchingServiceConfigEntityDataDto().withUserAccountCreationUri(userAccountCreationUri).build());
+        doNothing().when(hubEventLogger).logMatchingServiceUserAccountCreationRequestSentEvent(
+                unsignedState.getSessionId(),
+                unsignedState.getRequestIssuerEntityId(),
+                unsignedState.getSessionExpiryTimestamp(),
+                unsignedState.getRequestId());
+
+        unsignedEidasCycle0And1MatchRequestSentStateController.transitionToNextStateForNoMatchResponse();
+
+        verify(attributeQueryService).sendAttributeQueryRequest(eq(state.getSessionId()), capturedDto.capture());
+        assertThat(capturedDto.getValue().getCountrySignedResponseContainer()).isEqualTo(unsignedState.getCountrySignedResponseContainer());
     }
 
     @Test
