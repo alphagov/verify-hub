@@ -1,4 +1,5 @@
 package uk.gov.ida.hub.samlproxy.contracts;
+
 import java.util.Optional;
 
 import java.net.URI;

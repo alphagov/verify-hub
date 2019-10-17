@@ -121,7 +121,14 @@ public class SamlMessageSenderHandlerTest {
         SessionId sessionId = SessionId.createNewSessionId();
         String responseId = UUID.randomUUID().toString();
 
-        when(sessionProxy.getErrorResponseFromHub(sessionId)).thenReturn(new AuthnResponseFromHubContainerDto(samlRequest, postEndPoint, relayState, responseId));
+        when(sessionProxy.getErrorResponseFromHub(sessionId)).thenReturn(
+                new AuthnResponseFromHubContainerDto(
+                        samlRequest,
+                        postEndPoint,
+                        relayState,
+                        responseId
+                )
+        );
         Response samlResponse = setUpErrorResponseFromHub(sessionId, responseId);
         when(responseTransformer.apply(samlRequest)).thenReturn(samlResponse);
 
@@ -170,7 +177,12 @@ public class SamlMessageSenderHandlerTest {
     }
 
     private Response setUpAuthnResponseFromHub(SessionId sessionId, String expectedSamlMessageId) throws MarshallingException, SignatureException {
-        AuthnResponseFromHubContainerDto hubContainerDto = new AuthnResponseFromHubContainerDto(samlRequest, postEndPoint, relayState, expectedSamlMessageId);
+        AuthnResponseFromHubContainerDto hubContainerDto = new AuthnResponseFromHubContainerDto(
+                samlRequest,
+                postEndPoint,
+                relayState,
+                expectedSamlMessageId
+        );
         when(sessionProxy.getAuthnResponseFromHub(sessionId)).thenReturn(hubContainerDto);
         Response openSamlResponse = aResponse().withId(expectedSamlMessageId).build();
         when(responseTransformer.apply(anyString())).thenReturn(openSamlResponse);
@@ -178,7 +190,12 @@ public class SamlMessageSenderHandlerTest {
     }
 
     private Response setUpErrorResponseFromHub(SessionId sessionId, String expectedSamlMessageId) throws MarshallingException, SignatureException {
-        AuthnResponseFromHubContainerDto hubContainerDto = new AuthnResponseFromHubContainerDto(samlRequest, postEndPoint, relayState, expectedSamlMessageId);
+        AuthnResponseFromHubContainerDto hubContainerDto = new AuthnResponseFromHubContainerDto(
+                samlRequest,
+                postEndPoint,
+                relayState,
+                expectedSamlMessageId
+        );
         when(sessionProxy.getErrorResponseFromHub(sessionId)).thenReturn(hubContainerDto);
         Response openSamlResponse = aResponse().withId(expectedSamlMessageId).build();
         when(responseTransformer.apply(anyString())).thenReturn(openSamlResponse);

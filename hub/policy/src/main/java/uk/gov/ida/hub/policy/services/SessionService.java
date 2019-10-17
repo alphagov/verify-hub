@@ -19,6 +19,7 @@ import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -114,6 +115,11 @@ public class SessionService {
 
     public AuthnResponseFromHubContainerDto getRpAuthnResponse(SessionId sessionId) {
         getSessionIfItExists(sessionId);
+        if (authnRequestHandler.isResponseFromCountryWithUnsignedAssertions(sessionId)) {
+            AuthnResponseFromCountryContainerDto authResponseFromCountryContainerDto = authnRequestHandler.getAuthnResponseFromCountryContainerDto(sessionId);
+            return samlEngineProxy.generateRpAuthnResponseWrappingCountrySaml(authResponseFromCountryContainerDto);
+        }
+
         ResponseFromHub responseFromHub = authnRequestHandler.getResponseFromHub(sessionId);
         return samlEngineProxy.generateRpAuthnResponse(responseFromHub);
     }

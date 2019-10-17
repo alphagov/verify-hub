@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.controllogic;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.AuthnRequestFromHub;
@@ -12,22 +13,26 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.State;
+import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.controller.AuthnFailedErrorStateController;
 import uk.gov.ida.hub.policy.domain.controller.AuthnRequestCapableController;
+import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
+import uk.gov.ida.hub.policy.domain.controller.NonMatchingJourneySuccessStateController;
 import uk.gov.ida.hub.policy.domain.controller.ErrorResponsePreparedStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.controller.ResponsePreparedStateController;
-import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
+import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
 import uk.gov.ida.hub.policy.domain.state.ResponsePreparedState;
-import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -40,18 +45,21 @@ public class AuthnRequestFromTransactionHandler {
     private final HubEventLogger hubEventLogger;
     private final PolicyConfiguration policyConfiguration;
     private final TransactionsConfigProxy transactionsConfigProxy;
+    private final IdGenerator idGenerator;
 
     @Inject
     public AuthnRequestFromTransactionHandler(
             SessionRepository sessionRepository,
             HubEventLogger hubEventLogger,
             PolicyConfiguration policyConfiguration,
-            TransactionsConfigProxy transactionsConfigProxy) {
+            TransactionsConfigProxy transactionsConfigProxy,
+            IdGenerator idGenerator) {
 
         this.sessionRepository = sessionRepository;
         this.hubEventLogger = hubEventLogger;
         this.policyConfiguration = policyConfiguration;
         this.transactionsConfigProxy = transactionsConfigProxy;
+        this.idGenerator = idGenerator;
     }
 
     public SessionId handleRequestFromTransaction(SamlResponseWithAuthnRequestInformationDto samlResponse, Optional<String> relayState, String ipAddress, URI assertionConsumerServiceUri, boolean transactionSupportsEidas) {
@@ -121,5 +129,28 @@ public class AuthnRequestFromTransactionHandler {
         ErrorResponsePreparedStateController stateController = (ErrorResponsePreparedStateController)
                 sessionRepository.getStateController(sessionId, ErrorResponsePreparedState.class);
         return stateController.getErrorResponse();
+    }
+
+    public AuthnResponseFromCountryContainerDto getAuthnResponseFromCountryContainerDto(SessionId sessionId) {
+        NonMatchingJourneySuccessStateController stateController = (NonMatchingJourneySuccessStateController)
+                sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
+        NonMatchingJourneySuccessState state = stateController.getState();
+        return new AuthnResponseFromCountryContainerDto(
+                state.getCountrySignedResponseContainer().get(),
+                state.getAssertionConsumerServiceUri(),
+                state.getRelayState(),
+                state.getRequestId(),
+                state.getRequestIssuerEntityId(),
+                idGenerator.getId()
+        );
+    }
+
+    public boolean isResponseFromCountryWithUnsignedAssertions(SessionId sessionId) {
+        StateController stateController = sessionRepository.getStateController(sessionId, ResponsePreparedState.class);
+        if (stateController instanceof NonMatchingJourneySuccessStateController) {
+            NonMatchingJourneySuccessState state = ((NonMatchingJourneySuccessStateController) stateController).getState();
+            return state.getCountrySignedResponseContainer().isPresent();
+        }
+        return false;
     }
 }

@@ -3,6 +3,7 @@ package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
@@ -10,6 +11,7 @@ import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectingState;
 import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 
 import javax.ws.rs.client.Client;
@@ -21,6 +23,7 @@ import java.util.Collections;
 
 import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
+import static uk.gov.ida.hub.policy.builder.state.NonMatchingJourneySuccessStateBuilder.aNonMatchingJourneySuccessStateBuilder;
 import static uk.gov.ida.hub.policy.builder.state.SuccessfulMatchStateBuilder.aSuccessfulMatchState;
 
 public class TestSessionResourceHelper {
@@ -59,7 +62,10 @@ public class TestSessionResourceHelper {
                 idpSelectedState.getRequestedLoa(),
                 idpSelectedState.getForceAuthentication().orElse(null),
                 idpSelectedState.getAvailableIdentityProviders(),
-                idpSelectedState.getTransactionSupportsEidas());
+                idpSelectedState.getTransactionSupportsEidas(),
+                null,
+                null
+        );
 
         return client
                 .target(uri)
@@ -173,6 +179,37 @@ public class TestSessionResourceHelper {
                 null,
                 null,
                 countrySelectedState.getTransactionSupportsEidas());
+        return client.target(uri)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(testSessionDto));
+    }
+
+    public static Response createSessionInNonMatchingJourneySuccessState(SessionId sessionId, Client client, URI uri, String rpEntityId) {
+        NonMatchingJourneySuccessState nonMatchingJourneySuccessState = aNonMatchingJourneySuccessStateBuilder()
+                .withSessionId(sessionId)
+                .withRequestIssuerEntityId(rpEntityId)
+                .build();
+
+        TestSessionDto testSessionDto = new TestSessionDto(
+                nonMatchingJourneySuccessState.getSessionId(),
+                nonMatchingJourneySuccessState.getRequestId(),
+                nonMatchingJourneySuccessState.getSessionExpiryTimestamp(),
+                null,
+                null,
+                nonMatchingJourneySuccessState.getRelayState().orElse(null),
+                rpEntityId,
+                nonMatchingJourneySuccessState.getAssertionConsumerServiceUri(),
+                null,
+                null,
+                false,
+                LevelOfAssurance.LEVEL_2,
+                false,
+                null,
+                nonMatchingJourneySuccessState.getTransactionSupportsEidas(),
+                nonMatchingJourneySuccessState.getEncryptedAssertions(),
+                nonMatchingJourneySuccessState.getCountrySignedResponseContainer().get()
+        );
+
         return client.target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(testSessionDto));

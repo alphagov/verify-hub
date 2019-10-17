@@ -110,6 +110,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseT
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EncryptedAssertionUnmarshaller;
+import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
@@ -576,6 +577,29 @@ public class SamlEngineModule extends AbstractModule {
                         responseAssertionSigner,
                         new SignatureRSASHA256(),
                         digestAlgorithm
+                )
+        );
+    }
+
+    @Provides
+    @SuppressWarnings("unused")
+    private OutboundAuthnResponseFromCountryContainerToStringFunction getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformerProvider(
+            EncryptionKeyStore encryptionKeyStore,
+            IdaKeyStore keyStore,
+            EntityToEncryptForLocator entityToEncryptForLocator,
+            ResponseAssertionSigner responseAssertionSigner,
+            DigestAlgorithm digestAlgorithm,
+            @Named("HubEntityId") String hubEntityId) {
+
+        return new OutboundAuthnResponseFromCountryContainerToStringFunction (
+                hubTransformersFactory.getOutboundAuthnResponseFromCountryContainerToStringTransformer(
+                        encryptionKeyStore,
+                        keyStore,
+                        entityToEncryptForLocator,
+                        responseAssertionSigner,
+                        new SignatureRSASHA256(),
+                        digestAlgorithm,
+                        hubEntityId
                 )
         );
     }

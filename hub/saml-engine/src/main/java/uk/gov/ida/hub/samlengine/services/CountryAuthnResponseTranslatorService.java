@@ -76,23 +76,30 @@ public class CountryAuthnResponseTranslatorService {
         ValidatedResponse validatedResponse = validateResponse(response);
         List<Assertion> assertions = assertionDecrypter.decryptAssertions(validatedResponse);
         Optional<Assertion> validatedIdentityAssertion = validateAssertion(validatedResponse, assertions);
+        List<String> base64EncryptedSecretKeys;
+        Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
-        CountrySignedResponseContainer countrySignedResponse = null;
         if (areAssertionsUnsigned(assertions)) {
-            List<String> base64EncryptedSecretKeys = assertionDecrypter.getReEncryptedKeys(
+            base64EncryptedSecretKeys = assertionDecrypter.getReEncryptedKeys(
                     validatedResponse,
                     secretKeyEncrypter,
                     samlResponseDto.getMatchingServiceEntityId()
             );
-            countrySignedResponse = new CountrySignedResponseContainer(
-                    samlResponseDto.getSamlResponse(),
-                    base64EncryptedSecretKeys,
-                    response.getIssuer().getValue());
+            countrySignedResponseContainer = Optional.of(
+                    new CountrySignedResponseContainer(
+                            samlResponseDto.getSamlResponse(),
+                            base64EncryptedSecretKeys,
+                            response.getIssuer().getValue()
+                    )
+            );
+        } else {
+            countrySignedResponseContainer = Optional.empty();
         }
+
         return toModel(validatedResponse,
                 validatedIdentityAssertion,
                 samlResponseDto.getMatchingServiceEntityId(),
-                Optional.ofNullable(countrySignedResponse));
+                countrySignedResponseContainer);
     }
 
     protected boolean areAssertionsUnsigned(List<Assertion> assertions) {
@@ -127,7 +134,7 @@ public class CountryAuthnResponseTranslatorService {
     private InboundResponseFromCountry toModel(ValidatedResponse response,
                                                Optional<Assertion> validatedIdentityAssertionOptional,
                                                String matchingServiceEntityId,
-                                                       Optional<CountrySignedResponseContainer> countrySignedResponse) {
+                                               Optional<CountrySignedResponseContainer> countrySignedResponseContainer) {
 
         Optional<PassthroughAssertion> passthroughAssertion = validatedIdentityAssertionOptional.map(validatedIdentityAssertion -> passthroughAssertionUnmarshaller.fromAssertion(validatedIdentityAssertion, true));
 
@@ -146,7 +153,7 @@ public class CountryAuthnResponseTranslatorService {
                 status.getMessage(),
                 passthroughAssertion.map(assertion -> assertionBlobEncrypter.encryptAssertionBlob(matchingServiceEntityId, assertion.getUnderlyingAssertionBlob())),
                 levelOfAssurance,
-                countrySignedResponse
+                countrySignedResponseContainer
         );
     }
 }

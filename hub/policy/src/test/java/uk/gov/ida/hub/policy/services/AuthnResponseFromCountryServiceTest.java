@@ -20,6 +20,7 @@ import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.policy.domain.CountryAuthenticationStatus.Status;
 import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
+import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.ResponseAction;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -75,16 +76,22 @@ public class AuthnResponseFromCountryServiceTest {
     private static final SamlAuthnResponseTranslatorDto SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().build();
     private static final SamlAuthnResponseTranslatorDto NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO = SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto().withMatchingServiceEntityId(TEST_RP).build();
 
+    private static final Optional<String> OPTIONAL_STATUS_MESSAGE = Optional.of("status message");
+    private static final Optional<String> OPTIONAL_ENCRYPTED_ASSERTION_BLOB = Optional.of(BLOB);
+    private static final Optional<String> OPTIONAL_PID = Optional.of(PID);
+    private static final Optional<LevelOfAssurance> OPTIONAL_LOA_2 = Optional.of(LEVEL_2);
+    private static final Optional<DateTime> OPTIONAL_NOT_ON_OR_AFTER = Optional.of(DateTime.now());
+    private static final Optional<CountrySignedResponseContainer> EMPTY_COUNTRY_SIGNED_RESPONSE_CONTAINER = Optional.empty();
     private static final CountrySignedResponseContainer COUNTRY_SIGNED_RESPONSE_CONTAINER = mock(CountrySignedResponseContainer.class);
 
     private static final InboundResponseFromCountry INBOUND_RESPONSE_FROM_COUNTRY = new InboundResponseFromCountry(
             Status.Success,
-            Optional.empty(),
+            OPTIONAL_STATUS_MESSAGE,
             STUB_IDP_ONE,
-            Optional.of(BLOB),
-            Optional.of(PID),
-            Optional.of(LEVEL_2),
-            Optional.empty(),
+            OPTIONAL_ENCRYPTED_ASSERTION_BLOB,
+            OPTIONAL_PID,
+            OPTIONAL_LOA_2,
+            OPTIONAL_NOT_ON_OR_AFTER,
             Optional.of(COUNTRY_SIGNED_RESPONSE_CONTAINER));
 
     private static final EidasAttributeQueryRequestDto EIDAS_ATTRIBUTE_QUERY_REQUEST_DTO = new EidasAttributeQueryRequestDto(
@@ -191,13 +198,13 @@ public class AuthnResponseFromCountryServiceTest {
     public void shouldReturnSuccessResponseIfTranslationResponseFromSamlEngineIsSuccessfulAndUsingMatching() {
         final InboundResponseFromCountry inboundResponseFromCountry =
                 new InboundResponseFromCountry(Status.Success,
-                        Optional.of("status"),
-                        "issuer",
-                        Optional.of("blob"),
-                        Optional.of("pid"),
-                        Optional.of(LEVEL_2),
-                        Optional.empty(),
-                        Optional.empty());
+                        OPTIONAL_STATUS_MESSAGE,
+                        STUB_IDP_ONE,
+                        OPTIONAL_ENCRYPTED_ASSERTION_BLOB,
+                        OPTIONAL_PID,
+                        OPTIONAL_LOA_2,
+                        OPTIONAL_NOT_ON_OR_AFTER,
+                        EMPTY_COUNTRY_SIGNED_RESPONSE_CONTAINER);
 
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
                 .thenReturn(inboundResponseFromCountry);
@@ -211,7 +218,14 @@ public class AuthnResponseFromCountryServiceTest {
     @Test
     public void shouldReturnNonMatchingJourneySuccessResponseIfTranslationResponseFromSamlEngineIsSuccessfulAndNotUsingMatching() {
         final InboundResponseFromCountry inboundResponseFromCountry =
-                new InboundResponseFromCountry(Status.Success, Optional.of("status"), "issuer", Optional.of("blob-encrypted-for-test-rp"), Optional.of("pid"), Optional.of(LEVEL_2), Optional.empty(), Optional.empty());
+                new InboundResponseFromCountry(Status.Success,
+                        OPTIONAL_STATUS_MESSAGE,
+                        STUB_IDP_ONE,
+                        OPTIONAL_ENCRYPTED_ASSERTION_BLOB,
+                        OPTIONAL_PID,
+                        OPTIONAL_LOA_2,
+                        OPTIONAL_NOT_ON_OR_AFTER,
+                        EMPTY_COUNTRY_SIGNED_RESPONSE_CONTAINER);
 
         when(stateController.isMatchingJourney()).thenReturn(false);
         when(samlEngineProxy.translateAuthnResponseFromCountry(NON_MATCHING_SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
@@ -238,13 +252,13 @@ public class AuthnResponseFromCountryServiceTest {
     public void shouldReturnOtherResponseIfTranslationResponseFromSamlEngineIsFailure() {
         when(samlEngineProxy.translateAuthnResponseFromCountry(SAML_AUTHN_RESPONSE_TRANSLATOR_DTO))
                 .thenReturn(new InboundResponseFromCountry(Status.Failure,
-                        Optional.of("status"),
-                        "issuer",
-                        Optional.of("blob"),
-                        Optional.of("pid"),
-                        Optional.of(LEVEL_2),
-                        Optional.empty(),
-                        Optional.empty()));
+                        OPTIONAL_STATUS_MESSAGE,
+                        STUB_IDP_ONE,
+                        OPTIONAL_ENCRYPTED_ASSERTION_BLOB,
+                        OPTIONAL_PID,
+                        OPTIONAL_LOA_2,
+                        OPTIONAL_NOT_ON_OR_AFTER,
+                        EMPTY_COUNTRY_SIGNED_RESPONSE_CONTAINER));
 
         ResponseAction responseAction = service.receiveAuthnResponseFromCountry(SESSION_ID, SAML_AUTHN_RESPONSE_CONTAINER_DTO);
 

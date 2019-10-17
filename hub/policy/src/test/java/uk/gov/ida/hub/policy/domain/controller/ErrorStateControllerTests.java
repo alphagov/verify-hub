@@ -89,10 +89,12 @@ public class ErrorStateControllerTests {
 
     private AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler;
 
+    private IdGenerator idGenerator = new IdGenerator();
+
     @Before
     public void setUp() {
         sessionId = SessionId.createNewSessionId();
-        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, hubEventLogger, policyConfiguration, transactionsConfigProxy);
+        authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, hubEventLogger, policyConfiguration, transactionsConfigProxy, idGenerator);
     }
 
     @Test

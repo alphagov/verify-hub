@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.SessionId;
+import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 import java.util.Optional;
@@ -16,6 +17,8 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
     private final Optional<String> relayState;
     @JsonProperty
     private final Set<String> encryptedAssertions;
+    @JsonProperty
+    private final Optional<CountrySignedResponseContainer> countrySignedResponseContainer;
 
     @JsonCreator
     public NonMatchingJourneySuccessState(
@@ -26,7 +29,9 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
             @JsonProperty("relayState") final String relayState,
-            @JsonProperty("encryptedAssertions") final Set<String> encryptedAssertions) {
+            @JsonProperty("encryptedAssertions") final Set<String> encryptedAssertions,
+            @JsonProperty("countrySignedResponseContainer") final CountrySignedResponseContainer countrySignedResponseContainer
+    ) {
 
         super(
                 requestId,
@@ -40,6 +45,7 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
 
         this.relayState = Optional.ofNullable(relayState);
         this.encryptedAssertions = encryptedAssertions;
+        this.countrySignedResponseContainer = Optional.ofNullable(countrySignedResponseContainer);
     }
 
     @Override
@@ -50,5 +56,7 @@ public class NonMatchingJourneySuccessState extends AbstractState implements Res
     public Set<String> getEncryptedAssertions() {
         return encryptedAssertions;
     }
+
+    public Optional<CountrySignedResponseContainer> getCountrySignedResponseContainer() { return countrySignedResponseContainer; }
 
 }
