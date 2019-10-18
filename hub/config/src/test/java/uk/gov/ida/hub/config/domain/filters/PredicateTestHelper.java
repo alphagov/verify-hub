@@ -129,13 +129,6 @@ final class PredicateTestHelper {
             onboardingHardDisconnectingIdp));
 
     static Set<IdentityProviderConfig> getFilteredIdps(Set<IdentityProviderConfig> idpSet,
-                                                       Set<Predicate<IdentityProviderConfig>> predicateSet) {
-        return idpSet.stream()
-                .filter(predicateSet.stream().reduce(Predicate::and).orElseThrow())
-                .collect(Collectors.toSet());
-    }
-
-    static Set<IdentityProviderConfig> getFilteredIdps(Set<IdentityProviderConfig> idpSet,
                                                        Predicate<IdentityProviderConfig> predicate) {
         return idpSet.stream().filter(predicate).collect(Collectors.toSet());
     }

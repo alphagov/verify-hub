@@ -179,33 +179,33 @@ public class IdentityProviderResource {
 
     @Deprecated
     private Set<IdentityProviderConfig> getIdentityProviderConfig(Optional<String> transactionEntityId) {
-        Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity = idpPredicateFactory.createPredicatesForTransactionEntity(transactionEntityId);
-        return idpsFilteredBy(predicatesForTransactionEntity);
+        Predicate<IdentityProviderConfig> predicateForTransactionEntity = idpPredicateFactory.createPredicateForTransactionEntity(transactionEntityId);
+        return idpsFilteredBy(predicateForTransactionEntity);
     }
 
     private Set<IdentityProviderConfig> getIdentityProviderConfig(String transactionEntityId,
                                                                   LevelOfAssurance levelOfAssurance) {
-        Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity =
-                idpPredicateFactory.createPredicatesForTransactionEntityAndLoa(transactionEntityId, levelOfAssurance);
-        return idpsFilteredBy(predicatesForTransactionEntity);
+        Predicate<IdentityProviderConfig> predicateForTransactionEntity =
+                idpPredicateFactory.createPredicateForTransactionEntityAndLoa(transactionEntityId, levelOfAssurance);
+        return idpsFilteredBy(predicateForTransactionEntity);
     }
 
     private Set<IdentityProviderConfig> getIdentityProviderConfigForSignIn(String transactionEntityId) {
-        Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity =
-                idpPredicateFactory.createPredicatesForSignIn(transactionEntityId);
-        return idpsFilteredBy(predicatesForTransactionEntity);
+        Predicate<IdentityProviderConfig> predicateForTransactionEntity =
+                idpPredicateFactory.createPredicateForSignIn(transactionEntityId);
+        return idpsFilteredBy(predicateForTransactionEntity);
     }
 
     private Set<IdentityProviderConfig> getIdentityProviderConfigForSingleIdp(String transactionEntityId) {
-        Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity =
-                idpPredicateFactory.createPredicatesForSingleIdp(transactionEntityId);
-        return idpsFilteredBy(predicatesForTransactionEntity);
+        Predicate<IdentityProviderConfig> predicateForTransactionEntity =
+                idpPredicateFactory.createPredicateForSingleIdp(transactionEntityId);
+        return idpsFilteredBy(predicateForTransactionEntity);
     }
 
-    private Set<IdentityProviderConfig> idpsFilteredBy(Set<Predicate<IdentityProviderConfig>> predicatesForTransactionEntity) {
+    private Set<IdentityProviderConfig> idpsFilteredBy(Predicate<IdentityProviderConfig> predicateForTransactionEntity) {
         return identityProviderConfigRepository.getAllData()
                 .stream()
-                .filter(predicatesForTransactionEntity.stream().reduce(Predicate::and).orElseThrow())
+                .filter(predicateForTransactionEntity)
                 .collect(Collectors.toSet());
     }
 }
