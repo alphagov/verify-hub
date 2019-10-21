@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.config.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
@@ -17,11 +19,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.function.Predicate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Path(Urls.ConfigUrls.IDENTITY_PROVIDER_ROOT)
@@ -31,6 +33,8 @@ public class IdentityProviderResource {
     private final LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
     private IdpPredicateFactory idpPredicateFactory;
     private final ExceptionFactory exceptionFactory;
+
+    private static final Logger LOG = LoggerFactory.getLogger(IdentityProviderResource.class);
 
     @Inject
     public IdentityProviderResource(
@@ -48,7 +52,7 @@ public class IdentityProviderResource {
     @Timed
     @Deprecated
     public List<IdpDto> getIdpList(@QueryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
-
+        LOG.warn("Deprecated endpoint accessed {} (@QueryParam present: {})", Urls.ConfigUrls.IDP_LIST_PATH, transactionEntityId.isPresent());
         Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfig(transactionEntityId);
         return matchingIdps.stream().map(configData ->
                 new IdpDto(
@@ -129,7 +133,7 @@ public class IdentityProviderResource {
     @Deprecated
     public Collection<String> getEnabledIdentityProviderEntityIds(
             @QueryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
-
+        LOG.warn("Deprecated endpoint accessed {}", Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PATH);
         return getEnabledIdentityProviderEntityIdsPathParam(transactionEntityId);
     }
 
@@ -139,7 +143,7 @@ public class IdentityProviderResource {
     @Deprecated
     public Collection<String> getEnabledIdentityProviderEntityIdsPathParam(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
-
+        LOG.warn("Deprecated endpoint accessed {}", Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PARAM_PATH);
         return getIdentityProviderConfig(transactionEntityId).stream()
                 .map(IdentityProviderConfig::getEntityId)
                 .collect(Collectors.toList());
