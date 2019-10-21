@@ -12,7 +12,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
-import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.CertificateValidityChecker;
@@ -53,9 +52,7 @@ public class CertificateServiceTest {
 
     @Mock
     private CertificateValidityChecker certificateValidityChecker;
-
-
-    private CertificateService<? extends CertificateConfigurable<?>> certificateService;
+    private CertificateService certificateService;
     private ListAppender<ILoggingEvent> logsListAppender = null;
 
     @Before
