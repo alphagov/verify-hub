@@ -130,11 +130,6 @@ public class IdentityProviderConfig implements EntityIdentifiable {
         return onboardingTransactionEntityIds;
     }
 
-    public boolean isOnboardingForTransactionEntity(String transactionEntity) {
-        boolean isOnboarding = !getOnboardingTransactionEntityIds().isEmpty();
-        return !isOnboarding || getOnboardingTransactionEntityIds().contains(transactionEntity);
-    }
-
     public boolean isOnboardingForTransactionEntityAtLoa(String transactionEntity, LevelOfAssurance levelOfAssurance){
         boolean isOnboarding = levelOfAssurance != null ?
                 isOnboardingAtLoa(levelOfAssurance) :

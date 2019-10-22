@@ -17,11 +17,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -45,23 +43,6 @@ public class IdentityProviderResource {
         this.identityProviderConfigRepository = identityProviderConfigRepository;
         this.idpPredicateFactory = idpPredicateFactory;
         this.exceptionFactory = exceptionFactory;
-    }
-
-    @GET
-    @Path(Urls.ConfigUrls.IDP_LIST_PATH)
-    @Timed
-    @Deprecated
-    public List<IdpDto> getIdpList(@QueryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
-        LOG.warn("Deprecated endpoint accessed {} (@QueryParam present: {})", Urls.ConfigUrls.IDP_LIST_PATH, transactionEntityId.isPresent());
-        Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfig(transactionEntityId);
-        return matchingIdps.stream().map(configData ->
-                new IdpDto(
-                        configData.getSimpleId(),
-                        configData.getEntityId(),
-                        configData.getSupportedLevelsOfAssurance(),
-                        configData.isAuthenticationEnabled(),
-                        configData.isTemporarilyUnavailable()))
-                .collect(Collectors.toList());
     }
 
     @GET
@@ -128,28 +109,6 @@ public class IdentityProviderResource {
     }
 
     @GET
-    @Path(Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PATH)
-    @Timed
-    @Deprecated
-    public Collection<String> getEnabledIdentityProviderEntityIds(
-            @QueryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
-        LOG.warn("Deprecated endpoint accessed {}", Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PATH);
-        return getEnabledIdentityProviderEntityIdsPathParam(transactionEntityId);
-    }
-
-    @GET
-    @Path(Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PARAM_PATH)
-    @Timed
-    @Deprecated
-    public Collection<String> getEnabledIdentityProviderEntityIdsPathParam(
-            @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final Optional<String> transactionEntityId) {
-        LOG.warn("Deprecated endpoint accessed {}", Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PARAM_PATH);
-        return getIdentityProviderConfig(transactionEntityId).stream()
-                .map(IdentityProviderConfig::getEntityId)
-                .collect(Collectors.toList());
-    }
-
-    @GET
     @Path(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_SIGN_IN_PATH)
     @Timed
     public Collection<String> getEnabledIdentityProviderEntityIdsForSignIn(
@@ -175,12 +134,6 @@ public class IdentityProviderResource {
         }
 
         return configData;
-    }
-
-    @Deprecated
-    private Set<IdentityProviderConfig> getIdentityProviderConfig(Optional<String> transactionEntityId) {
-        Predicate<IdentityProviderConfig> predicateForTransactionEntity = idpPredicateFactory.createPredicateForTransactionEntity(transactionEntityId);
-        return idpsFilteredBy(predicateForTransactionEntity);
     }
 
     private Set<IdentityProviderConfig> getIdentityProviderConfig(String transactionEntityId,
