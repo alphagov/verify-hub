@@ -5,7 +5,6 @@ import uk.gov.ida.hub.config.ConfigConfiguration;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.application.CertificateService;
 import uk.gov.ida.hub.config.domain.Certificate;
-import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 import uk.gov.ida.hub.config.dto.CertificateDto;
 import uk.gov.ida.hub.config.dto.CertificateHealthCheckDto;
@@ -35,7 +34,7 @@ public class CertificatesResource {
     private final ExceptionFactory exceptionFactory;
     private final ConfigConfiguration configuration;
     private final OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker;
-    private final CertificateService<? extends CertificateConfigurable<?>> certificateService;
+    private final CertificateService certificateService;
 
 
     @Inject
@@ -43,7 +42,7 @@ public class CertificatesResource {
             ExceptionFactory exceptionFactory,
             ConfigConfiguration configuration,
             OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker,
-            CertificateService<? extends CertificateConfigurable<?>> certificateService
+            CertificateService certificateService
     ) {
         this.exceptionFactory = exceptionFactory;
         this.configuration = configuration;

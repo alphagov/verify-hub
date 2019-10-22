@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.domain.Certificate;
-import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
@@ -29,7 +28,7 @@ public class OcspCertificateChainValidationServiceTest {
     private OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker;
 
     @Mock
-    private CertificateService<? extends CertificateConfigurable<?>> certificateService;
+    private CertificateService certificateService;
 
     @Test
     public void gaugesAreUpdatedForCertsWithValidChains() throws Exception {
