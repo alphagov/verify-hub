@@ -224,11 +224,13 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private HubEidasAttributeQueryRequestBuilder getHubEidasAttributeQueryRequestBuilder(@Named("HubEntityId") String  hubEntityId) {
         return new HubEidasAttributeQueryRequestBuilder(hubEntityId);
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private Function<HubEidasAttributeQueryRequest, Element> getEidasMatchingServiceRequestElementTransformer(
         IdaKeyStore keyStore,
         EncryptionKeyStore encryptionKeyStore,
@@ -251,6 +253,7 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private AttributeQueryGenerator<HubEidasAttributeQueryRequest> getHubEidasAttributeQueryRequestAttributeQueryGenerator(
         Function<HubEidasAttributeQueryRequest, Element> attributeQueryRequestTransformer,
         AssignableEntityToEncryptForLocator entityToEncryptForLocator) {
@@ -258,6 +261,7 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private CountryMatchingServiceRequestGeneratorService getCountryMatchingServiceRequestGeneratorService(
         HubEidasAttributeQueryRequestBuilder eidasAttributeQueryRequestBuilder,
         AttributeQueryGenerator<HubEidasAttributeQueryRequest> eidasAttributeQueryGenerator) {
@@ -265,6 +269,7 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private CountryAuthnRequestGeneratorService getCountryAuthnRequestGeneratorService(Optional<CountrySingleSignOnServiceHelper> countrySingleSignOnServiceHelper,
                                                                                        Function<EidasAuthnRequestFromHub, String> eidasRequestStringTransformer,
                                                                                        EidasAuthnRequestTranslator eidasAuthnRequestTranslator,
@@ -278,6 +283,7 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private CountryAuthnResponseTranslatorService getCountryAuthnResponseTranslatorService(StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer,
                                                                                            ResponseFromCountryValidator responseFromCountryValidator,
                                                                                            @Named("ResponseAssertionsFromCountryValidator") Optional<ResponseAssertionsFromCountryValidator> responseAssertionFromCountryValidator,
@@ -301,11 +307,13 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     public PassthroughAssertionUnmarshaller getPassthroughAssertionUnmarshaller() {
         return new PassthroughAssertionUnmarshaller(new XmlObjectToBase64EncodedStringTransformer<>(), new AuthnContextFactory());
     }
 
     @Provides
+    @SuppressWarnings("unused")
     public Optional<DestinationValidator> getValidateSamlResponseIssuedByIdpDestination(@Named("ExpectedEidasDestination") Optional<URI> expectedDestination) {
         return expectedDestination.map(d -> new DestinationValidator(d, Urls.FrontendUrls.SAML2_SSO_EIDAS_RESPONSE_ENDPOINT));
     }
@@ -314,6 +322,7 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Named("VERIFY_METADATA_REFRESH_TASK")
     @Singleton
+    @SuppressWarnings("unused")
     private Task registerMetadataRefreshTask(Environment environment, @Named(VERIFY_METADATA_RESOLVER) MetadataResolver metadataResolver) {
         Task task = new Task("metadata-refresh") {
             @Override
@@ -327,12 +336,14 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private IdpSingleSignOnServiceHelper getIdpSingleSignOnServiceHelper(@Named("VerifyMetadataResolver") MetadataResolver metadataResolver) {
         return new IdpSingleSignOnServiceHelper(metadataResolver);
     }
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private Optional<EidasMetadataResolverRepository> getCountryMetadataResolverRepository(Environment environment, SamlEngineConfiguration configuration){
         if (configuration.isEidasEnabled()) {
             EidasMetadataConfiguration eidasMetadataConfiguration = configuration.getCountryConfiguration().get().getMetadataConfiguration();
@@ -368,6 +379,7 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     public Optional<EidasValidatorFactory> getEidasValidatorFactory(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository, SamlEngineConfiguration configuration){
         if (configuration.isEidasEnabled()){
             Optional<EidasValidatorFactory> eidasValidatorFactory = eidasMetadataResolverRepository
@@ -379,6 +391,7 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     public Optional<CountrySingleSignOnServiceHelper> getCountrySingleSignOnServiceHelper(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository, SamlEngineConfiguration configuration){
         if (configuration.isEidasEnabled()){
             Optional<CountrySingleSignOnServiceHelper> countrySingleSignOnServiceHelper = eidasMetadataResolverRepository
@@ -390,6 +403,7 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     public Optional<EidasTrustAnchorHealthCheck> getCountryMetadataHealthCheck(
         Optional<EidasMetadataResolverRepository> metadataResolverRepository,
         Environment environment){
@@ -404,6 +418,7 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Singleton
     @Named("HubEntityId")
+    @SuppressWarnings("unused")
     private String getHubEntityId(SamlEngineConfiguration configuration) {
         return configuration.getSamlConfiguration().getEntityId();
     }
@@ -411,6 +426,7 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Singleton
     @Named("HubEidasEntityId")
+    @SuppressWarnings("unused")
     private Optional<String> getHubEidasEntityId(SamlEngineConfiguration configuration) {
         return configuration.getCountryConfiguration().map(c -> c.getSamlConfiguration().getEntityId());
     }
@@ -418,33 +434,39 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Singleton
     @Named("ExpectedEidasDestination")
+    @SuppressWarnings("unused")
     private Optional<URI> getExpectedEidasDestinationHost(SamlEngineConfiguration configuration) {
         return configuration.getCountryConfiguration().map(c -> c.getSamlConfiguration().getExpectedDestinationHost());
     }
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private ResponseFromCountryValidator getResponseFromCountryValidator() {
         return new ResponseFromCountryValidator(new SamlStatusToCountryAuthenticationStatusCodeMapper());
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private OpenSamlXmlObjectFactory openSamlXmlObjectFactory() {
         return new OpenSamlXmlObjectFactory();
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private XmlObjectToBase64EncodedStringTransformer<Response> responseXmlObjectToBase64EncodedStringTransformer() {
         return new XmlObjectToBase64EncodedStringTransformer<>();
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private XmlObjectToBase64EncodedStringTransformer<Assertion> assertionXmlObjectToBase64EncodedStringTransformer() {
         return new XmlObjectToBase64EncodedStringTransformer<>();
     }
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private JsonClient jsonClient(JsonResponseProcessor jsonResponseProcessor, Environment environment, SamlEngineConfiguration configuration) {
         Client client = new ClientProvider(
                 environment,
@@ -457,6 +479,7 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private IdaKeyStore getKeyStore(SamlEngineConfiguration configuration, SigningCertFromMetadataExtractor signingCertExtractor) {
         try {
             PrivateKey primaryEncryptionKey = configuration.getPrimaryPrivateEncryptionKeyConfiguration().getPrivateKey();
@@ -478,12 +501,14 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private SamlConfiguration samlConfiguration(SamlEngineConfiguration configuration) {
         return configuration.getSamlConfiguration();
     }
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private ServiceInfoConfiguration serviceInfoConfiguration(SamlEngineConfiguration configuration) {
         return configuration.getServiceInfo();
     }
@@ -491,6 +516,7 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Singleton
     @Config
+    @SuppressWarnings("unused")
     private URI configUri(SamlEngineConfiguration configurations) {
         return configurations.getConfigUri();
     }
@@ -607,6 +633,7 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Singleton
     @Named(REDIS_OBJECT_MAPPER)
+    @SuppressWarnings("unused")
     private ObjectMapper getRedisObjectMapper() {
         return new ObjectMapper()
                 .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
@@ -617,6 +644,7 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private IdExpirationCache<String> assertionIdCache(SamlEngineConfiguration configuration,
                                                        @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
                                                        InfinispanCacheManager infinispanCacheManager) {
@@ -628,6 +656,7 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private IdExpirationCache<AuthnRequestIdKey> authRequestIdCache(SamlEngineConfiguration configuration,
                                                                     @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
                                                                     InfinispanCacheManager infinispanCacheManager) {
@@ -661,11 +690,13 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private StringToOpenSamlObjectTransformer<AuthnRequest> getStringAuthnRequestTransformer() {
         return hubTransformersFactory.getStringToAuthnRequestTransformer();
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private AuthnRequestToIdaRequestFromRelyingPartyTransformer getAuthnRequestAuthnRequestFromRelyingPartyTransformer(
             @Named("authnRequestKeyStore") SigningKeyStore signingKeyStore,
             IdaKeyStore decryptionKeyStore,
@@ -685,33 +716,39 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private AttributeQueryGenerator<MatchingServiceHealthCheckRequest> matchingServiceHealthCheckRequestAttributeQueryGenerator(Function<MatchingServiceHealthCheckRequest, Element> attributeQueryRequestTransformer, AssignableEntityToEncryptForLocator entityToEncryptForLocator) {
         return new AttributeQueryGenerator<>(attributeQueryRequestTransformer, entityToEncryptForLocator);
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private AttributeQueryGenerator<HubAttributeQueryRequest> hubAttributeQueryRequestAttributeQueryGenerator(Function<HubAttributeQueryRequest, Element> attributeQueryRequestTransformer, AssignableEntityToEncryptForLocator entityToEncryptForLocator) {
         return new AttributeQueryGenerator<>(attributeQueryRequestTransformer, entityToEncryptForLocator);
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private StringToOpenSamlObjectTransformer<Response> getStringIdaResponseIssuedByIdpTransformer() {
         return hubTransformersFactory.getStringToResponseTransformer();
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private StringToOpenSamlObjectTransformer<Assertion> getStringToAssertionTransformer() {
         return hubTransformersFactory.getStringToAssertionTransformer();
     }
 
     @Provides
     @Named(FED_METADATA_ENTITY_SIGNATURE_VALIDATOR)
+    @SuppressWarnings("unused")
     private MetadataBackedSignatureValidator fedMetadataEntitySignatureValidator(@Named(VERIFY_METADATA_SIGNATURE_TRUST_ENGINE) ExplicitKeySignatureTrustEngine explicitKeySignatureTrustEngine) {
        return MetadataBackedSignatureValidator.withoutCertificateChainValidation(explicitKeySignatureTrustEngine);
     }
 
     @Provides
     @Named("IdpSamlResponseTransformer")
+    @SuppressWarnings("unused")
     private DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer getResponseToInboundResponseFromIdpTransformer(
             IdExpirationCache<String> assertionIdCache,
             SamlConfiguration samlConfiguration,
@@ -727,12 +764,14 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private SigningCertFromMetadataExtractor getSigningCertFromMetadataExtractor(@Named(VERIFY_METADATA_RESOLVER) MetadataResolver metadataResolver, @Named("HubEntityId") String hubEntityId) throws ComponentInitializationException {
         return new SigningCertFromMetadataExtractor(metadataResolver, hubEntityId);
     }
 
     @Provides
     @Named("EidasAssertionDecrypter")
+    @SuppressWarnings("unused")
     private AssertionDecrypter getEidasAssertionDecrypter(IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever) {
         Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
         Set<String> contentEncryptionAlgorithms = Set.of(
@@ -748,12 +787,14 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private SecretKeyEncrypter getSecretKeyEncrypter(KeyStoreBackedEncryptionCredentialResolver keyStoreBackedEncryptionCredentialResolver) {
         return new SecretKeyEncrypter(keyStoreBackedEncryptionCredentialResolver);
     }
     @Provides
     @Singleton
     @Named("ResponseAssertionsFromCountryValidator")
+    @SuppressWarnings("unused")
     private Optional<ResponseAssertionsFromCountryValidator> getResponseAssertionsFromCountryValidator(
             final IdExpirationCache<String> assertionIdCache,
             @Named("ExpectedEidasDestination") Optional<URI>  expectedDestination) {
@@ -774,12 +815,14 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private ElementToOpenSamlXMLObjectTransformer<Response> getElementInboundResponseFromMatchingServiceTransformer() {
         return new CoreTransformersFactory()
                 .getElementToOpenSamlXmlObjectTransformer();
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer getResponseToInboundResponseFromMatchingServiceTransformer(
             @Named("samlResponseFromMatchingServiceKeyStore") SigningKeyStore publicKeyStore,
             IdaKeyStore keyStore,
@@ -863,12 +906,14 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @SuppressWarnings("unused")
     private AssertionEncrypter assertionEncrypter(KeyStoreBackedEncryptionCredentialResolver credentialResolver) {
         return new AssertionEncrypter(new EncrypterFactory(), credentialResolver);
     }
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     private IdpAssertionMetricsCollector metricsCollector(Environment environment) {
         return new IdpAssertionMetricsCollector(environment.metrics());
     }

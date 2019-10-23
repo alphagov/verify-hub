@@ -50,12 +50,14 @@ public class CryptoModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     public KeyStoreBackedEncryptionCredentialResolver getKeyStoreBackedEncryptionCredentialResolver(EncryptionKeyStore keyStore){
         return new KeyStoreBackedEncryptionCredentialResolver(keyStore);
     }
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     public SamlResponseAssertionEncrypter getSamlResponseAssertionEncrypter(KeyStoreBackedEncryptionCredentialResolver credentialResolver,
                                                                             EncrypterFactory encrypterFactory,
                                                                             EntityToEncryptForLocator entityToEncryptForLocator){
@@ -64,12 +66,14 @@ public class CryptoModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     public IdaKeyStoreCredentialRetriever getKeyStoreCredentialRetriever(IdaKeyStore keyStore) {
         return new IdaKeyStoreCredentialRetriever(keyStore);
     }
 
     @Provides
     @Singleton
+    @SuppressWarnings("unused")
     public SignatureFactory getSignatureFactory(IdaKeyStoreCredentialRetriever keyStoreCredentialRetriever, SignatureAlgorithm signatureAlgorithm, DigestAlgorithm digestAlgorithm) {
         return new SignatureFactory(keyStoreCredentialRetriever, signatureAlgorithm, digestAlgorithm);
     }
