@@ -66,7 +66,9 @@ public class S3ConfigSource {
         try {
             S3Object s3Object = s3Client.getObject(request);
             if (s3Object == null) {
-                LOG.warn("Object {} not found in S3 bucket {}", request.getKey(), request.getBucketName());
+                if (request.getModifiedSinceConstraint() == null){
+                    LOG.warn("Object {} not found in S3 bucket {}", request.getKey(), request.getBucketName());
+                }
             } else {
                 try (InputStream inputStream = s3Object.getObjectContent()) {
                     SelfServiceMetadata metadata = objectMapper.readValue(inputStream, SelfServiceMetadata.class);
