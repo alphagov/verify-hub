@@ -4,10 +4,8 @@ import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.Set;
+import java.util.stream.Stream;
 
 public class IdpPredicateFactory {
 
@@ -15,28 +13,29 @@ public class IdpPredicateFactory {
     public IdpPredicateFactory() {
     }
 
-    @Deprecated
-    public Set<Predicate<IdentityProviderConfig>> createPredicatesForTransactionEntity(Optional<String> transactionEntity) {
-        EnabledIdpPredicate enabledIdpPredicate = new EnabledIdpPredicate();
-        Set<Predicate<IdentityProviderConfig>> predicates = new HashSet<>();
-        predicates.add(enabledIdpPredicate);
-
-        Optional.ofNullable(transactionEntity).ifPresent(s -> predicates.add(new OnboardingForTransactionEntityPredicate(s.get())));
-
-        return predicates;
+    public Predicate<IdentityProviderConfig> createPredicateForTransactionEntityAndLoa(String transactionEntity, LevelOfAssurance levelOfAssurance) {
+        return andPredicates(Stream.of(
+                IdentityProviderConfig::isEnabled,
+                (idpConfig)->idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntity, levelOfAssurance),
+                (idpConfig)->idpConfig.supportsLoa(levelOfAssurance),
+                IdentityProviderConfig::isRegistrationEnabled));
     }
 
-    public Set<Predicate<IdentityProviderConfig>> createPredicatesForTransactionEntityAndLoa(String transactionEntity,
-                                                                                             LevelOfAssurance levelOfAssurance) {
-        return Set.of(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntity, levelOfAssurance),
-                new SupportedLoaIdpPredicate(levelOfAssurance), new NewUserIdpPredicate());
+    public Predicate<IdentityProviderConfig> createPredicateForSignIn(String transactionEntityId) {
+        return andPredicates(Stream.of(
+                IdentityProviderConfig::isEnabled,
+                (idpConfig)->idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityId, null)));
     }
 
-    public Set<Predicate<IdentityProviderConfig>> createPredicatesForSignIn(String transactionEntityId) {
-        return Set.of(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null));
+    public Predicate<IdentityProviderConfig> createPredicateForSingleIdp(String transactionEntityId) {
+        return andPredicates(Stream.of(
+                IdentityProviderConfig::isEnabled,
+                (idpConfig)->idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityId, null),
+                IdentityProviderConfig::isEnabledForSingleIdp,
+                IdentityProviderConfig::isRegistrationEnabled));
     }
 
-    public Set<Predicate<IdentityProviderConfig>> createPredicatesForSingleIdp(String transactionEntityId) {
-        return Set.of(new EnabledIdpPredicate(), new OnboardingIdpPredicate(transactionEntityId, null), new SingleIdpEnabledPredicate(), new NewUserIdpPredicate());
+    private Predicate<IdentityProviderConfig> andPredicates(Stream<Predicate<IdentityProviderConfig>> predicates){
+        return predicates.reduce(Predicate::and).orElseThrow();
     }
 }

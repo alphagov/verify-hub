@@ -19,7 +19,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -205,35 +204,6 @@ public class IdentityProviderResourceIntegrationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
-    @Test
-    @Deprecated
-    public void getIdpList_returnsOkAndIdps() {
-        String transactionId = "";
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.IDP_LIST_RESOURCE).queryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM, transactionId).build();
-        Response response = client.target(uri).request().get();
-        List<IdpDto> returnedIdps = response.readEntity(new GenericType<List<IdpDto>>(){});
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(returnedIdps).isNotEmpty();
-        assertThat(returnedIdps).extracting("entityId").doesNotContain(ENABLED_FOR_ONBOARDING_RP_IDP);
-    }
-
-    @Test
-    public void deprecated_getEnabledIdentityProviderEntityIds_returnsOkAndIdps() {
-        String transactionId = ONBOARDING_RP;
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_RESOURCE).queryParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM, transactionId).build();
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(Collection.class)).contains(ENABLED_FOR_ONBOARDING_RP_IDP);
-    }
-
-    @Test
-    public void deprecated_getEnabledIdentityProviderEntityIdsPathParam_returnOkAndIdps() {
-        String entityId = ONBOARDING_RP;
-        Response response = getIdpList(entityId, Urls.ConfigUrls.ENABLED_IDENTITY_PROVIDERS_PARAM_PATH_RESOURCE);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(Collection.class)).contains(ENABLED_FOR_ONBOARDING_RP_IDP);
-    }
 
     @Test
     public void getEnabledIdentityProviderEntityIdsForLoa_returnsOkAndIdps() {

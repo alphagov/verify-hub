@@ -6,7 +6,6 @@ import uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
@@ -89,19 +88,6 @@ public class IdentityProviderConfigTest {
         IdentityProviderConfig data = dataBuilder.build();
         data.provideAuthenticationUntil = "2020-09-09";
         data.isAuthenticationEnabled();
-    }
-
-    @Test
-    public void shouldCheckThatIsOnboardingForTransactionEntity() {
-        final IdentityProviderConfig dataWithoutOnboarding = dataBuilder.withEntityId("EID").build();
-        assertThat(dataWithoutOnboarding.isOnboardingForTransactionEntity("EID")).isFalse();
-
-        final IdentityProviderConfig data = dataBuilder
-                .withOnboarding(List.of("EID_O","EID_OT"))
-                .build();
-
-        assertThat(data.isOnboardingForTransactionEntity("EID_O")).isTrue();
-        assertThat(data.isOnboardingForTransactionEntity("EID_OT")).isTrue();
     }
 
     @Test

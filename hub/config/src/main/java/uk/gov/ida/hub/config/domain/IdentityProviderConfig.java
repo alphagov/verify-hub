@@ -84,6 +84,10 @@ public class IdentityProviderConfig implements EntityIdentifiable {
         return supportedLevelsOfAssurance;
     }
 
+    public boolean supportsLoa(LevelOfAssurance levelOfAssurance) {
+        return supportedLevelsOfAssurance.contains(levelOfAssurance);
+    }
+
     public String getSimpleId() {
         return simpleId;
     }
@@ -114,7 +118,7 @@ public class IdentityProviderConfig implements EntityIdentifiable {
         }
 
         DateTime provideAuthenticationUntilDate = DateTime.parse(provideAuthenticationUntil, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ"));
-        
+
         return provideAuthenticationUntilDate.isAfterNow();
     }
 
@@ -126,8 +130,12 @@ public class IdentityProviderConfig implements EntityIdentifiable {
         return onboardingTransactionEntityIds;
     }
 
-    public boolean isOnboardingForTransactionEntity(String transactionEntity) {
-        return this.getOnboardingTransactionEntityIds().contains(transactionEntity);
+    public boolean isOnboardingForTransactionEntityAtLoa(String transactionEntity, LevelOfAssurance levelOfAssurance){
+        boolean isOnboarding = levelOfAssurance != null ?
+                isOnboardingAtLoa(levelOfAssurance) :
+                isOnboardingAtAllLevels();
+
+        return !isOnboarding || getOnboardingTransactionEntityIds().contains(transactionEntity);
     }
 
     public boolean isOnboardingAtAllLevels() {

@@ -16,8 +16,8 @@ public class IdpPredicateFactoryPredicatesTest {
 
     @Test
     public void shouldReturnIdpsForLoaForNonOnboardingTransactionEntity() {
-        final Set<Predicate<IdentityProviderConfig>> loa1Predicate = idpPredicateFactory
-                .createPredicatesForTransactionEntityAndLoa(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);
+        final Predicate<IdentityProviderConfig> loa1Predicate = idpPredicateFactory
+                .createPredicateForTransactionEntityAndLoa(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);
 
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
 
@@ -29,8 +29,8 @@ public class IdpPredicateFactoryPredicatesTest {
 
     @Test
     public void shouldReturnIdpsForLoaForOnboardingTransactionEntity() {
-        final Set<Predicate<IdentityProviderConfig>> loa1PredicateOnboarding = idpPredicateFactory
-                .createPredicatesForTransactionEntityAndLoa(transactionEntityOnboarding, LevelOfAssurance.LEVEL_1);
+        final Predicate<IdentityProviderConfig> loa1PredicateOnboarding = idpPredicateFactory
+                .createPredicateForTransactionEntityAndLoa(transactionEntityOnboarding, LevelOfAssurance.LEVEL_1);
 
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1PredicateOnboarding);
 
@@ -42,8 +42,8 @@ public class IdpPredicateFactoryPredicatesTest {
 
     @Test
     public void shouldReturnIdpsForSignInForNonOnboardingTransactionEntity() {
-        final Set<Predicate<IdentityProviderConfig>> signInPredicateNonOnboarding = idpPredicateFactory
-                .createPredicatesForSignIn(transactionEntityNonOnboarding);
+        final Predicate<IdentityProviderConfig> signInPredicateNonOnboarding = idpPredicateFactory
+                .createPredicateForSignIn(transactionEntityNonOnboarding);
 
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, signInPredicateNonOnboarding);
 
@@ -57,8 +57,8 @@ public class IdpPredicateFactoryPredicatesTest {
 
     @Test
     public void shouldReturnIdpsForSignInForOnboardingTransactionEntity() {
-        final Set<Predicate<IdentityProviderConfig>> signInPredicateOnboarding = idpPredicateFactory
-                .createPredicatesForSignIn(transactionEntityOnboarding);
+        final Predicate<IdentityProviderConfig> signInPredicateOnboarding = idpPredicateFactory
+                .createPredicateForSignIn(transactionEntityOnboarding);
 
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, signInPredicateOnboarding);
 
