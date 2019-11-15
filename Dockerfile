@@ -1,4 +1,4 @@
-FROM gradle:5.1.0-jdk11 as base-image
+FROM gradle:5.5.1-jdk11 as base-image
 USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
 
