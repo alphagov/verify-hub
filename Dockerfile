@@ -21,7 +21,7 @@ RUN gradle --console=plain \
     :hub:shared:build \
     :hub:shared:test
 
-FROM gradle:5.1.0-jdk11 as build-app
+FROM gradle:5.5.1-jdk11 as build-app
 USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
 
