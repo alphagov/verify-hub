@@ -17,6 +17,7 @@ import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.impl.SignatureImpl;
+import uk.gov.ida.eidas.logging.EidasAttributesLogger;
 import uk.gov.ida.hub.samlengine.builders.BuilderHelper;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
@@ -36,7 +37,6 @@ import uk.gov.ida.saml.core.test.builders.MatchingDatasetAttributeStatementBuild
 import uk.gov.ida.saml.core.test.builders.SignatureBuilder;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
-import uk.gov.ida.saml.hub.domain.EidasAttributesLogger;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
