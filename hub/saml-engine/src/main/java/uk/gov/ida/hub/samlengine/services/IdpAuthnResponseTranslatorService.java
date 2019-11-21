@@ -5,8 +5,6 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.eidas.logging.EidasAttributesLogger;
-import uk.gov.ida.eidas.logging.EidasResponseAttributesHashLogger;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
@@ -18,11 +16,12 @@ import uk.gov.ida.hub.samlengine.logging.UnknownMethodAlgorithmLogger;
 import uk.gov.ida.hub.samlengine.logging.VerifiedAttributesLogger;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.domain.InboundResponseFromIdpData;
+import uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
+import uk.gov.ida.saml.hub.domain.EidasAttributesLogger;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
-import uk.gov.ida.saml.hub.factories.UserIdHashFactory;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 
@@ -65,9 +64,7 @@ public class IdpAuthnResponseTranslatorService {
         try {
             String matchingServiceEntityId = samlResponseDto.getMatchingServiceEntityId();
             if (transactionsConfigProxy.isProxyNodeEntityId(matchingServiceEntityId)) {
-                samlResponseToIdaResponseIssuedByIdpTransformer.setEidasAttributesLogger(
-                        new EidasAttributesLogger(EidasResponseAttributesHashLogger::instance, new UserIdHashFactory(matchingServiceEntityId))
-                );
+                samlResponseToIdaResponseIssuedByIdpTransformer.setEidasAttributesLogger(new EidasAttributesLogger(EidasResponseAttributesHashLogger::instance, matchingServiceEntityId));
             }
             InboundResponseFromIdp idaResponseFromIdp = samlResponseToIdaResponseIssuedByIdpTransformer.apply(response);
             UnknownMethodAlgorithmLogger.probeResponseForMethodAlgorithm(idaResponseFromIdp);
