@@ -494,7 +494,12 @@ public class SamlEngineModule extends AbstractModule {
     private URI configUri(SamlEngineConfiguration configurations) {
         return configurations.getConfigUri();
     }
-
+    @Provides
+    @Singleton
+    @Config
+    private long cacheExpiryInSeconds(SamlEngineConfiguration configurations) {
+        return configurations.getCertificatesConfigCacheExpiryInSeconds();
+    }
     @Provides
     @SuppressWarnings("unused")
     private OutboundLegacyResponseFromHubToStringFunction getOutboundLegacyResponseFromHubToSignedResponseTransformerProvider(

@@ -31,14 +31,16 @@ httpClient:
   validateAfterInactivityPeriod: 5s
 
 infinispan:
-  bindAddress: 
-  initialHosts: 
-  clusterName: 
+  bindAddress:
+  initialHosts:
+  clusterName:
   type: standalone
   expiration: 8h
   persistenceToFileEnabled: false
 
 configUri: ${CONFIG_URL}
+
+cacheExpiryInSeconds: 20
 
 serviceInfo:
   name: saml-engine

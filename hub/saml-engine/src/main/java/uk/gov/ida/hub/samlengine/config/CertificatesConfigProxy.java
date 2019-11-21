@@ -26,31 +26,35 @@ public class CertificatesConfigProxy {
     private final JsonClient jsonClient;
     private final URI configUri;
 
-    private LoadingCache<URI, CertificateDto> encryptionCertificates = CacheBuilder.newBuilder()
-            .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<>() {
-                @Override
-                public CertificateDto load(URI key) {
-                    return jsonClient.get(key, CertificateDto.class);
-                }
-            });
-    private LoadingCache<URI, Collection<CertificateDto>> signingCertificates = CacheBuilder.newBuilder()
-            .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(new CacheLoader<URI, Collection<CertificateDto>>() {
-                @Override
-                public Collection<CertificateDto> load(URI key) {
-                    return jsonClient.get(key, new GenericType<Collection<CertificateDto>>() {
-                    });
-                }
-            });
+    private final LoadingCache<URI, CertificateDto> encryptionCertificates; 
+    private final LoadingCache<URI, Collection<CertificateDto>> signingCertificates; 
 
     @Inject
     public CertificatesConfigProxy(
             JsonClient jsonClient,
-            @Config URI configUri) {
+            @Config URI configUri,
+            @Config long cacheExpiryInSeconds
+    ) {
 
         this.jsonClient = jsonClient;
         this.configUri = configUri;
+        this.encryptionCertificates = CacheBuilder.newBuilder()
+                .expireAfterWrite(cacheExpiryInSeconds, TimeUnit.SECONDS)
+                .build(new CacheLoader<>() {
+                    @Override
+                    public CertificateDto load(URI key) {
+                        return jsonClient.get(key, CertificateDto.class);
+                    }
+                });
+        this.signingCertificates = CacheBuilder.newBuilder()
+                .expireAfterWrite(cacheExpiryInSeconds, TimeUnit.SECONDS)
+                .build(new CacheLoader<URI, Collection<CertificateDto>>() {
+                    @Override
+                    public Collection<CertificateDto> load(URI key) {
+                        return jsonClient.get(key, new GenericType<Collection<CertificateDto>>() {
+                        });
+                    }
+                });
     }
 
     @Timed
