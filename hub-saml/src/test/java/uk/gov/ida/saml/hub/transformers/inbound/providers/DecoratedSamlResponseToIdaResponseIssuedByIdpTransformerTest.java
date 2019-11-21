@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
-import uk.gov.ida.saml.hub.domain.EidasAttributesLogger;
+import uk.gov.ida.eidas.logging.EidasAttributesLogger;
 import uk.gov.ida.saml.hub.transformers.inbound.IdaResponseFromIdpUnmarshaller;
 import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
