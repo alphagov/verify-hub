@@ -49,7 +49,7 @@ rpTrustStoreConfiguration:
   enabled: ${RP_TRUSTSTORE_ENABLED:-true}
 logging:
   loggers:
-    uk.gov.ida.eidas.logging.EidasResponseAttributesHashLogger:
+    uk.gov.ida.saml.core.transformers.EidasResponseAttributesHashLogger:
       level: INFO
       additive: true
       appenders:
