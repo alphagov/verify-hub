@@ -11,6 +11,7 @@ import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.util.Duration;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.sync.RedisCommands;
@@ -494,12 +495,14 @@ public class SamlEngineModule extends AbstractModule {
     private URI configUri(SamlEngineConfiguration configurations) {
         return configurations.getConfigUri();
     }
+
     @Provides
     @Singleton
     @Config
-    private long cacheExpiryInSeconds(SamlEngineConfiguration configurations) {
-        return configurations.getCertificatesConfigCacheExpiryInSeconds();
+    private long cacheExpiry(SamlEngineConfiguration configurations) {
+        return configurations.getCertificatesConfigCacheExpiry().toSeconds();
     }
+
     @Provides
     @SuppressWarnings("unused")
     private OutboundLegacyResponseFromHubToStringFunction getOutboundLegacyResponseFromHubToSignedResponseTransformerProvider(

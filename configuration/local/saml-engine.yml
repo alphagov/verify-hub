@@ -40,7 +40,7 @@ infinispan:
 
 configUri: ${CONFIG_URL}
 
-cacheExpiryInSeconds: 20
+certificatesConfigCacheExpiry: 20s
 
 serviceInfo:
   name: saml-engine

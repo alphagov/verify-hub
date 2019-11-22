@@ -23,7 +23,6 @@ import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Optional;
@@ -101,10 +100,10 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @JsonProperty
     protected URI configUri;
 
-    @Valid
-    @Min(1)
+    //@Valid
+    //@NotNull
     @JsonProperty
-    protected long certificatesConfigCacheExpiryInSeconds;
+    protected Duration certificatesConfigCacheExpiry;
 
     @Valid
     @NotNull
@@ -166,8 +165,8 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
         return configUri;
     }
 
-    public long getCertificatesConfigCacheExpiryInSeconds() {
-        return certificatesConfigCacheExpiryInSeconds;
+    public Duration getCertificatesConfigCacheExpiry() {
+        return certificatesConfigCacheExpiry;
     }
 
     public ServiceInfoConfiguration getServiceInfo() {
