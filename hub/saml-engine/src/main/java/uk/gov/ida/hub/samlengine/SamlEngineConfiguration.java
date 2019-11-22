@@ -103,6 +103,11 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Valid
     @NotNull
     @JsonProperty
+    protected Duration certificatesConfigCacheExpiry;
+
+    @Valid
+    @NotNull
+    @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
     public SamlConfiguration getSamlConfiguration() {
@@ -158,6 +163,10 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
 
     public URI getConfigUri() {
         return configUri;
+    }
+
+    public Duration getCertificatesConfigCacheExpiry() {
+        return certificatesConfigCacheExpiry;
     }
 
     public ServiceInfoConfiguration getServiceInfo() {

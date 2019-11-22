@@ -40,6 +40,8 @@ infinispan:
 
 configUri: ${CONFIG_URL}
 
+certificatesConfigCacheExpiry: 1m
+
 serviceInfo:
   name: saml-engine
 
