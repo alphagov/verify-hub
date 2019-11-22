@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import engineering.reliability.gds.metrics.config.PrometheusConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
+import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.JerseyClientWithRetryBackoffConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
@@ -88,6 +89,11 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Valid
     @NotNull
     @JsonProperty
+    protected Duration certificatesConfigCacheExpiry;
+
+    @Valid
+    @NotNull
+    @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
     @Valid
@@ -138,6 +144,10 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
 
     public URI getConfigUri() {
         return configUri;
+    }
+
+    public Duration getCertificatesConfigCacheExpiry() {
+        return certificatesConfigCacheExpiry;
     }
 
     public ServiceInfoConfiguration getServiceInfo() {
