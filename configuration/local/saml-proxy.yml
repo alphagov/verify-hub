@@ -35,6 +35,8 @@ frontendExternalUri: ${FRONTEND_URL}
 
 configUri: ${CONFIG_URL}
 
+certificatesConfigCacheExpiry: 1m
+
 eventSinkUri: ${EVENT_SINK_URL}
 
 policyUri: ${POLICY_URL}
