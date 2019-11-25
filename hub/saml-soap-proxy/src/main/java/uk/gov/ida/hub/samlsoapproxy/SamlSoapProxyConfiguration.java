@@ -89,7 +89,7 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Valid
     @NotNull
     @JsonProperty
-    protected Duration certificatesConfigCacheExpiry;
+    protected Duration certificatesConfigCacheExpiry = Duration.minutes(5);
 
     @Valid
     @NotNull

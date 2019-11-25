@@ -84,7 +84,7 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @Valid
     @NotNull
     @JsonProperty
-    protected Duration certificatesConfigCacheExpiry;
+    protected Duration certificatesConfigCacheExpiry = Duration.minutes(5);
 
     @Valid
     @NotNull

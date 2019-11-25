@@ -103,7 +103,7 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Valid
     @NotNull
     @JsonProperty
-    protected Duration certificatesConfigCacheExpiry;
+    protected Duration certificatesConfigCacheExpiry = Duration.minutes(5);
 
     @Valid
     @NotNull
