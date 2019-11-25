@@ -25,9 +25,6 @@ import java.util.Optional;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SamlSoapProxyConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, PrometheusConfiguration {
 
-    protected SamlSoapProxyConfiguration() {
-    }
-
     @Valid
     @NotNull
     @JsonProperty
@@ -104,6 +101,9 @@ public class SamlSoapProxyConfiguration extends Configuration implements Restful
     @Valid
     @JsonProperty
     private PrometheusClientServiceConfiguration matchingServiceHealthCheckServiceConfiguration = new PrometheusClientServiceConfiguration();
+
+    protected SamlSoapProxyConfiguration() {
+    }
 
     public SamlConfiguration getSamlConfiguration() {
         return saml;
