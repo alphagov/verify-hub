@@ -25,8 +25,6 @@ import java.util.Optional;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SamlProxyConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, PrometheusConfiguration {
 
-    protected SamlProxyConfiguration(){}
-
     @Valid
     @NotNull
     @JsonProperty
@@ -84,6 +82,11 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @Valid
     @NotNull
     @JsonProperty
+    protected Duration certificatesConfigCacheExpiry = Duration.minutes(5);
+
+    @Valid
+    @NotNull
+    @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
 
     @Valid
@@ -93,6 +96,8 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @Valid
     @JsonProperty
     public EventEmitterConfiguration eventEmitterConfiguration;
+
+    protected SamlProxyConfiguration(){}
 
     public SamlConfiguration getSamlConfiguration() {
         return saml;
@@ -125,6 +130,10 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
 
     public URI getConfigUri() {
         return configUri;
+    }
+
+    public Duration getCertificatesConfigCacheExpiry() {
+        return certificatesConfigCacheExpiry;
     }
 
     public ServiceInfoConfiguration getServiceInfo() {

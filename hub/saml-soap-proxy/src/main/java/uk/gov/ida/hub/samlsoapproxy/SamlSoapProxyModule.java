@@ -264,6 +264,13 @@ public class SamlSoapProxyModule extends AbstractModule {
     }
 
     @Provides
+    @Config
+    @Singleton
+    public long certificatesConfigCacheExpiryInSeconds(SamlSoapProxyConfiguration configuration) {
+        return configuration.getCertificatesConfigCacheExpiry().toSeconds();
+    }
+
+    @Provides
     @Singleton
     public EventSinkProxy eventSinkProxy(JsonClient jsonClient, SamlSoapProxyConfiguration samlSoapProxyConfiguration, Environment environment) {
         URI eventSinkUri = samlSoapProxyConfiguration.getEventSinkUri();

@@ -117,7 +117,8 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
                 config("metadata.hubTrustStore.path", hubTrustStore.getAbsolutePath()),
                 config("metadata.hubTrustStore.password", hubTrustStore.getPassword()),
                 config("metadata.idpTrustStore.path", idpTrustStore.getAbsolutePath()),
-                config("metadata.idpTrustStore.password", idpTrustStore.getPassword())
+                config("metadata.idpTrustStore.password", idpTrustStore.getPassword()),
+                config("certificatesConfigCacheExpiry", "20s")
         ).collect(Collectors.toList());
 
         if (isCountryEnabled) {

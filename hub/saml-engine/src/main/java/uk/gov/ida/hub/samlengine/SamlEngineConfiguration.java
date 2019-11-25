@@ -32,8 +32,6 @@ import static com.google.common.base.Optional.absent;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SamlEngineConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, InfinispanServiceConfiguration, SamlDuplicateRequestValidationConfiguration, SamlAuthnRequestValidityDurationConfiguration, PrometheusConfiguration {
 
-    protected SamlEngineConfiguration() {}
-
     @Valid
     @NotNull
     @JsonProperty
@@ -103,7 +101,14 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Valid
     @NotNull
     @JsonProperty
+    protected Duration certificatesConfigCacheExpiry = Duration.minutes(5);
+
+    @Valid
+    @NotNull
+    @JsonProperty
     protected ClientTrustStoreConfiguration rpTrustStoreConfiguration;
+
+    protected SamlEngineConfiguration() {}
 
     public SamlConfiguration getSamlConfiguration() {
         return saml;
@@ -158,6 +163,10 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
 
     public URI getConfigUri() {
         return configUri;
+    }
+
+    public Duration getCertificatesConfigCacheExpiry() {
+        return certificatesConfigCacheExpiry;
     }
 
     public ServiceInfoConfiguration getServiceInfo() {

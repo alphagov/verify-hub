@@ -39,6 +39,7 @@ redis:
   recordTTL: PT120m
   uri: ${REDIS_HOST}
 configUri: https://config.${DOMAIN}
+certificatesConfigCacheExpiry: ${CERTIFICATES_CONFIG_CACHE_EXPIRY:-5m}
 samlSoapProxyUri: https://saml-soap-proxy.${DOMAIN}
 serviceInfo:
   name: saml-engine

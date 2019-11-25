@@ -496,6 +496,14 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
+    @Singleton
+    @Config
+    @SuppressWarnings("unused")
+    private long certificatesConfigCacheExpiryInSeconds(SamlEngineConfiguration configuration) {
+        return configuration.getCertificatesConfigCacheExpiry().toSeconds();
+    }
+
+    @Provides
     @SuppressWarnings("unused")
     private OutboundLegacyResponseFromHubToStringFunction getOutboundLegacyResponseFromHubToSignedResponseTransformerProvider(
             EncryptionKeyStore encryptionKeyStore,

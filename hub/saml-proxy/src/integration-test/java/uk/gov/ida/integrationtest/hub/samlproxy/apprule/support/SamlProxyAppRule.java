@@ -95,6 +95,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
                 config("metadata.hubTrustStore.password", hubTrustStore.getPassword()),
                 config("metadata.idpTrustStore.path", idpTrustStore.getAbsolutePath()),
                 config("metadata.idpTrustStore.password", idpTrustStore.getPassword()),
+                config("certificatesConfigCacheExpiry", "20s"),
                 config("eventEmitterConfiguration.enabled", "false")
         ).collect(Collectors.toList());
 

@@ -64,6 +64,8 @@ eventSinkUri: ${EVENT_SINK_URL}
 
 policyUri: ${POLICY_URL}
 
+certificatesConfigCacheExpiry: 1m
+
 serviceInfo:
   name: saml-soap-proxy
 

@@ -386,6 +386,12 @@ public class SamlProxyModule extends AbstractModule {
     }
 
     @Provides
+    @Config
+    public long certificatesConfigCacheExpiryInSeconds(SamlProxyConfiguration configuration) {
+        return configuration.certificatesConfigCacheExpiry.toSeconds();
+    }
+
+    @Provides
     @Singleton
     public EventSinkProxy eventSinkProxy(JsonClient jsonClient, SamlProxyConfiguration samlProxyConfiguration, Environment environment) {
         URI eventSinkUri = samlProxyConfiguration.getEventSinkUri();
