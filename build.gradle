@@ -5,8 +5,7 @@ buildscript {
             maven { url 'https://dl.bintray.com/alphagov/maven-test' }
             maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
             jcenter()
-        }
-        else {
+        } else {
             maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
         }
     }
@@ -62,8 +61,7 @@ subprojects {
             maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
             maven { url 'https://splunk.jfrog.io/splunk/ext-releases-local' }
             jcenter()
-        }
-        else {
+        } else {
             maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
         }
     }
@@ -112,11 +110,11 @@ subprojects {
                 "com.sun.xml.bind:jaxb-core:2.3.0.1",
                 "com.sun.xml.bind:jaxb-impl:2.3.0.1"
 
-        dropwizard 'io.dropwizard:dropwizard-core:' + dependencyVersions.dropwizard,
-                'io.dropwizard:dropwizard-client:' + dependencyVersions.dropwizard,
-                'io.dropwizard:dropwizard-auth:' + dependencyVersions.dropwizard,
-                'io.dropwizard:dropwizard-configuration:' + dependencyVersions.dropwizard,
-                'io.dropwizard:dropwizard-metrics-graphite:' + dependencyVersions.dropwizard,
+        dropwizard "io.dropwizard:dropwizard-core:$dependencyVersions.dropwizard",
+                "io.dropwizard:dropwizard-client:$dependencyVersions.dropwizard",
+                "io.dropwizard:dropwizard-auth:$dependencyVersions.dropwizard",
+                "io.dropwizard:dropwizard-configuration:$dependencyVersions.dropwizard",
+                "io.dropwizard:dropwizard-metrics-graphite:$dependencyVersions.dropwizard",
                 'com.hubspot.dropwizard:dropwizard-guicier:1.0.0.6',
                 'org.reflections:reflections:0.9.10',
                 'com.tradier:dropwizard-raven:1.0.0-1'
@@ -157,13 +155,7 @@ subprojects {
         test_utils "io.dropwizard:dropwizard-testing:$dependencyVersions.dropwizard",
                 "org.junit.jupiter:junit-jupiter-api:5.5.2",
                 "org.mockito:mockito-junit-jupiter:3.2.0",
-                'org.assertj:assertj-core:3.14.0',
-                'org.eclipse.jetty:jetty-server:9.0.7.v20131107',
-                'com.google.guava:guava:16.0',
-                'commons-lang:commons-lang:2.6',
-                'commons-io:commons-io:2.4',
-                "io.dropwizard:dropwizard-jackson:$dependencyVersions.dropwizard",
-                "io.dropwizard:dropwizard-client:$dependencyVersions.dropwizard"
+                'org.assertj:assertj-core:3.14.0'
 
         def test_deps_deps = [
                 'org.json:json:20170516',
@@ -195,7 +187,7 @@ subprojects {
 
 task jacocoMerge(type: JacocoMerge) {
     destinationFile = file("$buildDir/jacoco/allTestCoverage.exec")
-    executionData = project.fileTree(dir: '.', include:'**/build/jacoco/*est.exec')
+    executionData = project.fileTree(dir: '.', include: '**/build/jacoco/*est.exec')
     jacocoClasspath = project.files(project.configurations.jacocoAnt)
 }
 
@@ -217,7 +209,7 @@ task jacocoRootReport(type: JacocoReport) {
 }
 
 task downloadDependencies(type: Exec) {
-    configurations.testRuntime.files
+    configurations.testRuntimeClasspath.files
     commandLine 'echo', 'Downloaded all dependencies'
 }
 
@@ -230,6 +222,7 @@ task(outputDependencies) doLast {
 }
 
 import javax.crypto.Cipher
+
 task(checkJceInstalled) doLast {
     if (Cipher.getMaxAllowedKeyLength('AES') <= 128) {
         throw new GradleException("""ERROR: You need to have the unlimited strength JCE installed.

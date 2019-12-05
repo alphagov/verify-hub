@@ -1,10 +1,10 @@
 dependencies {
-    testCompile configurations.test_deps_compile,
+    testImplementation configurations.test_deps_compile,
             configurations.test_utils,
             configurations.dev_pki,
             configurations.s3mock
 
-    compile configurations.ida_utils,
+    implementation configurations.ida_utils,
             configurations.config,
             configurations.dropwizard,
             configurations.common,
@@ -16,7 +16,7 @@ apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.hub.config.ConfigApplication'
 mainClassName = ext.mainclass
 
-task jarTest (type: Jar) {
+task jarTest(type: Jar) {
     from sourceSets.test.output
     classifier = 'test'
 }

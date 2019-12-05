@@ -1,9 +1,10 @@
 dependencies {
-    testCompile configurations.test_deps_compile
+    testImplementation configurations.test_deps_compile
 
-    compile configurations.ida_utils,
+    implementation configurations.ida_utils,
             configurations.common,
             configurations.dropwizard,
+            configurations.verify_event_emitter,
             project(':hub:shared')
 }
 

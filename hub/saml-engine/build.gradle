@@ -1,12 +1,12 @@
 dependencies {
-    testCompile configurations.test_deps_compile,
+    testImplementation configurations.test_deps_compile,
             configurations.pact_test,
             configurations.test_utils,
             configurations.redis_test,
             project(':hub-saml-test-utils'),
             'org.infinispan:infinispan-core:7.1.1.Final:tests'
 
-    compile configurations.dropwizard,
+    implementation configurations.dropwizard,
             configurations.dropwizard_infinispan,
             configurations.saml,
             configurations.soap,
