@@ -2,6 +2,7 @@ package uk.gov.ida.hub.samlengine.logging;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import org.joda.time.DateTime;
@@ -38,8 +39,7 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.hub.samlengine.builders.AuthnRequestFromRelyingPartyBuilder.anAuthnRequestFromRelyingParty;
@@ -59,9 +59,9 @@ public class UnknownMethodAlgorithmLoggerTest {
         IdaSamlBootstrap.bootstrap();
     }
 
-    private static final SignatureAlgorithm SIGNATURE_RSASHA256 = new SignatureRSASHA256();
-    private static final SignatureAlgorithm SIGNATURE_RSASHA1 = new SignatureRSASHA1();
-    private static final String SIGNATURE_RSASHA1_ID = SIGNATURE_RSASHA1.getURI();
+    private static final SignatureAlgorithm SIGNATURE_RSA_SHA256 = new SignatureRSASHA256();
+    private static final SignatureAlgorithm SIGNATURE_RSA_SHA1 = new SignatureRSASHA1();
+    private static final String SIGNATURE_RSA_SHA1_ID = SIGNATURE_RSA_SHA1.getURI();
     private static final DigestAlgorithm DIGEST_SHA256 = new DigestSHA256();
     private static final DigestAlgorithm DIGEST_SHA1 = new DigestSHA1();
     private static final String DIGEST_SHA1_ID = DIGEST_SHA1.getJCAAlgorithmID();
@@ -84,20 +84,20 @@ public class UnknownMethodAlgorithmLoggerTest {
     private static Optional<Signature> signatureWithUnknownSignatureAndDigestAlgorithms;
 
     @Mock
-    private Appender mockAppender;
+    private Appender<ILoggingEvent> mockAppender;
 
     @Captor
     private ArgumentCaptor<LoggingEvent> captorLoggingEvent;
 
     private static void verifyLog(
-            final Appender mockAppender,
+            final Appender<ILoggingEvent> mockAppender,
             final ArgumentCaptor<LoggingEvent> captorLoggingEvent,
             final int expectedNumOfInvocations,
             final String expectedLogMessage) {
         verify(mockAppender, times(expectedNumOfInvocations)).doAppend(captorLoggingEvent.capture());
         final LoggingEvent loggingEvent = captorLoggingEvent.getValue();
-        assertThat(loggingEvent.getLevel(), is(Level.INFO));
-        assertThat(loggingEvent.getFormattedMessage(), is(expectedLogMessage));
+        assertThat(loggingEvent.getLevel()).isEqualTo(Level.INFO);
+        assertThat(loggingEvent.getFormattedMessage()).isEqualTo(expectedLogMessage);
     }
 
     @Before
@@ -108,19 +108,19 @@ public class UnknownMethodAlgorithmLoggerTest {
 
         signature = Optional.of(SignatureBuilder.aSignature().build());
         SignatureImpl signatureImpl = ((SignatureImpl) signature.get());
-        signatureImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSASHA256, DIGEST_SHA256));
+        signatureImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSA_SHA256, DIGEST_SHA256));
 
-        signatureWithUnknownSignatureAlgorithm = Optional.of(SignatureBuilder.aSignature().withSignatureAlgorithm(SIGNATURE_RSASHA1).build());
+        signatureWithUnknownSignatureAlgorithm = Optional.of(SignatureBuilder.aSignature().withSignatureAlgorithm(SIGNATURE_RSA_SHA1).build());
         SignatureImpl signatureWithUnknownSignatureAlgorithmImpl = ((SignatureImpl) signatureWithUnknownSignatureAlgorithm.get());
-        signatureWithUnknownSignatureAlgorithmImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSASHA1, DIGEST_SHA256));
+        signatureWithUnknownSignatureAlgorithmImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSA_SHA1, DIGEST_SHA256));
 
         signatureWithUnknownDigestAlgorithm = Optional.of(SignatureBuilder.aSignature().withDigestAlgorithm(ID, DIGEST_SHA1).build());
         SignatureImpl signatureWithUnknownDigestAlgorithmImpl = ((SignatureImpl) signatureWithUnknownDigestAlgorithm.get());
-        signatureWithUnknownDigestAlgorithmImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSASHA256, DIGEST_SHA1));
+        signatureWithUnknownDigestAlgorithmImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSA_SHA256, DIGEST_SHA1));
 
-        signatureWithUnknownSignatureAndDigestAlgorithms = Optional.of(SignatureBuilder.aSignature().withSignatureAlgorithm(SIGNATURE_RSASHA1).withDigestAlgorithm(ID, DIGEST_SHA1).build());
+        signatureWithUnknownSignatureAndDigestAlgorithms = Optional.of(SignatureBuilder.aSignature().withSignatureAlgorithm(SIGNATURE_RSA_SHA1).withDigestAlgorithm(ID, DIGEST_SHA1).build());
         SignatureImpl signatureWithUnknownSignatureAndDigestAlgorithmsImpl = ((SignatureImpl) signatureWithUnknownSignatureAndDigestAlgorithms.get());
-        signatureWithUnknownSignatureAndDigestAlgorithmsImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSASHA1, DIGEST_SHA1));
+        signatureWithUnknownSignatureAndDigestAlgorithmsImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSA_SHA1, DIGEST_SHA1));
     }
 
     @After
@@ -165,7 +165,7 @@ public class UnknownMethodAlgorithmLoggerTest {
 
         verifyLog(mockAppender, captorLoggingEvent, 1,
                 String.format(UnknownMethodAlgorithmLogger.SIGNATURE_ALGORITHM_MESSAGE,
-                        IDP, SIGNATURE_RSASHA1_ID, Response.DEFAULT_ELEMENT_LOCAL_NAME));
+                        IDP, SIGNATURE_RSA_SHA1_ID, Response.DEFAULT_ELEMENT_LOCAL_NAME));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class UnknownMethodAlgorithmLoggerTest {
 
         verifyLog(mockAppender, captorLoggingEvent, 1,
                 String.format(UnknownMethodAlgorithmLogger.SIGNATURE_AND_DIGEST_ALGORITHMS_MESSAGE,
-                        IDP, SIGNATURE_RSASHA1_ID, DIGEST_SHA1_ID, Response.DEFAULT_ELEMENT_LOCAL_NAME));
+                        IDP, SIGNATURE_RSA_SHA1_ID, DIGEST_SHA1_ID, Response.DEFAULT_ELEMENT_LOCAL_NAME));
     }
 
     @Test
@@ -232,7 +232,7 @@ public class UnknownMethodAlgorithmLoggerTest {
 
         verifyLog(mockAppender, captorLoggingEvent, 1,
                 String.format(UnknownMethodAlgorithmLogger.SIGNATURE_ALGORITHM_MESSAGE,
-                        IDP, SIGNATURE_RSASHA1_ID, AUTHN_STATEMENT + Assertion.DEFAULT_ELEMENT_LOCAL_NAME));
+                        IDP, SIGNATURE_RSA_SHA1_ID, AUTHN_STATEMENT + Assertion.DEFAULT_ELEMENT_LOCAL_NAME));
 
     }
 
@@ -263,7 +263,7 @@ public class UnknownMethodAlgorithmLoggerTest {
 
         verifyLog(mockAppender, captorLoggingEvent, 1,
                 String.format(UnknownMethodAlgorithmLogger.SIGNATURE_AND_DIGEST_ALGORITHMS_MESSAGE,
-                        IDP, SIGNATURE_RSASHA1_ID, DIGEST_SHA1_ID, AUTHN_STATEMENT + Assertion.DEFAULT_ELEMENT_LOCAL_NAME));
+                        IDP, SIGNATURE_RSA_SHA1_ID, DIGEST_SHA1_ID, AUTHN_STATEMENT + Assertion.DEFAULT_ELEMENT_LOCAL_NAME));
     }
 
     @Test
@@ -291,7 +291,7 @@ public class UnknownMethodAlgorithmLoggerTest {
 
         verifyLog(mockAppender, captorLoggingEvent, 1,
                 String.format(UnknownMethodAlgorithmLogger.SIGNATURE_ALGORITHM_MESSAGE,
-                        SP, SIGNATURE_RSASHA1_ID, AuthnRequest.DEFAULT_ELEMENT_LOCAL_NAME));
+                        SP, SIGNATURE_RSA_SHA1_ID, AuthnRequest.DEFAULT_ELEMENT_LOCAL_NAME));
     }
 
     @Test
@@ -321,6 +321,6 @@ public class UnknownMethodAlgorithmLoggerTest {
 
         verifyLog(mockAppender, captorLoggingEvent, 1,
                 String.format(UnknownMethodAlgorithmLogger.SIGNATURE_AND_DIGEST_ALGORITHMS_MESSAGE,
-                        SP, SIGNATURE_RSASHA1_ID, DIGEST_SHA1_ID, AuthnRequest.DEFAULT_ELEMENT_LOCAL_NAME));
+                        SP, SIGNATURE_RSA_SHA1_ID, DIGEST_SHA1_ID, AuthnRequest.DEFAULT_ELEMENT_LOCAL_NAME));
     }
 }

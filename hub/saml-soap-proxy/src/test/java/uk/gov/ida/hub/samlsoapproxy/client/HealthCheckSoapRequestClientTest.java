@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -38,9 +38,8 @@ public class HealthCheckSoapRequestClientTest {
 
     private HealthCheckSoapRequestClient healthCheckSoapRequestClient;
 
-
     @Before
-    public void setUp(){
+    public void setUp() {
         when(client.target(any(URI.class))).thenReturn(webResource);
         when(webResource.request()).thenReturn(webResourceBuilder);
         when(webResourceBuilder.post(any(Entity.class))).thenReturn(response);
@@ -48,7 +47,7 @@ public class HealthCheckSoapRequestClientTest {
         healthCheckSoapRequestClient = new HealthCheckSoapRequestClient(soapMessageManager, client);
     }
 
-    @Test (expected = ApplicationException.class)
+    @Test(expected = ApplicationException.class)
     public void makeSoapRequestForHealthCheck_shouldThrowWhenResponseNot200() throws URISyntaxException {
         when(response.getStatus()).thenReturn(502);
         URI matchingServiceUri = new URI("http://heyyeyaaeyaaaeyaeyaa.com/abc1");
@@ -64,8 +63,7 @@ public class HealthCheckSoapRequestClientTest {
         try {
             healthCheckSoapRequestClient.makeSoapRequestForHealthCheck(null, matchingServiceUri);
             fail("Exception should have been thrown");
-        }
-        catch(ApplicationException e) {
+        } catch (ApplicationException e) {
             verify(response).close();
         }
     }

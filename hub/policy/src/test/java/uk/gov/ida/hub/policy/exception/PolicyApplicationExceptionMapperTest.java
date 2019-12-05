@@ -20,7 +20,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.exceptions.ApplicationException.createAuditedException;
 import static uk.gov.ida.exceptions.ApplicationException.createUnauditedException;
@@ -61,7 +61,7 @@ public class PolicyApplicationExceptionMapperTest {
 
         mapper.toResponse(exception);
 
-        verifyZeroInteractions(eventLogger);
+        verifyNoInteractions(eventLogger);
     }
 
     @Test

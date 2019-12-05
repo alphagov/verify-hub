@@ -24,7 +24,7 @@ import java.security.cert.CertificateFactory;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 @RunWith(OpenSAMLMockitoRunner.class)
 public class HubMetadataPublicKeyStoreTest {
@@ -71,7 +71,7 @@ public class HubMetadataPublicKeyStoreTest {
         try {
             hubMetadataPublicKeyStore.getVerifyingKeysForEntity();
             fail("we expected the HubEntityMissingException");
-        } catch(HubEntityMissingException e) {
+        } catch (HubEntityMissingException e) {
             assertThat(e).hasMessage("The HUB entity-id: \"https://signin.service.gov.uk\" could not be found in the metadata. Metadata could be expired, invalid, or missing entities");
         }
     }
@@ -82,9 +82,8 @@ public class HubMetadataPublicKeyStoreTest {
         try {
             hubMetadataPublicKeyStore.getVerifyingKeysForEntity();
             fail("we expected the HubEntityMissingException");
-        } catch(HubEntityMissingException e) {
+        } catch (HubEntityMissingException e) {
             assertThat(e).hasMessage("The HUB entity-id: \"https://signin.service.gov.uk\" could not be found in the metadata. Metadata could be expired, invalid, or missing entities");
         }
     }
-
 }

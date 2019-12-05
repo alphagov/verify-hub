@@ -9,10 +9,11 @@ import uk.gov.ida.hub.samlengine.domain.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.samlengine.services.CountryMatchingServiceRequestGeneratorService;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CountryMatchingServiceRequestGeneratorResourceTest {
+
     @InjectMocks
     private CountryMatchingServiceRequestGeneratorResource resource;
 
@@ -27,6 +28,6 @@ public class CountryMatchingServiceRequestGeneratorResourceTest {
         resource.generateAttributeQuery(eidasAttributeQueryRequestDto);
 
         verify(service).generate(eidasAttributeQueryRequestDto);
-        verifyZeroInteractions(service);
+        verifyNoMoreInteractions(service);
     }
 }

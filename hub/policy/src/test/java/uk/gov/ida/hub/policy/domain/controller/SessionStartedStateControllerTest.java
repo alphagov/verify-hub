@@ -23,9 +23,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -83,7 +81,7 @@ public class SessionStartedStateControllerTest {
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue().getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
         assertThat(capturedState.getValue().getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2);
-        assertTrue(capturedState.getValue().getTransactionSupportsEidas());
+        assertThat(capturedState.getValue().getTransactionSupportsEidas()).isTrue();
         verify(hubEventLogger, times(1)).logIdpSelectedEvent(capturedState.getValue(), "some-ip-address", "some-analytics-session-id", "some-journey-id");
     }
 
@@ -107,8 +105,8 @@ public class SessionStartedStateControllerTest {
 
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue().getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_2);
-        assertTrue(capturedState.getValue().getTransactionSupportsEidas());
-        assertFalse(capturedState.getValue().getForceAuthentication().orElse(null));
+        assertThat(capturedState.getValue().getTransactionSupportsEidas()).isTrue();
+        assertThat(capturedState.getValue().getForceAuthentication().orElse(null)).isFalse();
         verify(hubEventLogger, times(1)).logCountrySelectedEvent(capturedState.getValue());
     }
 }

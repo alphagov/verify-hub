@@ -2,14 +2,10 @@ package uk.gov.ida.hub.config.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.hamcrest.core.StringContains;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import javax.validation.ConstraintViolation;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
@@ -17,16 +13,15 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.ida.hub.config.domain.builders.AssertionConsumerServiceBuilder.anAssertionConsumerService;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.shared.ValidationTestHelper.runValidations;
 
 public class TransactionConfigTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void getAssertionConsumerServiceUri_shouldReturnDefaultUriWhenNoIndexIsSpecified() throws Exception {
+    public void getAssertionConsumerServiceUri_shouldReturnDefaultUriWhenNoIndexIsSpecified() {
         URI uri = URI.create("/some-uri");
         TransactionConfig systemUnderTests = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).build())
@@ -40,7 +35,7 @@ public class TransactionConfigTest {
     }
 
     @Test
-    public void getAssertionConsumerServiceUri_shouldReturnCorrectUriWhenIndexIsSpecified() throws Exception {
+    public void getAssertionConsumerServiceUri_shouldReturnCorrectUriWhenIndexIsSpecified() {
         URI uri = URI.create("/expected-uri");
         int index = 1;
         TransactionConfig systemUnderTests = aTransactionConfigData()
@@ -55,7 +50,7 @@ public class TransactionConfigTest {
     }
 
     @Test
-    public void getAssertionConsumerServiceUri_shouldReturnAbsentWhenInvalidIndexIsSpecified() throws Exception {
+    public void getAssertionConsumerServiceUri_shouldReturnAbsentWhenInvalidIndexIsSpecified() {
         TransactionConfig systemUnderTests = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().withIndex(0).build())
                 .build();
@@ -66,7 +61,7 @@ public class TransactionConfigTest {
     }
 
     @Test
-    public void isAssertionConsumerServiceIndicesUnique_shouldReturnViolationWhenIndicesAreDuplicated() throws Exception {
+    public void isAssertionConsumerServiceIndicesUnique_shouldReturnViolationWhenIndicesAreDuplicated() {
         TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).withIndex(1).build())
                 .addAssertionConsumerService(anAssertionConsumerService().withIndex(1).build())
@@ -78,7 +73,7 @@ public class TransactionConfigTest {
     }
 
     @Test
-    public void isAssertionConsumerServiceIndicesUnique_shouldReturnNoViolationsWhenIndicesAreUnique() throws Exception {
+    public void isAssertionConsumerServiceIndicesUnique_shouldReturnNoViolationsWhenIndicesAreUnique() {
         TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).withIndex(1).build())
                 .addAssertionConsumerService(anAssertionConsumerService().withIndex(2).build())
@@ -89,7 +84,7 @@ public class TransactionConfigTest {
     }
 
     @Test
-    public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnNoViolationsWhenOneACSIsDefault() throws Exception {
+    public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnNoViolationsWhenOneACSIsDefault() {
         TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).build())
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(true).build())
@@ -100,7 +95,7 @@ public class TransactionConfigTest {
     }
 
     @Test
-    public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnViolationWhenNoACSsAreDefault() throws Exception {
+    public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnViolationWhenNoACSsAreDefault() {
         TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).build())
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(false).build())
@@ -124,16 +119,15 @@ public class TransactionConfigTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenLoadingConfigFileWithInvalidUserAccountAttributes() throws IOException {
+    public void shouldThrowExceptionWhenLoadingConfigFileWithInvalidUserAccountAttributes() {
         String badAttribute = "[ \"FIRST_NAME\", \"FIRST_NAME_VERIFIED\", \"INVALID_ATTRIBUTE\" ]";
         InputStream badAttributeStream = new ByteArrayInputStream(badAttribute.getBytes());
 
         ObjectMapper mapper = new ObjectMapper();
 
-        exception.expect(InvalidFormatException.class);
-        StringContains matcher = new StringContains("\"INVALID_ATTRIBUTE\": value not one of declared Enum instance names: [MIDDLE_NAME_VERIFIED, MIDDLE_NAME, DATE_OF_BIRTH, CURRENT_ADDRESS_VERIFIED, FIRST_NAME, SURNAME, SURNAME_VERIFIED, FIRST_NAME_VERIFIED, CURRENT_ADDRESS, DATE_OF_BIRTH_VERIFIED, ADDRESS_HISTORY, CYCLE_3]");
-        exception.expectMessage(matcher);
-
-        mapper.readValue(badAttributeStream, mapper.getTypeFactory().constructCollectionType(List.class, UserAccountCreationAttribute.class));
+        assertThatThrownBy(
+                () -> mapper.readValue(badAttributeStream, mapper.getTypeFactory().constructCollectionType(List.class, UserAccountCreationAttribute.class)))
+                .isExactlyInstanceOf(InvalidFormatException.class)
+                .hasMessageContaining("\"INVALID_ATTRIBUTE\": value not one of declared Enum instance names: [MIDDLE_NAME_VERIFIED, MIDDLE_NAME, DATE_OF_BIRTH, CURRENT_ADDRESS_VERIFIED, FIRST_NAME, SURNAME, SURNAME_VERIFIED, FIRST_NAME_VERIFIED, CURRENT_ADDRESS, DATE_OF_BIRTH_VERIFIED, ADDRESS_HISTORY, CYCLE_3]");
     }
 }

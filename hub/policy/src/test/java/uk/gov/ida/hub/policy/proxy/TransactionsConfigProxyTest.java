@@ -12,8 +12,7 @@ import uk.gov.ida.shared.utils.string.StringEncoding;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -47,11 +46,11 @@ public class TransactionsConfigProxyTest {
                 .fromUri(CONFIG_BASE_URI)
                 .path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
                 .buildFromEncoded(StringEncoding.urlEncode(entityId)
-                .replace("+", "%20"));
+                        .replace("+", "%20"));
 
         when(client.get(eq(isUsingMatchingUri), eq(boolean.class))).thenReturn(true);
 
-        assertTrue(configProxy.isUsingMatching(entityId));
+        assertThat(configProxy.isUsingMatching(entityId)).isTrue();
     }
 
     @Test
@@ -68,11 +67,11 @@ public class TransactionsConfigProxyTest {
                 .fromUri(CONFIG_BASE_URI)
                 .path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
                 .buildFromEncoded(StringEncoding.urlEncode(entityId)
-                .replace("+", "%20"));
+                        .replace("+", "%20"));
 
         when(client.get(eq(isUsingMatchingUri), eq(boolean.class))).thenReturn(false);
 
-        assertFalse(configProxy.isUsingMatching(entityId));
+        assertThat(configProxy.isUsingMatching(entityId)).isFalse();
     }
 
     @Test(expected = RuntimeException.class)

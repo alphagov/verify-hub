@@ -2,7 +2,6 @@ package uk.gov.ida.saml.hub.api;
 
 import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.apache.xml.security.utils.Base64;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +34,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class HubTransformersFactoryTest {
     private StringToOpenSamlObjectTransformer<AuthnRequest> stringToOpenSamlObjectTransformer;
 
@@ -50,47 +51,49 @@ public class HubTransformersFactoryTest {
         IdaSamlBootstrap.bootstrap();
         CoreTransformersFactory coreTransformersFactory = new CoreTransformersFactory();
         stringToOpenSamlObjectTransformer = coreTransformersFactory.
-            getStringtoOpenSamlObjectTransformer(input -> {});
+                getStringtoOpenSamlObjectTransformer(input -> {});
     }
 
     @Test
     public void shouldNotContainKeyInfoInIdaAuthnRequest() throws Exception {
         Function<IdaAuthnRequestFromHub, String> eidasTransformer = new HubTransformersFactory().getIdaAuthnRequestFromHubToStringTransformer(
-            getKeyStore(hubSigningCert),
-            signatureAlgorithm,
-            digestAlgorithm
-        );
+                getKeyStore(hubSigningCert),
+                signatureAlgorithm,
+                digestAlgorithm);
+
         IdaAuthnRequestFromHub idaAuthnRequestFromHub = IdaAuthnRequestBuilder.anIdaAuthnRequest()
-            .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_3))
-            .buildFromHub();
+                .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_3))
+                .buildFromHub();
 
         String apply = eidasTransformer.apply(idaAuthnRequestFromHub);
 
-        Assert.assertNotNull(apply);
+        assertThat(apply).isNotNull();
 
         AuthnRequest authnReq = stringToOpenSamlObjectTransformer.apply(apply);
-        Assert.assertNotNull(authnReq);
-        Assert.assertNull("The Authn Request does not contain a KeyInfo section for Verify UK", authnReq.getSignature().getKeyInfo());
+        assertThat(authnReq).isNotNull();
+        assertThat(authnReq.getSignature()).isNotNull();
+        assertThat(authnReq.getSignature().getKeyInfo()).as("The Authn Request does not contain a KeyInfo section for Verify UK").isNull();
     }
 
     @Test
     public void shouldContainKeyInfoInEidasAuthnRequestWhenHubSignCertIsPresent() throws Exception {
         Function<EidasAuthnRequestFromHub, String> eidasTransformer = new HubTransformersFactory().getEidasAuthnRequestFromHubToStringTransformer(
-            getKeyStore(hubSigningCert),
-            signatureAlgorithm,
-            digestAlgorithm
+                getKeyStore(hubSigningCert),
+                signatureAlgorithm,
+                digestAlgorithm
         );
         EidasAuthnRequestFromHub eidasAuthnRequestFromHub = EidasAuthnRequestBuilder.anEidasAuthnRequest()
-            .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_2))
-            .buildFromHub();
+                .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_2))
+                .buildFromHub();
 
         String apply = eidasTransformer.apply(eidasAuthnRequestFromHub);
 
-        Assert.assertNotNull(apply);
+        assertThat(apply).isNotNull();
 
         AuthnRequest authnReq = stringToOpenSamlObjectTransformer.apply(apply);
-        Assert.assertNotNull(authnReq);
-        Assert.assertNotNull("The Authn Request contains a KeyInfo section for eIDAS", authnReq.getSignature().getKeyInfo());
+        assertThat(authnReq).isNotNull();
+        assertThat(authnReq.getSignature()).isNotNull();
+        assertThat(authnReq.getSignature().getKeyInfo()).as("The Authn Request contains a KeyInfo section for eIDAS").isNotNull();
     }
 
     @Test

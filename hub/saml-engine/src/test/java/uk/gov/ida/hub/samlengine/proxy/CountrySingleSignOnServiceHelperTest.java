@@ -18,8 +18,7 @@ import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 import java.net.URI;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -56,7 +55,7 @@ public class CountrySingleSignOnServiceHelperTest {
         URI singleSignOnUri = service.getSingleSignOn(entityDescriptor.getEntityID());
 
         // Then
-        assertThat(singleSignOnUri.toString(), equalTo(singleSignOnService.getLocation()));
+        assertThat(singleSignOnUri.toString()).isEqualTo(singleSignOnService.getLocation());
         verify(metadataResolver).resolveSingle(any(CriteriaSet.class));
     }
 }

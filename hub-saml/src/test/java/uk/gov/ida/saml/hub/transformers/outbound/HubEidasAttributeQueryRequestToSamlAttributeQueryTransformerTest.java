@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.HubAssertionBuilder.aHubAssertion;
 import static uk.gov.ida.saml.hub.builders.HubEidasAttributeQueryRequestBuilder.aHubEidasAttributeQueryRequest;
@@ -93,7 +93,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
         assertThat(transformedQuery.getSubject().getNameID().getValue()).isEqualTo(persistentId.getNameId());
         assertThat(transformedQuery.getIssuer().getValue()).isEqualTo(hubEidasAttributeQueryRequest.getIssuer());
         assertThat(transformedQuery.getVersion()).isEqualTo(SAMLVersion.VERSION_20);
-        verifyZeroInteractions(eidasUnsignedAssertionsTransformer);
+        verifyNoInteractions(eidasUnsignedAssertionsTransformer);
         verify(encryptedAssertionUnmarshaller).transform(eq(hubEidasAttributeQueryRequest.getEncryptedIdentityAssertion()));
     }
 
@@ -224,7 +224,7 @@ public class HubEidasAttributeQueryRequestToSamlAttributeQueryTransformerTest {
         assertThat(transformedQuery.getSubject().getNameID().getValue()).isEqualTo(persistentId.getNameId());
         assertThat(transformedQuery.getIssuer().getValue()).isEqualTo(hubEidasAttributeQueryRequest.getIssuer());
         assertThat(transformedQuery.getVersion()).isEqualTo(SAMLVersion.VERSION_20);
-        verifyZeroInteractions(encryptedAssertionUnmarshaller);
+        verifyNoInteractions(encryptedAssertionUnmarshaller);
         verify(eidasUnsignedAssertionsTransformer).transform(hubEidasAttributeQueryRequest);
     }
 }

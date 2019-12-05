@@ -25,7 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -56,7 +56,7 @@ public class SoapRequestClientTest {
     }
 
     @Before
-    public void setUp(){
+    public void setUp() {
         when(soapMessageManager.wrapWithSoapEnvelope(any(Element.class))).thenReturn(document);
         when(soapMessageManager.unwrapSoapMessage(ArgumentMatchers.<Document>any())).thenReturn(soapElement);
         when(client.target(any(URI.class))).thenReturn(webResource);
@@ -74,8 +74,7 @@ public class SoapRequestClientTest {
         try {
             soapRequestClient.makeSoapRequest(null, matchingServiceUri);
             fail("Exception should have been thrown");
-        }
-        catch(SOAPRequestError e) {
+        } catch (SOAPRequestError e) {
             verify(response).close();
         }
     }
@@ -90,8 +89,8 @@ public class SoapRequestClientTest {
         try {
             soapRequestClient.makeSoapRequest(matchingServiceRequest, matchingServiceUri);
             fail("Exception should have been thrown");
+        } catch (SOAPRequestError ignored) {
         }
-        catch(SOAPRequestError e) { }
     }
 
     @Test
@@ -105,8 +104,7 @@ public class SoapRequestClientTest {
         try {
             soapRequestClient.makeSoapRequest(matchingServiceRequest, matchingServiceUri);
             fail("Exception should have been thrown");
-        }
-        catch(ProcessingException e) {
+        } catch (ProcessingException e) {
             assertThat(e).isEqualTo(exception);
         }
     }
@@ -122,15 +120,11 @@ public class SoapRequestClientTest {
         try {
             soapRequestClient.makeSoapRequest(matchingServiceRequest, matchingServiceUri);
             fail("Exception should have been thrown");
-        }
-        catch(SOAPRequestError e) {
-        }
-        finally {
+        } catch (SOAPRequestError ignored) {
+        } finally {
             verify(response).readEntity(Document.class);
         }
     }
-
-
 
     @Test
     public void makePost_aSuccessfulRequest() throws IOException, SAXException, ParserConfigurationException, URISyntaxException, SOAPRequestError {
@@ -143,5 +137,4 @@ public class SoapRequestClientTest {
 
         assertThat(element).isEqualTo(soapElement);
     }
-
 }
