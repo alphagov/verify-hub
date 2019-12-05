@@ -1,6 +1,6 @@
 dependencies {
     testCompile configurations.test_deps_compile,
-            configurations.ida_test_utils,
+            configurations.test_utils,
             configurations.dev_pki,
             project(':hub-saml-test-utils')
 

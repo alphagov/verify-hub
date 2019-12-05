@@ -40,7 +40,7 @@ public class HealthCheckEventLogger {
         }
 
         Map<EventDetailsKey, String> details = Map.of(
-                downstream_uri, exception.getUri().or(URI.create("uri-not-present")).toASCIIString(),
+                downstream_uri, exception.getUri().orElse(URI.create("uri-not-present")).toASCIIString(),
                 EventDetailsKey.message, exception.getMessage());
 
         EventSinkHubEvent hubEvent = new EventSinkHubEvent(serviceInfo, NO_SESSION_CONTEXT_IN_ERROR, ERROR_EVENT, details);

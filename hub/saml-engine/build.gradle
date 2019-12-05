@@ -1,7 +1,7 @@
 dependencies {
     testCompile configurations.test_deps_compile,
             configurations.pact_test,
-            configurations.ida_test_utils,
+            configurations.test_utils,
             configurations.redis_test,
             project(':hub-saml-test-utils'),
             'org.infinispan:infinispan-core:7.1.1.Final:tests'

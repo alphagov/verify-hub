@@ -62,7 +62,7 @@ public class PolicyApplicationExceptionMapper extends PolicyExceptionMapper<Appl
                 exception.getErrorId(),
                 getSessionId().orElse(NO_SESSION_CONTEXT_IN_ERROR),
                 exception.getMessage(),
-                exception.getUri().or(URI.create("uri-not-present")).toASCIIString());
+                exception.getUri().orElse(URI.create("uri-not-present")).toASCIIString());
             isAudited = true;
         }
 

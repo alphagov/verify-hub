@@ -1,6 +1,6 @@
 dependencies {
     testCompile configurations.test_deps_compile,
-            configurations.ida_test_utils,
+            configurations.test_utils,
             configurations.saml,
             configurations.redis_test,
             configurations.dev_pki,
