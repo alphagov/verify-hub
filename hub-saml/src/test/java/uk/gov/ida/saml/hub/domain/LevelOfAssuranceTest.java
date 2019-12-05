@@ -8,12 +8,12 @@ public class LevelOfAssuranceTest {
 
     @Test
     public void checkOrdering() {
-        assertThat(LevelOfAssurance.HIGH.compareTo(LevelOfAssurance.SUBSTANTIAL) > 0);
-        assertThat(LevelOfAssurance.HIGH.compareTo(LevelOfAssurance.LOW) > 0);
-        assertThat(LevelOfAssurance.SUBSTANTIAL.compareTo(LevelOfAssurance.LOW) > 0);
+        assertThat(LevelOfAssurance.HIGH.compareTo(LevelOfAssurance.SUBSTANTIAL)).isGreaterThan(0);
+        assertThat(LevelOfAssurance.HIGH.compareTo(LevelOfAssurance.LOW)).isGreaterThan(0);
+        assertThat(LevelOfAssurance.SUBSTANTIAL.compareTo(LevelOfAssurance.LOW)).isGreaterThan(0);
 
-        assertThat(LevelOfAssurance.SUBSTANTIAL.compareTo(LevelOfAssurance.HIGH) < 0);
-        assertThat(LevelOfAssurance.LOW.compareTo(LevelOfAssurance.HIGH) < 0);
-        assertThat(LevelOfAssurance.LOW.compareTo(LevelOfAssurance.SUBSTANTIAL) < 0);
+        assertThat(LevelOfAssurance.SUBSTANTIAL.compareTo(LevelOfAssurance.HIGH)).isLessThan(0);
+        assertThat(LevelOfAssurance.LOW.compareTo(LevelOfAssurance.HIGH)).isLessThan(0);
+        assertThat(LevelOfAssurance.LOW.compareTo(LevelOfAssurance.SUBSTANTIAL)).isLessThan(0);
     }
 }

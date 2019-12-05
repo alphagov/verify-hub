@@ -5,8 +5,7 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.eidas.logging.EidasAttributesLogger;
-import uk.gov.ida.eidas.logging.EidasResponseAttributesHashLogger;
+import uk.gov.ida.eidas.logging.EidasAuthnResponseAttributesHashLogger;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
@@ -22,14 +21,12 @@ import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
-import uk.gov.ida.saml.hub.factories.UserIdHashFactory;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Optional;
-
 
 public class IdpAuthnResponseTranslatorService {
 
@@ -47,7 +44,7 @@ public class IdpAuthnResponseTranslatorService {
     @Inject
     public IdpAuthnResponseTranslatorService(StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer,
                                              StringToOpenSamlObjectTransformer<Assertion> stringToAssertionTransformer,
-                                                 @Named("IdpSamlResponseTransformer") DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer samlResponseToIdaResponseIssuedByIdpTransformer,
+                                             @Named("IdpSamlResponseTransformer") DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer samlResponseToIdaResponseIssuedByIdpTransformer,
                                              InboundResponseFromIdpDataGenerator inboundResponseFromIdpDataGenerator,
                                              IdpAssertionMetricsCollector idpAssertionMetricsCollector,
                                              TransactionsConfigProxy transactionsConfigProxy) {
@@ -63,12 +60,6 @@ public class IdpAuthnResponseTranslatorService {
         Response response = stringToOpenSamlResponseTransformer.apply(samlResponseDto.getSamlResponse());
         MdcHelper.addContextToMdc(response);
         try {
-            String matchingServiceEntityId = samlResponseDto.getMatchingServiceEntityId();
-            if (transactionsConfigProxy.isProxyNodeEntityId(matchingServiceEntityId)) {
-                samlResponseToIdaResponseIssuedByIdpTransformer.setEidasAttributesLogger(
-                        new EidasAttributesLogger(EidasResponseAttributesHashLogger::instance, new UserIdHashFactory(matchingServiceEntityId))
-                );
-            }
             InboundResponseFromIdp idaResponseFromIdp = samlResponseToIdaResponseIssuedByIdpTransformer.apply(response);
             UnknownMethodAlgorithmLogger.probeResponseForMethodAlgorithm(idaResponseFromIdp);
             if (idaResponseFromIdp.getAuthnStatementAssertion().isPresent()) {
@@ -80,6 +71,11 @@ public class IdpAuthnResponseTranslatorService {
             if (idaResponseFromIdp.getMatchingDatasetAssertion().isPresent()) {
                 matchingDatasetAssertion = stringToAssertionTransformer.apply(idaResponseFromIdp.getMatchingDatasetAssertion().get().getUnderlyingAssertionBlob());
                 logAnalytics(matchingDatasetAssertion, MATCHING_DATASET);
+
+                final String matchingServiceEntityId = samlResponseDto.getMatchingServiceEntityId();
+                if (transactionsConfigProxy.isProxyNodeEntityId(matchingServiceEntityId)) {
+                    EidasAuthnResponseAttributesHashLogger.logEidasAttributesHash(matchingDatasetAssertion, response, matchingServiceEntityId);
+                }
             }
 
             InboundResponseFromIdpData inboundResponseFromIdpData = inboundResponseFromIdpDataGenerator.generate(idaResponseFromIdp, samlResponseDto.getMatchingServiceEntityId());
@@ -124,4 +120,3 @@ public class IdpAuthnResponseTranslatorService {
         idpAssertionMetricsCollector.update(authnStatementAssertion);
     }
 }
-
