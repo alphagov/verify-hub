@@ -38,9 +38,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,6 +50,7 @@ import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformatio
 
 @RunWith(MockitoJUnitRunner.class)
 public class SessionServiceTest {
+
     @Mock
     private AuthnRequestFromTransactionHandler authnRequestHandler;
     @Mock
@@ -87,7 +85,7 @@ public class SessionServiceTest {
         SessionId result = service.create(requestDto);
 
         // Then
-        assertThat(result, is(sessionId));
+        assertThat(result).isEqualTo(sessionId);
     }
 
     @Test(expected = SessionCreationFailureException.class)
@@ -132,7 +130,7 @@ public class SessionServiceTest {
 
         SessionId result = service.create(requestDto);
 
-        assertThat(result, is(sessionId));
+        assertThat(result).isEqualTo(sessionId);
     }
 
     @Test
@@ -151,7 +149,7 @@ public class SessionServiceTest {
         SessionId result = service.create(requestDto);
 
         // Then
-        assertThat(result, is(sessionId));
+        assertThat(result).isEqualTo(sessionId);
         verify(authnRequestHandler).handleRequestFromTransaction(samlResponse, requestDto.getRelayState(), requestDto.getPrincipalIPAddressAsSeenByHub(), assertionConsumerServiceUri, true);
 
     }
@@ -177,7 +175,7 @@ public class SessionServiceTest {
 
         ArgumentCaptor<IdaAuthnRequestFromHubDto> requestFromHubDtoArgumentCaptor = ArgumentCaptor.forClass(IdaAuthnRequestFromHubDto.class);
         verify(samlEngineProxy).generateCountryAuthnRequestFromHub(requestFromHubDtoArgumentCaptor.capture());
-        assertThat(requestFromHubDtoArgumentCaptor.getValue().getOverriddenSsoUrl(), notNullValue());
+        assertThat(requestFromHubDtoArgumentCaptor.getValue().getOverriddenSsoUrl()).isNotNull();
     }
 
     @Test

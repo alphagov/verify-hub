@@ -1,5 +1,5 @@
 dependencies {
-    compile configurations.verify_event_emitter,
+    implementation configurations.verify_event_emitter,
             configurations.common,
             configurations.dropwizard,
             configurations.ida_utils

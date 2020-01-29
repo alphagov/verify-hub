@@ -34,7 +34,7 @@ import javax.xml.namespace.QName;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -210,18 +210,17 @@ public class SamlMessageReceiverApiTest {
     @Test
     public void handleEidasResponsePost_shouldReturnNotFoundIfValidatorAbsent() {
         samlMessageReceiverApi = new SamlMessageReceiverApi(
-            relayStateValidator,
-            stringSamlAuthnRequestTransformer,
-            stringSamlResponseTransformer,
-            samlMessageSignatureValidator,
-            samlMessageSignatureValidator,
-            Optional.empty(),
-            protectiveMonitoringLogger,
-            sessionProxy);
+                relayStateValidator,
+                stringSamlAuthnRequestTransformer,
+                stringSamlResponseTransformer,
+                samlMessageSignatureValidator,
+                samlMessageSignatureValidator,
+                Optional.empty(),
+                protectiveMonitoringLogger,
+                sessionProxy);
 
         Response response = samlMessageReceiverApi.handleEidasResponsePost(SAML_REQUEST_DTO);
 
         assertThat(response.getStatus()).isEqualTo(Status.NOT_FOUND.getStatusCode());
     }
-
 }

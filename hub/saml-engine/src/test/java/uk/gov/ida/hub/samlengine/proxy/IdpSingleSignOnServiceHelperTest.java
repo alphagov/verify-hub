@@ -18,7 +18,7 @@ import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -61,17 +61,16 @@ public class IdpSingleSignOnServiceHelperTest {
         try {
             idpSingleSignOnServiceHelper.getSingleSignOn("thisIdpDoesNotExist");
             fail("should have thrown exception");
-        } catch(ApplicationException e) {
+        } catch (ApplicationException e) {
             assertThat(e.getExceptionType()).isEqualTo(ExceptionType.NOT_FOUND);
         }
     }
 
-    @Test(expected=RuntimeException.class)
+    @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionWhenMetadataProviderThrowsOne() throws ResolverException {
         MetadataResolver metadataResolver = mock(MetadataResolver.class);
         when(metadataResolver.resolveSingle(any(CriteriaSet.class))).thenThrow(new ResolverException());
         idpSingleSignOnServiceHelper = new IdpSingleSignOnServiceHelper(metadataResolver);
         idpSingleSignOnServiceHelper.getSingleSignOn(idpEntityId);
     }
-
 }

@@ -1,13 +1,13 @@
 dependencies {
-    testCompile configurations.test_deps_compile,
-            configurations.ida_test_utils,
+    testImplementation configurations.test_deps_compile,
+            configurations.test_utils,
             configurations.saml,
             configurations.redis_test,
             configurations.dev_pki,
             'org.infinispan:infinispan-core:7.1.1.Final:tests',
             'nl.jqno.equalsverifier:equalsverifier:2.5.2'
 
-    compile configurations.ida_utils,
+    implementation configurations.ida_utils,
             configurations.verify_event_emitter,
             configurations.common,
             configurations.dropwizard,

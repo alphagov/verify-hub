@@ -49,7 +49,7 @@ public class HealthCheckEventLoggerTest {
         URI uri = URI.create("uri-geller");
         ApplicationException unauditedException = ApplicationException.createUnauditedException(ExceptionType.INVALID_SAML, UUID.randomUUID(), uri);
         Map<EventDetailsKey, String> details = Map.of(
-                downstream_uri, unauditedException.getUri().or(URI.create("uri-not-present")).toASCIIString(),
+                downstream_uri, unauditedException.getUri().orElse(URI.create("uri-not-present")).toASCIIString(),
                 message, unauditedException.getMessage());
         EventSinkHubEvent event = new EventSinkHubEvent(serviceInfo, NO_SESSION_CONTEXT_IN_ERROR, ERROR_EVENT,details);
 

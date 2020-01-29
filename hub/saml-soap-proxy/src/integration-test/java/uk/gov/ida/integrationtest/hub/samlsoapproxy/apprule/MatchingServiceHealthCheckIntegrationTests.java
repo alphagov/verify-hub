@@ -4,7 +4,6 @@ import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
-import org.apache.ws.commons.util.NamespaceContextImpl;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -37,7 +36,6 @@ import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
-import javax.xml.namespace.NamespaceContext;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -49,8 +47,6 @@ import java.util.function.Function;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.xml.HasXPath.hasXPath;
 import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthCheckerResponseDtoBuilder.anInboundResponseFromMatchingServiceDto;
 import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule.msaStubRule;
 import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubRule.stackedSamlEngineStubRule;
@@ -109,7 +105,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }
 
@@ -129,23 +125,11 @@ public class MatchingServiceHealthCheckIntegrationTests {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         AggregatedMatchingServicesHealthCheckResultDto result = response.readEntity(AggregatedMatchingServicesHealthCheckResultDto.class);
         assertThat(result.isHealthy()).isTrue();
+
         final MatchingServiceHealthCheckResultDto matchingServiceHealthCheckResult = result.getResults().get(0);
         assertThat(matchingServiceHealthCheckResult.isHealthy()).isTrue();
         assertThat(matchingServiceHealthCheckResult.getDetails().getVersionNumber()).isEqualTo(msaVersion2);
-
-        final String xPathExpression = "/saml2p:AttributeQuery/@ID";
-        hasXPath(xPathExpression, namespaceContextForSaml(), is(msaEntityId2));
     }
-
-    private NamespaceContext namespaceContextForSaml() {
-        NamespaceContextImpl context = new NamespaceContextImpl();
-        context.startPrefixMapping("soapenv", "http://schemas.xmlsoap.org/soap/envelope/");
-        context.startPrefixMapping("saml2p", "urn:oasis:names:tc:SAML:2.0:protocol");
-        context.startPrefixMapping("saml2", "urn:oasis:names:tc:SAML:2.0:assertion");
-        context.startPrefixMapping("ds", "http://www.w3.org/2000/09/xmldsig#");
-        return context;
-    }
-
 
     @Test
     public void healthCheck_shouldRespondWith500WhenAllMatchingServicesAreNotHealthy() throws Exception {

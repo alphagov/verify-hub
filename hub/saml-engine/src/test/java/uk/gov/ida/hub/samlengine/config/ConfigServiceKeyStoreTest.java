@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.config;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -73,7 +73,6 @@ public class ConfigServiceKeyStoreTest {
     }
 
 
-
     @Test
     public void getVerifyingKeysForEntity_shouldReturnAllKeysReturnedByConfig() {
         final CertificateDto certOneDto = getX509Certificate(IDP_ENTITY_ID);
@@ -114,7 +113,7 @@ public class ConfigServiceKeyStoreTest {
         when(certificateChainValidator.validate(x509Certificate, trustStore)).thenReturn(invalid(underlyingException));
         try {
             configServiceKeyStore.getVerifyingKeysForEntity(issuerId);
-            Assert.fail(String.format("Expected [%s]", CertificateChainValidationException.class.getSimpleName()));
+            fail(String.format("Expected [%s]", CertificateChainValidationException.class.getSimpleName()));
         } catch (CertificateChainValidationException success) {
             assertThat(success.getMessage()).isEqualTo("Certificate is not valid: Unable to get DN");
             assertThat(success.getCause()).isEqualTo(underlyingException);
@@ -166,7 +165,7 @@ public class ConfigServiceKeyStoreTest {
         when(certificateChainValidator.validate(x509Certificate, trustStore)).thenReturn(invalid(underlyingException));
         try {
             configServiceKeyStore.getEncryptionKeyForEntity(issuerId);
-            Assert.fail(String.format("Expected [%s]", CertificateChainValidationException.class.getSimpleName()));
+            fail(String.format("Expected [%s]", CertificateChainValidationException.class.getSimpleName()));
         } catch (CertificateChainValidationException success) {
             assertThat(success.getMessage()).isEqualTo("Certificate is not valid: Unable to get DN");
             assertThat(success.getCause()).isEqualTo(underlyingException);

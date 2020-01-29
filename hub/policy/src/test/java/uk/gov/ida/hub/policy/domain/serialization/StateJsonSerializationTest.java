@@ -38,10 +38,9 @@ import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
@@ -312,5 +311,4 @@ public class StateJsonSerializationTest {
                 .registerModule(new Jdk8Module())
                 .registerModule(new GuavaModule());
     }
-
 }

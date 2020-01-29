@@ -14,7 +14,7 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 public class LevelsOfAssuranceConfigValidatorTest {
 
@@ -78,7 +78,7 @@ public class LevelsOfAssuranceConfigValidatorTest {
         try {
             levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(transactionsConfig);
         } catch (Exception e) {
-            fail();
+            fail("Expected exception not thrown");
         }
     }
 
@@ -87,28 +87,28 @@ public class LevelsOfAssuranceConfigValidatorTest {
         Set<TransactionConfig> transactionsConfig = Set.of(loa2Transaction);
         try {
             levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(transactionsConfig);
-        } catch(Exception e) {
-            fail();
+        } catch (Exception e) {
+            fail("Expected exception not thrown");
         }
     }
 
-    @Test (expected = ConfigValidationException.class)
+    @Test(expected = ConfigValidationException.class)
     public void shouldThrowWhenTransactionIsLoa1Only() {
         levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa1OnlyTransaction));
     }
 
-    @Test (expected = ConfigValidationException.class)
+    @Test(expected = ConfigValidationException.class)
     public void shouldThrowWhenTransactionIsNotLoa1OrLoa2() {
         levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa3OnlyTransaction));
     }
 
-    @Test (expected = ConfigValidationException.class)
+    @Test(expected = ConfigValidationException.class)
     public void shouldThrowWhenTransactionLOAsAreInWrongOrder() {
         levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa2And1Transaction));
     }
 
-    @Test (expected = ConfigValidationException.class)
-    public void shouldThrowWhenOneIdpDoesNotSupportATransaction(){
+    @Test(expected = ConfigValidationException.class)
+    public void shouldThrowWhenOneIdpDoesNotSupportATransaction() {
         Set<IdentityProviderConfig> identityProviderConfig = Set.of(loa1Idp, loa2Idp);
         Set<TransactionConfig> transactionsConfig = Set.of(loa2Transaction);
 
@@ -116,19 +116,19 @@ public class LevelsOfAssuranceConfigValidatorTest {
     }
 
     @Test
-    public void shouldNotThrowWhenAllIdpsSupportATransaction(){
+    public void shouldNotThrowWhenAllIdpsSupportATransaction() {
         Set<IdentityProviderConfig> identityProviderConfig = Set.of(loa2Idp, loa1And2Idp);
         Set<TransactionConfig> transactionsConfig = Set.of(loa2Transaction);
 
         try {
             levelsOfAssuranceConfigValidator.validateAllTransactionsAreSupportedByIDPs(identityProviderConfig, transactionsConfig);
         } catch (Exception e) {
-            fail();
+            fail("Expected exception not thrown");
         }
     }
 
     @Test
-    public void shouldNotThrowWhenAnIdpsIsOnboardingAndDoesNotSupportATransaction(){
+    public void shouldNotThrowWhenAnIdpsIsOnboardingAndDoesNotSupportATransaction() {
         Set<TransactionConfig> transactionsConfig = Set.of(loa1And2Transaction);
 
         final IdentityProviderConfig onboardingIdp = IdentityProviderConfigDataBuilder.anIdentityProviderConfigData()
@@ -141,7 +141,7 @@ public class LevelsOfAssuranceConfigValidatorTest {
         try {
             levelsOfAssuranceConfigValidator.validateAllTransactionsAreSupportedByIDPs(identityProviderConfig, transactionsConfig);
         } catch (Exception e) {
-            fail();
+            fail("Expected exception not thrown");
         }
     }
 }

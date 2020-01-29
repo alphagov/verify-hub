@@ -14,7 +14,10 @@ import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResponseAssertionsFromCountryValidatorTest {
@@ -71,7 +74,7 @@ public class ResponseAssertionsFromCountryValidatorTest {
 
         validator.validate(validatedResponse, assertion);
 
-        verifyZeroInteractions(authnStatementAssertionValidator, eidasAttributeStatementAssertionValidator);
+        verifyNoInteractions(authnStatementAssertionValidator, eidasAttributeStatementAssertionValidator);
     }
 
     @Test

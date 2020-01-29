@@ -18,7 +18,7 @@ public class IdpResponseValidator {
     private final SamlResponseSignatureValidator samlResponseSignatureValidator;
     private final AssertionDecrypter assertionDecrypter;
     private final SamlAssertionsSignatureValidator samlAssertionsSignatureValidator;
-    private final EncryptedResponseFromIdpValidator responseFromIdpValidator;
+    private final EncryptedResponseFromIdpValidator<?> responseFromIdpValidator;
     private final DestinationValidator responseDestinationValidator;
     private final ResponseAssertionsFromIdpValidator responseAssertionsFromIdpValidator;
     private ValidatedResponse validatedResponse;
@@ -27,7 +27,7 @@ public class IdpResponseValidator {
     public IdpResponseValidator(SamlResponseSignatureValidator samlResponseSignatureValidator,
                                 AssertionDecrypter assertionDecrypter,
                                 SamlAssertionsSignatureValidator samlAssertionsSignatureValidator,
-                                EncryptedResponseFromIdpValidator responseFromIdpValidator,
+                                EncryptedResponseFromIdpValidator<?> responseFromIdpValidator,
                                 DestinationValidator responseDestinationValidator,
                                 ResponseAssertionsFromIdpValidator responseAssertionsFromIdpValidator) {
         this.samlResponseSignatureValidator = samlResponseSignatureValidator;

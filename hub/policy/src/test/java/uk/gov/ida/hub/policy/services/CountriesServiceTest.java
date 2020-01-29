@@ -20,8 +20,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -63,7 +62,7 @@ public class CountriesServiceTest {
 
         List<EidasCountryDto> countries = service.getCountries(sessionId);
 
-        assertThat(countries, equalTo(Arrays.asList(COUNTRY_1, COUNTRY_2)));
+        assertThat(countries).isEqualTo(asList(COUNTRY_1, COUNTRY_2));
     }
 
     @Test
@@ -72,7 +71,7 @@ public class CountriesServiceTest {
         when(sessionRepository.getRequestIssuerEntityId(sessionId)).thenReturn(RELYING_PARTY_ID);
         when(configProxy.getEidasSupportedCountriesForRP(RELYING_PARTY_ID)).thenReturn(singletonList(COUNTRY_2.getEntityId()));
 
-        assertThat(service.getCountries(sessionId), equalTo(singletonList(COUNTRY_2)));
+        assertThat(service.getCountries(sessionId)).isEqualTo(singletonList(COUNTRY_2));
     }
 
     @Test

@@ -29,14 +29,14 @@ public class IdentityProviderConfigOnboardingTransactionValidatorTest {
     private LocalConfigRepository<TransactionConfig> transactionConfigRepository;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         identityProviderConfigOnboardingTransactionValidator = new IdentityProviderConfigOnboardingTransactionValidator(
                 transactionConfigRepository
         );
     }
 
     @Test
-    public void validate_shouldNotThrowExceptionWhenOnboardingTransactionEntityIdExists() throws Exception {
+    public void validate_shouldNotThrowExceptionWhenOnboardingTransactionEntityIdExists() {
         String transactionEntityID = "transactionEntityID";
         IdentityProviderConfig identityProviderConfig = anIdentityProviderConfigData().withOnboarding(List.of(transactionEntityID)).build();
 
@@ -47,13 +47,13 @@ public class IdentityProviderConfigOnboardingTransactionValidatorTest {
     }
 
     @Test
-    public void validate_shouldNotThrowExceptionWhenOnboardingTransactionEntityIsNotSpecified() throws Exception {
+    public void validate_shouldNotThrowExceptionWhenOnboardingTransactionEntityIsNotSpecified() {
         IdentityProviderConfig identityProviderConfig = anIdentityProviderConfigData().withoutOnboarding().build();
         identityProviderConfigOnboardingTransactionValidator.validate(identityProviderConfig);
     }
 
     @Test
-    public void validate_shouldThrowExceptionWhenOnboardingTransactionDoesNotExist() throws Exception {
+    public void validate_shouldThrowExceptionWhenOnboardingTransactionDoesNotExist() {
         String transactionEntityID = "transactionEntityID";
         String idpEntityId = "idpEntityId";
         IdentityProviderConfig identityProviderConfig = anIdentityProviderConfigData()

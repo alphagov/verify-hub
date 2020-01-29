@@ -1,18 +1,16 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
 import com.google.inject.Provider;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
-
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
 import uk.gov.ida.hub.samlproxy.Urls;
+import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
 import uk.gov.ida.saml.metadata.exceptions.NoKeyConfiguredForEntityException;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 
@@ -20,8 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,6 +62,6 @@ public class NoKeyConfiguredForEntityExceptionMapperTest {
     public void assertThatResponseIsInCorrectFormat() {
         Response response = mapper.toResponse(exception);
 
-        assertThat(response.getEntity(), instanceOf(ErrorStatusDto.class));
+        assertThat(response.getEntity()).isInstanceOf(ErrorStatusDto.class);
     }
 }

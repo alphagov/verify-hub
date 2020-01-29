@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +17,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -38,7 +38,7 @@ public class SuccessfulMatchStateControllerTest {
 
 
     @Before
-    public void setUp(){
+    public void setUp() {
         state = aSuccessfulMatchState().build();
         controller = new SuccessfulMatchStateController(state, responseFromHubFactory, identityProvidersConfigProxy);
     }
@@ -52,9 +52,9 @@ public class SuccessfulMatchStateControllerTest {
     }
 
     @Test
-    public void getPreparedResponse_shouldReturnResponse(){
-        List<String> enabledIdentityProviders = singletonList(state.getIdentityProviderEntityId());
-        ResponseFromHub expectedResponseFromHub = ResponseFromHubBuilder.aResponseFromHubDto().build();
+    public void getPreparedResponse_shouldReturnResponse() {
+        final List<String> enabledIdentityProviders = singletonList(state.getIdentityProviderEntityId());
+        final ResponseFromHub expectedResponseFromHub = ResponseFromHubBuilder.aResponseFromHubDto().build();
         when(identityProvidersConfigProxy.getEnabledIdentityProviders(eq(state.getRequestIssuerEntityId()), anyBoolean(), any(LevelOfAssurance.class)))
                 .thenReturn(enabledIdentityProviders);
         when(responseFromHubFactory.createSuccessResponseFromHub(
@@ -65,8 +65,8 @@ public class SuccessfulMatchStateControllerTest {
                 state.getAssertionConsumerServiceUri()))
                 .thenReturn(expectedResponseFromHub);
 
-        ResponseFromHub result = controller.getPreparedResponse();
+        final ResponseFromHub result = controller.getPreparedResponse();
 
-        Assert.assertEquals(result, expectedResponseFromHub);
+        assertThat(result).isEqualTo(expectedResponseFromHub);
     }
 }

@@ -27,7 +27,7 @@ import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unencry
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.unexpectedNumberOfAssertions;
 import static uk.gov.ida.saml.security.validators.signature.SamlSignatureUtil.isSignaturePresent;
 
-public class EncryptedResponseFromIdpValidator<T extends Enum> {
+public class EncryptedResponseFromIdpValidator<T extends Enum<T>> {
     private static final int SUB_STATUS_CODE_LIMIT = 1;
     private SamlStatusToAuthenticationStatusCodeMapper<T> statusCodeMapper;
 

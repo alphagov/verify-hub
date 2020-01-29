@@ -25,7 +25,7 @@ public class ExceptionAuditor {
         if (!isAudited && exception.requiresAuditing()) {
             EventDetails eventDetails = new EventDetails(
                     downstream_uri,
-                    exception.getUri().or(URI.create("uri-not-present")).toASCIIString());
+                    exception.getUri().orElse(URI.create("uri-not-present")).toASCIIString());
 
             eventSinkMessageSender.audit(
                     exception,

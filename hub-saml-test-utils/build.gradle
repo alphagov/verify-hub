@@ -1,7 +1,9 @@
-plugins { id "com.jfrog.bintray" version "1.8.4" }
+plugins {
+    id "com.jfrog.bintray" version "1.8.4"
+    id 'java-library'
+}
 
 apply plugin: 'maven-publish'
-apply plugin: 'java'
 
 publishing {
     repositories {
@@ -41,9 +43,10 @@ bintray {
 }
 
 dependencies {
-    compile configurations.common,
-            configurations.test_deps_compile,
+    implementation configurations.common,
             configurations.saml_lib,
-            configurations.saml_test,
             project(':hub-saml')
+
+    api configurations.test_utils,
+            configurations.saml_test
 }

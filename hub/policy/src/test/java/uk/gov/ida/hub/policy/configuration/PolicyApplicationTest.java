@@ -20,13 +20,13 @@ public class PolicyApplicationTest {
     private final ObjectMapper objectMapper = mock(ObjectMapper.class);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(environment.jersey()).thenReturn(jersey);
         when(environment.getObjectMapper()).thenReturn(objectMapper);
     }
 
     @Test
-    public void shouldReturnEventEmitterConfigurationAsNullByDefault() throws Exception {
+    public void shouldReturnEventEmitterConfigurationAsNullByDefault() {
         application.run(config, environment);
 
         assertThat(config.getEventEmitterConfiguration()).isNull();

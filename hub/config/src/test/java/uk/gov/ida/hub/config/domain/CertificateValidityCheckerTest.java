@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.config.domain.CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker;
 import static uk.gov.ida.saml.core.test.PemCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
@@ -98,7 +98,7 @@ public class CertificateValidityCheckerTest {
         Optional<CertificateValidity> result = certificateValidityChecker.validate(selfServiceCertificate);
         assertThat(result).isPresent();
         assertThat(result.get().isValid()).isTrue();
-        verifyZeroInteractions(certificateChainValidator);
+        verifyNoInteractions(certificateChainValidator);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class CertificateValidityCheckerTest {
 
         assertThat(isCertificateValid).isTrue();
 
-        verifyZeroInteractions(certificateChainValidator);
+        verifyNoInteractions(certificateChainValidator);
     }
 
     @Test

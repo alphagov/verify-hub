@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +17,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
 
@@ -35,7 +35,7 @@ public class EidasSuccessfulMatchStateControllerTest {
     CountriesService countriesService;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         state = anEidasSuccessfulMatchState().withCountryEntityId("country-entity-id").build();
         controller = new EidasSuccessfulMatchStateController(state, responseFromHubFactory, countriesService);
     }
@@ -49,7 +49,7 @@ public class EidasSuccessfulMatchStateControllerTest {
     }
 
     @Test
-    public void shouldReturnPreparedResponse(){
+    public void shouldReturnPreparedResponse() {
         List<EidasCountryDto> enabledIdentityProviders = singletonList(new EidasCountryDto("country-entity-id", "simple-id", true));
         ResponseFromHub expectedResponseFromHub = ResponseFromHubBuilder.aResponseFromHubDto().build();
         when(countriesService.getCountries(state.getSessionId()))
@@ -64,6 +64,6 @@ public class EidasSuccessfulMatchStateControllerTest {
 
         ResponseFromHub result = controller.getPreparedResponse();
 
-        Assert.assertEquals(result, expectedResponseFromHub);
+        assertThat(result).isEqualTo(expectedResponseFromHub);
     }
 }
