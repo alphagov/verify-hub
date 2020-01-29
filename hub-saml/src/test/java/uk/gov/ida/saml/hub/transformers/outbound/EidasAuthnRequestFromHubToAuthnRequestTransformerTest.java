@@ -115,7 +115,7 @@ public class EidasAuthnRequestFromHubToAuthnRequestTransformerTest {
         final Optional<XMLObject> spType = extensions
                 .getUnknownXMLObjects(SPType.DEFAULT_ELEMENT_NAME)
                 .stream().findFirst();
-        assertThat(spType.isPresent()).as("There should be at least one eidas:SPType element").isTrue();
+        assertThat(spType).as("There should be at least one eidas:SPType element").isPresent();
 
         final XMLObject xmlObject = spType.get();
         assertThat(xmlObject.getClass()).as("Should be an instance of SPType").isEqualTo(SPTypeImpl.class);
@@ -125,7 +125,7 @@ public class EidasAuthnRequestFromHubToAuthnRequestTransformerTest {
                 .getUnknownXMLObjects(RequestedAttributes.DEFAULT_ELEMENT_NAME)
                 .stream().findFirst();
 
-        assertThat(requestedAttributes.isPresent()).as("There should be at least one eidas:RequestedAttributes").isTrue();
+        assertThat(requestedAttributes).as("There should be at least one eidas:RequestedAttributes").isPresent();
 
         final List<XMLObject> requestedAttributeList = requestedAttributes.get().getOrderedChildren();
         assertThat(requestedAttributeList).isNotNull();

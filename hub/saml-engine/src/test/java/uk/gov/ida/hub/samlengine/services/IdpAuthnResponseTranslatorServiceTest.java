@@ -229,12 +229,12 @@ public class IdpAuthnResponseTranslatorServiceTest {
     public void shouldHandleNoAssertions() {
         InboundResponseFromIdpDto result = translateAndCheckCommonFields();
 
-        assertThat(result.getEncryptedAuthnAssertion().isPresent()).isFalse();
-        assertThat(result.getEncryptedMatchingDatasetAssertion().isPresent()).isFalse();
-        assertThat(result.getLevelOfAssurance().isPresent()).isFalse();
-        assertThat(result.getPersistentId().isPresent()).isFalse();
-        assertThat(result.getFraudIndicator().isPresent()).isFalse();
-        assertThat(result.getIdpFraudEventId().isPresent()).isFalse();
+        assertThat(result.getEncryptedAuthnAssertion()).isNotPresent();
+        assertThat(result.getEncryptedMatchingDatasetAssertion()).isNotPresent();
+        assertThat(result.getLevelOfAssurance()).isNotPresent();
+        assertThat(result.getPersistentId()).isNotPresent();
+        assertThat(result.getFraudIndicator()).isNotPresent();
+        assertThat(result.getIdpFraudEventId()).isNotPresent();
     }
 
     @Test

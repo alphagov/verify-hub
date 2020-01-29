@@ -107,7 +107,7 @@ public class SamlMessageSenderHandlerTest {
         SamlMessage authnResponse = samlMessageSenderHandler.generateAuthnResponseFromHub(sessionId, principalIpAddressAsSeenByHub);
         assertThat(authnResponse.getSamlMessage()).isEqualTo(samlRequest);
         assertThat(authnResponse.getPostEndpoint()).isEqualTo(postEndPoint.toString());
-        assertThat(authnResponse.getRegistration().isPresent()).isFalse();
+        assertThat(authnResponse.getRegistration()).isNotPresent();
         assertThat(authnResponse.getRelayState().isPresent()).isTrue();
         assertThat(authnResponse.getRelayState().get()).isEqualTo(relayState.get());
         assertThat(authnResponse.getSamlMessageType()).isEqualTo(SamlMessageType.SAML_RESPONSE);
@@ -135,7 +135,7 @@ public class SamlMessageSenderHandlerTest {
         SamlMessage samlMessage = samlMessageSenderHandler.generateErrorResponseFromHub(sessionId, principalIpAddressAsSeenByHub);
         assertThat(samlMessage.getSamlMessage()).isEqualTo(samlRequest);
         assertThat(samlMessage.getPostEndpoint()).isEqualTo(postEndPoint.toString());
-        assertThat(samlMessage.getRegistration().isPresent()).isFalse();
+        assertThat(samlMessage.getRegistration()).isNotPresent();
         assertThat(samlMessage.getSamlMessageType()).isEqualTo(SamlMessageType.SAML_RESPONSE);
         assertThat(samlMessage.getRelayState().isPresent()).isTrue();
         assertThat(samlMessage.getRelayState()).isEqualTo(relayState);

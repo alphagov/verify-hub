@@ -71,14 +71,14 @@ public class ManagedEntityConfigRepositoryTest {
     public void getReturnsOptionalEmptyIfNoLocalConfigFound() {
         ManagedEntityConfigRepository<TransactionConfig> configRepo = new ManagedEntityConfigRepository<>(localConfigRepository, s3ConfigSource);
         Optional<TransactionConfig> result = configRepo.get(BAD_ENTITY_ID);
-        assertThat(result.isPresent()).isFalse();
+        assertThat(result).isNotPresent();
     }
 
     @Test
     public void getReturnsOptionalEmptyIfNoLocalConfigFoundButRemoteExists() {
         ManagedEntityConfigRepository<TransactionConfig> configRepo = new ManagedEntityConfigRepository<>(localConfigRepository, s3ConfigSource);
         Optional<TransactionConfig> result = configRepo.get(REMOTE_ONLY_ENTITY_ID);
-        assertThat(result.isPresent()).isFalse();
+        assertThat(result).isNotPresent();
     }
 
     @Test

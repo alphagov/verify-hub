@@ -114,9 +114,9 @@ public class MatchingServiceResponseTranslatorServiceTest {
         final InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto = matchingServiceResponseTranslatorService.translate(samlResponse);
 
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(inResponseTo);
-        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isFalse();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion()).isNotPresent();
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(issuer);
-        assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isFalse();
+        assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance()).isNotPresent();
         assertThat(inboundResponseFromMatchingServiceDto.getStatus()).isEqualTo(status);
     }
 
