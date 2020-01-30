@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.domain.Certificate;
 
 import java.security.cert.CertificateException;
+import java.util.Objects;
 import java.util.Set;
 
 public class CertificateExpiryDateCheckService implements Runnable {
@@ -29,22 +30,28 @@ public class CertificateExpiryDateCheckService implements Runnable {
         try {
             final Set<Certificate> certificateSet = certificateService.getAllCertificates();
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
-            certificateSet.forEach(certificate -> {
+            for (Certificate certificate : certificateSet) {
                 try {
                     expiryDateGauge.labels(certificate.getIssuerEntityId(),
-                        certificate.getCertificateUse().toString(),
-                        certificate.getSubject(),
-                        certificate.getFingerprint(),
-                        String.valueOf(certificate.getSerialNumber()))
-                         .set(certificate.getNotAfter().getTime());
+                            certificate.getCertificateUse().toString(),
+                            certificate.getSubject(),
+                            certificate.getFingerprint(),
+                            String.valueOf(certificate.getSerialNumber()))
+                            .set(certificate.getNotAfter().getTime());
                 } catch (CertificateException e) {
-                    LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificate.getIssuerEntityId()));
+                    LOG.error(String.format("Invalid X.509 certificate [issuer id: %s]", certificate.getIssuerEntityId()));
+                } catch (Exception e) {
+                    if (Objects.nonNull(certificate)) {
+                        LOG.error(String.format("Unable to set certificate expiry date metrics for the certificate [issuer id: %s]", certificate.getIssuerEntityId()), e);
+                    } else {
+                        LOG.error("Unable to set certificate expiry date metrics.", e);
+                    }
                 }
-            });
+            }
             lastUpdatedGauge.set(timestamp);
             LOG.info("Updated Certificates Expiry Dates Metrics.");
         } catch (Exception e) {
-            LOG.warn(e.getMessage());
+            LOG.error("Failed to update Certificates Expiry Dates Metrics.", e);
         }
     }
 }
