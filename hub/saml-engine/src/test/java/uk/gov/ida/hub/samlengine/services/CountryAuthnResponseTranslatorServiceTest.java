@@ -142,7 +142,7 @@ public class CountryAuthnResponseTranslatorServiceTest {
         assertThat(result.getStatus().isPresent()).isTrue();
         assertThat(result.getStatus().get()).isEqualTo(successStatus);
 
-        assertThat(result.getStatusMessage().isPresent()).isFalse();
+        assertThat(result.getStatusMessage()).isNotPresent();
 
         assertThat(result.getLevelOfAssurance().isPresent()).isTrue();
         assertThat(result.getLevelOfAssurance().get()).isEqualTo(LEVEL_2);

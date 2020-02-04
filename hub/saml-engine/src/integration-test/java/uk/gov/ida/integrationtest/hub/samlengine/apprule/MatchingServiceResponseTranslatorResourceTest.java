@@ -134,8 +134,8 @@ public class MatchingServiceResponseTranslatorResourceTest {
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(TEST_RP_MS);
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(requestId);
         assertThat(inboundResponseFromMatchingServiceDto.getStatus().name()).isEqualTo(MatchingServiceIdaStatus.NoMatchingServiceMatchFromMatchingService.name());
-        assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isFalse();
-        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isFalse();
+        assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance()).isNotPresent();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion()).isNotPresent();
     }
 
     @Test
@@ -152,8 +152,8 @@ public class MatchingServiceResponseTranslatorResourceTest {
         assertThat(inboundResponseFromMatchingServiceDto.getIssuer()).isEqualTo(TEST_RP_MS);
         assertThat(inboundResponseFromMatchingServiceDto.getInResponseTo()).isEqualTo(requestId);
         assertThat(inboundResponseFromMatchingServiceDto.getStatus().name()).isEqualTo(MatchingServiceIdaStatus.RequesterError.name());
-        assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance().isPresent()).isFalse();
-        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion().isPresent()).isFalse();
+        assertThat(inboundResponseFromMatchingServiceDto.getLevelOfAssurance()).isNotPresent();
+        assertThat(inboundResponseFromMatchingServiceDto.getEncryptedMatchingServiceAssertion()).isNotPresent();
     }
 
     @Test

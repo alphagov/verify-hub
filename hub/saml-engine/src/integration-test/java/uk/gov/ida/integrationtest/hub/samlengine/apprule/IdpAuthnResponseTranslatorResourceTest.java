@@ -143,8 +143,8 @@ public class IdpAuthnResponseTranslatorResourceTest {
         assertThat(inboundResponseFromIdpDto.getStatus()).isEqualTo(IdpIdaStatus.Status.Success);
         assertThat(inboundResponseFromIdpDto.getIssuer()).isEqualTo(samlAuthnResponse.getIssuer().getValue());
         assertThat(inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp().get()).isEqualTo(ipAddressAsSeenByIdp);
-        assertThat(inboundResponseFromIdpDto.getFraudIndicator().isPresent()).isFalse();
-        assertThat(inboundResponseFromIdpDto.getIdpFraudEventId().isPresent()).isFalse();
+        assertThat(inboundResponseFromIdpDto.getFraudIndicator()).isNotPresent();
+        assertThat(inboundResponseFromIdpDto.getIdpFraudEventId()).isNotPresent();
 
         // TODO consider checking the actual values of the fields below, rather than just their presence
         assertThat(inboundResponseFromIdpDto.getEncryptedAuthnAssertion().isPresent()).isTrue();
@@ -649,13 +649,13 @@ public class IdpAuthnResponseTranslatorResourceTest {
     }
 
     private void checkFieldsForUnsuccessfulResponseDTO(InboundResponseFromIdpDto inboundResponseFromIdpDto) {
-        assertThat(inboundResponseFromIdpDto.getEncryptedAuthnAssertion().isPresent()).isFalse();
-        assertThat(inboundResponseFromIdpDto.getEncryptedMatchingDatasetAssertion().isPresent()).isFalse();
-        assertThat(inboundResponseFromIdpDto.getPersistentId().isPresent()).isFalse();
-        assertThat(inboundResponseFromIdpDto.getLevelOfAssurance().isPresent()).isFalse();
-        assertThat(inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp().isPresent()).isFalse();
-        assertThat(inboundResponseFromIdpDto.getFraudIndicator().isPresent()).isFalse();
-        assertThat(inboundResponseFromIdpDto.getIdpFraudEventId().isPresent()).isFalse();
+        assertThat(inboundResponseFromIdpDto.getEncryptedAuthnAssertion()).isNotPresent();
+        assertThat(inboundResponseFromIdpDto.getEncryptedMatchingDatasetAssertion()).isNotPresent();
+        assertThat(inboundResponseFromIdpDto.getPersistentId()).isNotPresent();
+        assertThat(inboundResponseFromIdpDto.getLevelOfAssurance()).isNotPresent();
+        assertThat(inboundResponseFromIdpDto.getPrincipalIpAddressAsSeenByIdp()).isNotPresent();
+        assertThat(inboundResponseFromIdpDto.getFraudIndicator()).isNotPresent();
+        assertThat(inboundResponseFromIdpDto.getIdpFraudEventId()).isNotPresent();
     }
 
 }
