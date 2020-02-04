@@ -50,7 +50,7 @@ rpTrustStoreConfiguration:
   enabled: ${RP_TRUSTSTORE_ENABLED:-true}
 logging:
   loggers:
-    uk.gov.ida.eidas.logging.EidasResponseAttributesHashLogger:
+    uk.gov.ida.eidas.logging.EidasAuthnResponseAttributesHashLogger:
       level: INFO
       additive: true
       appenders:
