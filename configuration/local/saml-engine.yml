@@ -30,6 +30,10 @@ httpClient:
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
+redis:
+  recordTTL: PT150m
+  uri: redis://localhost:6379
+
 configUri: ${CONFIG_URL}
 
 certificatesConfigCacheExpiry: 1m

@@ -46,6 +46,10 @@ httpClient:
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
+redis:
+  recordTTL: PT150m
+  uri: "redis://replace.me:1234"
+
 configUri: ${CONFIG_URI:-http://localhost:50240}
 
 serviceInfo:
