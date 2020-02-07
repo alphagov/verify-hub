@@ -10,7 +10,6 @@ import uk.gov.ida.hub.policy.configuration.SessionStoreConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 
 import java.net.URI;
-import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,16 +48,6 @@ public class PolicyConfigurationBuilder {
                 timeoutPeriod,
                 Duration.minutes(1),
                 Duration.minutes(15));
-    }
-
-    public PolicyConfigurationBuilder withTimeoutPeriod(long i) {
-        timeoutPeriod = Duration.minutes(i);
-        return this;
-    }
-
-    public PolicyConfigurationBuilder withServiceInfo(ServiceInfoConfiguration serviceInfo) {
-        this.serviceInfo = serviceInfo;
-        return this;
     }
 
     public PolicyConfigurationBuilder withRedisPort(int redisPort) {
