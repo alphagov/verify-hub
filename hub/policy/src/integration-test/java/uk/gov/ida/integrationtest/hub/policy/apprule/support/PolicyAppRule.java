@@ -28,13 +28,13 @@ import java.util.List;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Arrays.asList;
 
-public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguration> {
+public class PolicyAppRule extends DropwizardAppRule<PolicyConfiguration> {
 
     private static final int REDIS_PORT = 6381;
     private static final KeyStoreResource clientTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static Redis redis;
 
-    public PolicyAppRuleWithRedis(ConfigOverride... configOverrides) {
+    public PolicyAppRule(ConfigOverride... configOverrides) {
         super(PolicyIntegrationApplication.class, ResourceHelpers.resourceFilePath("policy-with-redis.yml"), withDefaultOverrides(configOverrides));
     }
 

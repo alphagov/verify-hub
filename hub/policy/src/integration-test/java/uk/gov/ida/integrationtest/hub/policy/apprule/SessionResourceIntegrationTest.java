@@ -31,7 +31,7 @@ import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRuleWithRedis;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResourceHelper;
@@ -78,7 +78,7 @@ public class SessionResourceIntegrationTest {
     public static SamlSoapProxyProxyStubRule samlSoapProxyProxyStub = new SamlSoapProxyProxyStubRule();
 
     @ClassRule
-    public static PolicyAppRuleWithRedis policy = new PolicyAppRuleWithRedis(
+    public static PolicyAppRule policy = new PolicyAppRule(
             ConfigOverride.config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("samlSoapProxyUri", samlSoapProxyProxyStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),

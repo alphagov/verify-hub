@@ -20,7 +20,7 @@ import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRuleWithRedis;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.rest.Cycle3DTO;
@@ -57,7 +57,7 @@ public class Cycle3DataResourceTest {
 
 
     @ClassRule
-    public static PolicyAppRuleWithRedis policy = new PolicyAppRuleWithRedis(
+    public static PolicyAppRule policy = new PolicyAppRule(
             config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()),
             config("configUri", configStub.baseUri().build().toASCIIString()),
             config("samlSoapProxyUri", samlSoapProxyProxyStub.baseUri().build().toASCIIString()),

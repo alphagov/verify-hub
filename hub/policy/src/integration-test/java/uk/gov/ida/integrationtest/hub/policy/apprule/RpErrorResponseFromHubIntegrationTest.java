@@ -22,7 +22,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRuleWithRedis;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 
 import javax.ws.rs.client.Client;
@@ -48,7 +48,7 @@ public class RpErrorResponseFromHubIntegrationTest {
     public static EventSinkStubRule eventSinkStub = new EventSinkStubRule();
 
     @ClassRule
-    public static PolicyAppRuleWithRedis policy = new PolicyAppRuleWithRedis(
+    public static PolicyAppRule policy = new PolicyAppRule(
             ConfigOverride.config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()));

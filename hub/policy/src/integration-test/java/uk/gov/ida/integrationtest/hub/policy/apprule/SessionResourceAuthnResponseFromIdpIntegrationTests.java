@@ -28,7 +28,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRuleWithRedis;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
@@ -66,7 +66,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
     public static SamlSoapProxyProxyStubRule samlSoapProxyStub = new SamlSoapProxyProxyStubRule();
 
     @ClassRule
-    public static PolicyAppRuleWithRedis policy = new PolicyAppRuleWithRedis(
+    public static PolicyAppRule policy = new PolicyAppRule(
             config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
             config("samlSoapProxyUri", samlSoapProxyStub.baseUri().build().toASCIIString()),
             config("configUri", configStub.baseUri().build().toASCIIString()),
