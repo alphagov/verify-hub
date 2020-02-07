@@ -35,7 +35,7 @@ public class PolicyAppRule extends DropwizardAppRule<PolicyConfiguration> {
     private static Redis redis;
 
     public PolicyAppRule(ConfigOverride... configOverrides) {
-        super(PolicyIntegrationApplication.class, ResourceHelpers.resourceFilePath("policy-with-redis.yml"), withDefaultOverrides(configOverrides));
+        super(PolicyIntegrationApplication.class, ResourceHelpers.resourceFilePath("policy.yml"), withDefaultOverrides(configOverrides));
     }
 
     public static ConfigOverride[] withDefaultOverrides(final ConfigOverride... configOverrides) {

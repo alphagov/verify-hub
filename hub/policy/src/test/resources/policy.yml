@@ -31,6 +31,10 @@ logging:
     - type: console
 
 
+sessionStore:
+  redis:
+    uri: "redis://replace.me:1234"
+
 eventSinkUri: ${EVENTSINK_URI:-http://localhost:51100}
 
 samlEngineUri: ${SAML_ENGINE_URI:-http://localhost:50120}
