@@ -123,8 +123,8 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
         return secondaryPrivateEncryptionKeyConfiguration;
     }
 
-    public Optional<RedisConfiguration> getRedis() {
-        return Optional.ofNullable(redis);
+    public RedisConfiguration getRedis() {
+        return redis;
     }
 
     @Override

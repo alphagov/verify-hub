@@ -143,10 +143,8 @@ public class PolicyModule extends AbstractModule {
     @Provides
     @Singleton
     public SessionStore getSessionStore(PolicyConfiguration configuration) {
-        return configuration.getSessionStoreConfiguration().getRedisConfiguration()
-                .<SessionStore>map(this::getRedisSessionStore)
-                .orElseThrow();
-
+        return getRedisSessionStore(
+                configuration.getSessionStoreConfiguration().getRedisConfiguration());
     }
 
     private RedisSessionStore getRedisSessionStore(RedisConfiguration config) {

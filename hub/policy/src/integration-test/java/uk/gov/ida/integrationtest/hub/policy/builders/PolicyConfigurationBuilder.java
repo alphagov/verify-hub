@@ -28,7 +28,7 @@ public class PolicyConfigurationBuilder {
 
     public PolicyConfiguration build() {
         SessionStoreConfiguration sessionStoreConfiguration = mock(SessionStoreConfiguration.class);
-        when(sessionStoreConfiguration.getRedisConfiguration()).thenReturn(Optional.of(
+        when(sessionStoreConfiguration.getRedisConfiguration()).thenReturn(
                 new RedisConfiguration() {
                     @Override
                     public Long getRecordTTL() {
@@ -40,7 +40,7 @@ public class PolicyConfigurationBuilder {
                         return new RedisURI("localhost",redisPort, java.time.Duration.ofSeconds(1));
                     }
                 }
-        ));
+        );
         return new TestPolicyConfiguration(
                 new JerseyClientConfiguration(),
                 serviceInfo,

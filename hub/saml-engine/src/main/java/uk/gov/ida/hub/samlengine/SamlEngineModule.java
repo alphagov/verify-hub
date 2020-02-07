@@ -626,9 +626,7 @@ public class SamlEngineModule extends AbstractModule {
     private IdExpirationCache<String> assertionIdCache(SamlEngineConfiguration configuration,
                                                        @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper) {
         RedisCodec<String, DateTime> codec = new AssertionExpirationCacheRedisCodec(objectMapper);
-        return configuration.getRedis()
-                .map(rc -> this.getIdExpirationCache(rc, codec, 1))
-                .orElseThrow();
+        return getIdExpirationCache(configuration.getRedis(), codec, 1);
     }
 
     @Provides
@@ -636,9 +634,7 @@ public class SamlEngineModule extends AbstractModule {
     private IdExpirationCache<AuthnRequestIdKey> authRequestIdCache(SamlEngineConfiguration configuration,
                                                                     @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper) {
         RedisCodec<AuthnRequestIdKey, DateTime> codec = new AuthnRequestExpirationCacheRedisCodec(objectMapper);
-        return configuration.getRedis()
-                .map(rc -> this.getIdExpirationCache(rc, codec, 0))
-                .orElseThrow();
+        return getIdExpirationCache(configuration.getRedis(), codec, 0);
     }
 
     private <T> IdExpirationCache<T> getIdExpirationCache(RedisConfiguration config,
