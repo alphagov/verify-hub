@@ -8,8 +8,9 @@ import com.google.inject.util.Modules;
 import io.dropwizard.setup.Environment;
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.rules.ExternalResource;
 import org.mockito.Mock;
 import uk.gov.ida.hub.policy.PolicyModule;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
@@ -42,8 +43,8 @@ import uk.gov.ida.hub.policy.domain.controller.UserAccountCreationRequestSentSta
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.RedisTestRule;
 import uk.gov.ida.jerseyclient.JsonClient;
-import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 
 import javax.ws.rs.client.Client;
 import java.net.URI;
@@ -74,14 +75,17 @@ import static uk.gov.ida.hub.policy.builder.state.TimeoutStateBuilder.aTimeoutSt
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreatedStateBuilder.aUserAccountCreatedState;
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationFailedStateBuilder.aUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState;
-import static uk.gov.ida.integrationtest.hub.policy.builders.InfinispanCacheManagerBuilder.anInfinispanCacheManager;
 import static uk.gov.ida.integrationtest.hub.policy.builders.PolicyConfigurationBuilder.aPolicyConfiguration;
 
-@RunWith(InfinispanJunitRunner.class)
 public class StateControllerFactoryTest {
+
+    private static final int REDIS_PORT = 6382;
 
     @Mock
     private StateTransitionAction stateTransitionAction;
+
+    @ClassRule
+    public static ExternalResource redis = new RedisTestRule(REDIS_PORT);
 
     private StateControllerFactory factory;
 
@@ -96,9 +100,7 @@ public class StateControllerFactoryTest {
                     bind(IdentityProvidersConfigProxy.class).toInstance(mock(IdentityProvidersConfigProxy.class));
                     bind(Client.class).toInstance(mock(Client.class));
                     bind(Environment.class).toInstance(mock(Environment.class));
-                    bind(PolicyConfiguration.class).toInstance(aPolicyConfiguration().build());
-                    InfinispanCacheManager infinispanCacheManager = anInfinispanCacheManager().build(InfinispanJunitRunner.EMBEDDED_CACHE_MANAGER);
-                    bind(InfinispanCacheManager.class).toInstance(infinispanCacheManager);
+                    bind(PolicyConfiguration.class).toInstance(aPolicyConfiguration().withRedisPort(REDIS_PORT).build());
                     bind(HubEventLogger.class).toInstance(mock(HubEventLogger.class));
                     bind(JsonClient.class).annotatedWith(Names.named("samlSoapProxyClient")).toInstance(mock(JsonClient.class));
                     bind(JsonClient.class).toInstance(mock(JsonClient.class));

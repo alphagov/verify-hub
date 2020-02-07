@@ -120,7 +120,6 @@ import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileTransactionIdaStat
 import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
-import uk.gov.ida.saml.hub.validators.authnrequest.ConcurrentMapIdExpirationCache;
 import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 import uk.gov.ida.saml.metadata.EidasMetadataConfiguration;
 import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
@@ -145,7 +144,6 @@ import uk.gov.ida.saml.security.SigningKeyStore;
 import uk.gov.ida.saml.security.validators.encryptedelementtype.EncryptionAlgorithmValidator;
 import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
-import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
@@ -626,23 +624,21 @@ public class SamlEngineModule extends AbstractModule {
     @Provides
     @Singleton
     private IdExpirationCache<String> assertionIdCache(SamlEngineConfiguration configuration,
-                                                       @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
-                                                       InfinispanCacheManager infinispanCacheManager) {
+                                                       @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper) {
         RedisCodec<String, DateTime> codec = new AssertionExpirationCacheRedisCodec(objectMapper);
         return configuration.getRedis()
                 .map(rc -> this.getIdExpirationCache(rc, codec, 1))
-                .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("assertion_id_cache")));
+                .orElseThrow();
     }
 
     @Provides
     @Singleton
     private IdExpirationCache<AuthnRequestIdKey> authRequestIdCache(SamlEngineConfiguration configuration,
-                                                                    @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper,
-                                                                    InfinispanCacheManager infinispanCacheManager) {
+                                                                    @Named(REDIS_OBJECT_MAPPER) ObjectMapper objectMapper) {
         RedisCodec<AuthnRequestIdKey, DateTime> codec = new AuthnRequestExpirationCacheRedisCodec(objectMapper);
         return configuration.getRedis()
                 .map(rc -> this.getIdExpirationCache(rc, codec, 0))
-                .orElseGet(() -> new ConcurrentMapIdExpirationCache<>(infinispanCacheManager.getCache("authn_request_id_cache")));
+                .orElseThrow();
     }
 
     private <T> IdExpirationCache<T> getIdExpirationCache(RedisConfiguration config,

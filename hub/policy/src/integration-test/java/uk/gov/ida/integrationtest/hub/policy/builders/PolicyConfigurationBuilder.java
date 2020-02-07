@@ -2,8 +2,10 @@ package uk.gov.ida.integrationtest.hub.policy.builders;
 
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
+import io.lettuce.core.RedisURI;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.RedisConfiguration;
 import uk.gov.ida.hub.policy.configuration.SessionStoreConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 
@@ -18,6 +20,7 @@ public class PolicyConfigurationBuilder {
 
     private Duration timeoutPeriod = Duration.minutes(2);
     private ServiceInfoConfiguration serviceInfo = aServiceInfo().withName("Policy").build();
+    private int redisPort = RedisURI.DEFAULT_REDIS_PORT;
 
     public static PolicyConfigurationBuilder aPolicyConfiguration() {
         return new PolicyConfigurationBuilder();
@@ -25,7 +28,19 @@ public class PolicyConfigurationBuilder {
 
     public PolicyConfiguration build() {
         SessionStoreConfiguration sessionStoreConfiguration = mock(SessionStoreConfiguration.class);
-        when(sessionStoreConfiguration.getRedisConfiguration()).thenReturn(Optional.empty());
+        when(sessionStoreConfiguration.getRedisConfiguration()).thenReturn(Optional.of(
+                new RedisConfiguration() {
+                    @Override
+                    public Long getRecordTTL() {
+                        return 3600L;
+                    }
+
+                    @Override
+                    public RedisURI getUri() {
+                        return new RedisURI("localhost",redisPort, java.time.Duration.ofSeconds(1));
+                    }
+                }
+        ));
         return new TestPolicyConfiguration(
                 new JerseyClientConfiguration(),
                 serviceInfo,
@@ -43,6 +58,11 @@ public class PolicyConfigurationBuilder {
 
     public PolicyConfigurationBuilder withServiceInfo(ServiceInfoConfiguration serviceInfo) {
         this.serviceInfo = serviceInfo;
+        return this;
+    }
+
+    public PolicyConfigurationBuilder withRedisPort(int redisPort) {
+        this.redisPort = redisPort;
         return this;
     }
 

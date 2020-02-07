@@ -46,14 +46,6 @@ httpClient:
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
-infinispan:
-  bindAddress:
-  initialHosts: 
-  clusterName: 
-  type: standalone
-  expiration: 8h
-  persistenceToFileEnabled: false
-
 configUri: ${CONFIG_URI:-http://localhost:50240}
 
 serviceInfo:

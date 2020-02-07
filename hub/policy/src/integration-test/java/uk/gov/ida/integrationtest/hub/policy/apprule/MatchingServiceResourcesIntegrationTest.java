@@ -42,7 +42,7 @@ import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRuleWithRedis;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
@@ -87,7 +87,7 @@ public class MatchingServiceResourcesIntegrationTest {
     public static final int matchingServiceResponseWaitPeriodSeconds = 60;
 
     @ClassRule
-    public static PolicyAppRule policy = new PolicyAppRule(
+    public static PolicyAppRuleWithRedis policy = new PolicyAppRuleWithRedis(
             config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
             config("configUri", configStub.baseUri().build().toASCIIString()),
             config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()),

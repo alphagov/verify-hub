@@ -4,20 +4,26 @@ import certificates.values.CACertificates;
 import helpers.ResourceHelpers;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulRedisConnection;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
 import redis.embedded.Redis;
 import redis.embedded.RedisServer;
+import uk.gov.ida.hub.policy.PolicyModule;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
+import uk.gov.ida.hub.policy.redis.SessionStoreRedisCodec;
+import uk.gov.ida.hub.policy.session.RedisSessionStore;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Arrays.asList;
@@ -74,11 +80,9 @@ public class PolicyAppRuleWithRedis extends DropwizardAppRule<PolicyConfiguratio
                 .build();
     }
 
-    public ConcurrentMap<SessionId, State> getDataStore() {
-       return ((PolicyIntegrationApplication)this.getApplication()).getDataStore();
-    }
-
     public <T extends State> T getSessionState(SessionId sessionId, Class<T> stateClazz) {
-        return stateClazz.cast(getDataStore().get(sessionId));
+        StatefulRedisConnection<SessionId, State> redisConnection = RedisClient.create().connect(new SessionStoreRedisCodec(PolicyModule.getRedisObjectMapper()), new RedisURI("localhost", REDIS_PORT, Duration.ofSeconds(2)));
+        RedisSessionStore redisSessionStore = new RedisSessionStore(redisConnection.sync(), 3600L);
+        return stateClazz.cast(redisSessionStore.get(sessionId));
     }
 }

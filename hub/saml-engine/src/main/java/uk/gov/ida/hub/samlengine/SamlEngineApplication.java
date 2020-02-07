@@ -38,12 +38,9 @@ import uk.gov.ida.hub.samlengine.resources.translators.RpErrorResponseGeneratorR
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;
-import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanBundle;
-import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
 
-import javax.inject.Provider;
 import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
@@ -78,13 +75,10 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
-        final InfinispanBundle infinispanBundle = new InfinispanBundle();
-        bootstrap.addBundle(infinispanBundle);
         bootstrap.addBundle(verifyMetadataBundle);
         guiceBundle = defaultBuilder(SamlEngineConfiguration.class)
                 .modules(new SamlEngineModule(),
                         new CryptoModule(),
-                        bindInfinispan(infinispanBundle.getInfinispanCacheManagerProvider()),
                         bindMetadata())
                 .build();
         bootstrap.addBundle(guiceBundle);
@@ -102,15 +96,6 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
                 bind(ExplicitKeySignatureTrustEngine.class)
                         .annotatedWith(Names.named(SamlEngineModule.VERIFY_METADATA_SIGNATURE_TRUST_ENGINE))
                         .toProvider(verifyMetadataBundle.getSignatureTrustEngineProvider());
-            }
-        };
-    }
-
-    protected Module bindInfinispan(Provider<InfinispanCacheManager> infinispanCacheManagerProvider) {
-        return new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(InfinispanCacheManager.class).toProvider(infinispanCacheManagerProvider);
             }
         };
     }

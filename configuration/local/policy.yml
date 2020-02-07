@@ -15,15 +15,6 @@ logging:
     - type: console
 
 
-sessionStore:
-  infinispan:
-    bindAddress:
-    initialHosts:
-    clusterName:
-    type: standalone
-    expiration: 8h
-    persistenceToFileEnabled: false
-
 eventSinkUri: ${EVENT_SINK_URL}
 
 samlEngineUri: ${SAML_ENGINE_URL}

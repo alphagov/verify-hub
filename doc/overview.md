@@ -204,7 +204,7 @@ facing zone known as the ‘DMZ’ and a non-internet-facing zone accessible
 by services in the ‘DMZ’ known as ‘protected’.
 
 The Hub doesn’t rely on a persistent data store but
-Policy and Saml-Engine make use of the Infinispan distributed data store for
+Policy and Saml-Engine make use of Redis for
 maintaining consistent session state.
 
 ### Audit capability
