@@ -16,9 +16,6 @@ import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfigu
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.MultiTrustStoresBackedMetadataConfiguration;
-import uk.gov.ida.shared.dropwizard.infinispan.config.CacheType;
-import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanConfiguration;
-import uk.gov.ida.shared.dropwizard.infinispan.config.InfinispanServiceConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
@@ -27,10 +24,8 @@ import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Optional;
 
-import static com.google.common.base.Optional.absent;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SamlEngineConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, InfinispanServiceConfiguration, SamlDuplicateRequestValidationConfiguration, SamlAuthnRequestValidityDurationConfiguration, PrometheusConfiguration {
+public class SamlEngineConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, SamlDuplicateRequestValidationConfiguration, SamlAuthnRequestValidityDurationConfiguration, PrometheusConfiguration {
 
     @Valid
     @NotNull
@@ -48,12 +43,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     @Valid
     @JsonProperty
     protected PrivateKeyConfiguration secondaryPrivateEncryptionKeyConfiguration;
-
-    @Valid
-    @JsonProperty
-    protected InfinispanConfiguration infinispan = new InfinispanConfiguration(
-            absent(), -1, absent(), absent(), CacheType.standalone, com.google.common.base.Optional.of(Duration.hours(2)),
-            absent(), absent(), absent(), absent());
 
     @Valid
     @JsonProperty
@@ -134,13 +123,8 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
         return secondaryPrivateEncryptionKeyConfiguration;
     }
 
-    @Override
-    public InfinispanConfiguration getInfinispan() {
-        return infinispan;
-    }
-
-    public Optional<RedisConfiguration> getRedis() {
-        return Optional.ofNullable(redis);
+    public RedisConfiguration getRedis() {
+        return redis;
     }
 
     @Override

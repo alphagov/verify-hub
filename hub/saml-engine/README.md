@@ -2,7 +2,7 @@
 
 This is the beating heart of our SAML processing system. saml-engine is responsible for the creation/encryption, consumption/decryption and validation1 of all SAML messages that pass through the hub. The general pattern for incoming messages is that saml-engine will be given a SAML Message, validate it, transform it into a JSON object then pass the message on to policy. For outgoing messages, saml-engine will be asked for a given message, then it will ask Policy for a JSON representation of the given message, translate that to SAML and pass it on to the requesting service.
 
-saml-engine uses Infinispan to protect against replay attacks on both assertions and authn requests. We don’t accept duplicate assertions or authn requests for a two hour period.
+saml-engine uses Redis to protect against replay attacks on both assertions and authn requests. We don’t accept duplicate assertions or authn requests for a two hour period.
 
 saml-engine is the only place that holds the Verify Hub’s private signing & encryption keys: it is responsible for signing and decrypting all SAML messages
 
@@ -24,7 +24,6 @@ saml-engine relies on Policy sending protective monitoring and error events to e
 
 * `/saml-engine/translate-*`: translate from an incoming encrypted SAML message to a deserialised domain object
 * `/saml-engine/generate-*`: generate a (signed) and encrypted outgoing SAML message
-* `/infinispan/details`: get information about the current infinispan cluster
 
 On the app's admin port metadata can be force refreshed with an empty POST to `/tasks/metadata-refresh`
 

@@ -16,6 +16,7 @@ import static uk.gov.ida.hub.policy.domain.ResponseAction.IdpResult.SUCCESS;
 
 // We would like to use the following annotation so in future we can re-use ResponseActionDto,
 // however, it appears Infinispan does not like it: (@JsonIgnoreProperties(ignoreUnknown = true))
+// TODO: now that infinispan has gone, can we re-enable this?
 public final class ResponseAction {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResponseAction.class);

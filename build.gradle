@@ -39,7 +39,6 @@ ext {
 def dependencyVersions = [
         ida_utils:'374',
         dropwizard:"$dropwizard_version",
-        dropwizard_infinispan:"$dropwizard_version-53",
         pact:'3.5.6',
         ida_test_utils:"2.0.0-49",
         opensaml:"$opensaml_version",
@@ -87,7 +86,6 @@ subprojects {
         test_utils
         test_deps_compile
         test_deps_runtime
-        dropwizard_infinispan
         integrationtests
         config
         verify_event_emitter
@@ -133,8 +131,6 @@ subprojects {
         }
 
         dev_pki "uk.gov.ida:ida-dev-pki:$dependencyVersions.dev_pki"
-
-        dropwizard_infinispan "uk.gov.ida:dropwizard-infinispan:$dependencyVersions.dropwizard_infinispan"
 
         prometheus 'engineering.gds-reliability:gds-metrics-dropwizard:0.7.0'
 
@@ -218,7 +214,6 @@ task(outputDependencies) doLast {
     println "saml_metadata="+dependencyVersions.saml_metadata
     println "rest_utils="+dependencyVersions.rest_utils
     println "ida_utils="+dependencyVersions.ida_utils
-    println "dropwizard_infinispan="+dependencyVersions.dropwizard_infinispan
 }
 
 import javax.crypto.Cipher

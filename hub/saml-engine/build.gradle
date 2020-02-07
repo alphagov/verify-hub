@@ -3,11 +3,9 @@ dependencies {
             configurations.pact_test,
             configurations.test_utils,
             configurations.redis_test,
-            project(':hub-saml-test-utils'),
-            'org.infinispan:infinispan-core:7.1.1.Final:tests'
+            project(':hub-saml-test-utils')
 
     implementation configurations.dropwizard,
-            configurations.dropwizard_infinispan,
             configurations.saml,
             configurations.soap,
             configurations.common,

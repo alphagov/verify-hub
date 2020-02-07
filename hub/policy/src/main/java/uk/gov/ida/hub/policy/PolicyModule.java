@@ -49,7 +49,6 @@ import uk.gov.ida.hub.policy.services.CountriesService;
 import uk.gov.ida.hub.policy.services.Cycle3Service;
 import uk.gov.ida.hub.policy.services.MatchingServiceResponseService;
 import uk.gov.ida.hub.policy.services.SessionService;
-import uk.gov.ida.hub.policy.session.InfinispanSessionStore;
 import uk.gov.ida.hub.policy.session.RedisSessionStore;
 import uk.gov.ida.hub.policy.session.SessionStore;
 import uk.gov.ida.jerseyclient.DefaultClientProvider;
@@ -58,7 +57,6 @@ import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.jerseyclient.JsonResponseProcessor;
 import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
-import uk.gov.ida.shared.dropwizard.infinispan.util.InfinispanCacheManager;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
 import uk.gov.ida.truststore.KeyStoreProvider;
@@ -144,12 +142,9 @@ public class PolicyModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public SessionStore getSessionStore(PolicyConfiguration configuration,
-                                        InfinispanCacheManager infinispanCacheManager) {
-        return configuration.getSessionStoreConfiguration().getRedisConfiguration()
-                .<SessionStore>map(this::getRedisSessionStore)
-                .orElseGet(() -> new InfinispanSessionStore(infinispanCacheManager.getCache("state_cache")));
-
+    public SessionStore getSessionStore(PolicyConfiguration configuration) {
+        return getRedisSessionStore(
+                configuration.getSessionStoreConfiguration().getRedisConfiguration());
     }
 
     private RedisSessionStore getRedisSessionStore(RedisConfiguration config) {
@@ -163,7 +158,7 @@ public class PolicyModule extends AbstractModule {
         return new RedisSessionStore(redisCommands, config.getRecordTTL());
     }
 
-    private ObjectMapper getRedisObjectMapper() {
+    public static ObjectMapper getRedisObjectMapper() {
         return new ObjectMapper()
                 .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NONE)
                 .setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE)

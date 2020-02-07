@@ -1,6 +1,6 @@
 # policy
 
-The Policy service is the heart of the Verify hub. It contains the control logic for processing messages processed by saml-engine and Frontend. The state of a given user’s session is stored in an in-memory Infinispan shared between all Policy instances. Each appropriate action that the user can take will progress the state and update the state object in place. An orthogonal responsibility of Policy is to ensure that Audit receives a message for each business event that occurs.
+The Policy service is the heart of the Verify hub. It contains the control logic for processing messages processed by saml-engine and Frontend. The state of a given user’s session is stored in Redis. Each appropriate action that the user can take will progress the state and update the state object in place. An orthogonal responsibility of Policy is to ensure that Audit receives a message for each business event that occurs.
 
 ## Microservices that policy uses
 
@@ -20,7 +20,6 @@ The Policy service is the heart of the Verify hub. It contains the control logic
 
 * `/policy/session`: resources to deal with a user session
 * `/policy/received-authn-request`: resources to deal with a user session
-* `/infinispan/details`: get information about the current infinispan cluster
 
 ### Standard paths for all our apps
 * `/internal/version-info`: json formatted version info about the current build of the service

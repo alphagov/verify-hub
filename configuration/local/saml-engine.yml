@@ -30,13 +30,9 @@ httpClient:
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
-infinispan:
-  bindAddress: 
-  initialHosts: 
-  clusterName: 
-  type: standalone
-  expiration: 8h
-  persistenceToFileEnabled: false
+redis:
+  recordTTL: PT150m
+  uri: redis://localhost:6379
 
 configUri: ${CONFIG_URL}
 

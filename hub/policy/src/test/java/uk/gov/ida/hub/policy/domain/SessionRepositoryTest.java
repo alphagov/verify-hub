@@ -16,7 +16,7 @@ import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateException;
 import uk.gov.ida.hub.policy.exception.SessionTimeoutException;
-import uk.gov.ida.hub.policy.session.InfinispanSessionStore;
+import uk.gov.ida.hub.policy.session.SessionStore;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.net.URI;
@@ -50,7 +50,7 @@ public class SessionRepositoryTest {
     @Before
     public void setup() {
         dataStore = new ConcurrentHashMap<>();
-        sessionRepository = new SessionRepository(new InfinispanSessionStore(dataStore), controllerFactory);
+        sessionRepository = new SessionRepository(new ConcurrentMapSessionStore(dataStore), controllerFactory);
     }
 
     @Test(expected = InvalidSessionStateException.class)
@@ -198,6 +198,35 @@ public class SessionRepositoryTest {
         @Override
         public Optional<String> getRelayState() {
             return Optional.empty();
+        }
+    }
+
+    private static class ConcurrentMapSessionStore implements SessionStore {
+
+        private final ConcurrentMap<SessionId, State> dataStore;
+
+        public ConcurrentMapSessionStore(ConcurrentMap<SessionId, State> dataStore) {
+            this.dataStore = dataStore;
+        }
+
+        @Override
+        public void insert(SessionId sessionId, State state) {
+            dataStore.put(sessionId, state);
+        }
+
+        @Override
+        public void replace(SessionId sessionId, State state) {
+            dataStore.replace(sessionId, state);
+        }
+
+        @Override
+        public boolean hasSession(SessionId sessionId) {
+            return dataStore.containsKey(sessionId);
+        }
+
+        @Override
+        public State get(SessionId sessionId) {
+            return dataStore.get(sessionId);
         }
     }
 }

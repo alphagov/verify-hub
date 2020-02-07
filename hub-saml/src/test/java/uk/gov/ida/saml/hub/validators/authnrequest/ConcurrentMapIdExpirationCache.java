@@ -5,24 +5,24 @@ import org.joda.time.DateTime;
 import java.util.concurrent.ConcurrentMap;
 
 public class ConcurrentMapIdExpirationCache<T> implements IdExpirationCache<T> {
-    private final ConcurrentMap<T, DateTime> infinispanMap;
+    private final ConcurrentMap<T, DateTime> map;
 
-    public ConcurrentMapIdExpirationCache(ConcurrentMap<T, DateTime> infinispanMap) {
-        this.infinispanMap = infinispanMap;
+    public ConcurrentMapIdExpirationCache(ConcurrentMap<T, DateTime> map) {
+        this.map = map;
     }
 
     @Override
     public boolean contains(T key) {
-        return infinispanMap.containsKey(key);
+        return map.containsKey(key);
     }
 
     @Override
     public DateTime getExpiration(T key) {
-        return infinispanMap.get(key);
+        return map.get(key);
     }
 
     @Override
     public void setExpiration(T key, DateTime expirationTime) {
-        infinispanMap.put(key, expirationTime);
+        map.put(key, expirationTime);
     }
 }

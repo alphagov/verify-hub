@@ -2,13 +2,14 @@ package uk.gov.ida.integrationtest.hub.policy.builders;
 
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
+import io.lettuce.core.RedisURI;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
+import uk.gov.ida.hub.policy.configuration.RedisConfiguration;
 import uk.gov.ida.hub.policy.configuration.SessionStoreConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 
 import java.net.URI;
-import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ public class PolicyConfigurationBuilder {
 
     private Duration timeoutPeriod = Duration.minutes(2);
     private ServiceInfoConfiguration serviceInfo = aServiceInfo().withName("Policy").build();
+    private int redisPort = RedisURI.DEFAULT_REDIS_PORT;
 
     public static PolicyConfigurationBuilder aPolicyConfiguration() {
         return new PolicyConfigurationBuilder();
@@ -25,7 +27,19 @@ public class PolicyConfigurationBuilder {
 
     public PolicyConfiguration build() {
         SessionStoreConfiguration sessionStoreConfiguration = mock(SessionStoreConfiguration.class);
-        when(sessionStoreConfiguration.getRedisConfiguration()).thenReturn(Optional.empty());
+        when(sessionStoreConfiguration.getRedisConfiguration()).thenReturn(
+                new RedisConfiguration() {
+                    @Override
+                    public Long getRecordTTL() {
+                        return 3600L;
+                    }
+
+                    @Override
+                    public RedisURI getUri() {
+                        return new RedisURI("localhost",redisPort, java.time.Duration.ofSeconds(1));
+                    }
+                }
+        );
         return new TestPolicyConfiguration(
                 new JerseyClientConfiguration(),
                 serviceInfo,
@@ -36,13 +50,8 @@ public class PolicyConfigurationBuilder {
                 Duration.minutes(15));
     }
 
-    public PolicyConfigurationBuilder withTimeoutPeriod(long i) {
-        timeoutPeriod = Duration.minutes(i);
-        return this;
-    }
-
-    public PolicyConfigurationBuilder withServiceInfo(ServiceInfoConfiguration serviceInfo) {
-        this.serviceInfo = serviceInfo;
+    public PolicyConfigurationBuilder withRedisPort(int redisPort) {
+        this.redisPort = redisPort;
         return this;
     }
 

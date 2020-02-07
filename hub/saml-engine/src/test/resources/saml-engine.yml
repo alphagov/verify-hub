@@ -46,13 +46,9 @@ httpClient:
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
-infinispan:
-  bindAddress:
-  initialHosts: 
-  clusterName: 
-  type: standalone
-  expiration: 8h
-  persistenceToFileEnabled: false
+redis:
+  recordTTL: PT150m
+  uri: "redis://replace.me:1234"
 
 configUri: ${CONFIG_URI:-http://localhost:50240}
 
