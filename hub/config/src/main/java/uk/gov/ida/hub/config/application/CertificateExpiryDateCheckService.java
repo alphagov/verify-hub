@@ -42,7 +42,8 @@ public class CertificateExpiryDateCheckService implements Runnable {
                     LOG.error(String.format("Invalid X.509 certificate [issuer id: %s]", certificate.getIssuerEntityId()));
                 } catch (Exception e) {
                     if (Objects.nonNull(certificate)) {
-                        LOG.error(String.format("Unable to set certificate expiry date metrics for the certificate [issuer id: %s]", certificate.getIssuerEntityId()), e);
+                        //TODO: change this back to error; once we figure how to deal with this in https://govukverify.atlassian.net/browse/HUB-457.
+                        LOG.warn(String.format("Unable to set certificate expiry date metrics for the certificate [issuer id: %s]", certificate.getIssuerEntityId()), e);
                     } else {
                         LOG.error("Unable to set certificate expiry date metrics.", e);
                     }
