@@ -32,7 +32,7 @@ bintray {
     publish = true
     pkg {
         repo = 'maven-test'
-        name = 'verify-hub-saml'
+        name = 'verify-hub-saml-test-utils'
         userOrg = 'alphagov'
         licenses = ['MIT']
         vcsUrl = 'https://github.com/alphagov/verify-hub.git'
