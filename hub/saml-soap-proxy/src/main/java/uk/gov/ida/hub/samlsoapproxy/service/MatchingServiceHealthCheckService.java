@@ -57,8 +57,7 @@ public class MatchingServiceHealthCheckService implements Runnable {
                         .collect(Collectors.toList());
             matchingServiceHealthCheckTaskManager.invokeAll(callables, timeout.toSeconds() + WAIT_FOR_THREAD_TO_MARK_TIMEOUT_MATCHING_SERVICE_UNHEALTHY, TimeUnit.SECONDS);
         } catch (Exception e) {
-            LOG.warn(e.getMessage());
+            LOG.error("Failed to perform Matching Health Service Task on all Matching Services.", e);
         }
     }
-
 }

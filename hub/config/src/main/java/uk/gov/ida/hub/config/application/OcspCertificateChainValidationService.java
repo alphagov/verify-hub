@@ -9,6 +9,7 @@ import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.OCSPCertificateChainValidityChecker;
 
 import java.security.cert.CertificateException;
+import java.util.Objects;
 import java.util.Set;
 
 public class OcspCertificateChainValidationService implements Runnable {
@@ -35,7 +36,7 @@ public class OcspCertificateChainValidationService implements Runnable {
         try {
             final Set<Certificate> certificatesSet = certificateService.getAllCertificates();
             final double timestamp = DateTime.now(DateTimeZone.UTC).getMillis();
-            certificatesSet.forEach(certificate -> {
+            for (Certificate certificate: certificatesSet) {
                 try {
                     if (ocspCertificateChainValidityChecker.isValid(certificate)) {
                         updateAGauge(ocspStatusGauge, certificate, VALID);
@@ -43,13 +44,18 @@ public class OcspCertificateChainValidationService implements Runnable {
                     } else {
                         updateAGauge(ocspStatusGauge, certificate, INVALID);
                     }
-                } catch (CertificateException e) {
-                    LOG.warn(String.format("Invalid X.509 certificate [issuer id: %s]", certificate.getIssuerEntityId()));
+                } catch (Exception e) {
+                    if (Objects.nonNull(certificate)) {
+                        // TODO: change this back to error; once we figure how to deal with this in https://govukverify.atlassian.net/browse/HUB-457.
+                        LOG.warn(String.format("Unable to set certificates OCSP revocation status metrics for the certificate [issuer id: %s]", certificate.getIssuerEntityId()), e);
+                    } else {
+                        LOG.error("Unable to set certificates OCSP revocation status metrics.", e);
+                    }
                 }
-            });
+            }
             LOG.info("Updated Certificates OCSP Revocation Statuses Metrics.");
         } catch (Exception e) {
-            LOG.warn(e.getMessage());
+            LOG.error("Failed to update Certificates OCSP Revocation Statuses Metrics", e);
         }
     }
 

@@ -9,6 +9,7 @@ import uk.gov.ida.hub.samlsoapproxy.contract.MatchingServiceConfigEntityDataDto;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthCheckResult;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthChecker;
 
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public class MatchingServiceHealthCheckTask implements Callable<String> {
@@ -44,7 +45,11 @@ public class MatchingServiceHealthCheckTask implements Callable<String> {
             healthStatusLastUpdatedGauge.labels(matchingServiceHealthCheckResult.getDetails().getMatchingService().toString())
                     .set(timestamp);
         } catch (Exception e) {
-            LOG.warn(e.getMessage());
+            if (Objects.isNull(matchingServiceConfig)) {
+                LOG.error("Failed to update Matching Service Health Metrics.", e);
+            } else {
+                LOG.error(String.format("Failed to update Matching Service Health Metrics for %s.", matchingServiceConfig.getEntityId()), e);
+            }
         }
         return DateTime.now(DateTimeZone.UTC) + matchingServiceConfig.getEntityId();
     }
