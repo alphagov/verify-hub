@@ -5,7 +5,7 @@ server:
   requestLog:
     type: classic
     appenders:
-      - type: access-logstash-console
+      - type: {access-logstash-console}
 timeoutPeriod: 90m
 assertionLifetime: 60m
 acceptSelfSignedCerts: true
@@ -51,7 +51,7 @@ logging:
   level: INFO
   appenders:
     - type: logstash-console
-    - type: raven
+    - type: sentry
       dsn: ${SENTRY_DSN}
       threshold: ERROR
       tags: service-name:policy
