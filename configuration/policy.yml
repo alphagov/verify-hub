@@ -51,10 +51,10 @@ logging:
   level: INFO
   appenders:
     - type: logstash-console
-    - type: raven
+    - type: sentry
       dsn: ${SENTRY_DSN}
       threshold: ERROR
-      tags: service-name:policy
+      tags: {"service-name": "policy"}
 eidas: true
 eventEmitterConfiguration:
   enabled: true
