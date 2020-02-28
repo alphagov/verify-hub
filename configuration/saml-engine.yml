@@ -63,10 +63,10 @@ logging:
   level: INFO
   appenders:
     - type: logstash-console
-    - type: raven
+    - type: sentry
       dsn: ${SENTRY_DSN}
       threshold: ERROR
-      tags: service-name:saml-engine
+      tags: {"service-name": "saml-engine"}
 authnRequestIdExpirationDuration: 90m
 authnRequestValidityDuration: 5m
 metadata:

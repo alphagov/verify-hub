@@ -15,10 +15,10 @@ logging:
   level: INFO
   appenders:
     - type: logstash-console
-    - type: raven
+    - type: sentry
       dsn: ${SENTRY_DSN}
       threshold: ERROR
-      tags: service-name:config
+      tags: {"service-name": "config"}
 # these DEPLOYMENT environment variables should get
 # interpolated by dropwizard
 clientTrustStoreConfiguration:

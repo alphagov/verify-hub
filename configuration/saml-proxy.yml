@@ -40,10 +40,10 @@ logging:
   level: INFO
   appenders:
     - type: logstash-console
-    - type: raven
+    - type: sentry
       dsn: ${SENTRY_DSN}
       threshold: ERROR
-      tags: service-name:saml-proxy
+      tags: {"service-name": "saml-proxy"}
 metadata:
   uri: https://www.${DOMAIN}/SAML2/metadata/federation
   trustStorePath: /tmp/truststores/${DEPLOYMENT}/metadata_ca_certs.ts
