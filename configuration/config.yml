@@ -15,7 +15,7 @@ logging:
   level: INFO
   appenders:
     - type: logstash-console
-    - type: sentry
+    - type: raven
       dsn: ${SENTRY_DSN}
       threshold: ERROR
       tags: service-name:config
