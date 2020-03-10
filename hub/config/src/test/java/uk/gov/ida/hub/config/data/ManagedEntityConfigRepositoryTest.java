@@ -10,13 +10,12 @@ import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 import uk.gov.ida.hub.config.domain.remoteconfig.SelfServiceMetadata;
-
+import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
@@ -26,6 +25,7 @@ public class ManagedEntityConfigRepositoryTest {
 
     private static final String REMOTE_ONLY_ENTITY_ID = "https://bananaregistry.test.com";
     private static final String REMOTE_ENABLED_ENTITY_ID = "https://appleregistry.test.com";
+    private static final String REMOTE_ENABLED_ENTITY_ID_2 = "https://noencryptionregistry.test.com";
     private static final String REMOTE_DISABLED_ENTITY_ID = "https://cherryregistry.test.com";
     private static final String LOCAL_ONLY_ENTITY_ID = "https://local.test.com";
     private static final String BAD_ENTITY_ID = "http://none.existent.test.com";
@@ -110,5 +110,36 @@ public class ManagedEntityConfigRepositoryTest {
         assertThat(result.get().getEncryptionCertificate().getBase64Encoded().get()).isEqualTo(REMOTE_CERT);
         assertThat(result.get().getEncryptionCertificate().getCertificateOrigin()).isEqualTo(CertificateOrigin.SELFSERVICE);
     }
+    
+    @Test(expected = NoCertificateFoundException.class)
+    public void getThrowsAnExceptionWhenOverrideConfigIsWithoutEncryptionCertificate() {
+        var configRepo = new ManagedEntityConfigRepository<>(localConfigRepository, s3ConfigSource);
+        
+        TransactionConfig remoteEnabledTransactionWithoutEncryption = aTransactionConfigData()
+                .withEntityId(REMOTE_ENABLED_ENTITY_ID_2)
+                .withSelfService(true)
+                .build();
+        
+        when(localConfigRepository.getData(REMOTE_ENABLED_ENTITY_ID_2)).thenReturn(Optional.of(remoteEnabledTransactionWithoutEncryption));
+        Optional<TransactionConfig> result = configRepo.get(REMOTE_ENABLED_ENTITY_ID_2);
 
+        assertThat(result.get().getEntityId()).isEqualTo(REMOTE_ENABLED_ENTITY_ID_2);
+        assertThat(result.get().getEncryptionCertificate().getBase64Encoded()).isPresent();
+        assertThat(result.get().getEncryptionCertificate().getCertificateOrigin()).isEqualTo(CertificateOrigin.SELFSERVICE);
+    }
+    @Test(expected = NoCertificateFoundException.class)
+    public void getThrowsAnExceptionWhenOverrideConfigIsWithoutSigningCertificates() {
+        var configRepo = new ManagedEntityConfigRepository<>(localConfigRepository, s3ConfigSource);
+
+        TransactionConfig remoteEnabledTransactionWithoutEncryption = aTransactionConfigData()
+                .withEntityId(REMOTE_ENABLED_ENTITY_ID_2)
+                .withSelfService(true)
+                .build();
+
+        when(localConfigRepository.getData(REMOTE_ENABLED_ENTITY_ID_2)).thenReturn(Optional.of(remoteEnabledTransactionWithoutEncryption));
+        Optional<TransactionConfig> result = configRepo.get(REMOTE_ENABLED_ENTITY_ID_2);
+
+        assertThat(result.get().getEntityId()).isEqualTo(REMOTE_ENABLED_ENTITY_ID_2);
+        assertThat(result.get().getSignatureVerificationCertificates()).isEmpty();
+    }
 }

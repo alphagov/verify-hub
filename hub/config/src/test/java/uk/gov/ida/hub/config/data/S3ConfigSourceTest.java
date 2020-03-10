@@ -110,7 +110,7 @@ public class S3ConfigSourceTest {
         assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSignatureVerificationCertificates().size()).isEqualTo(1);
         assertThat(msConfigs.get("https://msa.bananaregistry.test.com").getSignatureVerificationCertificates().get(0)).contains(CERT_MSA_BANANA_SIGNING);
         Map<String, RemoteServiceProviderConfig> spConfigs = result.getServiceProviders();
-        assertThat(spConfigs.size()).isEqualTo(2);
+        assertThat(spConfigs.size()).isEqualTo(3);
         RemoteServiceProviderConfig spConfig2 = spConfigs.get("2");
         assertThat(spConfig2.getName()).isEqualTo("Apple Registry VSP");
         assertThat(spConfig2.getSignatureVerificationCertificates().size()).isEqualTo(1);

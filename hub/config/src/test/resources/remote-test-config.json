@@ -13,6 +13,10 @@
     {
       "entity_id" : "https://cherryregistry.test.com",
       "service_provider_id": 3
+    },
+    {
+      "entity_id" : "https://noencryptionregistry.test.com",
+      "service_provider_id": 4
     }
   ],
   "matching_service_adapters":[
@@ -88,6 +92,12 @@
           "value":"MIIDDjCCAfYCCQC4nnLu8fPLIjANBgkqhkiG9w0BAQsFADBJMQswCQYDVQQGEwJVSzEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANHRFMxGzAZBgNVBAMMEkJhbmFuYSBWU1AgU2lnbmluZzAeFw0xOTA2MjgxNDIyMjZaFw0zOTA2MjgxNDIyMjZaMEkxCzAJBgNVBAYTAlVLMQ8wDQYDVQQHDAZMb25kb24xDDAKBgNVBAoMA0dEUzEbMBkGA1UEAwwSQmFuYW5hIFZTUCBTaWduaW5nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3JmFyYO0pF6krivSlsJgpe9AMmr88FmUpShUquNUvQIe6tQtPp436azXLozlZXyPR+nJ6EfE6H/m5jhobwOuq7EGRKU2pjEwveTLB1qI1NOUCEBkv5ii9Bm+3xkiF840U15D8ftjr20VLcCDuyI/bbLqS4rDC7syaSeD6SN7k4ifRhIyfxaXBHts7m++6zKENisH+2laQ/GYNP2/TZHXvxS2CWXGgw5RDhY7LbOEZldU/PPlW8WkqCDgUFEdRa65Pe6c22zsPYMD+JsuIkW0bE0uceAY6ja5sNyEBkEZe/1A409O6+q6OhyTAtJ5ewcNSIx4L0eh5MM5AQ4zFTJRuwIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQBP4WBZufGxcGoKvZnyTTbprpbEA/pILC0pNK/7Dku3m1zR8zEpSehnbaWKWO9KpSvuak1Kp983BdczcJy/0zSml+RkN46yia65eebZniWFtJ32/TgpW2ALbqLjVCfr4h5OinPouf4yKCDpSvb8CtFsHCeHDh9EdWtoZzDgeFJqPADwP9/A6asyKIOVag5QuCUqlEpr7lcAWKWYb7eQsL105WdssOQF1R/W70x4TCbK72U0t3pRbBEab10JrjUpPscc+NnEKgz33zILTXjEO1FeEcdTGcs5AvwR2GIwAg2IBGZY/USyD6LKmvHS3tvyxWbM9qnw00Fr3Cl15ZpWzClK"
         }
       ]
+    },
+    {
+      "id": 4,
+      "name":"No certificates registry",
+      "encryption_certificate": null,
+      "signing_certificates": null
     }
   ]
 }

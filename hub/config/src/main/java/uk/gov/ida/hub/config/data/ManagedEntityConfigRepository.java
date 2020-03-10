@@ -2,21 +2,25 @@ package uk.gov.ida.hub.config.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
 import uk.gov.ida.hub.config.domain.CertificateOrigin;
-import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
-
+import uk.gov.ida.hub.config.domain.remoteconfig.RemoteComponentConfig;
+import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
 import javax.inject.Inject;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ManagedEntityConfigRepository<T extends CertificateConfigurable<T>> implements ConfigRepository<T>{
+public class ManagedEntityConfigRepository<T extends CertificateConfigurable<T>> implements ConfigRepository<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagedEntityConfigRepository.class);
-    private LocalConfigRepository<T> localConfigRepository;
-    private S3ConfigSource s3ConfigSource;
+    private final LocalConfigRepository<T> localConfigRepository;
+    private final S3ConfigSource s3ConfigSource;
 
     @Inject
     public ManagedEntityConfigRepository(LocalConfigRepository<T> localConfigRepository, S3ConfigSource s3ConfigSource) {
@@ -25,9 +29,8 @@ public class ManagedEntityConfigRepository<T extends CertificateConfigurable<T>>
     }
 
     public Collection<T> getAll() {
-        RemoteConfigCollection remoteConfigCollection = s3ConfigSource.getRemoteConfig();
         return localConfigRepository.stream()
-                .map((local) -> overrideWithRemote(local, remoteConfigCollection))
+                .map(this::overrideWithRemote)
                 .collect(Collectors.toList());
     }
 
@@ -36,27 +39,61 @@ public class ManagedEntityConfigRepository<T extends CertificateConfigurable<T>>
     }
 
     public Optional<T> get(String entityId) {
-        RemoteConfigCollection remoteConfigCollection = s3ConfigSource.getRemoteConfig();
-        Optional<T> localConfig = localConfigRepository.getData(entityId);
-        return localConfig.map(local -> overrideWithRemote(local, remoteConfigCollection));
-    }
-
-    private T overrideWithRemote(T local, RemoteConfigCollection remoteConfigCollection){
-        if (local.isSelfService()){
-            return remoteConfigCollection.getRemoteComponent(local)
-                    .map(remote -> local.override(
-                            remote.getSignatureVerificationCertificates(),
-                            remote.getEncryptionCertificate(),
-                            CertificateOrigin.SELFSERVICE))
-                    .orElseGet(()-> {
-                        LOG.warn("Local config for '{}' expects there to be remote config but it could not be found", local.getEntityId());
-                        return local;
-                    });
-        }
-        return local;
+        return localConfigRepository.getData(entityId)
+                .map(this::overrideWithRemote);
     }
 
     public Stream<T> stream() {
         return localConfigRepository.stream();
+    }
+    
+
+    private T overrideWithRemote(T local) {
+        if (!local.isSelfService()) return local;
+        
+        return s3ConfigSource.getRemoteConfig()
+                .getRemoteComponent(local)
+                .map(remote -> getRemoteOverrides(local, remote))
+                .orElseGet(() -> logWarningAndReturnUnOverriddenConfig(local));
+    }
+
+    private T logWarningAndReturnUnOverriddenConfig(T local) {
+        LOG.warn("Local config for '{}' expects there to be remote config but it could not be found", local.getEntityId());
+        return local;
+    }
+
+    private T getRemoteOverrides(T local, RemoteComponentConfig remote) {
+        return local.override(
+                getSignatureVerificationCertificates(local, remote),
+                getEncryptionCertificate(local, remote),
+                CertificateOrigin.SELFSERVICE);
+    }
+
+    private List<String> getSignatureVerificationCertificates(T local, RemoteComponentConfig remote) {
+        try {
+            return remote.getSignatureVerificationCertificates();
+        }
+        catch (NullPointerException e){
+            LOG.warn("Remote config signing certificates missing for {}",
+                    Optional.ofNullable(local.getSignatureVerificationCertificates()
+                            .stream().map(Certificate::getSubject)
+                            .reduce("", String::join))
+                            .orElseGet(local::getEntityId));
+            throw new NoCertificateFoundException();
+        }
+    }
+
+    private String getEncryptionCertificate(T local, RemoteComponentConfig remote) {
+        try {
+            return remote.getEncryptionCertificate();
+        }
+        catch (NullPointerException e){
+            LOG.warn("Remote config encryption certificate missing for {}",
+                    local.getEncryptionCertificate().getX509Certificate()
+                            .map(X509Certificate::getSubjectDN)
+                            .map(Principal::getName)
+                            .orElseGet(local::getEntityId));
+            throw new NoCertificateFoundException();
+        }
     }
 }
