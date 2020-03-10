@@ -6,7 +6,7 @@ buildscript {
           jcenter()
         }
         else {
-          maven { url 'https://artifactory.ida.digital.cabinet-office.gov.uk/artifactory/whitelisted-repos' }
+          maven { url 'https://gds.jfrog.io/artifactory/whitelisted-repos' }
         }
     }
     dependencies {
