@@ -10,6 +10,7 @@ import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -74,12 +75,11 @@ public class ManagedEntityConfigRepository<T extends CertificateConfigurable<T>>
             return remote.getSignatureVerificationCertificates();
         }
         catch (NullPointerException e){
-            LOG.warn("Remote config signing certificates missing for {}",
+            throw new NoCertificateFoundException(MessageFormat.format("Remote config signing certificates missing for {} {}",
+                    local.getEntityId(),
                     Optional.ofNullable(local.getSignatureVerificationCertificates()
                             .stream().map(Certificate::getSubject)
-                            .reduce("", String::join))
-                            .orElseGet(local::getEntityId));
-            throw new NoCertificateFoundException();
+                            .reduce("", String::join))));
         }
     }
 
@@ -88,12 +88,12 @@ public class ManagedEntityConfigRepository<T extends CertificateConfigurable<T>>
             return remote.getEncryptionCertificate();
         }
         catch (NullPointerException e){
-            LOG.warn("Remote config encryption certificate missing for {}",
+            throw new NoCertificateFoundException(MessageFormat.format("Remote config encryption certificate missing for {} {}",
+                    local.getEntityId(),
                     local.getEncryptionCertificate().getX509Certificate()
                             .map(X509Certificate::getSubjectDN)
                             .map(Principal::getName)
-                            .orElseGet(local::getEntityId));
-            throw new NoCertificateFoundException();
+                            .orElseGet(String::new)));
         }
     }
 }

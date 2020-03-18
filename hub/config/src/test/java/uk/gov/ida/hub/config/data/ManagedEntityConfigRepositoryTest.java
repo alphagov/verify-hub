@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
@@ -111,7 +112,6 @@ public class ManagedEntityConfigRepositoryTest {
         assertThat(result.get().getEncryptionCertificate().getCertificateOrigin()).isEqualTo(CertificateOrigin.SELFSERVICE);
     }
     
-    @Test(expected = NoCertificateFoundException.class)
     public void getThrowsAnExceptionWhenOverrideConfigIsWithoutEncryptionCertificate() {
         var configRepo = new ManagedEntityConfigRepository<>(localConfigRepository, s3ConfigSource);
         
@@ -124,10 +124,11 @@ public class ManagedEntityConfigRepositoryTest {
         Optional<TransactionConfig> result = configRepo.get(REMOTE_ENABLED_ENTITY_ID_2);
 
         assertThat(result.get().getEntityId()).isEqualTo(REMOTE_ENABLED_ENTITY_ID_2);
-        assertThat(result.get().getEncryptionCertificate().getBase64Encoded()).isPresent();
-        assertThat(result.get().getEncryptionCertificate().getCertificateOrigin()).isEqualTo(CertificateOrigin.SELFSERVICE);
+        assertThatThrownBy(()-> result.get().getEncryptionCertificate())
+            .isExactlyInstanceOf(NoCertificateFoundException.class)
+                .hasMessageContaining(String.format("Remote config encryption certificate missing for %s", REMOTE_ENABLED_ENTITY_ID_2));
     }
-    @Test(expected = NoCertificateFoundException.class)
+    
     public void getThrowsAnExceptionWhenOverrideConfigIsWithoutSigningCertificates() {
         var configRepo = new ManagedEntityConfigRepository<>(localConfigRepository, s3ConfigSource);
 
@@ -140,6 +141,9 @@ public class ManagedEntityConfigRepositoryTest {
         Optional<TransactionConfig> result = configRepo.get(REMOTE_ENABLED_ENTITY_ID_2);
 
         assertThat(result.get().getEntityId()).isEqualTo(REMOTE_ENABLED_ENTITY_ID_2);
-        assertThat(result.get().getSignatureVerificationCertificates()).isEmpty();
+        assertThatThrownBy(()-> result.get().getSignatureVerificationCertificates())
+                .isExactlyInstanceOf(NoCertificateFoundException.class)
+                .hasMessageContaining(String.format("Remote config signing certificates missing for %s", REMOTE_ENABLED_ENTITY_ID_2));
     }
+    
 }
