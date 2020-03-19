@@ -32,13 +32,22 @@ public class IdentityProvidersConfigProxy {
     }
 
     @Timed
-    public List<String> getEnabledIdentityProviders(String transactionEntityId, boolean registering, LevelOfAssurance loa) {
+    public List<String> getEnabledIdentityProvidersForAuthenticationRequestGeneration(String transactionEntityId, boolean registering, LevelOfAssurance loa) {
+        return getEnabledIdentityProviders(transactionEntityId, loa, registering, false);
+    }
+
+    @Timed
+    public List<String> getEnabledIdentityProvidersForAuthenticationResponseProcessing(String transactionEntityId, boolean registering, LevelOfAssurance loa) {
+        return getEnabledIdentityProviders(transactionEntityId, loa, registering, true);
+    }
+
+    private List<String> getEnabledIdentityProviders(String transactionEntityId, LevelOfAssurance loa, boolean registering, boolean processingIdpResponse) {
         if (transactionEntityId == null) {
             return Collections.emptyList();
         }
 
         return registering ?
-                getEnabledIdentityProvidersForLoa(transactionEntityId, loa) :
+                getEnabledIdentityProvidersForRegistration(transactionEntityId, loa, processingIdpResponse) :
                 getEnabledIdentityProvidersForSignIn(transactionEntityId);
     }
 
@@ -52,8 +61,12 @@ public class IdentityProvidersConfigProxy {
         return jsonClient.get(uri, IdpConfigDto.class);
     }
 
-    private List<String> getEnabledIdentityProvidersForLoa(String transactionEntityId, LevelOfAssurance levelOfAssurance) {
-        final UriBuilder uriBuilder = UriBuilder.fromUri(configUri).path(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_LOA_RESOURCE);
+    private List<String> getEnabledIdentityProvidersForRegistration(String transactionEntityId, LevelOfAssurance levelOfAssurance, boolean processingIdpResponse) {
+        final String enabledIdpConfigServiceResourceUrl = processingIdpResponse ?
+                Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_RESPONSE_RESOURCE :
+                Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_REQUEST_RESOURCE;
+
+        final UriBuilder uriBuilder = UriBuilder.fromUri(configUri).path(enabledIdpConfigServiceResourceUrl);
         final URI uri = uriBuilder.buildFromEncoded(StringEncoding.urlEncode(transactionEntityId), levelOfAssurance.toString());
         return jsonClient.get(uri, new GenericType<List<String>>() {});
     }

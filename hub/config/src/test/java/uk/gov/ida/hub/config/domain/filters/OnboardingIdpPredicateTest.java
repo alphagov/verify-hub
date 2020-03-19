@@ -15,6 +15,7 @@ import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboar
 import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingLoa1Idp;
 import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingLoa2Idp;
 import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingSoftDisconnectingIdp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing;
 import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingAllLevelsIdp;
 import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingHardDisconnectingIdp;
 import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingLoa1Idp;
@@ -37,7 +38,8 @@ public class OnboardingIdpPredicateTest {
         // result set.
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp,
                 nonOnboardingAllLevelsIdp, onboardingLoa2Idp, onboardingLoa2IdpOtherOnboardingEntity,
-                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing,
+                nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
@@ -50,14 +52,13 @@ public class OnboardingIdpPredicateTest {
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa2IdpOtherOnboardingEntity,
                 onboardingSoftDisconnectingIdp, onboardingHardDisconnectingIdp, nonOnboardingSoftDisconnectingIdp,
-                nonOnboardingHardDisconnectingIdp};
+                nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
 
     @Test
-    public void shouldReturnIdpsWithoutLoaForNonOnboardingTransactionEntity()
-    {
+    public void shouldReturnIdpsWithoutLoaForNonOnboardingTransactionEntity() {
         final Predicate<IdentityProviderConfig> signInPredicateNonOnboarding = (idpConfig) -> idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityNonOnboarding, null);
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, signInPredicateNonOnboarding);
 
@@ -66,14 +67,13 @@ public class OnboardingIdpPredicateTest {
         // result set.
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,
-                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
 
     @Test
-    public void shouldReturnIdpsWithoutLoaForOnboardingTransactionEntity()
-    {
+    public void shouldReturnIdpsWithoutLoaForOnboardingTransactionEntity() {
         final Predicate<IdentityProviderConfig> signInPredicateOnboarding = (idpConfig) -> idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityOnboarding, null);
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, signInPredicateOnboarding);
 
@@ -81,9 +81,8 @@ public class OnboardingIdpPredicateTest {
                 nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp,
                 onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,
                 onboardingSoftDisconnectingIdp, onboardingHardDisconnectingIdp,
-                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing, nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
-
 }

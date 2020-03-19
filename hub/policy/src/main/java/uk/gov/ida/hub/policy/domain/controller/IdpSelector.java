@@ -27,7 +27,7 @@ public class IdpSelector {
             throw StateProcessingValidationException.requestedLevelOfAssuranceUnsupportedByTransactionEntity(state.getRequestIssuerEntityId(), levelsOfAssuranceForTransaction, requestedLoa);
         }
 
-        List<String> availableIdentityProviderEntityIdsForLoa = identityProvidersConfigProxy.getEnabledIdentityProviders(
+        List<String> availableIdentityProviderEntityIdsForLoa = identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationRequestGeneration(
                 state.getRequestIssuerEntityId(), registering, requestedLoa);
 
         checkValidIdentityProvider(idpEntityId, availableIdentityProviderEntityIdsForLoa, state);

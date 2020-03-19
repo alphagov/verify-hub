@@ -1,23 +1,40 @@
 package uk.gov.ida.hub.config.domain.filters;
 
+import org.joda.time.Duration;
 import org.junit.Test;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
-import java.util.function.Predicate;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.*;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.allIdps;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.getFilteredIdps;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingAllLevelsIdp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingHardDisconnectingIdp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingLoa1Idp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingLoa2Idp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingSoftDisconnectingIdp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingAllLevelsIdp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingHardDisconnectingIdp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingLoa1Idp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingLoa1IdpOtherOnboardingEntity;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingLoa2Idp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingLoa2IdpOtherOnboardingEntity;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.onboardingSoftDisconnectingIdp;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.transactionEntityNonOnboarding;
+import static uk.gov.ida.hub.config.domain.filters.PredicateTestHelper.transactionEntityOnboarding;
 
 public class IdpPredicateFactoryPredicatesTest {
 
-    private final IdpPredicateFactory idpPredicateFactory = new IdpPredicateFactory();
+    private final IdpPredicateFactory idpPredicateFactory = new IdpPredicateFactory(new Duration(90 * 60 * 1000));
 
     @Test
-    public void shouldReturnIdpsForLoaForNonOnboardingTransactionEntity() {
+    public void shouldReturnIdpsEnabledForAuthnRequestForLoaForNonOnboardingTransactionEntity() {
         final Predicate<IdentityProviderConfig> loa1Predicate = idpPredicateFactory
-                .createPredicateForTransactionEntityAndLoa(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);
+                .createPredicateForSendingRegistrationRequest(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);
 
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
 
@@ -28,14 +45,41 @@ public class IdpPredicateFactoryPredicatesTest {
     }
 
     @Test
-    public void shouldReturnIdpsForLoaForOnboardingTransactionEntity() {
+    public void shouldReturnIdpsEnabledForResponseProcessingForLoaForNonOnboardingTransactionEntity() {
+        final Predicate<IdentityProviderConfig> loa1Predicate = idpPredicateFactory
+                .createPredicateForReceivingRegistrationResponse(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);
+
+        final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1Predicate);
+
+        final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
+                onboardingLoa2Idp, onboardingLoa2IdpOtherOnboardingEntity, nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing};
+
+        assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
+    }
+
+    @Test
+    public void shouldReturnIdpsEnabledForAuthnRequestForLoaForOnboardingTransactionEntity() {
         final Predicate<IdentityProviderConfig> loa1PredicateOnboarding = idpPredicateFactory
-                .createPredicateForTransactionEntityAndLoa(transactionEntityOnboarding, LevelOfAssurance.LEVEL_1);
+                .createPredicateForSendingRegistrationRequest(transactionEntityOnboarding, LevelOfAssurance.LEVEL_1);
 
         final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1PredicateOnboarding);
 
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
                 onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa2IdpOtherOnboardingEntity};
+
+        assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
+    }
+
+    @Test
+    public void shouldReturnIdpsEnabledForResponseProcessingForLoaForOnboardingTransactionEntity() {
+        final Predicate<IdentityProviderConfig> loa1PredicateOnboarding = idpPredicateFactory
+                .createPredicateForReceivingRegistrationResponse(transactionEntityOnboarding, LevelOfAssurance.LEVEL_1);
+
+        final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, loa1PredicateOnboarding);
+
+        final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp, nonOnboardingAllLevelsIdp,
+                onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa2IdpOtherOnboardingEntity,
+                nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
@@ -50,7 +94,8 @@ public class IdpPredicateFactoryPredicatesTest {
         final IdentityProviderConfig[] expectedFilteredIdps = {nonOnboardingLoa1Idp,
                 nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp,
                 onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,
-                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing,
+                nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }
@@ -66,7 +111,8 @@ public class IdpPredicateFactoryPredicatesTest {
                 nonOnboardingAllLevelsIdp, onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp,
                 onboardingLoa1IdpOtherOnboardingEntity, onboardingLoa2IdpOtherOnboardingEntity,
                 onboardingSoftDisconnectingIdp, onboardingHardDisconnectingIdp,
-                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp};
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing,
+                nonOnboardingHardDisconnectingIdp};
 
         assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
     }

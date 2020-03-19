@@ -3,28 +3,23 @@ package uk.gov.ida.hub.config.domain.filters;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
-import uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder;
 
-import java.util.function.Predicate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 
 final class PredicateTestHelper {
 
-    private PredicateTestHelper() {
-    }
-
-    private static final IdentityProviderConfigDataBuilder builder = anIdentityProviderConfigData();
-
     static final String transactionEntityNonOnboarding = "transactionEntityNonOnboarding";
     static final String transactionEntityOnboarding = "transactionEntityOnboarding";
     static final String transactionEntityOnboardingOther = "transactionEntityOnboardingOther";
 
+    static final DateTime expiredDatetimeWithinSessionDuration = DateTime.now().minusMinutes(80);
     static final DateTime expiredDatetime = DateTime.now().minusDays(1);
     static final DateTime futureDatetime = DateTime.now().plusDays(1);
 
@@ -52,6 +47,14 @@ final class PredicateTestHelper {
             .withProvideRegistrationUntil(expiredDatetime)
             .withProvideAuthenticationUntil(futureDatetime)
             .withSimpleId("nonOnboardingSoftDisconnectingIdp")
+            .build();
+
+    static final IdentityProviderConfig nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing = anIdentityProviderConfigData()
+            .withSupportedLevelsOfAssurance(Arrays.asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
+            .withoutOnboarding()
+            .withProvideRegistrationUntil(expiredDatetimeWithinSessionDuration)
+            .withProvideAuthenticationUntil(futureDatetime)
+            .withSimpleId("nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing")
             .build();
 
     static final IdentityProviderConfig nonOnboardingHardDisconnectingIdp = anIdentityProviderConfigData()
@@ -123,13 +126,15 @@ final class PredicateTestHelper {
             .build();
 
     static final Set<IdentityProviderConfig> allIdps = new HashSet<>(Arrays.asList(nonOnboardingLoa1Idp,
-            nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp, nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp,
-            onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa1IdpOtherOnboardingEntity,
+            nonOnboardingLoa2Idp, nonOnboardingAllLevelsIdp, nonOnboardingSoftDisconnectingIdp, nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing,
+            nonOnboardingHardDisconnectingIdp, onboardingLoa1Idp, onboardingLoa2Idp, onboardingAllLevelsIdp, onboardingLoa1IdpOtherOnboardingEntity,
             onboardingLoa2IdpOtherOnboardingEntity, onboardingAllLevelsIdpOtherOnboardingEntity, onboardingSoftDisconnectingIdp,
             onboardingHardDisconnectingIdp));
 
-    static Set<IdentityProviderConfig> getFilteredIdps(Set<IdentityProviderConfig> idpSet,
-                                                       Predicate<IdentityProviderConfig> predicate) {
+    private PredicateTestHelper() {
+    }
+
+    static Set<IdentityProviderConfig> getFilteredIdps(Set<IdentityProviderConfig> idpSet, Predicate<IdentityProviderConfig> predicate) {
         return idpSet.stream().filter(predicate).collect(Collectors.toSet());
     }
 }

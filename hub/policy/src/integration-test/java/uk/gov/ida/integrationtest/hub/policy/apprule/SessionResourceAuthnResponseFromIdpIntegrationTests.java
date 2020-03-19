@@ -264,5 +264,4 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         client.target(policy.uri(uri.toASCIIString())).request()
                 .get(Response.class);
     }
-
 }

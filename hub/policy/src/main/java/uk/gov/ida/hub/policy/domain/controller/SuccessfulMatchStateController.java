@@ -24,7 +24,7 @@ public class SuccessfulMatchStateController extends AbstractSuccessfulMatchState
 
     @Override
     public ResponseFromHub getPreparedResponse() {
-        Collection<String> enabledIdentityProviders = identityProvidersConfigProxy.getEnabledIdentityProviders(
+        Collection<String> enabledIdentityProviders = identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(
                 state.getRequestIssuerEntityId(), state.isRegistering(), state.getLevelOfAssurance());
 
         if (!enabledIdentityProviders.contains(state.getIdentityProviderEntityId())) {

@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.config.domain;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.junit.Test;
 import uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder;
 
@@ -16,6 +17,7 @@ public class IdentityProviderConfigTest {
 
     private final DateTime expiredDatetime = DateTime.now().minusDays(1);
     private final DateTime futureDatetime = DateTime.now().plusDays(1);
+    private final Duration sessionDuration = new Duration(90 * 60 * 1000);
 
     @Test
     public void should_defaultSupportedLevelsOfAssuranceToOnlyIncludeLOA2() {
@@ -23,38 +25,51 @@ public class IdentityProviderConfigTest {
 
         assertThat(data.getSupportedLevelsOfAssurance()).containsExactly(LevelOfAssurance.LEVEL_2);
     }
-    
+
     @Test
     public void shouldReturnTrueForRegistrationEnabled_whenProvideRegistrationUntilHasNotBeenSpecified() {
         IdentityProviderConfig data = dataBuilder.build();
         data.provideRegistrationUntil = "";
 
-        assertThat(data.isRegistrationEnabled()).isEqualTo(true);
+        assertThat(data.canReceiveRegistrationRequests()).isEqualTo(true);
+        assertThat(data.canSendRegistrationResponses(sessionDuration)).isEqualTo(true);
     }
-    
+
     @Test
     public void shouldReturnTrueForRegistrationEnabled_whenProvideRegistrationUntilDateHasNotExpired() {
         IdentityProviderConfig data = dataBuilder
-            .withProvideRegistrationUntil(futureDatetime)
-            .build();
-        
-        assertThat(data.isRegistrationEnabled()).isEqualTo(true);
+                .withProvideRegistrationUntil(futureDatetime)
+                .build();
+
+        assertThat(data.canReceiveRegistrationRequests()).isEqualTo(true);
+        assertThat(data.canSendRegistrationResponses(sessionDuration)).isEqualTo(true);
     }
-    
+
     @Test
     public void shouldReturnFalseForRegistrationEnabled_whenProvideRegistrationUntilDateHasExpired() {
         IdentityProviderConfig data = dataBuilder
-            .withProvideRegistrationUntil(expiredDatetime)
-            .build();
-        
-        assertThat(data.isRegistrationEnabled()).isEqualTo(false);
+                .withProvideRegistrationUntil(expiredDatetime)
+                .build();
+
+        assertThat(data.canReceiveRegistrationRequests()).isEqualTo(false);
+        assertThat(data.canSendRegistrationResponses(sessionDuration)).isEqualTo(false);
+    }
+
+    @Test
+    public void shouldReturnTrueForDisconnectingForRegistration_whenResponseWithinSessionDurationFromCutOffTime() {
+        IdentityProviderConfig data = dataBuilder
+                .withProvideRegistrationUntil(DateTime.now().minusMinutes((int) sessionDuration.getStandardMinutes()).plusSeconds(10))
+                .build();
+
+        assertThat(data.canReceiveRegistrationRequests()).isEqualTo(false);
+        assertThat(data.canSendRegistrationResponses(sessionDuration)).isEqualTo(true);
     }
 
     @Test(expected = java.lang.IllegalArgumentException.class)
     public void shouldThrowInvalidFormatException_whenProvideRegistrationUntilHasBeenSpecifiedButIsInvalid() {
         IdentityProviderConfig data = dataBuilder.build();
         data.provideRegistrationUntil = "2020-09-09";
-        data.isRegistrationEnabled();
+        data.canReceiveRegistrationRequests();
     }
 
     @Test
@@ -64,22 +79,22 @@ public class IdentityProviderConfigTest {
 
         assertThat(data.isAuthenticationEnabled()).isEqualTo(true);
     }
-    
+
     @Test
     public void shouldReturnTrueForAuthenticationEnabled_whenProvideAuthenticationUntilDateHasNotExpired() {
         IdentityProviderConfig data = dataBuilder
-            .withProvideAuthenticationUntil(futureDatetime)
-            .build();
-        
+                .withProvideAuthenticationUntil(futureDatetime)
+                .build();
+
         assertThat(data.isAuthenticationEnabled()).isEqualTo(true);
     }
-    
+
     @Test
     public void shouldReturnFalseForAuthenticationEnabled_whenProvideAuthenticationUntilDateHasExpired() {
         IdentityProviderConfig data = dataBuilder
-            .withProvideAuthenticationUntil(expiredDatetime)
-            .build();
-        
+                .withProvideAuthenticationUntil(expiredDatetime)
+                .build();
+
         assertThat(data.isAuthenticationEnabled()).isEqualTo(false);
     }
 
@@ -117,5 +132,4 @@ public class IdentityProviderConfigTest {
         assertThat(data.isOnboardingAtLoa(LevelOfAssurance.LEVEL_1)).isTrue();
         assertThat(data.isOnboardingAtLoa(LevelOfAssurance.LEVEL_2)).isFalse();
     }
-
 }
