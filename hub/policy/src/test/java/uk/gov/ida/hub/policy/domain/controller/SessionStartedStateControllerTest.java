@@ -62,7 +62,7 @@ public class SessionStartedStateControllerTest {
                 .thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         IdpConfigDto idpConfigDto = new IdpConfigDto(IDP_ENTITY_ID, true, List.of(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(idpConfigDto);
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(sessionStartedState.getRequestIssuerEntityId(), REGISTERING, LevelOfAssurance.LEVEL_2))
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationRequestGeneration(sessionStartedState.getRequestIssuerEntityId(), REGISTERING, LevelOfAssurance.LEVEL_2))
                 .thenReturn(singletonList(IDP_ENTITY_ID));
         controller = new SessionStartedStateController(
                 sessionStartedState,

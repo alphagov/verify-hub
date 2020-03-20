@@ -45,7 +45,7 @@ public class SuccessfulMatchStateControllerTest {
 
     @Test(expected = IdpDisabledException.class)
     public void getPreparedResponse_shouldThrowWhenIdpIsDisabled() {
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(any(String.class), anyBoolean(), any(LevelOfAssurance.class)))
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(any(String.class), anyBoolean(), any(LevelOfAssurance.class)))
                 .thenReturn(emptyList());
 
         controller.getPreparedResponse();
@@ -55,7 +55,7 @@ public class SuccessfulMatchStateControllerTest {
     public void getPreparedResponse_shouldReturnResponse() {
         final List<String> enabledIdentityProviders = singletonList(state.getIdentityProviderEntityId());
         final ResponseFromHub expectedResponseFromHub = ResponseFromHubBuilder.aResponseFromHubDto().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(eq(state.getRequestIssuerEntityId()), anyBoolean(), any(LevelOfAssurance.class)))
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(eq(state.getRequestIssuerEntityId()), anyBoolean(), any(LevelOfAssurance.class)))
                 .thenReturn(enabledIdentityProviders);
         when(responseFromHubFactory.createSuccessResponseFromHub(
                 state.getRequestId(),

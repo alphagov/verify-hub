@@ -8,6 +8,7 @@ server:
       - type: access-logstash-console
 serviceInfo:
   name: config
+userHubSessionDuration: 90m
 rootDataDirectory: ${CONFIG_DATA_PATH}
 # for whatever reason this path is relative to the one above
 translationsDirectory: ../../display-locales/transactions

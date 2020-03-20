@@ -50,16 +50,7 @@ public class IdentityProviderResource {
     @Timed
     public List<IdpDto> getIdpList(@PathParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final String transactionEntityId,
                                    @PathParam(Urls.SharedUrls.LEVEL_OF_ASSURANCE_PARAM) final LevelOfAssurance levelOfAssurance) {
-        Collection<IdentityProviderConfig> matchingIdps = getIdentityProviderConfig(transactionEntityId, levelOfAssurance);
-        return matchingIdps.stream()
-                .map(configData ->
-                        new IdpDto(
-                                configData.getSimpleId(),
-                                configData.getEntityId(),
-                                configData.getSupportedLevelsOfAssurance(),
-                                configData.isAuthenticationEnabled(),
-                                configData.isTemporarilyUnavailable()))
-                .collect(Collectors.toList());
+        return getIdpListForSendingRegistrationRequest(transactionEntityId, levelOfAssurance);
     }
 
     @GET
@@ -117,12 +108,41 @@ public class IdentityProviderResource {
     }
 
     @GET
-    @Path(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_LOA_PATH)
+    @Path(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_REQUEST_PATH)
     @Timed
-    public Collection<String> getEnabledIdentityProviderEntityIdsForLoa(
+    public Collection<String> getEnabledIdentityProviderEntityIdsForIdpAuthnRequestGenerationAndLoa(
             @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final String transactionEntityId,
             @PathParam(Urls.SharedUrls.LEVEL_OF_ASSURANCE_PARAM) final LevelOfAssurance levelOfAssurance) {
-        return getIdpList(transactionEntityId, levelOfAssurance).stream().map(IdpDto::getEntityId).collect(Collectors.toList());
+        return getIdpListForSendingRegistrationRequest(transactionEntityId, levelOfAssurance).stream().map(IdpDto::getEntityId).collect(Collectors.toList());
+    }
+
+    @GET
+    @Path(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_RESPONSE_PATH)
+    @Timed
+    public Collection<String> getEnabledIdentityProviderEntityIdsForIdpResponseProcessingAndLoa(
+            @PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) final String transactionEntityId,
+            @PathParam(Urls.SharedUrls.LEVEL_OF_ASSURANCE_PARAM) final LevelOfAssurance levelOfAssurance) {
+        return getIdpListForReceivingRegistrationResponse(transactionEntityId, levelOfAssurance).stream().map(IdpDto::getEntityId).collect(Collectors.toList());
+    }
+
+    private List<IdpDto> getIdpListForSendingRegistrationRequest(String transactionEntityId, LevelOfAssurance levelOfAssurance) {
+        return getIdpListForTransactionAndLoa(getIdentityProviderConfigForSendingRegistrationRequest(transactionEntityId, levelOfAssurance));
+    }
+
+    private List<IdpDto> getIdpListForReceivingRegistrationResponse(String transactionEntityId, LevelOfAssurance levelOfAssurance) {
+        return getIdpListForTransactionAndLoa(getIdentityProviderConfigForReceivingRegistrationResponse(transactionEntityId, levelOfAssurance));
+    }
+
+    private List<IdpDto> getIdpListForTransactionAndLoa(Collection<IdentityProviderConfig> matchingIdps) {
+        return matchingIdps.stream()
+                .map(configData ->
+                        new IdpDto(
+                                configData.getSimpleId(),
+                                configData.getEntityId(),
+                                configData.getSupportedLevelsOfAssurance(),
+                                configData.isAuthenticationEnabled(),
+                                configData.isTemporarilyUnavailable()))
+                .collect(Collectors.toList());
     }
 
     private IdentityProviderConfig getIdentityProviderConfigData(String identityProviderEntityId) {
@@ -136,10 +156,17 @@ public class IdentityProviderResource {
         return configData;
     }
 
-    private Set<IdentityProviderConfig> getIdentityProviderConfig(String transactionEntityId,
-                                                                  LevelOfAssurance levelOfAssurance) {
+    private Set<IdentityProviderConfig> getIdentityProviderConfigForSendingRegistrationRequest(
+            String transactionEntityId, LevelOfAssurance levelOfAssurance) {
         Predicate<IdentityProviderConfig> predicateForTransactionEntity =
-                idpPredicateFactory.createPredicateForTransactionEntityAndLoa(transactionEntityId, levelOfAssurance);
+                idpPredicateFactory.createPredicateForSendingRegistrationRequest(transactionEntityId, levelOfAssurance);
+        return idpsFilteredBy(predicateForTransactionEntity);
+    }
+
+    private Set<IdentityProviderConfig> getIdentityProviderConfigForReceivingRegistrationResponse(
+            String transactionEntityId, LevelOfAssurance levelOfAssurance) {
+        Predicate<IdentityProviderConfig> predicateForTransactionEntity =
+                idpPredicateFactory.createPredicateForReceivingRegistrationResponse(transactionEntityId, levelOfAssurance);
         return idpsFilteredBy(predicateForTransactionEntity);
     }
 

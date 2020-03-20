@@ -35,75 +35,82 @@ public class IdentityProviderResourceIntegrationTest {
     private static final String ENABLED_FOR_ONBOARDING_RP_IDP = "enabled-for-onboarding-rp-idp";
     private static final String DISABLED_IDP = "disabled-idp";
     private static final String ONBOARDING_TO_LOA_1_IDP = "onboarding-idp-entity-id";
-    private static final String ONBOARDING_TO_LOA_1_IDP_USING_TEMP_LIST = "onboarding-idp-entity-id-using-temp";
     private static final String DEFAULT_RP = "default-rp-entity-id";
     private static final String ONBOARDING_RP = "onboarding-rp-entity-id";
     private static final String LOA_1_TEST_RP = "loa-1-test-rp";
     private static final String DEFAULT_MS = "default-ms-entity-id";
     private static final String ONBOARDING_MS = "onboarding-ms-entity-id";
     private static final String LOA_1_MS = "loa-1-rp-ms-entity-id";
+    private static final String ENABLED_FOR_IDP_RESPONSE_SOFT_DISCONNECTING_IDP = "enabled-for-idp-response-soft-disconnecting-idp";
     private static final String SOFT_DISCONNECTING_IDP = "soft-disconnecting-idp";
     private static final String HARD_DISCONNECTING_IDP = "hard-disconnecting-idp";
-    
+
+    private static final DateTime expiredDateTimeWithinSessionDuration = DateTime.now().minusMinutes(89);
     private static final DateTime expiredDatetime = DateTime.now().minusDays(1);
     private static final DateTime futureDatetime = DateTime.now().plusDays(1);
 
     @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule()
-        .addTransaction(aTransactionConfigData()
-                .withEntityId(DEFAULT_RP)
-                .withMatchingServiceEntityId(DEFAULT_MS)
-                .build())
-        .addMatchingService(aMatchingServiceConfig()
-                .withEntityId(DEFAULT_MS)
-                .build())
-        .addIdp(anIdentityProviderConfigData()
-                .withEntityId(ENABLED_ALL_RP_IDP)
-                .withEnabledForSingleIdp(true)
-                .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
-                .build())
-        .addTransaction(aTransactionConfigData()
-                .withEntityId(ONBOARDING_RP)
-                .withMatchingServiceEntityId(ONBOARDING_MS)
-                .build())
-        .addMatchingService(aMatchingServiceConfig()
-                .withEntityId(ONBOARDING_MS)
-                .build())
-        .addIdp(anIdentityProviderConfigData()
-                .withEntityId(ENABLED_FOR_ONBOARDING_RP_IDP)
-                .withOnboarding(Collections.singletonList(ONBOARDING_RP))
-                .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
-                .withOnboardingLevels(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
-                .build())
-        .addTransaction(aTransactionConfigData()
-                .withEntityId(LOA_1_TEST_RP)
-                .withMatchingServiceEntityId(LOA_1_MS)
-                .build())
-        .addMatchingService(aMatchingServiceConfig()
-                .withEntityId(LOA_1_MS)
-                .build())
-        .addIdp(anIdentityProviderConfigData()
-                .withEntityId(ONBOARDING_TO_LOA_1_IDP)
-                .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
-                .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
-                .withOnboarding(Collections.singletonList(LOA_1_TEST_RP))
-                .build())
-        .addIdp(anIdentityProviderConfigData()
-                .withEntityId(DISABLED_IDP)
-                .withEnabled(false)
-                .build())
-        .addIdp(anIdentityProviderConfigData()
-                .withEntityId(SOFT_DISCONNECTING_IDP)
-                .withEnabled(true)
-                .withProvideRegistrationUntil(expiredDatetime)
-                .withProvideAuthenticationUntil(futureDatetime)
-                .build())
-        .addIdp(anIdentityProviderConfigData()
-                .withEntityId(HARD_DISCONNECTING_IDP)
-                .withEnabled(true)
-                .withProvideRegistrationUntil(expiredDatetime)
-                .withProvideAuthenticationUntil(expiredDatetime)
-                .build());
+            .addTransaction(aTransactionConfigData()
+                    .withEntityId(DEFAULT_RP)
+                    .withMatchingServiceEntityId(DEFAULT_MS)
+                    .build())
+            .addMatchingService(aMatchingServiceConfig()
+                    .withEntityId(DEFAULT_MS)
+                    .build())
+            .addIdp(anIdentityProviderConfigData()
+                    .withEntityId(ENABLED_ALL_RP_IDP)
+                    .withEnabledForSingleIdp(true)
+                    .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
+                    .build())
+            .addTransaction(aTransactionConfigData()
+                    .withEntityId(ONBOARDING_RP)
+                    .withMatchingServiceEntityId(ONBOARDING_MS)
+                    .build())
+            .addMatchingService(aMatchingServiceConfig()
+                    .withEntityId(ONBOARDING_MS)
+                    .build())
+            .addIdp(anIdentityProviderConfigData()
+                    .withEntityId(ENABLED_FOR_ONBOARDING_RP_IDP)
+                    .withOnboarding(Collections.singletonList(ONBOARDING_RP))
+                    .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
+                    .withOnboardingLevels(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
+                    .build())
+            .addTransaction(aTransactionConfigData()
+                    .withEntityId(LOA_1_TEST_RP)
+                    .withMatchingServiceEntityId(LOA_1_MS)
+                    .build())
+            .addMatchingService(aMatchingServiceConfig()
+                    .withEntityId(LOA_1_MS)
+                    .build())
+            .addIdp(anIdentityProviderConfigData()
+                    .withEntityId(ONBOARDING_TO_LOA_1_IDP)
+                    .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
+                    .withOnboardingLevels(Collections.singletonList(LevelOfAssurance.LEVEL_1))
+                    .withOnboarding(Collections.singletonList(LOA_1_TEST_RP))
+                    .build())
+            .addIdp(anIdentityProviderConfigData()
+                    .withEntityId(DISABLED_IDP)
+                    .withEnabled(false)
+                    .build())
+            .addIdp(anIdentityProviderConfigData()
+                    .withEntityId(SOFT_DISCONNECTING_IDP)
+                    .withEnabled(true)
+                    .withProvideRegistrationUntil(expiredDatetime)
+                    .withProvideAuthenticationUntil(futureDatetime)
+                    .build())
+            .addIdp(anIdentityProviderConfigData()
+                    .withEntityId(HARD_DISCONNECTING_IDP)
+                    .withEnabled(true)
+                    .withProvideRegistrationUntil(expiredDatetime)
+                    .withProvideAuthenticationUntil(expiredDatetime)
+                    .build())
+            .addIdp(anIdentityProviderConfigData()
+                    .withEntityId(ENABLED_FOR_IDP_RESPONSE_SOFT_DISCONNECTING_IDP)
+                    .withEnabledForSingleIdp(true)
+                    .withProvideRegistrationUntil(expiredDateTimeWithinSessionDuration)
+                    .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
+                    .build());
 
     @BeforeClass
     public static void setUp() {
@@ -114,11 +121,12 @@ public class IdentityProviderResourceIntegrationTest {
 
     @Test
     public void loa1TestRpAtLevel1_getIdpList_ReturnsOnboardingIdp() {
-        Response response = getIdpListForLoA(LOA_1_TEST_RP, LevelOfAssurance.LEVEL_1,  Urls.ConfigUrls.IDP_LIST_FOR_TRANSACTION_AND_LOA_RESOURCE);
+        Response response = getIdpListForLoA(LOA_1_TEST_RP, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.IDP_LIST_FOR_TRANSACTION_AND_LOA_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>(){});
+        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>() {
+        });
         assertThat(idps).extracting("entityId").containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ONBOARDING_TO_LOA_1_IDP
@@ -127,11 +135,12 @@ public class IdentityProviderResourceIntegrationTest {
 
     @Test
     public void onboardingRpAtLevel1_getIdpList_ReturnsOnboardingRpIdp() {
-        Response response = getIdpListForLoA(ONBOARDING_RP, LevelOfAssurance.LEVEL_1,  Urls.ConfigUrls.IDP_LIST_FOR_TRANSACTION_AND_LOA_RESOURCE);
+        Response response = getIdpListForLoA(ONBOARDING_RP, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.IDP_LIST_FOR_TRANSACTION_AND_LOA_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>(){});
+        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>() {
+        });
         assertThat(idps).extracting("entityId").containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ENABLED_FOR_ONBOARDING_RP_IDP
@@ -144,7 +153,8 @@ public class IdentityProviderResourceIntegrationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>(){});
+        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>() {
+        });
         assertThat(idps).extracting("entityId").containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ONBOARDING_TO_LOA_1_IDP
@@ -159,29 +169,32 @@ public class IdentityProviderResourceIntegrationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>(){});
+        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>() {
+        });
         assertThat(idps).extracting("entityId").containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ONBOARDING_TO_LOA_1_IDP,
+                ENABLED_FOR_IDP_RESPONSE_SOFT_DISCONNECTING_IDP,
                 SOFT_DISCONNECTING_IDP,
                 HARD_DISCONNECTING_IDP
         );
     }
-    
+
     @Test
     public void anyRp_getIdpList_returnsDisconnectingIdpsForSignIn_withAuthenticationEnabledSetToFalse() {
         String transactionId = "any-rp";
-        
+
         Response response = getIdpList(transactionId, Urls.ConfigUrls.IDP_LIST_FOR_SIGN_IN_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        List<IdpDto> idpsFromResponse = response.readEntity(new GenericType<List<IdpDto>>(){});
+        List<IdpDto> idpsFromResponse = response.readEntity(new GenericType<List<IdpDto>>() {
+        });
 
         List<IdpDto> disconnectingIdps = idpsFromResponse
-            .stream()
-            .filter(idp -> !idp.isAuthenticationEnabled())
-            .collect(Collectors.toList());
+                .stream()
+                .filter(idp -> !idp.isAuthenticationEnabled())
+                .collect(Collectors.toList());
 
         assertThat(disconnectingIdps.size()).isEqualTo(1);
         assertThat(disconnectingIdps).extracting("entityId").containsOnly(HARD_DISCONNECTING_IDP);
@@ -206,14 +219,29 @@ public class IdentityProviderResourceIntegrationTest {
 
 
     @Test
-    public void getEnabledIdentityProviderEntityIdsForLoa_returnsOkAndIdps() {
+    public void getEnabledIdentityProviderEntityIdsForIdpAuthnRequestGenerationAndLoa_returnsOkAndIdps() {
         String entityId = "not-test-rp";
-        Response response = getIdpListForLoA(entityId, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_LOA_RESOURCE);
+        Response response = getIdpListForLoA(entityId, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_REQUEST_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        List<String> providerEntityIds = response.readEntity(new GenericType<List<String>>(){});
+        List<String> providerEntityIds = response.readEntity(new GenericType<List<String>>() {
+        });
         assertThat(providerEntityIds).containsOnly(
                 ENABLED_ALL_RP_IDP
+        );
+    }
+
+    @Test
+    public void getEnabledIdentityProviderEntityIdsForIdpResponseProcessingAndLoa_returnsOkAndIdps() {
+        String entityId = "not-test-rp";
+        Response response = getIdpListForLoA(entityId, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_RESPONSE_RESOURCE);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        List<String> providerEntityIds = response.readEntity(new GenericType<List<String>>() {
+        });
+        assertThat(providerEntityIds).containsOnly(
+                ENABLED_ALL_RP_IDP,
+                ENABLED_FOR_IDP_RESPONSE_SOFT_DISCONNECTING_IDP
         );
     }
 
@@ -223,10 +251,12 @@ public class IdentityProviderResourceIntegrationTest {
         Response response = getIdpListForLoA(entityId, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_SIGN_IN_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        List<String> providerEntityIds = response.readEntity(new GenericType<List<String>>(){});
+        List<String> providerEntityIds = response.readEntity(new GenericType<List<String>>() {
+        });
         assertThat(providerEntityIds).containsOnly(
                 ENABLED_ALL_RP_IDP,
                 ONBOARDING_TO_LOA_1_IDP,
+                ENABLED_FOR_IDP_RESPONSE_SOFT_DISCONNECTING_IDP,
                 SOFT_DISCONNECTING_IDP,
                 HARD_DISCONNECTING_IDP
         );
@@ -238,7 +268,8 @@ public class IdentityProviderResourceIntegrationTest {
         Response response = getIdpList(entityId, Urls.ConfigUrls.IDP_LIST_FOR_SINGLE_IDP_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        List<IdpDto> returnedIdps = response.readEntity(new GenericType<List<IdpDto>>(){});
+        List<IdpDto> returnedIdps = response.readEntity(new GenericType<List<IdpDto>>() {
+        });
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(returnedIdps.size()).isEqualTo(1);
         assertThat(returnedIdps).extracting("entityId").contains(ENABLED_ALL_RP_IDP);

@@ -44,7 +44,7 @@ public class IdpSelectorTest {
         IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().withRelayState("relay-state").withIdpEntityId(IDP_ENTITY_ID)
                 .withRegistration(true).withAvailableIdentityProviders(List.of(IDP_ENTITY_ID)).withRegistration(true).build();
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(state.getRequestIssuerEntityId(), state.isRegistering(), REQUESTED_LOA)).thenReturn(singletonList(IDP_ENTITY_ID));
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationRequestGeneration(state.getRequestIssuerEntityId(), state.isRegistering(), REQUESTED_LOA)).thenReturn(singletonList(IDP_ENTITY_ID));
 
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, REQUESTED_LOA, transactionsConfigProxy, identityProvidersConfigProxy);
 
@@ -58,7 +58,7 @@ public class IdpSelectorTest {
         IdpConfigDto idpConfigDto = new IdpConfigDto(IDP_ENTITY_ID, true, List.of(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1));
         when(identityProvidersConfigProxy.getIdpConfig("idp-b")).thenReturn(idpConfigDto);
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(state.getRequestIssuerEntityId(), state.isRegistering(), REQUESTED_LOA)).thenReturn(asList(IDP_ENTITY_ID, OTHER_IDP_ENTITY_ID));
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationRequestGeneration(state.getRequestIssuerEntityId(), state.isRegistering(), REQUESTED_LOA)).thenReturn(asList(IDP_ENTITY_ID, OTHER_IDP_ENTITY_ID));
 
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, "idp-b", true, REQUESTED_LOA, transactionsConfigProxy, identityProvidersConfigProxy);
 
@@ -69,7 +69,7 @@ public class IdpSelectorTest {
     public void buildIdpSelectedState_shouldReturnStateWithSessionStartedState(){
         SessionStartedState state = SessionStartedStateBuilder.aSessionStartedState().build();
         when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(state.getRequestIssuerEntityId(), true, REQUESTED_LOA)).thenReturn(singletonList(IDP_ENTITY_ID));
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationRequestGeneration(state.getRequestIssuerEntityId(), true, REQUESTED_LOA)).thenReturn(singletonList(IDP_ENTITY_ID));
 
         IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, REQUESTED_LOA, transactionsConfigProxy, identityProvidersConfigProxy);
 

@@ -22,8 +22,10 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
@@ -32,14 +34,21 @@ public class ConfigStubRule extends HttpStubRule {
     private final int OK = Response.Status.OK.getStatusCode();
 
     public void setupStubForEnabledIdps(String transactionEntityId, boolean registering, LevelOfAssurance supportedLoa, Collection<String> enabledIdps) throws JsonProcessingException {
+        setupStubForEnabledIdps(transactionEntityId, registering, supportedLoa, enabledIdps, enabledIdps);
+    }
+
+    public void setupStubForEnabledIdps(String transactionEntityId, boolean registering, LevelOfAssurance supportedLoa, Collection<String> enabledIdpsForAuthnRequest, Collection<String> enabledIdpsForResponseProcessing) throws JsonProcessingException {
+        Set<String> allIdps = Stream.of(enabledIdpsForAuthnRequest, enabledIdpsForResponseProcessing).flatMap(Collection::stream).collect(Collectors.toSet());
+
         if (registering) {
-            setupStubForEnabledIdpsForLoa(transactionEntityId, supportedLoa, enabledIdps);
+            setupStubForEnabledIdpsForIdpAuthnRequestAndLoa(transactionEntityId, supportedLoa, enabledIdpsForAuthnRequest);
+            setupStubForEnabledIdpsForIdpResponseProcessingAndLoa(transactionEntityId, supportedLoa, enabledIdpsForResponseProcessing);
         }
         else {
-            setupStubForEnabledIdpsForSignIn(transactionEntityId, enabledIdps);
+            setupStubForEnabledIdpsForSignIn(transactionEntityId, allIdps);
         }
 
-        setupStubForIdpConfig(enabledIdps, supportedLoa);
+        setupStubForIdpConfig(allIdps, supportedLoa);
     }
 
     public void setUpStubForEnabledCountries(String rpEntityId, Collection<EidasCountryDto> enabledCountries) throws JsonProcessingException {
@@ -177,8 +186,12 @@ public class ConfigStubRule extends HttpStubRule {
         register(uri, OK, countryEntityIds);
     }
 
-    private void setupStubForEnabledIdpsForLoa(String transactionEntityId, LevelOfAssurance supportedLoa, Collection<String> enabledIdps) throws JsonProcessingException {
-        register(UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_LOA_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(transactionEntityId), supportedLoa).getPath(), OK, enabledIdps);
+    private void setupStubForEnabledIdpsForIdpAuthnRequestAndLoa(String transactionEntityId, LevelOfAssurance supportedLoa, Collection<String> enabledIdps) throws JsonProcessingException {
+        register(UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_REQUEST_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(transactionEntityId), supportedLoa).getPath(), OK, enabledIdps);
+    }
+
+    private void setupStubForEnabledIdpsForIdpResponseProcessingAndLoa(String transactionEntityId, LevelOfAssurance supportedLoa, Collection<String> enabledIdps) throws JsonProcessingException {
+        register(UriBuilder.fromPath(Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_RESPONSE_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(transactionEntityId), supportedLoa).getPath(), OK, enabledIdps);
     }
 
     private void setupStubForEnabledIdpsForSignIn(String transactionEntityId, Collection<String> enabledIdps) throws JsonProcessingException {

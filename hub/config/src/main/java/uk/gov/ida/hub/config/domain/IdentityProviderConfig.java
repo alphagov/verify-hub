@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 
 import javax.validation.Valid;
@@ -42,11 +43,11 @@ public class IdentityProviderConfig implements EntityIdentifiable {
     @Valid
     @JsonProperty
     protected String provideRegistrationUntil;
-    
+
     @Valid
     @JsonProperty
     protected String provideAuthenticationUntil;
-    
+
     @Valid
     @NotNull
     @JsonProperty
@@ -100,17 +101,15 @@ public class IdentityProviderConfig implements EntityIdentifiable {
     public Boolean isTemporarilyUnavailable() {
         return temporarilyUnavailable;
     }
-    
-    public Boolean isRegistrationEnabled() {
-        if (Strings.isNullOrEmpty(provideRegistrationUntil)) {
-            return true;
-        }
-        
-        DateTime provideRegistrationUntilDate = DateTime.parse(provideRegistrationUntil, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ"));
-        
-        return provideRegistrationUntilDate.isAfterNow();
+
+    public Boolean canReceiveRegistrationRequests() {
+        return Strings.isNullOrEmpty(provideRegistrationUntil) || provideRegistrationUntilDate().isAfterNow();
     }
-    
+
+    public Boolean canSendRegistrationResponses(Duration sessionDuration) {
+        return Strings.isNullOrEmpty(provideRegistrationUntil) || provideRegistrationUntilDate().withDurationAdded(sessionDuration, 1).isAfterNow();
+    }
+
     @JsonProperty("authenticationEnabled")
     public Boolean isAuthenticationEnabled() {
         if (Strings.isNullOrEmpty(provideAuthenticationUntil)) {
@@ -130,7 +129,7 @@ public class IdentityProviderConfig implements EntityIdentifiable {
         return onboardingTransactionEntityIds;
     }
 
-    public boolean isOnboardingForTransactionEntityAtLoa(String transactionEntity, LevelOfAssurance levelOfAssurance){
+    public boolean isOnboardingForTransactionEntityAtLoa(String transactionEntity, LevelOfAssurance levelOfAssurance) {
         boolean isOnboarding = levelOfAssurance != null ?
                 isOnboardingAtLoa(levelOfAssurance) :
                 isOnboardingAtAllLevels();
@@ -148,5 +147,9 @@ public class IdentityProviderConfig implements EntityIdentifiable {
 
     public Boolean getUseExactComparisonType() {
         return useExactComparisonType;
+    }
+
+    private DateTime provideRegistrationUntilDate() {
+        return DateTime.parse(provideRegistrationUntil, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ"));
     }
 }

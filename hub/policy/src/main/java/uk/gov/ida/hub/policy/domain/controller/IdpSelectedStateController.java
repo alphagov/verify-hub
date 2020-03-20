@@ -90,7 +90,7 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
     }
 
     private void validateIdpIsEnabledAndWasIssuedWithRequest(String responseIdpEntityId, boolean registering, LevelOfAssurance levelOfAssurance, String requestIssuerEntityId) {
-        final List<String> enabledIdentityProviders = identityProvidersConfigProxy.getEnabledIdentityProviders(
+        final List<String> enabledIdentityProviders = identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(
                 requestIssuerEntityId, registering, levelOfAssurance);
 
         if (!enabledIdentityProviders.contains(responseIdpEntityId)) {

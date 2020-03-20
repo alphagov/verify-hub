@@ -70,7 +70,7 @@ public class AuthnFailedErrorStateControllerTest {
                 .thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         IdpConfigDto idpConfigDto = new IdpConfigDto(IDP_ENTITY_ID, true, asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2));
         when(identityProvidersConfigProxy.getIdpConfig(IDP_ENTITY_ID)).thenReturn(idpConfigDto);
-        when(identityProvidersConfigProxy.getEnabledIdentityProviders(authnFailedErrorState.getRequestIssuerEntityId(), REGISTERING, LevelOfAssurance.LEVEL_2))
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationRequestGeneration(authnFailedErrorState.getRequestIssuerEntityId(), REGISTERING, LevelOfAssurance.LEVEL_2))
                 .thenReturn(singletonList(IDP_ENTITY_ID));
         controller = new AuthnFailedErrorStateController(
                 authnFailedErrorState,

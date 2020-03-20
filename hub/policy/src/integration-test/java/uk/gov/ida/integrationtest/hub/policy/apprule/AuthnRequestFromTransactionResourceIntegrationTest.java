@@ -38,6 +38,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Boolean.TRUE;
@@ -89,7 +90,7 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void setUp() throws Exception {
         samlResponse = aSamlResponseWithAuthnRequestInformationDto().withIssuer(transactionEntityId).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
-        configStub.setupStubForEnabledIdps(transactionEntityId, REGISTERING, LEVEL_2, List.of(idpEntityId, "differentIdp"));
+        configStub.setupStubForEnabledIdps(transactionEntityId, REGISTERING, LEVEL_2, List.of(idpEntityId, "differentIdp"), Collections.emptyList());
         configStub.setupStubForEidasEnabledForTransaction(transactionEntityId, false);
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         eventSinkStub.setupStubForLogging();

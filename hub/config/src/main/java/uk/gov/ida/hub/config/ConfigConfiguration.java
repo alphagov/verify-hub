@@ -31,6 +31,11 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @Valid
     @NotNull
     @JsonProperty
+    protected Duration userHubSessionDuration;
+
+    @Valid
+    @NotNull
+    @JsonProperty
     protected ClientTrustStoreConfiguration clientTrustStoreConfiguration;
 
     @Valid
@@ -84,6 +89,10 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
 
     public ServiceInfoConfiguration getServiceInfo() {
         return serviceInfo;
+    }
+
+    public org.joda.time.Duration getUserHubSessionDuration() {
+        return new org.joda.time.Duration(userHubSessionDuration.toMilliseconds());
     }
 
     @Override

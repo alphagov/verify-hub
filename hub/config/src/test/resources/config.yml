@@ -34,6 +34,8 @@ logging:
 serviceInfo:
   name: config
 
+userHubSessionDuration: 90m
+
 rootDataDirectory: configuration/config-service-data/local
 
 clientTrustStoreConfiguration:

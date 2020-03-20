@@ -44,6 +44,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Collections;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto;
@@ -168,7 +169,7 @@ public class SessionResourceWithRedisIntegrationTest {
         final SamlRequestDto samlRequestDto = new SamlRequestDto("coffee-pasta", idpSsoUri);
 
         samlEngineStub.setupStubForIdpAuthnRequestGenerate(samlRequestDto);
-        configStub.setupStubForEnabledIdps(rpEntityId, false, REQUESTED_LOA, singletonList(idpEntityId));
+        configStub.setupStubForEnabledIdps(rpEntityId, false, REQUESTED_LOA, singletonList(idpEntityId), emptyList());
 
         SessionId sessionId = aSessionIsCreated();
         anIdpIsSelectedForSignIn(sessionId, idpEntityId);

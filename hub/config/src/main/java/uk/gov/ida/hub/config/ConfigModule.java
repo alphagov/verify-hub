@@ -7,6 +7,7 @@ import com.google.inject.TypeLiteral;
 import io.dropwizard.configuration.ConfigurationFactoryFactory;
 import io.dropwizard.configuration.DefaultConfigurationFactoryFactory;
 import io.dropwizard.setup.Environment;
+import org.joda.time.Duration;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.OCSPCertificateChainValidator;
@@ -41,6 +42,7 @@ import uk.gov.ida.truststore.KeyStoreLoader;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 public class ConfigModule extends AbstractModule {
@@ -127,4 +129,10 @@ public class ConfigModule extends AbstractModule {
         return CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker(trustStoreForCertificateProvider, certificateChainValidator);
     }
 
+    @Provides
+    @Singleton
+    @Named("userHubSessionDuration")
+    public Duration getUserHubSessionDuration(ConfigConfiguration configuration) {
+        return configuration.getUserHubSessionDuration();
+    }
 }
