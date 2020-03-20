@@ -63,6 +63,7 @@ public class IdentityProviderResource {
                         new IdpDto(
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
+                                configData.getProvideRegistrationUntil(),
                                 configData.getSupportedLevelsOfAssurance(),
                                 configData.isAuthenticationEnabled(),
                                 configData.isTemporarilyUnavailable()))
@@ -79,6 +80,7 @@ public class IdentityProviderResource {
                         new IdpDto(
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
+                                configData.getProvideRegistrationUntil(),
                                 configData.getSupportedLevelsOfAssurance(),
                                 configData.isAuthenticationEnabled(),
                                 configData.isTemporarilyUnavailable()))
@@ -139,6 +141,7 @@ public class IdentityProviderResource {
                         new IdpDto(
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
+                                configData.getProvideRegistrationUntil(),
                                 configData.getSupportedLevelsOfAssurance(),
                                 configData.isAuthenticationEnabled(),
                                 configData.isTemporarilyUnavailable()))
