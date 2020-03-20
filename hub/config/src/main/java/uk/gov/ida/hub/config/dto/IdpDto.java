@@ -1,11 +1,13 @@
 package uk.gov.ida.hub.config.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IdpDto {
 
     private final String simpleId;
