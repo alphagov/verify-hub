@@ -32,6 +32,18 @@ public class IdpPredicateFactoryPredicatesTest {
     private final IdpPredicateFactory idpPredicateFactory = new IdpPredicateFactory(new Duration(90 * 60 * 1000));
 
     @Test
+    public void shouldReturnIdpsDisconnectedForRegistration() {
+        final Predicate<IdentityProviderConfig> predicate = idpPredicateFactory.createPredicateForIdpsDisconnectedForRegistration(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);
+        final Set<IdentityProviderConfig> filteredIdps = getFilteredIdps(allIdps, predicate);
+
+        final IdentityProviderConfig[] expectedFilteredIdps = {
+                nonOnboardingSoftDisconnectingIdp, nonOnboardingHardDisconnectingIdp,
+                nonOnboardingSoftDisconnectingIdpEnabledForIdpResponseProcessing};
+
+        assertThat(filteredIdps).containsOnly(expectedFilteredIdps);
+    }
+
+    @Test
     public void shouldReturnIdpsEnabledForAuthnRequestForLoaForNonOnboardingTransactionEntity() {
         final Predicate<IdentityProviderConfig> loa1Predicate = idpPredicateFactory
                 .createPredicateForSendingRegistrationRequest(transactionEntityNonOnboarding, LevelOfAssurance.LEVEL_1);

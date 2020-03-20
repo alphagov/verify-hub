@@ -6,8 +6,9 @@ import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class IdpPredicateFactory {
 
@@ -18,36 +19,50 @@ public class IdpPredicateFactory {
         this.sessionDuration = userHubSessionDuration;
     }
 
-    public Predicate<IdentityProviderConfig> createPredicateForSendingRegistrationRequest(String transactionEntity, LevelOfAssurance levelOfAssurance) {
-        return createPredicateForTransactionEntityAndLoa(transactionEntity, levelOfAssurance, false);
+    public Predicate<IdentityProviderConfig> createPredicateForIdpsDisconnectedForRegistration(String transactionEntity, LevelOfAssurance levelOfAssurance) {
+        return andPredicates(Arrays.asList(
+                createPredicateForTransactionEntityAndLoa(transactionEntity, levelOfAssurance),
+                disconnectedForRegistrationPredicate()
+        ));
     }
 
-    public Predicate<IdentityProviderConfig> createPredicateForReceivingRegistrationResponse(
-            String transactionEntity, LevelOfAssurance levelOfAssurance) {
-        return createPredicateForTransactionEntityAndLoa(transactionEntity, levelOfAssurance, true);
+    public Predicate<IdentityProviderConfig> createPredicateForSendingRegistrationRequest(String transactionEntity, LevelOfAssurance levelOfAssurance) {
+        return andPredicates(Arrays.asList(
+                createPredicateForTransactionEntityAndLoa(transactionEntity, levelOfAssurance),
+                registrationPredicate(false)
+        ));
+    }
+
+    public Predicate<IdentityProviderConfig> createPredicateForReceivingRegistrationResponse(String transactionEntity, LevelOfAssurance levelOfAssurance) {
+        return andPredicates(Arrays.asList(
+                createPredicateForTransactionEntityAndLoa(transactionEntity, levelOfAssurance),
+                registrationPredicate(true)
+        ));
     }
 
     public Predicate<IdentityProviderConfig> createPredicateForSignIn(String transactionEntityId) {
-        return andPredicates(Stream.of(
+        return andPredicates(Arrays.asList(
                 IdentityProviderConfig::isEnabled,
-                (idpConfig) -> idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityId, null)));
+                (idpConfig) -> idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityId, null)
+        ));
     }
 
     public Predicate<IdentityProviderConfig> createPredicateForSingleIdp(String transactionEntityId) {
-        return andPredicates(Stream.of(
+        return andPredicates(Arrays.asList(
                 IdentityProviderConfig::isEnabled,
                 idpConfig -> idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntityId, null),
                 IdentityProviderConfig::isEnabledForSingleIdp,
-                registrationPredicate(false)));
+                registrationPredicate(false)
+        ));
     }
 
     private Predicate<IdentityProviderConfig> createPredicateForTransactionEntityAndLoa(
-            String transactionEntity, LevelOfAssurance levelOfAssurance, boolean processingIdpResponse) {
-        return andPredicates(Stream.of(
+            String transactionEntity, LevelOfAssurance levelOfAssurance) {
+        return andPredicates(Arrays.asList(
                 IdentityProviderConfig::isEnabled,
                 idpConfig -> idpConfig.isOnboardingForTransactionEntityAtLoa(transactionEntity, levelOfAssurance),
-                idpConfig -> idpConfig.supportsLoa(levelOfAssurance),
-                registrationPredicate(processingIdpResponse)));
+                idpConfig -> idpConfig.supportsLoa(levelOfAssurance)
+        ));
     }
 
     private Predicate<IdentityProviderConfig> registrationPredicate(boolean processingIdpResponse) {
@@ -56,7 +71,11 @@ public class IdpPredicateFactory {
                 IdentityProviderConfig::canReceiveRegistrationRequests;
     }
 
-    private Predicate<IdentityProviderConfig> andPredicates(Stream<Predicate<IdentityProviderConfig>> predicates) {
-        return predicates.reduce(Predicate::and).orElseThrow();
+    private Predicate<IdentityProviderConfig> disconnectedForRegistrationPredicate() {
+        return idpConfig -> !idpConfig.canReceiveRegistrationRequests();
+    }
+
+    private Predicate<IdentityProviderConfig> andPredicates(Collection<Predicate<IdentityProviderConfig>> predicates) {
+        return predicates.stream().reduce(Predicate::and).orElseThrow();
     }
 }
