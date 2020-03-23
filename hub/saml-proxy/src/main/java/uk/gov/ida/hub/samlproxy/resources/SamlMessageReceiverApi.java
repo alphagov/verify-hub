@@ -2,8 +2,10 @@ package uk.gov.ida.hub.samlproxy.resources;
 
 import com.codahale.metrics.annotation.ResponseMetered;
 import com.codahale.metrics.annotation.Timed;
+import io.prometheus.client.Counter;
 import org.jboss.logging.MDC;
 import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.slf4j.event.Level;
@@ -46,6 +48,12 @@ public class SamlMessageReceiverApi {
     private final ProtectiveMonitoringLogger protectiveMonitoringLogger;
     private final SessionProxy sessionProxy;
 
+    private static final Counter authnRequestsFromEntities = Counter.build(
+            "verify_saml_proxy_authn_requests_total",
+            "Total number of Authn Requests from RPs")
+            .labelNames("entity_id")
+            .register();
+
     @Inject
     public SamlMessageReceiverApi(RelayStateValidator relayStateValidator,
                                   StringToOpenSamlObjectTransformer<AuthnRequest> stringSamlAuthnRequestTransformer,
@@ -77,6 +85,8 @@ public class SamlMessageReceiverApi {
         AuthnRequest authnRequest = stringSamlAuthnRequestTransformer.apply(samlRequestDto.getSamlRequest());
 
         SamlValidationResponse signatureValidationResponse = authnRequestSignatureValidator.validate(authnRequest, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
+
+        authnRequestsFromEntities.labels(authnRequest.getIssuer().getValue()).inc();
 
         protectiveMonitoringLogger.logAuthnRequest(authnRequest, Direction.INBOUND, SignatureStatus.fromValidationResponse(signatureValidationResponse));
 
