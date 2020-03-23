@@ -12,8 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class TestSessionDto {
-
-
+    
     private SessionId sessionId;
     private String requestId;
     private DateTime sessionExpiryTimestamp;
@@ -31,6 +30,7 @@ public class TestSessionDto {
     private LevelOfAssurance requestedLoa;
     private Set<String> encryptedAssertions;
     private CountrySignedResponseContainer countrySignedResponseContainer;
+    private String abTestVariant;
 
     @SuppressWarnings("unused") //Needed for JAXB
     private TestSessionDto() {
@@ -46,7 +46,9 @@ public class TestSessionDto {
                           URI assertionConsumerServiceUri,
                           List<LevelOfAssurance> levelsOfAssurance,
                           Boolean useExactComparisonType,
-                          boolean transactionSupportsEidas) {
+                          boolean transactionSupportsEidas,
+                          String abTestVariant
+    ) {
         this(
                 sessionId,
                 requestId,
@@ -64,7 +66,9 @@ public class TestSessionDto {
                 new ArrayList<>(),
                 transactionSupportsEidas,
                 null,
-                null);
+                null,
+                abTestVariant
+        );
     }
 
     public TestSessionDto(
@@ -84,7 +88,9 @@ public class TestSessionDto {
             List<String> availableIdentityProviders,
             boolean transactionSupportsEidas,
             Set<String> encryptedAssertions,
-            CountrySignedResponseContainer countrySignedResponseContainer) {
+            CountrySignedResponseContainer countrySignedResponseContainer,
+            String abTestVariant
+    ) {
 
         this.sessionId = sessionId;
         this.requestId = requestId;
@@ -103,6 +109,7 @@ public class TestSessionDto {
         this.transactionSupportsEidas = transactionSupportsEidas;
         this.encryptedAssertions = encryptedAssertions;
         this.countrySignedResponseContainer = countrySignedResponseContainer;
+        this.abTestVariant = abTestVariant;
     }
 
     public SessionId getSessionId() {
@@ -168,4 +175,8 @@ public class TestSessionDto {
     public Set<String> getEncryptedAssertions() { return encryptedAssertions; }
 
     public CountrySignedResponseContainer getCountrySignedResponseContainer() { return countrySignedResponseContainer; }
+
+    public Optional<String> getAbTestVariant() {
+        return Optional.ofNullable(abTestVariant);
+    }
 }

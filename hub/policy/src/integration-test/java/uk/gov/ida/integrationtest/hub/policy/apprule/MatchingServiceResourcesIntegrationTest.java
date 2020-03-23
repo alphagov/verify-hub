@@ -69,6 +69,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
     private static final String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
     private static final boolean REGISTERING = true;
+    private static final String abTestVariant = null;
 
     private static Client client;
 
@@ -581,7 +582,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
-        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, LEVEL_2, "this-is-an-analytics-session-id", "this-is-a-journey-type"));
+        postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, LEVEL_2, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {

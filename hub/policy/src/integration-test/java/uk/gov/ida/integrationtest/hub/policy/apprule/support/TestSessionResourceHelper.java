@@ -27,6 +27,7 @@ import static uk.gov.ida.hub.policy.builder.state.NonMatchingJourneySuccessState
 import static uk.gov.ida.hub.policy.builder.state.SuccessfulMatchStateBuilder.aSuccessfulMatchState;
 
 public class TestSessionResourceHelper {
+
     public static Response createSessionInIdpSelectedState(SessionId sessionId, String issuerId, String idpEntityId, Client client, URI uri) {
         return createSessionInIdpSelectedState(sessionId, issuerId, idpEntityId, client, uri, false);
     }
@@ -63,6 +64,7 @@ public class TestSessionResourceHelper {
                 idpSelectedState.getForceAuthentication().orElse(null),
                 idpSelectedState.getAvailableIdentityProviders(),
                 idpSelectedState.getTransactionSupportsEidas(),
+                null,
                 null,
                 null
         );
@@ -110,7 +112,9 @@ public class TestSessionResourceHelper {
                 state.getAssertionConsumerServiceUri(),
                 Collections.singletonList(state.getLevelOfAssurance()),
                 false,
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                null
+        );
     }
 
     public static Response createSessionInAuthnFailedErrorState(SessionId sessionId, Client client, URI uri) {
@@ -126,7 +130,9 @@ public class TestSessionResourceHelper {
                 state.getAssertionConsumerServiceUri(),
                 Collections.emptyList(),
                 false,
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                null
+        );
 
         return client.target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -146,7 +152,9 @@ public class TestSessionResourceHelper {
                 state.getAssertionConsumerServiceUri(),
                 state.getLevelsOfAssurance(),
                 false,
-                state.getTransactionSupportsEidas());
+                state.getTransactionSupportsEidas(),
+                null
+        );
 
         return client.target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -178,7 +186,8 @@ public class TestSessionResourceHelper {
                 countrySelectedState.getAssertionConsumerServiceUri(),
                 null,
                 null,
-                countrySelectedState.getTransactionSupportsEidas());
+                countrySelectedState.getTransactionSupportsEidas(),
+                null);
         return client.target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(testSessionDto));
@@ -207,7 +216,8 @@ public class TestSessionResourceHelper {
                 null,
                 nonMatchingJourneySuccessState.getTransactionSupportsEidas(),
                 nonMatchingJourneySuccessState.getEncryptedAssertions(),
-                nonMatchingJourneySuccessState.getCountrySignedResponseContainer().get()
+                nonMatchingJourneySuccessState.getCountrySignedResponseContainer().get(),
+                null
         );
 
         return client.target(uri)

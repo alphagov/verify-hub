@@ -48,6 +48,7 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.required_level_of_assuranc
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_expiry_time;
 import static uk.gov.ida.eventemitter.EventDetailsKey.transaction_entity_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.ab_test_variant;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.HUB_EVENT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.SESSION_EVENT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.HubEvents.RECEIVED_AUTHN_REQUEST_FROM_HUB;
@@ -271,6 +272,7 @@ public class HubEventLogger {
         details.put(required_level_of_assurance, levelsOfAssurance.get(levelsOfAssurance.size() - 1).name());
         details.put(analytics_session_id, analyticsSessionId);
         details.put(journey_type, journeyType);
+        idpSelectedState.getAbTestVariant().ifPresent(v -> details.put(ab_test_variant, v));
 
         logSessionEvent(idpSelectedState.getSessionId(), idpSelectedState.getRequestIssuerEntityId(), idpSelectedState.getSessionExpiryTimestamp(), idpSelectedState.getRequestId(), IDP_SELECTED, details);
     }

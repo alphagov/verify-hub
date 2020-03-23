@@ -31,6 +31,8 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     private final LevelOfAssurance requestedLoa;
     @JsonProperty
     private final List<String> availableIdentityProviders;
+    @JsonProperty
+    private final String abTestVariant;
 
     @JsonCreator
     public IdpSelectedState(
@@ -47,7 +49,9 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             @JsonProperty("requestedLoa") final LevelOfAssurance requestedLoa,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("availableIdentityProviders") final List<String> availableIdentityProviders,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
+            @JsonProperty("abTestVariant") final String abTestVariant)
+    {
 
         super(
             requestId,
@@ -66,6 +70,7 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         this.registering = registering;
         this.requestedLoa = requestedLoa;
         this.availableIdentityProviders = availableIdentityProviders;
+        this.abTestVariant = abTestVariant;
     }
 
     public String getIdpEntityId() {
@@ -95,4 +100,9 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     public List<LevelOfAssurance> getLevelsOfAssurance() {
         return levelsOfAssurance;
     }
+
+    public Optional<String> getAbTestVariant() {
+        return Optional.ofNullable(abTestVariant);
+    }
+
 }

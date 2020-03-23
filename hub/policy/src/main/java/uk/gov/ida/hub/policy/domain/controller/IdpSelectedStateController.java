@@ -340,8 +340,8 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
     }
 
     @Override
-    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
+    public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType, String abTestVariant) {
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy, abTestVariant);
         stateTransitionAction.transitionTo(idpSelectedState);
         hubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress, analyticsSessionId, journeyType);
     }

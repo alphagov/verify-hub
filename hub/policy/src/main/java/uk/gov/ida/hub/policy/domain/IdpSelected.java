@@ -19,18 +19,21 @@ public class IdpSelected {
 
     private String journeyType;
 
+    private String abTestVariant;
+
     // Required for JAXB
     @SuppressWarnings("unused")
     private IdpSelected() {
     }
 
-    public IdpSelected(String selectedIdpEntityId, String principalIpAddress, Boolean registration, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType) {
+    public IdpSelected(String selectedIdpEntityId, String principalIpAddress, Boolean registration, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType, String abTestVariant) {
         this.selectedIdpEntityId = selectedIdpEntityId;
         this.principalIpAddress = principalIpAddress;
         this.registration = registration;
         this.requestedLoa = requestedLoa;
         this.analyticsSessionId = analyticsSessionId;
         this.journeyType = journeyType;
+        this.abTestVariant = abTestVariant;
     }
 
     public String getSelectedIdpEntityId() {
@@ -55,5 +58,9 @@ public class IdpSelected {
 
     public LevelOfAssurance getRequestedLoa() {
         return requestedLoa;
+    }
+
+    public String getAbTestVariant() {
+        return abTestVariant;
     }
 }

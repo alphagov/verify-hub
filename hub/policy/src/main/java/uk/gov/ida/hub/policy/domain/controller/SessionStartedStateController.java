@@ -54,8 +54,8 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
     }
 
     @Override
-    public void handleIdpSelected(final String idpEntityId, final String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType) {
-        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy);
+    public void handleIdpSelected(final String idpEntityId, final String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType, String abTestVariant) {
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, idpEntityId, registering, requestedLoa, transactionsConfigProxy, identityProvidersConfigProxy, abTestVariant);
         stateTransitionAction.transitionTo(idpSelectedState);
         hubEventLogger.logIdpSelectedEvent(idpSelectedState, principalIpAddress, analyticsSessionId, journeyType);
     }

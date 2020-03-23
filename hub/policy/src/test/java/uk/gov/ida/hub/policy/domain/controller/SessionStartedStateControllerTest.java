@@ -36,6 +36,7 @@ public class SessionStartedStateControllerTest {
 
     private static final String IDP_ENTITY_ID = "anIdp";
     private static final boolean REGISTERING = false;
+    private static final String abTestVariant = null;
 
     @Mock
     private TransactionsConfigProxy transactionsConfigProxy;
@@ -75,7 +76,7 @@ public class SessionStartedStateControllerTest {
 
     @Test
     public void handleIdpSelect_shouldTransitionStateAndLogEvent() {
-        controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", REGISTERING, LevelOfAssurance.LEVEL_2, "some-analytics-session-id", "some-journey-id");
+        controller.handleIdpSelected(IDP_ENTITY_ID, "some-ip-address", REGISTERING, LevelOfAssurance.LEVEL_2, "some-analytics-session-id", "some-journey-id", abTestVariant);
         ArgumentCaptor<IdpSelectedState> capturedState = ArgumentCaptor.forClass(IdpSelectedState.class);
 
         verify(stateTransitionAction, times(1)).transitionTo(capturedState.capture());
@@ -88,7 +89,7 @@ public class SessionStartedStateControllerTest {
     @Test
     public void idpSelect_shouldThrowWhenIdentityProviderInvalid() {
         try {
-            controller.handleIdpSelected("notExist", "some-ip-address", false, LevelOfAssurance.LEVEL_2, "some-analytics-session-id", "some-journey-id");
+            controller.handleIdpSelected("notExist", "some-ip-address", false, LevelOfAssurance.LEVEL_2, "some-analytics-session-id", "some-journey-id", abTestVariant);
             fail("Should throw StateProcessingValidationException");
         }
         catch(StateProcessingValidationException e) {

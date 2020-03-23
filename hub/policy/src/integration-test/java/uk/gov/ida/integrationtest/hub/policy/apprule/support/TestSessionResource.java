@@ -116,7 +116,9 @@ public class TestSessionResource {
                         testSessionDto.getRequestedLoa(),
                         testSessionDto.getSessionId(),
                         testSessionDto.getAvailableIdentityProviders(),
-                        testSessionDto.getTransactionSupportsEidas())
+                        testSessionDto.getTransactionSupportsEidas(),
+                        testSessionDto.getAbTestVariant().orElse(null)
+                )
         );
         return Response.ok().build();
     }

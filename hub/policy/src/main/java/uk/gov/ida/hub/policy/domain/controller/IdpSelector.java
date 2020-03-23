@@ -20,7 +20,8 @@ public class IdpSelector {
                                                          boolean registering,
                                                          LevelOfAssurance requestedLoa,
                                                          TransactionsConfigProxy transactionsConfigProxy,
-                                                         IdentityProvidersConfigProxy identityProvidersConfigProxy) {
+                                                         IdentityProvidersConfigProxy identityProvidersConfigProxy,
+                                                         String abTestVariant) {
 
         List<LevelOfAssurance> levelsOfAssuranceForTransaction = transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId());
         if (!levelsOfAssuranceForTransaction.contains(requestedLoa)) {
@@ -50,7 +51,8 @@ public class IdpSelector {
                 requestedLoa,
                 state.getSessionId(),
                 availableIdentityProviderEntityIdsForLoa,
-                state.getTransactionSupportsEidas()
+                state.getTransactionSupportsEidas(),
+                abTestVariant
         );
     }
 
