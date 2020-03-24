@@ -40,16 +40,6 @@ public class IdentityProviderResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    // TODO: Remove after the related frontend release to preserve zero-downtime deployment
-    @GET
-    @Path(Urls.ConfigUrls.DEPRECATED_IDP_LIST_PATH)
-    @Timed
-    @Deprecated
-    public List<IdpDto> getIdpList(@PathParam(Urls.SharedUrls.TRANSACTION_ENTITY_ID_PARAM) final String transactionEntityId,
-                                   @PathParam(Urls.SharedUrls.LEVEL_OF_ASSURANCE_PARAM) final LevelOfAssurance levelOfAssurance) {
-        return getIdpListForRegistration(transactionEntityId, levelOfAssurance);
-    }
-
     @GET
     @Path(Urls.ConfigUrls.IDP_LIST_FOR_REGISTRATION_PATH)
     @Timed

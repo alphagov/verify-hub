@@ -144,21 +144,6 @@ public class IdentityProviderResourceIntegrationTest {
         );
     }
 
-    // TODO: Remove after the related frontend release to preserve zero-downtime deployment
-    @Test
-    @Deprecated
-    public void loa1TestRpAtLevel1_getIdpList_ReturnsOnboardingIdp_withDeprecatedUrl() {
-        Response response = getIdpList(LOA_1_TEST_RP, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.DEPRECATED_IDP_LIST_RESOURCE);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>() { });
-        assertThat(idps).extracting("entityId").containsOnly(
-                ENABLED_ALL_RP_IDP,
-                ONBOARDING_TO_LOA_1_IDP
-        );
-    }
-
     @Test
     public void onboardingRpAtLevel1_getIdpList_ReturnsDisconnectedIdpsForRegistration() {
         Response response = getIdpList(ONBOARDING_RP, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.DISCONNECTED_IDP_LIST_FOR_REGISTRATION_PATH_RESOURCE);
@@ -174,21 +159,6 @@ public class IdentityProviderResourceIntegrationTest {
     @Test
     public void onboardingRpAtLevel1_getIdpList_ReturnsOnboardingRpIdp() {
         Response response = getIdpList(ONBOARDING_RP, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.IDP_LIST_FOR_REGISTRATION_RESOURCE);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>() { });
-        assertThat(idps).extracting("entityId").containsOnly(
-                ENABLED_ALL_RP_IDP,
-                ENABLED_FOR_ONBOARDING_RP_IDP
-        );
-    }
-
-    // TODO: Remove after the related frontend release to preserve zero-downtime deployment
-    @Test
-    @Deprecated
-    public void onboardingRpAtLevel1_getIdpList_ReturnsOnboardingRpIdp_withDeprecatedUrl() {
-        Response response = getIdpList(ONBOARDING_RP, LevelOfAssurance.LEVEL_1, Urls.ConfigUrls.DEPRECATED_IDP_LIST_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -216,21 +186,6 @@ public class IdentityProviderResourceIntegrationTest {
     @Test
     public void anyRpAtLevel2_getIdpList_ReturnsOnboardingIdp() {
         Response response = getIdpList("any-rp", LevelOfAssurance.LEVEL_2, Urls.ConfigUrls.IDP_LIST_FOR_REGISTRATION_RESOURCE);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        List<IdpDto> idps = response.readEntity(new GenericType<List<IdpDto>>() { });
-        assertThat(idps).extracting("entityId").containsOnly(
-                ENABLED_ALL_RP_IDP,
-                ONBOARDING_TO_LOA_1_IDP
-        );
-    }
-
-    // TODO: Remove after the related frontend release to preserve zero-downtime deployment
-    @Test
-    @Deprecated
-    public void anyRpAtLevel2_getIdpList_ReturnsOnboardingIdp_withDeprecatedUrl() {
-        Response response = getIdpList("any-rp", LevelOfAssurance.LEVEL_2, Urls.ConfigUrls.DEPRECATED_IDP_LIST_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
