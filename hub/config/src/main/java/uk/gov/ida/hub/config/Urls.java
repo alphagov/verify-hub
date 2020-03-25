@@ -51,12 +51,6 @@ public interface Urls {
         String IDP_CONFIG_DATA = ENTITY_ID_PATH_PARAM + "/display-data";
         String IDP_CONFIG_DATA_RESOURCE = IDENTITY_PROVIDER_ROOT + IDP_CONFIG_DATA;
 
-        // TODO: Remove after the related frontend release to preserve zero-downtime deployment
-        // Deprecated registration
-        @Deprecated String DEPRECATED_DP_LIST = "/idp-list";
-        @Deprecated String DEPRECATED_IDP_LIST_PATH = DEPRECATED_DP_LIST + TRANSACTION_ENTITY_ID_PARAM_PATH + LEVEL_OF_ASSURANCE_PATH_PARAM;
-        @Deprecated String DEPRECATED_IDP_LIST_RESOURCE = IDENTITY_PROVIDER_ROOT + DEPRECATED_IDP_LIST_PATH;
-
         // Registration
         String IDP_LIST_FOR_REGISTRATION = "/idp-list-for-registration";
         String IDP_LIST_FOR_REGISTRATION_PATH = IDP_LIST_FOR_REGISTRATION + TRANSACTION_ENTITY_ID_PARAM_PATH + LEVEL_OF_ASSURANCE_PATH_PARAM;
