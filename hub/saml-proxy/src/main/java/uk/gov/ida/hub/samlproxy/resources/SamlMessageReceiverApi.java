@@ -5,7 +5,6 @@ import com.codahale.metrics.annotation.Timed;
 import io.prometheus.client.Counter;
 import org.jboss.logging.MDC;
 import org.opensaml.saml.saml2.core.AuthnRequest;
-import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.slf4j.event.Level;
@@ -51,6 +50,12 @@ public class SamlMessageReceiverApi {
     private static final Counter authnRequestsFromEntities = Counter.build(
             "verify_saml_proxy_authn_requests_total",
             "Total number of Authn Requests from RPs")
+            .labelNames("entity_id")
+            .register();
+
+    private static final Counter authnResponsesFromCountries = Counter.build(
+            "verify_eidas_connector_responses_total",
+            "Total number of EIDAS Connector Responses")
             .labelNames("entity_id")
             .register();
 
@@ -157,6 +162,7 @@ public class SamlMessageReceiverApi {
             org.opensaml.saml.saml2.core.Response samlResponse = stringSamlResponseTransformer.apply(samlRequestDto.getSamlRequest());
 
             eidasValidatorFactory.get().getValidatedResponse(samlResponse);
+            authnResponsesFromCountries.labels(samlResponse.getIssuer().getValue()).inc();
 
             protectiveMonitoringLogger.logAuthnResponse(
                 samlResponse,

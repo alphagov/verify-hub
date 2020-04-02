@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.samlengine.resources.translators;
 
 import com.codahale.metrics.annotation.Timed;
+import io.prometheus.client.Counter;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.IdaAuthnRequestFromHubDto;
 import uk.gov.ida.hub.samlengine.domain.SamlRequestDto;
@@ -19,6 +20,12 @@ public class CountryAuthnRequestGeneratorResource {
 
     private final CountryAuthnRequestGeneratorService countryAuthnRequestGeneratorService;
 
+    private static final Counter authnRequestsToCountries = Counter.build(
+            "verify_eidas_connector_requests_total",
+            "Total number of EIDAS Connector Requests")
+            .labelNames("entity_id")
+            .register();
+
     @Inject
     public CountryAuthnRequestGeneratorResource(CountryAuthnRequestGeneratorService countryAuthnRequestGeneratorService) {
         this.countryAuthnRequestGeneratorService = countryAuthnRequestGeneratorService;
@@ -31,6 +38,7 @@ public class CountryAuthnRequestGeneratorResource {
     public Response generate(IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto) {
         SamlRequestDto samlRequestDto = countryAuthnRequestGeneratorService.generateSaml(idaAuthnRequestFromHubDto);
         if (samlRequestDto != null) {
+            authnRequestsToCountries.labels(idaAuthnRequestFromHubDto.getIdpEntityId()).inc();
             return Response.ok().entity(samlRequestDto).type(MediaType.APPLICATION_JSON_TYPE).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
