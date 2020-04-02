@@ -6,7 +6,7 @@ server:
     type: classic
     appenders:
       - type: access-logstash-console
-timeoutPeriod: 90m
+timeoutPeriod: 120m
 assertionLifetime: 60m
 acceptSelfSignedCerts: true
 matchingServiceResponseWaitPeriod: 60s
