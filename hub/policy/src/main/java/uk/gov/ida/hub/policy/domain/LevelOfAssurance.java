@@ -1,5 +1,7 @@
 package uk.gov.ida.hub.policy.domain;
 
+import java.util.List;
+
 // Do not change the ordering of this enum
 public enum LevelOfAssurance {
     LEVEL_X,
@@ -20,24 +22,24 @@ public enum LevelOfAssurance {
         return this.ordinal()<levelOfAssurance.ordinal();
     }
 
-    public static LevelOfAssurance min(LevelOfAssurance... assurances) {
-        if (assurances == null || assurances.length == 0) { return null; }
-        if (assurances.length == 1) { return assurances[0]; }
+    public static LevelOfAssurance min(List<LevelOfAssurance> assurances) {
+        if (assurances == null || assurances.size() == 0) { return null; }
+        if (assurances.size() == 1) { return assurances.get(0); }
 
-        LevelOfAssurance min = assurances[0];
-        for (int i = 1; i < assurances.length; i++) {
-            if (assurances[i].lessThan(min)) { min = assurances[i]; }
+        LevelOfAssurance min = assurances.get(0);
+        for (int i = 1; i < assurances.size(); i++) {
+            if (assurances.get(i).lessThan(min)) { min = assurances.get(i); }
         }
         return min;
     }
 
-    public static LevelOfAssurance max(LevelOfAssurance... assurances) {
-        if (assurances == null || assurances.length == 0) { return null; }
-        if (assurances.length == 1) { return assurances[0]; }
+    public static LevelOfAssurance max(List<LevelOfAssurance> assurances) {
+        if (assurances == null || assurances.size() == 0) { return null; }
+        if (assurances.size() == 1) { return assurances.get(0); }
 
-        LevelOfAssurance max = assurances[0];
-        for (int i = 1; i < assurances.length; i++) {
-            if (assurances[i].greaterThan(max)) { max = assurances[i]; }
+        LevelOfAssurance max = assurances.get(0);
+        for (int i = 1; i < assurances.size(); i++) {
+            if (assurances.get(i).greaterThan(max)) { max = assurances.get(i); }
         }
         return max;
     }

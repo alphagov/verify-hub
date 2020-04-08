@@ -171,8 +171,8 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getRequestIssuerEntityId(),
                 successFromIdp.getPersistentId(),
                 state.getRequestId(),
-                LevelOfAssurance.min(state.getLevelsOfAssurance().toArray(new LevelOfAssurance[0])), // minimum
-                LevelOfAssurance.max(state.getLevelsOfAssurance().toArray(new LevelOfAssurance[0])), // required
+                LevelOfAssurance.min(state.getLevelsOfAssurance()), // minimum
+                LevelOfAssurance.max(state.getLevelsOfAssurance()), // required
                 successFromIdp.getLevelOfAssurance(), // provided
                 successFromIdp.getPrincipalIpAddressAsSeenByIdp(),
                 successFromIdp.getPrincipalIpAddressAsSeenByHub(),

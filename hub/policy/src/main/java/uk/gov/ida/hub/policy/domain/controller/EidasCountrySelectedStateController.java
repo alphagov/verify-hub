@@ -157,8 +157,8 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getRequestIssuerEntityId(),
                 new PersistentId(translatedResponse.getPersistentId().get()),
                 state.getRequestId(),
-                LevelOfAssurance.min(state.getLevelsOfAssurance().toArray(new LevelOfAssurance[0])), // minimum
-                LevelOfAssurance.max(state.getLevelsOfAssurance().toArray(new LevelOfAssurance[0])), // required
+                LevelOfAssurance.min(state.getLevelsOfAssurance()), // minimum
+                LevelOfAssurance.max(state.getLevelsOfAssurance()), // required
                 translatedResponse.getLevelOfAssurance().get(), // provided
                 Optional.empty(),
                 principalIpAddressAsSeenByHub,

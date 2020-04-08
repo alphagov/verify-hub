@@ -2,6 +2,11 @@ package uk.gov.ida.hub.policy.domain;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LevelOfAssuranceTest {
@@ -29,51 +34,45 @@ public class LevelOfAssuranceTest {
 
     @Test
     public void testLevelOfAssuranceMinMax() {
-        LevelOfAssurance[] assurances;
+        List<LevelOfAssurance> assurances;
 
-        assurances = new LevelOfAssurance[] {
+        assurances = Arrays.asList(
             LevelOfAssurance.LEVEL_1,
+            LevelOfAssurance.LEVEL_2);
+
+        assertThat(LevelOfAssurance.min(assurances)).isEqualTo(LevelOfAssurance.LEVEL_1);
+        assertThat(LevelOfAssurance.max(assurances)).isEqualTo(LevelOfAssurance.LEVEL_2);
+
+        assurances = Arrays.asList(
             LevelOfAssurance.LEVEL_2,
-        };
+            LevelOfAssurance.LEVEL_1);
 
         assertThat(LevelOfAssurance.min(assurances)).isEqualTo(LevelOfAssurance.LEVEL_1);
         assertThat(LevelOfAssurance.max(assurances)).isEqualTo(LevelOfAssurance.LEVEL_2);
 
-        assurances = new LevelOfAssurance[] {
-            LevelOfAssurance.LEVEL_2,
+        assurances = Arrays.asList(
             LevelOfAssurance.LEVEL_1,
-        };
+            LevelOfAssurance.LEVEL_1,
+            LevelOfAssurance.LEVEL_1,
+            LevelOfAssurance.LEVEL_2);
 
         assertThat(LevelOfAssurance.min(assurances)).isEqualTo(LevelOfAssurance.LEVEL_1);
         assertThat(LevelOfAssurance.max(assurances)).isEqualTo(LevelOfAssurance.LEVEL_2);
 
-        assurances = new LevelOfAssurance[] {
-            LevelOfAssurance.LEVEL_1,
-            LevelOfAssurance.LEVEL_1,
-            LevelOfAssurance.LEVEL_1,
-            LevelOfAssurance.LEVEL_2
-        };
-
-        assertThat(LevelOfAssurance.min(assurances)).isEqualTo(LevelOfAssurance.LEVEL_1);
-        assertThat(LevelOfAssurance.max(assurances)).isEqualTo(LevelOfAssurance.LEVEL_2);
-
-        assurances = new LevelOfAssurance[] {
+        assurances = Arrays.asList(
             LevelOfAssurance.LEVEL_3,
             LevelOfAssurance.LEVEL_1,
-            LevelOfAssurance.LEVEL_2
-        };
+            LevelOfAssurance.LEVEL_2);
 
         assertThat(LevelOfAssurance.min(assurances)).isEqualTo(LevelOfAssurance.LEVEL_1);
         assertThat(LevelOfAssurance.max(assurances)).isEqualTo(LevelOfAssurance.LEVEL_3);
 
-        assurances = new LevelOfAssurance[]{
-            LevelOfAssurance.LEVEL_1
-        };
+        assurances = Collections.singletonList(LevelOfAssurance.LEVEL_1);
 
         assertThat(LevelOfAssurance.min(assurances)).isEqualTo(LevelOfAssurance.LEVEL_1);
         assertThat(LevelOfAssurance.max(assurances)).isEqualTo(LevelOfAssurance.LEVEL_1);
 
-        assurances = new LevelOfAssurance[0];
+        assurances = new ArrayList<>();
 
         assertThat(LevelOfAssurance.min(assurances)).isNull();
         assertThat(LevelOfAssurance.max(assurances)).isNull();
