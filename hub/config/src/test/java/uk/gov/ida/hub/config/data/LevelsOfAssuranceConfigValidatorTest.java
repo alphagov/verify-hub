@@ -83,6 +83,16 @@ public class LevelsOfAssuranceConfigValidatorTest {
     }
 
     @Test
+    public void shouldAllowLOA2AndLOA1TransactionConfiguration() {
+        Set<TransactionConfig> transactionsConfig = Set.of(loa2And1Transaction);
+        try {
+            levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(transactionsConfig);
+        } catch (Exception e) {
+            fail("Expected exception not thrown");
+        }
+    }
+
+    @Test
     public void shouldAllowLOA2TransactionConfiguration() {
         Set<TransactionConfig> transactionsConfig = Set.of(loa2Transaction);
         try {
@@ -100,11 +110,6 @@ public class LevelsOfAssuranceConfigValidatorTest {
     @Test(expected = ConfigValidationException.class)
     public void shouldThrowWhenTransactionIsNotLoa1OrLoa2() {
         levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa3OnlyTransaction));
-    }
-
-    @Test(expected = ConfigValidationException.class)
-    public void shouldThrowWhenTransactionLOAsAreInWrongOrder() {
-        levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa2And1Transaction));
     }
 
     @Test(expected = ConfigValidationException.class)
