@@ -61,8 +61,9 @@ public class LevelsOfAssuranceConfigValidator {
                 .filter(x -> {
                     List<LevelOfAssurance> levelsOfAssurance = x.getLevelsOfAssurance();
                     boolean isLoa1 = levelsOfAssurance.equals(asList(LEVEL_1, LEVEL_2));
+                    boolean isLoa2And1 = levelsOfAssurance.equals(asList(LEVEL_2, LEVEL_1));
                     boolean isLoa2 = levelsOfAssurance.equals(singletonList(LEVEL_2));
-                    return !(isLoa1 || isLoa2);
+                    return !(isLoa1 || isLoa2 || isLoa2And1);
                 })
                 .collect(Collectors.toList());
         if(!badTransactionConfigs.isEmpty()) {
