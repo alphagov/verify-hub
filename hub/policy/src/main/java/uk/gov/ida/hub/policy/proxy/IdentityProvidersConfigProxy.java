@@ -61,6 +61,13 @@ public class IdentityProvidersConfigProxy {
         return jsonClient.get(uri, IdpConfigDto.class);
     }
 
+    @Timed
+    public boolean isIDPEnabledForRegistration(String idpEntityID, String transactionEntityId, LevelOfAssurance levelOfAssurance) {
+        List<String> enabledIdentityProvidersForRegistration = getEnabledIdentityProvidersForRegistration(transactionEntityId, levelOfAssurance, false);
+
+        return enabledIdentityProvidersForRegistration.contains(idpEntityID);
+    }
+
     private List<String> getEnabledIdentityProvidersForRegistration(String transactionEntityId, LevelOfAssurance levelOfAssurance, boolean processingIdpResponse) {
         final String enabledIdpConfigServiceResourceUrl = processingIdpResponse ?
                 Urls.ConfigUrls.ENABLED_ID_PROVIDERS_FOR_REGISTRATION_AUTHN_RESPONSE_RESOURCE :

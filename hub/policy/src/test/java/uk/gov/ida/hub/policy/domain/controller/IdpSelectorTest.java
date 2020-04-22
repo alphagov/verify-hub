@@ -82,6 +82,40 @@ public class IdpSelectorTest {
         assertThat(idpSelectedState.getSessionExpiryTimestamp()).isEqualTo(state.getSessionExpiryTimestamp());
     }
 
+    @Test
+    public void buildIdpSelectedState_shouldReturnStateWithCorrectSequenceOfLOAsWhenIDPSupportsRegistration() {
+        SessionStartedState state = SessionStartedStateBuilder.aSessionStartedState().build();
+        when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1));
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationRequestGeneration(state.getRequestIssuerEntityId(), true, REQUESTED_LOA)).thenReturn(singletonList(IDP_ENTITY_ID));
+        when(identityProvidersConfigProxy.isIDPEnabledForRegistration(IDP_ENTITY_ID, state.getRequestIssuerEntityId(), REQUESTED_LOA)).thenReturn(true);
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, REQUESTED_LOA, transactionsConfigProxy, identityProvidersConfigProxy);
+
+        assertThat(idpSelectedState.getRelayState()).isEqualTo(state.getRelayState());
+        assertThat(idpSelectedState.getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
+        assertThat(idpSelectedState.getRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
+        assertThat(idpSelectedState.getAvailableIdentityProviders()).isEqualTo(singletonList(IDP_ENTITY_ID));
+        assertThat(idpSelectedState.getForceAuthentication()).isEqualTo(state.getForceAuthentication());
+        assertThat(idpSelectedState.getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1);
+        assertThat(idpSelectedState.getSessionExpiryTimestamp()).isEqualTo(state.getSessionExpiryTimestamp());
+    }
+
+    @Test
+    public void buildIdpSelectedState_shouldReturnStateWithCorrectSequenceOfLOAsWhenIDPDoesNotSupportRegistration() {
+        SessionStartedState state = SessionStartedStateBuilder.aSessionStartedState().build();
+        when(transactionsConfigProxy.getLevelsOfAssurance(state.getRequestIssuerEntityId())).thenReturn(asList(LevelOfAssurance.LEVEL_2, LevelOfAssurance.LEVEL_1));
+        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationRequestGeneration(state.getRequestIssuerEntityId(), true, REQUESTED_LOA)).thenReturn(singletonList(IDP_ENTITY_ID));
+        when(identityProvidersConfigProxy.isIDPEnabledForRegistration(IDP_ENTITY_ID, state.getRequestIssuerEntityId(), REQUESTED_LOA)).thenReturn(false);
+        IdpSelectedState idpSelectedState = IdpSelector.buildIdpSelectedState(state, IDP_ENTITY_ID, true, REQUESTED_LOA, transactionsConfigProxy, identityProvidersConfigProxy);
+
+        assertThat(idpSelectedState.getRelayState()).isEqualTo(state.getRelayState());
+        assertThat(idpSelectedState.getIdpEntityId()).isEqualTo(IDP_ENTITY_ID);
+        assertThat(idpSelectedState.getRequestIssuerEntityId()).isEqualTo(state.getRequestIssuerEntityId());
+        assertThat(idpSelectedState.getAvailableIdentityProviders()).isEqualTo(singletonList(IDP_ENTITY_ID));
+        assertThat(idpSelectedState.getForceAuthentication()).isEqualTo(state.getForceAuthentication());
+        assertThat(idpSelectedState.getLevelsOfAssurance()).containsSequence(LevelOfAssurance.LEVEL_2);
+        assertThat(idpSelectedState.getSessionExpiryTimestamp()).isEqualTo(state.getSessionExpiryTimestamp());
+    }
+
     @Test(expected= StateProcessingValidationException.class)
          public void shouldRaiseAnExceptionWhenSelectedIDPDoesNotExist() {
         IdpSelectedState state = IdpSelectedStateBuilder.anIdpSelectedState().withIdpEntityId(IDP_ENTITY_ID).withAvailableIdentityProviders(List.of(IDP_ENTITY_ID)).build();
