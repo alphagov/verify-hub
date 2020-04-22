@@ -2,6 +2,7 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
@@ -32,6 +33,7 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     @JsonProperty
     private final List<String> availableIdentityProviders;
     @JsonProperty
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private final String abTestVariant;
 
     @JsonCreator
