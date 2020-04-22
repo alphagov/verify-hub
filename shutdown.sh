@@ -8,8 +8,7 @@ done
 
 if docker ps | grep hub-redis >/dev/null ; then
     docker stop hub-redis
-    # Docker removes hub-redis when it stops
-    # docker rm hub-redis
+    docker rm hub-redis
 fi
 
 exit 0
