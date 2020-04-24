@@ -74,6 +74,7 @@ public class IdpSelector {
                 && levelsOfAssuranceForTransaction.size() == 2
                 && levelsOfAssuranceForTransaction.indexOf(LevelOfAssurance.LEVEL_2) == 0
                 && levelsOfAssuranceForTransaction.indexOf(LevelOfAssurance.LEVEL_1) == 1) {
+            //See ADR 0035 in verify-architecture
             levelsOfAssuranceForTransaction = Collections.singletonList(LevelOfAssurance.LEVEL_2);
         }
             levelsOfAssuranceForTransactionSupportedByIdp = levelsOfAssuranceForTransaction.stream()
