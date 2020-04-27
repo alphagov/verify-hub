@@ -15,7 +15,6 @@ import uk.gov.ida.hub.policy.exception.EidasCountryNotSupportedException;
 import uk.gov.ida.hub.policy.exception.EidasNotSupportedException;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;

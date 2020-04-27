@@ -8,6 +8,7 @@ import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,17 @@ public class IdpSelector {
 
         IdpConfigDto idpConfig = identityProvidersConfigProxy.getIdpConfig(idpEntityId);
         final List<LevelOfAssurance> idpLevelsOfAssurance = idpConfig.getSupportedLevelsOfAssurance();
-        List<LevelOfAssurance> levelsOfAssuranceForTransactionSupportedByIdp = levelsOfAssuranceForTransaction.stream().filter(idpLevelsOfAssurance::contains).collect(Collectors.toList());
+
+        boolean idpEnabledForRegistration = identityProvidersConfigProxy.isIDPEnabledForRegistration(
+                idpEntityId,
+                state.getRequestIssuerEntityId(),
+                requestedLoa);
+
+        List<LevelOfAssurance> levelsOfAssuranceForTransactionSupportedByIdp =
+                getLevelsOfAssuranceForTransactionSupportedByIdp(
+                        idpEnabledForRegistration,
+                        idpLevelsOfAssurance,
+                        levelsOfAssuranceForTransaction);
 
         return new IdpSelectedState(
                 state.getRequestId(),
@@ -52,6 +63,25 @@ public class IdpSelector {
                 availableIdentityProviderEntityIdsForLoa,
                 state.getTransactionSupportsEidas()
         );
+    }
+
+    private static List<LevelOfAssurance> getLevelsOfAssuranceForTransactionSupportedByIdp(boolean idpEnabledForRegistration,
+                                                                                           List<LevelOfAssurance> idpLevelsOfAssurance,
+                                                                                           List<LevelOfAssurance> levelsOfAssuranceForTransaction) {
+        List<LevelOfAssurance> levelsOfAssuranceForTransactionSupportedByIdp;
+
+        if (!idpEnabledForRegistration
+                && levelsOfAssuranceForTransaction.size() == 2
+                && levelsOfAssuranceForTransaction.indexOf(LevelOfAssurance.LEVEL_2) == 0
+                && levelsOfAssuranceForTransaction.indexOf(LevelOfAssurance.LEVEL_1) == 1) {
+            //See ADR 0035 in verify-architecture
+            levelsOfAssuranceForTransaction = Collections.singletonList(LevelOfAssurance.LEVEL_2);
+        }
+            levelsOfAssuranceForTransactionSupportedByIdp = levelsOfAssuranceForTransaction.stream()
+                    .filter(idpLevelsOfAssurance::contains)
+                    .collect(Collectors.toList());
+
+        return levelsOfAssuranceForTransactionSupportedByIdp;
     }
 
     private static void checkValidIdentityProvider(final String idpEntityId, List<String> availableIdentityProviderEntityIdsForLoa, IdpSelectingState state) {
