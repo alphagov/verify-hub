@@ -33,6 +33,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -171,9 +172,10 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getRequestIssuerEntityId(),
                 successFromIdp.getPersistentId(),
                 state.getRequestId(),
-                state.getLevelsOfAssurance().get(0),
-                state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
-                successFromIdp.getLevelOfAssurance(),
+                Collections.min(state.getLevelsOfAssurance()), // min LOA
+                Collections.max(state.getLevelsOfAssurance()), // max LOA
+                state.getLevelsOfAssurance().get(0), // preferred LOA
+                successFromIdp.getLevelOfAssurance(), // provided LOA
                 successFromIdp.getPrincipalIpAddressAsSeenByIdp(),
                 successFromIdp.getPrincipalIpAddressAsSeenByHub(),
                 successFromIdp.getAnalyticSessionId(),

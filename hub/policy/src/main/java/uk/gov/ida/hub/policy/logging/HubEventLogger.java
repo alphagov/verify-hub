@@ -20,6 +20,7 @@ import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -36,15 +37,16 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.hub_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.idp_entity_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.idp_fraud_event_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.journey_type;
+import static uk.gov.ida.eventemitter.EventDetailsKey.maximum_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.minimum_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.pid;
+import static uk.gov.ida.eventemitter.EventDetailsKey.preferred_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.principal_ip_address_as_seen_by_hub;
 import static uk.gov.ida.eventemitter.EventDetailsKey.principal_ip_address_as_seen_by_idp;
 import static uk.gov.ida.eventemitter.EventDetailsKey.provided_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.request_id;
-import static uk.gov.ida.eventemitter.EventDetailsKey.required_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_expiry_time;
 import static uk.gov.ida.eventemitter.EventDetailsKey.transaction_entity_id;
@@ -90,12 +92,13 @@ public class HubEventLogger {
         this.eventEmitter = eventEmitter;
     }
 
-    public void logSessionStartedEvent(SamlResponseWithAuthnRequestInformationDto samlResponse, String ipAddress, DateTime sessionExpiryTimestamp, SessionId sessionId, LevelOfAssurance minimum, LevelOfAssurance required) {
+    public void logSessionStartedEvent(SamlResponseWithAuthnRequestInformationDto samlResponse, String ipAddress, DateTime sessionExpiryTimestamp, SessionId sessionId, LevelOfAssurance minimum, LevelOfAssurance maximum, LevelOfAssurance preferred) {
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(principal_ip_address_as_seen_by_hub, ipAddress);
         details.put(message_id, samlResponse.getId());
         details.put(minimum_level_of_assurance, minimum.name());
-        details.put(required_level_of_assurance, required.name());
+        details.put(maximum_level_of_assurance, maximum.name());
+        details.put(preferred_level_of_assurance, preferred.name());
 
         logSessionEvent(sessionId, samlResponse.getIssuer(), sessionExpiryTimestamp, samlResponse.getId(), SESSION_STARTED, details);
     }
@@ -204,7 +207,8 @@ public class HubEventLogger {
                                           PersistentId persistentId,
                                           String requestId,
                                           LevelOfAssurance minimumLevelOfAssurance,
-                                          LevelOfAssurance requiredLevelOfAssurance,
+                                          LevelOfAssurance maximumLevelOfAssurance,
+                                          LevelOfAssurance preferredLevelOfAssurance,
                                           LevelOfAssurance providedLevelOfAssurance,
                                           Optional<String> principalIpAddress,
                                           String principalIpAddressAsSeenByHub,
@@ -215,7 +219,8 @@ public class HubEventLogger {
         details.put(idp_entity_id, idpEntityId);
         details.put(pid, persistentId.getNameId());
         details.put(minimum_level_of_assurance, minimumLevelOfAssurance.name());
-        details.put(required_level_of_assurance, requiredLevelOfAssurance.name());
+        details.put(maximum_level_of_assurance, maximumLevelOfAssurance.name());
+        details.put(preferred_level_of_assurance, preferredLevelOfAssurance.name());
         details.put(provided_level_of_assurance, providedLevelOfAssurance.name());
         if (principalIpAddress.isPresent()) {
             details.put(principal_ip_address_as_seen_by_idp, principalIpAddress.get());
@@ -267,13 +272,20 @@ public class HubEventLogger {
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(idp_entity_id, idpSelectedState.getIdpEntityId());
         details.put(principal_ip_address_as_seen_by_hub, principalIpAddress);
-        details.put(minimum_level_of_assurance, levelsOfAssurance.get(0).name());
-        details.put(required_level_of_assurance, levelsOfAssurance.get(levelsOfAssurance.size() - 1).name());
+        details.put(minimum_level_of_assurance, Collections.min(levelsOfAssurance).name());
+        details.put(maximum_level_of_assurance, Collections.max(levelsOfAssurance).name());
+        details.put(preferred_level_of_assurance, levelsOfAssurance.get(0).name());
         details.put(analytics_session_id, analyticsSessionId);
         details.put(journey_type, journeyType);
         details.put(ab_test_variant, abTestVariant);
 
-        logSessionEvent(idpSelectedState.getSessionId(), idpSelectedState.getRequestIssuerEntityId(), idpSelectedState.getSessionExpiryTimestamp(), idpSelectedState.getRequestId(), IDP_SELECTED, details);
+        logSessionEvent(
+            idpSelectedState.getSessionId(),
+            idpSelectedState.getRequestIssuerEntityId(),
+            idpSelectedState.getSessionExpiryTimestamp(),
+            idpSelectedState.getRequestId(),
+            IDP_SELECTED,
+            details);
     }
 
     public void logSessionMovedToStartStateEvent(SessionStartedState state) {

@@ -33,6 +33,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
+import static uk.gov.ida.eventemitter.EventDetailsKey.ab_test_variant;
 import static uk.gov.ida.eventemitter.EventDetailsKey.analytics_session_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 import static uk.gov.ida.eventemitter.EventDetailsKey.error_id;
@@ -41,15 +42,16 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.hub_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.idp_entity_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.idp_fraud_event_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.journey_type;
+import static uk.gov.ida.eventemitter.EventDetailsKey.maximum_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.minimum_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.pid;
+import static uk.gov.ida.eventemitter.EventDetailsKey.preferred_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.principal_ip_address_as_seen_by_hub;
 import static uk.gov.ida.eventemitter.EventDetailsKey.principal_ip_address_as_seen_by_idp;
 import static uk.gov.ida.eventemitter.EventDetailsKey.provided_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.request_id;
-import static uk.gov.ida.eventemitter.EventDetailsKey.required_level_of_assurance;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_expiry_time;
 import static uk.gov.ida.eventemitter.EventDetailsKey.transaction_entity_id;
@@ -81,8 +83,10 @@ public class HubEventLoggerTest {
     private static final String TRANSACTION_ENTITY_ID = "transaction-entity-id";
     private static final String IDP_ENTITY_ID = "idp entity id";
     private static final LevelOfAssurance MINIMUM_LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_1;
-    private static final LevelOfAssurance REQUIRED_LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_2;
+    private static final LevelOfAssurance MAXIMUM_LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_2;
+    private static final LevelOfAssurance PREFERRED_LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_1;
     private static final LevelOfAssurance PROVIDED_LEVEL_OF_ASSURANCE = LevelOfAssurance.LEVEL_2;
+
     private static final String REQUEST_ID = "requestId";
     private static final SessionId SESSION_ID = aSessionId().build();
     private static final String PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB = "some-ip-address";
@@ -121,13 +125,21 @@ public class HubEventLoggerTest {
                 .withIssuer(TRANSACTION_ENTITY_ID)
                 .build();
 
-        eventLogger.logSessionStartedEvent(samlResponse, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, SESSION_EXPIRY_TIMESTAMP, SESSION_ID, MINIMUM_LEVEL_OF_ASSURANCE, REQUIRED_LEVEL_OF_ASSURANCE);
+        eventLogger.logSessionStartedEvent(
+            samlResponse,
+            PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+            SESSION_EXPIRY_TIMESTAMP,
+            SESSION_ID,
+            MINIMUM_LEVEL_OF_ASSURANCE,
+            MAXIMUM_LEVEL_OF_ASSURANCE,
+            PREFERRED_LEVEL_OF_ASSURANCE);
 
         final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
                 principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
                 message_id, samlResponse.getId(),
                 minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name(),
-                required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name(),
+                maximum_level_of_assurance, MAXIMUM_LEVEL_OF_ASSURANCE.name(),
+                preferred_level_of_assurance, PREFERRED_LEVEL_OF_ASSURANCE.name(),
                 session_event_type, SESSION_STARTED));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
@@ -156,7 +168,8 @@ public class HubEventLoggerTest {
             PERSISTENT_ID,
             REQUEST_ID,
             MINIMUM_LEVEL_OF_ASSURANCE,
-            REQUIRED_LEVEL_OF_ASSURANCE,
+            MAXIMUM_LEVEL_OF_ASSURANCE,
+            PREFERRED_LEVEL_OF_ASSURANCE,
             PROVIDED_LEVEL_OF_ASSURANCE,
             Optional.ofNullable(PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP),
             PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
@@ -164,17 +177,18 @@ public class HubEventLoggerTest {
             JOURNEY_TYPE
         );
 
-        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
-                idp_entity_id, IDP_ENTITY_ID,
-                pid, PERSISTENT_ID.getNameId(),
-                minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name(),
-                required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name(),
-                provided_level_of_assurance, PROVIDED_LEVEL_OF_ASSURANCE.name(),
-                principal_ip_address_as_seen_by_idp, PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP,
-                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
-                session_event_type, IDP_AUTHN_SUCCEEDED,
-                analytics_session_id, ANALYTICS_SESSION_ID,
-                journey_type, JOURNEY_TYPE));
+        final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.ofEntries(
+            Map.entry(idp_entity_id, IDP_ENTITY_ID),
+            Map.entry(pid, PERSISTENT_ID.getNameId()),
+            Map.entry(minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name()),
+            Map.entry(maximum_level_of_assurance, MAXIMUM_LEVEL_OF_ASSURANCE.name()),
+            Map.entry(preferred_level_of_assurance, PREFERRED_LEVEL_OF_ASSURANCE.name()),
+            Map.entry(provided_level_of_assurance, PROVIDED_LEVEL_OF_ASSURANCE.name()),
+            Map.entry(principal_ip_address_as_seen_by_idp, PRINCIPAL_IP_ADDRESS_SEEN_BY_IDP),
+            Map.entry(principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB),
+            Map.entry(session_event_type, IDP_AUTHN_SUCCEEDED),
+            Map.entry(analytics_session_id, ANALYTICS_SESSION_ID),
+            Map.entry(journey_type, JOURNEY_TYPE)));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -244,16 +258,15 @@ public class HubEventLoggerTest {
         eventLogger.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, ANALYTICS_SESSION_ID, JOURNEY_TYPE, AB_TEST_VARIANT);
 
         final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
-                session_event_type, IDP_SELECTED,
-                idp_entity_id, IDP_ENTITY_ID,
-                principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
-                minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name(),
-                required_level_of_assurance, REQUIRED_LEVEL_OF_ASSURANCE.name(),
-                analytics_session_id, ANALYTICS_SESSION_ID,
-                journey_type, JOURNEY_TYPE,
-                ab_test_variant, AB_TEST_VARIANT
-                )
-        );
+            session_event_type, IDP_SELECTED,
+            idp_entity_id, IDP_ENTITY_ID,
+            principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
+            minimum_level_of_assurance, MINIMUM_LEVEL_OF_ASSURANCE.name(),
+            maximum_level_of_assurance, MAXIMUM_LEVEL_OF_ASSURANCE.name(),
+            preferred_level_of_assurance, PREFERRED_LEVEL_OF_ASSURANCE.name(),
+            analytics_session_id, ANALYTICS_SESSION_ID,
+            journey_type, JOURNEY_TYPE,
+                ab_test_variant, AB_TEST_VARIANT));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
