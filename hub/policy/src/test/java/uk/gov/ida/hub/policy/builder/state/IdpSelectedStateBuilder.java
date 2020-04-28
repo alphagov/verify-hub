@@ -27,7 +27,6 @@ public class IdpSelectedStateBuilder {
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private List<String> availableIdentityProviders = List.of("idp-a", "idp-b", "idp-c");
     private boolean transactionSupportsEidas = false;
-    private String abTestVariant;
 
     public static IdpSelectedStateBuilder anIdpSelectedState() {
         return new IdpSelectedStateBuilder();
@@ -48,8 +47,7 @@ public class IdpSelectedStateBuilder {
                 requestedLoa,
                 sessionId,
                 availableIdentityProviders,
-                transactionSupportsEidas,
-                abTestVariant
+                transactionSupportsEidas
         );
     }
 
@@ -112,9 +110,5 @@ public class IdpSelectedStateBuilder {
         this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
     }
-    
-    public IdpSelectedStateBuilder withAbTest(String abTestVariant) {
-        this.abTestVariant = abTestVariant;
-        return this;
-    }
+
 }

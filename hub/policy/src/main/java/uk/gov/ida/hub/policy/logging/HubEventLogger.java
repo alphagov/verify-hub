@@ -262,8 +262,7 @@ public class HubEventLogger {
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, USER_ACCOUNT_CREATION_REQUEST_SENT, new HashMap<>());
     }
 
-
-    public void logIdpSelectedEvent(IdpSelectedState idpSelectedState, String principalIpAddress, String analyticsSessionId, String journeyType) {
+    public void logIdpSelectedEvent(IdpSelectedState idpSelectedState, String principalIpAddress, String analyticsSessionId, String journeyType, String abTestVariant) {
         List<LevelOfAssurance> levelsOfAssurance = idpSelectedState.getLevelsOfAssurance();
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(idp_entity_id, idpSelectedState.getIdpEntityId());
@@ -272,7 +271,7 @@ public class HubEventLogger {
         details.put(required_level_of_assurance, levelsOfAssurance.get(levelsOfAssurance.size() - 1).name());
         details.put(analytics_session_id, analyticsSessionId);
         details.put(journey_type, journeyType);
-        idpSelectedState.getAbTestVariant().ifPresent(v -> details.put(ab_test_variant, v));
+        details.put(ab_test_variant, abTestVariant);
 
         logSessionEvent(idpSelectedState.getSessionId(), idpSelectedState.getRequestIssuerEntityId(), idpSelectedState.getSessionExpiryTimestamp(), idpSelectedState.getRequestId(), IDP_SELECTED, details);
     }

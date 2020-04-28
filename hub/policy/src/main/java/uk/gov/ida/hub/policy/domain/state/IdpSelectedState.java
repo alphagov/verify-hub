@@ -2,7 +2,6 @@ package uk.gov.ida.hub.policy.domain.state;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
@@ -32,9 +31,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     private final LevelOfAssurance requestedLoa;
     @JsonProperty
     private final List<String> availableIdentityProviders;
-    @JsonProperty
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private final String abTestVariant;
 
     @JsonCreator
     public IdpSelectedState(
@@ -51,8 +47,7 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             @JsonProperty("requestedLoa") final LevelOfAssurance requestedLoa,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("availableIdentityProviders") final List<String> availableIdentityProviders,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
-            @JsonProperty("abTestVariant") final String abTestVariant)
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas)
     {
 
         super(
@@ -72,7 +67,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
         this.registering = registering;
         this.requestedLoa = requestedLoa;
         this.availableIdentityProviders = availableIdentityProviders;
-        this.abTestVariant = abTestVariant;
     }
 
     public String getIdpEntityId() {
@@ -101,10 +95,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
 
     public List<LevelOfAssurance> getLevelsOfAssurance() {
         return levelsOfAssurance;
-    }
-
-    public Optional<String> getAbTestVariant() {
-        return Optional.ofNullable(abTestVariant);
     }
 
 }

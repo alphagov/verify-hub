@@ -239,10 +239,9 @@ public class HubEventLoggerTest {
             .withRequestIssuerEntityId(TRANSACTION_ENTITY_ID)
             .withRequestId(REQUEST_ID)
             .withSessionId(SESSION_ID)
-            .withAbTest(AB_TEST_VARIANT)    
             .build();
 
-        eventLogger.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        eventLogger.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, ANALYTICS_SESSION_ID, JOURNEY_TYPE, AB_TEST_VARIANT);
 
         final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
                 session_event_type, IDP_SELECTED,

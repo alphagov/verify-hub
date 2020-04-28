@@ -194,7 +194,7 @@ public class StateJsonSerializationTest {
     public void shouldSerializeIdpSelectedState() throws JsonProcessingException { 
         IdpSelectedState expectedState = anIdpSelectedState().withSessionId(SESSION_ID).withRequestId(REQUEST_ID).build();
         String actual = objectMapper.writeValueAsString(expectedState);
-        String expected = "{\"@class\":\"uk.gov.ida.hub.policy.domain.state.IdpSelectedState\",\"requestId\":\"some-request-id\",\"idpEntityId\":\"idp-entity-id\",\"levelsOfAssurance\":[\"LEVEL_1\",\"LEVEL_2\"],\"useExactComparisonType\":false,\"forceAuthentication\":null,\"assertionConsumerServiceUri\":\"/default-service-uri\",\"relayState\":null,\"sessionExpiryTimestamp\":568425600000,\"registering\":false,\"requestedLoa\":\"LEVEL_2\",\"sessionId\":{\"sessionId\":\"some-session-id\"},\"availableIdentityProviders\":[\"idp-a\",\"idp-b\",\"idp-c\"],\"transactionSupportsEidas\":false,\"abTestVariant\":null,\"requestIssuerEntityId\":\"transaction-entity-id\"}";
+        String expected = "{\"@class\":\"uk.gov.ida.hub.policy.domain.state.IdpSelectedState\",\"requestId\":\"some-request-id\",\"idpEntityId\":\"idp-entity-id\",\"levelsOfAssurance\":[\"LEVEL_1\",\"LEVEL_2\"],\"useExactComparisonType\":false,\"forceAuthentication\":null,\"assertionConsumerServiceUri\":\"/default-service-uri\",\"relayState\":null,\"sessionExpiryTimestamp\":568425600000,\"registering\":false,\"requestedLoa\":\"LEVEL_2\",\"sessionId\":{\"sessionId\":\"some-session-id\"},\"availableIdentityProviders\":[\"idp-a\",\"idp-b\",\"idp-c\"],\"transactionSupportsEidas\":false,\"requestIssuerEntityId\":\"transaction-entity-id\"}";
         assertThat(actual).isEqualTo(expected);
     }
 
