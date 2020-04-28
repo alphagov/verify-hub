@@ -93,8 +93,14 @@ public class AuthnRequestFromTransactionHandlerTest {
 
         authnRequestFromTransactionHandler.handleRequestFromTransaction(samlResponseWithAuthnRequestInformationDto, relayState, PRINCIPAL_IP_ADDRESS, ASSERTION_CONSUMER_SERVICE_URI, false);
 
-        verify(hubEventLogger, times(1)).logSessionStartedEvent(any(), anyString(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
-
+        verify(hubEventLogger, times(1)).logSessionStartedEvent(
+            any(),
+            anyString(),
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any());
     }
 
     @Test

@@ -37,6 +37,7 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -384,8 +385,9 @@ public class IdpSelectedStateControllerTest {
                 TRANSACTION_ENTITY_ID,
                 persistentId,
                 REQUEST_ID,
+                Collections.min(LEVELS_OF_ASSURANCE), // min LOA
+                Collections.max(LEVELS_OF_ASSURANCE), // max LOA
                 LEVELS_OF_ASSURANCE.get(0),
-                LEVELS_OF_ASSURANCE.get(1),
                 PROVIDED_LOA,
                 Optional.ofNullable(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP),
                 PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,

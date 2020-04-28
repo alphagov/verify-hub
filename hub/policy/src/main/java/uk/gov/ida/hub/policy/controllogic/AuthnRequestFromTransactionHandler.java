@@ -36,6 +36,7 @@ import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +78,14 @@ public class AuthnRequestFromTransactionHandler {
                 transactionSupportsEidas);
         final List<LevelOfAssurance> transactionLevelsOfAssurance = transactionsConfigProxy.getLevelsOfAssurance(samlResponse.getIssuer());
 
-        hubEventLogger.logSessionStartedEvent(samlResponse, ipAddress, sessionExpiryTimestamp, sessionId, transactionLevelsOfAssurance.get(0), transactionLevelsOfAssurance.get(transactionLevelsOfAssurance.size() -1));
+        hubEventLogger.logSessionStartedEvent(
+            samlResponse,
+            ipAddress,
+            sessionExpiryTimestamp,
+            sessionId,
+            Collections.min(transactionLevelsOfAssurance), // min LOA
+            Collections.max(transactionLevelsOfAssurance), // max LOA
+            transactionLevelsOfAssurance.get(0)); // preferred LOA
 
         return sessionRepository.createSession(sessionStartedState);
     }

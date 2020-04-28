@@ -36,6 +36,7 @@ import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -256,9 +257,10 @@ public class EidasCountrySelectedStateControllerTest {
             state.getRequestIssuerEntityId(),
             eidasAttributeQueryRequestDto.getPersistentId(),
             state.getRequestId(),
-            state.getLevelsOfAssurance().get(0),
-            state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
-            eidasAttributeQueryRequestDto.getLevelOfAssurance(),
+            Collections.min(state.getLevelsOfAssurance()), // min LOA
+            Collections.max(state.getLevelsOfAssurance()), // max LOA
+            state.getLevelsOfAssurance().get(0), // preferred LOA
+            eidasAttributeQueryRequestDto.getLevelOfAssurance(), // provided LOA
             Optional.empty(),
             IP_ADDRESS,
             ANALYTICS_SESSION_ID,
@@ -291,9 +293,10 @@ public class EidasCountrySelectedStateControllerTest {
                 state.getRequestIssuerEntityId(),
                 eidasAttributeQueryRequestDto.getPersistentId(),
                 state.getRequestId(),
-                state.getLevelsOfAssurance().get(0),
-                state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
-                eidasAttributeQueryRequestDto.getLevelOfAssurance(),
+                Collections.min(state.getLevelsOfAssurance()), // min LOA
+                Collections.max(state.getLevelsOfAssurance()), // max LOA
+                state.getLevelsOfAssurance().get(0), // preferred LOA
+                eidasAttributeQueryRequestDto.getLevelOfAssurance(), // provided LOA
                 Optional.empty(),
                 IP_ADDRESS,
                 ANALYTICS_SESSION_ID,
@@ -346,9 +349,10 @@ public class EidasCountrySelectedStateControllerTest {
                 state.getRequestIssuerEntityId(),
                 eidasAttributeQueryRequestDto.getPersistentId(),
                 state.getRequestId(),
-                state.getLevelsOfAssurance().get(0),
-                state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
-                eidasAttributeQueryRequestDto.getLevelOfAssurance(),
+                Collections.min(state.getLevelsOfAssurance()), // min LOA
+                Collections.max(state.getLevelsOfAssurance()), // max LOA
+                state.getLevelsOfAssurance().get(0), // preferred LOA
+                eidasAttributeQueryRequestDto.getLevelOfAssurance(), // provided LOA
                 Optional.empty(),
                 IP_ADDRESS,
                 ANALYTICS_SESSION_ID,
