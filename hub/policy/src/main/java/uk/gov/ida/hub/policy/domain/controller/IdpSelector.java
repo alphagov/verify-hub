@@ -61,8 +61,7 @@ public class IdpSelector {
                 requestedLoa,
                 state.getSessionId(),
                 availableIdentityProviderEntityIdsForLoa,
-                state.getTransactionSupportsEidas()
-        );
+                state.getTransactionSupportsEidas());
     }
 
     private static List<LevelOfAssurance> getLevelsOfAssuranceForTransactionSupportedByIdp(boolean idpEnabledForRegistration,

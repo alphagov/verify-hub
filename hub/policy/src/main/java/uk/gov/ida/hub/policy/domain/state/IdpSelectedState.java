@@ -47,7 +47,8 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             @JsonProperty("requestedLoa") final LevelOfAssurance requestedLoa,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("availableIdentityProviders") final List<String> availableIdentityProviders,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas)
+    {
 
         super(
             requestId,
@@ -95,4 +96,5 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
     public List<LevelOfAssurance> getLevelsOfAssurance() {
         return levelsOfAssurance;
     }
+
 }

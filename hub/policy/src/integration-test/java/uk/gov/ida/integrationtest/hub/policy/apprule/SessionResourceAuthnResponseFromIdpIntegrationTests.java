@@ -51,6 +51,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
     private static final String THE_TRANSACTION_ID = "the-transaction-id";
     private static final boolean REGISTERING = true;
     private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
+    private static final String abTestVariant = null;
     private static Client client;
 
     @ClassRule
@@ -239,7 +240,7 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
         final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
 
         client.target(policyUri).request()
-                .post(Entity.entity(new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type"), MediaType
+                .post(Entity.entity(new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant), MediaType
                         .APPLICATION_JSON_TYPE));
     }
 

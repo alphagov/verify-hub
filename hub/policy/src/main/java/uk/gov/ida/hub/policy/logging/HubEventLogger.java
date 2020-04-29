@@ -48,6 +48,7 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.required_level_of_assuranc
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_expiry_time;
 import static uk.gov.ida.eventemitter.EventDetailsKey.transaction_entity_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.ab_test_variant;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.HUB_EVENT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.SESSION_EVENT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.HubEvents.RECEIVED_AUTHN_REQUEST_FROM_HUB;
@@ -261,8 +262,7 @@ public class HubEventLogger {
         logSessionEvent(sessionId, transactionEntityId, sessionExpiryTimestamp, requestId, USER_ACCOUNT_CREATION_REQUEST_SENT, new HashMap<>());
     }
 
-
-    public void logIdpSelectedEvent(IdpSelectedState idpSelectedState, String principalIpAddress, String analyticsSessionId, String journeyType) {
+    public void logIdpSelectedEvent(IdpSelectedState idpSelectedState, String principalIpAddress, String analyticsSessionId, String journeyType, String abTestVariant) {
         List<LevelOfAssurance> levelsOfAssurance = idpSelectedState.getLevelsOfAssurance();
         Map<EventDetailsKey, String> details = new HashMap<>();
         details.put(idp_entity_id, idpSelectedState.getIdpEntityId());
@@ -271,6 +271,7 @@ public class HubEventLogger {
         details.put(required_level_of_assurance, levelsOfAssurance.get(levelsOfAssurance.size() - 1).name());
         details.put(analytics_session_id, analyticsSessionId);
         details.put(journey_type, journeyType);
+        details.put(ab_test_variant, abTestVariant);
 
         logSessionEvent(idpSelectedState.getSessionId(), idpSelectedState.getRequestIssuerEntityId(), idpSelectedState.getSessionExpiryTimestamp(), idpSelectedState.getRequestId(), IDP_SELECTED, details);
     }

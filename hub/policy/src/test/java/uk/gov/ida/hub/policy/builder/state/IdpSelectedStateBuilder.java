@@ -47,7 +47,8 @@ public class IdpSelectedStateBuilder {
                 requestedLoa,
                 sessionId,
                 availableIdentityProviders,
-                transactionSupportsEidas);
+                transactionSupportsEidas
+        );
     }
 
     public IdpSelectedStateBuilder withIdpEntityId(String idpEntityId) {
@@ -109,4 +110,5 @@ public class IdpSelectedStateBuilder {
         this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
     }
+
 }
