@@ -47,6 +47,7 @@ public class SessionTimeoutIntegrationTests {
     private static final int SOME_TIMEOUT = 10;
     private static final DateTime SOME_TIME = new DateTime(2013, 5, 30, 12, 0);
     private static final String THE_TX_ID = "the-tx-id";
+    private static final String abTestVariant = null;
     private static Client client;
     private static final boolean REGISTERING = true;
     private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
@@ -104,7 +105,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type"),
+        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant),
                 SESSION_TIMEOUT);
     }
 
@@ -118,7 +119,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type"), ExceptionType
+        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant), ExceptionType
                 .SESSION_NOT_FOUND);
 
         assertThatEventEmitterWritesToStandardOutput(outContent);

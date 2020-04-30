@@ -54,6 +54,7 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.request_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_expiry_time;
 import static uk.gov.ida.eventemitter.EventDetailsKey.transaction_entity_id;
+import static uk.gov.ida.eventemitter.EventDetailsKey.ab_test_variant;
 import static uk.gov.ida.hub.policy.builder.domain.FraudDetectedDetailsBuilder.aFraudDetectedDetails;
 import static uk.gov.ida.hub.policy.builder.domain.PersistentIdBuilder.aPersistentId;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
@@ -95,6 +96,7 @@ public class HubEventLoggerTest {
     private static final String ERROR_MESSAGE = "SAML error";
     private static final String ANALYTICS_SESSION_ID = "some-analytics-session-id";
     private static final String JOURNEY_TYPE = "some-journey-type";
+    private static final String AB_TEST_VARIANT = "";
 
     @Mock
     private EventSinkProxy eventSinkProxy;
@@ -252,7 +254,7 @@ public class HubEventLoggerTest {
             .withSessionId(SESSION_ID)
             .build();
 
-        eventLogger.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        eventLogger.logIdpSelectedEvent(state, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB, ANALYTICS_SESSION_ID, JOURNEY_TYPE, AB_TEST_VARIANT);
 
         final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
             session_event_type, IDP_SELECTED,

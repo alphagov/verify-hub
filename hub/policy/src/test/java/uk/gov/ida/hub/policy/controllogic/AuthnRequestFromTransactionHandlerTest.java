@@ -105,7 +105,7 @@ public class AuthnRequestFromTransactionHandlerTest {
 
     @Test
     public void stateControllerInvokedFromSessionRepositoryForselectedIdp() {
-        IdpSelected idpSelected = new IdpSelected(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS, REGISTERING, REQUESTED_LOA, ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        IdpSelected idpSelected = new IdpSelected(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS, REGISTERING, REQUESTED_LOA, ANALYTICS_SESSION_ID, JOURNEY_TYPE, "");
 
 
         IdpSelectingStateControllerSpy idpSelectingStateController = new IdpSelectingStateControllerSpy();
@@ -181,7 +181,7 @@ public class AuthnRequestFromTransactionHandlerTest {
 
 
         @Override
-        public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType) {
+        public void handleIdpSelected(String idpEntityId, String principalIpAddress, boolean registering, LevelOfAssurance requestedLoa, String analyticsSessionId, String journeyType, String abTest) {
             this.idpEntityId= idpEntityId;
             this.principalIpAddress = principalIpAddress;
             this.registering = registering;
