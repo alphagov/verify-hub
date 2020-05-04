@@ -157,9 +157,10 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getRequestIssuerEntityId(),
                 new PersistentId(translatedResponse.getPersistentId().get()),
                 state.getRequestId(),
-                state.getLevelsOfAssurance().get(0),
-                state.getLevelsOfAssurance().get(state.getLevelsOfAssurance().size() - 1),
-                translatedResponse.getLevelOfAssurance().get(),
+                Collections.min(state.getLevelsOfAssurance()), // min LOA
+                Collections.max(state.getLevelsOfAssurance()), // max LOA
+                state.getLevelsOfAssurance().get(0), // preferred LOA
+                translatedResponse.getLevelOfAssurance().get(), // provided LOA
                 Optional.empty(),
                 principalIpAddressAsSeenByHub,
                 analyticsSessionId,
