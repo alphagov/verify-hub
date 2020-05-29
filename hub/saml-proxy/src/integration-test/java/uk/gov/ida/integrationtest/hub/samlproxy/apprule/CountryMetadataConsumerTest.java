@@ -24,6 +24,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.util.UUID;
+
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlproxy.domain.LevelOfAssurance.LEVEL_2;
@@ -42,7 +44,10 @@ public class CountryMetadataConsumerTest {
     private static final String anotherIdpSigningCert = STUB_IDP_PUBLIC_SECONDARY_CERT;
     private static final String anotherIdpSigningKey = STUB_IDP_PUBLIC_SECONDARY_PRIVATE_KEY;
 
+
     private static Client client;
+    private String analyticsSessionId = UUID.randomUUID().toString();
+    private String journeyType = "some-journey-type";
     private AuthnResponseFactory authnResponseFactory;
 
     @ClassRule
@@ -82,7 +87,7 @@ public class CountryMetadataConsumerTest {
         final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
 
         // When
-        ResponseActionDto post = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1"))
+        ResponseActionDto post = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1", analyticsSessionId, journeyType))
                 .readEntity(ResponseActionDto.class);
 
         // Then
@@ -104,7 +109,7 @@ public class CountryMetadataConsumerTest {
         final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
 
         // When
-        Response responseFromSamlProxy = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1"));
+        Response responseFromSamlProxy = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1", analyticsSessionId, journeyType));
 
         // Then
         assertThat(responseFromSamlProxy.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());

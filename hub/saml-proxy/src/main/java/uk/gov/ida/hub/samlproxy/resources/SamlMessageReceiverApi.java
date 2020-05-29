@@ -139,7 +139,9 @@ public class SamlMessageReceiverApi {
         final SamlAuthnResponseContainerDto authnResponseDto = new SamlAuthnResponseContainerDto(
                 samlRequestDto.getSamlRequest(),
                 sessionId,
-                samlRequestDto.getPrincipalIpAsSeenByFrontend()
+                samlRequestDto.getPrincipalIpAsSeenByFrontend(),
+                samlRequestDto.getAnalyticsSessionId(),
+                samlRequestDto.getJourneyType()
         );
 
         return Response.ok(sessionProxy.receiveAuthnResponseFromIdp(authnResponseDto, sessionId)).build();
@@ -172,7 +174,9 @@ public class SamlMessageReceiverApi {
             final SamlAuthnResponseContainerDto authnResponseDto = new SamlAuthnResponseContainerDto(
                 samlRequestDto.getSamlRequest(),
                 sessionId,
-                samlRequestDto.getPrincipalIpAsSeenByFrontend()
+                samlRequestDto.getPrincipalIpAsSeenByFrontend(),
+                samlRequestDto.getAnalyticsSessionId(),
+                samlRequestDto.getJourneyType()
             );
             return Response.ok(sessionProxy.receiveAuthnResponseFromCountry(authnResponseDto, sessionId)).build();
         }

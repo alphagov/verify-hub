@@ -37,7 +37,6 @@ import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_P
 public class SamlMessageReceiverApiResourceEidasEnabledTest {
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = new SignatureRSASHA256();
     private static final DigestAlgorithm DIGEST_ALGORITHM = new DigestSHA256();
-    private static final String COUNTRY_ENTITY_ID = "/metadata/country";
     private static final String idpSigningCert = STUB_IDP_PUBLIC_PRIMARY_CERT;
     private static final String idpSigningKey = STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY;
 
@@ -60,7 +59,7 @@ public class SamlMessageReceiverApiResourceEidasEnabledTest {
         config("policyUri", policyStubRule.baseUri().build().toASCIIString()),
         config("eventSinkUri", eventSinkStubRule.baseUri().build().toASCIIString()));
 
-    private AuthnResponseFactory authnResponseFactory = anAuthnResponseFactory();
+    private final AuthnResponseFactory authnResponseFactory = anAuthnResponseFactory();
 
     @Before
     public void setUp() {
@@ -78,6 +77,8 @@ public class SamlMessageReceiverApiResourceEidasEnabledTest {
     public void eidasResponsePost_shouldRespondWithSuccessWhenPolicyRespondsWithSuccess() throws Exception {
         String sessionId = UUID.randomUUID().toString();
         policyStubRule.receiveAuthnResponseFromCountry(sessionId, LevelOfAssurance.LEVEL_2);
+        String analyticsSessionId = UUID.randomUUID().toString();
+        String journeyType = "some-journey-type";
 
         org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp("a-request",
                 samlProxyAppRule.getCountyEntityId(),
@@ -87,16 +88,17 @@ public class SamlMessageReceiverApiResourceEidasEnabledTest {
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
         final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
-        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, sessionId, "127.0.0.1");
+        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, sessionId, "127.0.0.1", analyticsSessionId, journeyType);
 
-        final Response response = postSAML(authnResponse, Urls.SamlProxyUrls.EIDAS_SAML2_SSO_RECEIVER_API_RESOURCE);
+        final Response response = postSAML(authnResponse);
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_OK);
         // Check that policy has been called
         assertThat(policyStubRule.getLastRequest().getPath()).contains(sessionId);
     }
 
-    private Response postSAML(SamlRequestDto requestDTO, String path) {
+    private Response postSAML(SamlRequestDto requestDTO) {
+        String path = Urls.SamlProxyUrls.EIDAS_SAML2_SSO_RECEIVER_API_RESOURCE;
         return client.target(samlProxyAppRule.getUri(path)).request().post(Entity
                 .entity(requestDTO, MediaType
                 .APPLICATION_JSON_TYPE));

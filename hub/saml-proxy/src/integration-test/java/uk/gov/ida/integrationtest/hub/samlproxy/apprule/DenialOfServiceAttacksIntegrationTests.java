@@ -20,6 +20,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,11 +67,13 @@ public class DenialOfServiceAttacksIntegrationTests {
                 "          ".repeat(80);
         String samlAuthnRequest = StringEncoding.toBase64Encoded(xmlString);
         String relayState = "aRelayState";
+        String analyticsSessionId = UUID.randomUUID().toString();
+        String journeyType = "some-journey-type";
 
         final URI ssoUri = samlProxyAppRule.getUri(Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
         Response response = client.target(ssoUri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(new SamlRequestDto(samlAuthnRequest, relayState, "12.23.34.45")));
+                .post(Entity.json(new SamlRequestDto(samlAuthnRequest, relayState, "12.23.34.45", analyticsSessionId, journeyType)));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }

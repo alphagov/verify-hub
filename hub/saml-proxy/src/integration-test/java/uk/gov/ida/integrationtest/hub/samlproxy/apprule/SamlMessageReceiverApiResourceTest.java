@@ -60,6 +60,8 @@ public class SamlMessageReceiverApiResourceTest {
     private static final String INVALID_RELAY_STATE = RELAY_STATE + ">";
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = new SignatureRSASHA1();
     private static final DigestAlgorithm DIGEST_ALGORITHM = new DigestSHA256();
+    private static final String ANALYTICS_SESSION_ID = UUID.randomUUID().toString();
+    private static final String JOURNEY_TYPE = "some-journey-type";
     private static Client client;
 
     @ClassRule
@@ -85,7 +87,7 @@ public class SamlMessageReceiverApiResourceTest {
             ConfigOverride.config("eventSinkUri", eventSinkStubRule.baseUri().build().toASCIIString()));
 
     private AuthnRequestFactory authnRequestFactory;
-    private AuthnResponseFactory authnResponseFactory = anAuthnResponseFactory();
+    private final AuthnResponseFactory authnResponseFactory = anAuthnResponseFactory();
     private XmlObjectToBase64EncodedStringTransformer<AuthnRequest> authnRequestToStringTransformer;
 
     @Before
@@ -114,7 +116,7 @@ public class SamlMessageReceiverApiResourceTest {
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
         final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
-        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, sessionId, "127.0.0.1");
+        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, sessionId, "127.0.0.1", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         final Response response = postSAML(authnResponse, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE);
 
@@ -130,7 +132,7 @@ public class SamlMessageReceiverApiResourceTest {
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
         final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
-        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, "sessionId", "127.0.0.1");
+        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, "sessionId", "127.0.0.1", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         final Response response = postSAML(authnResponse, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE);
 
@@ -138,7 +140,7 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     @Test
-    public void shouldReturn400IfAuthnRequestIsSignedByAnIdp() throws Exception {
+    public void shouldReturn400IfAuthnRequestIsSignedByAnIdp() {
         SamlRequestDto authnRequest = createAuthnRequest(STUB_IDP_ONE, "relayState", STUB_IDP_PUBLIC_PRIMARY_CERT, STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY);
         configStubRule.setupStubForNonExistentSigningCertificates(STUB_IDP_ONE);
 
@@ -161,7 +163,7 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     @Test
-    public void shouldReturnBadRequestAndShouldAuditWhenSendingAnAuthnRequestFromAnIncorectIssuer() throws Exception {
+    public void shouldReturnBadRequestAndShouldAuditWhenSendingAnAuthnRequestFromAnIncorectIssuer() {
         SamlRequestDto authnRequest = createAuthnRequest(STUB_IDP_ONE, "relayState", TEST_PUBLIC_CERT, TEST_PRIVATE_KEY);
         configStubRule.setupStubForNonExistentSigningCertificates(STUB_IDP_ONE);
         eventSinkStubRule.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
@@ -175,8 +177,8 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     @Test
-    public void shouldErrorWhenSamlStringIsTooSmall() throws Exception {
-        SamlRequestDto authnRequestWrapper = new SamlRequestDto("too small", "relayState", "ipAddress");
+    public void shouldErrorWhenSamlStringIsTooSmall() {
+        SamlRequestDto authnRequestWrapper = new SamlRequestDto("too small", "relayState", "ipAddress", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
@@ -184,8 +186,8 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     @Test
-    public void shouldErrorWhenASamlStringIsNull() throws Exception {
-        SamlRequestDto authnRequestWrapper = new SamlRequestDto(null, "relayState", "ipAddress");
+    public void shouldErrorWhenASamlStringIsNull() {
+        SamlRequestDto authnRequestWrapper = new SamlRequestDto(null, "relayState", "ipAddress", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
@@ -193,8 +195,8 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     @Test
-    public void shouldErrorWhenNonBase64SamlRequest() throws Exception {
-        SamlRequestDto authnRequestWrapper = new SamlRequestDto(TestSamlRequestFactory.createNonBase64Request(), "relayState", "ipAddress");
+    public void shouldErrorWhenNonBase64SamlRequest() {
+        SamlRequestDto authnRequestWrapper = new SamlRequestDto(TestSamlRequestFactory.createNonBase64Request(), "relayState", "ipAddress", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
@@ -209,7 +211,7 @@ public class SamlMessageReceiverApiResourceTest {
                 .withoutSignatureElement()
                 .build();
 
-        SamlRequestDto authnRequestWrapper = new SamlRequestDto(authnRequestToStringTransformer.apply(idpAuthnResponse), "relayState", "ipAddress");
+        SamlRequestDto authnRequestWrapper = new SamlRequestDto(authnRequestToStringTransformer.apply(idpAuthnResponse), "relayState", "ipAddress", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE);
 
@@ -217,7 +219,7 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     @Test
-    public void shouldErrorWhenAuthnRequestIsNotSigned() throws Exception {
+    public void shouldErrorWhenAuthnRequestIsNotSigned() {
         AuthnRequest authnRequest = anAuthnRequest()
                 .withIssuer(anIssuer().withIssuerId(TEST_RP).build())
                 .withDestination(Endpoints.SSO_REQUEST_ENDPOINT)
@@ -225,7 +227,7 @@ public class SamlMessageReceiverApiResourceTest {
                 .withoutSignatureElement()
                 .build();
 
-        SamlRequestDto authnRequestWrapper = new SamlRequestDto(authnRequestToStringTransformer.apply(authnRequest), "relayState", "ipAddress");
+        SamlRequestDto authnRequestWrapper = new SamlRequestDto(authnRequestToStringTransformer.apply(authnRequest), "relayState", "ipAddress", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
@@ -233,7 +235,7 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     @Test
-    public void shouldErrorWhenRelayStateIsInvalid() throws Exception {
+    public void shouldErrorWhenRelayStateIsInvalid() {
         SamlRequestDto authnRequestWrapper = createAuthnRequest(TEST_RP, INVALID_RELAY_STATE, TEST_PUBLIC_CERT, TEST_PRIVATE_KEY);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
@@ -242,7 +244,7 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     @Test
-    public void shouldErrorWhenRelayStateIsMoreThanEightyCharacters() throws Exception {
+    public void shouldErrorWhenRelayStateIsMoreThanEightyCharacters() {
         String longRelayState = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
         SamlRequestDto authnRequestWrapper = createAuthnRequest(TEST_RP, longRelayState, TEST_PUBLIC_CERT, TEST_PRIVATE_KEY);
 
@@ -281,7 +283,7 @@ public class SamlMessageReceiverApiResourceTest {
                 TEST_PRIVATE_KEY,
                 Endpoints.SSO_REQUEST_ENDPOINT,
                 Optional.empty());
-        SamlRequestDto authnRequestWrapper = new SamlRequestDto(anAuthnRequest, "relayState", "ipAddress");
+        SamlRequestDto authnRequestWrapper = new SamlRequestDto(anAuthnRequest, "relayState", "ipAddress", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
         configStubRule.setupStubForCertificates(issuer);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
@@ -317,7 +319,7 @@ public class SamlMessageReceiverApiResourceTest {
                 privateKey,
                 Endpoints.SSO_REQUEST_ENDPOINT,
                 Optional.empty());
-        SamlRequestDto authnRequestWrapper = new SamlRequestDto(anAuthnRequest, relayState, "ipAddress");
-        return authnRequestWrapper;
+
+        return new SamlRequestDto(anAuthnRequest, relayState, "ipAddress", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
     }
 }

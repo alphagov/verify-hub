@@ -4,11 +4,15 @@ public class SamlRequestDto {
     private String samlRequest;
     private String relayState;
     private String principalIpAsSeenByFrontend;
+    private String analyticsSessionId;
+    private String journeyType;
 
-    public SamlRequestDto(String samlRequest, String relayState, final String principalIpAsSeenByFrontend) {
+    public SamlRequestDto(String samlRequest, String relayState, String principalIpAsSeenByFrontend, String analyticsSessionId, String journeyType) {
         this.samlRequest = samlRequest;
         this.relayState = relayState;
         this.principalIpAsSeenByFrontend = principalIpAsSeenByFrontend;
+        this.analyticsSessionId = analyticsSessionId;
+        this.journeyType = journeyType;
     }
 
     //Needed for JAXB
@@ -24,5 +28,13 @@ public class SamlRequestDto {
 
     public String getPrincipalIpAsSeenByFrontend() {
         return principalIpAsSeenByFrontend;
+    }
+
+    public String getAnalyticsSessionId() {
+        return analyticsSessionId;
+    }
+
+    public String getJourneyType() {
+        return journeyType;
     }
 }
