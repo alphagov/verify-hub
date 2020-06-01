@@ -33,7 +33,6 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
-import static uk.gov.ida.eventemitter.EventDetailsKey.ab_test_variant;
 import static uk.gov.ida.eventemitter.EventDetailsKey.analytics_session_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 import static uk.gov.ida.eventemitter.EventDetailsKey.error_id;

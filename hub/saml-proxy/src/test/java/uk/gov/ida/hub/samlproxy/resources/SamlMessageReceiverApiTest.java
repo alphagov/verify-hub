@@ -76,7 +76,7 @@ public class SamlMessageReceiverApiTest {
 
     private SamlMessageReceiverApi samlMessageReceiverApi;
     private org.opensaml.saml.saml2.core.Response validSamlResponse;
-    private SamlRequestDto SAML_REQUEST_DTO = new SamlRequestDto(SAML_REQUEST, SESSION_ID.getSessionId(), IP);
+    private SamlRequestDto SAML_REQUEST_DTO = new SamlRequestDto(SAML_REQUEST, SESSION_ID.getSessionId(), IP, null, null);
 
     @Before
     public void setUp() throws MarshallingException, SignatureException {

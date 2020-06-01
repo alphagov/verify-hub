@@ -59,14 +59,14 @@ public class SamlMessageReceiverApiResourceEidasDisabledTest {
             ConfigOverride.config("policyUri", policyStubRule.baseUri().build().toASCIIString()),
             ConfigOverride.config("eventSinkUri", eventSinkStubRule.baseUri().build().toASCIIString()));
 
-    private AuthnResponseFactory authnResponseFactory = anAuthnResponseFactory();
+    private final AuthnResponseFactory authnResponseFactory = anAuthnResponseFactory();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
     }
 
     @BeforeClass
-    public static void setUpClient() throws Exception {
+    public static void setUpClient() {
         JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
         client =  new JerseyClientBuilder(samlProxyAppRule.getEnvironment()).using(jerseyClientConfiguration).build
                 (SamlMessageReceiverApiResourceEidasDisabledTest.class.getSimpleName());
@@ -76,6 +76,8 @@ public class SamlMessageReceiverApiResourceEidasDisabledTest {
     @Test
     public void responsePost_shouldRespondWith404_whenEidasIsDisabled() throws Exception {
         String sessionId = UUID.randomUUID().toString();
+        String analyticsSessionId = UUID.randomUUID().toString();
+        String journeyType = "some-journey-type";
         policyStubRule.receiveAuthnResponseFromIdp(sessionId, LevelOfAssurance.LEVEL_2);
 
         org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp(
@@ -86,14 +88,15 @@ public class SamlMessageReceiverApiResourceEidasDisabledTest {
                 SIGNATURE_ALGORITHM,
                 DIGEST_ALGORITHM);
         final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
-        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, sessionId, "127.0.0.1");
+        SamlRequestDto authnResponse = new SamlRequestDto(samlResponseString, sessionId, "127.0.0.1", analyticsSessionId, journeyType);
 
-        final Response response = postSAML(authnResponse, Urls.SamlProxyUrls.EIDAS_SAML2_SSO_RECEIVER_API_RESOURCE);
+        final Response response = postSAML(authnResponse);
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_NOT_FOUND);
     }
 
-    private Response postSAML(SamlRequestDto requestDTO, String path) {
+    private Response postSAML(SamlRequestDto requestDTO) {
+        String path = Urls.SamlProxyUrls.EIDAS_SAML2_SSO_RECEIVER_API_RESOURCE;
         return client.target(samlProxyAppRule.getUri(path)).request().post(Entity
                 .entity(requestDTO, MediaType
                 .APPLICATION_JSON_TYPE));

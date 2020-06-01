@@ -29,6 +29,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlproxy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
@@ -38,6 +40,8 @@ public class MetadataConsumerTests {
 
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = new SignatureRSASHA1();
     private static final DigestAlgorithm DIGEST_ALGORITHM = new DigestSHA256();
+    private static final String ANALYTICS_SESSION_ID = UUID.randomUUID().toString();
+    private static final String JOURNEY_TYPE = "some-journey-type";
 
     private static Client client;
     private AuthnResponseFactory authnResponseFactory;
@@ -72,7 +76,7 @@ public class MetadataConsumerTests {
                 DIGEST_ALGORITHM);
         final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
 
-        ResponseActionDto post = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1"))
+        ResponseActionDto post = postSAML(new SamlRequestDto(samlResponseString, sessionId.getSessionId(), "127.0.0.1", ANALYTICS_SESSION_ID, JOURNEY_TYPE))
                 .readEntity(ResponseActionDto.class);
 
         assertThat(post.getSessionId()).isEqualTo(sessionId);
@@ -93,7 +97,7 @@ public class MetadataConsumerTests {
                 DIGEST_ALGORITHM);
         final String samlResponseString = new XmlObjectToBase64EncodedStringTransformer<>().apply(samlResponse);
         SamlRequestDto samlRequestDto = new SamlRequestDto(samlResponseString,
-                sessionId.getSessionId(), "127.0.0.1");
+                sessionId.getSessionId(), "127.0.0.1", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
 
         assertThat(postSAML(samlRequestDto).getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode
                 ());
