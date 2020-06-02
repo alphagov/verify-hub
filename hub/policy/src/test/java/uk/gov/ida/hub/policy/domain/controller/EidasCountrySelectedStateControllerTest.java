@@ -409,7 +409,8 @@ public class EidasCountrySelectedStateControllerTest {
                 state.getRequestId(),
                 IP_ADDRESS,
                 ANALYTICS_SESSION_ID,
-                JOURNEY_TYPE);
+                JOURNEY_TYPE,
+                state.getCountryEntityId());
 
         verify(stateTransitionAction).transitionTo(capturedState.capture());
         assertThat(capturedState.getValue()).isInstanceOf(EidasAuthnFailedErrorState.class);

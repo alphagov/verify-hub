@@ -307,14 +307,15 @@ public class HubEventLoggerTest {
             REQUEST_ID,
             PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
             ANALYTICS_SESSION_ID,
-            JOURNEY_TYPE
+            JOURNEY_TYPE,
+            IDP_ENTITY_ID
         );
 
         final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
                 session_event_type, IDP_AUTHN_FAILED,
                 principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
                 analytics_session_id, ANALYTICS_SESSION_ID,
-                journey_type, JOURNEY_TYPE));
+                journey_type, JOURNEY_TYPE, idp_entity_id, IDP_ENTITY_ID));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -329,14 +330,15 @@ public class HubEventLoggerTest {
             REQUEST_ID,
             PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
             ANALYTICS_SESSION_ID,
-            JOURNEY_TYPE
+            JOURNEY_TYPE,
+            IDP_ENTITY_ID
         );
 
         final EventSinkHubEvent expectedEvent = createExpectedEventSinkHubEvent(Map.of(
                 principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
                 session_event_type, IDP_AUTHN_PENDING,
                 analytics_session_id, ANALYTICS_SESSION_ID,
-                journey_type, JOURNEY_TYPE));
+                journey_type, JOURNEY_TYPE, idp_entity_id, IDP_ENTITY_ID));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));
@@ -351,7 +353,8 @@ public class HubEventLoggerTest {
             REQUEST_ID,
             PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
             ANALYTICS_SESSION_ID,
-            JOURNEY_TYPE
+            JOURNEY_TYPE,
+            IDP_ENTITY_ID
         );
 
 
@@ -359,7 +362,7 @@ public class HubEventLoggerTest {
                 session_event_type, NO_AUTHN_CONTEXT,
                 principal_ip_address_as_seen_by_hub, PRINCIPAL_IP_ADDRESS_SEEN_BY_HUB,
                 analytics_session_id, ANALYTICS_SESSION_ID,
-                journey_type, JOURNEY_TYPE));
+                journey_type, JOURNEY_TYPE, idp_entity_id, IDP_ENTITY_ID));
 
         verify(eventSinkProxy).logHubEvent(argThat(new EventMatching(expectedEvent)));
         verify(eventEmitter).record(argThat(new EventMatching(expectedEvent)));

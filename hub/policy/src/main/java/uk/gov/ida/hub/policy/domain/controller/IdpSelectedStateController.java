@@ -117,7 +117,8 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
 
     public void handleNoAuthenticationContextResponseFromIdp(AuthenticationErrorResponse authenticationErrorResponse) {
         validateIdpIsEnabledAndWasIssuedWithRequest(authenticationErrorResponse.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
-        hubEventLogger.logNoAuthnContextEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub(), authenticationErrorResponse.getAnalyticsSessionId(), authenticationErrorResponse.getJourneyType());
+        hubEventLogger.logNoAuthnContextEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub(), authenticationErrorResponse.getAnalyticsSessionId(), authenticationErrorResponse.getJourneyType(),
+                state.getIdpEntityId());
         if (state.isRegistering()) {
             stateTransitionAction.transitionTo(createAuthnFailedErrorState());
         } else {
@@ -127,13 +128,14 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
 
     public void handlePausedRegistrationResponseFromIdp(String requestIssuerEntityId, String principalIdAsSeenByHub, Optional<LevelOfAssurance> responseLoa, String analyticsSessionId, String journeyType) {
         validateIdpIsEnabledAndWasIssuedWithRequest(requestIssuerEntityId, state.isRegistering(), responseLoa.orElseGet(state::getRequestedLoa), state.getRequestIssuerEntityId());
-        hubEventLogger.logPausedRegistrationEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), principalIdAsSeenByHub, analyticsSessionId, journeyType);
+        hubEventLogger.logPausedRegistrationEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), principalIdAsSeenByHub, analyticsSessionId, journeyType, state.getIdpEntityId());
         stateTransitionAction.transitionTo(createPausedRegistrationState());
     }
 
     public void handleAuthenticationFailedResponseFromIdp(AuthenticationErrorResponse authenticationErrorResponse) {
         validateIdpIsEnabledAndWasIssuedWithRequest(authenticationErrorResponse.getIssuer(), state.isRegistering(), state.getRequestedLoa(), state.getRequestIssuerEntityId());
-        hubEventLogger.logIdpAuthnFailedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub(), authenticationErrorResponse.getAnalyticsSessionId(), authenticationErrorResponse.getJourneyType());
+        hubEventLogger.logIdpAuthnFailedEvent(state.getSessionId(), state.getRequestIssuerEntityId(), state.getSessionExpiryTimestamp(), state.getRequestId(), authenticationErrorResponse.getPrincipalIpAddressAsSeenByHub(), authenticationErrorResponse.getAnalyticsSessionId(), authenticationErrorResponse.getJourneyType(),
+                state.getIdpEntityId());
         stateTransitionAction.transitionTo(createAuthnFailedErrorState());
     }
 

@@ -409,7 +409,8 @@ public class IdpSelectedStateControllerTest {
                 REQUEST_ID,
                 PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
                 ANALYTICS_SESSION_ID,
-                JOURNEY_TYPE);
+                JOURNEY_TYPE,
+                IDP_ENTITY_ID);
     }
 
     @Test
@@ -454,7 +455,8 @@ public class IdpSelectedStateControllerTest {
                 REQUEST_ID,
                 PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
                 ANALYTICS_SESSION_ID,
-                JOURNEY_TYPE);
+                JOURNEY_TYPE,
+                IDP_ENTITY_ID);
     }
 
     @Test
@@ -475,7 +477,8 @@ public class IdpSelectedStateControllerTest {
                 REQUEST_ID,
                 PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB,
                 ANALYTICS_SESSION_ID,
-                JOURNEY_TYPE);
+                JOURNEY_TYPE,
+                IDP_ENTITY_ID);
     }
 
     @Test
