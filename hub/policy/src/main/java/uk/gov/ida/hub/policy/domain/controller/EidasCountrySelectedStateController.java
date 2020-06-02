@@ -193,7 +193,8 @@ public class EidasCountrySelectedStateController implements ErrorResponsePrepare
                 state.getRequestId(),
                 principalIpAddressAsSeenByHub,
                 analyticsSessionId,
-                journeyType
+                journeyType,
+                state.getCountryEntityId()
         );
 
         stateTransitionAction.transitionTo(createEidasAuthnFailedErrorState());
