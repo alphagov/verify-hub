@@ -17,6 +17,7 @@ import uk.gov.ida.hub.policy.factories.SamlAuthnResponseTranslatorDtoFactory;
 import uk.gov.ida.hub.policy.proxy.AttributeQueryRequest;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.SamlSoapProxyProxy;
+import uk.gov.ida.hub.policy.metrics.EidasConnectorMetrics;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -70,12 +71,15 @@ public class AuthnResponseFromCountryService {
         switch (translatedResponse.getStatus()) {
             case Success:
                 responseAction = handleSuccessResponse(translatedResponse, responseFromCountry, sessionId, matchingJourney, stateController);
+                EidasConnectorMetrics.increment(translatedResponse.getIssuer(), EidasConnectorMetrics.Direction.response, EidasConnectorMetrics.Status.ok);
                 break;
             case Failure:
                 responseAction = handleAuthenticationFailedResponse(responseFromCountry, sessionId, stateController);
+                EidasConnectorMetrics.increment(translatedResponse.getIssuer(), EidasConnectorMetrics.Direction.response, EidasConnectorMetrics.Status.error);
                 break;
             default:
                 responseAction = nonSuccessResponse(sessionId);
+                EidasConnectorMetrics.increment(translatedResponse.getIssuer(), EidasConnectorMetrics.Direction.response, EidasConnectorMetrics.Status.ko);
                 break;
         }
 
