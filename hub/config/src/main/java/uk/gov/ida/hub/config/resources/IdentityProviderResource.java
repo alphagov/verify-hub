@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class IdentityProviderResource {
 
     private final LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
-    private IdpPredicateFactory idpPredicateFactory;
+    private final IdpPredicateFactory idpPredicateFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject

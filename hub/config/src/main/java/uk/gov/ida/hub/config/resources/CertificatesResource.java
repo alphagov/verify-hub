@@ -42,8 +42,7 @@ public class CertificatesResource {
             ExceptionFactory exceptionFactory,
             ConfigConfiguration configuration,
             OCSPCertificateChainValidityChecker ocspCertificateChainValidityChecker,
-            CertificateService certificateService
-    ) {
+            CertificateService certificateService) {
         this.exceptionFactory = exceptionFactory;
         this.configuration = configuration;
         this.ocspCertificateChainValidityChecker = ocspCertificateChainValidityChecker;
@@ -60,13 +59,13 @@ public class CertificatesResource {
 
             return certificate.getBase64Encoded()
                     .map(base64 -> aCertificateDto(
-                        entityId,
-                        base64Encoded.get(),
-                        CertificateDto.KeyUse.Encryption,
-                        certificate.getFederationEntityType()))
-                    .orElseThrow(() ->exceptionFactory.createNoDataForEntityException(entityId));
+                            entityId,
+                            base64Encoded.get(),
+                            CertificateDto.KeyUse.Encryption,
+                            certificate.getFederationEntityType()))
+                    .orElseThrow(() -> exceptionFactory.createNoDataForEntityException(entityId));
 
-        } catch(NoCertificateFoundException ncfe) {
+        } catch (NoCertificateFoundException ncfe) {
             throw exceptionFactory.createNoDataForEntityException(entityId);
         } catch (CertificateDisabledException cde) {
             throw exceptionFactory.createDisabledTransactionException(entityId);
@@ -117,5 +116,4 @@ public class CertificatesResource {
                 .map(cert -> new CertificateHealthCheckDto(cert, configuration.getCertificateWarningPeriod()))
                 .collect(toList());
     }
-
 }

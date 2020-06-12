@@ -52,5 +52,4 @@ public class MatchingServiceResource {
                 config.getOnboarding(),
                 config.getUserAccountCreationUri());
     }
-
 }

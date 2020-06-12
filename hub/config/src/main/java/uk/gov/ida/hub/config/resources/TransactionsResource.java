@@ -41,7 +41,6 @@ public class TransactionsResource {
             ManagedEntityConfigRepository<TransactionConfig> transactionConfigRepository,
             LocalConfigRepository<TranslationData> translationConfigRepository,
             ExceptionFactory exceptionFactory) {
-
         this.transactionConfigRepository = transactionConfigRepository;
         this.translationConfigRepository = translationConfigRepository;
         this.exceptionFactory = exceptionFactory;
@@ -58,8 +57,8 @@ public class TransactionsResource {
 
         final Optional<URI> assertionConsumerServiceUri = configData.getAssertionConsumerServiceUri(assertionConsumerServiceIndex);
         // we know that the index must be here because we will have pre-validated that there will be a default for the transaction
-        return new ResourceLocationDto(assertionConsumerServiceUri
-                .orElseThrow(() -> exceptionFactory.createInvalidAssertionConsumerServiceIndexException( entityId, assertionConsumerServiceIndex.get())));
+        return new ResourceLocationDto(assertionConsumerServiceUri.orElseThrow(() ->
+                exceptionFactory.createInvalidAssertionConsumerServiceIndexException(entityId, assertionConsumerServiceIndex.get())));
     }
 
     @GET
@@ -98,18 +97,18 @@ public class TransactionsResource {
     @GET
     @Path(Urls.ConfigUrls.ENABLED_TRANSACTIONS_PATH)
     @Timed
-    public List<TransactionDisplayData> getEnabledTransactions(){
+    public List<TransactionDisplayData> getEnabledTransactions() {
         Collection<TransactionConfig> allData = transactionConfigRepository.getAll();
         return allData.stream()
-            .filter(TransactionConfig::isEnabled)
-            .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance(), t.getHeadlessStartpage()))
-            .collect(Collectors.toList());
+                .filter(TransactionConfig::isEnabled)
+                .map(t -> new TransactionDisplayData(t.getSimpleId().orElse(null), t.getServiceHomepage(), t.getLevelsOfAssurance(), t.getHeadlessStartpage()))
+                .collect(Collectors.toList());
     }
 
     @GET
     @Path(Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH)
     @Timed
-    public List<TransactionSingleIdpData> getSingleIDPEnabledServiceListTransactions(){
+    public List<TransactionSingleIdpData> getSingleIDPEnabledServiceListTransactions() {
         Collection<TransactionConfig> allData = transactionConfigRepository.getAll();
         return allData.stream()
                 .filter(TransactionConfig::isEnabled)
@@ -177,7 +176,7 @@ public class TransactionsResource {
     @GET
     @Path(Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
-    public boolean isEidasEnabledForTransaction(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
+    public boolean isEidasEnabledForTransaction(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         final TransactionConfig configData = getTransactionConfigData(entityId);
         return configData.isEidasEnabled();
     }
@@ -185,7 +184,7 @@ public class TransactionsResource {
     @GET
     @Path(Urls.ConfigUrls.EIDAS_COUNTRIES_FOR_TRANSACTION_PATH)
     @Timed
-    public List<String> getEidasCountries(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
+    public List<String> getEidasCountries(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         return getTransactionConfigData(entityId)
                 .getEidasCountries()
                 .orElseGet(Collections::emptyList);
@@ -198,10 +197,11 @@ public class TransactionsResource {
         return getTransactionConfigData(entityId)
                 .getShouldSignWithSHA1();
     }
+
     @GET
     @Path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
-    public boolean isUsingMatching(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId){
+    public boolean isUsingMatching(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         return getTransactionConfigData(entityId)
                 .isUsingMatching();
     }

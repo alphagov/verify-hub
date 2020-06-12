@@ -34,7 +34,7 @@ logging:
 serviceInfo:
   name: config
 
-userHubSessionDuration: 90m
+userHubSessionDuration: 150m
 
 rootDataDirectory: configuration/config-service-data/local
 
