@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.samlengine.validation.country;
 
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
@@ -47,7 +48,7 @@ public class ResponseAssertionsFromCountryValidator {
             }
 
             authnStatementAssertionValidator.validate(validatedIdentityAssertion);
-            eidasAttributeStatementAssertionValidator.validate(validatedIdentityAssertion);
+            eidasAttributeStatementAssertionValidator.validate(validatedResponse, validatedIdentityAssertion);
             authnResponseIssuerValidator.validate(validatedResponse, validatedIdentityAssertion);
         }
     }
