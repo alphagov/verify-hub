@@ -19,6 +19,7 @@ import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
+import uk.gov.ida.hub.policy.metrics.EidasConnectorMetrics;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
@@ -91,8 +92,17 @@ public class SessionService {
                 request.getOverriddenSsoUrl());
 
         boolean countryIdentityProvider = sessionRepository.isSessionInState(sessionId, EidasCountrySelectedState.class);
-        final SamlRequestDto samlRequest = countryIdentityProvider ? samlEngineProxy.generateCountryAuthnRequestFromHub(authnRequestFromHub) :
-                samlEngineProxy.generateIdpAuthnRequestFromHub(authnRequestFromHub);
+        final SamlRequestDto samlRequest;
+        if (countryIdentityProvider) {
+            samlRequest = samlEngineProxy.generateCountryAuthnRequestFromHub(authnRequestFromHub);
+            EidasConnectorMetrics.increment(
+                    request.getRecipientEntityId(),
+                    EidasConnectorMetrics.Direction.request,
+                    EidasConnectorMetrics.Status.ok);
+
+        } else {
+            samlRequest = samlEngineProxy.generateIdpAuthnRequestFromHub(authnRequestFromHub);
+        }
 
         return new AuthnRequestFromHubContainerDto(samlRequest.getSamlRequest(), samlRequest.getSsoUri(), request.getRegistering());
     }
