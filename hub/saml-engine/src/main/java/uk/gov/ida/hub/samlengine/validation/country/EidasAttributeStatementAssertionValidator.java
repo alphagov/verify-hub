@@ -3,6 +3,7 @@ package uk.gov.ida.hub.samlengine.validation.country;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.Response;
 import org.slf4j.event.Level;
 import uk.gov.ida.saml.core.IdaConstants.Eidas_Attributes;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
@@ -15,10 +16,13 @@ import uk.gov.ida.saml.core.extensions.eidas.PersonIdentifier;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorManager;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
+import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,11 +61,11 @@ public class EidasAttributeStatementAssertionValidator {
     public EidasAttributeStatementAssertionValidator() {
     }
 
-    public void validate(Assertion assertion) {
-        validateAttributes(assertion);
+    public void validate(ValidatedResponse validatedResponse, Assertion assertion) {
+        validateAttributes(validatedResponse, assertion);
     }
 
-    private void validateAttributes(Assertion assertion) {
+    private void validateAttributes(ValidatedResponse validatedResponse, Assertion assertion) {
         final List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
         if (attributeStatements.isEmpty()) {
             SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.mdsStatementMissing();
@@ -95,9 +99,9 @@ public class EidasAttributeStatementAssertionValidator {
                 SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.emptyAttribute(attributeName);
                 throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
             }
-            if (!VALID_TYPE_FOR_ATTRIBUTE.get(attributeName).equals(attribute.getAttributeValues().get(0).getSchemaType())) {
-                final QName schemaType = attribute.getAttributeValues().get(0).getSchemaType();
-                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.attributeWithIncorrectType(attributeName, VALID_TYPE_FOR_ATTRIBUTE.get(attributeName), schemaType);
+            QName attributeValueSchemaType = getAttributeValueSchemaType(validatedResponse, attribute);
+            if (!VALID_TYPE_FOR_ATTRIBUTE.get(attributeName).equals(attributeValueSchemaType)) {
+                SamlValidationSpecificationFailure failure = SamlTransformationErrorFactory.attributeWithIncorrectType(attributeName, VALID_TYPE_FOR_ATTRIBUTE.get(attributeName), attributeValueSchemaType);
                 throw new SamlTransformationErrorException(failure.getErrorMessage(), failure.getLogLevel());
             }
             if (!VALID_ATTRIBUTE_NAME_FORMATS.contains(attribute.getNameFormat())) {
@@ -105,5 +109,20 @@ public class EidasAttributeStatementAssertionValidator {
                         invalidAttributeNameFormat(attribute.getNameFormat()));
             }
         }
+    }
+
+    private QName getAttributeValueSchemaType(ValidatedResponse response, Attribute attribute) {
+        final QName attributeValueSchemaType = attribute.getAttributeValues().get(0).getSchemaType();
+        if (XMLConstants.NULL_NS_URI.equals(attributeValueSchemaType.getNamespaceURI())) {
+            return response.getNamespaces().stream()
+                    .filter(ns -> Objects.equals(ns.getNamespacePrefix(), attributeValueSchemaType.getPrefix()))
+                    .findFirst()
+                    .map(ns -> new QName(
+                            ns.getNamespaceURI(),
+                            attributeValueSchemaType.getLocalPart(),
+                            attributeValueSchemaType.getPrefix()))
+                    .orElse(attributeValueSchemaType);
+        }
+        return attributeValueSchemaType;
     }
 }
