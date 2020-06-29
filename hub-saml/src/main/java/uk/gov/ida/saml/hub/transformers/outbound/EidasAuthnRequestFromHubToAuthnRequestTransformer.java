@@ -53,6 +53,7 @@ public class EidasAuthnRequestFromHubToAuthnRequestTransformer implements Functi
         authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
         authnRequest.setConsent(StatusResponseType.UNSPECIFIED_CONSENT);
         authnRequest.setForceAuthn(true);
+        authnRequest.setIsPassive(false);
         authnRequest.setProviderName(originalRequestToCountry.getProviderName());
         authnRequest.setNameIDPolicy(getNameIDPolicy());
         authnRequest.setIssuer(samlObjectFactory.createIssuer(originalRequestToCountry.getIssuer()));
