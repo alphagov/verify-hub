@@ -24,6 +24,6 @@ public class RedisConfiguration {
     }
 
     public RedisURI getUri() {
-        return RedisURI.create(uri);
+        return RedisURI.Builder.redis(uri.getHost(), uri.getPort()).withTimeout(Duration.ofSeconds(20L)).build();
     }
 }

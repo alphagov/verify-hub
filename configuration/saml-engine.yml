@@ -22,7 +22,7 @@ saml:
   expectedDestination: https://www.${DOMAIN}
 enableRetryTimeOutConnections: true
 httpClient:
-  timeout: 60s
+  timeout: 24s
   timeToLive: 10m
   connectionTimeout: 4s
   keepAlive: 10s

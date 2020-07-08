@@ -18,7 +18,7 @@ samlEngineUri: https://saml-engine.${DOMAIN}:443
 samlSoapProxyUri: https://saml-soap-proxy.${DOMAIN}:443
 enableRetryTimeOutConnections: true
 httpClient:
-  timeout: 60s
+  timeout: 26s
   timeToLive: 10m
   connectionTimeout: 4s
   keepAlive: 10s
@@ -30,7 +30,7 @@ httpClient:
     trustStorePassword: puppet
     verifyHostname: false
 samlSoapProxyClient:
-  timeout: 60s
+  timeout: 26s
   timeToLive: 10m
   connectionTimeout: 4s
   keepAlive: 10s

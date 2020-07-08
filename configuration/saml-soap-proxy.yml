@@ -12,7 +12,7 @@ saml:
   eidasEntityId: https://www.${DOMAIN}/SAML2/metadata/connector
 enableRetryTimeOutConnections: true
 httpClient:
-  timeout: 60s
+  timeout: 24s
   timeToLive: 10m
   connectionTimeout: 4s
   retries: 3
@@ -26,7 +26,7 @@ httpClient:
     trustStorePassword: puppet
 
 soapHttpClient:
-  timeout: 50s
+  timeout: 24s
   timeToLive: 10m
   connectionTimeout: 50s
   keepAlive: 10s
