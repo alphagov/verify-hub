@@ -37,7 +37,7 @@ rpTrustStoreConfiguration:
 metadataValidDuration: 1h
 featureFlagConfiguration: {}
 logging:
-  level: INFO
+  level: ${LOG_LEVEL:-INFO}
   appenders:
     - type: logstash-console
     - type: sentry
