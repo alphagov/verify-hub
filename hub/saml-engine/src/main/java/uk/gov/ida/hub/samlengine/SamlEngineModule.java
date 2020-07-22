@@ -641,6 +641,7 @@ public class SamlEngineModule extends AbstractModule {
                                                           RedisCodec<T, DateTime> codec,
                                                           int dbIndex) {
         RedisClient redisClient = RedisClient.create();
+        redisClient.setDefaultTimeout(config.getTimeout());
         RedisURI uri = config.getUri();
         uri.setDatabase(dbIndex);
 

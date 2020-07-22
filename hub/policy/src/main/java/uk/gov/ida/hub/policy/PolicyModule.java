@@ -66,6 +66,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.security.KeyStore;
+import java.time.Duration;
 
 import static java.util.Collections.singletonList;
 
@@ -149,6 +150,7 @@ public class PolicyModule extends AbstractModule {
 
     private RedisSessionStore getRedisSessionStore(RedisConfiguration config) {
         RedisClient redisClient = RedisClient.create();
+        redisClient.setDefaultTimeout(config.getTimeout());
         StatefulRedisMasterSlaveConnection<SessionId, State> redisConnection = MasterSlave.connect(
                 redisClient,
                 new SessionStoreRedisCodec(getRedisObjectMapper()),

@@ -8,6 +8,7 @@ import java.net.URI;
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class RedisConfiguration {
 
@@ -19,11 +20,19 @@ public class RedisConfiguration {
     @JsonProperty
     private URI uri;
 
+    @Valid
+    @JsonProperty
+    private Duration timeout = Duration.of(20L, SECONDS);
+
     public Long getRecordTTL() {
         return recordTTL.getSeconds();
     }
 
     public RedisURI getUri() {
         return RedisURI.create(uri);
+    }
+
+    public Duration getTimeout() {
+        return timeout;
     }
 }
