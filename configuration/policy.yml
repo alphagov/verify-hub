@@ -48,7 +48,7 @@ clientTrustStoreConfiguration:
   path: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
   password: puppet
 logging:
-  level: INFO
+  level: ${LOG_LEVEL:-INFO}
   appenders:
     - type: logstash-console
     - type: sentry
