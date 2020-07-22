@@ -41,7 +41,7 @@ samlSoapProxyClient:
     trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
     trustStorePassword: puppet
     verifyHostname: true
-configUri: https://config.${DOMAIN}:443
+configUri: https://config-fargate.${DOMAIN}:443
 serviceInfo:
   name: policy
 clientTrustStoreConfiguration:

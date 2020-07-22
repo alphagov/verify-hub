@@ -38,7 +38,7 @@ httpClient:
 redis:
   recordTTL: PT120m
   uri: ${REDIS_HOST}
-configUri: https://config.${DOMAIN}
+configUri: https://config-fargate.${DOMAIN}
 certificatesConfigCacheExpiry: ${CERTIFICATES_CONFIG_CACHE_EXPIRY:-5m}
 samlSoapProxyUri: https://saml-soap-proxy.${DOMAIN}
 serviceInfo:
