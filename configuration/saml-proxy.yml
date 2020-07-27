@@ -25,7 +25,7 @@ httpClient:
     trustStorePassword: puppet
 frontendExternalUri: https://www.${DOMAIN}
 samlEngineUri: https://saml-engine.${DOMAIN}
-configUri: https://config.${DOMAIN}
+configUri: https://config-fargate.${DOMAIN}
 policyUri: https://policy.${DOMAIN}
 certificatesConfigCacheExpiry: ${CERTIFICATES_CONFIG_CACHE_EXPIRY:-5m}
 serviceInfo:
