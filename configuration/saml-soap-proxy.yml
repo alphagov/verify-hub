@@ -61,7 +61,7 @@ healthCheckSoapHttpClient:
     trustStorePassword: puppet
 
 samlEngineUri: https://saml-engine.${DOMAIN}
-configUri: https://config-fargate.${DOMAIN}
+configUri: https://config-v2-fargate.${DOMAIN}
 policyUri: https://policy.${DOMAIN}
 
 certificatesConfigCacheExpiry: ${CERTIFICATES_CONFIG_CACHE_EXPIRY:-5m}
