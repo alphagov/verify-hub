@@ -62,7 +62,7 @@ healthCheckSoapHttpClient:
 
 samlEngineUri: https://saml-engine-fargate.${DOMAIN}
 configUri: https://config-v2-fargate.${DOMAIN}
-policyUri: https://policy.${DOMAIN}
+policyUri: https://policy-fargate.${DOMAIN}
 
 certificatesConfigCacheExpiry: ${CERTIFICATES_CONFIG_CACHE_EXPIRY:-5m}
 
