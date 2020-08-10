@@ -15,7 +15,7 @@ sessionStore:
     recordTTL: PT150m
     uri: ${REDIS_HOST}
 samlEngineUri: https://saml-engine-fargate.${DOMAIN}:443
-samlSoapProxyUri: https://saml-soap-proxy.${DOMAIN}:443
+samlSoapProxyUri: https://saml-soap-proxy-fargate.${DOMAIN}:443
 enableRetryTimeOutConnections: true
 httpClient:
   timeout: 26s

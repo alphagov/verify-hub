@@ -40,7 +40,7 @@ redis:
   uri: ${REDIS_HOST}
 configUri: https://config-v2-fargate.${DOMAIN}
 certificatesConfigCacheExpiry: ${CERTIFICATES_CONFIG_CACHE_EXPIRY:-5m}
-samlSoapProxyUri: https://saml-soap-proxy.${DOMAIN}
+samlSoapProxyUri: https://saml-soap-proxy-fargate.${DOMAIN}
 serviceInfo:
   name: saml-engine
 featureFlagConfiguration: {}
