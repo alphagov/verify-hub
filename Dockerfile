@@ -64,6 +64,10 @@ WORKDIR /verify-hub
 COPY configuration/$hub_app.yml /tmp/$hub_app.yml
 COPY --from=build-app /verify-hub/hub/$hub_app/build/install/$hub_app .
 
+# set a sensible default for java's DNS cache
+# if left unset the default is to cache forever
+RUN echo "networkaddress.cache.ttl=5" >> /usr/local/openjdk-11/conf/security/java.security
+
 # ARG is not available at runtime so set an env var with
 # name of app/app-config to run
 ENV HUB_APP $hub_app
