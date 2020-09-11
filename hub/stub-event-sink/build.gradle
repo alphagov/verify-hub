@@ -11,3 +11,7 @@ dependencies {
 apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.stub.event.sink.StubEventSinkApplication'
 mainClassName = ext.mainclass
+
+apply from: "${rootDir}/inttest.gradle"
+
+tasks.check.dependsOn(intTest)
