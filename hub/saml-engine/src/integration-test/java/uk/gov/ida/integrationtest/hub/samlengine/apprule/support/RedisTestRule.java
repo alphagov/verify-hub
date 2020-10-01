@@ -10,11 +10,7 @@ public class RedisTestRule extends ExternalResource {
     private Redis redis;
 
     public RedisTestRule(int port) {
-        try {
-            redis = new RedisServer(port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        redis = RedisServer.builder().setting("bind 127.0.0.1").port(port).build();
     }
 
     @Override

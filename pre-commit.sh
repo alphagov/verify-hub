@@ -58,14 +58,6 @@ if ./gradlew --parallel --daemon clean build intTest installDist 2>/dev/null; th
     | sed -n 's/uk.gov.ida:\(.*\) \[\(.*\)\]/\1 \2/p' 
   tput sgr0
 
-  # redis required for policy & saml-engine
-  if ! docker ps | grep hub-redis >/dev/null
-  then
-    printf "$(tput setaf 3)Redis is required for policy and saml-engine, attempting to start redis using docker.\\n$(tput sgr0)"
-    # deliberately avoiding the normal redis port in case there's another redis running
-    docker run --rm -d -p 6378:6379 --name hub-redis redis >/dev/null
-  fi
-
   echo "Running services"
   if ./startup.sh skip-build; then
     funky_pass_banner
