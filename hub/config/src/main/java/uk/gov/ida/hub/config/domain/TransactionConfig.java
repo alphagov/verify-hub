@@ -85,11 +85,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     protected List<String> signatureVerificationCertificates;
 
     @Valid
-    @NotNull
-    @JsonProperty
-    protected boolean shouldSignWithSHA1 = false;
-
-    @Valid
     @JsonProperty
     protected List<UserAccountCreationAttribute> userAccountCreationAttributes;
 
@@ -225,10 +220,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return shouldHubSignResponseMessages;
     }
 
-    public boolean getShouldSignWithSHA1() {
-        return shouldSignWithSHA1;
-    }
-
     public boolean getShouldHubUseLegacySamlStandard() {
         return shouldHubUseLegacySamlStandard;
     }
@@ -300,7 +291,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         clone.shouldHubSignResponseMessages = this.shouldHubSignResponseMessages;
         clone.shouldHubUseLegacySamlStandard = this.shouldHubUseLegacySamlStandard;
         clone.signatureVerificationCertificates = signatureVerificationCertificates;
-        clone.shouldSignWithSHA1 = this.shouldSignWithSHA1;
         clone.userAccountCreationAttributes = this.userAccountCreationAttributes;
         clone.headlessStartpage = this.headlessStartpage;
         clone.singleIdpStartpage = this.singleIdpStartpage;
