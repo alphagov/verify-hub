@@ -36,7 +36,6 @@ public class TransactionConfigBuilder {
     private URI serviceHomepage = URI.create("/service-uri");
     private String rpName = "Default RP name";
     private boolean eidasEnabled = false;
-    private boolean shouldSignWithSHA1 = true;
     private URI headlessStartPage = URI.create("/headless-start-uri");
     private URI singleIdpStartPage;
     private boolean usingMatching = true;
@@ -74,7 +73,6 @@ public class TransactionConfigBuilder {
                 eidasEnabled,
                 shouldHubSignResponseMessages,
                 levelsOfAssurance,
-                shouldSignWithSHA1,
                 headlessStartPage,
                 singleIdpStartPage,
                 usingMatching,
@@ -163,11 +161,6 @@ public class TransactionConfigBuilder {
         return this;
     }
 
-    public TransactionConfigBuilder withShouldSignWithSHA1(boolean shouldSignWithSHA1) {
-        this.shouldSignWithSHA1 = shouldSignWithSHA1;
-        return this;
-    }
-
     public TransactionConfigBuilder withUsingMatching(boolean usingMatching) {
         this.usingMatching = usingMatching;
         return this;
@@ -206,7 +199,6 @@ public class TransactionConfigBuilder {
                 boolean eidasEnabled,
                 boolean shouldHubSignResponseMessages,
                 List<LevelOfAssurance> levelsOfAssurance,
-                boolean shouldSignWithSHA1,
                 URI headlessStartPage,
                 URI singleIdpStartPage,
                 boolean usingMatching,
@@ -227,7 +219,6 @@ public class TransactionConfigBuilder {
             this.eidasEnabled = eidasEnabled;
             this.shouldHubSignResponseMessages = shouldHubSignResponseMessages;
             this.levelsOfAssurance = levelsOfAssurance;
-            this.shouldSignWithSHA1 = shouldSignWithSHA1;
             this.headlessStartpage = headlessStartPage;
             this.singleIdpStartpage = singleIdpStartPage;
             this.usingMatching = usingMatching;

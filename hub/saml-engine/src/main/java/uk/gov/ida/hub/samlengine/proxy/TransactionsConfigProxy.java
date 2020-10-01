@@ -53,13 +53,6 @@ public class TransactionsConfigProxy {
         return getBooleanConfig(entityId, uriBuilder);
     }
 
-    public Boolean getShouldSignWithSHA1(String entityId) {
-        final UriBuilder uriBuilder = UriBuilder
-                .fromUri(configUri)
-                .path(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_RESOURCE);
-        return getBooleanConfig(entityId, uriBuilder);
-    }
-
     public Boolean isProxyNodeEntityId(String entityId) {
         final UriBuilder uriBuilder = UriBuilder
                 .fromUri(configUri)

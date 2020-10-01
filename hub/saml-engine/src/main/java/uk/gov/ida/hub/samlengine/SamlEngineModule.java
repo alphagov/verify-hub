@@ -111,9 +111,7 @@ import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseT
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EncryptedAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToStringFunction;
-import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
-import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileOutboundResponseFromHubToSamlResponseTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileTransactionIdaStatusMarshaller;
@@ -503,28 +501,6 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @SuppressWarnings("unused")
-    private OutboundLegacyResponseFromHubToStringFunction getOutboundLegacyResponseFromHubToSignedResponseTransformerProvider(
-            EncryptionKeyStore encryptionKeyStore,
-            IdaKeyStore keyStore,
-            EntityToEncryptForLocator entityToEncryptForLocator,
-            ResponseAssertionSigner responseAssertionSigner,
-            SignatureAlgorithm signatureAlgorithm,
-            DigestAlgorithm digestAlgorithm) {
-
-        return new OutboundLegacyResponseFromHubToStringFunction(
-                hubTransformersFactory.getOutboundResponseFromHubToStringTransformer(
-                        encryptionKeyStore,
-                        keyStore,
-                        entityToEncryptForLocator,
-                        responseAssertionSigner,
-                        signatureAlgorithm,
-                        digestAlgorithm
-                )
-        );
-    }
-
-    @Provides
-    @SuppressWarnings("unused")
     private OutboundLegacyResponseFromHubToStringFunctionSHA256 getOutboundLegacyResponseFromHubToSignedResponseTransformerProvider(
             EncryptionKeyStore encryptionKeyStore,
             IdaKeyStore keyStore,
@@ -539,28 +515,6 @@ public class SamlEngineModule extends AbstractModule {
                         entityToEncryptForLocator,
                         responseAssertionSigner,
                         new SignatureRSASHA256(),
-                        digestAlgorithm
-                )
-        );
-    }
-
-    @Provides
-    @SuppressWarnings("unused")
-    private OutboundSamlProfileResponseFromHubToStringFunction getOutboundSamlProfileResponseFromHubToSignedResponseTransformerProvider(
-            EncryptionKeyStore encryptionKeyStore,
-            IdaKeyStore keyStore,
-            EntityToEncryptForLocator entityToEncryptForLocator,
-            ResponseAssertionSigner responseAssertionSigner,
-            SignatureAlgorithm signatureAlgorithm,
-            DigestAlgorithm digestAlgorithm) {
-
-        return new OutboundSamlProfileResponseFromHubToStringFunction(
-                hubTransformersFactory.getSamlProfileOutboundResponseFromHubToStringTransformer(
-                        encryptionKeyStore,
-                        keyStore,
-                        entityToEncryptForLocator,
-                        responseAssertionSigner,
-                        signatureAlgorithm,
                         digestAlgorithm
                 )
         );

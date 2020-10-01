@@ -9,9 +9,7 @@ import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToStringFunction;
-import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
-import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 
@@ -26,13 +24,7 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
     private OutboundResponseFromHubToResponseTransformerFactory outboundResponseFromHubToResponseTransformerFactory;
 
     @Mock
-    private OutboundLegacyResponseFromHubToStringFunction outboundLegacyResponseFromHubToStringFunction;
-
-    @Mock
     private OutboundLegacyResponseFromHubToStringFunctionSHA256 outboundLegacyResponseFromHubToStringFunctionSHA256;
-
-    @Mock
-    private OutboundSamlProfileResponseFromHubToStringFunction outboundSamlProfileResponseFromHubToStringFunction;
 
     @Mock
     private OutboundSamlProfileResponseFromHubToStringFunctionSHA256 outboundSamlProfileResponseFromHubToStringFunctionSHA256;
@@ -54,8 +46,6 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
     @Before
     public void setUp() {
         outboundResponseFromHubToResponseTransformerFactory = new OutboundResponseFromHubToResponseTransformerFactory(
-                outboundLegacyResponseFromHubToStringFunction,
-                outboundSamlProfileResponseFromHubToStringFunction,
                 simpleProfileOutboundResponseFromHubToResponseTransformerProvider,
                 transactionsConfigProxy,
                 outboundSamlProfileResponseFromHubToStringFunctionSHA256,
@@ -63,23 +53,12 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
                 outboundAuthnResponseFromCountryContainerToStringFunction);
     }
 
-    @Test
-    public void getShouldReturnOutboundLegacyResponseFromHubToStringFunctionWhenHubShouldSignResponseMessages() {
-        when(transactionsConfigProxy.getShouldHubSignResponseMessages(ENTITY_ID)).thenReturn(true);
-        when(transactionsConfigProxy.getShouldHubUseLegacySamlStandard(ENTITY_ID)).thenReturn(true);
-        when(transactionsConfigProxy.getShouldSignWithSHA1(ENTITY_ID)).thenReturn(true);
-
-        Function<OutboundResponseFromHub, String> transformer = outboundResponseFromHubToResponseTransformerFactory.get(ENTITY_ID);
-
-        assertThat(transformer).isEqualTo(outboundLegacyResponseFromHubToStringFunction);
-    }
 
     @Test
     public void getShouldReturnOutboundLegacyResponseFromHubToStringFunctionSHA256WhenHubShouldSignResponseMessages() {
 
         when(transactionsConfigProxy.getShouldHubSignResponseMessages(ENTITY_ID)).thenReturn(true);
         when(transactionsConfigProxy.getShouldHubUseLegacySamlStandard(ENTITY_ID)).thenReturn(true);
-        when(transactionsConfigProxy.getShouldSignWithSHA1(ENTITY_ID)).thenReturn(false);
 
         Function<OutboundResponseFromHub, String> transformer = outboundResponseFromHubToResponseTransformerFactory.get(ENTITY_ID);
 
@@ -87,23 +66,10 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
     }
 
     @Test
-    public void getShouldReturnOutboundSamlProfileResponseFromHubToStringFunctionWhenHubShouldSignResponseMessages() {
-
-        when(transactionsConfigProxy.getShouldHubSignResponseMessages(ENTITY_ID)).thenReturn(true);
-        when(transactionsConfigProxy.getShouldHubUseLegacySamlStandard(ENTITY_ID)).thenReturn(false);
-        when(transactionsConfigProxy.getShouldSignWithSHA1(ENTITY_ID)).thenReturn(true);
-
-        Function<OutboundResponseFromHub, String> transformer = outboundResponseFromHubToResponseTransformerFactory.get(ENTITY_ID);
-
-        assertThat(transformer).isEqualTo(outboundSamlProfileResponseFromHubToStringFunction);
-    }
-
-    @Test
     public void getShouldReturnOutboundSamlProfileResponseFromHubToStringFunctionSHA256WhenHubShouldSignResponseMessages() {
 
         when(transactionsConfigProxy.getShouldHubSignResponseMessages(ENTITY_ID)).thenReturn(true);
         when(transactionsConfigProxy.getShouldHubUseLegacySamlStandard(ENTITY_ID)).thenReturn(false);
-        when(transactionsConfigProxy.getShouldSignWithSHA1(ENTITY_ID)).thenReturn(false);
 
         Function<OutboundResponseFromHub, String> transformer = outboundResponseFromHubToResponseTransformerFactory.get(ENTITY_ID);
 

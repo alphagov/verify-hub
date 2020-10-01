@@ -68,7 +68,6 @@ public class TransactionsResourceIntegrationTest {
                     )
                     .withMatchingServiceEntityId(MS_ENTITY_ID)
                     .withUsingMatching(true)
-                    .withShouldSignWithSHA1(false)
                     .withHeadlessStartPage(URI.create(HEADLESS_START_PAGE))
                     .withSingleIdpStartPage(URI.create(SINGLE_IDP_START_PAGE))
                     .build())
@@ -281,24 +280,6 @@ public class TransactionsResourceIntegrationTest {
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(boolean.class)).isFalse();
-    }
-
-    @Test
-    public void getShouldSignWithSHA1_returnsOkAndMessages() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(boolean.class)).isFalse();
-    }
-
-    @Test
-    public void getShouldSignWithSHA1_returnsNotFound() {
-        String entityId = "not-found";
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test

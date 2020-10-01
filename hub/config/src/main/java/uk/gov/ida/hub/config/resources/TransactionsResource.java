@@ -191,14 +191,6 @@ public class TransactionsResource {
     }
 
     @GET
-    @Path(Urls.ConfigUrls.SHOULD_SIGN_WITH_SHA1_PATH)
-    @Timed
-    public boolean getShouldSignWithSHA1(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        return getTransactionConfigData(entityId)
-                .getShouldSignWithSHA1();
-    }
-
-    @GET
     @Path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
     public boolean isUsingMatching(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
