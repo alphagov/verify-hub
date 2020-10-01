@@ -29,8 +29,6 @@ The following software is required (installation notes follow)
 2. Git
 3. Gradle
 4. Intellij Community (Ultimate is fine as well)
-5. Node.js
-6. Ruby, with rbenv
 
 ### Java 11 JDK (OpenJDK)
 
@@ -53,13 +51,15 @@ export JAVA_HOME=/usr/lib/jvm/{your-jdk-version}
 ### Gradle
   Either install Gradle, or use gradle wrapper
   * **Option 1 - Install Gradle**
-    (ensure that you have gradle 4.0)
+    (ensure that you have gradle 6.0.1)
 
       * Mac: using homebrew
 ```
 brew install gradle
 ```
-      * Linux:
+
+  * Linux:
+  
 ```
 Manual install: http://www.gradle.org/downloads
 Extract from zip, add gradle /bin directory to PATH environment variable in .bash_profile or similar.
@@ -67,43 +67,6 @@ Extract from zip, add gradle /bin directory to PATH environment variable in .bas
 
   * **Option 2 - Use Gradle Wrapper**
   The core hub repo contains an instance of Gradle Wrapper which can be used straight from here without further installation. To use, call the ./gradlew script from core hub's root directory
-
-### Node.js
-  * Linux (Ubuntu)
-```
-Due to an ubuntu package name conflict, node was renamed to nodejs in apt
-sudo apt-get install nodejs
-Create symlink to restore original command name
-ln -s /usr/bin/nodejs /usr/bin/node
-```
-
-### Ruby
-
-There are some build scripts within the hub project that use ruby,
-plus you'll require Ruby in order to use verify-puppet (Puppet and ops
-tools) and the verify-boxes (infrastructure as code: VMs, firewalls, VPNs
-etc) repo.
-
-To avoid polluting your system ruby installation and to allow
-switching between different Ruby versions, you should install rbenv
-and then use that to install Rubies.
-
-#### On Mac
-
-Install [homebrew](http://brew.sh/) if you haven't already, then `brew
-install rbenv`
-
-#### On Linux
-
-You probably want to follow the instructions to install
-[rbenv](https://github.com/sstephenson/rbenv) and
-[ruby-build](https://github.com/sstephenson/ruby-build)
-
-#### Then, on all machines
-
-```
-rbenv global 2.4.2
-```
 
 ## Configuration
 
@@ -161,4 +124,4 @@ If you think you have discovered a security issue in this code please email [dis
 For non-security related bugs and feature requests please [raise an issue](https://github.com/alphagov/verify-hub/issues/new) in the GitHub issue tracker.
 
 ## Code of Conduct
-This project is developed under the [Alphagov Code of Conduct](https://github.com/alphagov/code-of-conduct)
+This project is developed under the [Alphagov Code of Conduct](https://github.com/alphagov/.github/blob/master/CODE_OF_CONDUCT.md)
