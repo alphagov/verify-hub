@@ -49,17 +49,6 @@ rpTrustStoreConfiguration:
   password: puppet
   enabled: ${RP_TRUSTSTORE_ENABLED:-true}
 logging:
-  loggers:
-    uk.gov.ida.eidas.logging.EidasAuthnResponseAttributesHashLogger:
-      level: INFO
-      additive: true
-      appenders:
-        - type: splunk
-          url: ${SPLUNK_URL}
-          token: ${SPLUNK_TOKEN}
-          source: ${SPLUNK_SOURCE}
-          sourceType: verify-hub_saml-engine
-          index: verify_eidas_notification_saml
   level: ${LOG_LEVEL:-INFO}
   appenders:
     - type: logstash-console
