@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.hub.samlengine.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;

@@ -133,7 +133,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
     }
 
     @Override
-    protected void before() {
+    protected void before() throws Exception {
         metadataTrustStore.create();
         hubTrustStore.create();
         idpTrustStore.create();
@@ -181,7 +181,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
     public URI getUri(String path) {
         return UriBuilder.fromUri("http://localhost")
                 .path(path)
-                .port(getLocalPort())
+                .port(getAdminPort())
                 .build();
     }
 

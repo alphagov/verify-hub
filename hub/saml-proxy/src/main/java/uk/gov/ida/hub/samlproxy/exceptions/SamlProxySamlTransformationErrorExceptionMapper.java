@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
 import javax.inject.Inject;
-import com.google.inject.Provider;
+import javax.inject.Provider;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;

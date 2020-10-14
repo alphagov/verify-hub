@@ -12,7 +12,8 @@ dependencies {
             configurations.ida_utils,
             configurations.redis,
             configurations.prometheus,
-            configurations.splunk
+            configurations.splunk,
+            project(':hub:shared')
 }
 
 apply plugin: 'application'

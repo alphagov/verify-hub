@@ -1,7 +1,8 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
 import io.dropwizard.lifecycle.Managed;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.SupportedMsaVersionsFileAccessException;
 
 import javax.inject.Inject;
@@ -13,7 +14,7 @@ import static java.text.MessageFormat.format;
 @Singleton
 public class SupportedMsaVersionsBootstrap implements Managed {
     private static final String SUPPORTED_MSA_VERSIONS_FILE_NAME = "/supported-msa-versions.yml";
-    private static final Logger LOG = Logger.getLogger(SupportedMsaVersionsBootstrap.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SupportedMsaVersionsBootstrap.class);
 
     private final SupportedMsaVersionsRepository supportedMsaVersionsRepository;
     private final SupportedMsaVersionsLoader supportedMsaVersionsLoader;

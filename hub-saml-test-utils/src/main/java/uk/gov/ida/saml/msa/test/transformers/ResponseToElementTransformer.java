@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.msa.test.transformers;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.opensaml.saml.saml2.core.Response;
 import org.w3c.dom.Element;
 import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;

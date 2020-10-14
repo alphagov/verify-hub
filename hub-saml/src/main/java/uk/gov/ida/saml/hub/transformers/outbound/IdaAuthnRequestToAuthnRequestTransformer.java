@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;

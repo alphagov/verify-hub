@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.msa.test.outbound.transformers;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.AuthnContext;
 import org.opensaml.saml.saml2.core.AuthnStatement;

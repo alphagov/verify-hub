@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlproxy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
@@ -22,9 +21,6 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.eventemitter.Configuration;
-import uk.gov.ida.hub.shared.eventsink.EventSinkHttpProxy;
-import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
-import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.samlproxy.annotations.Config;
 import uk.gov.ida.hub.samlproxy.annotations.Policy;
 import uk.gov.ida.hub.samlproxy.config.CertificatesConfigProxy;
@@ -48,6 +44,9 @@ import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.security.AuthnRequestKeyStore;
 import uk.gov.ida.hub.samlproxy.security.AuthnResponseKeyStore;
 import uk.gov.ida.hub.samlproxy.security.HubSigningKeyStore;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHttpProxy;
+import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.jerseyclient.DefaultClientProvider;
 import uk.gov.ida.jerseyclient.ErrorHandlingClient;
 import uk.gov.ida.jerseyclient.JsonClient;
@@ -94,6 +93,8 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.function.Function;
@@ -420,7 +421,7 @@ public class SamlProxyModule extends AbstractModule {
     private void registerMetadataRefreshTask(Environment environment, MetadataResolver metadataResolver, MetadataResolverConfiguration metadataResolverConfiguration, String name) {
         environment.admin().addTask(new Task(name + "-refresh") {
             @Override
-            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
+            public void execute(Map<String,List<String>> parameters, PrintWriter output) throws Exception {
                 ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
             }
         });
@@ -429,7 +430,7 @@ public class SamlProxyModule extends AbstractModule {
     private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){
         environment.admin().addTask(new Task(name + "-refresh") {
             @Override
-            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) {
+            public void execute(Map<String, List<String>> parameters, PrintWriter output) {
                 eidasMetadataResolverRepository.refresh();
             }
         });

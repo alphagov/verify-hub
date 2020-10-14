@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.opensaml.core.xml.XMLObjectBuilder;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;

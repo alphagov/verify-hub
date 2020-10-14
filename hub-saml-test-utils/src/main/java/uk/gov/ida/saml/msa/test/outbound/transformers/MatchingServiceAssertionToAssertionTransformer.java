@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.msa.test.outbound.transformers;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.saml2.core.Assertion;

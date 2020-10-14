@@ -1,17 +1,20 @@
-package uk.gov.ida.integrationtest.hub.samlengine.apprule.support;
+package uk.gov.ida.integrationtest.hub.samlproxy.apprule.support;
 
 import certificates.values.CACertificates;
 import com.nimbusds.jose.JOSEException;
-import com.squarespace.jersey2.guice.BootstrapUtils;
 import httpstub.HttpStubRule;
+import io.dropwizard.Configuration;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.ResourceHelpers;
-import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.dropwizard.testing.junit5.DropwizardAppExtension;
 import io.prometheus.client.CollectorRegistry;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
@@ -21,8 +24,7 @@ import uk.gov.ida.Constants;
 import uk.gov.ida.common.shared.security.PrivateKeyFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.eidas.trustanchor.Generator;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
-import uk.gov.ida.hub.samlengine.SamlEngineConfiguration;
+import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
 import uk.gov.ida.saml.core.test.TestCertificateStrings;
 import uk.gov.ida.saml.core.test.TestCredentialFactory;
 import uk.gov.ida.saml.core.test.builders.SignatureBuilder;
@@ -45,19 +47,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.dropwizard.testing.ConfigOverride.config;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.METADATA_SIGNING_A_PRIVATE_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.METADATA_SIGNING_A_PUBLIC_CERT;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_PRIVATE_KEY;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 import static uk.gov.ida.saml.metadata.ResourceEncoder.entityIdAsResource;
 
-public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration> {
-    public static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
+public class SamlProxyAppExtension<T extends Configuration> extends DropwizardAppExtension<T> implements AfterEachCallback, BeforeEachCallback {
+    private static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
     private static final String COUNTRY_METADATA_PATH = "/uk/gov/ida/saml/metadata/country";
-    public static final String EIDAS_ENTITY_ID = "http://localhost/eidasMetadata";
     private static final String TRUST_ANCHOR_PATH = "/trust-anchor";
     private static final String METADATA_AGGREGATOR_PATH = "/metadata-aggregator";
     private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----\n";
@@ -72,46 +70,23 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
     private static final KeyStoreResource idpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static final KeyStoreResource rpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rpCA", CACertificates.TEST_RP_CA).build();
     private static final KeyStoreResource countryMetadataTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("idpCA", CACertificates.TEST_IDP_CA).withCertificate("metadataCA", CACertificates.TEST_METADATA_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).build();
-    public static final int REDIS_PORT = 6383;
 
-    public RedisTestRule redis = new RedisTestRule(REDIS_PORT);
-
-    public SamlEngineAppRule(ConfigOverride... configOverrides) {
-        this(true, configOverrides);
-    }
-
-    public SamlEngineAppRule(boolean isCountryEnabled, ConfigOverride... configOverrides) {
-        super(SamlEngineApplication.class,
-                ResourceHelpers.resourceFilePath("saml-engine.yml"),
-                withDefaultOverrides(isCountryEnabled, null, null, configOverrides)
+    public static SamlProxyAppExtension getInstance(boolean isCountryEnabled, ConfigOverride... configOverrides) {
+        return new SamlProxyAppExtension(SamlProxyApplication.class,ResourceHelpers.resourceFilePath("saml-proxy.yml"), withDefaultOverrides(isCountryEnabled, configOverrides)
         );
-        BootstrapUtils.reset();
     }
 
-    public SamlEngineAppRule(String proxyHost, String proxyPort, ConfigOverride... configOverrides) {
-        super(SamlEngineApplication.class,
-            ResourceHelpers.resourceFilePath("saml-engine.yml"),
-            withDefaultOverrides(true, proxyHost, proxyPort, configOverrides)
-        );
-        BootstrapUtils.reset();
+    private SamlProxyAppExtension(Class applicationClass, String configPath, ConfigOverride... configOverrides) {
+        super(applicationClass, configPath, configOverrides);
     }
 
-    public static ConfigOverride[] withDefaultOverrides(boolean isCountryEnabled, String proxyHost, String proxyPort, ConfigOverride ... configOverrides) {
-        if (proxyHost != null && proxyPort != null) {
-            System.setProperty("http.proxyHost", proxyHost);
-            System.setProperty("http.proxyPort", proxyPort);
-        }
+
+
+    public static ConfigOverride[] withDefaultOverrides(boolean isCountryEnabled, ConfigOverride... configOverrides) {
         List<ConfigOverride> overrides = Stream.of(
                 config("saml.entityId", HUB_ENTITY_ID),
-                config("saml.expectedDestination", "http://localhost"),
                 config("server.applicationConnectors[0].port", "0"),
                 config("server.adminConnectors[0].port", "0"),
-                config("privateSigningKeyConfiguration.key", HUB_TEST_PRIVATE_SIGNING_KEY),
-                config("privateSigningKeyConfiguration.type", "encoded"),
-                config("primaryPrivateEncryptionKeyConfiguration.key", HUB_TEST_PRIVATE_ENCRYPTION_KEY),
-                config("primaryPrivateEncryptionKeyConfiguration.type", "encoded"),
-                config("secondaryPrivateEncryptionKeyConfiguration.key", TEST_PRIVATE_KEY),
-                config("secondaryPrivateEncryptionKeyConfiguration.type", "encoded"),
                 config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()),
                 config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
                 config("metadata.trustStore.path", metadataTrustStore.getAbsolutePath()),
@@ -122,19 +97,16 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
                 config("metadata.idpTrustStore.path", idpTrustStore.getAbsolutePath()),
                 config("metadata.idpTrustStore.password", idpTrustStore.getPassword()),
                 config("certificatesConfigCacheExpiry", "20s"),
-                config("redis.uri", "redis://localhost:" + REDIS_PORT)
+                config("eventEmitterConfiguration.enabled", "false")
         ).collect(Collectors.toList());
 
         if (isCountryEnabled) {
             List<ConfigOverride> countryOverrides = Stream.of(
                     config("country.enabled", "true"),
-                    config("country.saml.entityId", EIDAS_ENTITY_ID),
-                    config("country.saml.expectedDestination", "http://localhost:50300/SAML2/SSO/EidasResponse/POST"),
-
                     config("country.metadata.trustAnchorUri", "http://localhost:" + trustAnchorServer.getPort() + TRUST_ANCHOR_PATH),
                     config("country.metadata.metadataSourceUri", "http://localhost:" + metadataAggregatorServer.getPort() + METADATA_AGGREGATOR_PATH),
                     config("country.metadata.trustStore.store", countryMetadataTrustStore.getAbsolutePath()),
-                    config("country.metadata.trustStore.trustStorePassword", countryMetadataTrustStore.getPassword()),
+                    config("country.metadata.trustStore.password", countryMetadataTrustStore.getPassword()),
                     config("country.metadata.minRefreshDelay", "6000"),
                     config("country.metadata.maxRefreshDelay", "600000"),
                     config("country.metadata.trustAnchorMinRefreshDelay", "6000"),
@@ -152,7 +124,8 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
 
                     config("country.metadata.client.tls.protocol", "TLSv1.2"),
                     config("country.metadata.client.tls.verifyHostname", "false"),
-                    config("country.metadata.client.tls.trustSelfSignedCertificates", "true")
+                    config("country.metadata.client.tls.trustSelfSignedCertificates", "true"),
+                    config("eventEmitterConfiguration.enabled", "false")
             ).collect(Collectors.toList());
             overrides.addAll(countryOverrides);
         }
@@ -160,60 +133,15 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
         return overrides.toArray(new ConfigOverride[0]);
     }
 
-    @Override
-    protected void before() throws Exception {
-        try {
-            redis.before();
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        }
-        metadataTrustStore.create();
-        hubTrustStore.create();
-        idpTrustStore.create();
-        rpTrustStore.create();
-        countryMetadataTrustStore.create();
-        CollectorRegistry.defaultRegistry.clear();
 
-        try {
-            InitializationService.initialize();
-            String testCountryMetadata = new MetadataFactory().singleEntityMetadata(buildTestCountryEntityDescriptor());
-
-            verifyMetadataServer.reset();
-            verifyMetadataServer.register(VERIFY_METADATA_PATH, 200, Constants.APPLICATION_SAMLMETADATA_XML, new MetadataFactory().defaultMetadata());
-
-            metadataAggregatorServer.reset();
-
-            metadataAggregatorServer.register(
-                    String.format("%s/%s", METADATA_AGGREGATOR_PATH, entityIdAsResource(COUNTRY_METADATA_PATH)),
-                    200,
-                    Constants.APPLICATION_SAMLMETADATA_XML,
-                    testCountryMetadata);
-
-            trustAnchorServer.reset();
-            trustAnchorServer.register(TRUST_ANCHOR_PATH, 200, MediaType.APPLICATION_OCTET_STREAM, buildTrustAnchorString());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        super.before();
-    }
-
-    @Override
-    protected void after() {
-        redis.after();
-        metadataTrustStore.delete();
-        hubTrustStore.delete();
-        idpTrustStore.delete();
-        rpTrustStore.delete();
-        countryMetadataTrustStore.delete();
-
-        super.after();
+    public String getCountyEntityId() {
+        return COUNTRY_METADATA_PATH;
     }
 
     public URI getUri(String path) {
         return UriBuilder.fromUri("http://localhost")
                 .path(path)
-                .port(getLocalPort())
+                .port(getAdminPort())
                 .build();
     }
 
@@ -252,7 +180,46 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
                 .build();
     }
 
-    public String getCountryMetadataUri() {
-        return COUNTRY_METADATA_PATH;
+    @Override
+    public void afterEach(ExtensionContext context) throws Exception {
+        metadataTrustStore.delete();
+        hubTrustStore.delete();
+        idpTrustStore.delete();
+        rpTrustStore.delete();
+
+        super.after();
+    }
+
+    @Override
+    public void beforeEach(ExtensionContext context) throws Exception {
+        metadataTrustStore.create();
+        hubTrustStore.create();
+        idpTrustStore.create();
+        rpTrustStore.create();
+        countryMetadataTrustStore.create();
+        CollectorRegistry.defaultRegistry.clear();
+
+        try {
+            InitializationService.initialize();
+            String testCountryMetadata = new MetadataFactory().singleEntityMetadata(buildTestCountryEntityDescriptor());
+
+            verifyMetadataServer.reset();
+            verifyMetadataServer.register(VERIFY_METADATA_PATH, 200, Constants.APPLICATION_SAMLMETADATA_XML, new MetadataFactory().defaultMetadata());
+
+            metadataAggregatorServer.reset();
+            metadataAggregatorServer.register(
+                    String.format("%s/%s", METADATA_AGGREGATOR_PATH, entityIdAsResource(COUNTRY_METADATA_PATH)),
+                    200,
+                    Constants.APPLICATION_SAMLMETADATA_XML,
+                    testCountryMetadata);
+
+            trustAnchorServer.reset();
+            trustAnchorServer.register(TRUST_ANCHOR_PATH, 200, MediaType.APPLICATION_OCTET_STREAM, buildTrustAnchorString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        super.before();
+
     }
 }

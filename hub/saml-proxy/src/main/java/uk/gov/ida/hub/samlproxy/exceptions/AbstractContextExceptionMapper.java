@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
 import com.google.common.base.Strings;
-import com.google.inject.Provider;
+import javax.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ErrorStatusDto;

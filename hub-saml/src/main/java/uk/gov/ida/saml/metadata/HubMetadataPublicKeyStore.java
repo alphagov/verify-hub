@@ -1,7 +1,7 @@
 package uk.gov.ida.saml.metadata;
 
 import com.google.common.base.Throwables;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.opensaml.core.criterion.EntityIdCriterion;

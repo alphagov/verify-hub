@@ -32,18 +32,19 @@ repositories {
 
 ext {
     opensaml_version = '3.4.3'
-    dropwizard_version = '1.3.18'
+    dropwizard_version = '2.0.13'
+    glassfish_version   = '2.6.1'
     build_version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
 }
 
 def dependencyVersions = [
-        ida_utils:'374',
+        ida_utils:'384',
         dropwizard:"$dropwizard_version",
         pact:'3.5.6',
         ida_test_utils:"2.0.0-49",
         opensaml:"$opensaml_version",
         dev_pki: '1.1.0-37',
-        saml_lib:"$opensaml_version-241"
+        saml_lib:"$opensaml_version-247"
 ]
 
 subprojects {
@@ -51,6 +52,7 @@ subprojects {
 
     group = "uk.gov.ida"
     version = "0.1.$version"
+    task allDeps(type: DependencyReportTask) {}
 
     repositories {
         if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
@@ -67,10 +69,17 @@ subprojects {
 
     configurations.all {
         resolutionStrategy {
-            force 'org.glassfish.hk2:hk2-api:2.4.0-b31',
-                    'org.glassfish.hk2:hk2-locator:2.4.0-b31',
-                    'org.glassfish.hk2.external:javax.inject:2.4.0-b31',
-                    'com.hubspot.dropwizard:dropwizard-guicier:0.9.1.0'
+            force "org.glassfish.hk2:hk2-api:$glassfish_version",
+                    "org.glassfish.hk2:hk2-locator:$glassfish_version",
+                    "org.glassfish.hk2.external:javax.inject:$glassfish_version",
+                    "io.dropwizard:dropwizard-jackson:$dropwizard_version",
+                    "io.dropwizard:dropwizard-jersey:$dropwizard_version",
+                    "io.dropwizard:dropwizard-jetty:$dropwizard_version",
+                    "io.dropwizard:dropwizard-lifecycle:$dropwizard_version",
+                    "io.dropwizard:dropwizard-logging:$dropwizard_version",
+                    "io.dropwizard:dropwizard-servlets:$dropwizard_version",
+                    "io.dropwizard:dropwizard-client:$dropwizard_version",
+                    "io.dropwizard:dropwizard-testing:$dropwizard_version"
         }
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
@@ -103,7 +112,6 @@ subprojects {
     dependencies {
 
         common 'joda-time:joda-time:2.3',
-                'com.google.inject:guice:4.0',
                 "javax.xml.bind:jaxb-api:2.3.1",
                 "com.sun.xml.bind:jaxb-core:2.3.0.1",
                 "com.sun.xml.bind:jaxb-impl:2.3.0.1"
@@ -113,9 +121,12 @@ subprojects {
                 "io.dropwizard:dropwizard-auth:$dependencyVersions.dropwizard",
                 "io.dropwizard:dropwizard-configuration:$dependencyVersions.dropwizard",
                 "io.dropwizard:dropwizard-metrics-graphite:$dependencyVersions.dropwizard",
-                'com.hubspot.dropwizard:dropwizard-guicier:1.0.0.6',
-                'org.reflections:reflections:0.9.10',
-                'org.dhatim:dropwizard-sentry:1.3.9-2'
+                "com.google.inject:guice:4.2.3",
+                "com.google.inject.extensions:guice-servlet:4.0",
+                "org.glassfish.hk2:guice-bridge:2.6.1",
+                "org.glassfish.jersey.inject:jersey-hk2:2.31",
+                "org.reflections:reflections:0.9.10",
+                "org.dhatim:dropwizard-sentry:1.3.9-2"
 
         config 'commons-io:commons-io:2.1'
 
@@ -227,6 +238,10 @@ See http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-213316
 
 +Note this is installed by default in Java 8 1.6.1 or later""")
     }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 defaultTasks 'clean', 'test', 'jar'

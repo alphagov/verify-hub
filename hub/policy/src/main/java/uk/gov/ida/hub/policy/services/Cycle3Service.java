@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.policy.services;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import uk.gov.ida.hub.policy.contracts.AbstractAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.domain.Cycle3AttributeRequestData;
 import uk.gov.ida.hub.policy.domain.Cycle3Dataset;

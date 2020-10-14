@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.metadata;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.apache.xml.security.exceptions.Base64DecodingException;

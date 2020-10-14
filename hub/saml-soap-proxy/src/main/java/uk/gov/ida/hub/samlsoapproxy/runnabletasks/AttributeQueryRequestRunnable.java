@@ -1,24 +1,24 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
 import com.codahale.metrics.Counter;
-import org.glassfish.jersey.internal.util.Base64;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import uk.gov.ida.Base64;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.eventemitter.EventDetailsKey;
-import uk.gov.ida.hub.shared.eventsink.EventSinkHubEvent;
-import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
-import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
+import uk.gov.ida.eventemitter.EventEmitter;
 import uk.gov.ida.hub.samlsoapproxy.annotations.MatchingServiceRequestExecutorBacklog;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlsoapproxy.domain.TimeoutEvaluator;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.AttributeQueryTimeoutException;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.MatchingServiceRequestExceptionErrorMessageMapper;
 import uk.gov.ida.hub.samlsoapproxy.proxy.HubMatchingServiceResponseReceiverProxy;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEvent;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.shared.utils.logging.LogFormatter;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
@@ -83,7 +83,7 @@ public class AttributeQueryRequestRunnable implements Runnable {
         try {
             Element response = executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);
             timeoutEvaluator.hasAttributeQueryTimedOut(attributeQueryContainerDto);
-            final String base64EncodedSamlResponse = Base64.encodeAsString(XmlUtils.writeToString(response).getBytes());
+            final String base64EncodedSamlResponse = Base64.encodeToString(XmlUtils.writeToString(response).getBytes());
             hubMatchingServiceResponseReceiverProxy.notifyHubOfAResponseFromMatchingService(
                     sessionId,
                     base64EncodedSamlResponse);

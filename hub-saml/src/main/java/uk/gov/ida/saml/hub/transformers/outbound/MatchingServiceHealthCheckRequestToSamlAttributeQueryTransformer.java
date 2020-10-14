@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Issuer;

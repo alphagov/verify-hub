@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlproxy;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.hubspot.dropwizard.guicier.GuiceBundle;
 import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -22,6 +21,7 @@ import uk.gov.ida.hub.samlproxy.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlproxy.resources.HubMetadataResourceApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageReceiverApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageSenderApi;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
@@ -34,11 +34,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
 
 public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
-
-    private GuiceBundle<SamlProxyConfiguration> guiceBundle;
 
     public static void main(String[] args) throws Exception {
         new SamlProxyApplication().run(args);
@@ -58,10 +55,8 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
                 )
         );
 
-        guiceBundle = defaultBuilder(SamlProxyConfiguration.class)
-                .modules(new SamlProxyModule(), new EventEmitterModule())
-                .build();
-        bootstrap.addBundle(guiceBundle);
+        bootstrap.addBundle(
+                new GuiceBundle<>(() -> List.of(new SamlProxyModule(), new EventEmitterModule()),SamlProxyConfiguration.class));
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());

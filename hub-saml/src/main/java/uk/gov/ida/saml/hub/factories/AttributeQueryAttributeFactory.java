@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.factories;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.opensaml.saml.saml2.core.Attribute;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;

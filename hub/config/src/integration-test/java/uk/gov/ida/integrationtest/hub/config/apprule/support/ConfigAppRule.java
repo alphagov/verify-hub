@@ -102,7 +102,7 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
     }
 
     @Override
-    protected void before() {
+    protected void before() throws Exception {
         mapper.registerModule(new Jdk8Module().configureAbsentsAsNulls(true));
         mapper.registerModule(new JodaModule());
         clientTrustStore.create();

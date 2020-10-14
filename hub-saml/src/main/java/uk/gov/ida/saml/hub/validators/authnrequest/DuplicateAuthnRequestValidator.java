@@ -1,6 +1,6 @@
 package uk.gov.ida.saml.hub.validators.authnrequest;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;

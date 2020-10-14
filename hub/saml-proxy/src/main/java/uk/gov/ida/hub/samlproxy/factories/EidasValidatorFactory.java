@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.samlproxy.factories;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;

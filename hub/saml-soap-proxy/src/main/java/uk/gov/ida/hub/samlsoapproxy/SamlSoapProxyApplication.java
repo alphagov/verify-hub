@@ -3,7 +3,6 @@ package uk.gov.ida.hub.samlsoapproxy;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import com.hubspot.dropwizard.guicier.GuiceBundle;
 import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -22,6 +21,7 @@ import uk.gov.ida.hub.samlsoapproxy.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlsoapproxy.resources.AttributeQueryRequestSenderResource;
 import uk.gov.ida.hub.samlsoapproxy.resources.MatchingServiceHealthCheckResource;
 import uk.gov.ida.hub.samlsoapproxy.resources.MatchingServiceVersionCheckResource;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;
@@ -31,13 +31,12 @@ import uk.gov.ida.truststore.KeyStoreLoader;
 import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
+import java.util.List;
 
-import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
 
 public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfiguration> {
 
     private final MetadataResolverBundle<SamlSoapProxyConfiguration> verifyMetadataBundle = new MetadataResolverBundle<>((SamlSoapProxyConfiguration::getMetadataConfiguration));
-    private GuiceBundle<SamlSoapProxyConfiguration> guiceBundle;
 
     public static void main(String[] args) throws Exception {
         new SamlSoapProxyApplication().run(args);
@@ -61,9 +60,11 @@ public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfigura
         bootstrap.addBundle(verifyMetadataBundle);
 
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
-        guiceBundle = defaultBuilder(SamlSoapProxyConfiguration.class)
-                .modules(new SamlSoapProxyModule(), new EventEmitterModule(), bindVerifyMetadata())
-                .build();
+
+        GuiceBundle<SamlSoapProxyConfiguration> guiceBundle = new GuiceBundle<>(
+                () -> List.of(new SamlSoapProxyModule(), new EventEmitterModule(), bindVerifyMetadata()),
+                SamlSoapProxyConfiguration.class);
+
         bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());

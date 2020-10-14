@@ -2,7 +2,6 @@ package uk.gov.ida.hub.config;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.google.inject.Module;
-import com.hubspot.dropwizard.guicier.GuiceBundle;
 import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -19,16 +18,16 @@ import uk.gov.ida.hub.config.resources.CountriesResource;
 import uk.gov.ida.hub.config.resources.IdentityProviderResource;
 import uk.gov.ida.hub.config.resources.MatchingServiceResource;
 import uk.gov.ida.hub.config.resources.TransactionsResource;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
 
 import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
+import java.util.List;
 
 public class ConfigApplication extends Application<ConfigConfiguration> {
-
-    private GuiceBundle<ConfigConfiguration> guiceBundle;
 
     public static void main(String[] args) throws Exception {
         new ConfigApplication().run(args);
@@ -48,10 +47,8 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
                 )
         );
 
-        guiceBundle = GuiceBundle.defaultBuilder(ConfigConfiguration.class)
-                .modules(new ConfigModule())
-                .modules(bindS3ConfigSource())
-                .build();
+        GuiceBundle<ConfigConfiguration> guiceBundle = new GuiceBundle<>(() -> List.of(new ConfigModule(), bindS3ConfigSource()), ConfigConfiguration.class);
+
         bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());

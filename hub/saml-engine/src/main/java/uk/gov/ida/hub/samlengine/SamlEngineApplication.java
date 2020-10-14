@@ -5,13 +5,13 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import com.hubspot.dropwizard.guicier.GuiceBundle;
 import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.util.Lists;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.MDC;
@@ -35,6 +35,7 @@ import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnRequestTranslatorR
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseWrappingCountryResponseGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpErrorResponseGeneratorResource;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;
@@ -44,13 +45,11 @@ import uk.gov.ida.truststore.KeyStoreLoader;
 import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
-
-import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
+import java.util.List;
 
 public class SamlEngineApplication extends Application<SamlEngineConfiguration> {
 
     private final MetadataResolverBundle<SamlEngineConfiguration> verifyMetadataBundle;
-    private GuiceBundle<SamlEngineConfiguration> guiceBundle;
 
     public SamlEngineApplication() {
         verifyMetadataBundle = new MetadataResolverBundle<>(SamlEngineConfiguration::getMetadataConfiguration);
@@ -76,11 +75,10 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
         bootstrap.addBundle(new LoggingBundle());
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
         bootstrap.addBundle(verifyMetadataBundle);
-        guiceBundle = defaultBuilder(SamlEngineConfiguration.class)
-                .modules(new SamlEngineModule(),
-                        new CryptoModule(),
-                        bindMetadata())
-                .build();
+
+        GuiceBundle<SamlEngineConfiguration> guiceBundle = new GuiceBundle<>(() -> List.of(new SamlEngineModule(),
+                new CryptoModule(), bindMetadata()), SamlEngineConfiguration.class);
+
         bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new PrometheusBundle());
     }
