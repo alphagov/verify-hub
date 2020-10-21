@@ -66,6 +66,7 @@ logging:
     - type: sentry
       dsn: ${SENTRY_DSN}
       environment: ${SENTRY_ENV}
+      release: ${RELEASE_VER}
       threshold: ERROR
       tags: {"service-name": "saml-engine"}
 authnRequestIdExpirationDuration: 90m
