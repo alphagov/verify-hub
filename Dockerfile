@@ -68,6 +68,10 @@ COPY --from=build-app /verify-hub/hub/$hub_app/build/install/$hub_app .
 # if left unset the default is to cache forever
 RUN echo "networkaddress.cache.ttl=5" >> /usr/local/openjdk-11/conf/security/java.security
 
+# Get the current git head reference and set it as
+# release for Sentry
+RUN export RELEASE_VER=$(git rev-parse HEAD)
+
 # ARG is not available at runtime so set an env var with
 # name of app/app-config to run
 ENV HUB_APP $hub_app
