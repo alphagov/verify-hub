@@ -53,6 +53,7 @@ logging:
     - type: logstash-console
     - type: sentry
       dsn: ${SENTRY_DSN}
+      environment: ${SENTRY_ENV}
       threshold: ERROR
       tags: {"service-name": "policy"}
 eidas: true
