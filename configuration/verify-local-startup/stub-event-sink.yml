@@ -1,0 +1,20 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${EVENT_SINK_PORT}
+  adminConnectors:
+    - type: http
+      port: 50101
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+serviceInfo:
+  name: stub-event-sink
+
+

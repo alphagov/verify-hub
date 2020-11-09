@@ -1,0 +1,113 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${SAML_PROXY_PORT}
+  adminConnectors:
+    - type: http
+      port: 50221
+  requestLog:
+    appenders:
+      - type: console
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+
+
+saml:
+  entityId: https://local.signin.service.gov.uk
+  expectedDestination: http://localhost:${FRONTEND_PORT}
+
+httpClient:
+  timeout: 2s
+  timeToLive: 10m
+  cookiesEnabled: false
+  connectionTimeout: 1s
+  retries: 3
+  keepAlive: 60s
+  chunkedEncodingEnabled: false
+  validateAfterInactivityPeriod: 5s
+
+enableRetryTimeOutConnections: true
+
+frontendExternalUri: http://localhost:${FRONTEND_PORT}
+
+configUri: http://${CONFIG_HOST:-localhost}:${CONFIG_PORT}
+
+eventSinkUri: http://${EVENT_SINK_HOST:-localhost}:${EVENT_SINK_PORT}
+
+policyUri: http://${POLICY_HOST:-localhost}:${POLICY_PORT}
+
+serviceInfo:
+  name: saml-proxy
+
+rpTrustStoreConfiguration:
+  path: /data/pki/relying_parties.ts
+  password: marshmallow
+
+metadataValidDuration: 1h
+
+metadata:
+  uri: http://${METADATA_HOST:-localhost}:${METADATA_PORT:-80}/dev.xml
+  trustStorePath: /data/pki/metadata.ts
+  trustStorePassword: marshmallow
+  trustStore:
+    path: /data/pki/metadata.ts
+    password: marshmallow
+  hubTrustStore:
+    path: /data/pki/hub_federation.ts
+    password: marshmallow
+  idpTrustStore:
+    path: /data/pki/idp_federation.ts
+    password: marshmallow
+  minRefreshDelay: 60000
+  maxRefreshDelay: 600000
+  expectedEntityId: https://dev-hub.local
+  jerseyClientName: verify-metadata-client
+  client:
+    timeout: 2s
+    timeToLive: 10m
+    cookiesEnabled: false
+    connectionTimeout: 1s
+    retries: 3
+    keepAlive: 60s
+    chunkedEncodingEnabled: false
+    validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true
+
+country:
+  enabled: ${EIDAS_ENABLED}
+  metadata:
+    trustAnchorUri: ${TRUST_ANCHOR_URI}
+    metadataSourceUri: ${METADATA_SOURCE_URI}
+    trustStore:
+      store: /data/pki/metadata.ts
+      password: marshmallow
+    minRefreshDelay: 5000
+    maxRefreshDelay: 60000
+    jerseyClientName: country-metadata-client
+    client:
+      timeout: 2s
+      timeToLive: 10m
+      cookiesEnabled: false
+      connectionTimeout: 1s
+      retries: 3
+      keepAlive: 60s
+      chunkedEncodingEnabled: false
+      validateAfterInactivityPeriod: 5s
+      tls:
+        protocol: TLSv1.2
+        verifyHostname: false
+        trustSelfSignedCertificates: true
+
+eventEmitterConfiguration:
+  enabled: ${EVENT_EMITTER_ENABLED:-false}
+  accessKeyId: 'access_key'
+  secretAccessKey: 'secret_access_key'
+  region: eu-west-2
+  encryptionKey: 'encryption_key'
+  apiGatewayUrl: 'api_gateway_url'
