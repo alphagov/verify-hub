@@ -10,14 +10,18 @@ server:
       - type: console
 
 logging:
-  level: DEBUG
+  level: ${LOG_LEVEL:-INFO}
   appenders:
     - type: console
       logFormat: '%-5p [%d{ISO8601,UTC}] %c: %X{logPrefix}%m%n%xEx'
 
 saml:
-  entityId: https://local.signin.service.gov.uk
-  expectedDestination: http://localhost:${FRONTEND_PORT}
+  entityId: ${METADATA_ENTITY_ID}
+  expectedDestination: ${FRONTEND_URI}
+
+redis:
+  recordTTL: PT150m
+  uri: ${REDIS_URI:-redis://localhost:6378}
 
 httpClient:
   timeout: 2s
@@ -30,39 +34,21 @@ httpClient:
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
-redis:
-  recordTTL: PT150m
-  uri: ${REDIS_URI:-redis://localhost:6378}
-
-configUri: http://${CONFIG_HOST:-localhost}:${CONFIG_PORT:-80}
+configUri: ${CONFIG_URL}
 
 certificatesConfigCacheExpiry: 1m
 
 serviceInfo:
   name: saml-engine
 
-readKeysFromFileDescriptors: false
-
 privateSigningKeyConfiguration:
   keyFile: /data/pki/hub_signing_primary.pk8
-
-publicSigningCert:
-  certFile: /data/pki/hub_signing_primary.crt
-  name: someId 
 
 primaryPrivateEncryptionKeyConfiguration:
   keyFile: /data/pki/hub_encryption_primary.pk8
 
-primaryPublicEncryptionCert:                                                
-   certFile: /data/pki/hub_encryption_primary.crt
-   name: someId 
-
 secondaryPrivateEncryptionKeyConfiguration:
   keyFile: /data/pki/hub_encryption_primary.pk8
-
-secondaryPublicEncryptionCert:
-  certFile: /data/pki/hub_encryption_secondary.crt
-  name: someId
 
 rpTrustStoreConfiguration:
   path: /data/pki/relying_parties.ts
@@ -73,7 +59,7 @@ authnRequestIdExpirationDuration: 60m
 authnRequestValidityDuration: 5m
 
 metadata:
-  uri: http://${METADATA_HOST:-localhost}:${METADATA_PORT:-80}/dev.xml
+  uri: ${METADATA_URL}
   trustStorePath: /data/pki/metadata.ts
   trustStorePassword: marshmallow
   trustStore:
@@ -98,16 +84,12 @@ metadata:
     keepAlive: 60s
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
-    tls:
-        protocol: TLSv1.2
-        verifyHostname: false
-        trustSelfSignedCertificates: true
 
 country:
   enabled: ${EIDAS_ENABLED}
   saml:
     entityId: ${HUB_CONNECTOR_ENTITY_ID}
-    expectedDestination: ${FRONTEND_URL}/SAML2/SSO/EidasResponse/POST
+    expectedDestination: ${FRONTEND_URI}/SAML2/SSO/EidasResponse/POST
   metadata:
     trustAnchorUri: ${TRUST_ANCHOR_URI}
     metadataSourceUri: ${METADATA_SOURCE_URI}

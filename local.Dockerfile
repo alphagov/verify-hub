@@ -75,10 +75,4 @@ RUN export RELEASE_VER=$(git rev-parse HEAD)
 # ARG is not available at runtime so set an env var with
 # name of app/app-config to run
 ENV HUB_APP $hub_app
-#CMD bin/$HUB_APP server /tmp/$HUB_APP.yml
-CMD    echo config: ---------------------- \
-    && cat /tmp/$HUB_APP.yml \
-    && echo \nenv: ------------------------- \
-    && env | sort \
-    && echo \napp: ------------------------- \
-    && bin/$HUB_APP server /tmp/$HUB_APP.yml
+CMD bin/$HUB_APP server /tmp/$HUB_APP.yml

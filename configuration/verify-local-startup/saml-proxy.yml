@@ -16,8 +16,8 @@ logging:
 
 
 saml:
-  entityId: https://local.signin.service.gov.uk
-  expectedDestination: http://localhost:${FRONTEND_PORT}
+  entityId: ${METADATA_ENTITY_ID}
+  expectedDestination: ${FRONTEND_URI}
 
 httpClient:
   timeout: 2s
