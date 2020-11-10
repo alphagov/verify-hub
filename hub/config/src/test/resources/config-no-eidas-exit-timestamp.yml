@@ -45,5 +45,3 @@ clientTrustStoreConfiguration:
 rpTrustStoreConfiguration:
   path: ${RP_TRUSTSTORE_PATH}
   password: ${RP_TRUSTSTORE_PASSWORD}
-
-eidasDisabledAfter: ${EIDAS_DISABLED_AFTER:-}

@@ -67,6 +67,13 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
         );
     }
 
+    public ConfigAppRule(String configPath, ConfigOverride... configOverrides) {
+        super(ConfigApplication.class,
+                ResourceHelpers.resourceFilePath(configPath),
+                withDefaultOverrides(configOverrides)
+        );
+    }
+
     private static ConfigOverride[] withDefaultOverrides(ConfigOverride ... configOverrides) {
         List<ConfigOverride> overrides = new ArrayList<>(List.of(
                 config("clientTrustStoreConfiguration.path", clientTrustStore.getAbsolutePath()),

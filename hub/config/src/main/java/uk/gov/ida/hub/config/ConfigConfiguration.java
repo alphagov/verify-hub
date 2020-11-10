@@ -14,6 +14,8 @@ import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigConfiguration extends Configuration implements TrustStoreConfiguration, ServiceNameConfiguration, PrometheusConfiguration {
@@ -48,6 +50,9 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
     @JsonProperty
     protected String rootDataDirectory;
 
+    @JsonProperty
+    protected Optional<LocalDateTime> eidasDisabledAfter;
+
     @Valid
     @NotNull
     @JsonProperty
@@ -74,6 +79,10 @@ public class ConfigConfiguration extends Configuration implements TrustStoreConf
 
     public String getDataDirectory() {
         return rootDataDirectory;
+    }
+
+    public Optional<LocalDateTime> getEidasDisabledAfter() {
+        return eidasDisabledAfter;
     }
 
     /**
