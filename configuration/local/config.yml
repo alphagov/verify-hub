@@ -11,7 +11,7 @@ server:
 
 
 logging:
-  level: INFO
+  level: ${LOG_LEVEL:-INFO}
   appenders:
     - type: console
 
