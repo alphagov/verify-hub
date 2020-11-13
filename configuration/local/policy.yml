@@ -57,12 +57,13 @@ clientTrustStoreConfiguration:
   path: ${HUB_TRUST_STORE_PATH:-/data/pki/hub.ts}
   password: marshmallow
 
-eidas: true
+eidas: ${EIDAS_ENABLED:-false}
 
 eventEmitterConfiguration:
-  enabled: false
-  accessKeyId: 'access_key'
-  secretAccessKey: 'secret_access_key'
+  enabled: ${EVENT_EMITTER_ENABLED:-false}
+  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID:-access_key}
+  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY:-secret_access_key}
   region: eu-west-2
-  encryptionKey: 'encryption_key'
-  apiGatewayUrl: 'api_gateway_url'
+  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY:-encryption_key}
+  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL:-api_gateway_url}
+  

@@ -19,10 +19,6 @@ saml:
   entityId: ${METADATA_ENTITY_ID}
   expectedDestination: ${FRONTEND_URL}
 
-redis:
-  recordTTL: PT150m
-  uri: ${REDIS_URI:-redis://localhost:6378}
-
 httpClient:
   timeout: 2s
   timeToLive: 10m
@@ -33,6 +29,10 @@ httpClient:
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
+
+redis:
+  recordTTL: PT150m
+  uri: ${REDIS_URI:-redis://localhost:6378}
 
 configUri: ${CONFIG_URL}
 
