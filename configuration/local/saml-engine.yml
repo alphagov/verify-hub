@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: 80
+      port: ${SAML_ENGINE_PORT}
   adminConnectors:
     - type: http
-      port: 81
+      port: 50121
   requestLog:
     appenders:
       - type: console
@@ -19,6 +19,10 @@ saml:
   entityId: ${METADATA_ENTITY_ID}
   expectedDestination: ${FRONTEND_URL}
 
+redis:
+  recordTTL: PT150m
+  uri: ${REDIS_URI:-redis://localhost:6378}
+
 httpClient:
   timeout: 2s
   timeToLive: 10m
@@ -29,10 +33,6 @@ httpClient:
   gzipEnabledForRequests: false
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
-
-redis:
-  recordTTL: PT150m
-  uri: redis://localhost:6379
 
 configUri: ${CONFIG_URL}
 
@@ -91,7 +91,7 @@ country:
     entityId: ${HUB_CONNECTOR_ENTITY_ID}
     expectedDestination: ${FRONTEND_URL}/SAML2/SSO/EidasResponse/POST
   metadata:
-    trustAnchorUri: ${TRUST_ANCHOR_URL}
+    trustAnchorUri: ${TRUST_ANCHOR_URI}
     metadataSourceUri: ${METADATA_SOURCE_URI}
     trustStore:
       store: /data/pki/metadata.ts

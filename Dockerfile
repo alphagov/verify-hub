@@ -61,7 +61,7 @@ ARG hub_app
 
 WORKDIR /verify-hub
 
-COPY configuration/$hub_app.yml /tmp/$hub_app.yml
+COPY configuration/local/$hub_app.yml /tmp/$hub_app.yml
 COPY --from=build-app /verify-hub/hub/$hub_app/build/install/$hub_app .
 
 # set a sensible default for java's DNS cache

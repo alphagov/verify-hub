@@ -1,16 +1,16 @@
 server:
   applicationConnectors:
     - type: http
-      port: 80
+      port: ${POLICY_PORT}
   adminConnectors:
     - type: http
-      port: 81
+      port: 50111
   requestLog:
     appenders:
       - type: console
 
 logging:
-  level: ${LOG_LEVEL:-INFO}
+  level: INFO
   appenders:
     - type: console
 
@@ -18,15 +18,15 @@ logging:
 sessionStore:
   redis:
     recordTTL: PT150m
-    uri: redis://localhost:6379
+    uri: ${REDIS_URI:-redis://localhost:6378}
 
-eventSinkUri: ${EVENT_SINK_URL}
+eventSinkUri: http://${EVENT_SINK_HOST:-localhost}:${EVENT_SINK_PORT}
 
-samlEngineUri: ${SAML_ENGINE_URL}
+samlEngineUri: http://${SAML_ENGINE_HOST:-localhost}:${SAML_ENGINE_PORT}
 
-samlSoapProxyUri: ${SAML_SOAP_PROXY_URL}
+samlSoapProxyUri: http://${SAML_SOAP_PROXY_HOST:-localhost}:${SAML_SOAP_PROXY_PORT}
 
-configUri: ${CONFIG_URL}
+configUri: http://${CONFIG_HOST:-localhost}:${CONFIG_PORT}
 
 httpClient:
   timeout: 2s
@@ -60,9 +60,9 @@ clientTrustStoreConfiguration:
 eidas: true
 
 eventEmitterConfiguration:
-  enabled: ${EVENT_EMITTER_ENABLED}
-  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
-  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
+  enabled: false
+  accessKeyId: 'access_key'
+  secretAccessKey: 'secret_access_key'
   region: eu-west-2
-  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
-  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL}
+  encryptionKey: 'encryption_key'
+  apiGatewayUrl: 'api_gateway_url'

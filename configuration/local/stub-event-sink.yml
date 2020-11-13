@@ -1,16 +1,16 @@
 server:
   applicationConnectors:
     - type: http
-      port: 80
+      port: ${EVENT_SINK_PORT}
   adminConnectors:
     - type: http
-      port: 81
+      port: 50101
   requestLog:
     appenders:
       - type: console
 
 logging:
-  level: ${LOG_LEVEL:-INFO}
+  level: INFO
   appenders:
     - type: console
 
