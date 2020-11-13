@@ -17,7 +17,7 @@ logging:
 
 saml:
   entityId: ${METADATA_ENTITY_ID}
-  expectedDestination: ${FRONTEND_URI}
+  expectedDestination: ${FRONTEND_URL}
 
 redis:
   recordTTL: PT150m
@@ -89,7 +89,7 @@ country:
   enabled: ${EIDAS_ENABLED}
   saml:
     entityId: ${HUB_CONNECTOR_ENTITY_ID}
-    expectedDestination: ${FRONTEND_URI}/SAML2/SSO/EidasResponse/POST
+    expectedDestination: ${FRONTEND_URL}/SAML2/SSO/EidasResponse/POST
   metadata:
     trustAnchorUri: ${TRUST_ANCHOR_URI}
     metadataSourceUri: ${METADATA_SOURCE_URI}

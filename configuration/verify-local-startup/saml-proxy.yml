@@ -17,7 +17,7 @@ logging:
 
 saml:
   entityId: ${METADATA_ENTITY_ID}
-  expectedDestination: ${FRONTEND_URI}
+  expectedDestination: ${FRONTEND_URL}
 
 httpClient:
   timeout: 2s
