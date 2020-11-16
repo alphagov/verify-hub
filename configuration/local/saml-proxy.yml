@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: 80
+      port: ${SAML_PROXY_PORT}
   adminConnectors:
     - type: http
-      port: 81
+      port: 50221
   requestLog:
     appenders:
       - type: console
@@ -31,15 +31,13 @@ httpClient:
 
 enableRetryTimeOutConnections: true
 
-frontendExternalUri: ${FRONTEND_URL}
+frontendExternalUri: http://localhost:${FRONTEND_PORT}
 
-configUri: ${CONFIG_URL}
+configUri: http://${CONFIG_HOST:-localhost}:${CONFIG_PORT}
 
-certificatesConfigCacheExpiry: 1m
+eventSinkUri: http://${EVENT_SINK_HOST:-localhost}:${EVENT_SINK_PORT}
 
-eventSinkUri: ${EVENT_SINK_URL}
-
-policyUri: ${POLICY_URL}
+policyUri: http://${POLICY_HOST:-localhost}:${POLICY_PORT}
 
 serviceInfo:
   name: saml-proxy
@@ -51,7 +49,7 @@ rpTrustStoreConfiguration:
 metadataValidDuration: 1h
 
 metadata:
-  uri: ${METADATA_URL}
+  uri: http://${METADATA_HOST:-localhost}:${METADATA_PORT:-80}/dev.xml
   trustStorePath: /data/pki/metadata.ts
   trustStorePassword: marshmallow
   trustStore:
@@ -76,17 +74,21 @@ metadata:
     keepAlive: 60s
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true
 
 country:
-  enabled: ${EIDAS_ENABLED}
+  enabled: ${EIDAS_ENABLED:-false}
   metadata:
-    trustAnchorUri: ${TRUST_ANCHOR_URL}
+    trustAnchorUri: ${TRUST_ANCHOR_URI}
     metadataSourceUri: ${METADATA_SOURCE_URI}
     trustStore:
       store: /data/pki/metadata.ts
       password: marshmallow
     minRefreshDelay: 5000
-    maxRefreshDelay: 1800000
+    maxRefreshDelay: 60000
     jerseyClientName: country-metadata-client
     client:
       timeout: 2s
@@ -103,9 +105,9 @@ country:
         trustSelfSignedCertificates: true
 
 eventEmitterConfiguration:
-  enabled: ${EVENT_EMITTER_ENABLED}
-  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
-  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
+  enabled: ${EVENT_EMITTER_ENABLED:-false}
+  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID:-access_key}
+  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY:-secret_access_key}
   region: eu-west-2
-  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
-  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL}
+  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY:-encryption_key}
+  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL:-api_gateway_url}

@@ -8,6 +8,10 @@ dependencies {
             project(':hub:shared')
 }
 
+task intTest {
+    println 'No integration tests for stub-event-sink.'
+}
+
 apply plugin: 'application'
 ext.mainclass = 'uk.gov.ida.stub.event.sink.StubEventSinkApplication'
 mainClassName = ext.mainclass

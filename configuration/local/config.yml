@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: 80
+      port: ${CONFIG_PORT}
   adminConnectors:
     - type: http
-      port: 81
+      port: 50241
   requestLog:
     appenders:
       - type: console
@@ -18,7 +18,11 @@ logging:
 serviceInfo:
   name: config
 
+userHubSessionDuration: 90m
+
 rootDataDirectory: ${FED_CONFIG_PATH:-/data/stub-fed-config}
+
+translationsDirectory: ../display-locales/transactions
 
 clientTrustStoreConfiguration:
   path: /data/pki/hub.ts
@@ -27,3 +31,4 @@ clientTrustStoreConfiguration:
 rpTrustStoreConfiguration:
   path: ${RP_TRUST_STORE_PATH:-/data/pki/relying_parties.ts}
   password: marshmallow
+

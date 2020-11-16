@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: 80
+      port: ${SAML_SOAP_PROXY_PORT}
   adminConnectors:
     - type: http
-      port: 81
+      port: 50161
   requestLog:
     appenders:
       - type: console
@@ -15,7 +15,7 @@ logging:
     - type: console
 
 saml:
-  entityId: ${METADATA_ENTITY_ID}
+  entityId: https://local.signin.service.gov.uk
 
 httpClient:
   timeout: 2s
@@ -37,15 +37,6 @@ soapHttpClient:
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
-  retries: 3
-  retryBackoffPeriod: 1s
-  retryExceptionNames:
-    - java.net.SocketException
-    - java.net.SocketTimeoutException
-    - org.apache.http.NoHttpResponseException
-    - org.apache.http.conn.ConnectTimeoutException
-    - java.net.ConnectException
-    - org.apache.http.conn.HttpHostConnectException
 
 healthCheckSoapHttpClient:
   timeout: 2s
@@ -56,15 +47,13 @@ healthCheckSoapHttpClient:
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
-samlEngineUri: ${SAML_ENGINE_URL}
+samlEngineUri: http://${SAML_ENGINE_HOST:-localhost}:${SAML_ENGINE_PORT}
 
-configUri: ${CONFIG_URL}
+configUri: http://${CONFIG_HOST:-localhost}:${CONFIG_PORT}
 
-eventSinkUri: ${EVENT_SINK_URL}
+eventSinkUri: http://${EVENT_SINK_HOST:-localhost}:${EVENT_SINK_PORT}
 
-policyUri: ${POLICY_URL}
-
-certificatesConfigCacheExpiry: 1m
+policyUri: http://${POLICY_HOST:-localhost}:${POLICY_PORT}
 
 serviceInfo:
   name: saml-soap-proxy
@@ -79,7 +68,7 @@ rpTrustStoreConfiguration:
   password: marshmallow
 
 metadata:
-  uri: ${METADATA_URL}
+  uri: http://${METADATA_HOST:-localhost}:${METADATA_PORT:-80}/dev.xml
   trustStorePath: /data/pki/metadata.ts
   trustStorePassword: marshmallow
   trustStore:
@@ -103,11 +92,16 @@ metadata:
     keepAlive: 60s
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
+    tls:
+      protocol: TLSv1.2
+      verifyHostname: false
+      trustSelfSignedCertificates: true
 
 eventEmitterConfiguration:
-  enabled: ${EVENT_EMITTER_ENABLED}
-  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}
-  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY}
+  enabled: ${EVENT_EMITTER_ENABLED:-false}
+  accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID:-access_key}
+  secretAccessKey: ${EVENT_EMITTER_SECRET_ACCESS_KEY:-secret_access_key}
   region: eu-west-2
-  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY}
-  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL}
+  encryptionKey: ${EVENT_EMITTER_ENCRYPTION_KEY:-encryption_key}
+  apiGatewayUrl: ${EVENT_EMITTER_API_GATEWAY_URL:-api_gateway_url}
+  

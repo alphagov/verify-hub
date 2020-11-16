@@ -1,4 +1,5 @@
-FROM gradle:5.5.1-jdk11 as base-image
+FROM gradle:6.7.0-jdk11 as base-image
+
 USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
 
@@ -21,11 +22,11 @@ RUN gradle --console=plain \
     :hub:shared:build \
     :hub:shared:test
 
-FROM gradle:5.5.1-jdk11 as build-app
+FROM gradle:6.7.0-jdk11 as build-app
+ARG hub_app
 USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
 
-ARG hub_app
 WORKDIR /verify-hub
 
 # Copy artifacts from previous image
@@ -58,21 +59,22 @@ RUN gradle --console=plain \
 
 FROM openjdk:11.0.9.1-jre
 ARG hub_app
+ARG release=local-dev
+ARG conf_dir=configuration
 
 WORKDIR /verify-hub
 
-COPY configuration/$hub_app.yml /tmp/$hub_app.yml
+COPY $conf_dir/$hub_app.yml /tmp/$hub_app.yml
 COPY --from=build-app /verify-hub/hub/$hub_app/build/install/$hub_app .
 
 # set a sensible default for java's DNS cache
 # if left unset the default is to cache forever
 RUN echo "networkaddress.cache.ttl=5" >> /usr/local/openjdk-11/conf/security/java.security
 
-# Get the current git head reference and set it as
-# release for Sentry
-RUN export RELEASE_VER=$(git rev-parse HEAD)
-
-# ARG is not available at runtime so set an env var with
-# name of app/app-config to run
+# ARG is not available at runtime so set an env var with:
+# Name of app/app-config to run
 ENV HUB_APP $hub_app
-CMD bin/$HUB_APP server /tmp/$hub_app.yml
+# Sentry release information
+ENV RELEASE=$release
+
+CMD bin/$HUB_APP server /tmp/$HUB_APP.yml
