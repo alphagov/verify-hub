@@ -56,7 +56,7 @@ RUN gradle --console=plain \
     -x :hub-saml:jar \
     -x :hub-saml-test-utils:jar
 
-FROM openjdk:11.0.6-jre
+FROM openjdk:11.0.9.1-jre
 ARG hub_app
 
 WORKDIR /verify-hub
