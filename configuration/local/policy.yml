@@ -29,19 +29,19 @@ samlSoapProxyUri: http://${SAML_SOAP_PROXY_HOST:-localhost}:${SAML_SOAP_PROXY_PO
 configUri: http://${CONFIG_HOST:-localhost}:${CONFIG_PORT}
 
 httpClient:
-  timeout: 2s
+  timeout: 10s
   timeToLive: 10m
   cookiesEnabled: false
-  connectionTimeout: 1s
+  connectionTimeout: 2s
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
 
 samlSoapProxyClient:
-  timeout: 2s
+  timeout: 10s
   timeToLive: 10m
   cookiesEnabled: false
-  connectionTimeout: 1s
+  connectionTimeout: 2s
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s

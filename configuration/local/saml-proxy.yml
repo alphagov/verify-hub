@@ -20,11 +20,11 @@ saml:
   expectedDestination: ${FRONTEND_URL}
 
 httpClient:
-  timeout: 2s
+  timeout: 10s
   timeToLive: 10m
   cookiesEnabled: false
   connectionTimeout: 1s
-  retries: 3
+  retries: 5
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
@@ -66,11 +66,11 @@ metadata:
   expectedEntityId: https://dev-hub.local
   jerseyClientName: verify-metadata-client
   client:
-    timeout: 2s
+    timeout: 10s
     timeToLive: 10m
     cookiesEnabled: false
-    connectionTimeout: 1s
-    retries: 3
+    connectionTimeout: 2s
+    retries: 5
     keepAlive: 60s
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
@@ -91,11 +91,11 @@ country:
     maxRefreshDelay: 60000
     jerseyClientName: country-metadata-client
     client:
-      timeout: 2s
+      timeout: 10s
       timeToLive: 10m
       cookiesEnabled: false
-      connectionTimeout: 1s
-      retries: 3
+      connectionTimeout: 2s
+      retries: 5
       keepAlive: 60s
       chunkedEncodingEnabled: false
       validateAfterInactivityPeriod: 5s
