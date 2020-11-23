@@ -108,6 +108,7 @@ country:
   metadata:
     trustAnchorUri: https://www.${DOMAIN}/SAML2/metadata/trust-anchor
     metadataSourceUri: https://www.${DOMAIN}/SAML2/metadata/aggregator
+    trustAnchorMaxRefreshDelay: 300000
     trustStore:
       store: /tmp/truststores/${DEPLOYMENT}/metadata_ca_certs.ts
       trustStorePassword: puppet
