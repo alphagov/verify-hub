@@ -18,7 +18,7 @@ saml:
   entityId: https://local.signin.service.gov.uk
 
 httpClient:
-  timeout: 2s
+  timeout: 10s
   timeToLive: 10m
   cookiesEnabled: false
   connectionTimeout: 1s
@@ -37,9 +37,18 @@ soapHttpClient:
   keepAlive: 60s
   chunkedEncodingEnabled: false
   validateAfterInactivityPeriod: 5s
+  retries: 3
+  retryBackoffPeriod: 1s
+  retryExceptionNames:
+    - java.net.SocketException
+    - java.net.SocketTimeoutException
+    - org.apache.http.NoHttpResponseException
+    - org.apache.http.conn.ConnectTimeoutException
+    - java.net.ConnectException
+    - org.apache.http.conn.HttpHostConnectException
 
 healthCheckSoapHttpClient:
-  timeout: 2s
+  timeout: 10s
   timeToLive: 10m
   cookiesEnabled: false
   connectionTimeout: 2s
@@ -87,8 +96,8 @@ metadata:
     timeout: 2s
     timeToLive: 10m
     cookiesEnabled: false
-    connectionTimeout: 1s
-    retries: 3
+    connectionTimeout: 5s
+    retries: 5
     keepAlive: 60s
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s

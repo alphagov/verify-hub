@@ -320,7 +320,7 @@ public class MatchingServiceRequestSenderTest {
     }
 
     private void andPolicyShouldReceiveTheResult(SessionId sessionId, String resultPath) {
-        await().atMost(5, TimeUnit.SECONDS).until(() -> !policyStubRule.getRecordedRequest().isEmpty());
+        await().atMost(30, TimeUnit.SECONDS).until(() -> !policyStubRule.getRecordedRequest().isEmpty());
         RecordedRequest recordedRequest = policyStubRule.getLastRequest();
         String path = UriBuilder.fromPath(resultPath).build(sessionId).getPath();
         ExpectedRequest expectedRequest = ExpectedRequestBuilder.expectRequest().withPath(path).build();
