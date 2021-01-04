@@ -58,7 +58,6 @@ subprojects {
             maven { url 'https://dl.bintray.com/alphagov/maven' } // For dropwizard-logstash
             maven { url 'https://dl.bintray.com/alphagov/maven-test' } // For other public verify binaries
             maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
-            maven { url 'https://splunk.jfrog.io/splunk/ext-releases-local' }
             jcenter()
         } else {
             maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
@@ -95,7 +94,6 @@ subprojects {
         prometheus
         redis
         redis_test
-        splunk
         awssdk
         s3mock
     }
@@ -173,8 +171,6 @@ subprojects {
 
         redis('io.lettuce:lettuce-core:5.1.4.RELEASE')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
-
-        splunk('uk.gov.ida:splunk-library-javalogging:1.1.0')
 
         awssdk 'com.amazonaws:aws-java-sdk-s3:1.11.563'
 
