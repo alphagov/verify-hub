@@ -23,7 +23,7 @@ public class ExceptionFactory {
 
     public NotFoundException createNoDataForEntityException(String entityId) {
         final String message = format("''{0}'' - No data is configured for this entity.", entityId);
-        LOG.error(message);
+        LOG.warn(message);
         return new NotFoundException(message);
     }
     
