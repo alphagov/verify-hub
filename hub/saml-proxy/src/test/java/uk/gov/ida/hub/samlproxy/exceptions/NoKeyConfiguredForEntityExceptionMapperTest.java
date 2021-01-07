@@ -54,7 +54,7 @@ public class NoKeyConfiguredForEntityExceptionMapperTest {
     public void assertThatLogIsCreatedAtErrorLevelAndAuditIsSentToEventSink() {
         mapper.toResponse(exception);
 
-        verify(levelLogger).log(Level.ERROR, exception);
+        verify(levelLogger).log(Level.WARN, exception);
         verify(eventSinkMessageSender).audit(any(NoKeyConfiguredForEntityException.class), any(UUID.class), any(SessionId.class));
     }
 

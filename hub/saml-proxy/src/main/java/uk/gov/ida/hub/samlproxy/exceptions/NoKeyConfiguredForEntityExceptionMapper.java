@@ -34,7 +34,7 @@ public class NoKeyConfiguredForEntityExceptionMapper extends AbstractContextExce
     @Override
     public Response handleException(NoKeyConfiguredForEntityException exception) {
         UUID errorId = UUID.randomUUID();
-        levelLogger.log(Level.ERROR, exception);
+        levelLogger.log(Level.WARN, exception);
         eventSinkMessageSender.audit(exception, errorId, getSessionId().orElse(SessionId.NO_SESSION_CONTEXT_IN_ERROR));
 
         return Response.status(Response.Status.BAD_REQUEST)
