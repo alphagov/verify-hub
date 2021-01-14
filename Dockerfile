@@ -75,6 +75,6 @@ RUN echo "networkaddress.cache.ttl=5" >> /usr/local/openjdk-11/conf/security/jav
 # Name of app/app-config to run
 ENV HUB_APP $hub_app
 # Sentry release information
-ENV RELEASE=$release
+ENV RELEASE $release
 
 CMD bin/$HUB_APP server /tmp/$HUB_APP.yml
