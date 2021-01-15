@@ -76,6 +76,7 @@ RUN echo "networkaddress.cache.ttl=5" >> /usr/local/openjdk-11/conf/security/jav
 ENV HUB_APP $hub_app
 # Sentry release information
 ENV SENTRY_RELEASE $release
-ENV SENTRY_DIST x86
+RUN echo release = $release
+ENV SENTRY_DIST amd64
 
 CMD bin/$HUB_APP server /tmp/$HUB_APP.yml
