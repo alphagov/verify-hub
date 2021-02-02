@@ -174,7 +174,7 @@ public class SamlEngineModule extends AbstractModule {
     public static final String FED_METADATA_ENTITY_SIGNATURE_VALIDATOR = "verifySignatureValidator";
     public static final String VERIFY_METADATA_SIGNATURE_TRUST_ENGINE = "VerifyMetadataSignatureTrustEngine";
     public static final String VSP_VERSION_METRIC = "verify_saml_engine_vsp_version";
-    public static final String VSP_VERSION_METRIC_HELP = "VSP version reported from incoming Authn requests";
+    public static final String VSP_VERSION_METRIC_HELP = "VSP version by entityId, reported from incoming Authn requests";
     private HubTransformersFactory hubTransformersFactory = new HubTransformersFactory();
 
     @Override
