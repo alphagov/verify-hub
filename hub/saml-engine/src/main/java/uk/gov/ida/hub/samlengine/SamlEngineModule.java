@@ -17,6 +17,7 @@ import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.masterslave.MasterSlave;
 import io.lettuce.core.masterslave.StatefulRedisMasterSlaveConnection;
+import io.prometheus.client.Gauge;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import org.joda.time.DateTime;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
@@ -172,6 +173,8 @@ public class SamlEngineModule extends AbstractModule {
     public static final String VERIFY_METADATA_RESOLVER = "VerifyMetadataResolver";
     public static final String FED_METADATA_ENTITY_SIGNATURE_VALIDATOR = "verifySignatureValidator";
     public static final String VERIFY_METADATA_SIGNATURE_TRUST_ENGINE = "VerifyMetadataSignatureTrustEngine";
+    public static final String VSP_VERSION_METRIC = "verify_saml_engine_vsp_version";
+    public static final String VSP_VERSION_METRIC_HELP = "VSP version reported from incoming Authn requests";
     private HubTransformersFactory hubTransformersFactory = new HubTransformersFactory();
 
     @Override
@@ -826,6 +829,15 @@ public class SamlEngineModule extends AbstractModule {
     @Singleton
     private IdpAssertionMetricsCollector metricsCollector(Environment environment) {
         return new IdpAssertionMetricsCollector(environment.metrics());
+    }
+
+    @Provides
+    @Singleton
+    @Named("VspVersionGauge")
+    private Gauge vspVersionGauge() {
+        return Gauge.build(VSP_VERSION_METRIC, VSP_VERSION_METRIC_HELP)
+            .labelNames("entityId", "version")
+            .register();
     }
 
     private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){
