@@ -1,4 +1,4 @@
-FROM govukverify/java8
+FROM ghcr.io/alphagov/verify/java:openjdk-11
 
 ARG config_location
 ARG app_name
