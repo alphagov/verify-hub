@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.samlengine.services;
 
+import io.prometheus.client.Gauge;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -23,6 +24,8 @@ import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.samlengine.builders.AuthnRequestFromRelyingPartyBuilder.anAuthnRequestFromRelyingParty;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PRIVATE_SIGNING_KEY;
@@ -40,9 +43,19 @@ public class RpAuthnRequestTranslatorServiceTest {
     @Mock
     private AuthnRequestToIdaRequestFromRelyingPartyTransformer samlAuthnRequestToAuthnRequestFromRelyingPartyTransformer;
 
+    @Mock
+    private Gauge vspVersionGauge;
+
+    @Mock
+    private Gauge.Child childGauge;
+
     @Test
-    public void shouldTranslateSamlAuthnRequest() throws Exception {
-        RpAuthnRequestTranslatorService service = new RpAuthnRequestTranslatorService(stringToAuthnRequestTransformer, samlAuthnRequestToAuthnRequestFromRelyingPartyTransformer);
+    public void shouldTranslateSamlAuthnRequest()  {
+        RpAuthnRequestTranslatorService service = new RpAuthnRequestTranslatorService(
+                stringToAuthnRequestTransformer,
+                samlAuthnRequestToAuthnRequestFromRelyingPartyTransformer,
+                vspVersionGauge
+            );
 
         boolean forceAuthentication = true;
         String id = UUID.randomUUID().toString();
@@ -82,9 +95,16 @@ public class RpAuthnRequestTranslatorServiceTest {
 
         when(stringToAuthnRequestTransformer.apply(samlRequestWithAuthnRequestInformationDto.getSamlMessage())).thenReturn(authnRequest);
         when(samlAuthnRequestToAuthnRequestFromRelyingPartyTransformer.apply(authnRequest)).thenReturn(intermediateBlah);
+        when(vspVersionGauge.labels(anyString(), anyString())).thenReturn(childGauge);
 
         TranslatedAuthnRequestDto actual = service.translate(samlRequestWithAuthnRequestInformationDto);
 
         assertThat(actual).isEqualToComparingFieldByField(expected);
+
+        verify(vspVersionGauge).labels(
+                intermediateBlah.getIssuer(),
+                intermediateBlah.getVerifyServiceProviderVersion().get()
+            );
+        verify(childGauge).set(1.0);
     }
 }
