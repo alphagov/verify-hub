@@ -1,4 +1,4 @@
-package uk.gov.ida.saml.hub.validators.response.idp;
+package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -20,12 +20,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.AttributeAuthorityDescriptor;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.saml.core.security.AssertionsDecrypters;
-import uk.gov.ida.saml.core.validators.DestinationValidator;
-import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
-import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.security.AssertionDecrypter;
 import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
 import uk.gov.ida.saml.security.exception.SamlFailedToDecryptException;
@@ -46,9 +43,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
-
 @RunWith(MockitoJUnitRunner.class)
-public class IdpResponseValidatorTest {
+public class MatchingServiceResponseValidatorTest {
     @Mock
     private SamlResponseSignatureValidator samlResponseSignatureValidator;
     @Mock
@@ -58,11 +54,9 @@ public class IdpResponseValidatorTest {
     @Mock
     private SamlAssertionsSignatureValidator samlAssertionsSignatureValidator;
     @Mock
-    private EncryptedResponseFromIdpValidator encryptedResponseFromIdpValidator;
+    private EncryptedResponseFromMatchingServiceValidator encryptedResponseFromMatchingServiceValidator;
     @Mock
-    private DestinationValidator responseDestinationValidator;
-    @Mock
-    private ResponseAssertionsFromIdpValidator responseAssertionsFromIdpValidator;
+    private ResponseAssertionsFromMatchingServiceValidator responseAssertionsFromMatchingServiceValidator;
     @Mock
     private Response response;
     @Mock
@@ -70,54 +64,45 @@ public class IdpResponseValidatorTest {
 
     @Captor
     private ArgumentCaptor<LoggingEvent> captorLoggingEvent;
-
     @Rule
     public final ExpectedException samlValidationException = ExpectedException.none();
 
-    private IdpResponseValidator validator;
-
+    private MatchingServiceResponseValidator validator;
 
     @Before
     public void setUp() {
-        validator = new IdpResponseValidator(
+        validator = new MatchingServiceResponseValidator(
+            encryptedResponseFromMatchingServiceValidator,
             samlResponseSignatureValidator, 
             new AssertionsDecrypters(
                     List.of(
-                            assertionDecrypter, 
+                            assertionDecrypter,
                             badAssertionDecrypter
                     )
             ),
             samlAssertionsSignatureValidator,
-            encryptedResponseFromIdpValidator,
-            responseDestinationValidator,
-            responseAssertionsFromIdpValidator
-        );
-        final Logger logger = (Logger) LoggerFactory.getLogger(IdpResponseValidator.class.getSimpleName());
+            responseAssertionsFromMatchingServiceValidator);
+        final Logger logger = (Logger) LoggerFactory.getLogger(MatchingServiceResponseValidator.class.getSimpleName());
         logger.addAppender(mockAppender);
         logger.setLevel(Level.WARN);
     }
-    
+
     @After
     public void tearDown() {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.detachAppender(mockAppender);
     }
+    
     @Test
     public void shouldValidateResponseIsEncrypted() {
         validator.validate(response);
-        verify(encryptedResponseFromIdpValidator).validate(response);
-    }
-
-    @Test
-    public void shouldValidateResponseDestination() {
-        validator.validate(response);
-        verify(responseDestinationValidator).validate(response.getDestination());
+        verify(encryptedResponseFromMatchingServiceValidator).validate(response);
     }
 
     @Test
     public void shouldValidateSamlResponseSignature() {
         validator.validate(response);
-        verify(samlResponseSignatureValidator).validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+        verify(samlResponseSignatureValidator).validate(response, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
     }
 
     @Test
@@ -126,69 +111,69 @@ public class IdpResponseValidatorTest {
         List<Assertion> assertions = ImmutableList.of(assertion);
         ValidatedResponse validatedResponse = mock(ValidatedResponse.class);
         
-        when(samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(validatedResponse);
+        when(samlResponseSignatureValidator.validate(response, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(validatedResponse);
         when(assertionDecrypter.decryptAssertions(validatedResponse)).thenReturn(assertions);
-        
+
         validator.validate(response);
 
-        verify(samlAssertionsSignatureValidator).validate(assertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+        verify(samlAssertionsSignatureValidator).validate(assertions, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME);
     }
-
+    
     @Test
     public void shouldIncrementCounterWheneverADecrypterFailsToDecrypt() throws Exception {
         String issuerValue = "issuerValue";
         Assertion assertion = mock(Assertion.class);
         List<Assertion> assertions = ImmutableList.of(assertion);
         ValidatedResponse validatedResponse = mock(ValidatedResponse.class);
-     
+
         Issuer responseIssuer = mock(Issuer.class);
-        Counter idpDecryptionErrorCounter = mock(Counter.class);
+        Counter msaDecryptionErrorCounter = mock(Counter.class);
         Counter.Child childCounter = mock(Counter.Child.class);
-        
-        setFinalStatic(IdpResponseValidator.class.getDeclaredField("idpDecryptionErrorCounter"), idpDecryptionErrorCounter);
+
+        setFinalStatic(MatchingServiceResponseValidator.class.getDeclaredField("msaDecryptionErrorCounter"), msaDecryptionErrorCounter);
 
         when(validatedResponse.getIssuer()).thenReturn(responseIssuer);
         when(responseIssuer.getValue()).thenReturn(issuerValue);
-        when(samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(validatedResponse);
+        when(samlResponseSignatureValidator.validate(response, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(validatedResponse);
         when(assertionDecrypter.decryptAssertions(validatedResponse)).thenThrow(SamlFailedToDecryptException.class);
         when(badAssertionDecrypter.decryptAssertions(validatedResponse)).thenReturn(assertions);
-        when(idpDecryptionErrorCounter.labels(anyString())).thenReturn(childCounter);
+        when(msaDecryptionErrorCounter.labels(anyString())).thenReturn(childCounter);
         doNothing().when(childCounter).inc();
 
         validator.validate(response);
 
-        String expectedMessage = String.format("IdpResponseValidator failed to decrypt assertions from issuerValue with one of the decrypters", issuerValue);
+        String expectedMessage = String.format("MatchingServiceResponseValidator failed to decrypt assertions from issuerValue with one of the decrypters", issuerValue);
         verify(mockAppender).doAppend(captorLoggingEvent.capture());
         LoggingEvent loggingEvent = captorLoggingEvent.getValue();
         assertThat(loggingEvent.getLevel()).isEqualTo(Level.WARN);
         assertThat(loggingEvent.getFormattedMessage()).isEqualTo(expectedMessage);
-        
-        verify(idpDecryptionErrorCounter).labels(validatedResponse.getIssuer().getValue());
+
+        verify(msaDecryptionErrorCounter).labels(validatedResponse.getIssuer().getValue());
         verify(childCounter).inc();
     }
-    
+
     @Test
     public void shouldThrowIfAllDecryptersFail() throws Exception {
         String issuerValue = "issuerValue";
         ValidatedResponse validatedResponse = mock(ValidatedResponse.class);
 
         Issuer responseIssuer = mock(Issuer.class);
-        Counter idpDecryptionErrorCounter = mock(Counter.class);
+        Counter msaDecryptionErrorCounter = mock(Counter.class);
         Counter.Child childCounter = mock(Counter.Child.class);
-        setFinalStatic(IdpResponseValidator.class.getDeclaredField("idpDecryptionErrorCounter"), idpDecryptionErrorCounter);
+        setFinalStatic(MatchingServiceResponseValidator.class.getDeclaredField("msaDecryptionErrorCounter"), msaDecryptionErrorCounter);
 
         when(validatedResponse.getIssuer()).thenReturn(responseIssuer);
         when(responseIssuer.getValue()).thenReturn(issuerValue);
-        when(samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(validatedResponse);
+        when(samlResponseSignatureValidator.validate(response, AttributeAuthorityDescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(validatedResponse);
         when(assertionDecrypter.decryptAssertions(validatedResponse)).thenThrow(SamlFailedToDecryptException.class);
         when(badAssertionDecrypter.decryptAssertions(validatedResponse)).thenThrow(SamlFailedToDecryptException.class);
-        when(idpDecryptionErrorCounter.labels(anyString())).thenReturn(childCounter);
+        when(msaDecryptionErrorCounter.labels(anyString())).thenReturn(childCounter);
         doNothing().when(childCounter).inc();
 
         SamlFailedToDecryptException exception = assertThrows(SamlFailedToDecryptException.class, () -> validator.validate(response));
-        assertEquals(exception.getMessage(), String.format("IdpResponseValidator could not decrypt assertions from %s with any of the decrypters", issuerValue));
-        
-        verify(idpDecryptionErrorCounter, times(2)).labels(validatedResponse.getIssuer().getValue());
+        assertEquals(exception.getMessage(), String.format("MatchingServiceResponseValidator could not decrypt assertions from %s with any of the decrypters", issuerValue));
+
+        verify(msaDecryptionErrorCounter, times(2)).labels(validatedResponse.getIssuer().getValue());
         verify(childCounter, times(2)).inc();
     }
 
