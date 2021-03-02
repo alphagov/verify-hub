@@ -83,7 +83,7 @@ public class PrometheusMetricsIntegrationTest {
     private static final String MSA_TWO_ENTITY_ID = "https://ms-two.local/SAML2/MD";
     private static final String MSA_THREE_ENTITY_ID = "https://ms-three.local/SAML2/MD";
     private static final String MSA_FOUR_ENTITY_ID = "https://ms-four.local/SAML2/MD";
-    private static final String MSA_ONE_VERSION = "3.1.0-840";
+    private static final String MSA_ONE_VERSION = "5.1.0-5.1.0";
     private static final String MSA_TWO_VERSION = "33.3";
     private static final String MSA_FOUR_VERSION = "592";
     private static final String MSA_ONE_VERSION_SUPPORTED = "true";
