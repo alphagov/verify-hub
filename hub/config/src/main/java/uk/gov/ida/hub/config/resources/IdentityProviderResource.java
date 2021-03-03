@@ -133,6 +133,7 @@ public class IdentityProviderResource {
                                 configData.getSimpleId(),
                                 configData.getEntityId(),
                                 configData.getProvideRegistrationUntil(),
+                                configData.getProvideAuthenticationUntil(),
                                 configData.getSupportedLevelsOfAssurance(),
                                 configData.isAuthenticationEnabled(),
                                 configData.isTemporarilyUnavailable()))
