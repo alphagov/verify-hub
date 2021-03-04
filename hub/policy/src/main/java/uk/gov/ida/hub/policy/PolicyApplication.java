@@ -93,7 +93,5 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
         environment.jersey().register(SessionResource.class);
         environment.jersey().register(MatchingServiceResponseResource.class);
         environment.jersey().register(MatchingServiceFailureResponseResource.class);
-        if (configuration.isEidasEnabled()) {
-        }
     }
 }

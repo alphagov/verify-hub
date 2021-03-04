@@ -122,7 +122,6 @@ public class MatchingServiceResourcesIntegrationTest {
         configStub.setupStubForEnabledIdps(rpEntityId, REGISTERING, LEVEL_2, singletonList(idpEntityId));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
         configStub.setUpStubForMatchingServiceEntityId(rpEntityId, msaEntityId);
-        configStub.setupStubForEidasEnabledForTransaction(rpEntityId, false);
         eventSinkStub.setupStubForLogging();
     }
 

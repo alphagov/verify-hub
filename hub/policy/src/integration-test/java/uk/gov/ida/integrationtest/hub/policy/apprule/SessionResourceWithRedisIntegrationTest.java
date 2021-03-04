@@ -81,7 +81,6 @@ public class SessionResourceWithRedisIntegrationTest {
             ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()));
 
-    private final String countryEntityId = "countryEntityId";
     private final String idpEntityId = "idpEntityId";
     private final String rpEntityId = "rpEntityId";
     private final URI idpSsoUri = UriBuilder.fromPath("idpSsoUri").build();
@@ -104,7 +103,6 @@ public class SessionResourceWithRedisIntegrationTest {
         configStub.setupStubForEnabledIdps(rpEntityId, REGISTERING, REQUESTED_LOA, singletonList(idpEntityId));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
         configStub.setUpStubForMatchingServiceEntityId(rpEntityId, msEntityId);
-        configStub.setupStubForEidasEnabledForTransaction(rpEntityId, true);
         eventSinkStub.setupStubForLogging();
     }
 

@@ -5,6 +5,7 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AbstractSuccessfulMatchState;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
+import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
 
@@ -15,15 +16,50 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
 
+import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.NonMatchingJourneySuccessStateBuilder.aNonMatchingJourneySuccessStateBuilder;
 import static uk.gov.ida.hub.policy.builder.state.SuccessfulMatchStateBuilder.aSuccessfulMatchState;
 
 public class TestSessionResourceHelper {
 
-    public static Response createSessionInIdpSelectedState(SessionId sessionId, String issuerId, String idpEntityId, Client client, URI uri) {
-        return createSessionInIdpSelectedState(sessionId, issuerId, idpEntityId, client, uri);
-    }
+    public static Response createSessionInIdpSelectedState(
+            SessionId sessionId,
+            String issuerId,
+            String idpEntityId,
+            Client client,
+            URI uri) {
 
+        IdpSelectedState idpSelectedState = anIdpSelectedState()
+                .withRequestIssuerEntityId(issuerId)
+                .withIdpEntityId(idpEntityId)
+                .withSessionId(sessionId)
+                .withRegistration(true)
+                .build();
+
+        TestSessionDto testSessionDto = new TestSessionDto(
+                sessionId,
+                idpSelectedState.getRequestId(),
+                idpSelectedState.getSessionExpiryTimestamp(),
+                idpSelectedState.getIdpEntityId(),
+                null,
+                idpSelectedState.getRelayState().orElse(null),
+                idpSelectedState.getRequestIssuerEntityId(),
+                idpSelectedState.getAssertionConsumerServiceUri(),
+                idpSelectedState.getLevelsOfAssurance(),
+                idpSelectedState.getUseExactComparisonType(),
+                idpSelectedState.isRegistering(),
+                idpSelectedState.getRequestedLoa(),
+                idpSelectedState.getForceAuthentication().orElse(null),
+                idpSelectedState.getAvailableIdentityProviders(),
+                null,
+                null
+        );
+
+        return client
+                .target(uri)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.json(testSessionDto));
+    }
 
     public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String requestIssuerEntityId, String idpEntityId, Client client, URI uri) {
         SuccessfulMatchState successfulMatchState = aSuccessfulMatchState()

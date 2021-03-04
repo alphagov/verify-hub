@@ -95,7 +95,6 @@ import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStr
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
-import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.security.EncrypterFactory;
 import uk.gov.ida.saml.security.EncryptionKeyStore;
@@ -128,8 +127,6 @@ import static java.util.Collections.singletonList;
 public class SamlEngineModule extends AbstractModule {
 
     private static final String REDIS_OBJECT_MAPPER = "RedisObjectMapper";
-    public static final String COUNTRY_METADATA_HEALTH_CHECK = "CountryMetadataHealthCheck";
-    public static final String EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE = "eIDAS hub entity id is not configured";
     public static final String VERIFY_METADATA_RESOLVER = "VerifyMetadataResolver";
     public static final String FED_METADATA_ENTITY_SIGNATURE_VALIDATOR = "verifySignatureValidator";
     public static final String VERIFY_METADATA_SIGNATURE_TRUST_ENGINE = "VerifyMetadataSignatureTrustEngine";
@@ -185,12 +182,6 @@ public class SamlEngineModule extends AbstractModule {
     public PassthroughAssertionUnmarshaller getPassthroughAssertionUnmarshaller() {
         return new PassthroughAssertionUnmarshaller(new XmlObjectToBase64EncodedStringTransformer<>(), new AuthnContextFactory());
     }
-
-    @Provides
-    public Optional<DestinationValidator> getValidateSamlResponseIssuedByIdpDestination(@Named("ExpectedEidasDestination") Optional<URI> expectedDestination) {
-        return expectedDestination.map(d -> new DestinationValidator(d, Urls.FrontendUrls.SAML2_SSO_EIDAS_RESPONSE_ENDPOINT));
-    }
-
 
     @Provides
     @Named("VERIFY_METADATA_REFRESH_TASK")
@@ -560,12 +551,4 @@ public class SamlEngineModule extends AbstractModule {
             .register();
     }
 
-    private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){
-        environment.admin().addTask(new Task(name + "-refresh") {
-            @Override
-            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) {
-                eidasMetadataResolverRepository.refresh();
-            }
-        });
-    }
 }

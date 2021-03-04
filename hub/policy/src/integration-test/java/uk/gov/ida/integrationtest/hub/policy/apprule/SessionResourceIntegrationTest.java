@@ -83,7 +83,6 @@ public class SessionResourceIntegrationTest {
             ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
             ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()));
 
-    private final String countryEntityId = "countryEntityId";
     private final String idpEntityId = "idpEntityId";
     private final String rpEntityId = "rpEntityId";
     private final URI idpSsoUri = UriBuilder.fromPath("idpSsoUri").build();
@@ -106,7 +105,6 @@ public class SessionResourceIntegrationTest {
         configStub.setupStubForEnabledIdps(rpEntityId, REGISTERING, REQUESTED_LOA, singletonList(idpEntityId));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
         configStub.setUpStubForMatchingServiceEntityId(rpEntityId, msEntityId);
-        configStub.setupStubForEidasEnabledForTransaction(rpEntityId, true);
         eventSinkStub.setupStubForLogging();
     }
 
@@ -255,32 +253,6 @@ public class SessionResourceIntegrationTest {
         assertThat(responseForRp.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         AuthnResponseFromHubContainerDto authnResponseFromHub = responseForRp.readEntity
                 (AuthnResponseFromHubContainerDto.class);
-        assertThat(authnResponseFromHub).isEqualToComparingFieldByField(expectedAuthnResponseFromHub);
-    }
-
-    @Test
-    public void shouldGetRpResponseGivenASessionInNonMatchingJourneySuccessStateWithUnsignedAssertions() throws JsonProcessingException {
-        SessionId sessionId = SessionId.createNewSessionId();
-        Response sessionCreatedResponse = TestSessionResourceHelper
-                .createSessionInNonMatchingJourneySuccessState(
-                        sessionId,
-                        client,
-                        policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + NON_MATCHING_JOURNEY_SUCCESS_STATE).build().toASCIIString()),
-                        rpEntityId
-                );
-        assertThat(sessionCreatedResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        AuthnResponseFromHubContainerDto expectedAuthnResponseFromHub = anAuthnResponseFromHubContainerDto()
-                .withSamlResponse("samlResponseWrappingOriginalCountrySamlResponse")
-                .build();
-        samlEngineStub.setUpStubForAuthnResponseWrappingCountryResponseGenerate(expectedAuthnResponseFromHub);
-
-        URI rpAuthResponseUri = UriBuilder.fromPath(Urls.PolicyUrls.RP_AUTHN_RESPONSE_RESOURCE).build(sessionId);
-        Response responseForRp = client
-                .target(policy.uri(rpAuthResponseUri.toASCIIString())).request().get();
-
-        assertThat(responseForRp.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        AuthnResponseFromHubContainerDto authnResponseFromHub = responseForRp.readEntity(AuthnResponseFromHubContainerDto.class);
         assertThat(authnResponseFromHub).isEqualToComparingFieldByField(expectedAuthnResponseFromHub);
     }
 

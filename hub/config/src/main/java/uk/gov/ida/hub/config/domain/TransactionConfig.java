@@ -66,14 +66,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     protected List<LevelOfAssurance> levelsOfAssurance;
 
     @Valid
-    @JsonProperty
-    protected boolean eidasEnabled;
-
-    @Valid
-    @JsonProperty
-    private List<String> eidasCountries;
-
-    @Valid
     @NotNull
     @JsonProperty
     protected boolean shouldHubSignResponseMessages = false;
@@ -102,10 +94,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
 
     @Valid
     @JsonProperty
-    protected boolean eidasProxyNode = false;
-
-    @Valid
-    @JsonProperty
     protected boolean selfService = false;
 
     private CertificateOrigin certificateOrigin = CertificateOrigin.FEDERATION;
@@ -115,21 +103,21 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     }
 
     @JsonProperty
-    protected void setEncryptionCertificate(JsonNode node){
-        if (node.isTextual()){
+    protected void setEncryptionCertificate(JsonNode node) {
+        if (node.isTextual()) {
             encryptionCertificate = node.textValue();
-        }else{
+        } else {
             encryptionCertificate = node.get("x509").textValue();
         }
     }
 
     @JsonProperty
-    protected void setSignatureVerificationCertificates(JsonNode node){
+    protected void setSignatureVerificationCertificates(JsonNode node) {
         signatureVerificationCertificates = new ArrayList<>();
         for (JsonNode n : node) {
-            if (n.isTextual()){
+            if (n.isTextual()) {
                 signatureVerificationCertificates.add(n.textValue());
-            }else{
+            } else {
                 signatureVerificationCertificates.add(n.get("x509").textValue());
             }
         }
@@ -239,14 +227,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return ofNullable(simpleId);
     }
 
-    public boolean isEidasEnabled() {
-        return eidasEnabled;
-    }
-
-    public Optional<List<String>> getEidasCountries() {
-        return ofNullable(eidasCountries);
-    }
-
     public URI getHeadlessStartpage() {
         return headlessStartpage;
     }
@@ -260,10 +240,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         return usingMatching;
     }
 
-    public boolean isEidasProxyNode() {
-        return eidasProxyNode;
-    }
-
     public boolean isSelfService() {
         return selfService;
     }
@@ -273,7 +249,7 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
     }
 
     @Override
-    public TransactionConfig override(List<String> signatureVerificationCertificates, String encryptionCertificate, CertificateOrigin certificateOrigin){
+    public TransactionConfig override(List<String> signatureVerificationCertificates, String encryptionCertificate, CertificateOrigin certificateOrigin) {
         TransactionConfig clone = new TransactionConfig();
 
         clone.assertionConsumerServices = this.assertionConsumerServices;
@@ -286,8 +262,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         clone.matchingProcess = this.matchingProcess;
         clone.matchingServiceEntityId = this.matchingServiceEntityId;
         clone.levelsOfAssurance = this.levelsOfAssurance;
-        clone.eidasEnabled = this.eidasEnabled;
-        clone.eidasCountries = this.eidasCountries;
         clone.shouldHubSignResponseMessages = this.shouldHubSignResponseMessages;
         clone.shouldHubUseLegacySamlStandard = this.shouldHubUseLegacySamlStandard;
         clone.signatureVerificationCertificates = signatureVerificationCertificates;
@@ -295,7 +269,6 @@ public class TransactionConfig implements CertificateConfigurable<TransactionCon
         clone.headlessStartpage = this.headlessStartpage;
         clone.singleIdpStartpage = this.singleIdpStartpage;
         clone.usingMatching = this.usingMatching;
-        clone.eidasProxyNode = this.eidasProxyNode;
         clone.selfService = this.selfService;
         clone.certificateOrigin = certificateOrigin;
 

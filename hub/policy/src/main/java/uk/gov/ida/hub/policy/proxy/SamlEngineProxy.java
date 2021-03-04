@@ -51,14 +51,6 @@ public class SamlEngineProxy {
         return jsonClient.post(authnRequestFromHub, uri, SamlRequestDto.class);
     }
 
-    public SamlRequestDto generateCountryAuthnRequestFromHub(IdaAuthnRequestFromHubDto authnRequestFromHub) {
-        URI uri = UriBuilder
-                .fromUri(samlEngineUri)
-                .path(Urls.SamlEngineUrls.GENERATE_COUNTRY_AUTHN_REQUEST_RESOURCE)
-                .build();
-        return jsonClient.post(authnRequestFromHub, uri, SamlRequestDto.class);
-    }
-
     public InboundResponseFromIdpDto translateAuthnResponseFromIdp(SamlAuthnResponseTranslatorDto samlResponseDto) {
         URI uri = UriBuilder
                 .fromUri(samlEngineUri)

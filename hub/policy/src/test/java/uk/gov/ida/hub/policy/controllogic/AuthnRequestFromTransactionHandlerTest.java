@@ -42,7 +42,6 @@ import static org.mockito.Mockito.when;
 public class AuthnRequestFromTransactionHandlerTest {
     private static final String ANALYTICS_SESSION_ID = "anAnalyticsSessionId";
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("https://assertionConsumerServiceUri");
-    private static final String COUNTRY_ENTITY_ID = "aCountryEntityId";
     private static final String ENCRYPTED_KEY = "base64EncryptedKey";
     private static final String GENERATED_ID = "generatedId";
     private static final String IDP_ENTITY_ID = "anIdpEntityId";

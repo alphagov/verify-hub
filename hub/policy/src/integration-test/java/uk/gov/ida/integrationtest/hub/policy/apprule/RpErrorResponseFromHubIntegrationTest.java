@@ -71,7 +71,6 @@ public class RpErrorResponseFromHubIntegrationTest {
 
         eventSinkStub.setupStubForLogging();
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
-        configStub.setupStubForEidasEnabledForTransaction(rpEntityId, false);
     }
 
     @Test

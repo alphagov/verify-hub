@@ -24,10 +24,6 @@ public class SamlEngineStubRule extends HttpStubRule {
         register(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
     }
 
-    public void setUpStubForAuthnResponseWrappingCountryResponseGenerate(AuthnResponseFromHubContainerDto translatedMessage) throws JsonProcessingException {
-        register(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
-    }
-
     public void setupStubForAuthnRequestTranslate(SamlResponseWithAuthnRequestInformationDto translatedMessage) throws JsonProcessingException {
         register(Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
     }
@@ -50,10 +46,6 @@ public class SamlEngineStubRule extends HttpStubRule {
 
     public void setupStubForIdpAuthnResponseTranslateReturningError(ErrorStatusDto errorStatusDto) throws JsonProcessingException {
         register(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE, Response.Status.BAD_REQUEST.getStatusCode(), errorStatusDto);
-    }
-
-    public void setupStubForCountryAuthnResponseTranslationFailure() throws JsonProcessingException {
-        register(Urls.SamlEngineUrls.TRANSLATE_COUNTRY_AUTHN_RESPONSE_RESOURCE, Response.Status.BAD_REQUEST.getStatusCode(), "");
     }
 
     public void setupStubForAttributeResponseTranslate(InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto) throws JsonProcessingException {

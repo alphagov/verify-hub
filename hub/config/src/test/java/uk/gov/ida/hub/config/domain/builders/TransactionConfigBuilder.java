@@ -35,15 +35,10 @@ public class TransactionConfigBuilder {
     private String otherWaysDescription = "default other ways description";
     private URI serviceHomepage = URI.create("/service-uri");
     private String rpName = "Default RP name";
-    private boolean eidasEnabled = false;
     private URI headlessStartPage = URI.create("/headless-start-uri");
     private URI singleIdpStartPage;
     private boolean usingMatching = true;
-    private boolean eidasProxyNode = false;
     private boolean selfService = false;
-
-
-
 
     public static TransactionConfigBuilder aTransactionConfigData() {
         return new TransactionConfigBuilder();
@@ -70,13 +65,11 @@ public class TransactionConfigBuilder {
                 matchingProcess,
                 enabled,
                 enabledForSingleIdp,
-                eidasEnabled,
                 shouldHubSignResponseMessages,
                 levelsOfAssurance,
                 headlessStartPage,
                 singleIdpStartPage,
                 usingMatching,
-                eidasProxyNode,
                 selfService
         );
     }
@@ -93,11 +86,6 @@ public class TransactionConfigBuilder {
 
     public TransactionConfigBuilder withSimpleId(String simpleId) {
         this.simpleId = simpleId;
-        return this;
-    }
-
-    public TransactionConfigBuilder withIsEidasProxyNode(boolean isEidasProxyNode) {
-        this.eidasProxyNode = isEidasProxyNode;
         return this;
     }
 
@@ -138,11 +126,6 @@ public class TransactionConfigBuilder {
 
     public TransactionConfigBuilder withEnabledForSingleIdp(boolean singleIdpEnabled) {
         this.enabledForSingleIdp = singleIdpEnabled;
-        return this;
-    }
-
-    public TransactionConfigBuilder withEidasEnabled(boolean eidasEnabled) {
-        this.eidasEnabled = eidasEnabled;
         return this;
     }
 
@@ -196,13 +179,11 @@ public class TransactionConfigBuilder {
                 MatchingProcess matchingProcess,
                 boolean enabled,
                 boolean enabledForSingleIdp,
-                boolean eidasEnabled,
                 boolean shouldHubSignResponseMessages,
                 List<LevelOfAssurance> levelsOfAssurance,
                 URI headlessStartPage,
                 URI singleIdpStartPage,
                 boolean usingMatching,
-                boolean eidasProxyNode,
                 boolean selfService
                 ) {
             this.serviceHomepage = serviceHomepage;
@@ -216,13 +197,11 @@ public class TransactionConfigBuilder {
             this.matchingProcess = matchingProcess;
             this.enabled = enabled;
             this.enabledForSingleIdp = enabledForSingleIdp;
-            this.eidasEnabled = eidasEnabled;
             this.shouldHubSignResponseMessages = shouldHubSignResponseMessages;
             this.levelsOfAssurance = levelsOfAssurance;
             this.headlessStartpage = headlessStartPage;
             this.singleIdpStartpage = singleIdpStartPage;
             this.usingMatching = usingMatching;
-            this.eidasProxyNode = eidasProxyNode;
             this.selfService = selfService;
 
         }

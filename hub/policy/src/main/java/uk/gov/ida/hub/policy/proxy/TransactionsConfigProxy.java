@@ -81,15 +81,6 @@ public class TransactionsConfigProxy {
     }
 
     @Timed
-    public boolean getEidasSupportedForEntity(String entityId) {
-        return getConfigItem(
-            entityId,
-            Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_RESOURCE,
-            boolean.class,
-            emptyMap());
-    }
-
-    @Timed
     public boolean isUsingMatching( String entityId ) {
        return  getConfigItem(
                 entityId,

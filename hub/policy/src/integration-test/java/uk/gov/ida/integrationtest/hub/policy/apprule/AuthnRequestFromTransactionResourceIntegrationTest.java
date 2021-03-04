@@ -91,7 +91,6 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         samlResponse = aSamlResponseWithAuthnRequestInformationDto().withIssuer(transactionEntityId).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
         configStub.setupStubForEnabledIdps(transactionEntityId, REGISTERING, LEVEL_2, List.of(idpEntityId, "differentIdp"), Collections.emptyList());
-        configStub.setupStubForEidasEnabledForTransaction(transactionEntityId, false);
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         eventSinkStub.setupStubForLogging();
         configStub.setUpStubForMatchingServiceRequest(samlResponse.getIssuer(), matchingServiceEntityId);
@@ -206,19 +205,6 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void shouldRestartIdpJourney() {
         sessionId = SessionId.createNewSessionId();
         TestSessionResourceHelper.createSessionInIdpSelectedState(sessionId, samlResponse.getIssuer(), idpEntityId, client, buildUriForTestSession(IDP_SELECTED_STATE, sessionId));
-
-        URI uri = UriBuilder.fromPath("/policy/received-authn-request" + Urls.PolicyUrls.AUTHN_REQUEST_RESTART_JOURNEY_PATH).build(sessionId);
-        Response response = client.target(policy.uri(uri.toASCIIString())).request().post(null);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-
-        Response checkStateChanged = client.target(buildUriForTestSession(GET_SESSION_STATE_NAME, sessionId)).request().get();
-        assertThat(checkStateChanged.readEntity(String.class)).isEqualTo(SessionStartedState.class.getName());
-    }
-
-    @Test
-    public void shouldRestartEidasJourney() {
-        sessionId = SessionId.createNewSessionId();
 
         URI uri = UriBuilder.fromPath("/policy/received-authn-request" + Urls.PolicyUrls.AUTHN_REQUEST_RESTART_JOURNEY_PATH).build(sessionId);
         Response response = client.target(policy.uri(uri.toASCIIString())).request().post(null);

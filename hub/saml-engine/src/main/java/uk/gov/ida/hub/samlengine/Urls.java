@@ -17,7 +17,6 @@ public interface Urls {
         // Start of new saml-engine is a real microservice resources
 
         String GENERATE_RP_AUTHN_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-authn-response";
-        String GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-authn-response-wrapping-country-response";
 
         String GENERATE_RP_ERROR_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-error-response";
         String TRANSLATE_RP_AUTHN_REQUEST_RESOURCE = SAML_ENGINE_ROOT + "/translate-rp-authn-request";
@@ -25,11 +24,7 @@ public interface Urls {
         String GENERATE_IDP_AUTHN_REQUEST_RESOURCE =   SAML_ENGINE_ROOT + "/generate-idp-authn-request";
         String TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/translate-idp-authn-response";
 
-        String GENERATE_COUNTRY_AUTHN_REQUEST_RESOURCE =   SAML_ENGINE_ROOT + "/generate-country-authn-request";
-        String TRANSLATE_COUNTRY_AUTHN_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/translate-country-authn-response";
-
         String GENERATE_ATTRIBUTE_QUERY_RESOURCE = SAML_ENGINE_ROOT + "/generate-attribute-query";
-        String GENERATE_COUNTRY_ATTRIBUTE_QUERY_RESOURCE = SAML_ENGINE_ROOT + "/generate-country-attribute-query";
         String TRANSLATE_MATCHING_SERVICE_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/translate-attribute-query";
 
         String GENERATE_MSA_HEALTHCHECK_ATTRIBUTE_QUERY_RESOURCE = SAML_ENGINE_ROOT + "/generate-msa-healthcheck-attribute-query";
@@ -46,7 +41,6 @@ public interface Urls {
     interface FrontendUrls {
         String SAML2_SSO_ROOT = "/SAML2/SSO";
         String SAML2_SSO_RESPONSE_ENDPOINT = SAML2_SSO_ROOT + "/Response/POST";
-        String SAML2_SSO_EIDAS_RESPONSE_ENDPOINT = SAML2_SSO_ROOT + "/EidasResponse/POST";
     }
 
     interface ConfigUrls {
@@ -66,7 +60,5 @@ public interface Urls {
 
         String SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE = TRANSACTIONS_ROOT + SHOULD_HUB_SIGN_RESPONSE_MESSAGES_PATH;
         String SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE = TRANSACTIONS_ROOT + SHOULD_HUB_USE_LEGACY_SAML_STANDARD_PATH;
-        String IS_VERIFY_PROXY_NODE_PATH = ENTITY_ID_PATH_PARAM + "/is-eidas-proxy-node";
-        String IS_VERIFY_PROXY_NODE_RESOURCE = TRANSACTIONS_ROOT + IS_VERIFY_PROXY_NODE_PATH;
     }
 }

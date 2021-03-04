@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class TestSessionDto {
-    
+
     private SessionId sessionId;
     private String requestId;
     private DateTime sessionExpiryTimestamp;
@@ -25,6 +25,7 @@ public class TestSessionDto {
     private Boolean forceAuthentication;
     private boolean registering;
     private List<String> availableIdentityProviders;
+    private boolean transactionSupportsEidas;
     private LevelOfAssurance requestedLoa;
     private Set<String> encryptedAssertions;
     private String abTestVariant;

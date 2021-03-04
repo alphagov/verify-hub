@@ -25,10 +25,8 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 
 public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfiguration> {
     private static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
-    private static final String COUNTRY_METADATA_PATH = "/uk/gov/ida/saml/metadata/country";
 
     private static final HttpStubRule verifyMetadataServer = new HttpStubRule();
-    private static final HttpStubRule countryMetadataServer = new HttpStubRule();
 
     private static final KeyStoreResource metadataTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("metadataCA", CACertificates.TEST_METADATA_CA).withCertificate("rootCA", CACertificates.TEST_ROOT_CA).build();
     private static final KeyStoreResource hubTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("hubCA", CACertificates.TEST_CORE_CA).build();
@@ -79,8 +77,6 @@ public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfigu
             verifyMetadataServer.reset();
             verifyMetadataServer.register(VERIFY_METADATA_PATH, 200, Constants.APPLICATION_SAMLMETADATA_XML, new MetadataFactory().defaultMetadata());
 
-            countryMetadataServer.reset();
-            countryMetadataServer.register(COUNTRY_METADATA_PATH, 200, Constants.APPLICATION_SAMLMETADATA_XML, new MetadataFactory().defaultMetadata());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

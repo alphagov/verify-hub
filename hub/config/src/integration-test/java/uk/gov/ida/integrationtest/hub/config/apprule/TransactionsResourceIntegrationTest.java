@@ -35,18 +35,14 @@ import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTr
 public class TransactionsResourceIntegrationTest {
     public static Client client;
     private static final String ENTITY_ID = "test-entity-id";
-    private static final String NO_EIDAS_ENTITY_ID = "no-eidas-test-entity-id";
     private static final String SIMPLE_ID = "test-simple-id";
     private static final String MS_ENTITY_ID = "ms-entity-id";
-    private static final String NO_EIDAS_MS_ENTITY_ID = "no-eidas-ms-entity-id";
     private static final String TEST_URI = "http://foo.bar/test-uri";
     private static final String SERVICE_HOMEPAGE = "http://foo.bar/service-homepage";
     private static final String HEADLESS_START_PAGE = "http://foo.bar/service-headless-start-page";
     private static final String SINGLE_IDP_START_PAGE = "http://foo.bar/service-single-idp-start-page";
     private static final String ANOTHER_ENTITY_ID = "another-test-entity-id";
     private static final String ANOTHER_SIMPLE_ID = "another-test-simple-id";
-    private static final String PROXY_NODE_ENTITY_ID = "proxy-node-entity-id";
-    private static final String NON_PROXY_NODE_ENTITY_ID = "non-proxy-node-entity-id";
 
     @ClassRule
     public static ConfigAppRule configAppRule = new ConfigAppRule()
@@ -57,7 +53,6 @@ public class TransactionsResourceIntegrationTest {
                     .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
                     .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
                     .withMatchingProcess(aMatchingProcess().withCycle3AttributeName("NationalInsuranceNumber").build())
-                    .withEidasEnabled(true)
                     .addUserAccountCreationAttribute(UserAccountCreationAttribute.FIRST_NAME)
                     .addAssertionConsumerService(
                             anAssertionConsumerService()
@@ -80,37 +75,12 @@ public class TransactionsResourceIntegrationTest {
                     .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
                     .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
                     .build())
-            .addTransaction(aTransactionConfigData()
-                    .withEntityId(NO_EIDAS_ENTITY_ID)
-                    .withMatchingServiceEntityId(NO_EIDAS_MS_ENTITY_ID)
-                    .build())
-            .addTransaction(aTransactionConfigData()
-                    .withIsEidasProxyNode(true)
-                    .withEntityId(PROXY_NODE_ENTITY_ID)
-                    .withSimpleId(SIMPLE_ID)
-                    .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
-                    .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
-                    .withMatchingServiceEntityId(MS_ENTITY_ID)
-                    .withUsingMatching(false)
-                    .build())
-            .addTransaction(aTransactionConfigData()
-                    .withIsEidasProxyNode(false)
-                    .withEntityId(NON_PROXY_NODE_ENTITY_ID)
-                    .withSimpleId(SIMPLE_ID)
-                    .withServiceHomepage(URI.create(SERVICE_HOMEPAGE))
-                    .withLevelsOfAssurance(Collections.singletonList(LevelOfAssurance.LEVEL_2))
-                    .withMatchingServiceEntityId(MS_ENTITY_ID)
-                    .withUsingMatching(false)
-                    .build())
             .addMatchingService(aMatchingServiceConfig()
                     .withEntityId(MS_ENTITY_ID)
                     .build())
-            .addMatchingService(aMatchingServiceConfig()
-                    .withEntityId(NO_EIDAS_MS_ENTITY_ID)
-                    .build())
             .addIdp(anIdentityProviderConfigData()
                     .withEntityId("idp-entity-id")
-                    .withOnboarding(asList(ENTITY_ID, NO_EIDAS_ENTITY_ID))
+                    .withOnboarding(asList(ENTITY_ID))
                     .build());
 
     @BeforeClass
@@ -265,24 +235,6 @@ public class TransactionsResourceIntegrationTest {
     }
 
     @Test
-    public void getShouldReturnIsEidasEnabledForTransaction() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(boolean.class)).isTrue();
-    }
-
-    @Test
-    public void getShouldReturnIsEidasDisabledOrNotPresentForTransaction() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(NO_EIDAS_ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(boolean.class)).isFalse();
-    }
-
-    @Test
     public void getShouldReturnOkWhenUsingMatchingIsTrue() {
         URI uri = configAppRule
                 .getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
@@ -290,47 +242,6 @@ public class TransactionsResourceIntegrationTest {
         Response response = client.target(uri).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(boolean.class)).isTrue();
-    }
-
-    @Test
-    public void getShouldReturnTrueWhenIsEidasProxyNodeIsTrue() {
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(PROXY_NODE_ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(boolean.class)).isTrue();
-    }
-
-    @Test
-    public void getShouldReturnFalseWhenIsEidasProxyNodeIsFalse() {
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(NON_PROXY_NODE_ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(boolean.class)).isFalse();
-    }
-
-    @Test
-    public void getShouldReturnFalseWhenIsEidasProxyNodeIsUnset() {
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ANOTHER_ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(boolean.class)).isFalse();
-    }
-
-    @Test
-    public void getShouldReturnFalseWhenEntityIdNotKnown() {
-        String entityId = "some entity id not present in /config-service-data/..../transactions";
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.readEntity(boolean.class)).isFalse();
     }
 
     @Test

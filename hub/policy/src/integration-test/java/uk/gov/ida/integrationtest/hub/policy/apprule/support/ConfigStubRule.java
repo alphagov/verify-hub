@@ -50,13 +50,6 @@ public class ConfigStubRule extends HttpStubRule {
         setupStubForIdpConfig(allIdps, supportedLoa);
     }
 
-    public void setupStubForEidasEnabledForTransaction(String transactionEntityId, boolean eidasEnabledForTransaction) throws JsonProcessingException {
-        String path = UriBuilder.fromPath(Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_RESOURCE)
-            .build(StringEncoding.urlEncode(transactionEntityId).replace("+", "%20"))
-            .getPath();
-        register(path, OK, eidasEnabledForTransaction);
-    }
-
     public void setUpStubForAssertionConsumerServiceUri(String entityId) throws JsonProcessingException {
         setUpStubForAssertionConsumerServiceUri(entityId, Optional.empty());
     }
@@ -162,13 +155,6 @@ public class ConfigStubRule extends HttpStubRule {
     public void setupStubForIdpConfig(String idpEntityId, IdpConfigDto idpConfigDto) throws JsonProcessingException {
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.IDENTITY_PROVIDER_CONFIG_DATA_RESOURCE).build(idpEntityId).getPath();
         register(uri, OK, idpConfigDto);
-    }
-
-    public void setupStubForEidasRPCountries(String rpEntityId, List<String> countryEntityIds) throws JsonProcessingException {
-        String uri = UriBuilder.fromPath(Urls.ConfigUrls.EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE)
-            .build(StringEncoding.urlEncode(rpEntityId).replace("+", "%20"))
-            .getPath();
-        register(uri, OK, countryEntityIds);
     }
 
     private void setupStubForEnabledIdpsForIdpAuthnRequestAndLoa(String transactionEntityId, LevelOfAssurance supportedLoa, Collection<String> enabledIdps) throws JsonProcessingException {
