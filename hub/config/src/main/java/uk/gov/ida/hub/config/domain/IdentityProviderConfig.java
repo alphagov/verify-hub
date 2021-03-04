@@ -129,6 +129,10 @@ public class IdentityProviderConfig implements EntityIdentifiable {
         return provideRegistrationUntil;
     }
 
+    public String getProvideAuthenticationUntil() {
+        return provideAuthenticationUntil;
+    }
+
     public List<String> getOnboardingTransactionEntityIds() {
         return onboardingTransactionEntityIds;
     }

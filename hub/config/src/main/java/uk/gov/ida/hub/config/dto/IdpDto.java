@@ -13,6 +13,7 @@ public class IdpDto {
     private final String simpleId;
     private final String entityId;
     private final String provideRegistrationUntil;
+    private final String provideAuthenticationUntil;
     private final List<LevelOfAssurance> levelsOfAssurance;
     private final boolean authenticationEnabled;
     private final boolean temporarilyUnavailable;
@@ -22,12 +23,14 @@ public class IdpDto {
             @JsonProperty("simpleId") String simpleId,
             @JsonProperty("entityId") String entityId,
             @JsonProperty("provideRegistrationUntil") String provideRegistrationUntil,
+            @JsonProperty("provideAuthenticationUntil") String provideAuthenticationUntil,
             @JsonProperty("supportedLevelsOfAssurance") List<LevelOfAssurance> levelsOfAssurance,
             @JsonProperty("authenticationEnabled") boolean authenticationEnabled,
             @JsonProperty("temporarilyUnavailable") boolean temporarilyUnavailable) {
         this.simpleId = simpleId;
         this.entityId = entityId;
         this.provideRegistrationUntil = provideRegistrationUntil;
+        this.provideAuthenticationUntil = provideAuthenticationUntil;
         this.levelsOfAssurance = levelsOfAssurance;
         this.authenticationEnabled = authenticationEnabled;
         this.temporarilyUnavailable = temporarilyUnavailable;
@@ -43,6 +46,10 @@ public class IdpDto {
 
     public String getProvideRegistrationUntil() {
         return provideRegistrationUntil;
+    }
+
+    public String getProvideAuthenticationUntil() {
+        return provideAuthenticationUntil;
     }
 
     public List<LevelOfAssurance> getLevelsOfAssurance() {
