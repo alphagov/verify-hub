@@ -15,7 +15,6 @@ import uk.gov.ida.bundles.ServiceStatusBundle;
 import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.hub.config.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.config.resources.CertificatesResource;
-import uk.gov.ida.hub.config.resources.CountriesResource;
 import uk.gov.ida.hub.config.resources.IdentityProviderResource;
 import uk.gov.ida.hub.config.resources.MatchingServiceResource;
 import uk.gov.ida.hub.config.resources.TransactionsResource;
@@ -85,6 +84,5 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
         environment.jersey().register(IdentityProviderResource.class);
         environment.jersey().register(TransactionsResource.class);
         environment.jersey().register(MatchingServiceResource.class);
-        environment.jersey().register(CountriesResource.class);
     }
 }
