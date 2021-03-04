@@ -64,10 +64,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
     protected MultiTrustStoresBackedMetadataConfiguration metadata;
 
     @Valid
-    @JsonProperty
-    private CountryConfiguration country;
-
-    @Valid
     @NotNull
     @JsonProperty
     protected Boolean enableRetryTimeOutConnections = false;
@@ -101,14 +97,6 @@ public class SamlEngineConfiguration extends Configuration implements RestfulCli
 
     public SamlConfiguration getSamlConfiguration() {
         return saml;
-    }
-
-    public Optional<CountryConfiguration> getCountryConfiguration() {
-        return Optional.ofNullable(country);
-    }
-
-    public boolean isEidasEnabled() {
-        return getCountryConfiguration().isPresent() && getCountryConfiguration().get().isEnabled();
     }
 
     public PrivateKeyConfiguration getPrivateSigningKeyConfiguration() {

@@ -22,9 +22,6 @@ import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.hub.samlengine.exceptions.IdaJsonProcessingExceptionMapperBundle;
 import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
 import uk.gov.ida.hub.samlengine.filters.SessionIdQueryParamLoggingFilter;
-import uk.gov.ida.hub.samlengine.resources.translators.CountryAuthnRequestGeneratorResource;
-import uk.gov.ida.hub.samlengine.resources.translators.CountryAuthnResponseTranslatorResource;
-import uk.gov.ida.hub.samlengine.resources.translators.CountryMatchingServiceRequestGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.IdpAuthnRequestGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.IdpAuthnResponseTranslatorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.MatchingServiceHealthcheckRequestGeneratorResource;
@@ -33,7 +30,6 @@ import uk.gov.ida.hub.samlengine.resources.translators.MatchingServiceRequestGen
 import uk.gov.ida.hub.samlengine.resources.translators.MatchingServiceResponseTranslatorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnRequestTranslatorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseGeneratorResource;
-import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseWrappingCountryResponseGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpErrorResponseGeneratorResource;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
@@ -102,16 +98,10 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
 
     // this can be overridden in integration tests
     protected void registerResources(Environment environment, SamlEngineConfiguration configuration) {
-        if (configuration.isEidasEnabled()) {
-            environment.jersey().register(CountryAuthnRequestGeneratorResource.class);
-            environment.jersey().register(CountryAuthnResponseTranslatorResource.class);
-            environment.jersey().register(CountryMatchingServiceRequestGeneratorResource.class);
-        }
         environment.jersey().register(IdpAuthnRequestGeneratorResource.class);
         environment.jersey().register(IdpAuthnResponseTranslatorResource.class);
         environment.jersey().register(RpAuthnRequestTranslatorResource.class);
         environment.jersey().register(RpAuthnResponseGeneratorResource.class);
-        environment.jersey().register(RpAuthnResponseWrappingCountryResponseGeneratorResource.class);
         environment.jersey().register(RpErrorResponseGeneratorResource.class);
         environment.jersey().register(MatchingServiceRequestGeneratorResource.class);
         environment.jersey().register(MatchingServiceResponseTranslatorResource.class);
