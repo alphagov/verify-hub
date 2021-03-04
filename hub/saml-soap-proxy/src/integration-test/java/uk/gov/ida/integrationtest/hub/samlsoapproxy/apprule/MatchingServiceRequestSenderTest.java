@@ -88,20 +88,23 @@ public class MatchingServiceRequestSenderTest {
 
     private static String soapResponse;
 
-    @ClassRule
-    public static ConfigStubRule configStub = new ConfigStubRule();
+    /*
+     * Don't make these into @ClassRules - if they're static then they probably cause pseudo-random failures in the pipeline.
+     */
+    @Rule
+    public ConfigStubRule configStub = new ConfigStubRule();
 
-    @ClassRule
-    public static EventSinkStubRule eventSinkStubRule = new EventSinkStubRule();
+    @Rule
+    public EventSinkStubRule eventSinkStubRule = new EventSinkStubRule();
 
-    @ClassRule
-    public static MsaStubRule msaStubRule = msaStubRule();
+    @Rule
+    public MsaStubRule msaStubRule = msaStubRule();
 
-    @ClassRule
-    public static PolicyStubRule policyStubRule = new PolicyStubRule();
+    @Rule
+    public PolicyStubRule policyStubRule = new PolicyStubRule();
 
-    @ClassRule
-    public static SamlSoapProxyAppRule samlSoapProxyAppRule = new SamlSoapProxyAppRule(
+    @Rule
+    public SamlSoapProxyAppRule samlSoapProxyAppRule = new SamlSoapProxyAppRule(
             config("configUri", configStub.baseUri().build().toASCIIString()),
             config("eventSinkUri", eventSinkStubRule.baseUri().build().toASCIIString()),
             config("policyUri", policyStubRule.baseUri().build().toASCIIString())
@@ -115,8 +118,8 @@ public class MatchingServiceRequestSenderTest {
         policyStubRule.reset();
     }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
+    @Before
+    public void setUpClass() throws Exception {
         final List<String> exceptionsToCatch = List.of(ConnectTimeoutException.class.getName(), SocketException.class.getName(), SocketTimeoutException.class.getName(), NoHttpResponseException.class.getName());
         JerseyClientWithRetryBackoffConfiguration jerseyClientConfiguration = aJerseyClientWithRetryBackoffHandlerConfiguration()
             .withTimeout(Duration.seconds(1))
