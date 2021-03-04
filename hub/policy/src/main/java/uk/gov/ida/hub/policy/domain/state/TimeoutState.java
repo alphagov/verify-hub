@@ -20,8 +20,7 @@ public class TimeoutState extends AbstractState implements Serializable {
             @JsonProperty("requestIssuerId") final String requestIssuerId,
             @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
-            @JsonProperty("sessionId") final SessionId sessionId,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("sessionId") final SessionId sessionId) {
 
         super(
                 requestId,
@@ -29,7 +28,6 @@ public class TimeoutState extends AbstractState implements Serializable {
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 null
         );
     }

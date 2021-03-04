@@ -5,7 +5,6 @@ import uk.gov.ida.hub.policy.annotations.SamlEngine;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryContainerDto;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.AuthnResponseFromHubContainerDto;
-import uk.gov.ida.hub.policy.contracts.EidasAttributeQueryRequestDto;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.policy.contracts.RequestForErrorResponseFromHubDto;
 import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
@@ -15,11 +14,9 @@ import uk.gov.ida.hub.policy.contracts.SamlRequestWithAuthnRequestInformationDto
 import uk.gov.ida.hub.policy.contracts.SamlResponseContainerDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.policy.domain.IdaAuthnRequestFromHubDto;
-import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
 import uk.gov.ida.jerseyclient.JsonClient;
-import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -70,28 +67,12 @@ public class SamlEngineProxy {
         return jsonClient.post(samlResponseDto, uri, InboundResponseFromIdpDto.class);
     }
 
-    public InboundResponseFromCountry translateAuthnResponseFromCountry(SamlAuthnResponseTranslatorDto samlResponseDto) {
-        URI uri = UriBuilder
-            .fromUri(samlEngineUri)
-            .path(Urls.SamlEngineUrls.TRANSLATE_COUNTRY_AUTHN_RESPONSE_RESOURCE)
-            .build();
-        return jsonClient.post(samlResponseDto, uri, InboundResponseFromCountry.class);
-    }
-
     public AuthnResponseFromHubContainerDto generateRpAuthnResponse(ResponseFromHub responseFromHub) {
         URI uri = UriBuilder
                 .fromUri(samlEngineUri)
                 .path(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE)
                 .build();
         return jsonClient.post(responseFromHub, uri, AuthnResponseFromHubContainerDto.class);
-    }
-
-    public AuthnResponseFromHubContainerDto generateRpAuthnResponseWrappingCountrySaml(AuthnResponseFromCountryContainerDto authnResponseFromCountryContainerDto) {
-        URI uri = UriBuilder
-                .fromUri(samlEngineUri)
-                .path(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE)
-                .build();
-        return jsonClient.post(authnResponseFromCountryContainerDto, uri, AuthnResponseFromHubContainerDto.class);
     }
 
     public AttributeQueryContainerDto generateAttributeQuery(AttributeQueryRequestDto attributeQueryRequestDto) {
@@ -101,15 +82,6 @@ public class SamlEngineProxy {
                 .build();
 
         return jsonClient.post(attributeQueryRequestDto, uri, AttributeQueryContainerDto.class);
-    }
-
-    public AttributeQueryContainerDto generateEidasAttributeQuery(EidasAttributeQueryRequestDto eidasAttributeQueryRequestDto) {
-        URI uri = UriBuilder
-                .fromUri(samlEngineUri)
-                .path(Urls.SamlEngineUrls.GENERATE_COUNTRY_ATTRIBUTE_QUERY_RESOURCE)
-                .build();
-
-        return jsonClient.post(eidasAttributeQueryRequestDto, uri, AttributeQueryContainerDto.class);
     }
 
     public InboundResponseFromMatchingServiceDto translateMatchingServiceResponse(SamlResponseContainerDto samlResponse) {

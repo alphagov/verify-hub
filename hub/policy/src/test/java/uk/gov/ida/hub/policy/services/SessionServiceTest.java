@@ -3,7 +3,6 @@ package uk.gov.ida.hub.policy.services;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
@@ -26,10 +25,8 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureException;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
-import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
-import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.UriBuilder;
@@ -39,11 +36,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.AuthnResponseFromHubContainerDtoBuilder.anAuthnResponseFromHubContainerDto;
 import static uk.gov.ida.hub.policy.builder.domain.AuthnRequestFromHubBuilder.anAuthnRequestFromHub;
-import static uk.gov.ida.hub.policy.builder.domain.AuthnResponseFromCountryContainerDtoBuilder.anAuthnResponseFromCountryContainerDto;
 import static uk.gov.ida.hub.policy.builder.domain.ResponseFromHubBuilder.aResponseFromHubDto;
 import static uk.gov.ida.hub.policy.domain.SessionId.createNewSessionId;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
@@ -79,7 +74,7 @@ public class SessionServiceTest {
 
         givenSamlEngineTranslatesRequest(samlResponse);
         givenConfigReturnsAssertionConsumerServiceURLFor(samlResponse, assertionConsumerServiceUri);
-        givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId, false);
+        givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId);
 
         // When
         SessionId result = service.create(requestDto);
@@ -110,7 +105,7 @@ public class SessionServiceTest {
 
         givenSamlEngineTranslatesRequest(samlResponse);
         givenConfigReturnsAssertionConsumerServiceURLFor(samlResponse, assertionConsumerServiceUri);
-        givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId, false);
+        givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId);
 
         service.create(requestDto);
     }
@@ -126,56 +121,11 @@ public class SessionServiceTest {
 
         givenSamlEngineTranslatesRequest(samlResponse);
         givenConfigReturnsAssertionConsumerServiceURLFor(samlResponse, assertionConsumerServiceUri);
-        givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId, false);
+        givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId);
 
         SessionId result = service.create(requestDto);
 
         assertThat(result).isEqualTo(sessionId);
-    }
-
-    @Test
-    public void shouldCreateSessionWithTransactionSupportsEidas() {
-        // Given
-        URI assertionConsumerServiceUri = UriBuilder.fromUri(UUID.randomUUID().toString()).build();
-        SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto().build();
-        final SessionId sessionId = SessionIdBuilder.aSessionId().with("coffee-pasta").build();
-
-        givenSamlEngineTranslatesRequest(samlResponse);
-        givenConfigReturnsAssertionConsumerServiceURLFor(samlResponse, assertionConsumerServiceUri);
-        givenConfigReturnsTransactionSupportsEidas(samlResponse, true);
-        givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId, true);
-
-        // When
-        SessionId result = service.create(requestDto);
-
-        // Then
-        assertThat(result).isEqualTo(sessionId);
-        verify(authnRequestHandler).handleRequestFromTransaction(samlResponse, requestDto.getRelayState(), requestDto.getPrincipalIPAddressAsSeenByHub(), assertionConsumerServiceUri, true);
-
-    }
-
-    @Test
-    public void shouldGetACountryAuthnRequestWithOverriddenSsoUrl() {
-        // Given
-        SessionId sessionId = createNewSessionId();
-        when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
-        when(sessionRepository.isSessionInState(sessionId, EidasCountrySelectedState.class)).thenReturn(true);
-        AuthnRequestFromHub authnRequestFromHub = anAuthnRequestFromHub().withSsoUrl(URI.create("/theSsoUri")).build();
-        when(authnRequestHandler.getIdaAuthnRequestFromHub(sessionId)).thenReturn(authnRequestFromHub);
-        URI ssoUri = UriBuilder.fromUri(UUID.randomUUID().toString()).build();
-        SamlRequestDto samlRequest = new SamlRequestDto("samlRequest", ssoUri);
-        when(samlEngineProxy.generateCountryAuthnRequestFromHub(any(IdaAuthnRequestFromHubDto.class))).thenReturn(samlRequest);
-
-        // When
-        AuthnRequestFromHubContainerDto countryAuthnRequest = service.getIdpAuthnRequest(sessionId);
-
-        // Then
-        AuthnRequestFromHubContainerDto expected = new AuthnRequestFromHubContainerDto(samlRequest.getSamlRequest(), ssoUri, authnRequestFromHub.getRegistering());
-        assertThat(countryAuthnRequest).isEqualToComparingFieldByField(expected);
-
-        ArgumentCaptor<IdaAuthnRequestFromHubDto> requestFromHubDtoArgumentCaptor = ArgumentCaptor.forClass(IdaAuthnRequestFromHubDto.class);
-        verify(samlEngineProxy).generateCountryAuthnRequestFromHub(requestFromHubDtoArgumentCaptor.capture());
-        assertThat(requestFromHubDtoArgumentCaptor.getValue().getOverriddenSsoUrl()).isNotNull();
     }
 
     @Test
@@ -214,23 +164,6 @@ public class SessionServiceTest {
 
         // Then
         assertThat(actual).isEqualTo(expected);
-    }
-
-    @Test
-    public void shouldCallSamlEngineCountrySamlAuthnResponseGenerationEndpointIfIsResponseFromCountry() {
-        ArgumentCaptor<AuthnResponseFromCountryContainerDto> capturedDto = ArgumentCaptor.forClass(AuthnResponseFromCountryContainerDto.class);
-        AuthnResponseFromCountryContainerDto authnResponseFromCountryContainerDto = anAuthnResponseFromCountryContainerDto().build();
-        SessionId sessionId = createNewSessionId();
-
-        when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
-        when(authnRequestHandler.isResponseFromCountryWithUnsignedAssertions(sessionId)).thenReturn(true);
-        when(authnRequestHandler.getAuthnResponseFromCountryContainerDto(sessionId)).thenReturn(authnResponseFromCountryContainerDto);
-
-        service.getRpAuthnResponse(sessionId);
-
-        verify(samlEngineProxy).generateRpAuthnResponseWrappingCountrySaml(capturedDto.capture());
-        assertThat(capturedDto.getValue()).isEqualTo(authnResponseFromCountryContainerDto);
-
     }
 
     @Test
@@ -287,19 +220,14 @@ public class SessionServiceTest {
     }
 
 
-    private void givenSessionIsCreated(SamlResponseWithAuthnRequestInformationDto samlResponse, URI assertionConsumerServiceUri, SessionId sessionId, boolean transactionSupportsEidas) {
-        when(authnRequestHandler.handleRequestFromTransaction(samlResponse, requestDto.getRelayState(), requestDto.getPrincipalIPAddressAsSeenByHub(), assertionConsumerServiceUri, transactionSupportsEidas))
+    private void givenSessionIsCreated(SamlResponseWithAuthnRequestInformationDto samlResponse, URI assertionConsumerServiceUri, SessionId sessionId) {
+        when(authnRequestHandler.handleRequestFromTransaction(samlResponse, requestDto.getRelayState(), requestDto.getPrincipalIPAddressAsSeenByHub(), assertionConsumerServiceUri))
                 .thenReturn(sessionId);
     }
 
     private void givenConfigReturnsAssertionConsumerServiceURLFor(SamlResponseWithAuthnRequestInformationDto samlResponse, URI assertionConsumerServiceUri) {
         when(configProxy.getAssertionConsumerServiceUri(samlResponse.getIssuer(), samlResponse.getAssertionConsumerServiceIndex()))
                 .thenReturn(new ResourceLocation(assertionConsumerServiceUri));
-    }
-
-    private void givenConfigReturnsTransactionSupportsEidas(SamlResponseWithAuthnRequestInformationDto samlResponse, boolean transactionSupportsEidas) {
-        when(configProxy.getEidasSupportedForEntity(samlResponse.getIssuer()))
-                .thenReturn(transactionSupportsEidas);
     }
 
     private void givenSamlEngineTranslatesRequest(SamlResponseWithAuthnRequestInformationDto samlResponse) {

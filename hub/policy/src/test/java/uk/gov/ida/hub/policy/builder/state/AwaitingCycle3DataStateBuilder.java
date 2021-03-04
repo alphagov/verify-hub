@@ -21,7 +21,6 @@ public class AwaitingCycle3DataStateBuilder {
     private String transactionEntityId = "transaction entity id";
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
     private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_1;
-    private boolean transactionSupportsEidas = false;
     private boolean registering = false;
 
     public static AwaitingCycle3DataStateBuilder anAwaitingCycle3DataState() {
@@ -42,8 +41,7 @@ public class AwaitingCycle3DataStateBuilder {
                 sessionId,
                 aPersistentId().build(),
                 requestedLoa,
-                registering,
-                transactionSupportsEidas);
+                registering);
     }
 
     public AwaitingCycle3DataStateBuilder withRequestId(String requestId) {

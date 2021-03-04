@@ -3,7 +3,6 @@ package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 import org.joda.time.DateTime;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -26,10 +25,8 @@ public class TestSessionDto {
     private Boolean forceAuthentication;
     private boolean registering;
     private List<String> availableIdentityProviders;
-    private boolean transactionSupportsEidas;
     private LevelOfAssurance requestedLoa;
     private Set<String> encryptedAssertions;
-    private CountrySignedResponseContainer countrySignedResponseContainer;
     private String abTestVariant;
 
     @SuppressWarnings("unused") //Needed for JAXB
@@ -46,7 +43,6 @@ public class TestSessionDto {
                           URI assertionConsumerServiceUri,
                           List<LevelOfAssurance> levelsOfAssurance,
                           Boolean useExactComparisonType,
-                          boolean transactionSupportsEidas,
                           String abTestVariant
     ) {
         this(
@@ -64,8 +60,6 @@ public class TestSessionDto {
                 LevelOfAssurance.LEVEL_2,
                 false,
                 new ArrayList<>(),
-                transactionSupportsEidas,
-                null,
                 null,
                 abTestVariant
         );
@@ -86,9 +80,7 @@ public class TestSessionDto {
             LevelOfAssurance requestedLoa,
             Boolean forceAuthentication,
             List<String> availableIdentityProviders,
-            boolean transactionSupportsEidas,
             Set<String> encryptedAssertions,
-            CountrySignedResponseContainer countrySignedResponseContainer,
             String abTestVariant
     ) {
 
@@ -106,9 +98,7 @@ public class TestSessionDto {
         this.requestedLoa = requestedLoa;
         this.forceAuthentication = forceAuthentication;
         this.availableIdentityProviders = availableIdentityProviders;
-        this.transactionSupportsEidas = transactionSupportsEidas;
         this.encryptedAssertions = encryptedAssertions;
-        this.countrySignedResponseContainer = countrySignedResponseContainer;
         this.abTestVariant = abTestVariant;
     }
 
@@ -168,13 +158,7 @@ public class TestSessionDto {
         return useExactComparisonType;
     }
 
-    public boolean getTransactionSupportsEidas() {
-        return transactionSupportsEidas;
-    }
-
     public Set<String> getEncryptedAssertions() { return encryptedAssertions; }
-
-    public CountrySignedResponseContainer getCountrySignedResponseContainer() { return countrySignedResponseContainer; }
 
     public Optional<String> getAbTestVariant() {
         return Optional.ofNullable(abTestVariant);

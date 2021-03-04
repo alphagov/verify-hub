@@ -16,7 +16,6 @@ public class UserAccountCreationFailedStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private String relayState = "relayState";
-    private boolean transactionSupportsEidas = false;
 
     public static UserAccountCreationFailedStateBuilder aUserAccountCreationFailedState() {
         return new UserAccountCreationFailedStateBuilder();
@@ -29,8 +28,7 @@ public class UserAccountCreationFailedStateBuilder {
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 relayState,
-                sessionId,
-                transactionSupportsEidas
+                sessionId
         );
     }
 

@@ -37,8 +37,7 @@ public class UserAccountCreatedState extends AbstractState implements ResponsePr
             @JsonProperty("matchingServiceAssertion") final String matchingServiceAssertion,
             @JsonProperty("relayState") final String relayState,
             @JsonProperty("levelOfAssurance") final LevelOfAssurance levelOfAssurance,
-            @JsonProperty("registering") final boolean registering,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("registering") final boolean registering) {
 
         super(
             requestId,
@@ -46,7 +45,6 @@ public class UserAccountCreatedState extends AbstractState implements ResponsePr
             sessionExpiryTimestamp,
             assertionConsumerServiceUri,
             sessionId,
-            transactionSupportsEidas,
             null
         );
 

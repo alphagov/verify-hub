@@ -36,8 +36,7 @@ public class FraudEventDetectedStateBuilder {
                 relayState,
                 sessionId,
                 idpEntityId,
-                forceAuthentication,
-                false);
+                forceAuthentication);
     }
 
     public FraudEventDetectedStateBuilder withForceAuthentication(Boolean forceAuthentication) {

@@ -52,8 +52,6 @@ public class AuthnFailedErrorStateController extends AbstractAuthnFailedErrorSta
 
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
-        return new AuthnRequestSignInProcess(
-                state.getRequestIssuerEntityId(),
-                state.getTransactionSupportsEidas());
+        return new AuthnRequestSignInProcess(state.getRequestIssuerEntityId());
     }
 }

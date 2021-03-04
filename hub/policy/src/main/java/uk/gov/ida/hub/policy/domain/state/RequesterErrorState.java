@@ -24,8 +24,7 @@ public class RequesterErrorState extends AbstractState implements IdpSelectingSt
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
             @JsonProperty("relayState") final String relayState,
             @JsonProperty("sessionId") final SessionId sessionId,
-            @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 
         super(
                 requestId,
@@ -33,7 +32,6 @@ public class RequesterErrorState extends AbstractState implements IdpSelectingSt
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 forceAuthentication
         );
 

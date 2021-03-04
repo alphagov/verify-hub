@@ -31,7 +31,6 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
             final DateTime sessionExpiryTimestamp,
             final URI assertionConsumerServiceUri,
             final SessionId sessionId,
-            final boolean transactionSupportsEidas,
             final String identityProviderEntityId,
             final String relayState,
             final LevelOfAssurance idpLevelOfAssurance,
@@ -44,7 +43,6 @@ public abstract class AbstractMatchRequestSentState extends AbstractState implem
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 forceAuthentication
         );
 

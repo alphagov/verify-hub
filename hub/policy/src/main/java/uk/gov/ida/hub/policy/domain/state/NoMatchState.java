@@ -25,8 +25,7 @@ public class NoMatchState extends AbstractState implements ResponseProcessingSta
             @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
             @JsonProperty("relayState") final String relayState,
-            @JsonProperty("sessionId") final SessionId sessionId,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("sessionId") final SessionId sessionId) {
 
         super(
                 requestId,
@@ -34,7 +33,6 @@ public class NoMatchState extends AbstractState implements ResponseProcessingSta
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 null
         );
 

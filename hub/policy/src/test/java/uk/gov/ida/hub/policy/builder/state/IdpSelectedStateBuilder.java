@@ -26,7 +26,6 @@ public class IdpSelectedStateBuilder {
     private LevelOfAssurance requestedLoa = LevelOfAssurance.LEVEL_2;
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
     private List<String> availableIdentityProviders = List.of("idp-a", "idp-b", "idp-c");
-    private boolean transactionSupportsEidas = false;
 
     public static IdpSelectedStateBuilder anIdpSelectedState() {
         return new IdpSelectedStateBuilder();
@@ -46,8 +45,7 @@ public class IdpSelectedStateBuilder {
                 isRegistration,
                 requestedLoa,
                 sessionId,
-                availableIdentityProviders,
-                transactionSupportsEidas
+                availableIdentityProviders
         );
     }
 
@@ -103,11 +101,6 @@ public class IdpSelectedStateBuilder {
 
     public IdpSelectedStateBuilder withRelayState(String relayState){
         this.relayState = relayState;
-        return this;
-    }
-
-    public IdpSelectedStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
-        this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
     }
 

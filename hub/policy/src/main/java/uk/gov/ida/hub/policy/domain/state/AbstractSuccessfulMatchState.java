@@ -35,8 +35,7 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
             String requestIssuerId,
             URI assertionConsumerServiceUri,
             SessionId sessionId,
-            LevelOfAssurance levelOfAssurance,
-            boolean transactionSupportsEidas) {
+            LevelOfAssurance levelOfAssurance) {
 
         super(
                 requestId,
@@ -44,7 +43,6 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 null
         );
 
@@ -93,7 +91,6 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
                 Objects.equals(matchingServiceAssertion, that.getMatchingServiceAssertion()) &&
                 Objects.equals(relayState, that.relayState) &&
                 levelOfAssurance == that.getLevelOfAssurance() &&
-                getTransactionSupportsEidas() == that.getTransactionSupportsEidas() &&
                 Objects.equals(getRequestId(), that.getRequestId()) &&
                 Objects.equals(getRequestIssuerEntityId(), that.getRequestIssuerEntityId()) &&
                 Objects.equals(getSessionExpiryTimestamp(), that.getSessionExpiryTimestamp()) &&
@@ -109,7 +106,6 @@ public abstract class AbstractSuccessfulMatchState extends AbstractState impleme
                 matchingServiceAssertion,
                 relayState,
                 levelOfAssurance,
-                getTransactionSupportsEidas(),
                 getRequestId(),
                 getRequestIssuerEntityId(),
                 getSessionExpiryTimestamp(),

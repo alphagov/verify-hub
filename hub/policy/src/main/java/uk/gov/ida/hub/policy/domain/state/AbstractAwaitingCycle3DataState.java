@@ -32,7 +32,6 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
         final DateTime sessionExpiryTimestamp,
         final URI assertionConsumerServiceUri,
         final SessionId sessionId,
-        final boolean transactionSupportsEidas,
         final String identityProviderEntityId,
         final String matchingServiceEntityId,
         final String relayState,
@@ -46,7 +45,6 @@ public abstract class AbstractAwaitingCycle3DataState extends AbstractState impl
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 forceAuthentication
         );
 

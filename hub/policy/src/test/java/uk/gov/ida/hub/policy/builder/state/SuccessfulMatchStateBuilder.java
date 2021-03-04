@@ -21,7 +21,6 @@ public class SuccessfulMatchStateBuilder {
     private SessionId getSessionId = SessionIdBuilder.aSessionId().build();
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
     private boolean isRegistering = false;
-    private boolean transactionSupportsEidas = false;
 
     public static SuccessfulMatchStateBuilder aSuccessfulMatchState() {
         return new SuccessfulMatchStateBuilder();
@@ -38,8 +37,7 @@ public class SuccessfulMatchStateBuilder {
                 assertionConsumerServiceUri,
                 getSessionId,
                 levelOfAssurance,
-                isRegistering,
-                transactionSupportsEidas);
+                isRegistering);
     }
 
     public SuccessfulMatchStateBuilder withSessionId(SessionId sessionId) {

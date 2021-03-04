@@ -21,7 +21,5 @@ public interface State {
 
     URI getAssertionConsumerServiceUri();
 
-    boolean getTransactionSupportsEidas();
-
     Optional<Boolean> getForceAuthentication();
 }

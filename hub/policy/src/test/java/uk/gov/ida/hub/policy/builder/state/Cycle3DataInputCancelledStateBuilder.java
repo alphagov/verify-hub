@@ -16,14 +16,13 @@ public class Cycle3DataInputCancelledStateBuilder {
     private URI assertionConsumerServiceUri = URI.create("/default-service-index");
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private String requestId = UUID.randomUUID().toString();
-    private boolean transactionSupportsEidas = false;
 
     public static Cycle3DataInputCancelledStateBuilder aCycle3DataInputCancelledState() {
         return new Cycle3DataInputCancelledStateBuilder();
     }
 
     public Cycle3DataInputCancelledState build() {
-        return new Cycle3DataInputCancelledState(requestId, sessionExpiryTimestamp, null, requestIssuerId, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        return new Cycle3DataInputCancelledState(requestId, sessionExpiryTimestamp, null, requestIssuerId, assertionConsumerServiceUri, sessionId);
     }
 
     public Cycle3DataInputCancelledStateBuilder withSessionId(SessionId sessionId) {

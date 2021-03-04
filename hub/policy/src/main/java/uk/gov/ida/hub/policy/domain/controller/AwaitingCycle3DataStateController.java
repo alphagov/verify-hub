@@ -80,7 +80,6 @@ public class AwaitingCycle3DataStateController extends AbstractAwaitingCycle3Dat
             getState().getSessionExpiryTimestamp(),
             getState().getAssertionConsumerServiceUri(),
             getState().getSessionId(),
-            getState().getTransactionSupportsEidas(),
             getState().getIdentityProviderEntityId(),
             getState().getRelayState().orElse(null),
             getState().getLevelOfAssurance(),

@@ -46,8 +46,7 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             @JsonProperty("registering") final boolean registering,
             @JsonProperty("requestedLoa") final LevelOfAssurance requestedLoa,
             @JsonProperty("sessionId") final SessionId sessionId,
-            @JsonProperty("availableIdentityProviders") final List<String> availableIdentityProviders,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas)
+            @JsonProperty("availableIdentityProviders") final List<String> availableIdentityProviders)
     {
 
         super(
@@ -56,7 +55,6 @@ public class IdpSelectedState extends AbstractState implements IdpSelectingState
             sessionExpiryTimestamp,
             assertionConsumerServiceUri,
             sessionId,
-            transactionSupportsEidas,
             forceAuthentication
         );
 

@@ -33,13 +33,6 @@ import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateBuilder.aCycle3DataInputCancelledState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
-import static uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState;
-import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBuilder.anEidasAwaitingCycle3DataState;
-import static uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder.anEidasCountrySelectedState;
-import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
-import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
-import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
-import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationRequestSentStateBuilder.anEidasUserAccountCreationRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.FraudEventDetectedStateBuilder.aFraudEventDetectedState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.MatchingServiceRequestErrorStateBuilder.aMatchingServiceRequestErrorState;
@@ -86,13 +79,6 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateAnEidasCountrySelectedStateController() {
-        StateController controller = stateControllerFactory.build(anEidasCountrySelectedState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasCountrySelectedStateController.class);
-    }
-
-    @Test
     public void shouldCreateAnIdpSelectedStateController() {
         StateController controller = stateControllerFactory.build(anIdpSelectedState().build(), stateTransitionAction);
 
@@ -107,24 +93,10 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateAnEidasCycle0And1MatchRequestSentStateController() {
-        StateController stateController = stateControllerFactory.build(anEidasCycle0And1MatchRequestSentState().build(), stateTransitionAction);
-
-        assertThat(stateController).isInstanceOf(EidasCycle0And1MatchRequestSentStateController.class);
-    }
-
-    @Test
     public void shouldCreateASuccessfulMatchStateController() {
         StateController controller = stateControllerFactory.build(aSuccessfulMatchState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
-    }
-
-    @Test
-    public void shouldCreateAEidasSuccessfulMatchStateController() {
-        StateController controller = stateControllerFactory.build(anEidasSuccessfulMatchState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);
     }
 
     @Test
@@ -146,13 +118,6 @@ public class StateControllerFactoryTest {
         StateController controller = stateControllerFactory.build(anAwaitingCycle3DataState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(AwaitingCycle3DataStateController.class);
-    }
-
-    @Test
-    public void shouldCreateAnEidasAwaitingCycle3DataStateController() {
-        StateController controller = stateControllerFactory.build(anEidasAwaitingCycle3DataState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasAwaitingCycle3DataStateController.class);
     }
 
     @Test
@@ -184,24 +149,10 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateAnEidasUserAccountCreationRequestSentStateController() {
-        StateController controller = stateControllerFactory.build(anEidasUserAccountCreationRequestSentState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasUserAccountCreationRequestSentStateController.class);
-    }
-
-    @Test
     public void shouldCreateAnAuthnFailedErrorStateController() {
         StateController controller = stateControllerFactory.build(anAuthnFailedErrorState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(AuthnFailedErrorStateController.class);
-    }
-
-    @Test
-    public void shouldCreateAnEidasAuthnFailedErrorStateController() {
-        StateController controller = stateControllerFactory.build(anEidasAuthnFailedErrorState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasAuthnFailedErrorStateController.class);
     }
 
     @Test
@@ -233,13 +184,6 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateAnEidasUserAccountCreationFailedStateController() {
-        StateController controller = stateControllerFactory.build(aEidasUserAccountCreationFailedState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasUserAccountCreationFailedStateController.class);
-    }
-
-    @Test
     public void shouldThrowIllegalStateExceptionIfControllerIsNotFound() {
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Unable to locate state for UnknownState");
@@ -249,14 +193,13 @@ public class StateControllerFactoryTest {
                 "requestIssuerId",
                 DateTime.now(),
                 URI.create("/some-ac-service-uri"),
-                aSessionId().build(),
-                false);
+                aSessionId().build());
         stateControllerFactory.build(unknownState, stateTransitionAction);
     }
 
     private static class UnknownState extends AbstractState {
-        public UnknownState(String requestId, String requestIssuerId, DateTime sessionExpiryTimestamp, URI assertionConsumerServiceUri, SessionId sessionId, boolean transactionSupportsEidas) {
-            super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas, null);
+        public UnknownState(String requestId, String requestIssuerId, DateTime sessionExpiryTimestamp, URI assertionConsumerServiceUri, SessionId sessionId) {
+            super(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, null);
         }
 
         @Override

@@ -7,16 +7,13 @@ import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingDetails;
 import uk.gov.ida.hub.policy.domain.ResponseProcessingStatus;
 import uk.gov.ida.hub.policy.domain.StateTransitionAction;
-import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
-import java.util.Collections;
-
-public class SessionStartedStateController implements IdpSelectingStateController, EidasCountrySelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
+public class SessionStartedStateController implements IdpSelectingStateController, ResponseProcessingStateController, ErrorResponsePreparedStateController {
 
     private final SessionStartedState state;
     private final HubEventLogger hubEventLogger;
@@ -43,9 +40,7 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
 
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
-        return new AuthnRequestSignInProcess(
-                state.getRequestIssuerEntityId(),
-                state.getTransactionSupportsEidas());
+        return new AuthnRequestSignInProcess(state.getRequestIssuerEntityId());
     }
 
     @Override
@@ -81,21 +76,4 @@ public class SessionStartedStateController implements IdpSelectingStateControlle
         );
     }
 
-    @Override
-    public void selectCountry(String countryEntityId) {
-        EidasCountrySelectedState eidasCountrySelectedState = new EidasCountrySelectedState(
-                countryEntityId,
-                state.getRelayState().orElse(null),
-                state.getRequestId(),
-                state.getRequestIssuerEntityId(),
-                state.getSessionExpiryTimestamp(),
-                state.getAssertionConsumerServiceUri(),
-                state.getSessionId(),
-                state.getTransactionSupportsEidas(),
-                Collections.singletonList(LevelOfAssurance.LEVEL_2), // TODO: EID-154 will plug in a real LOA
-                state.getForceAuthentication().orElse(null)
-        );
-        stateTransitionAction.transitionTo(eidasCountrySelectedState);
-        hubEventLogger.logCountrySelectedEvent(eidasCountrySelectedState);
-    }
 }

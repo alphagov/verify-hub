@@ -23,8 +23,7 @@ public class NoMatchStateBuilder {
             DateTime.now(DateTimeZone.UTC).plusMinutes(10),
             URI.create("/someUri"),
             relayState,
-            new SessionId("sessionId"),
-            false);
+            new SessionId("sessionId"));
     }
 
     public NoMatchStateBuilder withIdentityProviderEntityId(final String identityProviderEntityId) {

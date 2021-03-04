@@ -16,7 +16,6 @@ public class RequesterErrorStateBuilder {
     private String relayState = "relayState";
     private SessionId sessionId = SessionId.createNewSessionId();
     private Boolean forceAuthentication = false;
-    private boolean transactionSupportsEidas = false;
 
     public static RequesterErrorStateBuilder aRequesterErrorState() {
         return new RequesterErrorStateBuilder();
@@ -30,8 +29,7 @@ public class RequesterErrorStateBuilder {
                 assertionConsumerServiceUri,
                 relayState,
                 sessionId,
-                forceAuthentication,
-                transactionSupportsEidas);
+                forceAuthentication);
     }
 
     public RequesterErrorStateBuilder withSessionId(SessionId sessionId) {

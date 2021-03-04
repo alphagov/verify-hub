@@ -13,14 +13,6 @@ import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3DataInputCancelledState;
 import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.EidasAuthnFailedErrorState;
-import uk.gov.ida.hub.policy.domain.state.EidasAwaitingCycle3DataState;
-import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
-import uk.gov.ida.hub.policy.domain.state.EidasCycle0And1MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.EidasCycle3MatchRequestSentState;
-import uk.gov.ida.hub.policy.domain.state.EidasSuccessfulMatchState;
-import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationFailedState;
-import uk.gov.ida.hub.policy.domain.state.EidasUserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.domain.state.FraudEventDetectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.MatchingServiceRequestErrorState;
@@ -38,7 +30,6 @@ import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.policy.services.AttributeQueryService;
-import uk.gov.ida.hub.policy.services.CountriesService;
 import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 
 import javax.inject.Inject;
@@ -67,17 +58,6 @@ public class StateControllerFactory {
                         injector.getInstance(ResponseFromHubFactory.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class));
 
-            case EIDAS_COUNTRY_SELECTED:
-                return new EidasCountrySelectedStateController(
-                        (EidasCountrySelectedState) state,
-                        injector.getInstance(HubEventLogger.class),
-                        stateTransitionAction,
-                        injector.getInstance(PolicyConfiguration.class),
-                        injector.getInstance(TransactionsConfigProxy.class),
-                        injector.getInstance(MatchingServiceConfigProxy.class),
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(AssertionRestrictionsFactory.class));
-
             case IDP_SELECTED:
                 return new IdpSelectedStateController(
                         (IdpSelectedState) state,
@@ -103,29 +83,11 @@ public class StateControllerFactory {
                         injector.getInstance(MatchingServiceConfigProxy.class),
                         injector.getInstance(AttributeQueryService.class));
 
-            case EIDAS_CYCLE_0_AND_1_MATCH_REQUEST_SENT:
-                return new EidasCycle0And1MatchRequestSentStateController(
-                        (EidasCycle0And1MatchRequestSentState) state,
-                        stateTransitionAction,
-                        injector.getInstance(HubEventLogger.class),
-                        injector.getInstance(PolicyConfiguration.class),
-                        new LevelOfAssuranceValidator(),
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(AttributeQueryService.class),
-                        injector.getInstance(TransactionsConfigProxy.class),
-                        injector.getInstance(MatchingServiceConfigProxy.class));
-
             case SUCCESSFUL_MATCH:
                 return new SuccessfulMatchStateController(
                         (SuccessfulMatchState) state,
                         injector.getInstance(ResponseFromHubFactory.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class));
-
-            case EIDAS_SUCCESSFUL_MATCH:
-                return new EidasSuccessfulMatchStateController(
-                        (EidasSuccessfulMatchState) state,
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(CountriesService.class));
 
             case NON_MATCHING_JOURNEY_SUCCESS:
                 return new NonMatchingJourneySuccessStateController(
@@ -154,17 +116,6 @@ public class StateControllerFactory {
                         injector.getInstance(AssertionRestrictionsFactory.class),
                         injector.getInstance(MatchingServiceConfigProxy.class));
 
-            case EIDAS_AWAITING_CYCLE3_DATA:
-                return new EidasAwaitingCycle3DataStateController(
-                        (EidasAwaitingCycle3DataState) state,
-                        injector.getInstance(HubEventLogger.class),
-                        stateTransitionAction,
-                        injector.getInstance(TransactionsConfigProxy.class),
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(PolicyConfiguration.class),
-                        injector.getInstance(AssertionRestrictionsFactory.class),
-                        injector.getInstance(MatchingServiceConfigProxy.class));
-
             case CYCLE3_MATCH_REQUEST_SENT:
                 return new Cycle3MatchRequestSentStateController(
                         (Cycle3MatchRequestSentState) state,
@@ -177,18 +128,6 @@ public class StateControllerFactory {
                         injector.getInstance(MatchingServiceConfigProxy.class),
                         injector.getInstance(AssertionRestrictionsFactory.class),
                         injector.getInstance(AttributeQueryService.class));
-
-            case EIDAS_CYCLE_3_MATCH_REQUEST_SENT:
-                return new EidasCycle3MatchRequestSentStateController(
-                        (EidasCycle3MatchRequestSentState) state,
-                        injector.getInstance(HubEventLogger.class),
-                        stateTransitionAction,
-                        injector.getInstance(PolicyConfiguration.class),
-                        new LevelOfAssuranceValidator(),
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(AttributeQueryService.class),
-                        injector.getInstance(TransactionsConfigProxy.class),
-                        injector.getInstance(MatchingServiceConfigProxy.class));
 
             case TIMEOUT:
                 return new TimeoutStateController(
@@ -212,18 +151,6 @@ public class StateControllerFactory {
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(MatchingServiceConfigProxy.class));
 
-            case EIDAS_USER_ACCOUNT_CREATION_REQUEST_SENT:
-                return new EidasUserAccountCreationRequestSentStateController(
-                        (EidasUserAccountCreationRequestSentState) state,
-                        stateTransitionAction,
-                        injector.getInstance(HubEventLogger.class),
-                        injector.getInstance(PolicyConfiguration.class),
-                        new LevelOfAssuranceValidator(),
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        injector.getInstance(AttributeQueryService.class),
-                        injector.getInstance(TransactionsConfigProxy.class),
-                        injector.getInstance(MatchingServiceConfigProxy.class));
-
             case AUTHN_FAILED_ERROR:
                 return new AuthnFailedErrorStateController(
                         (AuthnFailedErrorState) state,
@@ -231,13 +158,6 @@ public class StateControllerFactory {
                         stateTransitionAction,
                         injector.getInstance(TransactionsConfigProxy.class),
                         injector.getInstance(IdentityProvidersConfigProxy.class),
-                        injector.getInstance(HubEventLogger.class));
-
-            case EIDAS_AUTHN_FAILED_ERROR:
-                return new EidasAuthnFailedErrorStateController(
-                        (EidasAuthnFailedErrorState) state,
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        stateTransitionAction,
                         injector.getInstance(HubEventLogger.class));
 
             case FRAUD_EVENT_DETECTED:
@@ -267,13 +187,6 @@ public class StateControllerFactory {
                 return new UserAccountCreationFailedStateController(
                         (UserAccountCreationFailedState) state,
                         injector.getInstance(ResponseFromHubFactory.class));
-
-            case EIDAS_USER_ACCOUNT_CREATION_FAILED:
-                return new EidasUserAccountCreationFailedStateController(
-                        (EidasUserAccountCreationFailedState) state,
-                        injector.getInstance(ResponseFromHubFactory.class),
-                        stateTransitionAction,
-                        injector.getInstance(HubEventLogger.class));
 
             default:
                 throw new IllegalStateException(format("Invalid state controller class for {0}", policyState));

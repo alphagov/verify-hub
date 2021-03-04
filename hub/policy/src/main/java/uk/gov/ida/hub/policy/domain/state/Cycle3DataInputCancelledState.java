@@ -24,8 +24,7 @@ public class Cycle3DataInputCancelledState extends AbstractState implements Resp
         @JsonProperty("relayState") final String relayState,
         @JsonProperty("requestIssuerId") final String requestIssuerId,
         @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
-        @JsonProperty("sessionId") final SessionId sessionId,
-        @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+        @JsonProperty("sessionId") final SessionId sessionId) {
 
         super(
             requestId,
@@ -33,7 +32,6 @@ public class Cycle3DataInputCancelledState extends AbstractState implements Resp
             sessionExpiryTimestamp,
             assertionConsumerServiceUri,
             sessionId,
-            transactionSupportsEidas,
             null);
 
         this.relayState = relayState;

@@ -212,8 +212,7 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getAssertionConsumerServiceUri(),
                 state.getRelayState().orElse(null),
                 state.getSessionId(),
-                state.getForceAuthentication().orElse(null),
-                state.getTransactionSupportsEidas());
+                state.getForceAuthentication().orElse(null));
     }
 
     private State createFraudEventDetectedState() {
@@ -225,8 +224,7 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getRelayState().orElse(null),
                 state.getSessionId(),
                 state.getIdpEntityId(),
-                state.getForceAuthentication().orElse(null),
-                state.getTransactionSupportsEidas());
+                state.getForceAuthentication().orElse(null));
     }
 
     private SessionStartedState createSessionStartedState() {
@@ -237,8 +235,7 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getAssertionConsumerServiceUri(),
                 state.getForceAuthentication().orElse(null),
                 state.getSessionExpiryTimestamp(),
-                state.getSessionId(),
-                state.getTransactionSupportsEidas());
+                state.getSessionId());
     }
 
     private State createAuthnFailedErrorState() {
@@ -250,8 +247,7 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getRelayState().orElse(null),
                 state.getSessionId(),
                 state.getIdpEntityId(),
-                state.getForceAuthentication().orElse(null),
-                state.getTransactionSupportsEidas());
+                state.getForceAuthentication().orElse(null));
     }
 
     private State createPausedRegistrationState() {
@@ -261,7 +257,6 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
-                state.getTransactionSupportsEidas(),
                 state.getRelayState().orElse(null));
     }
 
@@ -272,7 +267,6 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
             state.getSessionExpiryTimestamp(),
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),
-            state.getTransactionSupportsEidas(),
             state.isRegistering(),
             successFromIdp.getIssuer(),
             state.getRelayState().orElse(null),
@@ -296,10 +290,8 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
             state.getSessionExpiryTimestamp(),
             state.getAssertionConsumerServiceUri(),
             new SessionId(state.getSessionId().getSessionId()),
-            state.getTransactionSupportsEidas(),
             state.getRelayState().orElse(null),
-            encryptedAssertions,
-            null
+            encryptedAssertions
         );
     }
 
@@ -358,9 +350,7 @@ public class IdpSelectedStateController implements ErrorResponsePreparedStateCon
 
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
-        return new AuthnRequestSignInProcess(
-                state.getRequestIssuerEntityId(),
-                state.getTransactionSupportsEidas());
+        return new AuthnRequestSignInProcess(state.getRequestIssuerEntityId());
     }
 
     @Override

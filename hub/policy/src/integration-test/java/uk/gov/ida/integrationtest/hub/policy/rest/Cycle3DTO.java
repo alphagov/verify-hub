@@ -24,7 +24,6 @@ public class Cycle3DTO {
     private String matchingServiceEntityId = "matching-service-entity-id";
     private PersistentId persistentId = new PersistentId("persistent-id");
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
-    private boolean transactionSupportsEidas = false;
     private boolean registering = false;
 
     @Nullable
@@ -87,10 +86,6 @@ public class Cycle3DTO {
 
     public String getEncryptedMatchingDatasetAssertion() {
         return encryptedMatchingDatasetAssertion;
-    }
-
-    public boolean getTransactionSupportsEidas() {
-        return transactionSupportsEidas;
     }
 
     public boolean isRegistering() {

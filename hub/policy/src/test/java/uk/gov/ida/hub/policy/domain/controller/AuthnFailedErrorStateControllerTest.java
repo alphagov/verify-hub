@@ -32,9 +32,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder.anAuthnFailedErrorState;
 import static uk.gov.ida.hub.policy.builder.state.SessionStartedStateBuilder.aSessionStartedState;
-import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthnFailedErrorStateControllerTest {
@@ -62,7 +62,6 @@ public class AuthnFailedErrorStateControllerTest {
     @Before
     public void setup() {
         authnFailedErrorState = anAuthnFailedErrorState()
-            .withTransactionSupportsEidas(true)
             .withRequestId("requestId")
             .withSessionId(aSessionId().with("sessionId").build())
             .withSessionExpiryTimestamp(NOW)
@@ -109,7 +108,6 @@ public class AuthnFailedErrorStateControllerTest {
     @Test
     public void getSignInProcessDetails_shouldReturnFieldsFromTheState() {
         AuthnRequestSignInProcess signInProcessDetails = controller.getSignInProcessDetails();
-        assertThat(signInProcessDetails.getTransactionSupportsEidas()).isEqualTo(true);
         assertThat(signInProcessDetails.getRequestIssuerId()).isEqualTo("requestIssuerId");
     }
 
@@ -119,7 +117,6 @@ public class AuthnFailedErrorStateControllerTest {
         SessionStartedState expectedState = aSessionStartedState().
                 withSessionId(aSessionId().with("sessionId").build())
                 .withForceAuthentication(true)
-                .withTransactionSupportsEidas(true)
                 .withSessionExpiryTimestamp(NOW)
                 .withAssertionConsumerServiceUri(URI.create("/default-service-index"))
                 .build();

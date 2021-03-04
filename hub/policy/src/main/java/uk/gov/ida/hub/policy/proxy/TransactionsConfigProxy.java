@@ -8,7 +8,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.annotations.Config;
-import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchingProcess;
 import uk.gov.ida.hub.policy.domain.ResourceLocation;
@@ -141,22 +140,6 @@ public class TransactionsConfigProxy {
         }
 
         return uriBuilder.buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-    }
-
-    @Timed
-    public List<EidasCountryDto> getEidasSupportedCountries() {
-        final URI uri = UriBuilder.fromUri(configUri).path(Urls.ConfigUrls.COUNTRIES_ROOT).build();
-        return jsonClient.get(uri, new GenericType<List<EidasCountryDto>>() {});
-    }
-
-    @Timed
-    public List<String> getEidasSupportedCountriesForRP(String relyingPartyEntityId) {
-        return getConfigItem(
-                relyingPartyEntityId,
-                Urls.ConfigUrls.EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE,
-                new GenericType<List<String>>() {
-                },
-                emptyMap());
     }
 
 }

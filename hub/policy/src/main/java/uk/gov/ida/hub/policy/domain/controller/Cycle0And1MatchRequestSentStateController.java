@@ -103,7 +103,6 @@ public class Cycle0And1MatchRequestSentStateController extends MatchRequestSentS
                 state.getSessionId(),
                 state.getPersistentId(),
                 state.getIdpLevelOfAssurance(),
-                state.isRegistering(),
-                state.getTransactionSupportsEidas());
+                state.isRegistering());
     }
 }

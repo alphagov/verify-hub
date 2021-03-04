@@ -24,7 +24,6 @@ public class PausedRegistrationState extends AbstractState implements State {
            @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
            @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
            @JsonProperty("sessionId") final SessionId sessionId,
-           @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas,
            @JsonProperty("relayState") final String relayState) {
 
         super(
@@ -33,7 +32,6 @@ public class PausedRegistrationState extends AbstractState implements State {
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 null
         );
 

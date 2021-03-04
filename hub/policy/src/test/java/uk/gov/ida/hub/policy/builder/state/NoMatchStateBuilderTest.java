@@ -45,7 +45,6 @@ public class NoMatchStateBuilderTest {
         assertThat(noMatchState.getAssertionConsumerServiceUri()).isEqualTo(URI.create("/someUri"));
         assertThat(noMatchState.getRelayState()).isEqualTo(Optional.empty());
         assertThat(noMatchState.getSessionId()).isEqualTo(new SessionId("sessionId"));
-        assertThat(noMatchState.getTransactionSupportsEidas()).isEqualTo(false);
     }
 
     @Test

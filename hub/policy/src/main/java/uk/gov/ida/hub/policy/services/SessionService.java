@@ -16,11 +16,8 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureException;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
-import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
-import uk.gov.ida.hub.policy.metrics.EidasConnectorMetrics;
-import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -47,23 +44,12 @@ public class SessionService {
     public SessionId create(final SamlAuthnRequestContainerDto requestDto) {
         SamlResponseWithAuthnRequestInformationDto samlResponse = samlEngineProxy.translate(requestDto.getSamlRequest());
         URI assertionConsumerServiceUri = getAssertionConsumerServiceUri(samlResponse);
-        boolean transactionSupportsEidas = getTransactionSupportsEidas(samlResponse.getIssuer());
 
         return authnRequestHandler.handleRequestFromTransaction(
             samlResponse,
             requestDto.getRelayState(),
             requestDto.getPrincipalIPAddressAsSeenByHub(),
-            assertionConsumerServiceUri,
-            transactionSupportsEidas
-        );
-    }
-
-    private boolean getTransactionSupportsEidas(String issuer) {
-        try {
-            return configProxy.getEidasSupportedForEntity(issuer);
-        } catch (WebApplicationException e) {
-            throw SessionCreationFailureException.configServiceException(e);
-        }
+            assertionConsumerServiceUri);
     }
 
     public SessionId getSessionIfItExists(SessionId sessionId) {
@@ -91,19 +77,7 @@ public class SessionService {
                 request.getUseExactComparisonType(),
                 request.getOverriddenSsoUrl());
 
-        boolean countryIdentityProvider = sessionRepository.isSessionInState(sessionId, EidasCountrySelectedState.class);
-        final SamlRequestDto samlRequest;
-        if (countryIdentityProvider) {
-            samlRequest = samlEngineProxy.generateCountryAuthnRequestFromHub(authnRequestFromHub);
-            EidasConnectorMetrics.increment(
-                    request.getRecipientEntityId(),
-                    EidasConnectorMetrics.Direction.request,
-                    EidasConnectorMetrics.Status.ok);
-
-        } else {
-            samlRequest = samlEngineProxy.generateIdpAuthnRequestFromHub(authnRequestFromHub);
-        }
-
+        final SamlRequestDto samlRequest = samlEngineProxy.generateIdpAuthnRequestFromHub(authnRequestFromHub);
         return new AuthnRequestFromHubContainerDto(samlRequest.getSamlRequest(), samlRequest.getSsoUri(), request.getRegistering());
     }
 
@@ -125,11 +99,6 @@ public class SessionService {
 
     public AuthnResponseFromHubContainerDto getRpAuthnResponse(SessionId sessionId) {
         getSessionIfItExists(sessionId);
-        if (authnRequestHandler.isResponseFromCountryWithUnsignedAssertions(sessionId)) {
-            AuthnResponseFromCountryContainerDto authResponseFromCountryContainerDto = authnRequestHandler.getAuthnResponseFromCountryContainerDto(sessionId);
-            return samlEngineProxy.generateRpAuthnResponseWrappingCountrySaml(authResponseFromCountryContainerDto);
-        }
-
         ResponseFromHub responseFromHub = authnRequestHandler.getResponseFromHub(sessionId);
         return samlEngineProxy.generateRpAuthnResponse(responseFromHub);
     }

@@ -20,7 +20,6 @@ public class UserAccountCreatedStateBuilder {
     private String matchingServiceAssertion = "aPassthroughAssertion().buildMatchingServiceAssertion()";
     private String relayState = null;
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_2;
-    private boolean transactionSupportsEidas = false;
     private boolean registering = false;
 
     public static UserAccountCreatedStateBuilder aUserAccountCreatedState() {
@@ -38,8 +37,7 @@ public class UserAccountCreatedStateBuilder {
                 matchingServiceAssertion,
                 relayState,
                 levelOfAssurance,
-                registering,
-                transactionSupportsEidas);
+                registering);
     }
 
     public UserAccountCreatedStateBuilder withIdentityProviderEntityId(final String identityProviderEntityId) {
@@ -74,11 +72,6 @@ public class UserAccountCreatedStateBuilder {
 
     public UserAccountCreatedStateBuilder withSessionExpiryTimestamp(DateTime sessionExpiryTimestamp) {
         this.sessionExpiryTimestamp = sessionExpiryTimestamp;
-        return this;
-    }
-
-    public UserAccountCreatedStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
-        this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
     }
 

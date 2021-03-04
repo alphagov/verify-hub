@@ -113,7 +113,6 @@ public class IdpSelectedStateControllerTest {
                 .withLevelsOfAssurance(LEVELS_OF_ASSURANCE)
                 .withSessionExpiryTimestamp(SESSION_EXPIRY_TIMESTAMP)
                 .withRegistration(isRegistration)
-                .withTransactionSupportsEidas(true)
                 .build();
         IdpSelectedState state = idpSelectedState;
 
@@ -137,7 +136,6 @@ public class IdpSelectedStateControllerTest {
     @Test
     public void getSignInProcessDetails_shouldReturnFieldsFromTheState() {
         AuthnRequestSignInProcess signInProcessDetails = controller.getSignInProcessDetails();
-        assertThat(signInProcessDetails.getTransactionSupportsEidas()).isEqualTo(true);
         assertThat(signInProcessDetails.getRequestIssuerId()).isEqualTo("transaction-entity-id");
     }
 

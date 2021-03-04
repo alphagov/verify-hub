@@ -23,10 +23,9 @@ public class AuthnFailedErrorState extends AbstractAuthnFailedErrorState impleme
             @JsonProperty("relayState") final String relayState,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("idpEntityId") final String idpEntityId,
-            @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 
-        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, transactionSupportsEidas, forceAuthentication);
+        super(requestId, authnRequestIssuerEntityId, sessionExpiryTimestamp, assertionConsumerServiceUri, relayState, sessionId, forceAuthentication);
         this.idpEntityId = idpEntityId;
     }
 

@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Optional;
 
-public class SessionStartedState extends AbstractState implements IdpSelectingState, EidasCountrySelectingState, ResponseProcessingState, Serializable {
+public class SessionStartedState extends AbstractState implements IdpSelectingState, ResponseProcessingState, Serializable {
 
     private static final long serialVersionUID = -2890730003642035273L;
 
@@ -25,8 +25,7 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
             @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
             @JsonProperty("sessionExpiryTimestamp") final DateTime sessionExpiryTimestamp,
-            @JsonProperty("sessionId") final SessionId sessionId,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("sessionId") final SessionId sessionId) {
 
         super(
                 requestId,
@@ -34,7 +33,6 @@ public class SessionStartedState extends AbstractState implements IdpSelectingSt
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 forceAuthentication
         );
 

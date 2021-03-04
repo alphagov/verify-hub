@@ -12,7 +12,6 @@ import uk.gov.ida.hub.policy.domain.FraudDetectedDetails;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
 import uk.gov.ida.hub.policy.domain.SessionId;
-import uk.gov.ida.hub.policy.domain.state.EidasCountrySelectedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
 import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
@@ -28,8 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static uk.gov.ida.eventemitter.EventDetailsKey.ab_test_variant;
 import static uk.gov.ida.eventemitter.EventDetailsKey.analytics_session_id;
-import static uk.gov.ida.eventemitter.EventDetailsKey.country_code;
 import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 import static uk.gov.ida.eventemitter.EventDetailsKey.error_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.gpg45_status;
@@ -50,11 +49,9 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.request_id;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_event_type;
 import static uk.gov.ida.eventemitter.EventDetailsKey.session_expiry_time;
 import static uk.gov.ida.eventemitter.EventDetailsKey.transaction_entity_id;
-import static uk.gov.ida.eventemitter.EventDetailsKey.ab_test_variant;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.HUB_EVENT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.SESSION_EVENT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.HubEvents.RECEIVED_AUTHN_REQUEST_FROM_HUB;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.COUNTRY_SELECTED;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE01_MATCH;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE01_NO_MATCH;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_CANCEL;
@@ -308,13 +305,6 @@ public class HubEventLogger {
 
         eventSinkProxy.logHubEvent(sessionHubEvent);
         eventEmitter.record(sessionHubEvent);
-    }
-
-    public void logCountrySelectedEvent(EidasCountrySelectedState eidasCountrySelectedState) {
-        Map<EventDetailsKey, String> details = new HashMap<>();
-        details.put(transaction_entity_id, eidasCountrySelectedState.getRequestIssuerEntityId());
-        details.put(country_code, eidasCountrySelectedState.getCountryEntityId());
-        logSessionEvent(eidasCountrySelectedState.getSessionId(), eidasCountrySelectedState.getRequestIssuerEntityId(), eidasCountrySelectedState.getSessionExpiryTimestamp(), eidasCountrySelectedState.getRequestId(), COUNTRY_SELECTED, details);
     }
 
     public void logErrorEvent(final UUID errorId, final SessionId sessionId, final String errorMessage) {

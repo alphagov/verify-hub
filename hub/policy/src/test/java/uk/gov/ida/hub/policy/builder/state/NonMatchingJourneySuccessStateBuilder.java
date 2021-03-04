@@ -4,10 +4,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,14 +17,8 @@ public class NonMatchingJourneySuccessStateBuilder {
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private URI assertionConsumerServiceUri = URI.create("https://assertion-consumer-service-uri");
     private SessionId sessionId = aSessionId().build();
-    private boolean transactionSupportsEidas = true;
     private String relayState = "relayState";
     private Set<String> encryptedAssertions = Set.of("encryptedAssertion");
-    private CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer(
-            "base64SamlResponse",
-            List.of("base64EncryptedKey"),
-            "countryEntityId"
-    );
 
     public static NonMatchingJourneySuccessStateBuilder aNonMatchingJourneySuccessStateBuilder() {
         return new NonMatchingJourneySuccessStateBuilder();
@@ -39,10 +31,8 @@ public class NonMatchingJourneySuccessStateBuilder {
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 relayState,
-                encryptedAssertions,
-                countrySignedResponseContainer
+                encryptedAssertions
         );
     }
 
@@ -71,11 +61,6 @@ public class NonMatchingJourneySuccessStateBuilder {
         return this;
     }
 
-    public NonMatchingJourneySuccessStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
-        this.transactionSupportsEidas = transactionSupportsEidas;
-        return this;
-    }
-
     public NonMatchingJourneySuccessStateBuilder withRelayState(String relayState) {
         this.relayState = relayState;
         return this;
@@ -86,8 +71,4 @@ public class NonMatchingJourneySuccessStateBuilder {
         return this;
     }
 
-    public NonMatchingJourneySuccessStateBuilder withCountrySignedResponseContainer(CountrySignedResponseContainer countrySignedResponseContainer) {
-        this.countrySignedResponseContainer = countrySignedResponseContainer;
-        return this;
-    }
 }
