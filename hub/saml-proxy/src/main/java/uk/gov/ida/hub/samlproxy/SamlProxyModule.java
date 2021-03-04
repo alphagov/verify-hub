@@ -22,9 +22,6 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.PKIXParametersProvider;
 import uk.gov.ida.eventemitter.Configuration;
-import uk.gov.ida.hub.shared.eventsink.EventSinkHttpProxy;
-import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
-import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.samlproxy.annotations.Config;
 import uk.gov.ida.hub.samlproxy.annotations.Policy;
 import uk.gov.ida.hub.samlproxy.config.CertificatesConfigProxy;
@@ -38,7 +35,6 @@ import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyDuplicateRequestExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyExceptionMapper;
 import uk.gov.ida.hub.samlproxy.exceptions.SamlProxySamlTransformationErrorExceptionMapper;
-import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlproxy.handlers.HubAsIdpMetadataHandler;
 import uk.gov.ida.hub.samlproxy.handlers.HubAsSpMetadataHandler;
 import uk.gov.ida.hub.samlproxy.logging.ExternalCommunicationEventLogger;
@@ -48,6 +44,9 @@ import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.security.AuthnRequestKeyStore;
 import uk.gov.ida.hub.samlproxy.security.AuthnResponseKeyStore;
 import uk.gov.ida.hub.samlproxy.security.HubSigningKeyStore;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHttpProxy;
+import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.jerseyclient.DefaultClientProvider;
 import uk.gov.ida.jerseyclient.ErrorHandlingClient;
 import uk.gov.ida.jerseyclient.JsonClient;
@@ -61,19 +60,13 @@ import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.api.HubTransformersFactory;
 import uk.gov.ida.saml.hub.validators.StringSizeValidator;
 import uk.gov.ida.saml.hub.validators.response.common.ResponseMaxSizeValidator;
-import uk.gov.ida.saml.metadata.EidasMetadataConfiguration;
-import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
-import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
-import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
 import uk.gov.ida.saml.metadata.HubMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.IdpMetadataPublicKeyStore;
 import uk.gov.ida.saml.metadata.MetadataHealthCheck;
-import uk.gov.ida.saml.metadata.MetadataResolverConfigBuilder;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.domain.HubIdentityProviderMetadataDto;
 import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
-import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
 import uk.gov.ida.saml.security.CredentialFactorySignatureValidator;
 import uk.gov.ida.saml.security.PublicKeyFactory;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
@@ -92,16 +85,12 @@ import javax.inject.Singleton;
 import javax.ws.rs.client.Client;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.security.KeyStore;
 import java.security.cert.CertificateException;
-import java.util.Optional;
-import java.util.Timer;
 import java.util.function.Function;
 
 public class SamlProxyModule extends AbstractModule {
 
     public static final String VERIFY_METADATA_HEALTH_CHECK = "VerifyMetadataHealthCheck";
-    public static final String COUNTRY_METADATA_HEALTH_CHECK = "CountryMetadataHealthCheck";
 
     @Override
     protected void configure() {
@@ -204,61 +193,6 @@ public class SamlProxyModule extends AbstractModule {
                 entityDescriptorElementTransformer,
                 elementEntityDescriptorTransformer,
                 hubEntityId);
-    }
-
-    @Provides
-    @Singleton
-    public Optional<EidasMetadataResolverRepository> getEidasMetadataResolverRepository(Environment environment, SamlProxyConfiguration configuration){
-        if (configuration.isEidasEnabled()){
-            EidasMetadataConfiguration eidasMetadataConfiguration = configuration.getCountryConfiguration().get().getMetadataConfiguration();
-
-            URI uri = eidasMetadataConfiguration.getTrustAnchorUri();
-
-            Client client = new ClientProvider(
-                    environment,
-                    eidasMetadataConfiguration.getJerseyClientConfiguration(),
-                    true,
-                    eidasMetadataConfiguration.getJerseyClientName()).get();
-
-            KeyStore keystore = eidasMetadataConfiguration.getTrustStore();
-
-            EidasTrustAnchorResolver trustAnchorResolver = new EidasTrustAnchorResolver(uri, client, keystore);
-
-            EidasMetadataResolverRepository metadataResolverRepository = new EidasMetadataResolverRepository(
-                    trustAnchorResolver,
-                    eidasMetadataConfiguration,
-                    new DropwizardMetadataResolverFactory(),
-                    new Timer(),
-                    new MetadataSignatureTrustEngineFactory(),
-                    new MetadataResolverConfigBuilder(),
-                    client
-            );
-
-            registerEidasMetadataRefreshTask(environment, metadataResolverRepository,  "eidas-metadata");
-            return Optional.of(metadataResolverRepository);
-        }
-        return Optional.empty();
-    }
-
-    @Provides
-    @Singleton
-    public Optional<EidasValidatorFactory> getEidasValidatorFactory(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository){
-
-         return eidasMetadataResolverRepository.map(EidasValidatorFactory::new);
-    }
-
-    @Provides
-    @Singleton
-    @Named(COUNTRY_METADATA_HEALTH_CHECK)
-    public Optional<EidasTrustAnchorHealthCheck> getCountryMetadataHealthCheck(
-        Optional<EidasMetadataResolverRepository> metadataResolverRepository,
-        Environment environment){
-
-        Optional<EidasTrustAnchorHealthCheck> metadataHealthCheck = metadataResolverRepository
-                .map(EidasTrustAnchorHealthCheck::new);
-
-        metadataHealthCheck.ifPresent(healthCheck -> environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, healthCheck));
-        return metadataHealthCheck;
     }
 
     @Provides
@@ -426,12 +360,4 @@ public class SamlProxyModule extends AbstractModule {
         });
     }
 
-    private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){
-        environment.admin().addTask(new Task(name + "-refresh") {
-            @Override
-            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) {
-                eidasMetadataResolverRepository.refresh();
-            }
-        });
-    }
 }

@@ -9,7 +9,6 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
-import uk.gov.ida.hub.samlproxy.config.CountryConfiguration;
 import uk.gov.ida.hub.samlproxy.config.SamlConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
@@ -20,7 +19,6 @@ import uk.gov.ida.truststore.TrustStoreConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
-import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SamlProxyConfiguration extends Configuration implements RestfulClientConfiguration, TrustStoreConfiguration, ServiceNameConfiguration, PrometheusConfiguration {
@@ -91,10 +89,6 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
 
     @Valid
     @JsonProperty
-    protected CountryConfiguration country;
-
-    @Valid
-    @JsonProperty
     public EventEmitterConfiguration eventEmitterConfiguration;
 
     protected SamlProxyConfiguration(){}
@@ -153,16 +147,8 @@ public class SamlProxyConfiguration extends Configuration implements RestfulClie
     @Override
     public boolean getEnableRetryTimeOutConnections() { return enableRetryTimeOutConnections; }
 
-    public Optional<CountryConfiguration> getCountryConfiguration() {
-        return Optional.ofNullable(country);
-    }
-
     public EventEmitterConfiguration getEventEmitterConfiguration() {
         return eventEmitterConfiguration;
-    }
-
-    public boolean isEidasEnabled(){
-        return getCountryConfiguration().isPresent() && getCountryConfiguration().get().isEnabled();
     }
 
     @Override

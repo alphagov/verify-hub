@@ -35,7 +35,6 @@ public abstract class AbstractContextExceptionMapper<TException extends Exceptio
         noContextPaths.add(Urls.SamlProxyUrls.SAML2_SSO_SENDER_API_ROOT);
         noContextPaths.add(Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
         noContextPaths.add(Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE);
-        noContextPaths.add(Urls.SamlProxyUrls.EIDAS_SAML2_SSO_RECEIVER_API_RESOURCE);
     }
 
     @Override

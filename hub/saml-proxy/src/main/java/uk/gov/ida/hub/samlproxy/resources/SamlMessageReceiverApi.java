@@ -13,7 +13,6 @@ import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.samlproxy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.samlproxy.domain.SamlAuthnResponseContainerDto;
-import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
@@ -43,7 +42,6 @@ public class SamlMessageReceiverApi {
     private final StringToOpenSamlObjectTransformer<org.opensaml.saml.saml2.core.Response> stringSamlResponseTransformer;
     private final SamlMessageSignatureValidator authnRequestSignatureValidator;
     private final SamlMessageSignatureValidator authnResponseSignatureValidator;
-    private final Optional<EidasValidatorFactory> eidasValidatorFactory;
     private final ProtectiveMonitoringLogger protectiveMonitoringLogger;
     private final SessionProxy sessionProxy;
 
@@ -53,19 +51,12 @@ public class SamlMessageReceiverApi {
             .labelNames("entity_id")
             .register();
 
-    private static final Counter authnResponsesFromCountries = Counter.build(
-            "verify_eidas_connector_responses_total",
-            "Total number of EIDAS Connector Responses")
-            .labelNames("entity_id")
-            .register();
-
     @Inject
     public SamlMessageReceiverApi(RelayStateValidator relayStateValidator,
                                   StringToOpenSamlObjectTransformer<AuthnRequest> stringSamlAuthnRequestTransformer,
                                   StringToOpenSamlObjectTransformer<org.opensaml.saml.saml2.core.Response> stringSamlResponseTransformer,
                                   @Named("authnRequestSignatureValidator") SamlMessageSignatureValidator authnRequestSignatureValidator,
                                   @Named("authnResponseSignatureValidator") SamlMessageSignatureValidator authnResponseSignatureValidator,
-                                  Optional<EidasValidatorFactory> eidasValidatorFactory,
                                   ProtectiveMonitoringLogger protectiveMonitoringLogger,
                                   SessionProxy sessionProxy) {
         this.relayStateValidator = relayStateValidator;
@@ -73,7 +64,6 @@ public class SamlMessageReceiverApi {
         this.stringSamlResponseTransformer = stringSamlResponseTransformer;
         this.authnRequestSignatureValidator = authnRequestSignatureValidator;
         this.authnResponseSignatureValidator = authnResponseSignatureValidator;
-        this.eidasValidatorFactory = eidasValidatorFactory;
         this.protectiveMonitoringLogger = protectiveMonitoringLogger;
         this.sessionProxy = sessionProxy;
     }
@@ -147,39 +137,4 @@ public class SamlMessageReceiverApi {
         return Response.ok(sessionProxy.receiveAuthnResponseFromIdp(authnResponseDto, sessionId)).build();
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(Urls.SamlProxyUrls.EIDAS_RESPONSE_POST_PATH)
-    @Timed
-    @ResponseMetered
-    public Response handleEidasResponsePost(SamlRequestDto samlRequestDto) {
-
-        if (eidasValidatorFactory.isPresent()) {
-            final SessionId sessionId = new SessionId(samlRequestDto.getRelayState());
-            MDC.put("SessionId", sessionId);
-
-            relayStateValidator.validate(samlRequestDto.getRelayState());
-
-            org.opensaml.saml.saml2.core.Response samlResponse = stringSamlResponseTransformer.apply(samlRequestDto.getSamlRequest());
-
-            eidasValidatorFactory.get().getValidatedResponse(samlResponse);
-            authnResponsesFromCountries.labels(samlResponse.getIssuer().getValue()).inc();
-
-            protectiveMonitoringLogger.logAuthnResponse(
-                samlResponse,
-                Direction.INBOUND,
-                SignatureStatus.VALID_SIGNATURE);
-
-            final SamlAuthnResponseContainerDto authnResponseDto = new SamlAuthnResponseContainerDto(
-                samlRequestDto.getSamlRequest(),
-                sessionId,
-                samlRequestDto.getPrincipalIpAsSeenByFrontend(),
-                samlRequestDto.getAnalyticsSessionId(),
-                samlRequestDto.getJourneyType()
-            );
-            return Response.ok(sessionProxy.receiveAuthnResponseFromCountry(authnResponseDto, sessionId)).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
-    }
 }
