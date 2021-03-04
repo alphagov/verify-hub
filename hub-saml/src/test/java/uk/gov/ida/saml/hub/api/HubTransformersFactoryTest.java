@@ -19,9 +19,7 @@ import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.test.TestCertificateStrings;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
-import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
-import uk.gov.ida.saml.hub.test.builders.EidasAuthnRequestBuilder;
 import uk.gov.ida.saml.hub.test.builders.IdaAuthnRequestBuilder;
 import uk.gov.ida.saml.security.IdaKeyStore;
 
@@ -73,43 +71,6 @@ public class HubTransformersFactoryTest {
         assertThat(authnReq).isNotNull();
         assertThat(authnReq.getSignature()).isNotNull();
         assertThat(authnReq.getSignature().getKeyInfo()).as("The Authn Request does not contain a KeyInfo section for Verify UK").isNull();
-    }
-
-    @Test
-    public void shouldContainKeyInfoInEidasAuthnRequestWhenHubSignCertIsPresent() throws Exception {
-        Function<EidasAuthnRequestFromHub, String> eidasTransformer = new HubTransformersFactory().getEidasAuthnRequestFromHubToStringTransformer(
-                getKeyStore(hubSigningCert),
-                signatureAlgorithm,
-                digestAlgorithm
-        );
-        EidasAuthnRequestFromHub eidasAuthnRequestFromHub = EidasAuthnRequestBuilder.anEidasAuthnRequest()
-                .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_2))
-                .buildFromHub();
-
-        String apply = eidasTransformer.apply(eidasAuthnRequestFromHub);
-
-        assertThat(apply).isNotNull();
-
-        AuthnRequest authnReq = stringToOpenSamlObjectTransformer.apply(apply);
-        assertThat(authnReq).isNotNull();
-        assertThat(authnReq.getSignature()).isNotNull();
-        assertThat(authnReq.getSignature().getKeyInfo()).as("The Authn Request contains a KeyInfo section for eIDAS").isNotNull();
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenKeyInfoIsRequiredButSigningCertIsNotPresent() throws Base64DecodingException {
-        expectedException.expectMessage("Unable to generate key info without a signing certificate");
-
-        Function<EidasAuthnRequestFromHub, String> eidasTransformer = new HubTransformersFactory().getEidasAuthnRequestFromHubToStringTransformer(
-                getKeyStore(null),
-                signatureAlgorithm,
-                digestAlgorithm
-        );
-        EidasAuthnRequestFromHub eidasAuthnRequestFromHub = EidasAuthnRequestBuilder.anEidasAuthnRequest()
-                .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_2))
-                .buildFromHub();
-
-        eidasTransformer.apply(eidasAuthnRequestFromHub);
     }
 
     private static IdaKeyStore getKeyStore(X509Certificate hubSigningCert) throws Base64DecodingException {

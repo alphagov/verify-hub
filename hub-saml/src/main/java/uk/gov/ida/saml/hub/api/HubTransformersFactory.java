@@ -15,7 +15,6 @@ import org.w3c.dom.Element;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
-import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.domain.SamlAttributeQueryAssertionEncrypter;
 import uk.gov.ida.saml.core.security.AssertionsDecrypters;
@@ -38,10 +37,8 @@ import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
 import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
-import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.Endpoints;
 import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
-import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.domain.MatchingServiceHealthCheckRequest;
@@ -62,15 +59,11 @@ import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseT
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AttributeQueryToElementTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.EidasAuthnRequestFromHubToAuthnRequestTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.EidasUnsignedAssertionsTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EncryptedAssertionUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.HubAssertionMarshaller;
 import uk.gov.ida.saml.hub.transformers.outbound.HubAttributeQueryRequestToSamlAttributeQueryTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.IdaAuthnRequestFromHubToAuthnRequestTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.MatchingServiceHealthCheckRequestToSamlAttributeQueryTransformer;
-import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundResponseFromHubToSamlResponseTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.RequestAbstractTypeToStringTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.SamlAttributeQueryAssertionSignatureSigner;
@@ -191,36 +184,12 @@ public class HubTransformersFactory {
         return responseStringTransformer.compose(outboundToResponseTransformer);
     }
 
-    public Function<AuthnResponseFromCountryContainerDto, String> getOutboundAuthnResponseFromCountryContainerToStringTransformer(
-            final EncryptionKeyStore encryptionKeyStore,
-            final IdaKeyStore keystore,
-            final EntityToEncryptForLocator entityToEncryptForLocator,
-            final ResponseAssertionSigner responseAssertionSigner,
-            final SignatureAlgorithm signatureAlgorithm,
-            final DigestAlgorithm digestAlgorithm,
-            final String hubEntityId) {
-        Function<AuthnResponseFromCountryContainerDto, Response> countryResponseToResponseTransformer = getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(hubEntityId);
-        Function<Response, String> responseStringTransformer = coreTransformersFactory.getResponseStringTransformer(
-                encryptionKeyStore,
-                keystore,
-                entityToEncryptForLocator,
-                responseAssertionSigner,
-                signatureAlgorithm,
-                digestAlgorithm
-        );
-        return responseStringTransformer.compose(countryResponseToResponseTransformer);
-    }
-
     public Function<HubIdentityProviderMetadataDto, Element> getHubIdentityProviderMetadataDtoToElementTransformer() {
         return  coreTransformersFactory.<EntityDescriptor>getXmlObjectToElementTransformer().compose(getHubIdentityProviderMetadataDtoToEntityDescriptorTransformer());
     }
 
     public Function<IdaAuthnRequestFromHub, String> getIdaAuthnRequestFromHubToStringTransformer(IdaKeyStore keyStore, SignatureAlgorithm signatureAlgorithm, DigestAlgorithm digestAlgorithm) {
         return getAuthnRequestToStringTransformer(false, keyStore, signatureAlgorithm, digestAlgorithm).compose(getIdaAuthnRequestFromHubToAuthnRequestTransformer());
-    }
-
-    public Function<EidasAuthnRequestFromHub, String> getEidasAuthnRequestFromHubToStringTransformer(IdaKeyStore keyStore, SignatureAlgorithm signatureAlgorithm, DigestAlgorithm digestAlgorithm) {
-        return getAuthnRequestToStringTransformer(true, keyStore, signatureAlgorithm, digestAlgorithm).compose(getEidasAuthnRequestFromHubToAuthnRequestTransformer());
     }
 
     public Function<String, AuthnRequestFromRelyingParty> getStringToIdaAuthnRequestTransformer(
@@ -287,21 +256,6 @@ public class HubTransformersFactory {
             SignatureAlgorithm signatureAlgorithm,
             DigestAlgorithm digestAlgorithm, String hubEntityId) {
         Function<HubAttributeQueryRequest, AttributeQuery> t1 = getHubAttributeQueryRequestToSamlAttributeQueryTransformer();
-        Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.ofNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
-
-        return t2.compose(t1);
-    }
-
-    public Function<HubEidasAttributeQueryRequest, Element> getEidasMatchingServiceRequestToElementTransformer(
-        IdaKeyStore keyStore,
-        EncryptionKeyStore encryptionKeyStore,
-        EntityToEncryptForLocator entity,
-        SignatureAlgorithm signatureAlgorithm,
-        DigestAlgorithm digestAlgorithm,
-        String hubEntityId,
-        String hubEidasEntityId) {
-
-        Function<HubEidasAttributeQueryRequest, AttributeQuery> t1 = getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(hubEidasEntityId);
         Function<AttributeQuery, Element> t2 = getAttributeQueryToElementTransformer(keyStore, encryptionKeyStore, Optional.ofNullable(entity), signatureAlgorithm, digestAlgorithm, hubEntityId);
 
         return t2.compose(t1);
@@ -454,14 +408,6 @@ public class HubTransformersFactory {
                 getEncryptedAssertionUnmarshaller());
     }
 
-    private OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(String hubEntityId) {
-        return new OutboundAuthnResponseFromCountryContainerToSamlResponseTransformer(
-                new OpenSamlXmlObjectFactory(),
-                hubEntityId,
-                new IdGenerator()
-        );
-    }
-
     private HubIdentityProviderMetadataDtoToEntityDescriptorTransformer getHubIdentityProviderMetadataDtoToEntityDescriptorTransformer() {
         OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
         return new HubIdentityProviderMetadataDtoToEntityDescriptorTransformer(
@@ -475,10 +421,6 @@ public class HubTransformersFactory {
         return new IdaAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory());
     }
 
-    private EidasAuthnRequestFromHubToAuthnRequestTransformer getEidasAuthnRequestFromHubToAuthnRequestTransformer() {
-        return new EidasAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory(), new AuthnContextFactory());
-    }
-
     private HubAttributeQueryRequestToSamlAttributeQueryTransformer getHubAttributeQueryRequestToSamlAttributeQueryTransformer() {
         return new HubAttributeQueryRequestToSamlAttributeQueryTransformer(
                 new OpenSamlXmlObjectFactory(),
@@ -488,28 +430,6 @@ public class HubTransformersFactory {
                         new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory())),
                 new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory()),
                 getEncryptedAssertionUnmarshaller());
-    }
-
-    private HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer getHubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(String hubEidasEntityId) {
-        HubAssertionMarshaller hubAssertionMarshaller = new HubAssertionMarshaller(
-                new OpenSamlXmlObjectFactory(),
-                new AttributeFactory_1_1(new OpenSamlXmlObjectFactory()),
-                new OutboundAssertionToSubjectTransformer(new OpenSamlXmlObjectFactory()));
-
-        EidasUnsignedAssertionsTransformer eidasUnsignedAssertionsTransformer = new EidasUnsignedAssertionsTransformer(
-                new OpenSamlXmlObjectFactory(),
-                new AuthnContextFactory(),
-                hubEidasEntityId
-        );
-        return new HubEidasAttributeQueryRequestToSamlAttributeQueryTransformer(
-                new OpenSamlXmlObjectFactory(),
-                hubAssertionMarshaller,
-                new AssertionFromIdpToAssertionTransformer(
-                        getStringToAssertionTransformer()
-                ),
-                new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory()),
-                getEncryptedAssertionUnmarshaller(),
-                eidasUnsignedAssertionsTransformer);
     }
 
     public EncryptedAssertionUnmarshaller getEncryptedAssertionUnmarshaller() {
