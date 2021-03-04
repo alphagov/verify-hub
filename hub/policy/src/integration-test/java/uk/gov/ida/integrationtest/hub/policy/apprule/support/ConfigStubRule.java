@@ -8,7 +8,6 @@ import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.domain.IdpConfigDtoBuilder;
 import uk.gov.ida.hub.policy.contracts.MatchingServiceConfigEntityDataDto;
-import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.IdpConfigDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchingProcessDto;
@@ -49,15 +48,6 @@ public class ConfigStubRule extends HttpStubRule {
         }
 
         setupStubForIdpConfig(allIdps, supportedLoa);
-    }
-
-    public void setUpStubForEnabledCountries(String rpEntityId, Collection<EidasCountryDto> enabledCountries) throws JsonProcessingException {
-        register(Urls.ConfigUrls.COUNTRIES_ROOT, OK, enabledCountries);
-
-        List<String> countryEntityIds = enabledCountries.stream().map(EidasCountryDto::getEntityId).collect(Collectors.toList());
-        UriBuilder countriesForTransactionUriBuilder = UriBuilder.fromPath(Urls.ConfigUrls.EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE);
-        String countriesForTransactionPath = countriesForTransactionUriBuilder.buildFromEncoded(StringEncoding.urlEncode(rpEntityId).replace("+", "%20")).getPath();
-        register(countriesForTransactionPath, OK, countryEntityIds);
     }
 
     public void setupStubForEidasEnabledForTransaction(String transactionEntityId, boolean eidasEnabledForTransaction) throws JsonProcessingException {
@@ -167,11 +157,6 @@ public class ConfigStubRule extends HttpStubRule {
     public void setUpStubForUserAccountCreation(String rpEntityId, List<UserAccountCreationAttribute> userAccountCreationAttributes) throws JsonProcessingException {
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE).build(rpEntityId).getPath();
         register(uri, OK, userAccountCreationAttributes);
-    }
-
-    public void setupStubForEidasCountries(List<EidasCountryDto> eidasCountryDtos) throws JsonProcessingException {
-        String uri = Urls.ConfigUrls.COUNTRIES_ROOT;
-        register(uri, OK, eidasCountryDtos);
     }
 
     public void setupStubForIdpConfig(String idpEntityId, IdpConfigDto idpConfigDto) throws JsonProcessingException {

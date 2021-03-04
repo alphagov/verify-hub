@@ -54,7 +54,7 @@ public class HubTransformersFactoryTest {
 
     @Test
     public void shouldNotContainKeyInfoInIdaAuthnRequest() throws Exception {
-        Function<IdaAuthnRequestFromHub, String> eidasTransformer = new HubTransformersFactory().getIdaAuthnRequestFromHubToStringTransformer(
+        Function<IdaAuthnRequestFromHub, String> authnRequestTransformer = new HubTransformersFactory().getIdaAuthnRequestFromHubToStringTransformer(
                 getKeyStore(hubSigningCert),
                 signatureAlgorithm,
                 digestAlgorithm);
@@ -63,7 +63,7 @@ public class HubTransformersFactoryTest {
                 .withLevelsOfAssurance(Collections.singletonList(AuthnContext.LEVEL_3))
                 .buildFromHub();
 
-        String apply = eidasTransformer.apply(idaAuthnRequestFromHub);
+        String apply = authnRequestTransformer.apply(idaAuthnRequestFromHub);
 
         assertThat(apply).isNotNull();
 
