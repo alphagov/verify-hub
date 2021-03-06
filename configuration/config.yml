@@ -38,4 +38,3 @@ selfService:
   s3BucketName: ${SERVICES_METADATA_BUCKET:-}
   s3ObjectKey: ${METADATA_OBJECT_KEY:-}
   cacheExpiry: 30s
-eidasDisabledAfter: ${EIDAS_DISABLED_AFTER:-}

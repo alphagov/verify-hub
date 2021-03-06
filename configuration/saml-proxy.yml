@@ -74,30 +74,6 @@ metadata:
       protocol: TLSv1.2
       trustStorePath: /tmp/truststores/${DEPLOYMENT}/ca_certs.ts
       trustStorePassword: puppet
-country:
-  enabled: true
-  metadata:
-    trustAnchorUri: https://www.${DOMAIN}/SAML2/metadata/trust-anchor
-    metadataSourceUri: https://www.${DOMAIN}/SAML2/metadata/aggregator
-    trustStore:
-      store: /tmp/truststores/${DEPLOYMENT}/metadata_ca_certs.ts
-      trustStorePassword: puppet
-    minRefreshDelay: 5000
-    maxRefreshDelay: 1800000
-    jerseyClientName: country-metadata-client
-    client:
-      timeout: 60s
-      timeToLive: 10m
-      cookiesEnabled: false
-      connectionTimeout: 4s
-      retries: 3
-      keepAlive: 60s
-      chunkedEncodingEnabled: false
-      validateAfterInactivityPeriod: 5s
-      tls:
-        protocol: TLSv1.2
-        verifyHostname: false
-        trustSelfSignedCertificates: true
 eventEmitterConfiguration:
   enabled: true
   accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}

@@ -56,7 +56,6 @@ logging:
       environment: ${SENTRY_ENV}
       threshold: ERROR
       tags: {"service-name": "policy"}
-eidas: true
 eventEmitterConfiguration:
   enabled: true
   accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}

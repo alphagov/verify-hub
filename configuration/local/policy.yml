@@ -57,8 +57,6 @@ clientTrustStoreConfiguration:
   path: ${HUB_TRUST_STORE_PATH:-/data/pki/hub.ts}
   password: marshmallow
 
-eidas: ${EIDAS_ENABLED:-false}
-
 eventEmitterConfiguration:
   enabled: ${EVENT_EMITTER_ENABLED:-false}
   accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID:-access_key}
