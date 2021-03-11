@@ -52,12 +52,6 @@ echo "Running tests"
 ./shutdown.sh
 
 if ./gradlew --parallel --daemon clean build intTest installDist 2>/dev/null; then
-  echo "Checking for dependency updates:"
-  tput setaf 3
-  ./gradlew -q dependencyUpdates -Drevision=release \
-    | sed -n 's/uk.gov.ida:\(.*\) \[\(.*\)\]/\1 \2/p' 
-  tput sgr0
-
   echo "Running services"
   if ./startup.sh skip-build; then
     funky_pass_banner
