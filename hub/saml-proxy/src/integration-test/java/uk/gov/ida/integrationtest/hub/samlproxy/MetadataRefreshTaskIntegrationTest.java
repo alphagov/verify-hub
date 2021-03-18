@@ -40,14 +40,4 @@ public class MetadataRefreshTaskIntegrationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
-    @Test
-    public void eidasConnectorMetadataRefreshTaskWorks() {
-        final Response response = client.target(UriBuilder.fromUri("http://localhost")
-                .path("/tasks/eidas-metadata-refresh")
-                .port(samlProxyAppRule.getAdminPort())
-                .build())
-                .request()
-                .post(Entity.text("refresh!"));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
 }

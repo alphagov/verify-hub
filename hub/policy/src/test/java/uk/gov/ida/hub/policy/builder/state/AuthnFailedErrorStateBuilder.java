@@ -12,7 +12,6 @@ import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
 public class AuthnFailedErrorStateBuilder {
 
-    private boolean transactionSupportsEidas = false;
     private String requestId = UUID.randomUUID().toString();
     private String requestIssuerId = "requestIssuerId";
     private URI assertionConsumerServiceIndex = URI.create("/default-service-index");
@@ -35,8 +34,7 @@ public class AuthnFailedErrorStateBuilder {
                 relayState,
                 sessionId,
                 idpEntityId,
-                forceAuthentication,
-                transactionSupportsEidas);
+                forceAuthentication);
     }
 
     public AuthnFailedErrorStateBuilder withRequestId(String requestId) {
@@ -46,11 +44,6 @@ public class AuthnFailedErrorStateBuilder {
 
     public AuthnFailedErrorStateBuilder withSessionId(SessionId sessionId) {
         this.sessionId = sessionId;
-        return this;
-    }
-
-    public AuthnFailedErrorStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
-        this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
     }
 

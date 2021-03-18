@@ -23,8 +23,6 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
     @JsonProperty
     private final SessionId sessionId;
     @JsonProperty
-    private final boolean transactionSupportsEidas;
-    @JsonProperty
     private final Boolean forceAuthentication;
 
     protected AbstractState(
@@ -33,7 +31,6 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
         final DateTime sessionExpiryTimestamp,
         final URI assertionConsumerServiceUri,
         final SessionId sessionId,
-        final boolean transactionSupportsEidas,
         final Boolean forceAuthentication) {
 
         this.requestId = requestId;
@@ -41,7 +38,6 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
         this.sessionExpiryTimestamp = sessionExpiryTimestamp;
         this.assertionConsumerServiceUri = assertionConsumerServiceUri;
         this.sessionId = sessionId;
-        this.transactionSupportsEidas = transactionSupportsEidas;
         this.forceAuthentication = forceAuthentication;
     }
 
@@ -72,11 +68,6 @@ public abstract class AbstractState implements State, Serializable, ErrorRespons
 
     @Override
     public final void doNotDirectlyImplementThisInterface() {}
-
-    @Override
-    public boolean getTransactionSupportsEidas() {
-        return transactionSupportsEidas;
-    }
 
     @Override
     public Optional<Boolean> getForceAuthentication() { return Optional.ofNullable(forceAuthentication); }

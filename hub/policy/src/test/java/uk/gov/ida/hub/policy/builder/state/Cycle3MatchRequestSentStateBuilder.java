@@ -25,7 +25,6 @@ public class Cycle3MatchRequestSentStateBuilder {
     private SessionId sessionId = aSessionId().build();
     private PersistentId persistentId = aPersistentId().build();
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
-    private boolean transactionSupportsEidas = false;
     private boolean registering = false;
 
     public static Cycle3MatchRequestSentStateBuilder aCycle3MatchRequestSentState() {
@@ -39,7 +38,6 @@ public class Cycle3MatchRequestSentStateBuilder {
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 identityProviderEntityId,
                 relayState,
                 levelOfAssurance,

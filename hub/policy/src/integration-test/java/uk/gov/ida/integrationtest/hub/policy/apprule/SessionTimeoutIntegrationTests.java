@@ -85,7 +85,6 @@ public class SessionTimeoutIntegrationTests {
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         eventSinkStub.setupStubForLogging();
         configStub.setUpStubForAssertionConsumerServiceUri(samlResponse.getIssuer());
-        configStub.setupStubForEidasEnabledForTransaction(THE_TX_ID, false);
     }
 
     @After

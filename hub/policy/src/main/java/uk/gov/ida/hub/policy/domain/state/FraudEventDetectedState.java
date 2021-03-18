@@ -20,8 +20,7 @@ public class FraudEventDetectedState extends AuthnFailedErrorState {
             @JsonProperty("relayState") final String relayState,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("idpEntityId") final String idpEntityId,
-            @JsonProperty("forceAuthentication") final Boolean forceAuthentication,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("forceAuthentication") final Boolean forceAuthentication) {
 
         super(
                 requestId,
@@ -31,7 +30,6 @@ public class FraudEventDetectedState extends AuthnFailedErrorState {
                 relayState,
                 sessionId,
                 idpEntityId,
-                forceAuthentication,
-                transactionSupportsEidas);
+                forceAuthentication);
     }
 }

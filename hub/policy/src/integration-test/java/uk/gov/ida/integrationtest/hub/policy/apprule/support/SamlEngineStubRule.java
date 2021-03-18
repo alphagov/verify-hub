@@ -14,7 +14,6 @@ import uk.gov.ida.hub.policy.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.policy.contracts.SamlMessageDto;
 import uk.gov.ida.hub.policy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
-import uk.gov.ida.hub.policy.domain.InboundResponseFromCountry;
 import uk.gov.ida.hub.policy.domain.InboundResponseFromIdpDto;
 
 import javax.ws.rs.core.Response;
@@ -23,10 +22,6 @@ import java.util.UUID;
 public class SamlEngineStubRule extends HttpStubRule {
     public void setUpStubForAuthnResponseGenerate(AuthnResponseFromHubContainerDto translatedMessage) throws JsonProcessingException {
         register(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
-    }
-
-    public void setUpStubForAuthnResponseWrappingCountryResponseGenerate(AuthnResponseFromHubContainerDto translatedMessage) throws JsonProcessingException {
-        register(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
     }
 
     public void setupStubForAuthnRequestTranslate(SamlResponseWithAuthnRequestInformationDto translatedMessage) throws JsonProcessingException {
@@ -45,24 +40,12 @@ public class SamlEngineStubRule extends HttpStubRule {
         register(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), inboundResponseFromIdpDto);
     }
 
-    public void setupStubForCountryAuthnResponseTranslate(InboundResponseFromCountry inboundResponseFromCountry) throws JsonProcessingException {
-        register(Urls.SamlEngineUrls.TRANSLATE_COUNTRY_AUTHN_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), inboundResponseFromCountry);
-    }
-
-    public void setupStubForEidasAttributeQueryRequestGeneration(AttributeQueryContainerDto dto) throws JsonProcessingException {
-        register(Urls.SamlEngineUrls.GENERATE_COUNTRY_ATTRIBUTE_QUERY_RESOURCE, Response.Status.OK.getStatusCode(), dto);
-    }
-
     public void setupStubForAttributeQueryRequest(AttributeQueryContainerDto msaRequest) throws JsonProcessingException {
         register(Urls.SamlEngineUrls.GENERATE_ATTRIBUTE_QUERY_RESOURCE, Response.Status.OK.getStatusCode(), msaRequest);
     }
 
     public void setupStubForIdpAuthnResponseTranslateReturningError(ErrorStatusDto errorStatusDto) throws JsonProcessingException {
         register(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE, Response.Status.BAD_REQUEST.getStatusCode(), errorStatusDto);
-    }
-
-    public void setupStubForCountryAuthnResponseTranslationFailure() throws JsonProcessingException {
-        register(Urls.SamlEngineUrls.TRANSLATE_COUNTRY_AUTHN_RESPONSE_RESOURCE, Response.Status.BAD_REQUEST.getStatusCode(), "");
     }
 
     public void setupStubForAttributeResponseTranslate(InboundResponseFromMatchingServiceDto inboundResponseFromMatchingServiceDto) throws JsonProcessingException {

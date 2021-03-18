@@ -79,31 +79,6 @@ metadata:
       verifyHostname: false
       trustSelfSignedCertificates: true
 
-country:
-  enabled: ${EIDAS_ENABLED:-false}
-  metadata:
-    trustAnchorUri: ${TRUST_ANCHOR_URI}
-    metadataSourceUri: ${METADATA_SOURCE_URI}
-    trustStore:
-      store: /data/pki/metadata.ts
-      password: marshmallow
-    minRefreshDelay: 5000
-    maxRefreshDelay: 60000
-    jerseyClientName: country-metadata-client
-    client:
-      timeout: 10s
-      timeToLive: 10m
-      cookiesEnabled: false
-      connectionTimeout: 2s
-      retries: 5
-      keepAlive: 60s
-      chunkedEncodingEnabled: false
-      validateAfterInactivityPeriod: 5s
-      tls:
-        protocol: TLSv1.2
-        verifyHostname: false
-        trustSelfSignedCertificates: true
-
 eventEmitterConfiguration:
   enabled: ${EVENT_EMITTER_ENABLED:-false}
   accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID:-access_key}

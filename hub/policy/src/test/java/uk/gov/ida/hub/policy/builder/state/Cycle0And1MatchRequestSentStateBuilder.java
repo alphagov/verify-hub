@@ -21,7 +21,6 @@ public class Cycle0And1MatchRequestSentStateBuilder {
     private PersistentId persistentId = aPersistentId().build();
     private String requestId = "requestId";
     private String encryptedMatchingDatasetAssertion = "encrypted-matching-dataset-assertion";
-    private boolean transactionSupportsEidas = false;
     private boolean registering = false;
 
     public static Cycle0And1MatchRequestSentStateBuilder aCycle0And1MatchRequestSentState() {
@@ -35,7 +34,6 @@ public class Cycle0And1MatchRequestSentStateBuilder {
                 sessionExpiryTimestamp,
                 URI.create("default-service-uri"),
                 sessionId,
-                transactionSupportsEidas,
                 registering,
                 "idp-entity-id",
                 null,

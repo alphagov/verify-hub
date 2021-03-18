@@ -17,8 +17,6 @@ import uk.gov.ida.hub.policy.domain.exception.SessionAlreadyExistingExceptionMap
 import uk.gov.ida.hub.policy.domain.exception.SessionCreationFailureExceptionMapper;
 import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundExceptionMapper;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationExceptionMapper;
-import uk.gov.ida.hub.policy.exception.EidasCountryNotSupportedExceptionMapper;
-import uk.gov.ida.hub.policy.exception.EidasNotSupportedExceptionMapper;
 import uk.gov.ida.hub.policy.exception.IdaJsonProcessingExceptionMapperBundle;
 import uk.gov.ida.hub.policy.exception.IdpDisabledExceptionMapper;
 import uk.gov.ida.hub.policy.exception.InvalidSessionStateExceptionMapper;
@@ -26,9 +24,7 @@ import uk.gov.ida.hub.policy.exception.PolicyApplicationExceptionMapper;
 import uk.gov.ida.hub.policy.exception.SessionTimeoutExceptionMapper;
 import uk.gov.ida.hub.policy.filters.SessionIdPathParamLoggingFilter;
 import uk.gov.ida.hub.policy.resources.AuthnRequestFromTransactionResource;
-import uk.gov.ida.hub.policy.resources.CountriesResource;
 import uk.gov.ida.hub.policy.resources.Cycle3DataResource;
-import uk.gov.ida.hub.policy.resources.EidasSessionResource;
 import uk.gov.ida.hub.policy.resources.MatchingServiceFailureResponseResource;
 import uk.gov.ida.hub.policy.resources.MatchingServiceResponseResource;
 import uk.gov.ida.hub.policy.resources.ResponseFromIdpResource;
@@ -88,8 +84,6 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
         environment.jersey().register(InvalidSessionStateExceptionMapper.class);
         environment.jersey().register(PolicyApplicationExceptionMapper.class);
         environment.jersey().register(SessionCreationFailureExceptionMapper.class);
-        environment.jersey().register(EidasCountryNotSupportedExceptionMapper.class);
-        environment.jersey().register(EidasNotSupportedExceptionMapper.class);
     }
 
     protected void registerResources(PolicyConfiguration configuration, Environment environment) {
@@ -99,9 +93,5 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
         environment.jersey().register(SessionResource.class);
         environment.jersey().register(MatchingServiceResponseResource.class);
         environment.jersey().register(MatchingServiceFailureResponseResource.class);
-        if (configuration.isEidasEnabled()) {
-            environment.jersey().register(CountriesResource.class);
-            environment.jersey().register(EidasSessionResource.class);
-        }
     }
 }

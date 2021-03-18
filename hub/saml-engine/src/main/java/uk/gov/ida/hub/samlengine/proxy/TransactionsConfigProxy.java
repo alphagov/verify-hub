@@ -53,13 +53,6 @@ public class TransactionsConfigProxy {
         return getBooleanConfig(entityId, uriBuilder);
     }
 
-    public Boolean isProxyNodeEntityId(String entityId) {
-        final UriBuilder uriBuilder = UriBuilder
-                .fromUri(configUri)
-                .path(Urls.ConfigUrls.IS_VERIFY_PROXY_NODE_RESOURCE);
-        return getBooleanConfig(entityId, uriBuilder);
-    }
-
     private Boolean getBooleanConfig(String entityId, UriBuilder uriBuilder) {
         URI uri = uriBuilder.buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
         try {

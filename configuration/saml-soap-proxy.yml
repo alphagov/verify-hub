@@ -9,7 +9,6 @@ server:
       - type: access-logstash-console
 saml:
   entityId: https://signin.service.gov.uk
-  eidasEntityId: https://www.${DOMAIN}/SAML2/metadata/connector
 enableRetryTimeOutConnections: true
 httpClient:
   timeout: 24s

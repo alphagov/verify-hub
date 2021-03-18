@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import org.junit.Before;
@@ -15,15 +14,12 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.impl.SignatureImpl;
-import org.slf4j.LoggerFactory;
-import uk.gov.ida.eidas.logging.EidasAuthnResponseAttributesHashLogger;
 import uk.gov.ida.hub.samlengine.builders.BuilderHelper;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
@@ -48,7 +44,6 @@ import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -59,12 +54,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.anAttributeStatement;
-import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
-import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder.aSubjectConfirmation;
-import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationDataBuilder.aSubjectConfirmationData;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IdpAuthnResponseTranslatorServiceTest {
@@ -110,14 +101,12 @@ public class IdpAuthnResponseTranslatorServiceTest {
     private final String statusMessage = "status message";
     private final IdpIdaStatus status = new IdpIdaStatus.IdpIdaStatusFactory().create(statusCode, statusMessage);
     private final String saml = "some saml";
-    private final String destination = "a destination";
     private final String principalIpAddressSeenByIdp = "ip address";
     private final String persistentIdName = "id name";
     private final String responseIssuer = "responseIssuer";
     private final String authStatementUnderlyingAssertionBlob = "some more saml";
     private final String encryptedAuthnAssertion = "some encrypted saml";
     private final String matchingDatasetUnderlyingAssertionBlob = "blob";
-    private final String requestId = randomUUID().toString();
 
     @Before
     public void setup() {
@@ -127,9 +116,7 @@ public class IdpAuthnResponseTranslatorServiceTest {
         final String assertionId2 = randomUUID().toString();
         final SignatureAlgorithm signatureAlgorithm = new SignatureRSASHA1();
         final DigestAlgorithm digestAlgorithm = new DigestSHA256();
-        final Subject mdsAssertionSubject = aSubject().withSubjectConfirmation(aSubjectConfirmation().withSubjectConfirmationData(aSubjectConfirmationData().withInResponseTo(requestId).build()).build()).build();
         final AttributeStatement matchingDatasetAttributeStatement = MatchingDatasetAttributeStatementBuilder_1_1.aMatchingDatasetAttributeStatement_1_1().build();
-        final Subject authnAssertionSubject = aSubject().withSubjectConfirmation(aSubjectConfirmation().withSubjectConfirmationData(aSubjectConfirmationData().withInResponseTo(requestId).build()).build()).build();
         final AttributeStatement ipAddress = anAttributeStatement().addAttribute(IPAddressAttributeBuilder.anIPAddress().build()).build();
         final Optional<Signature> signature = of(SignatureBuilder.aSignature().build());
         final SignatureImpl signatureImpl = ((SignatureImpl) signature.get());
@@ -138,7 +125,6 @@ public class IdpAuthnResponseTranslatorServiceTest {
         authnStatementAssertion = AssertionBuilder.anAssertion()
                 .withId(assertionId1)
                 .withIssuer(IssuerBuilder.anIssuer().withIssuerId(idpEntityId).build())
-                .withSubject(authnAssertionSubject)
                 .addAttributeStatement(ipAddress)
                 .addAuthnStatement(AuthnStatementBuilder.anAuthnStatement().build())
                 .withSignature(SignatureBuilder.aSignature()
@@ -148,7 +134,6 @@ public class IdpAuthnResponseTranslatorServiceTest {
 
         matchingDatasetAssertion = AssertionBuilder.anAssertion().withId(assertionId2)
                 .withIssuer(IssuerBuilder.anIssuer().withIssuerId(idpEntityId).build())
-                .withSubject(mdsAssertionSubject)
                 .addAttributeStatement(matchingDatasetAttributeStatement)
                 .withSignature(SignatureBuilder.aSignature()
                         .withSignatureAlgorithm(signatureAlgorithm)
@@ -172,8 +157,6 @@ public class IdpAuthnResponseTranslatorServiceTest {
         when(responseFromIdp.getAuthnStatementAssertion()).thenReturn(empty());
         when(responseFromIdp.getSignature()).thenReturn(signature);
         when(samlResponse.getIssuer()).thenReturn(issuer);
-        when(samlResponse.getDestination()).thenReturn(destination);
-        when(samlResponse.getInResponseTo()).thenReturn(requestId);
         when(stringToAssertionTransformer.apply(authStatementUnderlyingAssertionBlob)).thenReturn(authnStatementAssertion);
         when(stringToAssertionTransformer.apply(matchingDatasetUnderlyingAssertionBlob)).thenReturn(matchingDatasetAssertion);
 
@@ -267,42 +250,6 @@ public class IdpAuthnResponseTranslatorServiceTest {
         service.translate(responseContainer);
 
         verify(idpAssertionMetricsCollector, times(1)).update(matchingDatasetAssertion);
-    }
-
-    @Test
-    public void shouldLogAttributesHashWhenMatchingServiceEntityIsConfiguredAsAnEidasProxyNode() {
-        final Logger logger = (Logger) LoggerFactory.getLogger(EidasAuthnResponseAttributesHashLogger.class);
-        logger.addAppender(appender);
-
-        final PassthroughAssertion assertion = Mockito.mock(PassthroughAssertion.class);
-        when(assertion.getUnderlyingAssertionBlob()).thenReturn(matchingDatasetUnderlyingAssertionBlob);
-        when(responseFromIdp.getMatchingDatasetAssertion()).thenReturn(of(assertion));
-        when(responseContainer.getMatchingServiceEntityId()).thenReturn("a proxy node entity id");
-        when(transactionsConfigProxy.isProxyNodeEntityId("a proxy node entity id")).thenReturn(true);
-
-        translateAndCheckCommonFields();
-
-        verify(appender, times(1)).doAppend(loggingEventCaptor.capture());
-        final Map<String, String> mdcPropertyMap = loggingEventCaptor.getValue().getMDCPropertyMap();
-
-        assertThat(mdcPropertyMap.get(EidasAuthnResponseAttributesHashLogger.MDC_KEY_EIDAS_USER_HASH)).isNotNull();
-        assertThat(mdcPropertyMap.get(EidasAuthnResponseAttributesHashLogger.MDC_KEY_EIDAS_REQUEST_ID)).isEqualTo(requestId);
-        assertThat(mdcPropertyMap.get(EidasAuthnResponseAttributesHashLogger.MDC_KEY_EIDAS_DESTINATION)).isEqualTo(destination);
-    }
-
-    @Test
-    public void shouldNotLogAttributesHashWhenMatchingServiceEntityIsNotConfiguredAsAnEidasProxyNode() {
-        final Logger logger = (Logger) LoggerFactory.getLogger(EidasAuthnResponseAttributesHashLogger.class);
-        logger.addAppender(appender);
-
-        final PassthroughAssertion assertion = Mockito.mock(PassthroughAssertion.class);
-        when(assertion.getUnderlyingAssertionBlob()).thenReturn(matchingDatasetUnderlyingAssertionBlob);
-        when(responseFromIdp.getMatchingDatasetAssertion()).thenReturn(of(assertion));
-        when(responseContainer.getMatchingServiceEntityId()).thenReturn("a proxy node entity id");
-        when(transactionsConfigProxy.isProxyNodeEntityId("a proxy node entity id")).thenReturn(false);
-        translateAndCheckCommonFields();
-
-        verifyNoInteractions(appender);
     }
 
     private void checkAlwaysPresentFields(InboundResponseFromIdpDto result) {

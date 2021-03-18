@@ -102,7 +102,6 @@ public class SessionResourceAuthnResponseFromIdpIntegrationTests {
 
         configStub.setupStubForEnabledIdps(THE_TRANSACTION_ID, REGISTERING, REQUESTED_LOA, List.of(idpEntityId, "differentIdp"));
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
-        configStub.setupStubForEidasEnabledForTransaction(THE_TRANSACTION_ID, false);
         eventSinkStub.setupStubForLogging();
         configStub.setUpStubForMatchingServiceRequest(samlResponse.getIssuer(), matchingServiceEntityId);
         sessionId = aSessionIsCreated();

@@ -27,8 +27,7 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
             @JsonProperty("identityProviderEntityId") final String identityProviderEntityId,
             @JsonProperty("relayState") final String relayState,
-            @JsonProperty("sessionId") final SessionId sessionId,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("sessionId") final SessionId sessionId) {
 
         super(
                 requestId,
@@ -36,7 +35,6 @@ public class MatchingServiceRequestErrorState extends AbstractState implements R
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 null
         );
 

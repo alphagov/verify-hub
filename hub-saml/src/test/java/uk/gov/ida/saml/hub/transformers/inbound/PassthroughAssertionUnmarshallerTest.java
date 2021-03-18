@@ -9,7 +9,6 @@ import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.FraudDetectedDetails;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
-import uk.gov.ida.saml.core.extensions.EidasAuthnContext;
 import uk.gov.ida.saml.core.extensions.IdaAuthnContext;
 import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
@@ -39,20 +38,6 @@ public class PassthroughAssertionUnmarshallerTest {
     @Before
     public void setup() {
         unmarshaller = new PassthroughAssertionUnmarshaller(assertionStringTransformer, authnContextFactory);
-    }
-
-    @Test
-    public void shouldMapEidasLoACorrectly() {
-        final AuthnContextClassRef authnContextClassRef = anAuthnContextClassRef().withAuthnContextClasRefValue(EidasAuthnContext.EIDAS_LOA_SUBSTANTIAL).build();
-        Assertion theAssertion = anAssertion()
-            .addAuthnStatement(anAuthnStatement().withAuthnContext(anAuthnContext().withAuthnContextClassRef(authnContextClassRef).build()).build())
-            .buildUnencrypted();
-        when(authnContextFactory.mapFromEidasToLoA(EidasAuthnContext.EIDAS_LOA_SUBSTANTIAL)).thenReturn(AuthnContext.LEVEL_2);
-        when(assertionStringTransformer.apply(theAssertion)).thenReturn("AUTHN_ASSERTION");
-
-        PassthroughAssertion authnStatementAssertion = unmarshaller.fromAssertion(theAssertion, true);
-        assertThat(authnStatementAssertion.getAuthnContext().isPresent()).isEqualTo(true);
-        assertThat(authnStatementAssertion.getAuthnContext().get()).isEqualTo(AuthnContext.LEVEL_2);
     }
 
     @Test

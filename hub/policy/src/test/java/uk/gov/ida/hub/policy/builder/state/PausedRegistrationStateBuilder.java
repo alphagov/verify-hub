@@ -14,7 +14,6 @@ public class PausedRegistrationStateBuilder {
     private final DateTime sessionExpiryTimestamp = new DateTime(1988, 1, 1, 0, 0, DateTimeZone.UTC);
     private final URI assertionConsumerServiceUri = URI.create("urn:some:assertion:consumer:service");
     private final SessionId sessionId = new SessionId("some-session-id");
-    private final boolean transactionSupportsEidas = true;
     private final String relayState = "some-relay-state";
 
     public static PausedRegistrationStateBuilder aPausedRegistrationState() {
@@ -28,7 +27,6 @@ public class PausedRegistrationStateBuilder {
             sessionExpiryTimestamp,
             assertionConsumerServiceUri,
             sessionId,
-            transactionSupportsEidas,
             relayState
         );
     }

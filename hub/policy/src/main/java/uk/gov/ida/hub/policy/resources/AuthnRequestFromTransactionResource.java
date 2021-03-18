@@ -62,8 +62,7 @@ public class AuthnRequestFromTransactionResource {
     public AuthnRequestSignInDetailsDto getSignInProcessDto(@PathParam(SESSION_ID_PARAM) SessionId sessionId) {
         AuthnRequestSignInProcess signInProcess = authnRequestFromTransactionHandler.getSignInProcessDto(sessionId);
         return new AuthnRequestSignInDetailsDto(
-                signInProcess.getRequestIssuerId(),
-                signInProcess.getTransactionSupportsEidas());
+                signInProcess.getRequestIssuerId());
     }
 
     @GET

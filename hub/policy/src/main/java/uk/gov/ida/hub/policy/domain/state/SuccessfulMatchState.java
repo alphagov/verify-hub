@@ -26,8 +26,7 @@ public class SuccessfulMatchState extends AbstractSuccessfulMatchState {
             @JsonProperty("assertionConsumerServiceUri") final URI assertionConsumerServiceUri,
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("levelOfAssurance") final LevelOfAssurance levelOfAssurance,
-            @JsonProperty("isRegistering") final boolean isRegistering,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("isRegistering") final boolean isRegistering) {
 
         super(
                 requestId,
@@ -38,8 +37,7 @@ public class SuccessfulMatchState extends AbstractSuccessfulMatchState {
                 requestIssuerId,
                 assertionConsumerServiceUri,
                 sessionId,
-                levelOfAssurance,
-                transactionSupportsEidas);
+                levelOfAssurance);
 
         this.isRegistering = isRegistering;
     }

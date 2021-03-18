@@ -35,19 +35,13 @@ public class PassthroughAssertionUnmarshaller {
     }
 
     public PassthroughAssertion fromAssertion(Assertion assertion) {
-        return fromAssertion(assertion, false);
-    }
-
-    public PassthroughAssertion fromAssertion(Assertion assertion, boolean isEidas) {
         PersistentId persistentId = new PersistentId(assertion.getSubject().getNameID().getValue());
         Optional<AuthnContext> levelOfAssurance = Optional.empty();
         Optional<String> principalIpAddress = getPrincipalIpAddress(assertion.getAttributeStatements());
         if (!assertion.getAuthnStatements().isEmpty()) {
             String levelOfAssuranceAsString = assertion.getAuthnStatements().get(0).getAuthnContext().getAuthnContextClassRef().getAuthnContextClassRef();
 
-            levelOfAssurance = isEidas ?
-                    Optional.ofNullable(authnContextFactory.mapFromEidasToLoA(levelOfAssuranceAsString)) :
-                    Optional.ofNullable(authnContextFactory.authnContextForLevelOfAssurance(levelOfAssuranceAsString));
+            levelOfAssurance = Optional.ofNullable(authnContextFactory.authnContextForLevelOfAssurance(levelOfAssuranceAsString));
         }
 
         String underlyingAssertion = assertionStringTransformer.apply(assertion);

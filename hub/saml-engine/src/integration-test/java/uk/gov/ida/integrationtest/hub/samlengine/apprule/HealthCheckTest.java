@@ -14,7 +14,6 @@ import javax.ws.rs.client.Client;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.hub.samlengine.SamlEngineModule.COUNTRY_METADATA_HEALTH_CHECK;
 import static uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule.VERIFY_METADATA_PATH;
 
 public class HealthCheckTest {
@@ -36,9 +35,4 @@ public class HealthCheckTest {
         client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build(HealthCheckTest.class.getSimpleName());
     }
 
-    @Test
-    public void shouldContainBothVerifyAndCountryMetadataHealthChecks() {
-        assertThat(samlEngineAppRule.getEnvironment().healthChecks().getNames().stream().anyMatch(name -> name.contains(VERIFY_METADATA_PATH))).isTrue();
-        assertThat(samlEngineAppRule.getEnvironment().healthChecks().getNames().contains(COUNTRY_METADATA_HEALTH_CHECK)).isTrue();
-    }
 }

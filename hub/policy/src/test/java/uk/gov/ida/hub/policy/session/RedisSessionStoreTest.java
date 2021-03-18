@@ -70,7 +70,6 @@ public class RedisSessionStoreTest {
     private State getRandomState() {
        return new SessionStartedState(
                UUID.randomUUID().toString(), "a-relay-state", "a-request-issuer", URI.create("/an-endpoint"), false,
-               DateTime.now().plusMinutes(5), aSessionId().build(), false
-       );
+               DateTime.now().plusMinutes(5), aSessionId().build());
     }
 }

@@ -99,10 +99,6 @@ public class SessionRepository {
         return currentStateClass.equals(expectedStateClass) || expectedStateClass.isAssignableFrom(currentStateClass);
     }
 
-    public boolean getTransactionSupportsEidas(SessionId sessionId) {
-        return getCurrentState(sessionId).getTransactionSupportsEidas();
-    }
-
     public String getRequestIssuerEntityId(SessionId sessionId) {
         return getCurrentState(sessionId).getRequestIssuerEntityId();
     }
@@ -129,8 +125,7 @@ public class SessionRepository {
                     state.getRequestIssuerEntityId(),
                     state.getSessionExpiryTimestamp(),
                     state.getAssertionConsumerServiceUri(),
-                    state.getSessionId(),
-                    state.getTransactionSupportsEidas()
+                    state.getSessionId()
             );
             dataStore.replace(sessionId, timeoutState);
         }

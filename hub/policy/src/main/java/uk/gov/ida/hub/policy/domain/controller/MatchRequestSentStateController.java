@@ -58,8 +58,8 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
                 state.getIdpLevelOfAssurance(),
-                state.isRegistering(),
-                state.getTransactionSupportsEidas()
+                state.isRegistering()
+
         );
     }
 
@@ -71,7 +71,6 @@ public abstract class MatchRequestSentStateController<T extends MatchRequestSent
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
                 state.getSessionId(),
-                state.getTransactionSupportsEidas(),
                 state.getIdentityProviderEntityId(),
                 state.getRelayState().orElse(null),
                 state.getIdpLevelOfAssurance(),

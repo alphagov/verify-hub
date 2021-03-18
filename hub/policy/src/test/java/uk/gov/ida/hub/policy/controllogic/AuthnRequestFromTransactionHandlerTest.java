@@ -17,30 +17,23 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.SessionRepository;
 import uk.gov.ida.hub.policy.domain.StateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasSuccessfulMatchStateController;
-import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
-import uk.gov.ida.hub.policy.domain.controller.NonMatchingJourneySuccessStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
-import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
-import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
-import uk.gov.ida.hub.policy.domain.state.ResponsePreparedState;
+import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
+import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
-import uk.gov.ida.saml.core.domain.AuthnResponseFromCountryContainerDto;
-import uk.gov.ida.saml.core.domain.CountrySignedResponseContainer;
 
 import java.net.URI;
 import java.util.Optional;
-import java.net.URISyntaxException;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,7 +42,6 @@ import static org.mockito.Mockito.when;
 public class AuthnRequestFromTransactionHandlerTest {
     private static final String ANALYTICS_SESSION_ID = "anAnalyticsSessionId";
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("https://assertionConsumerServiceUri");
-    private static final String COUNTRY_ENTITY_ID = "aCountryEntityId";
     private static final String ENCRYPTED_KEY = "base64EncryptedKey";
     private static final String GENERATED_ID = "generatedId";
     private static final String IDP_ENTITY_ID = "anIdpEntityId";
@@ -91,7 +83,7 @@ public class AuthnRequestFromTransactionHandlerTest {
         when(policyConfiguration.getSessionLength()).thenReturn(Duration.standardHours(1));
         when(transactionsConfigProxy.getLevelsOfAssurance(samlResponseWithAuthnRequestInformationDto.getIssuer())).thenReturn(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_1));
 
-        authnRequestFromTransactionHandler.handleRequestFromTransaction(samlResponseWithAuthnRequestInformationDto, relayState, PRINCIPAL_IP_ADDRESS, ASSERTION_CONSUMER_SERVICE_URI, false);
+        authnRequestFromTransactionHandler.handleRequestFromTransaction(samlResponseWithAuthnRequestInformationDto, relayState, PRINCIPAL_IP_ADDRESS, ASSERTION_CONSUMER_SERVICE_URI);
 
         verify(hubEventLogger, times(1)).logSessionStartedEvent(
             any(),
@@ -126,49 +118,6 @@ public class AuthnRequestFromTransactionHandlerTest {
         authnRequestFromTransactionHandler.restartJourney(SESSION_ID);
 
         verify(restartJourneyStateController).transitionToSessionStartedState();
-    }
-
-    @Test
-    public void getAuthnResponseFromCountryContainerDtoReturnsAnAuthnResponseFromCountryContainerDto() throws URISyntaxException {
-        NonMatchingJourneySuccessStateController stateContoller = mock(NonMatchingJourneySuccessStateController.class);
-        when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
-        when(stateContoller.getState()).thenReturn(setupNonMatchingJourneySuccessState(SESSION_ID, true));
-        when(idGenerator.getId()).thenReturn(GENERATED_ID);
-
-        AuthnResponseFromCountryContainerDto responseDto = authnRequestFromTransactionHandler.getAuthnResponseFromCountryContainerDto(SESSION_ID);
-
-        assertThat(responseDto.getSamlResponse()).isEqualTo(SAML_RESPONSE);
-        assertThat(responseDto.getEncryptedKeys()).isEqualTo(asList(ENCRYPTED_KEY));
-        assertThat(responseDto.getPostEndpoint()).isEqualTo(ASSERTION_CONSUMER_SERVICE_URI);
-        assertThat(responseDto.getRelayState().get()).isEqualTo(RELAY_STATE);
-        assertThat(responseDto.getInResponseTo()).isEqualTo(REQUEST_ID);
-        assertThat(responseDto.getResponseId()).isEqualTo(GENERATED_ID);
-    }
-
-    @Test
-    public void isResponseFromCountryWithUnsignedAssertionsReturnsTrueIfCountrySignedResponseWithKeysIsPresent() {
-        NonMatchingJourneySuccessStateController stateContoller = mock(NonMatchingJourneySuccessStateController.class);
-        when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
-        when(stateContoller.getState()).thenReturn(setupNonMatchingJourneySuccessState(SESSION_ID, true));
-
-        assertThat(authnRequestFromTransactionHandler.isResponseFromCountryWithUnsignedAssertions(SESSION_ID)).isTrue();
-    }
-
-    @Test
-    public void isResponseFromCountryWithUnsignedAssertionsReturnsFalseIfCountrySignedResponseWithKeysIsNotPresent() {
-        NonMatchingJourneySuccessStateController stateContoller = mock(NonMatchingJourneySuccessStateController.class);
-        when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
-        when(stateContoller.getState()).thenReturn(setupNonMatchingJourneySuccessState(SESSION_ID, false));
-
-        assertThat(authnRequestFromTransactionHandler.isResponseFromCountryWithUnsignedAssertions(SESSION_ID)).isFalse();
-    }
-
-    @Test
-    public void isResponseFromCountryWithUnsignedAssertionsReturnsFalseIfStateControllerIsNotNonMatchingJourneySuccess() {
-        EidasSuccessfulMatchStateController stateContoller = mock(EidasSuccessfulMatchStateController.class);
-        when(sessionRepository.getStateController(SESSION_ID, ResponsePreparedState.class)).thenReturn(stateContoller);
-
-        assertThat(authnRequestFromTransactionHandler.isResponseFromCountryWithUnsignedAssertions(SESSION_ID)).isFalse();
     }
 
     private static class IdpSelectingStateControllerSpy implements IdpSelectingStateController, StateController {
@@ -217,22 +166,4 @@ public class AuthnRequestFromTransactionHandlerTest {
         }
     }
 
-    private NonMatchingJourneySuccessState setupNonMatchingJourneySuccessState(SessionId sessionId, boolean withResponse) {
-        CountrySignedResponseContainer countrySignedResponseContainer = new CountrySignedResponseContainer(
-                SAML_RESPONSE,
-                asList(ENCRYPTED_KEY),
-                COUNTRY_ENTITY_ID
-        );
-        return new NonMatchingJourneySuccessState(
-                REQUEST_ID,
-                REQUEST_ISSUER_ENTITY_ID,
-                DateTime.now(),
-                ASSERTION_CONSUMER_SERVICE_URI,
-                sessionId,
-                true,
-                RELAY_STATE,
-                Set.of(),
-                withResponse ? countrySignedResponseContainer : null
-        );
-    }
 }

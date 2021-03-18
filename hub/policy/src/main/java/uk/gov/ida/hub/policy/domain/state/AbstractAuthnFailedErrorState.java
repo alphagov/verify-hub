@@ -22,7 +22,6 @@ public abstract class AbstractAuthnFailedErrorState extends AbstractState implem
             final URI assertionConsumerServiceUri,
             final String relayState,
             final SessionId sessionId,
-            final boolean transactionSupportsEidas,
             final Boolean forceAuthentication) {
 
         super(
@@ -31,7 +30,6 @@ public abstract class AbstractAuthnFailedErrorState extends AbstractState implem
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 forceAuthentication
         );
 

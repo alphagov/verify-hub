@@ -52,10 +52,6 @@ public class StateProcessingValidationException extends RuntimeException {
         return new StateProcessingValidationException(format("Response to request ID [{0}] contains LOA {1} we do not accept from IDP [{2}]", requestId, levelOfAssurance, issuer), Level.ERROR);
     }
 
-    public static StateProcessingValidationException eidasCountryNotEnabled(String countryEntityId) {
-        return new StateProcessingValidationException(format("Country with entity id {0} is not enabled for eidas", countryEntityId), Level.ERROR);
-    }
-
     public static StateProcessingValidationException authnResponseTranslationFailed(String requestId, IdpIdaStatus.Status status) {
         return new StateProcessingValidationException(format("Authn translation for request {0} failed with status {1}", requestId, status), Level.ERROR);
     }

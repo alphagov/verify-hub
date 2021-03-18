@@ -56,16 +56,6 @@ public class SessionProxy {
     }
 
     @Timed
-    public ResponseActionDto receiveAuthnResponseFromCountry(SamlAuthnResponseContainerDto authnResponseDto, SessionId sessionId) {
-        URI uri = UriBuilder
-            .fromUri(policyUri)
-            .path(Urls.PolicyUrls.COUNTRY_AUTHN_RESPONSE_RESOURCE)
-            .build(sessionId);
-
-        return client.post(authnResponseDto, uri, ResponseActionDto.class);
-    }
-
-    @Timed
     public AuthnResponseFromHubContainerDto getAuthnResponseFromHub(SessionId sessionId) {
         URI uri = UriBuilder
                 .fromUri(policyUri)

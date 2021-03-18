@@ -15,7 +15,6 @@ import uk.gov.ida.hub.samlproxy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.samlproxy.domain.ResponseActionDto;
 import uk.gov.ida.hub.samlproxy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.samlproxy.domain.SamlAuthnResponseContainerDto;
-import uk.gov.ida.hub.samlproxy.factories.EidasValidatorFactory;
 import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
@@ -26,12 +25,10 @@ import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
-import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.namespace.QName;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -60,9 +57,6 @@ public class SamlMessageReceiverApiTest {
     private SamlMessageSignatureValidator samlMessageSignatureValidator;
 
     @Mock
-    EidasValidatorFactory eidasValidatorFactory;
-
-    @Mock
     private ProtectiveMonitoringLogger protectiveMonitoringLogger;
 
     @Mock
@@ -86,7 +80,6 @@ public class SamlMessageReceiverApiTest {
                 stringSamlResponseTransformer,
                 samlMessageSignatureValidator,
                 samlMessageSignatureValidator,
-                Optional.of(eidasValidatorFactory),
                 protectiveMonitoringLogger,
                 sessionProxy);
         validSamlResponse = aValidIdpResponse().build();
@@ -196,31 +189,4 @@ public class SamlMessageReceiverApiTest {
         verify(samlMessageSignatureValidator).validate(eq(validSamlResponse), any(QName.class));
     }
 
-    @Test
-    public void handleEidasResponsePost_shouldValidateSignatureOfIncomingSamlMessage() {
-        when(stringSamlResponseTransformer.apply(SAML_REQUEST)).thenReturn(validSamlResponse);
-        ValidatedResponse validatedResponse = new ValidatedResponse(validSamlResponse);
-        when(eidasValidatorFactory.getValidatedResponse(validSamlResponse)).thenReturn(validatedResponse);
-
-        Response response = samlMessageReceiverApi.handleEidasResponsePost(SAML_REQUEST_DTO);
-
-        assertThat(response.getStatus()).isEqualTo(Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void handleEidasResponsePost_shouldReturnNotFoundIfValidatorAbsent() {
-        samlMessageReceiverApi = new SamlMessageReceiverApi(
-                relayStateValidator,
-                stringSamlAuthnRequestTransformer,
-                stringSamlResponseTransformer,
-                samlMessageSignatureValidator,
-                samlMessageSignatureValidator,
-                Optional.empty(),
-                protectiveMonitoringLogger,
-                sessionProxy);
-
-        Response response = samlMessageReceiverApi.handleEidasResponsePost(SAML_REQUEST_DTO);
-
-        assertThat(response.getStatus()).isEqualTo(Status.NOT_FOUND.getStatusCode());
-    }
 }

@@ -25,39 +25,30 @@ import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolve
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.security.crypto.KeySupport;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
-import org.opensaml.xmlsec.encryption.support.EncryptionConstants;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.w3c.dom.Element;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.hub.samlengine.annotations.Config;
 import uk.gov.ida.hub.samlengine.attributequery.AttributeQueryGenerator;
 import uk.gov.ida.hub.samlengine.attributequery.HubAttributeQueryRequestBuilder;
-import uk.gov.ida.hub.samlengine.attributequery.HubEidasAttributeQueryRequestBuilder;
 import uk.gov.ida.hub.samlengine.config.ConfigServiceKeyStore;
 import uk.gov.ida.hub.samlengine.config.RedisConfiguration;
 import uk.gov.ida.hub.samlengine.config.SamlConfiguration;
-import uk.gov.ida.hub.samlengine.exceptions.InvalidConfigurationException;
 import uk.gov.ida.hub.samlengine.exceptions.KeyLoadingException;
 import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
 import uk.gov.ida.hub.samlengine.factories.OutboundResponseFromHubToResponseTransformerFactory;
 import uk.gov.ida.hub.samlengine.locators.AssignableEntityToEncryptForLocator;
 import uk.gov.ida.hub.samlengine.logging.IdpAssertionMetricsCollector;
 import uk.gov.ida.hub.samlengine.metadata.SigningCertFromMetadataExtractor;
-import uk.gov.ida.hub.samlengine.proxy.CountrySingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.hub.samlengine.redis.AssertionExpirationCacheRedisCodec;
 import uk.gov.ida.hub.samlengine.redis.AuthnRequestExpirationCacheRedisCodec;
 import uk.gov.ida.hub.samlengine.security.RedisIdExpirationCache;
-import uk.gov.ida.hub.samlengine.services.CountryAuthnRequestGeneratorService;
-import uk.gov.ida.hub.samlengine.services.CountryAuthnResponseTranslatorService;
-import uk.gov.ida.hub.samlengine.services.CountryMatchingServiceRequestGeneratorService;
-import uk.gov.ida.hub.samlengine.services.EidasAuthnRequestTranslator;
 import uk.gov.ida.hub.samlengine.services.IdaAuthnRequestTranslator;
 import uk.gov.ida.hub.samlengine.services.IdpAuthnRequestGeneratorService;
 import uk.gov.ida.hub.samlengine.services.IdpAuthnResponseTranslatorService;
@@ -68,10 +59,6 @@ import uk.gov.ida.hub.samlengine.services.MatchingServiceResponseTranslatorServi
 import uk.gov.ida.hub.samlengine.services.RpAuthnRequestTranslatorService;
 import uk.gov.ida.hub.samlengine.services.RpAuthnResponseGeneratorService;
 import uk.gov.ida.hub.samlengine.services.RpErrorResponseGeneratorService;
-import uk.gov.ida.hub.samlengine.validation.country.EidasAttributeStatementAssertionValidator;
-import uk.gov.ida.hub.samlengine.validation.country.EidasAuthnResponseIssuerValidator;
-import uk.gov.ida.hub.samlengine.validation.country.ResponseAssertionsFromCountryValidator;
-import uk.gov.ida.hub.samlengine.validation.country.ResponseFromCountryValidator;
 import uk.gov.ida.jerseyclient.DefaultClientProvider;
 import uk.gov.ida.jerseyclient.ErrorHandlingClient;
 import uk.gov.ida.jerseyclient.JsonClient;
@@ -81,37 +68,25 @@ import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
-import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionBlobEncrypter;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.AssertionEncrypter;
 import uk.gov.ida.saml.core.transformers.outbound.decorators.ResponseAssertionSigner;
-import uk.gov.ida.saml.core.validation.assertion.AssertionAttributeStatementValidator;
-import uk.gov.ida.saml.core.validation.assertion.IdentityProviderAssertionValidator;
-import uk.gov.ida.saml.core.validation.subjectconfirmation.AssertionSubjectConfirmationValidator;
 import uk.gov.ida.saml.core.validators.DestinationValidator;
-import uk.gov.ida.saml.core.validators.assertion.AuthnStatementAssertionValidator;
-import uk.gov.ida.saml.core.validators.assertion.DuplicateAssertionValidatorImpl;
-import uk.gov.ida.saml.core.validators.subject.AssertionSubjectValidator;
 import uk.gov.ida.saml.deserializers.ElementToOpenSamlXMLObjectTransformer;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.api.HubTransformersFactory;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
-import uk.gov.ida.saml.hub.domain.EidasAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
-import uk.gov.ida.saml.hub.domain.HubEidasAttributeQueryRequest;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 import uk.gov.ida.saml.hub.domain.MatchingServiceHealthCheckRequest;
 import uk.gov.ida.saml.hub.transformers.inbound.AuthnRequestToIdaRequestFromRelyingPartyTransformer;
-import uk.gov.ida.saml.hub.transformers.inbound.CountryAuthenticationStatusUnmarshaller;
 import uk.gov.ida.saml.hub.transformers.inbound.InboundResponseFromIdpDataGenerator;
 import uk.gov.ida.saml.hub.transformers.inbound.PassthroughAssertionUnmarshaller;
-import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToCountryAuthenticationStatusCodeMapper;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.inbound.providers.DecoratedSamlResponseToInboundResponseFromMatchingServiceTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.AssertionFromIdpToAssertionTransformer;
 import uk.gov.ida.saml.hub.transformers.outbound.EncryptedAssertionUnmarshaller;
-import uk.gov.ida.saml.hub.transformers.outbound.OutboundAuthnResponseFromCountryContainerToStringFunction;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundSamlProfileResponseFromHubToStringFunctionSHA256;
 import uk.gov.ida.saml.hub.transformers.outbound.SimpleProfileOutboundResponseFromHubToSamlResponseTransformer;
@@ -120,28 +95,15 @@ import uk.gov.ida.saml.hub.transformers.outbound.providers.ResponseToUnsignedStr
 import uk.gov.ida.saml.hub.transformers.outbound.providers.SimpleProfileOutboundResponseFromHubToResponseTransformerProvider;
 import uk.gov.ida.saml.hub.validators.authnrequest.AuthnRequestIdKey;
 import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
-import uk.gov.ida.saml.metadata.EidasMetadataConfiguration;
-import uk.gov.ida.saml.metadata.EidasMetadataResolverRepository;
-import uk.gov.ida.saml.metadata.EidasTrustAnchorHealthCheck;
-import uk.gov.ida.saml.metadata.EidasTrustAnchorResolver;
 import uk.gov.ida.saml.metadata.ExpiredCertificateMetadataFilter;
-import uk.gov.ida.saml.metadata.MetadataResolverConfigBuilder;
-import uk.gov.ida.saml.metadata.factories.DropwizardMetadataResolverFactory;
-import uk.gov.ida.saml.metadata.factories.MetadataSignatureTrustEngineFactory;
-import uk.gov.ida.saml.security.AssertionDecrypter;
-import uk.gov.ida.saml.security.DecrypterFactory;
-import uk.gov.ida.saml.security.EidasValidatorFactory;
 import uk.gov.ida.saml.security.EncrypterFactory;
 import uk.gov.ida.saml.security.EncryptionKeyStore;
 import uk.gov.ida.saml.security.EntityToEncryptForLocator;
 import uk.gov.ida.saml.security.IdaKeyStore;
-import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
 import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 import uk.gov.ida.saml.security.MetadataBackedSignatureValidator;
 import uk.gov.ida.saml.security.SecretKeyEncrypter;
 import uk.gov.ida.saml.security.SigningKeyStore;
-import uk.gov.ida.saml.security.validators.encryptedelementtype.EncryptionAlgorithmValidator;
-import uk.gov.ida.saml.security.validators.issuer.IssuerValidator;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
@@ -153,13 +115,10 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.security.KeyException;
 import java.security.KeyPair;
-import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
-import java.util.Set;
-import java.util.Timer;
 import java.util.function.Function;
 
 import static java.util.Arrays.asList;
@@ -168,8 +127,6 @@ import static java.util.Collections.singletonList;
 public class SamlEngineModule extends AbstractModule {
 
     private static final String REDIS_OBJECT_MAPPER = "RedisObjectMapper";
-    public static final String COUNTRY_METADATA_HEALTH_CHECK = "CountryMetadataHealthCheck";
-    public static final String EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE = "eIDAS hub entity id is not configured";
     public static final String VERIFY_METADATA_RESOLVER = "VerifyMetadataResolver";
     public static final String FED_METADATA_ENTITY_SIGNATURE_VALIDATOR = "verifySignatureValidator";
     public static final String VERIFY_METADATA_SIGNATURE_TRUST_ENGINE = "VerifyMetadataSignatureTrustEngine";
@@ -211,7 +168,6 @@ public class SamlEngineModule extends AbstractModule {
         bind(RpAuthnResponseGeneratorService.class);
         bind(IdpAuthnRequestGeneratorService.class);
         bind(IdaAuthnRequestTranslator.class);
-        bind(EidasAuthnRequestTranslator.class);
         bind(MatchingServiceHealthcheckResponseTranslatorService.class);
     }
 
@@ -223,92 +179,9 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
-    private HubEidasAttributeQueryRequestBuilder getHubEidasAttributeQueryRequestBuilder(@Named("HubEntityId") String  hubEntityId) {
-        return new HubEidasAttributeQueryRequestBuilder(hubEntityId);
-    }
-
-    @Provides
-    private Function<HubEidasAttributeQueryRequest, Element> getEidasMatchingServiceRequestElementTransformer(
-        IdaKeyStore keyStore,
-        EncryptionKeyStore encryptionKeyStore,
-        EntityToEncryptForLocator entityToEncryptForLocator,
-        SignatureAlgorithm signatureAlgorithm,
-        DigestAlgorithm digestAlgorithm,
-        @Named("HubEntityId") String hubEntityId,
-        @Named("HubEidasEntityId") Optional<String> hubEidasEntityId
-    ) {
-
-        return hubTransformersFactory.getEidasMatchingServiceRequestToElementTransformer(
-            keyStore,
-            encryptionKeyStore,
-            entityToEncryptForLocator,
-            signatureAlgorithm,
-            digestAlgorithm,
-            hubEntityId,
-            hubEidasEntityId.orElseThrow(
-                        () -> new InvalidConfigurationException(EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE)));
-    }
-
-    @Provides
-    private AttributeQueryGenerator<HubEidasAttributeQueryRequest> getHubEidasAttributeQueryRequestAttributeQueryGenerator(
-        Function<HubEidasAttributeQueryRequest, Element> attributeQueryRequestTransformer,
-        AssignableEntityToEncryptForLocator entityToEncryptForLocator) {
-        return new AttributeQueryGenerator<>(attributeQueryRequestTransformer, entityToEncryptForLocator);
-    }
-
-    @Provides
-    private CountryMatchingServiceRequestGeneratorService getCountryMatchingServiceRequestGeneratorService(
-        HubEidasAttributeQueryRequestBuilder eidasAttributeQueryRequestBuilder,
-        AttributeQueryGenerator<HubEidasAttributeQueryRequest> eidasAttributeQueryGenerator) {
-        return new CountryMatchingServiceRequestGeneratorService(eidasAttributeQueryRequestBuilder, eidasAttributeQueryGenerator);
-    }
-
-    @Provides
-    private CountryAuthnRequestGeneratorService getCountryAuthnRequestGeneratorService(Optional<CountrySingleSignOnServiceHelper> countrySingleSignOnServiceHelper,
-                                                                                       Function<EidasAuthnRequestFromHub, String> eidasRequestStringTransformer,
-                                                                                       EidasAuthnRequestTranslator eidasAuthnRequestTranslator,
-                                                                                       @Named("HubEidasEntityId") Optional<String> hubEidasEntityId) {
-        return new CountryAuthnRequestGeneratorService(
-                countrySingleSignOnServiceHelper.orElseThrow(),
-                eidasRequestStringTransformer,
-                eidasAuthnRequestTranslator,
-                hubEidasEntityId.orElseThrow(
-                        () -> new InvalidConfigurationException(EIDAS_HUB_ENTITY_ID_NOT_CONFIGURED_ERROR_MESSAGE)));
-    }
-
-    @Provides
-    private CountryAuthnResponseTranslatorService getCountryAuthnResponseTranslatorService(StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer,
-                                                                                           ResponseFromCountryValidator responseFromCountryValidator,
-                                                                                           @Named("ResponseAssertionsFromCountryValidator") Optional<ResponseAssertionsFromCountryValidator> responseAssertionFromCountryValidator,
-                                                                                           Optional<DestinationValidator> validateSamlResponseIssuedByIdpDestination,
-                                                                                           @Named("EidasAssertionDecrypter") AssertionDecrypter assertionDecrypter,
-                                                                                           SecretKeyEncrypter secretKeyEncrypter,
-                                                                                           AssertionBlobEncrypter assertionBlobEncrypter,
-                                                                                           Optional<EidasValidatorFactory> eidasValidatorFactory,
-                                                                                           PassthroughAssertionUnmarshaller passthroughAssertionUnmarshaller) {
-        return new CountryAuthnResponseTranslatorService(
-                stringToOpenSamlResponseTransformer,
-                responseFromCountryValidator,
-                responseAssertionFromCountryValidator.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
-                validateSamlResponseIssuedByIdpDestination.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
-                assertionDecrypter,
-                secretKeyEncrypter,
-                assertionBlobEncrypter,
-                eidasValidatorFactory.orElseThrow(() -> new InvalidConfigurationException("Eidas not configured correctly")),
-                passthroughAssertionUnmarshaller,
-                new CountryAuthenticationStatusUnmarshaller());
-    }
-
-    @Provides
     public PassthroughAssertionUnmarshaller getPassthroughAssertionUnmarshaller() {
         return new PassthroughAssertionUnmarshaller(new XmlObjectToBase64EncodedStringTransformer<>(), new AuthnContextFactory());
     }
-
-    @Provides
-    public Optional<DestinationValidator> getValidateSamlResponseIssuedByIdpDestination(@Named("ExpectedEidasDestination") Optional<URI> expectedDestination) {
-        return expectedDestination.map(d -> new DestinationValidator(d, Urls.FrontendUrls.SAML2_SSO_EIDAS_RESPONSE_ENDPOINT));
-    }
-
 
     @Provides
     @Named("VERIFY_METADATA_REFRESH_TASK")
@@ -332,99 +205,9 @@ public class SamlEngineModule extends AbstractModule {
 
     @Provides
     @Singleton
-    private Optional<EidasMetadataResolverRepository> getCountryMetadataResolverRepository(Environment environment, SamlEngineConfiguration configuration){
-        if (configuration.isEidasEnabled()) {
-            EidasMetadataConfiguration eidasMetadataConfiguration = configuration.getCountryConfiguration().get().getMetadataConfiguration();
-            URI trustAnchorUri = eidasMetadataConfiguration.getTrustAnchorUri();
-
-            Client client = new ClientProvider(
-                    environment,
-                    eidasMetadataConfiguration.getJerseyClientConfiguration(),
-                    true,
-                    eidasMetadataConfiguration.getJerseyClientName()).get();
-
-            KeyStore trustStore = eidasMetadataConfiguration.getTrustStore();
-
-            EidasTrustAnchorResolver trustAnchorResolver = new EidasTrustAnchorResolver(
-                    trustAnchorUri,
-                    client,
-                    trustStore);
-
-            EidasMetadataResolverRepository eidasMetadataResolverRepository = new EidasMetadataResolverRepository(
-                    trustAnchorResolver,
-                    eidasMetadataConfiguration,
-                    new DropwizardMetadataResolverFactory(),
-                    new Timer(),
-                    new MetadataSignatureTrustEngineFactory(),
-                    new MetadataResolverConfigBuilder(),
-                    client);
-
-            registerEidasMetadataRefreshTask(environment, eidasMetadataResolverRepository, "eidas-metadata");
-            return Optional.of(eidasMetadataResolverRepository);
-        }
-        return Optional.empty();
-    }
-
-    @Provides
-    @Singleton
-    public Optional<EidasValidatorFactory> getEidasValidatorFactory(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository, SamlEngineConfiguration configuration){
-        if (configuration.isEidasEnabled()){
-            Optional<EidasValidatorFactory> eidasValidatorFactory = eidasMetadataResolverRepository
-                    .map(EidasValidatorFactory::new);
-            return eidasValidatorFactory;
-        }
-        return Optional.empty();
-    }
-
-    @Provides
-    @Singleton
-    public Optional<CountrySingleSignOnServiceHelper> getCountrySingleSignOnServiceHelper(Optional<EidasMetadataResolverRepository> eidasMetadataResolverRepository, SamlEngineConfiguration configuration){
-        if (configuration.isEidasEnabled()){
-            Optional<CountrySingleSignOnServiceHelper> countrySingleSignOnServiceHelper = eidasMetadataResolverRepository
-                    .map(CountrySingleSignOnServiceHelper::new);
-            return countrySingleSignOnServiceHelper;
-        }
-        return Optional.empty();
-    }
-
-    @Provides
-    @Singleton
-    public Optional<EidasTrustAnchorHealthCheck> getCountryMetadataHealthCheck(
-        Optional<EidasMetadataResolverRepository> metadataResolverRepository,
-        Environment environment){
-        Optional<EidasTrustAnchorHealthCheck> metadataHealthCheck = metadataResolverRepository
-                .map(EidasTrustAnchorHealthCheck::new);
-
-        metadataHealthCheck.ifPresent(healthCheck -> environment.healthChecks().register(COUNTRY_METADATA_HEALTH_CHECK, healthCheck));
-
-        return metadataHealthCheck;
-    }
-
-    @Provides
-    @Singleton
     @Named("HubEntityId")
     private String getHubEntityId(SamlEngineConfiguration configuration) {
         return configuration.getSamlConfiguration().getEntityId();
-    }
-
-    @Provides
-    @Singleton
-    @Named("HubEidasEntityId")
-    private Optional<String> getHubEidasEntityId(SamlEngineConfiguration configuration) {
-        return configuration.getCountryConfiguration().map(c -> c.getSamlConfiguration().getEntityId());
-    }
-
-    @Provides
-    @Singleton
-    @Named("ExpectedEidasDestination")
-    private Optional<URI> getExpectedEidasDestinationHost(SamlEngineConfiguration configuration) {
-        return configuration.getCountryConfiguration().map(c -> c.getSamlConfiguration().getExpectedDestinationHost());
-    }
-
-    @Provides
-    @Singleton
-    private ResponseFromCountryValidator getResponseFromCountryValidator() {
-        return new ResponseFromCountryValidator(new SamlStatusToCountryAuthenticationStatusCodeMapper());
     }
 
     @Provides
@@ -540,29 +323,6 @@ public class SamlEngineModule extends AbstractModule {
                         responseAssertionSigner,
                         new SignatureRSASHA256(),
                         digestAlgorithm
-                )
-        );
-    }
-
-    @Provides
-    @SuppressWarnings("unused")
-    private OutboundAuthnResponseFromCountryContainerToStringFunction getOutboundAuthnResponseFromCountryContainerToSamlResponseTransformerProvider(
-            EncryptionKeyStore encryptionKeyStore,
-            IdaKeyStore keyStore,
-            EntityToEncryptForLocator entityToEncryptForLocator,
-            ResponseAssertionSigner responseAssertionSigner,
-            DigestAlgorithm digestAlgorithm,
-            @Named("HubEntityId") String hubEntityId) {
-
-        return new OutboundAuthnResponseFromCountryContainerToStringFunction (
-                hubTransformersFactory.getOutboundAuthnResponseFromCountryContainerToStringTransformer(
-                        encryptionKeyStore,
-                        keyStore,
-                        entityToEncryptForLocator,
-                        responseAssertionSigner,
-                        new SignatureRSASHA256(),
-                        digestAlgorithm,
-                        hubEntityId
                 )
         );
     }
@@ -690,45 +450,8 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
-    @Named("EidasAssertionDecrypter")
-    private AssertionDecrypter getEidasAssertionDecrypter(IdaKeyStoreCredentialRetriever idaKeyStoreCredentialRetriever) {
-        Decrypter decrypter = new DecrypterFactory().createDecrypter(idaKeyStoreCredentialRetriever.getDecryptingCredentials());
-        Set<String> contentEncryptionAlgorithms = Set.of(
-                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128_GCM,
-                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256_GCM);
-        Set<String> keyTransportAlgorithms = Set.of(
-                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP,
-                EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSAOAEP11);
-        return new AssertionDecrypter(
-            new EncryptionAlgorithmValidator(contentEncryptionAlgorithms, keyTransportAlgorithms),
-            decrypter
-        );
-    }
-
-    @Provides
     private SecretKeyEncrypter getSecretKeyEncrypter(KeyStoreBackedEncryptionCredentialResolver keyStoreBackedEncryptionCredentialResolver) {
         return new SecretKeyEncrypter(keyStoreBackedEncryptionCredentialResolver);
-    }
-    @Provides
-    @Singleton
-    @Named("ResponseAssertionsFromCountryValidator")
-    private Optional<ResponseAssertionsFromCountryValidator> getResponseAssertionsFromCountryValidator(
-            final IdExpirationCache<String> assertionIdCache,
-            @Named("ExpectedEidasDestination") Optional<URI>  expectedDestination) {
-        return  expectedDestination.map(destination -> new ResponseAssertionsFromCountryValidator(
-                new IdentityProviderAssertionValidator(
-                        new IssuerValidator(),
-                        new AssertionSubjectValidator(),
-                        new AssertionAttributeStatementValidator(),
-                        new AssertionSubjectConfirmationValidator()
-                ),
-                new EidasAttributeStatementAssertionValidator(),
-                new AuthnStatementAssertionValidator(
-                        new DuplicateAssertionValidatorImpl(assertionIdCache)
-                ),
-                new EidasAuthnResponseIssuerValidator(),
-                destination.toString())
-        );
     }
 
     @Provides
@@ -783,18 +506,6 @@ public class SamlEngineModule extends AbstractModule {
     }
 
     @Provides
-    @SuppressWarnings("unused")
-    private Function<EidasAuthnRequestFromHub, String> getEidasAuthnRequestFromHubStringTransformer(
-            IdaKeyStore keyStore,
-            DigestAlgorithm digestAlgorithm) {
-        return hubTransformersFactory.getEidasAuthnRequestFromHubToStringTransformer(
-                keyStore,
-                new SignatureRSASHA256(),
-                digestAlgorithm
-        );
-    }
-
-    @Provides
     private DecoratedSamlResponseToInboundHealthCheckResponseFromMatchingServiceTransformer getResponseInboundHealthCheckResponseFromMatchingServiceTransformer(
             @Named("samlResponseFromMatchingServiceKeyStore") SigningKeyStore authnResponseKeyStore) {
         return hubTransformersFactory.getResponseInboundHealthCheckResponseFromMatchingServiceTransformer(authnResponseKeyStore);
@@ -840,12 +551,4 @@ public class SamlEngineModule extends AbstractModule {
             .register();
     }
 
-    private void registerEidasMetadataRefreshTask(Environment environment, EidasMetadataResolverRepository eidasMetadataResolverRepository, String name){
-        environment.admin().addTask(new Task(name + "-refresh") {
-            @Override
-            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) {
-                eidasMetadataResolverRepository.refresh();
-            }
-        });
-    }
 }

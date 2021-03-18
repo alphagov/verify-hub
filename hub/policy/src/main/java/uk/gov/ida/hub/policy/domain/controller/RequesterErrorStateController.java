@@ -71,8 +71,6 @@ public class RequesterErrorStateController implements StateController, ResponseP
 
     @Override
     public AuthnRequestSignInProcess getSignInProcessDetails() {
-        return new AuthnRequestSignInProcess(
-            state.getRequestIssuerEntityId(),
-            state.getTransactionSupportsEidas());
+        return new AuthnRequestSignInProcess(state.getRequestIssuerEntityId());
     }
 }

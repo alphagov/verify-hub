@@ -2,7 +2,6 @@ package uk.gov.ida.hub.config.data;
 
 import io.dropwizard.lifecycle.Managed;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
-import uk.gov.ida.hub.config.domain.CountryConfig;
 import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
@@ -25,13 +24,11 @@ public class ConfigDataBootstrap implements Managed {
     private final ConfigDataSource<MatchingServiceConfig> matchingServiceConfigDataSource;
     private final ConfigDataSource<TransactionConfig> transactionConfigDataSource;
     private final ConfigDataSource<TranslationData> translationsDataSource;
-    private final ConfigDataSource<CountryConfig> countriesConfigDataSource;
 
     private final LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository;
     private final LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository;
     private final LocalConfigRepository<TransactionConfig> transactionConfigRepository;
     private final LocalConfigRepository<TranslationData> translationsRepository;
-    private final LocalConfigRepository<CountryConfig> countryConfigRepository;
     private final CertificateChainConfigValidator certificateChainConfigValidator;
     private final LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator;
 
@@ -41,12 +38,10 @@ public class ConfigDataBootstrap implements Managed {
             ConfigDataSource<MatchingServiceConfig> matchingServiceConfigDataSource,
             ConfigDataSource<TransactionConfig> transactionConfigDataSource,
             ConfigDataSource<TranslationData> translationsDataSource,
-            ConfigDataSource<CountryConfig> countriesConfigDataSource,
             LocalConfigRepository<IdentityProviderConfig> identityProviderConfigRepository,
             LocalConfigRepository<MatchingServiceConfig> matchingServiceConfigRepository,
             LocalConfigRepository<TransactionConfig> transactionConfigRepository,
             LocalConfigRepository<TranslationData> translationsRepository,
-            LocalConfigRepository<CountryConfig> countryConfigRepository,
             CertificateChainConfigValidator certificateChainConfigValidator,
             LevelsOfAssuranceConfigValidator levelsOfAssuranceConfigValidator) {
 
@@ -54,12 +49,10 @@ public class ConfigDataBootstrap implements Managed {
         this.matchingServiceConfigDataSource = matchingServiceConfigDataSource;
         this.transactionConfigDataSource = transactionConfigDataSource;
         this.translationsDataSource = translationsDataSource;
-        this.countriesConfigDataSource = countriesConfigDataSource;
         this.identityProviderConfigRepository = identityProviderConfigRepository;
         this.matchingServiceConfigRepository = matchingServiceConfigRepository;
         this.transactionConfigRepository = transactionConfigRepository;
         this.translationsRepository = translationsRepository;
-        this.countryConfigRepository = countryConfigRepository;
         this.certificateChainConfigValidator = certificateChainConfigValidator;
         this.levelsOfAssuranceConfigValidator = levelsOfAssuranceConfigValidator;
     }
@@ -84,7 +77,6 @@ public class ConfigDataBootstrap implements Managed {
         identityProviderConfigRepository.addData(identityProviderConfigDataSource.loadConfig());
         matchingServiceConfigRepository.addData(matchingServiceConfigDataSource.loadConfig());
         transactionConfigRepository.addData(transactionConfigDataSource.loadConfig());
-        countryConfigRepository.addData(countriesConfigDataSource.loadConfig());
         translationsRepository.addData(translationsDataSource.loadConfig());
     }
 
@@ -93,7 +85,6 @@ public class ConfigDataBootstrap implements Managed {
         allConfigEntityData.addAll(identityProviderConfigRepository.getAllData());
         allConfigEntityData.addAll(matchingServiceConfigRepository.getAllData());
         allConfigEntityData.addAll(transactionConfigRepository.getAllData());
-        allConfigEntityData.addAll(countryConfigRepository.getAllData());
         allConfigEntityData.addAll(translationsRepository.getAllData());
 
         new DuplicateEntityIdConfigValidator()

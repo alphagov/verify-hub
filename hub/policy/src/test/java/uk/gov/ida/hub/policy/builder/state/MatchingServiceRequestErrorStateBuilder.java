@@ -16,7 +16,6 @@ public class MatchingServiceRequestErrorStateBuilder {
     private String identityProviderEntityId = "identityProviderEntityId";
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
-    private boolean transactionSupportsEidas = false;
 
     public static MatchingServiceRequestErrorStateBuilder aMatchingServiceRequestErrorState() {
         return new MatchingServiceRequestErrorStateBuilder();
@@ -30,8 +29,7 @@ public class MatchingServiceRequestErrorStateBuilder {
                 assertionConsumerServiceUri,
                 identityProviderEntityId,
                 null,
-                sessionId,
-                transactionSupportsEidas);
+                sessionId);
     }
 
     public MatchingServiceRequestErrorStateBuilder withSessionId(SessionId sessionId) {

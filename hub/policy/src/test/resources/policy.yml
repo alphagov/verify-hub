@@ -73,8 +73,6 @@ clientTrustStoreConfiguration:
   path: ${IDP_TRUSTSTORE_PATH}
   password: ${IDP_TRUSTSTORE_PASSWORD}
 
-eidas: true
-
 eventEmitterConfiguration:
   enabled: ${EVENT_EMITTER_ENABLED}
   accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}

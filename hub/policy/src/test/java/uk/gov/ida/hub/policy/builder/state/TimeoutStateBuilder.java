@@ -8,7 +8,6 @@ import uk.gov.ida.hub.policy.domain.state.TimeoutState;
 import java.net.URI;
 
 public class TimeoutStateBuilder {
-    private final boolean transactionSupportsEidas = false;
     private String requestId = "requestId";
     private String requestIssuerId = "requestId";
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusHours(1);
@@ -25,6 +24,6 @@ public class TimeoutStateBuilder {
     }
 
     public TimeoutState build() {
-        return new TimeoutState(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId, transactionSupportsEidas);
+        return new TimeoutState(requestId, requestIssuerId, sessionExpiryTimestamp, assertionConsumerServiceUri, sessionId);
     }
 }

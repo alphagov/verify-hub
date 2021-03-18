@@ -82,9 +82,6 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
     @JsonProperty
     public ClientTrustStoreConfiguration clientTrustStoreConfiguration;
 
-    @JsonProperty
-    public Boolean eidas = false;
-
     @Valid
     @JsonProperty
     public EventEmitterConfiguration eventEmitterConfiguration;
@@ -142,10 +139,6 @@ public class PolicyConfiguration extends Configuration implements RestfulClientC
 
     @Override
     public boolean getEnableRetryTimeOutConnections() { return enableRetryTimeOutConnections; }
-
-    public boolean isEidasEnabled() {
-        return eidas;
-    }
 
     public EventEmitterConfiguration getEventEmitterConfiguration() {
         return eventEmitterConfiguration;

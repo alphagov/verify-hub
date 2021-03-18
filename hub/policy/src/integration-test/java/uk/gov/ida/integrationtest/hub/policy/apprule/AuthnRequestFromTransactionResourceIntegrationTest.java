@@ -15,7 +15,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
-import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.domain.IdpConfigDtoBuilder;
@@ -25,6 +24,7 @@ import uk.gov.ida.hub.policy.domain.IdpSelected;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
+import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
@@ -46,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.AUTHN_FAILED_STATE;
-import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.EIDAS_AUTHN_FAILED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.IDP_SELECTED_STATE;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.SUCCESSFUL_MATCH_STATE;
@@ -92,7 +91,6 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
         samlResponse = aSamlResponseWithAuthnRequestInformationDto().withIssuer(transactionEntityId).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
         configStub.setupStubForEnabledIdps(transactionEntityId, REGISTERING, LEVEL_2, List.of(idpEntityId, "differentIdp"), Collections.emptyList());
-        configStub.setupStubForEidasEnabledForTransaction(transactionEntityId, false);
         configStub.setUpStubForLevelsOfAssurance(samlResponse.getIssuer());
         eventSinkStub.setupStubForLogging();
         configStub.setUpStubForMatchingServiceRequest(samlResponse.getIssuer(), matchingServiceEntityId);
@@ -207,20 +205,6 @@ public class AuthnRequestFromTransactionResourceIntegrationTest {
     public void shouldRestartIdpJourney() {
         sessionId = SessionId.createNewSessionId();
         TestSessionResourceHelper.createSessionInIdpSelectedState(sessionId, samlResponse.getIssuer(), idpEntityId, client, buildUriForTestSession(IDP_SELECTED_STATE, sessionId));
-
-        URI uri = UriBuilder.fromPath("/policy/received-authn-request" + Urls.PolicyUrls.AUTHN_REQUEST_RESTART_JOURNEY_PATH).build(sessionId);
-        Response response = client.target(policy.uri(uri.toASCIIString())).request().post(null);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-
-        Response checkStateChanged = client.target(buildUriForTestSession(GET_SESSION_STATE_NAME, sessionId)).request().get();
-        assertThat(checkStateChanged.readEntity(String.class)).isEqualTo(SessionStartedState.class.getName());
-    }
-
-    @Test
-    public void shouldRestartEidasJourney() {
-        sessionId = SessionId.createNewSessionId();
-        TestSessionResourceHelper.createSessionInEidasAuthnFailedErrorState(sessionId, client, buildUriForTestSession(EIDAS_AUTHN_FAILED_STATE, sessionId));
 
         URI uri = UriBuilder.fromPath("/policy/received-authn-request" + Urls.PolicyUrls.AUTHN_REQUEST_RESTART_JOURNEY_PATH).build(sessionId);
         Response response = client.target(policy.uri(uri.toASCIIString())).request().post(null);

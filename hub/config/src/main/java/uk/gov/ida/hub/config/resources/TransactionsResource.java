@@ -174,37 +174,11 @@ public class TransactionsResource {
     }
 
     @GET
-    @Path(Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_PATH)
-    @Timed
-    public boolean isEidasEnabledForTransaction(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        final TransactionConfig configData = getTransactionConfigData(entityId);
-        return configData.isEidasEnabled();
-    }
-
-    @GET
-    @Path(Urls.ConfigUrls.EIDAS_COUNTRIES_FOR_TRANSACTION_PATH)
-    @Timed
-    public List<String> getEidasCountries(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        return getTransactionConfigData(entityId)
-                .getEidasCountries()
-                .orElseGet(Collections::emptyList);
-    }
-
-    @GET
     @Path(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_PATH)
     @Timed
     public boolean isUsingMatching(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
         return getTransactionConfigData(entityId)
                 .isUsingMatching();
-    }
-
-    @GET
-    @Path(Urls.ConfigUrls.IS_AN_EIDAS_PROXY_NODE_FOR_TRANSACTION_PATH)
-    @Timed
-    public boolean isEidasProxyNode(@PathParam(Urls.SharedUrls.ENTITY_ID_PARAM) String entityId) {
-        return transactionConfigRepository.get(entityId)
-                .map(TransactionConfig::isEidasProxyNode)
-                .orElse(false);
     }
 
     private TransactionConfig getTransactionConfigData(String entityId) {

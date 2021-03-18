@@ -14,7 +14,6 @@ public class SessionStartedStateBuilder {
     private String requestIssuerId = "requestIssuerId";
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusDays(5);
     private SessionId sessionId = SessionIdBuilder.aSessionId().build();
-    private boolean transactionSupportsEidas = false;
     private Boolean forceAuthentication = false;
     private URI assertionConsumerServiceUri;
 
@@ -30,8 +29,7 @@ public class SessionStartedStateBuilder {
                 assertionConsumerServiceUri,
                 forceAuthentication,
                 sessionExpiryTimestamp,
-                sessionId,
-                transactionSupportsEidas);
+                sessionId);
     }
 
     public SessionStartedStateBuilder withRequestId(String requestId) {
@@ -46,11 +44,6 @@ public class SessionStartedStateBuilder {
 
     public SessionStartedStateBuilder withSessionId(SessionId sessionId) {
         this.sessionId = sessionId;
-        return this;
-    }
-
-    public SessionStartedStateBuilder withTransactionSupportsEidas(boolean transactionSupportsEidas) {
-        this.transactionSupportsEidas = transactionSupportsEidas;
         return this;
     }
 

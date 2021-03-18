@@ -84,31 +84,3 @@ metadata:
     keepAlive: 60s
     chunkedEncodingEnabled: false
     validateAfterInactivityPeriod: 5s
-
-country:
-  enabled: ${EIDAS_ENABLED}
-  saml:
-    entityId: ${HUB_CONNECTOR_ENTITY_ID}
-    expectedDestination: ${FRONTEND_URL}/SAML2/SSO/EidasResponse/POST
-  metadata:
-    trustAnchorUri: ${TRUST_ANCHOR_URI}
-    metadataSourceUri: ${METADATA_SOURCE_URI}
-    trustStore:
-      store: /data/pki/metadata.ts
-      password: marshmallow
-    minRefreshDelay: 5000
-    maxRefreshDelay: 60000
-    jerseyClientName: country-metadata-client
-    client:
-      timeout: 10s
-      timeToLive: 10m
-      cookiesEnabled: false
-      connectionTimeout: 2s
-      retries: 5
-      keepAlive: 60s
-      chunkedEncodingEnabled: false
-      validateAfterInactivityPeriod: 5s
-      tls:
-        protocol: TLSv1.2
-        verifyHostname: false
-        trustSelfSignedCertificates: true

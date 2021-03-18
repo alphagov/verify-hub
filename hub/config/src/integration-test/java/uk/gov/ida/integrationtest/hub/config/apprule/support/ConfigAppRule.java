@@ -14,7 +14,6 @@ import keystore.builders.KeyStoreResourceBuilder;
 import org.apache.commons.io.FileUtils;
 import uk.gov.ida.hub.config.ConfigApplication;
 import uk.gov.ida.hub.config.ConfigConfiguration;
-import uk.gov.ida.hub.config.domain.CountryConfig;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -31,7 +30,6 @@ import java.util.stream.IntStream;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static uk.gov.ida.hub.config.domain.builders.CountryConfigBuilder.aCountryConfig;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
@@ -50,7 +48,6 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
     private List<TranslationData> translations = new ArrayList<>();
     private List<MatchingServiceConfig> matchingServices = new ArrayList<>();
     private List<IdentityProviderConfig> idps = new ArrayList<>();
-    private List<CountryConfig> countries = new ArrayList<>();
 
     public ConfigAppRule(Supplier<AmazonS3> s3ClientSupplier, ConfigOverride... configOverrides) {
         super(ConfigIntegrationApplication.class,
@@ -103,11 +100,6 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
         return this;
     }
 
-    public ConfigAppRule addCountry(CountryConfig country) {
-        this.countries.add(country);
-        return this;
-    }
-
     @Override
     protected void before() {
         mapper.registerModule(new Jdk8Module().configureAbsentsAsNulls(true));
@@ -150,12 +142,10 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
             throw new RuntimeException(e);
         }
 
-        File countryFolder = new File(FED_CONFIG_ROOT, "countries");
         File idpFolder = new File(FED_CONFIG_ROOT, "idps");
         File matchingServiceFolder = new File(FED_CONFIG_ROOT, "matching-services");
         File transactionFolder = new File(FED_CONFIG_ROOT, "transactions");
 
-        countryFolder.mkdir();
         idpFolder.mkdir();
         matchingServiceFolder.mkdir();
         transactionFolder.mkdir();
@@ -181,19 +171,10 @@ public class ConfigAppRule extends DropwizardAppRule<ConfigConfiguration> {
                     .build()
             );
         }
-        if (countries.isEmpty()) {
-            countries.add(
-                aCountryConfig()
-                    .withEntityId("default-country-entity-id")
-                    .withSimpleId("default-country-simple-id")
-                    .build()
-            );
-        }
 
         IntStream.range(0, transactions.size()).forEach(i -> writeFile(transactionFolder, i, transactions.get(i)));
         IntStream.range(0, matchingServices.size()).forEach(i -> writeFile(matchingServiceFolder, i, matchingServices.get(i)));
         IntStream.range(0, idps.size()).forEach(i -> writeFile(idpFolder, i, idps.get(i)));
-        IntStream.range(0, countries.size()).forEach(i -> writeFile(countryFolder, i, countries.get(i)));
     }
     
     private void createTranslations() {

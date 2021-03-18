@@ -19,18 +19,13 @@ public interface Urls {
         // Start of new saml-engine is a real microservice resources
 
         String GENERATE_RP_AUTHN_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-authn-response";
-        String GENERATE_RP_AUTHN_RESPONSE_WRAPPING_COUNTRY_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-authn-response-wrapping-country-response";
         String GENERATE_RP_ERROR_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/generate-rp-error-response";
         String TRANSLATE_RP_AUTHN_REQUEST_RESOURCE = SAML_ENGINE_ROOT + "/translate-rp-authn-request";
 
         String GENERATE_IDP_AUTHN_REQUEST_RESOURCE =   SAML_ENGINE_ROOT + "/generate-idp-authn-request";
         String TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/translate-idp-authn-response";
 
-        String GENERATE_COUNTRY_AUTHN_REQUEST_RESOURCE =   SAML_ENGINE_ROOT + "/generate-country-authn-request";
-        String TRANSLATE_COUNTRY_AUTHN_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/translate-country-authn-response";
-
         String GENERATE_ATTRIBUTE_QUERY_RESOURCE = SAML_ENGINE_ROOT + "/generate-attribute-query";
-        String GENERATE_COUNTRY_ATTRIBUTE_QUERY_RESOURCE = SAML_ENGINE_ROOT + "/generate-country-attribute-query";
         String TRANSLATE_MATCHING_SERVICE_RESPONSE_RESOURCE = SAML_ENGINE_ROOT + "/translate-attribute-query";
     }
 
@@ -105,14 +100,6 @@ public interface Urls {
         String CYCLE_3_SUBMIT_PATH                  = "/submit";
         String CYCLE_3_CANCEL_RESOURCE              = AUTHN_REQUEST_FROM_TRANSACTION_ROOT + CYCLE_3_REQUEST_PATH + CYCLE_3_CANCEL_PATH;
         String CYCLE_3_SUBMIT_RESOURCE              = AUTHN_REQUEST_FROM_TRANSACTION_ROOT + CYCLE_3_REQUEST_PATH + CYCLE_3_SUBMIT_PATH;
-
-        String COUNTRIES_RESOURCE = POLICY_ROOT + "/countries";
-        String COUNTRY_SET_PATH_PARAM = "countryCode";
-        String COUNTRY_SET_PATH = SharedUrls.SESSION_ID_PARAM_PATH + "/{" + COUNTRY_SET_PATH_PARAM + "}";
-
-        String COUNTRY_AUTHN_RESPONSE_PATH = SharedUrls.SESSION_ID_PARAM_PATH + "/country-authn-response";
-        String COUNTRY_AUTHN_RESPONSE_RESOURCE = SESSION_RESOURCE_ROOT + COUNTRY_AUTHN_RESPONSE_PATH;
-        String EIDAS_SESSION_RESOURCE_ROOT = SESSION_RESOURCE_ROOT;
     }
 
     interface ConfigUrls {
@@ -135,8 +122,6 @@ public interface Urls {
         String ASSERTION_CONSUMER_SERVICE_URI_PATH = ENTITY_ID_PATH_PARAM + "/assertion-consumer-service-uri";
         String ASSERTION_CONSUMER_SERVICE_INDEX_PARAM = "index";
         String TRANSACTIONS_ASSERTION_CONSUMER_SERVICE_URI_RESOURCE = TRANSACTIONS_ROOT + ASSERTION_CONSUMER_SERVICE_URI_PATH;
-        String EIDAS_ENABLED_FOR_TRANSACTION_PATH = ENTITY_ID_PATH_PARAM + "/eidas-enabled";
-        String EIDAS_COUNTRIES_FOR_TRANSACTION_PATH = ENTITY_ID_PATH_PARAM + "/eidas-countries";
         String MATCHING_PROCESS_PATH = ENTITY_ID_PATH_PARAM + "/matching-process";
         String MATCHING_PROCESS_RESOURCE = TRANSACTIONS_ROOT + MATCHING_PROCESS_PATH;
         String LEVELS_OF_ASSURANCE_PATH = ENTITY_ID_PATH_PARAM + "/levels-of-assurance";
@@ -147,14 +132,11 @@ public interface Urls {
         String MATCHING_SERVICE_ENTITY_ID_RESOURCE = TRANSACTIONS_ROOT + MATCHING_SERVICE_ENTITY_ID_PATH;
         String USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE = TRANSACTIONS_ROOT + USER_ACCOUNT_CREATION_ATTRIBUTES_PATH;
 
-        String EIDAS_ENABLED_FOR_TRANSACTION_RESOURCE = TRANSACTIONS_ROOT + EIDAS_ENABLED_FOR_TRANSACTION_PATH;
-        String EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE = TRANSACTIONS_ROOT + EIDAS_COUNTRIES_FOR_TRANSACTION_PATH;
         String MATCHING_SERVICE_ROOT = CONFIG_ROOT + "/matching-services";
         String MATCHING_SERVICE_PATH = ENTITY_ID_PATH_PARAM;
         String MATCHING_SERVICE_RESOURCE = MATCHING_SERVICE_ROOT + MATCHING_SERVICE_PATH;
         String ENABLED_MATCHING_SERVICES_RESOURCE = MATCHING_SERVICE_ROOT;
 
-        String COUNTRIES_ROOT = CONFIG_ROOT + "/countries";
         String MATCHING_ENABLED_FOR_TRANSACTION_PATH = ENTITY_ID_PATH_PARAM + "/matching-enabled";
         String MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE = TRANSACTIONS_ROOT + MATCHING_ENABLED_FOR_TRANSACTION_PATH;
     }
@@ -162,7 +144,6 @@ public interface Urls {
     interface FrontendUrls {
         String SAML2_SSO_ROOT = "/SAML2/SSO";
         String SAML2_SSO_RESPONSE_ENDPOINT = SAML2_SSO_ROOT + "/Response/POST";
-        String SAML2_SSO_EIDAS_RESPONSE_ENDPOINT = SAML2_SSO_ROOT + "/EidasResponse/POST";
     }
 
     interface SamlSoapProxyUrls {

@@ -95,31 +95,6 @@ metadata:
       verifyHostname: false
       trustSelfSignedCertificates: true
 
-country:
-  enabled: false
-  metadata:
-    trustAnchorUri: http://localhost:55000/trust-anchor
-    metadataSourceUri: http://localhost:55000/aggregator
-    trustStore:
-      store: /ida/truststore/ida_metadata_truststore.ts
-      password: pwd
-    minRefreshDelay: 60000
-    maxRefreshDelay: 600000
-    jerseyClientName: country-metadata-client
-    client:
-      timeout: 2s
-      timeToLive: 10m
-      cookiesEnabled: false
-      connectionTimeout: 1s
-      retries: 3
-      keepAlive: 60s
-      chunkedEncodingEnabled: false
-      validateAfterInactivityPeriod: 5s
-      tls:
-        protocol: TLSv1.2
-        verifyHostname: false
-        trustSelfSignedCertificates: true
-
 eventEmitterConfiguration:
   enabled: ${EVENT_EMITTER_ENABLED}
   accessKeyId: ${EVENT_EMITTER_ACCESS_KEY_ID}

@@ -74,8 +74,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                 state.getAssertionConsumerServiceUri(),
                 state.getIdentityProviderEntityId(),
                 state.getRelayState().orElse(null),
-                state.getSessionId(),
-                state.getTransactionSupportsEidas());
+                state.getSessionId());
         stateTransitionAction.transitionTo(matchingServiceRequestErrorState);
     }
 
@@ -90,8 +89,7 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                     state.getAssertionConsumerServiceUri(),
                     state.getIdentityProviderEntityId(),
                     state.getRelayState().orElse(null),
-                    state.getSessionId(),
-                    state.getTransactionSupportsEidas());
+                    state.getSessionId());
 
             stateTransitionAction.transitionTo(matchingServiceRequestErrorState);
             return createResponseProcessingDetailsForStatus(ResponseProcessingStatus.SHOW_MATCHING_ERROR_PAGE);
@@ -199,7 +197,6 @@ public abstract class AbstractMatchRequestSentStateController<T extends Abstract
                 state.getSessionExpiryTimestamp(),
                 state.getAssertionConsumerServiceUri(),
                 state.getRelayState().orElse(null),
-                state.getSessionId(),
-                state.getTransactionSupportsEidas());
+                state.getSessionId());
     }
 }

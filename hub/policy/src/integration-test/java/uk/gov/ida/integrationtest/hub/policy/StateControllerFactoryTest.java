@@ -22,12 +22,6 @@ import uk.gov.ida.hub.policy.domain.controller.AwaitingCycle3DataStateController
 import uk.gov.ida.hub.policy.domain.controller.Cycle0And1MatchRequestSentStateController;
 import uk.gov.ida.hub.policy.domain.controller.Cycle3DataInputCancelledStateController;
 import uk.gov.ida.hub.policy.domain.controller.Cycle3MatchRequestSentStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasAuthnFailedErrorStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasAwaitingCycle3DataStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasCountrySelectedStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasCycle0And1MatchRequestSentStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasSuccessfulMatchStateController;
-import uk.gov.ida.hub.policy.domain.controller.EidasUserAccountCreationFailedStateController;
 import uk.gov.ida.hub.policy.domain.controller.FraudEventDetectedStateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectedStateController;
 import uk.gov.ida.hub.policy.domain.controller.MatchingServiceRequestErrorStateController;
@@ -58,12 +52,6 @@ import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder
 import static uk.gov.ida.hub.policy.builder.state.Cycle0And1MatchRequestSentStateBuilder.aCycle0And1MatchRequestSentState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3DataInputCancelledStateBuilder.aCycle3DataInputCancelledState;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
-import static uk.gov.ida.hub.policy.builder.state.EidasAuthnFailedErrorStateBuilder.anEidasAuthnFailedErrorState;
-import static uk.gov.ida.hub.policy.builder.state.EidasAwaitingCycle3DataStateBuilder.anEidasAwaitingCycle3DataState;
-import static uk.gov.ida.hub.policy.builder.state.EidasCountrySelectedStateBuilder.anEidasCountrySelectedState;
-import static uk.gov.ida.hub.policy.builder.state.EidasCycle0And1MatchRequestSentStateBuilder.anEidasCycle0And1MatchRequestSentState;
-import static uk.gov.ida.hub.policy.builder.state.EidasSuccessfulMatchStateBuilder.anEidasSuccessfulMatchState;
-import static uk.gov.ida.hub.policy.builder.state.EidasUserAccountCreationFailedStateBuilder.aEidasUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.FraudEventDetectedStateBuilder.aFraudEventDetectedState;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 import static uk.gov.ida.hub.policy.builder.state.MatchingServiceRequestErrorStateBuilder.aMatchingServiceRequestErrorState;
@@ -119,13 +107,6 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateAnEidasCountrySelectedStateController() {
-        StateController controller = factory.build(anEidasCountrySelectedState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasCountrySelectedStateController.class);
-    }
-
-    @Test
     public void build_shouldCreateAnIdpSelectedController() {
         StateController controller = factory.build(anIdpSelectedState().build(), stateTransitionAction);
 
@@ -140,24 +121,10 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateAnEidasCycle0And1MatchRequestSentStateController() {
-        StateController controller = factory.build(anEidasCycle0And1MatchRequestSentState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasCycle0And1MatchRequestSentStateController.class);
-    }
-
-    @Test
     public void build_shouldCreateASuccessfulMatchController() {
         StateController controller = factory.build(aSuccessfulMatchState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(SuccessfulMatchStateController.class);
-    }
-
-    @Test
-    public void build_shouldCreateAEidasSuccessfulMatchController() {
-        StateController controller = factory.build(anEidasSuccessfulMatchState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasSuccessfulMatchStateController.class);
     }
 
     @Test
@@ -173,13 +140,6 @@ public class StateControllerFactoryTest {
         StateController controller = factory.build(anAwaitingCycle3DataState().build(), stateTransitionAction);
 
         assertThat(controller).isInstanceOf(AwaitingCycle3DataStateController.class);
-    }
-
-    @Test
-    public void shouldCreateAnEidasAwaitingCycle3DataStateController() {
-        StateController controller = factory.build(anEidasAwaitingCycle3DataState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasAwaitingCycle3DataStateController.class);
     }
 
     @Test
@@ -225,13 +185,6 @@ public class StateControllerFactoryTest {
     }
 
     @Test
-    public void shouldCreateEidasAuthnFailedErrorStateControllerOnBuild() {
-        StateController controller = factory.build(anEidasAuthnFailedErrorState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasAuthnFailedErrorStateController.class);
-    }
-
-    @Test
     public void shouldCreateAFraudEventDetectedStateController() {
         StateController controller = factory.build(aFraudEventDetectedState().build(), stateTransitionAction);
 
@@ -259,13 +212,6 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(UserAccountCreationFailedStateController.class);
     }
 
-    @Test
-    public void shouldCreateEidasUserAccountCreationFailedStateControllerOnBuild() {
-        StateController controller = factory.build(aEidasUserAccountCreationFailedState().build(), stateTransitionAction);
-
-        assertThat(controller).isInstanceOf(EidasUserAccountCreationFailedStateController.class);
-    }
-
     @Test(expected = RuntimeException.class)
     public void build_shouldThrowRuntimeExceptionIfControllerNotFound() {
         factory.build(
@@ -275,7 +221,6 @@ public class StateControllerFactoryTest {
                 DateTime.now(),
                 URI.create("/some-ac-service-uri"),
                 aSessionId().build(),
-                false,
                 null
             ) {
                 @Override

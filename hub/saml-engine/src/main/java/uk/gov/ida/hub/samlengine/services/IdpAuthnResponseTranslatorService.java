@@ -5,7 +5,6 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.eidas.logging.EidasAuthnResponseAttributesHashLogger;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
@@ -71,11 +70,6 @@ public class IdpAuthnResponseTranslatorService {
             if (idaResponseFromIdp.getMatchingDatasetAssertion().isPresent()) {
                 matchingDatasetAssertion = stringToAssertionTransformer.apply(idaResponseFromIdp.getMatchingDatasetAssertion().get().getUnderlyingAssertionBlob());
                 logAnalytics(matchingDatasetAssertion, MATCHING_DATASET);
-
-                final String matchingServiceEntityId = samlResponseDto.getMatchingServiceEntityId();
-                if (transactionsConfigProxy.isProxyNodeEntityId(matchingServiceEntityId)) {
-                    EidasAuthnResponseAttributesHashLogger.logEidasAttributesHash(matchingDatasetAssertion, response, matchingServiceEntityId);
-                }
             }
 
             InboundResponseFromIdpData inboundResponseFromIdpData = inboundResponseFromIdpDataGenerator.generate(idaResponseFromIdp, samlResponseDto.getMatchingServiceEntityId());

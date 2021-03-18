@@ -29,7 +29,6 @@ public interface EventSinkHubEventConstants {
         String USER_ACCOUNT_CREATION_REQUEST_SENT = "user_account_creation_request_sent";
         String USER_ACCOUNT_CREATED = "user_account_created";
         String USER_ACCOUNT_CREATION_FAILED = "user_account_creation_failed";
-        String COUNTRY_SELECTED = "country_selected";
     }
 
     interface ExternalCommunicationsTypes {

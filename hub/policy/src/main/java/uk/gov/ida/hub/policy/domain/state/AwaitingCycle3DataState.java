@@ -34,8 +34,7 @@ public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
             @JsonProperty("sessionId") final SessionId sessionId,
             @JsonProperty("persistentId") final PersistentId persistentId,
             @JsonProperty("levelOfAssurance") final LevelOfAssurance levelOfAssurance,
-            @JsonProperty("registering") final boolean registering,
-            @JsonProperty("transactionSupportsEidas") final boolean transactionSupportsEidas) {
+            @JsonProperty("registering") final boolean registering) {
 
         super(
                 requestId,
@@ -43,7 +42,6 @@ public class AwaitingCycle3DataState extends AbstractAwaitingCycle3DataState {
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 identityProviderEntityId,
                 matchingServiceEntityId,
                 relayState,

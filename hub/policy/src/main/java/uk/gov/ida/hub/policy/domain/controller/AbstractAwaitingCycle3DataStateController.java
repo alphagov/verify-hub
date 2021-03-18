@@ -119,8 +119,7 @@ public abstract class AbstractAwaitingCycle3DataStateController<S extends Abstra
                 state.getRelayState().orElse(null),
                 state.getRequestIssuerEntityId(),
                 state.getAssertionConsumerServiceUri(),
-                new SessionId(state.getSessionId().getSessionId()),
-                state.getTransactionSupportsEidas());
+                new SessionId(state.getSessionId().getSessionId()));
         stateTransitionAction.transitionTo(cycle3DataInputCancelledState);
     }
 }

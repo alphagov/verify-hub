@@ -21,7 +21,6 @@ public class UserAccountCreationRequestSentStateBuilder {
     private LevelOfAssurance levelOfAssurance = LevelOfAssurance.LEVEL_1;
     private DateTime sessionExpiryTimestamp = DateTime.now(DateTimeZone.UTC).plusMinutes(10);
     private SessionId sessionId = aSessionId().build();
-    private boolean transactionSupportsEidas = false;
     private boolean registering = false;
 
     public static UserAccountCreationRequestSentStateBuilder aUserAccountCreationRequestSentState() {
@@ -35,7 +34,6 @@ public class UserAccountCreationRequestSentStateBuilder {
                 sessionExpiryTimestamp,
                 assertionConsumerServiceUri,
                 sessionId,
-                transactionSupportsEidas,
                 identityProviderEntityId,
                 relayState,
                 levelOfAssurance,

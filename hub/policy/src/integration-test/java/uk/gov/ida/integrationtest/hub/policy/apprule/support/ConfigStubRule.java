@@ -8,7 +8,6 @@ import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.domain.IdpConfigDtoBuilder;
 import uk.gov.ida.hub.policy.contracts.MatchingServiceConfigEntityDataDto;
-import uk.gov.ida.hub.policy.domain.EidasCountryDto;
 import uk.gov.ida.hub.policy.domain.IdpConfigDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.MatchingProcessDto;
@@ -49,22 +48,6 @@ public class ConfigStubRule extends HttpStubRule {
         }
 
         setupStubForIdpConfig(allIdps, supportedLoa);
-    }
-
-    public void setUpStubForEnabledCountries(String rpEntityId, Collection<EidasCountryDto> enabledCountries) throws JsonProcessingException {
-        register(Urls.ConfigUrls.COUNTRIES_ROOT, OK, enabledCountries);
-
-        List<String> countryEntityIds = enabledCountries.stream().map(EidasCountryDto::getEntityId).collect(Collectors.toList());
-        UriBuilder countriesForTransactionUriBuilder = UriBuilder.fromPath(Urls.ConfigUrls.EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE);
-        String countriesForTransactionPath = countriesForTransactionUriBuilder.buildFromEncoded(StringEncoding.urlEncode(rpEntityId).replace("+", "%20")).getPath();
-        register(countriesForTransactionPath, OK, countryEntityIds);
-    }
-
-    public void setupStubForEidasEnabledForTransaction(String transactionEntityId, boolean eidasEnabledForTransaction) throws JsonProcessingException {
-        String path = UriBuilder.fromPath(Urls.ConfigUrls.EIDAS_ENABLED_FOR_TRANSACTION_RESOURCE)
-            .build(StringEncoding.urlEncode(transactionEntityId).replace("+", "%20"))
-            .getPath();
-        register(path, OK, eidasEnabledForTransaction);
     }
 
     public void setUpStubForAssertionConsumerServiceUri(String entityId) throws JsonProcessingException {
@@ -169,21 +152,9 @@ public class ConfigStubRule extends HttpStubRule {
         register(uri, OK, userAccountCreationAttributes);
     }
 
-    public void setupStubForEidasCountries(List<EidasCountryDto> eidasCountryDtos) throws JsonProcessingException {
-        String uri = Urls.ConfigUrls.COUNTRIES_ROOT;
-        register(uri, OK, eidasCountryDtos);
-    }
-
     public void setupStubForIdpConfig(String idpEntityId, IdpConfigDto idpConfigDto) throws JsonProcessingException {
         String uri = UriBuilder.fromPath(Urls.ConfigUrls.IDENTITY_PROVIDER_CONFIG_DATA_RESOURCE).build(idpEntityId).getPath();
         register(uri, OK, idpConfigDto);
-    }
-
-    public void setupStubForEidasRPCountries(String rpEntityId, List<String> countryEntityIds) throws JsonProcessingException {
-        String uri = UriBuilder.fromPath(Urls.ConfigUrls.EIDAS_RP_COUNTRIES_FOR_TRANSACTION_RESOURCE)
-            .build(StringEncoding.urlEncode(rpEntityId).replace("+", "%20"))
-            .getPath();
-        register(uri, OK, countryEntityIds);
     }
 
     private void setupStubForEnabledIdpsForIdpAuthnRequestAndLoa(String transactionEntityId, LevelOfAssurance supportedLoa, Collection<String> enabledIdps) throws JsonProcessingException {

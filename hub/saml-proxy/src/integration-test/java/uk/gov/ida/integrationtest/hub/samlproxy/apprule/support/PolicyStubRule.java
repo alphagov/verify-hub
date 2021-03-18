@@ -86,13 +86,4 @@ public class PolicyStubRule extends HttpStubRule {
         );
     }
 
-    public void receiveAuthnResponseFromCountry(String sessionId, LevelOfAssurance loaAchieved) throws JsonProcessingException {
-        String locationUri = getAuthnResponseFromCountryLocation(sessionId);
-        ResponseActionDto responseActionDto = ResponseActionDto.success(new SessionId(sessionId), false, loaAchieved, null);
-        register(locationUri, Status.OK.getStatusCode(), responseActionDto);
-    }
-
-    private String getAuthnResponseFromCountryLocation(String sessionId) {
-        return UriBuilder.fromPath(Urls.PolicyUrls.COUNTRY_AUTHN_RESPONSE_RESOURCE).build(sessionId).toASCIIString();
-    }
 }
