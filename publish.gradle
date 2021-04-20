@@ -1,0 +1,68 @@
+nexusPublishing {
+    useStaging = true
+    repositories {
+        sonatype {
+            // because we registered in Sonatype after 24 Feb 2021, we provide these URIs
+            // see: https://github.com/gradle-nexus/publish-plugin/blob/master/README.md
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            username = System.getenv("SONATYPE_USERNAME")
+            password = System.getenv("SONATYPE_PASSWORD")
+        }
+    }
+}
+
+subprojects.findAll { it.name in ['hub-saml', 'hub-saml-test-utils'] }.each {proj ->
+    configure(proj) {
+        apply plugin: 'maven-publish'
+        apply plugin: 'signing'
+
+        java {
+            withJavadocJar()
+            withSourcesJar()
+        }
+
+        signing {
+            useInMemoryPgpKeys(
+                    System.getenv("MAVEN_CENTRAL_SIGNING_KEY"),
+                    System.getenv("MAVEN_CENTRAL_SIGNING_KEY_PASSWORD")
+            )
+            sign publishing.publications
+        }
+
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    from components.java
+                    pom {
+                        name = proj.name
+                        packaging = 'jar'
+                        url = 'https://github.com/alphagov/verify-hub'
+                        artifactId = proj.name
+
+                        scm {
+                            url = 'https://github.com/alphagov/verify-hub'
+                            connection = 'scm:git:git://github.com/alphagov/verify-hub.git'
+                            developerConnection = 'scm:git:ssh://git@github.com:alphagov/verify-hub.git'
+                        }
+
+                        licenses {
+                            license {
+                                name = 'MIT Licence'
+                                url = 'https://github.com/alphagov/verify-hub/blob/master/LICENCE'
+                                distribution = 'repo'
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                name = 'GDS Developers'
+                            }
+                        }
+                    } // pom
+                }
+            }
+        }
+    }
+}
+

@@ -17,21 +17,29 @@ buildscript {
     }
 }
 
-apply from: 'idea.gradle'
-apply plugin: 'java'
-
-allprojects {
-    apply plugin: 'jacoco'
+plugins {
+    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
 }
-
-repositories {
-    jcenter()
-}
+apply plugin: 'io.github.gradle-nexus.publish-plugin'
 
 ext {
     opensaml_version = '3.4.3'
     dropwizard_version = '1.3.18'
     build_version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    group = "uk.gov.ida"
+    version = "$build_version"
+}
+
+apply from: 'idea.gradle'
+apply from: 'publish.gradle'
+
+repositories {
+    jcenter()
 }
 
 def dependencyVersions = [
@@ -45,11 +53,6 @@ def dependencyVersions = [
 ]
 
 subprojects {
-    apply plugin: 'java'
-
-    group = "uk.gov.ida"
-    version = "0.1.$version"
-
     repositories {
         if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
             logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/allowed-repos for production builds.\n\n')
