@@ -36,6 +36,7 @@ subprojects.findAll { it.name in ['hub-saml', 'hub-saml-test-utils'] }.each {pro
                     from components.java
                     pom {
                         name = proj.name
+                        description = proj.description
                         packaging = 'jar'
                         url = 'https://github.com/alphagov/verify-hub'
                         artifactId = proj.name
