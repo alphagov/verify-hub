@@ -45,6 +45,8 @@ COPY --from=base-image /verify-hub/build.gradle build.gradle
 COPY --from=base-image /verify-hub/settings.gradle settings.gradle
 COPY --from=base-image /verify-hub/idea.gradle idea.gradle
 COPY --from=base-image /verify-hub/inttest.gradle inttest.gradle
+COPY --from=base-image /verify-hub/publish.gradle publish.gradle
+
 
 COPY hub/$hub_app/build.gradle hub/$hub_app/build.gradle
 COPY hub/$hub_app/src hub/$hub_app/src
