@@ -1,35 +1,5 @@
 plugins {
-    id "com.jfrog.bintray" version "1.8.4"
     id 'java-library'
-}
-
-apply plugin: 'maven-publish'
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            groupId = "uk.gov.ida"
-            version = "$build_version"
-        }
-    }
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_API_KEY')
-    publications = ['mavenJava']
-    publish = true
-    pkg {
-        repo = 'maven-test'
-        name = 'verify-hub-saml-test-utils'
-        userOrg = 'alphagov'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/alphagov/verify-hub.git'
-        version {
-            name = "$build_version"
-        }
-    }
 }
 
 dependencies {
