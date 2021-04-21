@@ -8,6 +8,7 @@ COPY build.gradle build.gradle
 COPY settings.gradle settings.gradle
 COPY idea.gradle idea.gradle
 COPY inttest.gradle inttest.gradle
+COPY publish.gradle publish.gradle
 
 RUN gradle downloadDependencies
 
