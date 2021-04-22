@@ -2,20 +2,18 @@ package uk.gov.ida.hub.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import engineering.reliability.gds.metrics.config.PrometheusConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
 import uk.gov.ida.hub.config.configuration.PrometheusClientServiceConfiguration;
 import uk.gov.ida.hub.config.configuration.SelfServiceConfig;
+import uk.gov.ida.metrics.config.PrometheusConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.TrustStoreConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigConfiguration extends Configuration implements TrustStoreConfiguration, ServiceNameConfiguration, PrometheusConfiguration {

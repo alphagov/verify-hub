@@ -2,7 +2,6 @@ package uk.gov.ida.hub.samlproxy;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
-import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -22,6 +21,7 @@ import uk.gov.ida.hub.samlproxy.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlproxy.resources.HubMetadataResourceApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageReceiverApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageSenderApi;
+import uk.gov.ida.metrics.bundle.PrometheusBundle;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;

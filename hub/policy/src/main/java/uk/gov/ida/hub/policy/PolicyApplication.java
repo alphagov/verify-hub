@@ -2,7 +2,6 @@ package uk.gov.ida.hub.policy;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
-import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -29,6 +28,7 @@ import uk.gov.ida.hub.policy.resources.MatchingServiceFailureResponseResource;
 import uk.gov.ida.hub.policy.resources.MatchingServiceResponseResource;
 import uk.gov.ida.hub.policy.resources.ResponseFromIdpResource;
 import uk.gov.ida.hub.policy.resources.SessionResource;
+import uk.gov.ida.metrics.bundle.PrometheusBundle;
 
 public class PolicyApplication extends Application<PolicyConfiguration> {
 
