@@ -3,7 +3,6 @@ package uk.gov.ida.hub.config;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.google.inject.Module;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
-import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -18,6 +17,7 @@ import uk.gov.ida.hub.config.resources.CertificatesResource;
 import uk.gov.ida.hub.config.resources.IdentityProviderResource;
 import uk.gov.ida.hub.config.resources.MatchingServiceResource;
 import uk.gov.ida.hub.config.resources.TransactionsResource;
+import uk.gov.ida.metrics.bundle.PrometheusBundle;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
 

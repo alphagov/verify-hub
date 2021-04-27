@@ -3,13 +3,13 @@ package uk.gov.ida.hub.samlproxy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import engineering.reliability.gds.metrics.config.PrometheusConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.configuration.ServiceNameConfiguration;
 import uk.gov.ida.hub.samlproxy.config.SamlConfiguration;
+import uk.gov.ida.metrics.config.PrometheusConfiguration;
 import uk.gov.ida.restclient.RestfulClientConfiguration;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.MultiTrustStoresBackedMetadataConfiguration;

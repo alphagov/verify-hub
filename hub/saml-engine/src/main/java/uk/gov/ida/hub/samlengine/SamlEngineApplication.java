@@ -6,7 +6,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 import com.hubspot.dropwizard.guicier.GuiceBundle;
-import engineering.reliability.gds.metrics.bundle.PrometheusBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -31,6 +30,7 @@ import uk.gov.ida.hub.samlengine.resources.translators.MatchingServiceResponseTr
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnRequestTranslatorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpErrorResponseGeneratorResource;
+import uk.gov.ida.metrics.bundle.PrometheusBundle;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
 import uk.gov.ida.saml.metadata.bundle.MetadataResolverBundle;

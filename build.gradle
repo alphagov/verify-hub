@@ -131,7 +131,7 @@ subprojects {
 
         dev_pki "uk.gov.ida:ida-dev-pki:$dependencyVersions.dev_pki"
 
-        prometheus 'engineering.gds-reliability:gds-metrics-dropwizard:0.7.0'
+        prometheus 'uk.gov.ida:gds-metrics-dropwizard:0.7.0-3'
 
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
                 project(":hub-saml")
