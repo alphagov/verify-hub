@@ -2,9 +2,8 @@ buildscript {
     repositories {
         if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
             logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/allowed-repos for production builds.\n\n')
-            maven { url 'https://dl.bintray.com/alphagov/maven-test' }
             maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
-            jcenter()
+            mavenCentral()
         } else {
             maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
         }
@@ -12,7 +11,7 @@ buildscript {
     dependencies {
         classpath 'com.github.spullara.mustache.java:compiler:0.8.10',
                 'org.yaml:snakeyaml:1.10',
-                'uk.gov.ida:ida-gradle:1.1.0-24',
+                'uk.gov.ida:verify-gradle:2.0.0-36',
                 'com.google.guava:guava:23.0'
     }
 }
@@ -20,7 +19,6 @@ buildscript {
 plugins {
     id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
 }
-apply plugin: 'io.github.gradle-nexus.publish-plugin'
 
 ext {
     opensaml_version = '3.4.3'
@@ -39,27 +37,24 @@ apply from: 'idea.gradle'
 apply from: 'publish.gradle'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 def dependencyVersions = [
-        ida_utils:'374',
+        ida_utils:'395',
         dropwizard:"$dropwizard_version",
         pact:'3.5.6',
-        ida_test_utils:"2.0.0-49",
+        ida_test_utils:"2.0.0-65",
         opensaml:"$opensaml_version",
-        dev_pki: '1.1.0-37',
-        saml_lib:"$opensaml_version-250"
+        dev_pki: '2.0.0-45',
+        saml_lib:"$opensaml_version-254"
 ]
 
 subprojects {
     repositories {
         if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
             logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/allowed-repos for production builds.\n\n')
-            maven { url 'https://dl.bintray.com/alphagov/maven' } // For dropwizard-logstash
-            maven { url 'https://dl.bintray.com/alphagov/maven-test' } // For other public verify binaries
-            maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases' }
-            jcenter()
+            mavenCentral()
         } else {
             maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
         }
@@ -118,7 +113,7 @@ subprojects {
 
         config 'commons-io:commons-io:2.1'
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:0.0.1-77"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:2.0.0-82"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils",
@@ -129,7 +124,7 @@ subprojects {
             force = true
         }
 
-        dev_pki "uk.gov.ida:ida-dev-pki:$dependencyVersions.dev_pki"
+        dev_pki "uk.gov.ida:verify-dev-pki:$dependencyVersions.dev_pki"
 
         prometheus 'uk.gov.ida:gds-metrics-dropwizard:0.7.0-3'
 

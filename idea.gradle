@@ -2,15 +2,14 @@ buildscript {
     repositories {
         if (System.getenv('VERIFY_USE_PUBLIC_BINARIES') == 'true') {
           logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/allowed-repos for production builds.\n\n')
-          maven { url 'https://dl.bintray.com/alphagov/maven-test' }
-          jcenter()
+          mavenCentral()
         }
         else {
           maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
         }
     }
     dependencies {
-        classpath 'uk.gov.ida:ida-gradle:1.1.0-23'
+        classpath 'uk.gov.ida:verify-gradle:2.0.0-36'
     }
 }
 
