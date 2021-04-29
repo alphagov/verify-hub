@@ -90,7 +90,7 @@ public class SamlEngineAppRule extends DropwizardAppRule<SamlEngineConfiguration
     }
 
     @Override
-    protected void before() {
+    protected void before() throws Exception {
         try {
             redis.before();
         } catch (Throwable throwable) {

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
@@ -13,6 +12,8 @@ import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.security.credential.UsageType;
 import org.opensaml.xmlsec.signature.X509Certificate;
 import org.opensaml.xmlsec.signature.X509Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.shared.security.Certificate;
 import uk.gov.ida.exceptions.ApplicationException;
@@ -35,7 +36,7 @@ import static uk.gov.ida.hub.samlproxy.Urls.FrontendUrls.SAML2_SSO_REQUEST_ENDPO
 
 public class HubAsIdpMetadataHandler {
 
-    private static final Logger LOG = Logger.getLogger(HubAsIdpMetadataHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HubAsIdpMetadataHandler.class);
 
     private static final OrganisationDto organisationDto = new OrganisationDto("GOV.UK", "GOV.UK", "https://www.gov.uk");
 

@@ -71,9 +71,16 @@ public final class ResponseFromHub {
 
     @Override
     public String toString() {
-        final StandardToStringStyle style = new StandardToStringStyle();
-        style.setUseIdentityHashCode(false);
-        return ReflectionToStringBuilder.toString(this, style);
+        StringBuilder sb = new StringBuilder("uk.gov.ida.hub.policy.domain.ResponseFromHub[");
+        sb.append("authnRequestIssuerEntityId=").append(this.getAuthnRequestIssuerEntityId());
+        sb.append(",responseId=").append(this.getResponseId());
+        sb.append(",inResponseTo=").append(this.getInResponseTo());
+        sb.append(",status=").append(this.getStatus());
+        sb.append(",encryptedAssertions=").append(this.getEncryptedAssertions());
+        sb.append(",relayState=").append(this.getRelayState());
+        sb.append(",assertionConsumerServiceUri=").append(this.getAssertionConsumerServiceUri());
+        sb.append(']');
+        return sb.toString();
     }
 
     @Override

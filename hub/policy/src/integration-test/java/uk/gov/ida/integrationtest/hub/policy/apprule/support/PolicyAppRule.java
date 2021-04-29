@@ -53,7 +53,7 @@ public class PolicyAppRule extends DropwizardAppRule<PolicyConfiguration> {
     }
 
     @Override
-    protected void before() {
+    protected void before() throws Exception {
         clientTrustStore.create();
         redis = RedisServer.builder().setting("bind 127.0.0.1").port(REDIS_PORT).build();
         redis.start();

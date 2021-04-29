@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.services;
 
 import com.google.inject.Inject;
-import org.apache.log4j.Logger;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseContainerDto;
@@ -16,13 +15,14 @@ import uk.gov.ida.hub.policy.domain.exception.SessionNotFoundException;
 import uk.gov.ida.hub.policy.domain.state.WaitingForMatchingServiceResponseState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.text.MessageFormat.format;
 
 public class MatchingServiceResponseService {
 
-    private static final Logger LOG = Logger.getLogger(MatchingServiceResponseService.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(MatchingServiceResponseService.class);
     private final SamlEngineProxy samlEngineProxy;
     private final SessionRepository sessionRepository;
     private final HubEventLogger eventLogger;

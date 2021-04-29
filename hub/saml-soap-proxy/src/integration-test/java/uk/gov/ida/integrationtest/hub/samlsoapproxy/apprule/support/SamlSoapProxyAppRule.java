@@ -64,7 +64,7 @@ public class SamlSoapProxyAppRule extends DropwizardAppRule<SamlSoapProxyConfigu
     }
 
     @Override
-    protected void before() {
+    protected void before() throws Exception {
         metadataTrustStore.create();
         hubTrustStore.create();
         idpTrustStore.create();

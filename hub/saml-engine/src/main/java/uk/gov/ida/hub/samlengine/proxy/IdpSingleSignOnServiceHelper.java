@@ -2,13 +2,14 @@ package uk.gov.ida.hub.samlengine.proxy;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
-import org.apache.log4j.Logger;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 
@@ -22,7 +23,7 @@ import static java.text.MessageFormat.format;
 
 public class IdpSingleSignOnServiceHelper {
 
-    private static final Logger LOG = Logger.getLogger(IdpSingleSignOnServiceHelper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IdpSingleSignOnServiceHelper.class);
 
     private final MetadataResolver metadataProvider;
 

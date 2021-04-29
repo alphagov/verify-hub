@@ -41,7 +41,6 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +48,8 @@ import java.util.function.Function;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.glassfish.jersey.internal.util.Base64.encodeAsString;
+import static uk.gov.ida.Base64.encodeToString;
+import static uk.gov.ida.Base64.decodeToByteArray;
 import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthCheckerResponseDtoBuilder.anInboundResponseFromMatchingServiceDto;
 import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_SOAP_PROXY_MSA_HEALTH_STATUS;
 import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_SOAP_PROXY_MSA_HEALTH_STATUS_HELP;
@@ -161,9 +161,9 @@ public class PrometheusMetricsIntegrationTest {
         final Element msaOneResponse = aHealthyHealthCheckResponse(MSA_ONE_ENTITY_ID, MSA_ONE_RESPONSE_ID, MSA_ONE_VERSION);
         final Element msaTwoResponse = aHealthyHealthCheckResponse(MSA_TWO_ENTITY_ID, MSA_TWO_RESPONSE_ID, MSA_TWO_VERSION);
         final Element msaFourResponse = aHealthyHealthCheckResponse(MSA_FOUR_ENTITY_ID, MSA_FOUR_RESPONSE_ID, MSA_FOUR_VERSION);
-        final SamlMessageDto msaOneSamlMessage = new SamlMessageDto(encodeAsString(XmlUtils.writeToString(msaOneResponse)));
-        final SamlMessageDto msaTwoSamlMessage = new SamlMessageDto(encodeAsString(XmlUtils.writeToString(msaTwoResponse)));
-        final SamlMessageDto msaFourSamlMessage = new SamlMessageDto(encodeAsString(XmlUtils.writeToString(msaFourResponse)));
+        final SamlMessageDto msaOneSamlMessage = new SamlMessageDto(encodeToString(XmlUtils.writeToString(msaOneResponse)));
+        final SamlMessageDto msaTwoSamlMessage = new SamlMessageDto(encodeToString(XmlUtils.writeToString(msaTwoResponse)));
+        final SamlMessageDto msaFourSamlMessage = new SamlMessageDto(encodeToString(XmlUtils.writeToString(msaFourResponse)));
         final MatchingServiceHealthCheckerRequestDto msaOneHealthCheckerRequest = new MatchingServiceHealthCheckerRequestDto(RP_ONE_ENTITY_ID, MSA_ONE_ENTITY_ID);
         final MatchingServiceHealthCheckerRequestDto msaTwoHealthCheckerRequest = new MatchingServiceHealthCheckerRequestDto(RP_TWO_ENTITY_ID, MSA_TWO_ENTITY_ID);
         final MatchingServiceHealthCheckerRequestDto msaThreeHealthCheckerRequest = new MatchingServiceHealthCheckerRequestDto(RP_THREE_ENTITY_ID, MSA_THREE_ENTITY_ID);
@@ -307,10 +307,10 @@ public class PrometheusMetricsIntegrationTest {
         PublicKeyFactory publicKeyFactory = new PublicKeyFactory(new X509CertificateFactory());
         PrivateKeyFactory privateKeyFactory = new PrivateKeyFactory();
         PublicKey encryptionPublicKey = publicKeyFactory.createPublicKey(HUB_TEST_PUBLIC_ENCRYPTION_CERT);
-        PrivateKey encryptionPrivateKey = privateKeyFactory.createPrivateKey(Base64.getDecoder().decode(HUB_TEST_PRIVATE_ENCRYPTION_KEY.getBytes()));
+        PrivateKey encryptionPrivateKey = privateKeyFactory.createPrivateKey(decodeToByteArray(HUB_TEST_PRIVATE_ENCRYPTION_KEY));
         encryptionKeyPairs.add(new KeyPair(encryptionPublicKey, encryptionPrivateKey));
         PublicKey publicSigningKey = publicKeyFactory.createPublicKey(HUB_TEST_PUBLIC_SIGNING_CERT);
-        PrivateKey privateSigningKey = privateKeyFactory.createPrivateKey(Base64.getDecoder().decode(HUB_TEST_PRIVATE_SIGNING_KEY.getBytes()));
+        PrivateKey privateSigningKey = privateKeyFactory.createPrivateKey(decodeToByteArray(HUB_TEST_PRIVATE_SIGNING_KEY));
         KeyPair signingKeyPair = new KeyPair(publicSigningKey, privateSigningKey);
 
         return new IdaKeyStore(signingKeyPair, encryptionKeyPairs);

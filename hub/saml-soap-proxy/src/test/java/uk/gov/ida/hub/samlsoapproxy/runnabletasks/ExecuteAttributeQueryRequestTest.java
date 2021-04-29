@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
-import org.glassfish.jersey.internal.util.Base64;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import uk.gov.ida.Base64;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -31,6 +31,7 @@ import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import javax.xml.namespace.QName;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -194,10 +195,11 @@ public class ExecuteAttributeQueryRequestTest {
 
     @Test
     public void run_shouldThrowCertChainValidationExceptionOnResponse() throws Exception {
+        String pk = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBALGtlH968fIt6cYokQ8YWcvcNVfENKrkE3//yBSXI2IbUj6UVQpCZjD0bMShat4DPC+yYSw4mXo7XxvfkRiYLxzfWgKq8xL/4wjpBC457kmr2G8qujm7egoRxIS+SCQQtU/vQqXGRlXnlIZAuIZpGxlfJuQSz0pBQaZh4W4WBhGDAgMBAAECgYEAiYmPePsHzOtjmiQO3fuAj0D//deA2YRB4AR0shOorSnvCUgzaASsLFsY00EMg51Herh/ZgbOL4NEBUSTgdFULaACPQlAcPZc/BkKlP6n1Xz74KdtFKW8kxd0SoVxlL1WfHKP2KCs0IYMRtsWZdfcnF2ybu1sd0dHqL74BREo++kCQQDdRh39IDyD0QgQllmbpWTHsoU5BTAPVohYEx+9e2lTnkP2rhYIg3rTIQfaa0dRB4AO74nsyX7rDPtr1bziqj7VAkEAzY/1owrdby1v8rDx9LJ4cZeICnSIEje3vXC7e0qPqNArKAx1dTgt8x3mciTaDqcoz69Srks/OXzssKf+ZuKq9wJBAK9C61vj3aq2tYGV5NHgdeuqndTlJATyEDpao2hMyMc/cyt/BdqmcXGrFvJMyIcIvsiVuJRBoPKCLN5jxCFwoSUCQD2CKAQDSkLsG6VI4P1RMcz7hI9sUxLwbSBYTSEVLGtc7qzrHXJXvxgSCFR7RmxABGwwj9LrXR28ja5Gdk8e3/0CQB7pVgitNX6wSx5zB3fOasg7wgpOBsvQCPqlqYLG3+b9mPgZOg2vz97NeQJJQ3Ro0y9fHHo7Y0BCwGiPcBYVeU75devzZayFm4wGzXhpv3rLOwq61uo2mksyXy4b8Eu4diR64VFdxOJavbH5pQp7YNiPrzrtqxviU6ZGsDgda6VnuCKe9RlmT7qHd9DHHIiu/usS8Y8SZSOcCAwEAAQKBgHbU7QGPfK37qaK0ryVW8B6vwTe5mmDh2jQvZQtTkKzfBqye+OAcvg+Y3fUikZSe7MTsHifdi+yj2eVO97a61dnwXUUxGiEY5qi/1B0gWaSjt8cmvKjsvqmJbpEmwTTq1+wIVfJ8KvNUz+aq0KpspERMDynzaumNSluK3rqCDW3BAkEA9bUIJcz9OasluupCyiKDccvkkVdr8FPRayRabfgUltOqrAEQFMyvRlMui5znIE0OhdzZwtxUhxkpctB4MxQy2QJBAPGipvinjRj9EF2EPAbtovWHJEgoYGIpmCo/bgqGhUfEbPjdQXIiCWjP2umaN8jarKHouRNd2d6unJ/BnTEogb8CQGZtKRBY+9bmebwJm/4XlSQDEy1jfCObTVmUtf3RxQN7CVLavpFtIkP2uRiKN+9HMB6tijmpD7Oh0Z2DOhhQ+0ECQQCCuBlYH1xnjk/SJ31JyjkEVq28E4vAzvuwr0vaideEcbD6GMgU9HDesMOe6H0RPatyk7G71mPM4e19R4LAW0eFAkAXAEU8Mh96ML7paJ2zbgHW4PzGpYXzLoQQMfvMfZEiPjG0lb6lUbWXddWm9cw+Qh301Mh0cPCmiWqD79xvVYrMA==";
         when(attributeQueryRequestClient.sendQuery(any(Element.class), anyString(), any(SessionId.class), any(URI.class))).thenReturn(matchingServiceResponse);
         final BasicX509Credential x509Credential = new BasicX509Credential(
                 new X509CertificateFactory().createCertificate(UNCHAINED_PUBLIC_CERT),
-                new PrivateKeyFactory().createPrivateKey(Base64.decode(UNCHAINED_PRIVATE_KEY.getBytes())));
+                new PrivateKeyFactory().createPrivateKey(Base64.decodeToByteArray(pk)));
         Response response = aResponse().withSigningCredential(x509Credential).withIssuer(anIssuer().withIssuerId("issuer-id").build()).build();
         when(elementToResponseTransformer.apply(matchingServiceResponse)).thenReturn(response);
         executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);

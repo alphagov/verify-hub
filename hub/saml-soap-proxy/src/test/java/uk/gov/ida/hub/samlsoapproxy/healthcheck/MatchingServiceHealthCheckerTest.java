@@ -1,11 +1,11 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import org.glassfish.jersey.internal.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import uk.gov.ida.Base64;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
@@ -457,7 +457,7 @@ public class MatchingServiceHealthCheckerTest {
 
         ArgumentCaptor<SamlMessageDto> argumentCaptor = ArgumentCaptor.forClass(SamlMessageDto.class);
         verify(samlEngineProxy, times(1)).translateHealthcheckMatchingServiceResponse(argumentCaptor.capture());
-        assertThat(Base64.encodeAsString(saml)).isEqualTo(argumentCaptor.getValue().getSamlMessage());
+        assertThat(Base64.encodeToString(saml)).isEqualTo(argumentCaptor.getValue().getSamlMessage());
     }
 
     private void prepareForHealthyResponse(MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto) {

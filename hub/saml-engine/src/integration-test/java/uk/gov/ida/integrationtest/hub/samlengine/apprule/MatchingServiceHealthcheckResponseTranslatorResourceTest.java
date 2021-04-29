@@ -4,7 +4,6 @@ import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
-import org.glassfish.jersey.internal.util.Base64;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +15,7 @@ import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.xmlsec.signature.support.SignatureException;
+import uk.gov.ida.Base64;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.shared.security.PublicKeyFactory;
@@ -92,7 +92,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
         final String requestId = "requestId";
 
         final String saml = aValidMatchResponseFromMatchingService(requestId, status, DateTime.now().plusHours(1));
-        Response response = postResponseForTranslation(new SamlMessageDto(Base64.encodeAsString(saml)));
+        Response response = postResponseForTranslation(new SamlMessageDto(Base64.encodeToString(saml)));
         MatchingServiceHealthCheckerResponseDto entity = response.readEntity(MatchingServiceHealthCheckerResponseDto.class);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -103,7 +103,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
 
     @Test
     public void should_shouldReturnErrorStatusDtoWhenThereIsAProblem() {
-        Response response = postResponseForTranslation(new SamlMessageDto(Base64.encodeAsString("<saml/>")));
+        Response response = postResponseForTranslation(new SamlMessageDto(Base64.encodeToString("<saml/>")));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto entity = response.readEntity(ErrorStatusDto.class);
