@@ -1,4 +1,4 @@
-FROM ghcr.io/alphagov/verify/java:openjdk-11
+FROM  openjdk:11.0.9.1-jre
 
 ARG config_location
 ARG app_name

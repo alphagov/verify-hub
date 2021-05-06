@@ -1,4 +1,7 @@
-FROM ghcr.io/alphagov/verify/gradle:gradle-jdk11 as base-image
+ARG REGISTRY_IMAGE_GRADLE=gradle:6.7.0-jdk11
+ARG REGISTRY_IMAGE_JDK=openjdk:11.0.9.1-jre
+
+FROM ${REGISTRY_IMAGE_GRADLE} as base-image
 
 USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
@@ -23,7 +26,7 @@ RUN gradle --console=plain \
     :hub:shared:build \
     :hub:shared:test
 
-FROM ghcr.io/alphagov/verify/gradle:gradle-jdk11 as build-app
+FROM ${REGISTRY_IMAGE_GRADLE} as build-app
 ARG hub_app
 USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
@@ -60,7 +63,7 @@ RUN gradle --console=plain \
     -x :hub-saml:jar \
     -x :hub-saml-test-utils:jar
 
-FROM ghcr.io/alphagov/verify/java:openjdk-11
+FROM ${REGISTRY_IMAGE_JDK}
 ARG hub_app
 ARG release=local-dev
 ARG conf_dir=configuration
