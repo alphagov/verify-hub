@@ -70,13 +70,13 @@ public class ResponseFromHubTest {
     @Test
     public void testToString() {
         final StringBuilder sb = new StringBuilder("uk.gov.ida.hub.policy.domain.ResponseFromHub[");
-        sb.append("authnRequestIssuerEntityId=").append(responseFromHub.getAuthnRequestIssuerEntityId());
-        sb.append(",responseId=").append(responseFromHub.getResponseId());
-        sb.append(",inResponseTo=").append(responseFromHub.getInResponseTo());
-        sb.append(",status=").append(responseFromHub.getStatus());
+        sb.append("assertionConsumerServiceUri=").append(responseFromHub.getAssertionConsumerServiceUri());
+        sb.append(",authnRequestIssuerEntityId=").append(responseFromHub.getAuthnRequestIssuerEntityId());
         sb.append(",encryptedAssertions=").append(responseFromHub.getEncryptedAssertions());
+        sb.append(",inResponseTo=").append(responseFromHub.getInResponseTo());
         sb.append(",relayState=").append(responseFromHub.getRelayState());
-        sb.append(",assertionConsumerServiceUri=").append(responseFromHub.getAssertionConsumerServiceUri());
+        sb.append(",responseId=").append(responseFromHub.getResponseId());
+        sb.append(",status=").append(responseFromHub.getStatus());
         sb.append(']');
 
         assertThat(responseFromHub.toString()).isEqualTo(sb.toString());

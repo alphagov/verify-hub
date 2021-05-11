@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import org.glassfish.jersey.internal.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +28,7 @@ import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 import javax.xml.namespace.QName;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -457,7 +457,7 @@ public class MatchingServiceHealthCheckerTest {
 
         ArgumentCaptor<SamlMessageDto> argumentCaptor = ArgumentCaptor.forClass(SamlMessageDto.class);
         verify(samlEngineProxy, times(1)).translateHealthcheckMatchingServiceResponse(argumentCaptor.capture());
-        assertThat(Base64.encodeAsString(saml)).isEqualTo(argumentCaptor.getValue().getSamlMessage());
+        assertThat(Base64.getEncoder().encodeToString(saml.getBytes())).isEqualTo(argumentCaptor.getValue().getSamlMessage());
     }
 
     private void prepareForHealthyResponse(MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto) {
