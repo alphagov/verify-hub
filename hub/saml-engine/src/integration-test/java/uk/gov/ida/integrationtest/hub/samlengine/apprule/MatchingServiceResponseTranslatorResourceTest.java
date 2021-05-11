@@ -5,7 +5,6 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
 import org.apache.commons.lang.StringUtils;
-import org.glassfish.jersey.internal.util.Base64;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -37,6 +36,8 @@ import uk.gov.ida.shared.utils.xml.XmlUtils;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
+import java.util.Base64;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,7 +107,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(SUCCESS).build()).build();
-        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status)), TEST_RP);
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.getEncoder().encodeToString(aValidMatchResponseFromMatchingService(requestId, status).getBytes()), TEST_RP);
 
         Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
@@ -125,7 +126,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.NO_MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(RESPONDER).build()).build();
-        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingService(requestId, status, TEST_RP_MS)), TEST_RP);
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.getEncoder().encodeToString(aValidNoMatchResponseFromMatchingService(requestId, status, TEST_RP_MS).getBytes()), TEST_RP);
 
         Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
@@ -143,7 +144,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = StatusCode.NO_AUTHN_CONTEXT;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(REQUESTER).build()).build();
-        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingService(requestId, status, TEST_RP_MS)), TEST_RP);
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.getEncoder().encodeToString(aValidNoMatchResponseFromMatchingService(requestId, status, TEST_RP_MS).getBytes()), TEST_RP);
 
         Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
@@ -161,7 +162,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.CREATED;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(SUCCESS).build()).build();
-        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status)), TEST_RP);
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.getEncoder().encodeToString(aValidMatchResponseFromMatchingService(requestId, status).getBytes()), TEST_RP);
 
         Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
@@ -187,7 +188,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(SUCCESS).build()).build();
-        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidMatchResponseFromMatchingServiceWithMissingData(requestId, status, TEST_RP_MS)), TEST_RP);
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.getEncoder().encodeToString(aValidMatchResponseFromMatchingServiceWithMissingData(requestId, status, TEST_RP_MS).getBytes()), TEST_RP);
 
         Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
@@ -202,7 +203,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.NO_MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(RESPONDER).build()).build();
-        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidNoMatchResponseFromMatchingServiceisBadlySigned(requestId, status, TEST_RP_MS)), TEST_RP);
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.getEncoder().encodeToString(aValidNoMatchResponseFromMatchingServiceisBadlySigned(requestId, status, TEST_RP_MS).getBytes()), TEST_RP);
 
         Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
@@ -214,7 +215,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
     @Test
     public void shouldNotReturnADtoWhenResponseIs_bad() throws Exception {
         final String requestId = "requestId";
-        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(anInvalidAMatchingServiceSamlResponse(requestId)), TEST_RP);
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.getEncoder().encodeToString(anInvalidAMatchingServiceSamlResponse(requestId).getBytes()), TEST_RP);
 
         Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 
@@ -239,7 +240,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
         final String requestId = "requestId";
         final String msaStatusCode = SamlStatusCode.MATCH;
         final Status status = aStatus().withStatusCode(aStatusCode().withSubStatusCode(aStatusCode().withValue(msaStatusCode).build()).withValue(SUCCESS).build()).build();
-        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.encodeAsString(aValidMatchResponseFromMatchingService(requestId, status, DateTime.now().minusDays(1))), TEST_RP);
+        final SamlResponseContainerDto samlResponseContainerDto = new SamlResponseContainerDto(Base64.getEncoder().encodeToString(aValidMatchResponseFromMatchingService(requestId, status, DateTime.now().minusDays(1)).getBytes()), TEST_RP);
 
         Response clientResponse = postToSamlEngine(samlResponseContainerDto);
 

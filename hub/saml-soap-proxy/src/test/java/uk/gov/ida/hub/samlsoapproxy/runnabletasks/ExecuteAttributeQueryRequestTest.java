@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
-import org.glassfish.jersey.internal.util.Base64;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +30,7 @@ import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import javax.xml.namespace.QName;
 import java.net.URI;
+import java.util.Base64;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -197,7 +197,7 @@ public class ExecuteAttributeQueryRequestTest {
         when(attributeQueryRequestClient.sendQuery(any(Element.class), anyString(), any(SessionId.class), any(URI.class))).thenReturn(matchingServiceResponse);
         final BasicX509Credential x509Credential = new BasicX509Credential(
                 new X509CertificateFactory().createCertificate(UNCHAINED_PUBLIC_CERT),
-                new PrivateKeyFactory().createPrivateKey(Base64.decode(UNCHAINED_PRIVATE_KEY.getBytes())));
+                new PrivateKeyFactory().createPrivateKey(Base64.getDecoder().decode(UNCHAINED_PRIVATE_KEY.getBytes())));
         Response response = aResponse().withSigningCredential(x509Credential).withIssuer(anIssuer().withIssuerId("issuer-id").build()).build();
         when(elementToResponseTransformer.apply(matchingServiceResponse)).thenReturn(response);
         executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);

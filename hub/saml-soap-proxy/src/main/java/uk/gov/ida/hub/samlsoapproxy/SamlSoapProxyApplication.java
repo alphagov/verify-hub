@@ -3,7 +3,6 @@ package uk.gov.ida.hub.samlsoapproxy;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -11,6 +10,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
+import ru.vyarus.dropwizard.guice.GuiceBundle;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
@@ -32,12 +32,9 @@ import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
 
-import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
-
 public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfiguration> {
 
     private final MetadataResolverBundle<SamlSoapProxyConfiguration> verifyMetadataBundle = new MetadataResolverBundle<>((SamlSoapProxyConfiguration::getMetadataConfiguration));
-    private GuiceBundle<SamlSoapProxyConfiguration> guiceBundle;
 
     public static void main(String[] args) throws Exception {
         new SamlSoapProxyApplication().run(args);
@@ -61,10 +58,15 @@ public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfigura
         bootstrap.addBundle(verifyMetadataBundle);
 
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
-        guiceBundle = defaultBuilder(SamlSoapProxyConfiguration.class)
-                .modules(new SamlSoapProxyModule(), new EventEmitterModule(), bindVerifyMetadata())
-                .build();
-        bootstrap.addBundle(guiceBundle);
+        bootstrap.addBundle(
+                GuiceBundle.builder().enableAutoConfig(getClass().getPackage().getName())
+                .modules(
+                        new SamlSoapProxyModule(),
+                        new EventEmitterModule(),
+                        bindVerifyMetadata()
+                )
+                .build()
+        );
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());

@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
 import com.codahale.metrics.Counter;
-import org.glassfish.jersey.internal.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +28,7 @@ import uk.gov.ida.shared.utils.xml.XmlUtils;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -146,7 +146,7 @@ public class AttributeQueryRequestRunnableTest {
         String stringifiedResponse = XmlUtils.writeToString(matchingServiceResponse);
         verify(hubMatchingServiceResponseReceiverProxy).notifyHubOfAResponseFromMatchingService(
                 eq(sessionId),
-                eq(Base64.encodeAsString(stringifiedResponse))
+                eq(Base64.getEncoder().encodeToString(stringifiedResponse.getBytes()))
         );
         verify(timeoutEvaluator, times(2)).hasAttributeQueryTimedOut(attributeQueryContainerDto);
     }

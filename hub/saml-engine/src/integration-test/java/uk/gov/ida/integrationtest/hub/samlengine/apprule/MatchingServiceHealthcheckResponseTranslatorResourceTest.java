@@ -4,7 +4,6 @@ import helpers.JerseyClientConfigurationBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.util.Duration;
-import org.glassfish.jersey.internal.util.Base64;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +35,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Base64;
 
 import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,7 +92,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
         final String requestId = "requestId";
 
         final String saml = aValidMatchResponseFromMatchingService(requestId, status, DateTime.now().plusHours(1));
-        Response response = postResponseForTranslation(new SamlMessageDto(Base64.encodeAsString(saml)));
+        Response response = postResponseForTranslation(new SamlMessageDto(Base64.getEncoder().encodeToString(saml.getBytes())));
         MatchingServiceHealthCheckerResponseDto entity = response.readEntity(MatchingServiceHealthCheckerResponseDto.class);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -103,7 +103,7 @@ public class MatchingServiceHealthcheckResponseTranslatorResourceTest {
 
     @Test
     public void should_shouldReturnErrorStatusDtoWhenThereIsAProblem() {
-        Response response = postResponseForTranslation(new SamlMessageDto(Base64.encodeAsString("<saml/>")));
+        Response response = postResponseForTranslation(new SamlMessageDto(Base64.getEncoder().encodeToString("<saml/>".getBytes())));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto entity = response.readEntity(ErrorStatusDto.class);

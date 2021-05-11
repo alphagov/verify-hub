@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -14,6 +13,7 @@ import io.dropwizard.setup.Environment;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.MDC;
+import ru.vyarus.dropwizard.guice.GuiceBundle;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
@@ -41,12 +41,9 @@ import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
 
-import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
-
 public class SamlEngineApplication extends Application<SamlEngineConfiguration> {
 
     private final MetadataResolverBundle<SamlEngineConfiguration> verifyMetadataBundle;
-    private GuiceBundle<SamlEngineConfiguration> guiceBundle;
 
     public SamlEngineApplication() {
         verifyMetadataBundle = new MetadataResolverBundle<>(SamlEngineConfiguration::getMetadataConfiguration);
@@ -72,12 +69,16 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
         bootstrap.addBundle(new LoggingBundle());
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
         bootstrap.addBundle(verifyMetadataBundle);
-        guiceBundle = defaultBuilder(SamlEngineConfiguration.class)
-                .modules(new SamlEngineModule(),
+        bootstrap.addBundle(
+                GuiceBundle.builder().enableAutoConfig(getClass().getPackage().getName())
+                .modules(
+                        new SamlEngineModule(),
                         new CryptoModule(),
-                        bindMetadata())
-                .build();
-        bootstrap.addBundle(guiceBundle);
+                        bindMetadata()
+                )
+                .build()
+        );
+
         bootstrap.addBundle(new PrometheusBundle());
     }
 

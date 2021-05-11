@@ -128,6 +128,6 @@ public class TransactionConfigTest {
         assertThatThrownBy(
                 () -> mapper.readValue(badAttributeStream, mapper.getTypeFactory().constructCollectionType(List.class, UserAccountCreationAttribute.class)))
                 .isExactlyInstanceOf(InvalidFormatException.class)
-                .hasMessageContaining("\"INVALID_ATTRIBUTE\": value not one of declared Enum instance names: [MIDDLE_NAME_VERIFIED, MIDDLE_NAME, DATE_OF_BIRTH, CURRENT_ADDRESS_VERIFIED, FIRST_NAME, SURNAME, SURNAME_VERIFIED, FIRST_NAME_VERIFIED, CURRENT_ADDRESS, DATE_OF_BIRTH_VERIFIED, ADDRESS_HISTORY, CYCLE_3]");
+                .hasMessageContaining("\"INVALID_ATTRIBUTE\": not one of the values accepted for Enum class: [MIDDLE_NAME_VERIFIED, MIDDLE_NAME, DATE_OF_BIRTH, CURRENT_ADDRESS_VERIFIED, FIRST_NAME, SURNAME, SURNAME_VERIFIED, FIRST_NAME_VERIFIED, CURRENT_ADDRESS, DATE_OF_BIRTH_VERIFIED, ADDRESS_HISTORY, CYCLE_3]");
     }
 }
