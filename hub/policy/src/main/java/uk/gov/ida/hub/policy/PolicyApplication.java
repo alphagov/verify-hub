@@ -73,19 +73,7 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
     public void run(PolicyConfiguration configuration, Environment environment) {
         environment.getObjectMapper().setDateFormat(new StdDateFormat());
         registerResources(configuration, environment);
-        registerExceptionMappers(environment);
         environment.jersey().register(SessionIdPathParamLoggingFilter.class);
-    }
-
-    private void registerExceptionMappers(Environment environment) {
-        environment.jersey().register(SessionTimeoutExceptionMapper.class);
-        environment.jersey().register(IdpDisabledExceptionMapper.class);
-        environment.jersey().register(StateProcessingValidationExceptionMapper.class);
-        environment.jersey().register(SessionNotFoundExceptionMapper.class);
-        environment.jersey().register(SessionAlreadyExistingExceptionMapper.class);
-        environment.jersey().register(InvalidSessionStateExceptionMapper.class);
-        environment.jersey().register(PolicyApplicationExceptionMapper.class);
-        environment.jersey().register(SessionCreationFailureExceptionMapper.class);
     }
 
     protected void registerResources(PolicyConfiguration configuration, Environment environment) {

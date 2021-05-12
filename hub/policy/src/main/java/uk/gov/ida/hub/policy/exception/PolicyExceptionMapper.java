@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.exception;
 
 import com.google.common.base.Strings;
+import com.google.inject.servlet.RequestScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.Urls;
@@ -8,16 +9,18 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+@Provider
+@RequestScoped
 public abstract class PolicyExceptionMapper<TException extends Exception> implements ExceptionMapper<TException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PolicyExceptionMapper.class);
@@ -28,17 +31,9 @@ public abstract class PolicyExceptionMapper<TException extends Exception> implem
 
     private HttpServletRequest httpServletRequest;
 
-    @Context
-    public void setUriInfo(UriInfo uriInfo){
+    public PolicyExceptionMapper(UriInfo uriInfo, HttpServletRequest httpServletRequest) {
         this.uriInfo = uriInfo;
-    }
-
-    @Context
-    public void setHttpServletRequest(HttpServletRequest httpServletRequest){
         this.httpServletRequest = httpServletRequest;
-    }
-
-    public PolicyExceptionMapper() {
         noContextPaths = new ArrayList<>();
         noContextPaths.add(Urls.SharedUrls.SERVICE_NAME_ROOT);
         noContextPaths.add(Urls.PolicyUrls.NEW_SESSION_RESOURCE);

@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.exception;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
@@ -13,25 +13,27 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SessionTimeoutExceptionMapperTest {
 
     @Mock
     private HttpServletRequest servletRequest;
+    @Mock
+    private UriInfo uriInfo;
     @Mock
     private HubEventLogger hubEventLogger;
 
     @Test
     public void toResponse_shouldReturnAuditedErrorStatus() throws Exception {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(hubEventLogger);
-        mapper.setHttpServletRequest(servletRequest);
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfo, servletRequest, hubEventLogger);
 
         SessionTimeoutException exception = new SessionTimeoutException("Timeout exception", aSessionId().build(), "some entity id", DateTime.now().minusMinutes(10), "some request id");
 
@@ -47,8 +49,7 @@ public class SessionTimeoutExceptionMapperTest {
     @Test
     public void toResponse_shouldLogToEventSink() throws Exception {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(hubEventLogger);
-        mapper.setHttpServletRequest(servletRequest);
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfo, servletRequest, hubEventLogger);
 
         SessionId sessionId = aSessionId().build();
         DateTime sessionExpiryTimestamp = DateTime.now().minusMinutes(10);

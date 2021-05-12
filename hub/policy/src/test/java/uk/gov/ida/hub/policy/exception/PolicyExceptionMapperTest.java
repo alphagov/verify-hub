@@ -1,11 +1,13 @@
 package uk.gov.ida.hub.policy.exception;
 
+import com.google.inject.Inject;
+import com.google.inject.servlet.RequestScoped;
 import org.glassfish.jersey.internal.util.collection.StringKeyIgnoreCaseMultivaluedMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
@@ -18,7 +20,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PolicyExceptionMapperTest {
 
     @Mock
@@ -29,11 +31,9 @@ public class PolicyExceptionMapperTest {
 
     private TestExceptionMapper mapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        mapper = new TestExceptionMapper();
-        mapper.setHttpServletRequest(servletRequest);
-        mapper.setUriInfo(uriInfo);
+        mapper = new TestExceptionMapper(uriInfo, servletRequest);
     }
 
     @Test
@@ -96,7 +96,13 @@ public class PolicyExceptionMapperTest {
         assertThat(response.getEntity()).isEqualTo(expectedMessage);
     }
 
+    @RequestScoped
     private static class TestExceptionMapper extends PolicyExceptionMapper<RuntimeException> {
+
+        @Inject
+        public TestExceptionMapper(UriInfo uriInfo, HttpServletRequest servletRequest) {
+            super(uriInfo, servletRequest);
+        }
         @Override
         protected Response handleException(RuntimeException e) {
             return Response.ok().entity(e.getMessage()).build();
