@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.exception;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
@@ -13,6 +13,7 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +22,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class IdpDisabledExceptionMapperTest {
 
     private static final SessionId SESSION_ID = SessionId.createNewSessionId();
@@ -31,21 +32,22 @@ public class IdpDisabledExceptionMapperTest {
     private HttpServletRequest context;
 
     @Mock
+    private UriInfo uriInfo;
+
+    @Mock
     private HubEventLogger eventLogger;
 
     private IdpDisabledExceptionMapper exceptionMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        exceptionMapper = new IdpDisabledExceptionMapper(eventLogger);
-        exceptionMapper.setHttpServletRequest(context);
+        exceptionMapper = new IdpDisabledExceptionMapper(uriInfo, context, eventLogger);
         when(context.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.toString());
     }
 
     @Test
     public void toResponse_shouldReturnForbidden() {
         IdpDisabledException exception = new IdpDisabledException(ENTITY_ID);
-        exceptionMapper.setHttpServletRequest(context);
         Response response = exceptionMapper.toResponse(exception);
 
 
@@ -64,7 +66,6 @@ public class IdpDisabledExceptionMapperTest {
     @Test
     public void toResponse_shouldReturnErrorResponseWithAuditingTrue() {
         IdpDisabledException exception = new IdpDisabledException(ENTITY_ID);
-        exceptionMapper.setHttpServletRequest(context);
         Response response = exceptionMapper.toResponse(exception);
 
         final ErrorStatusDto errorStatusDto = (ErrorStatusDto) response.getEntity();

@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.domain.exception;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
@@ -14,37 +14,40 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class StateProcessingValidationExceptionMapperTest {
     private static final String SESSION_ID = "42";
 
     @Mock
     private HubEventLogger eventLogger;
 
+    @Mock
+    private HttpServletRequest servletRequest;
+
+    @Mock
+    private UriInfo uriInfo;
+
     private StateProcessingValidationExceptionMapper mapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
-        when(httpServletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID);
-
-        mapper = new StateProcessingValidationExceptionMapper(eventLogger);
-        mapper.setHttpServletRequest(httpServletRequest);
+        mapper = new StateProcessingValidationExceptionMapper(uriInfo, servletRequest, eventLogger);
     }
 
     @Test
     public void toResponse_shouldReturnUnauditedErrorStatus() {
+        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID);
         String errorMessage = "error message";
         StateProcessingValidationException exception = new StateProcessingValidationException(errorMessage, Level.ERROR);
 

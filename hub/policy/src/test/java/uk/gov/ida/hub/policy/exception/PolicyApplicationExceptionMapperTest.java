@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.exception;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
@@ -14,6 +14,7 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.UUID;
 
@@ -26,20 +27,23 @@ import static uk.gov.ida.exceptions.ApplicationException.createAuditedException;
 import static uk.gov.ida.exceptions.ApplicationException.createUnauditedException;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PolicyApplicationExceptionMapperTest {
 
     @Mock
     private HubEventLogger eventLogger;
+
     @Mock
     private HttpServletRequest servletRequest;
 
+    @Mock
+    private UriInfo uriInfo;
+
     private PolicyApplicationExceptionMapper mapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        mapper = new PolicyApplicationExceptionMapper(eventLogger);
-        mapper.setHttpServletRequest(servletRequest);
+        mapper = new PolicyApplicationExceptionMapper(uriInfo, servletRequest, eventLogger);
     }
 
     @Test
