@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain.exception;
 
+import com.google.inject.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,18 +34,21 @@ public class SessionAlreadyExistingExceptionMapperTest {
     private HubEventLogger hubEventLogger;
 
     @Mock
+    private Provider<HttpServletRequest> servletRequestProvider;
+
+    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
-    private UriInfo uriInfo;
+    private Provider<UriInfo> uriInfoProvider;
 
     private SessionAlreadyExistingExceptionMapper mapper;
 
     @BeforeEach
     public void setUp() {
-        mapper = new SessionAlreadyExistingExceptionMapper(uriInfo, servletRequest, hubEventLogger);
+        mapper = new SessionAlreadyExistingExceptionMapper(uriInfoProvider, servletRequestProvider, hubEventLogger);
+        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.getSessionId());
-
     }
 
     @Test

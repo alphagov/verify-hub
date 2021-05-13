@@ -9,6 +9,7 @@ import io.prometheus.client.CollectorRegistry;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
 import org.opensaml.core.config.InitializationService;
+import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.Constants;
 import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
 import uk.gov.ida.hub.samlproxy.SamlProxyConfiguration;
@@ -24,7 +25,7 @@ import java.util.stream.Stream;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 
-public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> {
+public class SamlProxyAppRule extends TestDropwizardAppExtension {
     private static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
     private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----\n";
     private static final String END_CERT = "\n-----END CERTIFICATE-----";
@@ -66,7 +67,7 @@ public class SamlProxyAppRule extends DropwizardAppRule<SamlProxyConfiguration> 
     }
 
     @Override
-    protected void before() {
+    protected void before() throws Exception {
         metadataTrustStore.create();
         hubTrustStore.create();
         idpTrustStore.create();

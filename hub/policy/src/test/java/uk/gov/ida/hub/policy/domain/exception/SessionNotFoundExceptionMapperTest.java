@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain.exception;
 
+import com.google.inject.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,18 +32,22 @@ public class SessionNotFoundExceptionMapperTest {
     private HubEventLogger eventLogger;
 
     @Mock
+    private Provider<HttpServletRequest> servletRequestProvider;
+
+    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
-    private UriInfo uriInfo;
+    private Provider<UriInfo> uriInfoProvider;
 
     private SessionNotFoundExceptionMapper mapper;
 
     @BeforeEach
     public void setUp() {
+        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID);
 
-        mapper = new SessionNotFoundExceptionMapper(uriInfo, servletRequest, eventLogger);
+        mapper = new SessionNotFoundExceptionMapper(uriInfoProvider, servletRequestProvider, eventLogger);
     }
 
     @Test
