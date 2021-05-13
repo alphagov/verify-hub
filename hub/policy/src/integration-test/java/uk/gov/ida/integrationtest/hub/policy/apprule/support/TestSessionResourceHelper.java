@@ -1,5 +1,6 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
+import ru.vyarus.dropwizard.guice.test.ClientSupport;
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SessionId;
@@ -26,7 +27,7 @@ public class TestSessionResourceHelper {
             SessionId sessionId,
             String issuerId,
             String idpEntityId,
-            Client client,
+            ClientSupport client,
             URI uri) {
 
         IdpSelectedState idpSelectedState = anIdpSelectedState()
@@ -56,12 +57,17 @@ public class TestSessionResourceHelper {
         );
 
         return client
-                .target(uri)
+                .targetMain(uri.toString())
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(testSessionDto));
     }
 
-    public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String requestIssuerEntityId, String idpEntityId, Client client, URI uri) {
+    public static Response createSessionInSuccessfulMatchState(
+            SessionId sessionId,
+            String requestIssuerEntityId,
+            String idpEntityId,
+            ClientSupport client,
+            URI uri) {
         SuccessfulMatchState successfulMatchState = aSuccessfulMatchState()
                 .withSessionId(sessionId)
                 .withIdentityProviderEntityId(idpEntityId)
@@ -69,10 +75,10 @@ public class TestSessionResourceHelper {
                 .build();
 
         TestSessionDto testSessionDto = createASuccessfulMatchStateTestSessionDto(successfulMatchState, sessionId);
-
-        return client.target(uri)
+        Response post = client.targetMain(uri.toString())
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(testSessionDto));
+        return post;
     }
 
     private static TestSessionDto createASuccessfulMatchStateTestSessionDto(AbstractSuccessfulMatchState state, SessionId sessionId) {
@@ -92,7 +98,7 @@ public class TestSessionResourceHelper {
         );
     }
 
-    public static Response createSessionInAuthnFailedErrorState(SessionId sessionId, Client client, URI uri) {
+    public static Response createSessionInAuthnFailedErrorState(SessionId sessionId, ClientSupport client, URI uri) {
         AuthnFailedErrorState state = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().build();
         TestSessionDto testSessionDto = new TestSessionDto(
                 sessionId,
@@ -108,7 +114,7 @@ public class TestSessionResourceHelper {
                 null
         );
 
-        return client.target(uri)
+        return client.targetMain(uri.toString())
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(testSessionDto));
     }

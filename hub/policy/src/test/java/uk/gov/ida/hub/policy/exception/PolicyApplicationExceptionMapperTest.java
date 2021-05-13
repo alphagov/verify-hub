@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.exception;
 
+import com.google.inject.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,23 +35,28 @@ public class PolicyApplicationExceptionMapperTest {
     private HubEventLogger eventLogger;
 
     @Mock
+    private Provider<HttpServletRequest> servletRequestProvider;
+
+    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
-    private UriInfo uriInfo;
+    private Provider<UriInfo> uriInfoProvider;
 
     private PolicyApplicationExceptionMapper mapper;
 
     @BeforeEach
     public void setUp() {
-        mapper = new PolicyApplicationExceptionMapper(uriInfo, servletRequest, eventLogger);
+        mapper = new PolicyApplicationExceptionMapper(uriInfoProvider, servletRequestProvider, eventLogger);
+        when(servletRequestProvider.get()).thenReturn(servletRequest);
+        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("requestId");
     }
 
     @Test
     public void toResponse_shouldAuditErrorIfUnaudited() {
         final SessionId sessionId = aSessionId().build();
         final UUID errorId = UUID.randomUUID();
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(sessionId.toString());
+        when(servletRequestProvider.get().getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(sessionId.toString());
         ApplicationException exception = createUnauditedException(ExceptionType.IDP_DISABLED, errorId);
 
         mapper.toResponse(exception);
@@ -60,7 +66,6 @@ public class PolicyApplicationExceptionMapperTest {
 
     @Test
     public void toResponse_shouldNotAuditIfEventIsAlreadyAudited() {
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("requestId");
         ApplicationException exception = createAuditedException(ExceptionType.IDP_DISABLED, UUID.randomUUID());
 
         mapper.toResponse(exception);
@@ -70,7 +75,6 @@ public class PolicyApplicationExceptionMapperTest {
 
     @Test
     public void toResponse_shouldReturnAnAuditedErrorStatusIfExceptionIsAudited() {
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("requestId");
         ApplicationException exception = createAuditedException(ExceptionType.IDP_DISABLED, UUID.randomUUID());
 
         final Response response = mapper.toResponse(exception);
@@ -81,7 +85,6 @@ public class PolicyApplicationExceptionMapperTest {
 
     @Test
     public void toResponse_shouldReturnAnUnauditedErrorStatusIfExceptionIsNotAudited() {
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("requestId");
         ApplicationException exception = createUnauditedExceptionThatShouldNotBeAudited();
 
         final Response response = mapper.toResponse(exception);

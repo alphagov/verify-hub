@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.exception;
 
+import com.google.inject.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,10 +30,13 @@ public class IdpDisabledExceptionMapperTest {
     private static final String ENTITY_ID = "my-entity";
 
     @Mock
-    private HttpServletRequest context;
+    private Provider<HttpServletRequest> servletRequestProvider;
 
     @Mock
-    private UriInfo uriInfo;
+    private HttpServletRequest servletRequest;
+
+    @Mock
+    private Provider<UriInfo> uriInfoProvider;
 
     @Mock
     private HubEventLogger eventLogger;
@@ -41,8 +45,9 @@ public class IdpDisabledExceptionMapperTest {
 
     @BeforeEach
     public void setUp() {
-        exceptionMapper = new IdpDisabledExceptionMapper(uriInfo, context, eventLogger);
-        when(context.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.toString());
+        exceptionMapper = new IdpDisabledExceptionMapper(uriInfoProvider, servletRequestProvider, eventLogger);
+        when(servletRequestProvider.get()).thenReturn(servletRequest);
+        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.toString());
     }
 
     @Test

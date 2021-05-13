@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.policy.domain.exception;
 
-import com.google.inject.servlet.RequestScoped;
+import com.google.inject.Provider;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.exception.PolicyExceptionMapper;
@@ -10,15 +10,12 @@ import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Provider;
 import java.util.UUID;
 
-@Provider
-@RequestScoped
+@javax.ws.rs.ext.Provider
 public class SessionCreationFailureExceptionMapper extends PolicyExceptionMapper<SessionCreationFailureException> {
 
     private final LevelLogger levelLogger;
@@ -26,8 +23,11 @@ public class SessionCreationFailureExceptionMapper extends PolicyExceptionMapper
     private final HubEventLogger eventLogger;
 
     @Inject
-    public SessionCreationFailureExceptionMapper(@Context UriInfo uriInfo, @Context HttpServletRequest request, HubEventLogger eventLogger) {
-        super(uriInfo, request);
+    public SessionCreationFailureExceptionMapper(
+            Provider<UriInfo> uriInfoProvider,
+            Provider<HttpServletRequest> servletRequestProvider,
+            HubEventLogger eventLogger) {
+        super(uriInfoProvider, servletRequestProvider);
         levelLogger = new LevelLoggerFactory<SessionCreationFailureExceptionMapper>().createLevelLogger(SessionCreationFailureExceptionMapper.class);
         this.eventLogger = eventLogger;
     }

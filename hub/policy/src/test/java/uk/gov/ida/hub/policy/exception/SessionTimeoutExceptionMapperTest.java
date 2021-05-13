@@ -1,6 +1,8 @@
 package uk.gov.ida.hub.policy.exception;
 
+import com.google.inject.Provider;
 import org.joda.time.DateTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,17 +26,23 @@ import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 public class SessionTimeoutExceptionMapperTest {
 
     @Mock
+    private Provider<HttpServletRequest> servletRequestProvider;
+    @Mock
     private HttpServletRequest servletRequest;
     @Mock
-    private UriInfo uriInfo;
+    private Provider<UriInfo> uriInfoProvider;
     @Mock
     private HubEventLogger hubEventLogger;
 
-    @Test
-    public void toResponse_shouldReturnAuditedErrorStatus() throws Exception {
+    @BeforeEach
+    public void beforeAll() {
+        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfo, servletRequest, hubEventLogger);
+    }
 
+    @Test
+    public void toResponse_shouldReturnAuditedErrorStatus() {
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfoProvider, servletRequestProvider, hubEventLogger);
         SessionTimeoutException exception = new SessionTimeoutException("Timeout exception", aSessionId().build(), "some entity id", DateTime.now().minusMinutes(10), "some request id");
 
         final Response response = mapper.toResponse(exception);
@@ -47,14 +55,11 @@ public class SessionTimeoutExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_shouldLogToEventSink() throws Exception {
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfo, servletRequest, hubEventLogger);
-
+    public void toResponse_shouldLogToEventSink() {
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfoProvider, servletRequestProvider, hubEventLogger);
         SessionId sessionId = aSessionId().build();
         DateTime sessionExpiryTimestamp = DateTime.now().minusMinutes(10);
         String transactionEntityId = "some entity id";
-
         String requestId = "some request id";
         SessionTimeoutException exception = new SessionTimeoutException("Timeout exception", sessionId, transactionEntityId, sessionExpiryTimestamp, requestId);
 

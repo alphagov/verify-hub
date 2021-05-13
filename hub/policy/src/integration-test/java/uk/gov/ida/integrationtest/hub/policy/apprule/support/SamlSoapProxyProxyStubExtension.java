@@ -1,7 +1,7 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import httpstub.HttpStubRule;
+import httpstub.HttpStubExtension;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
-public class SamlSoapProxyProxyStubRule extends HttpStubRule {
+public class SamlSoapProxyProxyStubExtension extends HttpStubExtension {
     public void setUpStubForSendHubMatchingServiceRequest(SessionId sessionId) throws JsonProcessingException {
         URI uri = UriBuilder
                 .fromPath(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_REQUEST_SENDER_RESOURCE)

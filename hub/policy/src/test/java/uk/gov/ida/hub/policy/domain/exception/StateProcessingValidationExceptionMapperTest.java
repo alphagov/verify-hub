@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.policy.domain.exception;
 
+import com.google.inject.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,20 +34,24 @@ public class StateProcessingValidationExceptionMapperTest {
     private HubEventLogger eventLogger;
 
     @Mock
+    private Provider<HttpServletRequest> servletRequestProvider;
+
+    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
-    private UriInfo uriInfo;
+    private Provider<UriInfo> uriInfoProvider;
 
     private StateProcessingValidationExceptionMapper mapper;
 
     @BeforeEach
     public void setUp() {
-        mapper = new StateProcessingValidationExceptionMapper(uriInfo, servletRequest, eventLogger);
+        mapper = new StateProcessingValidationExceptionMapper(uriInfoProvider, servletRequestProvider, eventLogger);
     }
 
     @Test
     public void toResponse_shouldReturnUnauditedErrorStatus() {
+        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID);
         String errorMessage = "error message";
         StateProcessingValidationException exception = new StateProcessingValidationException(errorMessage, Level.ERROR);
