@@ -1,6 +1,5 @@
 dependencies {
     testImplementation configurations.test_deps_compile,
-            configurations.pact_test,
             configurations.test_utils,
             configurations.redis_test,
             project(':hub-saml-test-utils')
