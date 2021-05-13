@@ -43,7 +43,6 @@ repositories {
 def dependencyVersions = [
         ida_utils:'SNAPSHOT',
         dropwizard:"$dropwizard_version",
-        pact:'3.5.6',
         ida_test_utils:"2.0.0-SNAPSHOT",
         opensaml:"$opensaml_version",
         dev_pki: '2.0.0-SNAPSHOT',
@@ -78,7 +77,6 @@ subprojects {
         msa
         saml
         saml_test
-        pact_test
         soap
         test_utils
         test_deps_compile
@@ -137,16 +135,6 @@ subprojects {
 
         saml_test "uk.gov.ida:saml-test:$dependencyVersions.saml_lib"
 
-        pact_test "au.com.dius:pact-jvm-consumer-junit_2.11:$dependencyVersions.pact",
-                "au.com.dius:pact-jvm-consumer_2.11:$dependencyVersions.pact",
-                "au.com.dius:pact-jvm-model:$dependencyVersions.pact"
-        pact_test("au.com.dius:pact-jvm-provider-junit_2.11:$dependencyVersions.pact") {
-            exclude group: 'com.google.guava', module: 'guava'
-        }
-        pact_test("org.apache.httpcomponents:httpclient:4.5.13") {
-            force = true
-        }
-
         test_utils "io.dropwizard:dropwizard-testing:$dependencyVersions.dropwizard",
                 "org.junit.jupiter:junit-jupiter-api:5.5.2",
                 "org.mockito:mockito-junit-jupiter:3.2.0",
@@ -179,7 +167,6 @@ subprojects {
             force = true
         }
 
-//        s3mock 'com.adobe.testing:s3mock:1.1.6'
         s3mock 'com.adobe.testing:s3mock-junit5:2.1.29'
     }
 
