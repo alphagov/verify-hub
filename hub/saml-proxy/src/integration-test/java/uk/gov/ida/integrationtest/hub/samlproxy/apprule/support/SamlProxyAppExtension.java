@@ -2,30 +2,19 @@ package uk.gov.ida.integrationtest.hub.samlproxy.apprule.support;
 
 import certificates.values.CACertificates;
 import httpstub.HttpStubRule;
-import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.testing.ResourceHelpers;
-import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.dropwizard.Application;
 import io.prometheus.client.CollectorRegistry;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
+import org.apache.commons.lang3.ArrayUtils;
 import org.opensaml.core.config.InitializationService;
 import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.Constants;
-import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
-import uk.gov.ida.hub.samlproxy.SamlProxyConfiguration;
 import uk.gov.ida.saml.metadata.test.factories.metadata.MetadataFactory;
 
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.dropwizard.testing.ConfigOverride.config;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 
-public class SamlProxyAppRule extends TestDropwizardAppExtension {
+public class SamlProxyAppExtension extends TestDropwizardAppExtension {
     private static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
     private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----\n";
     private static final String END_CERT = "\n-----END CERTIFICATE-----";
@@ -37,70 +26,60 @@ public class SamlProxyAppRule extends TestDropwizardAppExtension {
     private static final KeyStoreResource idpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("idpCA", CACertificates.TEST_IDP_CA).build();
     private static final KeyStoreResource rpTrustStore = KeyStoreResourceBuilder.aKeyStoreResource().withCertificate("rootCA", CACertificates.TEST_ROOT_CA).withCertificate("interCA", CACertificates.TEST_CORE_CA).withCertificate("rpCA", CACertificates.TEST_RP_CA).build();
 
-    public SamlProxyAppRule(ConfigOverride... configOverrides) {
-        super(SamlProxyApplication.class,
-                ResourceHelpers.resourceFilePath("saml-proxy.yml"),
-                withDefaultOverrides(configOverrides)
-        );
+    public static SamlProxyBuilder forApp(final Class<? extends Application> app) {
+        return new SamlProxyBuilder(app);
     }
 
-    public static ConfigOverride[] withDefaultOverrides(ConfigOverride ... configOverrides) {
-        List<ConfigOverride> overrides = Stream.of(
-                config("saml.entityId", HUB_ENTITY_ID),
-                config("server.applicationConnectors[0].port", "0"),
-                config("server.adminConnectors[0].port", "0"),
-                config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()),
-                config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
-                config("metadata.trustStore.path", metadataTrustStore.getAbsolutePath()),
-                config("metadata.trustStore.password", metadataTrustStore.getPassword()),
-                config("metadata.uri", "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH),
-                config("metadata.hubTrustStore.path", hubTrustStore.getAbsolutePath()),
-                config("metadata.hubTrustStore.password", hubTrustStore.getPassword()),
-                config("metadata.idpTrustStore.path", idpTrustStore.getAbsolutePath()),
-                config("metadata.idpTrustStore.password", idpTrustStore.getPassword()),
-                config("certificatesConfigCacheExpiry", "20s"),
-                config("eventEmitterConfiguration.enabled", "false")
-        ).collect(Collectors.toList());
+    public static class SamlProxyBuilder extends TestDropwizardAppExtension.Builder {
+        public SamlProxyBuilder(Class<? extends Application> app) {
+            super(app);
+            metadataTrustStore.create();
+            hubTrustStore.create();
+            idpTrustStore.create();
+            rpTrustStore.create();
+            CollectorRegistry.defaultRegistry.clear();
 
-        overrides.addAll(Arrays.asList(configOverrides));
-        return overrides.toArray(new ConfigOverride[0]);
-    }
+            try {
+                InitializationService.initialize();
+                verifyMetadataServer.reset();
+                verifyMetadataServer.register(
+                        VERIFY_METADATA_PATH,
+                        200,
+                        Constants.APPLICATION_SAMLMETADATA_XML,
+                        new MetadataFactory().defaultMetadata()
+                );
 
-    @Override
-    protected void before() throws Exception {
-        metadataTrustStore.create();
-        hubTrustStore.create();
-        idpTrustStore.create();
-        rpTrustStore.create();
-        CollectorRegistry.defaultRegistry.clear();
-
-        try {
-            InitializationService.initialize();
-            verifyMetadataServer.reset();
-            verifyMetadataServer.register(VERIFY_METADATA_PATH, 200, Constants.APPLICATION_SAMLMETADATA_XML, new MetadataFactory().defaultMetadata());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        super.before();
+        public SamlProxyBuilder withDefaultConfigOverridesAnd(String... extraOverrides) {
+            String[] defaultOverrides = {
+                    "saml.entityId: " + HUB_ENTITY_ID,
+                    "server.applicationConnectors[0].port: 0",
+                    "server.adminConnectors[0].port: 0",
+                    "rpTrustStoreConfiguration.path: " + rpTrustStore.getAbsolutePath(),
+                    "rpTrustStoreConfiguration.password: " + rpTrustStore.getPassword(),
+                    "metadata.trustStore.path: " + metadataTrustStore.getAbsolutePath(),
+                    "metadata.trustStore.password: " + metadataTrustStore.getPassword(),
+                    "metadata.uri: " + "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH,
+                    "metadata.hubTrustStore.path: " + hubTrustStore.getAbsolutePath(),
+                    "metadata.hubTrustStore.password: " + hubTrustStore.getPassword(),
+                    "metadata.idpTrustStore.path: " + idpTrustStore.getAbsolutePath(),
+                    "metadata.idpTrustStore.password: " + idpTrustStore.getPassword(),
+                    "certificatesConfigCacheExpiry: 20s",
+                    "eventEmitterConfiguration.enabled: false"
+            };
+            this.configOverrides(ArrayUtils.addAll(defaultOverrides, extraOverrides));
+            return this;
+        }
     }
 
-    @Override
-    protected void after() {
+    public static void tearDown() {
         metadataTrustStore.delete();
         hubTrustStore.delete();
         idpTrustStore.delete();
         rpTrustStore.delete();
-
-        super.after();
     }
-
-    public URI getUri(String path) {
-        return UriBuilder.fromUri("http://localhost")
-                .path(path)
-                .port(getLocalPort())
-                .build();
-    }
-
 }
