@@ -3,7 +3,7 @@ package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import httpstub.AbstractHttpStub;
 import httpstub.HttpStub;
-import httpstub.HttpStubRule;
+import httpstub.HttpStubExtension;
 import httpstub.RegisteredResponse;
 
 import javax.ws.rs.core.MediaType;
@@ -12,20 +12,20 @@ import java.net.URI;
 
 import static httpstub.builders.RegisteredResponseBuilder.aRegisteredResponse;
 
-public class MsaStubRule extends HttpStubRule {
+public class MsaStubExtension extends HttpStubExtension {
 
     public static final String ATTRIBUTE_QUERY_RESOURCE = "/attribute-query-request";
 
-    private MsaStubRule(AbstractHttpStub abstractHttpStub) {
+    private MsaStubExtension(AbstractHttpStub abstractHttpStub) {
         super(abstractHttpStub);
     }
 
-    public static MsaStubRule sleepyMsaStubRule(final long sleepTime) {
-        return new MsaStubRule(new SleepyHttpStub(sleepTime));
+    public static MsaStubExtension sleepyMsaStubExtension(final long sleepTime) {
+        return new MsaStubExtension(new SleepyHttpStub(sleepTime));
     }
 
-    public static MsaStubRule msaStubRule() {
-        return new MsaStubRule(new HttpStub());
+    public static MsaStubExtension msaStubExtension() {
+        return new MsaStubExtension(new HttpStub());
     }
 
     public void prepareForAttributeQueryRequest(String response) throws JsonProcessingException {

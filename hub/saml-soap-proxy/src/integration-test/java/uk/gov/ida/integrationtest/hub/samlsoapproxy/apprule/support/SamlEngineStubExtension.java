@@ -3,7 +3,7 @@ package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import httpstub.AbstractHttpStub;
 import httpstub.HttpStub;
-import httpstub.HttpStubRule;
+import httpstub.HttpStubExtension;
 import httpstub.RequestAndResponse;
 import httpstub.StackedHttpStub;
 import org.opensaml.saml.saml2.core.AttributeQuery;
@@ -29,21 +29,21 @@ import static uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder.anAttribu
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.SignatureBuilder.aSignature;
 
-public class SamlEngineStubRule extends HttpStubRule {
+public class SamlEngineStubExtension extends HttpStubExtension {
 
     private final Credential signingCredential;
 
-    private SamlEngineStubRule(AbstractHttpStub abstractHttpStub) {
+    private SamlEngineStubExtension(AbstractHttpStub abstractHttpStub) {
         super(abstractHttpStub);
         signingCredential = new TestCredentialFactory(HUB_TEST_PUBLIC_SIGNING_CERT, HUB_TEST_PRIVATE_SIGNING_KEY).getSigningCredential();
     }
 
-    public static SamlEngineStubRule stackedSamlEngineStubRule() {
-        return new SamlEngineStubRule(new StackedHttpStub());
+    public static SamlEngineStubExtension stackedSamlEngineStubRule() {
+        return new SamlEngineStubExtension(new StackedHttpStub());
     }
 
-    public static SamlEngineStubRule samlEngineStubRule() {
-        return new SamlEngineStubRule(new HttpStub());
+    public static SamlEngineStubExtension samlEngineStubRule() {
+        return new SamlEngineStubExtension(new HttpStub());
     }
 
     public void setupStubForAttributeResponseTranslate(MatchingServiceHealthCheckerResponseDto msaHealthCheckerResponseDto) throws JsonProcessingException {
