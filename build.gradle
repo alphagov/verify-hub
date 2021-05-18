@@ -45,7 +45,7 @@ def dependencyVersions = [
         dropwizard:"$dropwizard_version",
         ida_test_utils:"2.0.0-SNAPSHOT",
         opensaml:"$opensaml_version",
-        dev_pki: '2.0.0-SNAPSHOT',
+        dev_pki: '2.0.0-46',
         saml_lib:"3.4.6-SNAPSHOT"
 ]
 
@@ -60,16 +60,6 @@ subprojects {
             maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
         }
     }
-
-//    configurations.all {
-//        resolutionStrategy {
-////            force 'org.glassfish.hk2:hk2-api:2.4.0-b31',
-////                    'org.glassfish.hk2:hk2-locator:2.4.0-b31',
-////                    'org.glassfish.hk2.external:javax.inject:2.4.0-b31',
-//            force        'com.hubspot.dropwizard:dropwizard-guicier:1.3.5.2'
-//        }
-//        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-//    }
 
     configurations {
         common
@@ -119,11 +109,6 @@ subprojects {
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:rest-utils:2.0.0-$dependencyVersions.ida_utils"
 
-//        // To resolve an issue with httpclient:4.5.7 introduced via dropwizard:1.3.9 with dropping consecutive slashes in a URI.
-//        ida_utils("org.apache.httpcomponents:httpclient:4.5.6") {
-//            force = true
-//        }
-
         dev_pki "uk.gov.ida:verify-dev-pki:$dependencyVersions.dev_pki"
 
         prometheus 'uk.gov.ida:gds-metrics-dropwizard:0.7.0-3'
@@ -163,9 +148,6 @@ subprojects {
         redis_test('com.github.kstyrc:embedded-redis:0.6')
 
         awssdk 'com.amazonaws:aws-java-sdk-s3:1.11.563'
-        awssdk("org.apache.httpcomponents:httpclient:4.5.13") {
-            force = true
-        }
 
         s3mock 'com.adobe.testing:s3mock-junit5:2.1.29'
     }
@@ -173,12 +155,6 @@ subprojects {
     tasks.withType(Test) {
         useJUnitPlatform()
     }
-
-
-}
-
-test {
-    useJUnitPlatform()
 }
 
 task jacocoMerge(type: JacocoMerge) {
