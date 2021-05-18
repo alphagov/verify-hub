@@ -213,7 +213,7 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(UserAccountCreationFailedStateController.class);
     }
 
-    @Test()
+    @Test
     public void build_shouldThrowRuntimeExceptionIfControllerNotFound() {
         Assertions.assertThrows(RuntimeException.class, () -> {
             factory.build(

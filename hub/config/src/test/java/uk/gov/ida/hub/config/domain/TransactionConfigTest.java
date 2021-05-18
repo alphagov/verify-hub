@@ -2,7 +2,7 @@ package uk.gov.ida.hub.config.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
 import java.io.ByteArrayInputStream;
@@ -107,7 +107,7 @@ public class TransactionConfigTest {
     }
 
     @Test
-    public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnViolationWhenMoreThanOneACSIsDefault() throws Exception {
+    public void isOnlyOneDefaultAssertionConsumerServiceIndex_shouldReturnViolationWhenMoreThanOneACSIsDefault() {
         TransactionConfig transactionConfigData = aTransactionConfigData()
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(true).build())
                 .addAssertionConsumerService(anAssertionConsumerService().isDefault(true).build())

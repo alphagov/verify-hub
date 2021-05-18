@@ -1,8 +1,8 @@
 package uk.gov.ida.hub.policy.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,10 +12,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class Cycle3DatasetTest {
     private static final String DEFAULT_ATTRIBUTE = "defaultAttribute";
     private static final String DEFAULT_ATTRIBUTE_VALUE = "defaultAttributeValue";
-    private Map<String, String> map = new HashMap<>();
+    private static Map<String, String> map = new HashMap<>();
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
         map.put(DEFAULT_ATTRIBUTE, DEFAULT_ATTRIBUTE_VALUE);
     }
 

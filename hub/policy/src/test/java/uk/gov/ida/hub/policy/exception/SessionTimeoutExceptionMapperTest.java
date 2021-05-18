@@ -26,8 +26,6 @@ import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 public class SessionTimeoutExceptionMapperTest {
 
     @Mock
-    private Provider<HttpServletRequest> servletRequestProvider;
-    @Mock
     private HttpServletRequest servletRequest;
     @Mock
     private Provider<UriInfo> uriInfoProvider;
@@ -36,13 +34,12 @@ public class SessionTimeoutExceptionMapperTest {
 
     @BeforeEach
     public void beforeAll() {
-        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
     }
 
     @Test
     public void toResponse_shouldReturnAuditedErrorStatus() {
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfoProvider, servletRequestProvider, hubEventLogger);
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfoProvider, () -> servletRequest, hubEventLogger);
         SessionTimeoutException exception = new SessionTimeoutException("Timeout exception", aSessionId().build(), "some entity id", DateTime.now().minusMinutes(10), "some request id");
 
         final Response response = mapper.toResponse(exception);
@@ -56,7 +53,7 @@ public class SessionTimeoutExceptionMapperTest {
 
     @Test
     public void toResponse_shouldLogToEventSink() {
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfoProvider, servletRequestProvider, hubEventLogger);
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfoProvider, () -> servletRequest, hubEventLogger);
         SessionId sessionId = aSessionId().build();
         DateTime sessionExpiryTimestamp = DateTime.now().minusMinutes(10);
         String transactionEntityId = "some entity id";

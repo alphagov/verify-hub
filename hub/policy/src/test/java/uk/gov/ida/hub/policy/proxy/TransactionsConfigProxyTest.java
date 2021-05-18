@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.proxy;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.jerseyclient.JsonClient;
 import uk.gov.ida.shared.utils.string.StringEncoding;
@@ -16,9 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TransactionsConfigProxyTest {
 
     private final String ENTITY_ID = "test-entity-id";
@@ -26,11 +25,6 @@ public class TransactionsConfigProxyTest {
     private TransactionsConfigProxy configProxy;
     @Mock
     private JsonClient client;
-
-    @BeforeClass
-    public static void setUp() {
-        initMocks(TransactionsConfigProxyTest.class);
-    }
 
     @Test
     public void whenUrlForIsUsingMatchingIsValidReturnTrue() {
@@ -74,16 +68,17 @@ public class TransactionsConfigProxyTest {
         assertThat(configProxy.isUsingMatching(entityId)).isFalse();
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldPropagateExceptionWhenIsUsingMatchingResultsInARuntimeException() {
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            configProxy = new TransactionsConfigProxy(
+                    client,
+                    CONFIG_BASE_URI
+            );
 
-        configProxy = new TransactionsConfigProxy(
-                client,
-                CONFIG_BASE_URI
-        );
+            when(client.get(any(), eq(boolean.class))).thenThrow(new RuntimeException());
 
-        when(client.get(any(), eq(boolean.class))).thenThrow(new RuntimeException());
-
-        configProxy.isUsingMatching(ENTITY_ID);
+            configProxy.isUsingMatching(ENTITY_ID);
+        });
     }
 }

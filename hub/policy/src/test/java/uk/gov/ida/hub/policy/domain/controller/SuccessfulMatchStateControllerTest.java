@@ -1,10 +1,11 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.hub.policy.builder.domain.ResponseFromHubBuilder;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHub;
@@ -24,7 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.state.SuccessfulMatchStateBuilder.aSuccessfulMatchState;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SuccessfulMatchStateControllerTest {
 
     @Mock
@@ -37,18 +38,20 @@ public class SuccessfulMatchStateControllerTest {
     private SuccessfulMatchState state;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         state = aSuccessfulMatchState().build();
         controller = new SuccessfulMatchStateController(state, responseFromHubFactory, identityProvidersConfigProxy);
     }
 
-    @Test(expected = IdpDisabledException.class)
+    @Test
     public void getPreparedResponse_shouldThrowWhenIdpIsDisabled() {
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(any(String.class), anyBoolean(), any(LevelOfAssurance.class)))
-                .thenReturn(emptyList());
+        Assertions.assertThrows(IdpDisabledException.class, () -> {
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(any(String.class), anyBoolean(), any(LevelOfAssurance.class)))
+                    .thenReturn(emptyList());
 
-        controller.getPreparedResponse();
+            controller.getPreparedResponse();
+        });
     }
 
     @Test

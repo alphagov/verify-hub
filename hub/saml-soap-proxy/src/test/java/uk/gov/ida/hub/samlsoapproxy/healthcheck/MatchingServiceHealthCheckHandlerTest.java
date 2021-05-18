@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceConfigEntityDataDtoBuilder;
 import uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthCheckDetailsBuilder;
 import uk.gov.ida.hub.samlsoapproxy.contract.MatchingServiceConfigEntityDataDto;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MatchingServiceHealthCheckHandlerTest {
     @Mock
     private MatchingServiceHealthChecker matchingServiceHealthChecker;
@@ -32,7 +32,7 @@ public class MatchingServiceHealthCheckHandlerTest {
 
     private MatchingServiceHealthCheckHandler matchingServiceHealthCheckHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         matchingServiceHealthCheckHandler = new MatchingServiceHealthCheckHandler(
                 matchingServiceConfigProxy,
@@ -40,7 +40,7 @@ public class MatchingServiceHealthCheckHandlerTest {
     }
 
     @Test
-    public void handle_shouldReturnSuccessWhenMatchingServiceIsHealthy() throws Exception {
+    public void handle_shouldReturnSuccessWhenMatchingServiceIsHealthy() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto().build();
         when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(singletonList(matchingServiceConfigEntityDataDto));
         when(matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto))
@@ -52,7 +52,7 @@ public class MatchingServiceHealthCheckHandlerTest {
     }
 
     @Test
-    public void handle_shouldReturnSuccessWhenMatchingServiceIsNotHealthy() throws Exception {
+    public void handle_shouldReturnSuccessWhenMatchingServiceIsNotHealthy() {
         MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto = MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto().build();
         when(matchingServiceConfigProxy.getMatchingServices()).thenReturn(singletonList(matchingServiceConfigEntityDataDto));
         when(matchingServiceHealthChecker.performHealthCheck(matchingServiceConfigEntityDataDto))
@@ -64,7 +64,7 @@ public class MatchingServiceHealthCheckHandlerTest {
     }
 
     @Test
-    public void handle_shouldCheckHealthOfAllMatchingServices() throws Exception {
+    public void handle_shouldCheckHealthOfAllMatchingServices() {
         MatchingServiceConfigEntityDataDto firstMatchingService = aMatchingServiceConfigEntityDataDto().withUri(URI.create("/a-matching-service-uri-1")).withEntityId("1").build();
         MatchingServiceConfigEntityDataDto secondMatchingService = aMatchingServiceConfigEntityDataDto().withUri(URI.create("/a-matching-service-uri-2")).withEntityId("2").build();
         Collection<MatchingServiceConfigEntityDataDto> matchingServiceConfigEntityDatas = asList(firstMatchingService, secondMatchingService);
