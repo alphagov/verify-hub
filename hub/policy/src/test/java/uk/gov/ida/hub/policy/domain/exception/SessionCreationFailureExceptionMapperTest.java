@@ -35,9 +35,6 @@ public class SessionCreationFailureExceptionMapperTest {
     private HubEventLogger hubEventLogger;
 
     @Mock
-    private Provider<HttpServletRequest> servletRequestProvider;
-
-    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
@@ -47,10 +44,9 @@ public class SessionCreationFailureExceptionMapperTest {
 
     @BeforeEach
     public void setUp() {
-        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.getSessionId());
 
-        mapper = new SessionCreationFailureExceptionMapper(uriInfoProvider, servletRequestProvider, hubEventLogger);
+        mapper = new SessionCreationFailureExceptionMapper(uriInfoProvider, () -> servletRequest, hubEventLogger);
     }
 
     @Test

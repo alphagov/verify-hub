@@ -2,15 +2,15 @@ package uk.gov.ida.hub.samlengine.logging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeValue;
 import org.opensaml.saml.saml2.core.impl.AttributeBuilder;
 import uk.gov.ida.hub.samlengine.logging.data.AttributeStatementLogData;
 import uk.gov.ida.hub.samlengine.logging.data.VerifiedAttributeLogData;
 import uk.gov.ida.saml.core.IdaConstants;
-import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.builders.AddressAttributeValueBuilder_1_1;
 import uk.gov.ida.saml.core.test.builders.DateAttributeValueBuilder;
 import uk.gov.ida.saml.core.test.builders.PersonNameAttributeValueBuilder;
@@ -23,14 +23,10 @@ import static uk.gov.ida.hub.samlengine.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.hub.samlengine.logging.VerifiedAttributesLogger.formatAttributes;
 import static uk.gov.ida.saml.core.test.builders.MatchingDatasetAttributeStatementBuilder_1_1.aMatchingDatasetAttributeStatement_1_1;
 
+@ExtendWith(OpenSAMLExtension.class)
 public class VerifiedAttributesLoggerTest {
 
     private ObjectMapper mapper = new ObjectMapper();
-
-    @Before
-    public void setUp() {
-        IdaSamlBootstrap.bootstrap();
-    }
 
     @Test
     public void shouldLogIssuerAndLevelOfAssurance() throws Exception {

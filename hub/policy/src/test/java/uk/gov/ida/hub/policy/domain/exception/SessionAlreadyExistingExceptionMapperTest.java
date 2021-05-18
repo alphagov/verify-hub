@@ -34,9 +34,6 @@ public class SessionAlreadyExistingExceptionMapperTest {
     private HubEventLogger hubEventLogger;
 
     @Mock
-    private Provider<HttpServletRequest> servletRequestProvider;
-
-    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
@@ -46,9 +43,8 @@ public class SessionAlreadyExistingExceptionMapperTest {
 
     @BeforeEach
     public void setUp() {
-        mapper = new SessionAlreadyExistingExceptionMapper(uriInfoProvider, servletRequestProvider, hubEventLogger);
-        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.getSessionId());
+        mapper = new SessionAlreadyExistingExceptionMapper(uriInfoProvider, () -> servletRequest, hubEventLogger);
     }
 
     @Test

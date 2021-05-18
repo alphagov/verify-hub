@@ -1,9 +1,13 @@
 package uk.gov.ida.hub.samlproxy.controllogic;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
@@ -18,7 +22,7 @@ import uk.gov.ida.hub.samlproxy.logging.ProtectiveMonitoringLogger;
 import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
 import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.core.validation.errors.SamlValidationSpecification;
@@ -38,8 +42,9 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AuthnRequestBuilder.anAuthnRequest;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 
-
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SamlMessageSenderHandlerTest {
 
     @Mock
@@ -62,7 +67,7 @@ public class SamlMessageSenderHandlerTest {
     private static final String principalIpAddressAsSeenByHub = "a-principal-ip-address";
     private static final Optional<String> relayState = Optional.ofNullable("some-relay-state");
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         samlMessageSenderHandler = new SamlMessageSenderHandler(
                 responseTransformer,
@@ -143,37 +148,43 @@ public class SamlMessageSenderHandlerTest {
         verify(externalCommunicationEventLogger).logResponseFromHub(responseId, sessionId, postEndPoint, principalIpAddressAsSeenByHub);
     }
 
-    @Test(expected = SamlTransformationErrorException.class)
+    @Test
     public void generateAuthRequestFromHub_shouldThrowSamlTransformationException() {
-        SessionId sessionId = SessionId.createNewSessionId();
-        String expectedSamlMessageId = UUID.randomUUID().toString();
-        when(sessionProxy.getAuthnRequestFromHub(sessionId)).thenReturn(new AuthnRequestFromHubContainerDto(samlRequest, postEndPoint, true));
-        AuthnRequest authnRequest = anAuthnRequest().withId(expectedSamlMessageId).build();
-        when(authnRequestTransformer.apply(samlRequest)).thenReturn(authnRequest);
-        when(samlMessageSignatureValidator.validate(authnRequest, SPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(SamlValidationResponse.anInvalidResponse(new SamlValidationSpecification("bad", true)));
+        Assertions.assertThrows(SamlTransformationErrorException.class, () -> {
+            SessionId sessionId = SessionId.createNewSessionId();
+            String expectedSamlMessageId = UUID.randomUUID().toString();
+            when(sessionProxy.getAuthnRequestFromHub(sessionId)).thenReturn(new AuthnRequestFromHubContainerDto(samlRequest, postEndPoint, true));
+            AuthnRequest authnRequest = anAuthnRequest().withId(expectedSamlMessageId).build();
+            when(authnRequestTransformer.apply(samlRequest)).thenReturn(authnRequest);
+            when(samlMessageSignatureValidator.validate(authnRequest, SPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(SamlValidationResponse.anInvalidResponse(new SamlValidationSpecification("bad", true)));
 
-        samlMessageSenderHandler.generateAuthnRequestFromHub(sessionId, principalIpAddressAsSeenByHub);
+            samlMessageSenderHandler.generateAuthnRequestFromHub(sessionId, principalIpAddressAsSeenByHub);
+        });
     }
 
-    @Test(expected = SamlTransformationErrorException.class)
-    public void generateAuthResponseFromHub_shouldThrowSamlTransformationException() throws MarshallingException, SignatureException {
-        SessionId sessionId = SessionId.createNewSessionId();
-        String expectedSamlMessageId = UUID.randomUUID().toString();
-        Response openSamlResponse = setUpAuthnResponseFromHub(sessionId, expectedSamlMessageId);
+    @Test
+    public void generateAuthResponseFromHub_shouldThrowSamlTransformationException() {
+        Assertions.assertThrows(SamlTransformationErrorException.class, () -> {
+            SessionId sessionId = SessionId.createNewSessionId();
+            String expectedSamlMessageId = UUID.randomUUID().toString();
+            Response openSamlResponse = setUpAuthnResponseFromHub(sessionId, expectedSamlMessageId);
 
-        when(samlMessageSignatureValidator.validate(openSamlResponse, SPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(SamlValidationResponse.anInvalidResponse(new SamlValidationSpecification("bad", true)));
+            when(samlMessageSignatureValidator.validate(openSamlResponse, SPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(SamlValidationResponse.anInvalidResponse(new SamlValidationSpecification("bad", true)));
 
-        samlMessageSenderHandler.generateAuthnResponseFromHub(sessionId, principalIpAddressAsSeenByHub);
+            samlMessageSenderHandler.generateAuthnResponseFromHub(sessionId, principalIpAddressAsSeenByHub);
+        });
     }
 
-    @Test(expected = SamlTransformationErrorException.class)
-    public void generateErrorResponseFromHub_shouldThrowSamlTransformationException() throws MarshallingException, SignatureException {
-        SessionId sessionId = SessionId.createNewSessionId();
-        String expectedSamlMessageId = UUID.randomUUID().toString();
-        Response openSamlResponse = setUpErrorResponseFromHub(sessionId, expectedSamlMessageId);
-        when(samlMessageSignatureValidator.validate(openSamlResponse, SPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(SamlValidationResponse.anInvalidResponse(new SamlValidationSpecification("bad", true)));
+    @Test
+    public void generateErrorResponseFromHub_shouldThrowSamlTransformationException() {
+        Assertions.assertThrows(SamlTransformationErrorException.class, () -> {
+            SessionId sessionId = SessionId.createNewSessionId();
+            String expectedSamlMessageId = UUID.randomUUID().toString();
+            Response openSamlResponse = setUpErrorResponseFromHub(sessionId, expectedSamlMessageId);
+            when(samlMessageSignatureValidator.validate(openSamlResponse, SPSSODescriptor.DEFAULT_ELEMENT_NAME)).thenReturn(SamlValidationResponse.anInvalidResponse(new SamlValidationSpecification("bad", true)));
 
-        samlMessageSenderHandler.generateErrorResponseFromHub(sessionId, principalIpAddressAsSeenByHub);
+            samlMessageSenderHandler.generateErrorResponseFromHub(sessionId, principalIpAddressAsSeenByHub);
+        });
     }
 
     private Response setUpAuthnResponseFromHub(SessionId sessionId, String expectedSamlMessageId) throws MarshallingException, SignatureException {

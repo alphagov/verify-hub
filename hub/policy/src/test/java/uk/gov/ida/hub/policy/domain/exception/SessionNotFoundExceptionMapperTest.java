@@ -32,9 +32,6 @@ public class SessionNotFoundExceptionMapperTest {
     private HubEventLogger eventLogger;
 
     @Mock
-    private Provider<HttpServletRequest> servletRequestProvider;
-
-    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
@@ -44,10 +41,9 @@ public class SessionNotFoundExceptionMapperTest {
 
     @BeforeEach
     public void setUp() {
-        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID);
 
-        mapper = new SessionNotFoundExceptionMapper(uriInfoProvider, servletRequestProvider, eventLogger);
+        mapper = new SessionNotFoundExceptionMapper(uriInfoProvider, () -> servletRequest, eventLogger);
     }
 
     @Test

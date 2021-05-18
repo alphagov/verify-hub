@@ -28,9 +28,6 @@ import static org.mockito.Mockito.when;
 public class PolicyExceptionMapperTest {
 
     @Mock
-    private Provider<HttpServletRequest> servletRequestProvider;
-
-    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
@@ -43,11 +40,10 @@ public class PolicyExceptionMapperTest {
 
     @BeforeEach
     public void setUp() {
-        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
         when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
         when(uriInfoProvider.get()).thenReturn(uriInfo);
-        mapper = new TestExceptionMapper(uriInfoProvider, servletRequestProvider);
+        mapper = new TestExceptionMapper(uriInfoProvider, () -> servletRequest);
     }
 
     @Test
@@ -78,7 +74,7 @@ public class PolicyExceptionMapperTest {
     public void shouldReturnInternalServerErrorWhenThereIsNoSessionIdAndTheRequestUriIsNotAKnownNoContextPath() {
         when(uriInfoProvider.get().getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<>());
         String unknownUri = UUID.randomUUID().toString();
-        when(servletRequestProvider.get().getRequestURI()).thenReturn(unknownUri);
+        when(servletRequest.getRequestURI()).thenReturn(unknownUri);
 
         Response response = mapper.toResponse(new RuntimeException("We don't expect to see this message"));
 

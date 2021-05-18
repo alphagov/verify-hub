@@ -30,9 +30,6 @@ public class IdpDisabledExceptionMapperTest {
     private static final String ENTITY_ID = "my-entity";
 
     @Mock
-    private Provider<HttpServletRequest> servletRequestProvider;
-
-    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
@@ -45,9 +42,8 @@ public class IdpDisabledExceptionMapperTest {
 
     @BeforeEach
     public void setUp() {
-        exceptionMapper = new IdpDisabledExceptionMapper(uriInfoProvider, servletRequestProvider, eventLogger);
-        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.toString());
+        exceptionMapper = new IdpDisabledExceptionMapper(uriInfoProvider, () -> servletRequest, eventLogger);
     }
 
     @Test

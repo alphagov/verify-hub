@@ -1,14 +1,16 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class AggregatedMatchingServicesHealthCheckResultTest {
 
     private AggregatedMatchingServicesHealthCheckResult result;
@@ -39,5 +41,4 @@ public class AggregatedMatchingServicesHealthCheckResultTest {
 
         assertThat(result.isHealthy()).isFalse();
     }
-
 }

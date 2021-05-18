@@ -9,9 +9,9 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.AwaitingCycle3DataState;
@@ -74,15 +74,15 @@ public class StateJsonSerializationTest {
 
     private ObjectMapper objectMapper = getRedisObjectMapper();
 
-    @Before
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         // Some of the states and some of the builders call DateTime.now() in their constructor.
         // That means they don't serialize deterministically unless we freeze time.
         DateTimeFreezer.freezeTime(new DateTime(1988, 1, 1, 0, 0));
     }
 
-    @After
-    public void tearDown() {
+    @AfterAll
+    public static void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }
 

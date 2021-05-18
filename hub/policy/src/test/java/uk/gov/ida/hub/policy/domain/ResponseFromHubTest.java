@@ -1,8 +1,8 @@
 package uk.gov.ida.hub.policy.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Optional;
@@ -17,10 +17,10 @@ public class ResponseFromHubTest {
     private static final String MATCHING_SERVICE_ASSERTION = "matchingServiceAssertion";
     private static final Optional<String> RELAY_STATE = Optional.of("relayState");
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("assertionConsumerServiceUri");
-    private ResponseFromHub responseFromHub;
+    private static ResponseFromHub responseFromHub;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
         responseFromHub = new ResponseFromHub(
             RESPONSE_ID,
             IN_RESPONSE_TO,

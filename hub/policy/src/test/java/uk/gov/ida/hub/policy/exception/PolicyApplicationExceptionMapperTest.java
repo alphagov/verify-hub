@@ -35,9 +35,6 @@ public class PolicyApplicationExceptionMapperTest {
     private HubEventLogger eventLogger;
 
     @Mock
-    private Provider<HttpServletRequest> servletRequestProvider;
-
-    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
@@ -47,16 +44,15 @@ public class PolicyApplicationExceptionMapperTest {
 
     @BeforeEach
     public void setUp() {
-        mapper = new PolicyApplicationExceptionMapper(uriInfoProvider, servletRequestProvider, eventLogger);
-        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("requestId");
+        mapper = new PolicyApplicationExceptionMapper(uriInfoProvider, () -> servletRequest, eventLogger);
     }
 
     @Test
     public void toResponse_shouldAuditErrorIfUnaudited() {
         final SessionId sessionId = aSessionId().build();
         final UUID errorId = UUID.randomUUID();
-        when(servletRequestProvider.get().getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(sessionId.toString());
+        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(sessionId.toString());
         ApplicationException exception = createUnauditedException(ExceptionType.IDP_DISABLED, errorId);
 
         mapper.toResponse(exception);

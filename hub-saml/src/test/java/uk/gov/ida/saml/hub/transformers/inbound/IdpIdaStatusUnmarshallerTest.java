@@ -1,14 +1,15 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 
@@ -24,14 +25,14 @@ import static uk.gov.ida.saml.core.test.builders.StatusBuilder.aStatus;
 import static uk.gov.ida.saml.core.test.builders.StatusCodeBuilder.aStatusCode;
 import static uk.gov.ida.saml.core.test.builders.StatusMessageBuilder.aStatusMessage;
 
-@RunWith(OpenSAMLRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class IdpIdaStatusUnmarshallerTest {
 
-    private IdpIdaStatusUnmarshaller unmarshaller;
-    private StringToOpenSamlObjectTransformer<Response> stringToOpenSamlObjectTransformer;
+    private static IdpIdaStatusUnmarshaller unmarshaller;
+    private static StringToOpenSamlObjectTransformer<Response> stringToOpenSamlObjectTransformer;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
         unmarshaller = new IdpIdaStatusUnmarshaller();
         stringToOpenSamlObjectTransformer = new CoreTransformersFactory().getStringtoOpenSamlObjectTransformer(input -> {});
     }
@@ -188,13 +189,14 @@ public class IdpIdaStatusUnmarshallerTest {
         assertThat(idpIdaStatus.getStatusCode()).isEqualTo(IdpIdaStatus.Status.NoAuthenticationContext);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowWhenNoMatch() throws Exception {
-        String xml = readXmlFile("status-unknown.xml");
-        Response response = stringToOpenSamlObjectTransformer.apply(xml);
-        getStatusFrom(response);
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            String xml = readXmlFile("status-unknown.xml");
+            Response response = stringToOpenSamlObjectTransformer.apply(xml);
+            getStatusFrom(response);
+        });
     }
-
 
     private String readXmlFile(String xmlFile) throws IOException, URISyntaxException {
         Base64.Encoder encoder = Base64.getEncoder();

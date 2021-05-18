@@ -34,9 +34,6 @@ public class StateProcessingValidationExceptionMapperTest {
     private HubEventLogger eventLogger;
 
     @Mock
-    private Provider<HttpServletRequest> servletRequestProvider;
-
-    @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
@@ -46,12 +43,11 @@ public class StateProcessingValidationExceptionMapperTest {
 
     @BeforeEach
     public void setUp() {
-        mapper = new StateProcessingValidationExceptionMapper(uriInfoProvider, servletRequestProvider, eventLogger);
+        mapper = new StateProcessingValidationExceptionMapper(uriInfoProvider, () -> servletRequest, eventLogger);
     }
 
     @Test
     public void toResponse_shouldReturnUnauditedErrorStatus() {
-        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID);
         String errorMessage = "error message";
         StateProcessingValidationException exception = new StateProcessingValidationException(errorMessage, Level.ERROR);

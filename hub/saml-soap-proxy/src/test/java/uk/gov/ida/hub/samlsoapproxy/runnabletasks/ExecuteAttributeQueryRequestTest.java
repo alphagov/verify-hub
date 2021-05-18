@@ -1,11 +1,12 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
@@ -21,7 +22,7 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.hub.samlsoapproxy.client.AttributeQueryRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlsoapproxy.logging.ProtectiveMonitoringLogger;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.builders.StatusBuilder;
 import uk.gov.ida.saml.core.test.builders.StatusMessageBuilder;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
@@ -47,7 +48,8 @@ import static uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder.anAttribu
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class ExecuteAttributeQueryRequestTest {
 
     private static final QName HUB_ROLE = SPSSODescriptor.DEFAULT_ELEMENT_NAME;
@@ -72,7 +74,7 @@ public class ExecuteAttributeQueryRequestTest {
     private SessionId sessionId = SessionId.createNewSessionId();
     private final AttributeQuery attributeQuery = anAttributeQuery().build();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         attributeQueryContainerDto = anAttributeQueryContainerDto(anAttributeQuery().build())
                 .withMatchingServiceUri(matchingServiceUri)
@@ -93,7 +95,7 @@ public class ExecuteAttributeQueryRequestTest {
         when(elementToAttributeQueryTransformer.apply(any(Element.class))).thenReturn(attributeQuery);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }

@@ -1,36 +1,36 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
-import uk.gov.ida.saml.core.test.OpenSAMLRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(OpenSAMLRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class TransactionIdaStatusMarshallerTest {
 
-    private TransactionIdaStatusMarshaller marshaller;
+    private static TransactionIdaStatusMarshaller marshaller;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() {
         marshaller = new TransactionIdaStatusMarshaller(new OpenSamlXmlObjectFactory());
     }
 
     @Test
-    public void toSamlStatus_shouldTransformSuccess() throws Exception {
+    public void toSamlStatus_shouldTransformSuccess() {
         Status transformedStatus = marshaller.toSamlStatus(TransactionIdaStatus.Success);
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
     }
 
     @Test
-    public void toSamlStatus_shouldTransformNoAuthenticationContext() throws Exception {
+    public void toSamlStatus_shouldTransformNoAuthenticationContext() {
         Status transformedStatus = marshaller.toSamlStatus(TransactionIdaStatus.NoAuthenticationContext);
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.RESPONDER);
@@ -38,7 +38,7 @@ public class TransactionIdaStatusMarshallerTest {
     }
 
     @Test
-    public void toSamlStatus_shouldTransformAuthnFailedWithNoSubStatus() throws Exception {
+    public void toSamlStatus_shouldTransformAuthnFailedWithNoSubStatus() {
         Status transformedStatus = marshaller.toSamlStatus(TransactionIdaStatus.AuthenticationFailed);
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.RESPONDER);
@@ -47,7 +47,7 @@ public class TransactionIdaStatusMarshallerTest {
     }
 
     @Test
-    public void toSamlStatus_shouldTransformRequesterError() throws Exception {
+    public void toSamlStatus_shouldTransformRequesterError() {
         Status transformedStatus = marshaller.toSamlStatus(TransactionIdaStatus.RequesterError);
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.RESPONDER);
@@ -55,7 +55,7 @@ public class TransactionIdaStatusMarshallerTest {
     }
 
     @Test
-    public void toSamlStatus_shouldTransformNoMatchingServiceMatchMayRetry() throws Exception {
+    public void toSamlStatus_shouldTransformNoMatchingServiceMatchMayRetry() {
         Status transformedStatus = marshaller.toSamlStatus(TransactionIdaStatus.NoMatchingServiceMatchFromHub);
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
