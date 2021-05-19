@@ -1,7 +1,7 @@
-ARG REGISTRY_IMAGE_GRADLE=gradle:6.7.0-jdk11
-ARG REGISTRY_IMAGE_JDK=openjdk:11.0.9.1-jre
+ARG registry_image_gradle=gradle:6.7.0-jdk11
+ARG registry_image_jdk=openjdk:11.0.9.1-jre
 
-FROM ${REGISTRY_IMAGE_GRADLE} as base-image
+FROM ${registry_image_gradle} as base-image
 
 USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
@@ -26,7 +26,7 @@ RUN gradle --console=plain \
     :hub:shared:build \
     :hub:shared:test
 
-FROM ${REGISTRY_IMAGE_GRADLE} as build-app
+FROM ${registry_image_gradle} as build-app
 ARG hub_app
 USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
@@ -63,7 +63,7 @@ RUN gradle --console=plain \
     -x :hub-saml:jar \
     -x :hub-saml-test-utils:jar
 
-FROM ${REGISTRY_IMAGE_JDK}
+FROM ${registry_image_jdk}
 ARG hub_app
 ARG release=local-dev
 ARG conf_dir=configuration
