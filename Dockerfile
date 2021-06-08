@@ -1,5 +1,5 @@
 ARG registry_image_gradle=gradle:6.7.0-jdk11
-ARG registry_image_jdk=openjdk:11.0.9.1-jre
+ARG registry_image_jdk=openjdk:11.0.11-jre@sha256:e12869c3edad94f2c23a40d0fe21b307a1a9177a621c9b902ecfa02897ba93f7
 
 FROM ${registry_image_gradle} as base-image
 
