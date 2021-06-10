@@ -41,12 +41,12 @@ repositories {
 }
 
 def dependencyVersions = [
-        ida_utils:'SNAPSHOT',
+        ida_utils:'397',
         dropwizard:"$dropwizard_version",
-        ida_test_utils:"2.0.0-SNAPSHOT",
+        ida_test_utils:"2.0.0-66",
         opensaml:"$opensaml_version",
         dev_pki: '2.0.0-46',
-        saml_lib:"3.4.6-SNAPSHOT"
+        saml_lib:"3.4.6-256"
 ]
 
 subprojects {
@@ -55,8 +55,6 @@ subprojects {
             logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/allowed-repos for production builds.\n\n')
             mavenCentral()
         } else {
-            mavenLocal()
-            mavenCentral()
             maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
         }
     }
@@ -103,7 +101,7 @@ subprojects {
 
         config 'commons-io:commons-io:2.1'
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:2.0.0-SNAPSHOT"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:2.0.0-84"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils",
