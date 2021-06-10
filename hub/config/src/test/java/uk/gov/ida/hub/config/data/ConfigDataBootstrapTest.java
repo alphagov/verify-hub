@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.config.data;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.hub.config.domain.CertificateChainConfigValidator;
 import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
@@ -32,7 +32,7 @@ import static uk.gov.ida.hub.config.domain.builders.TranslationDataBuilder.aTran
 import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createAbsentOnboardingTransactionConfigException;
 import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createInvalidCertificatesException;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConfigDataBootstrapTest {
     private static final String MATCHING_SERVICE_ENTITY_ID = "matching-service-entity-id";
     private static final String NON_EXISTENT_MATCHING_SERVICE_ENTITY_ID = "non-existent-matching-service-entity-id";
@@ -128,7 +128,7 @@ public class ConfigDataBootstrapTest {
     }
 
 
-    @Ignore
+    @Disabled
     public void continuesToStart_WhenCertificateCheckHasInvalidCertificates() {
         final String idpEntityId = "idp-entity-id";
         final String simpleId = "simple-id";

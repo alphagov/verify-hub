@@ -2,8 +2,12 @@ package uk.gov.ida.integrationtest.hub.samlengine.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import io.dropwizard.jackson.Jackson;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.builders.CertificateDtoBuilder;
 import uk.gov.ida.hub.samlengine.domain.CertificateDto;
@@ -20,15 +24,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.OK;
 
-public class ConfigStubRule extends WireMockClassRule {
+public class ConfigStubExtension implements BeforeAllCallback, AfterAllCallback {
 
-    private ObjectMapper objectMapper;
-
-    public ConfigStubRule() {
-        super(0);
-        this.objectMapper = Jackson.newObjectMapper();
-        this.start();
-    }
+    private ObjectMapper objectMapper = Jackson.newObjectMapper();
+    private WireMockServer wireMockServer;
 
     public void setupCertificatesForEntity(String issuer) throws JsonProcessingException {
         CertificateDto signingCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withKeyUse(CertificateDto.KeyUse.Signing).build();
@@ -45,7 +44,7 @@ public class ConfigStubRule extends WireMockClassRule {
     private void setupCertificatesForEntity(String issuer, CertificateDto signingCertificate, CertificateDto encryptionCertificate) throws JsonProcessingException {
         Collection<CertificateDto> signingCertificates = new ArrayList<>();
         signingCertificates.add(signingCertificate);
-        stubFor(get(urlPathEqualTo(getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer)))
+        wireMockServer.stubFor(get(urlPathEqualTo(getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer)))
                 .willReturn(
                         aResponse()
                         .withStatus(200)
@@ -56,7 +55,7 @@ public class ConfigStubRule extends WireMockClassRule {
         );
 
         String encryptionCertificateUri = getPath(Urls.ConfigUrls.ENCRYPTION_CERTIFICATES_RESOURCE, issuer);
-        stubFor(get(urlPathEqualTo(encryptionCertificateUri))
+        wireMockServer.stubFor(get(urlPathEqualTo(encryptionCertificateUri))
                 .willReturn(
                         aResponse()
                                 .withStatus(200)
@@ -88,7 +87,7 @@ public class ConfigStubRule extends WireMockClassRule {
 
     private void shouldHubSignResponseMessages(String issuerEntityId, Boolean shouldHubSignResponseMessages, Boolean shouldHubUseLegacySamlStandard) throws JsonProcessingException {
         String hubSignUri = getPath(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE, issuerEntityId);
-        stubFor(get(hubSignUri)
+        wireMockServer.stubFor(get(hubSignUri)
                 .willReturn(aResponse()
                         .withStatus(OK.getStatusCode())
                         .withHeader("Content-Type", APPLICATION_JSON)
@@ -97,7 +96,7 @@ public class ConfigStubRule extends WireMockClassRule {
         );
 
         String hubSamlStandardUri = getPath(Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE, issuerEntityId);
-        stubFor(get(hubSamlStandardUri)
+        wireMockServer.stubFor(get(hubSamlStandardUri)
                 .willReturn(aResponse()
                         .withStatus(OK.getStatusCode())
                         .withHeader("Content-Type", APPLICATION_JSON)
@@ -108,14 +107,25 @@ public class ConfigStubRule extends WireMockClassRule {
 
     public void setupStubForNonExistentSigningCertificates(String issuer) {
         String signingUri = getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer);
-        stubFor(get(signingUri).willReturn(aResponse().withStatus(Response.Status.NOT_FOUND.getStatusCode())));
+        wireMockServer.stubFor(get(signingUri).willReturn(aResponse().withStatus(Response.Status.NOT_FOUND.getStatusCode())));
     }
 
     public UriBuilder baseUri() {
-        return UriBuilder.fromUri("http://localhost").port(port());
+        return UriBuilder.fromUri("http://localhost").port(wireMockServer.port());
     }
 
     public void reset() {
-        super.resetAll();
+        wireMockServer.resetAll();
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) throws Exception {
+        wireMockServer.stop();
+    }
+
+    @Override
+    public void beforeAll(ExtensionContext context) throws Exception {
+        wireMockServer = new WireMockServer(0);
+        wireMockServer.start();
     }
 }

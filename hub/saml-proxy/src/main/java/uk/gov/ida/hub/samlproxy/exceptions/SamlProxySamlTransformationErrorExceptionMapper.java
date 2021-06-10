@@ -1,12 +1,12 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
-import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.hub.shared.eventsink.EventSinkMessageSender;
+import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.hub.exception.SamlRequestTooOldException;
 import uk.gov.ida.shared.utils.logging.LevelLogger;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
+@javax.ws.rs.ext.Provider
 public class SamlProxySamlTransformationErrorExceptionMapper extends AbstractContextExceptionMapper<SamlTransformationErrorException> {
 
     private EventSinkMessageSender eventSinkMessageSender;
@@ -22,13 +23,14 @@ public class SamlProxySamlTransformationErrorExceptionMapper extends AbstractCon
 
     @Inject
     public SamlProxySamlTransformationErrorExceptionMapper(
-            Provider<HttpServletRequest> contextProvider,
+            final Provider<HttpServletRequest> servletRequestProvider,
             EventSinkMessageSender eventSinkMessageSender,
             LevelLoggerFactory<SamlProxySamlTransformationErrorExceptionMapper> levelLoggerFactory) {
-        super(contextProvider);
+        super(servletRequestProvider);
         this.eventSinkMessageSender = eventSinkMessageSender;
         this.levelLogger = levelLoggerFactory.createLevelLogger(SamlProxySamlTransformationErrorExceptionMapper.class);
     }
+
 
     @Override
     protected Response handleException(SamlTransformationErrorException exception) {

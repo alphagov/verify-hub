@@ -2,9 +2,9 @@ package uk.gov.ida.saml.hub.validators.authnrequest;
 
 import io.dropwizard.util.Duration;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import uk.gov.ida.saml.hub.configuration.SamlAuthnRequestValidityDurationConfiguration;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
@@ -12,16 +12,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthnRequestIssueInstantValidatorTest {
 
-    AuthnRequestIssueInstantValidator authnRequestIssueInstantValidator = null;
-    private final int AUTHN_REQUEST_VALIDITY_MINS = 5;
+    private static AuthnRequestIssueInstantValidator authnRequestIssueInstantValidator = null;
+    private static final int AUTHN_REQUEST_VALIDITY_MINS = 5;
 
-    @Before
-    public void setup() {
+    @BeforeAll
+    public static void setup() {
         SamlAuthnRequestValidityDurationConfiguration samlAuthnRequestValidityDurationConfiguration = () -> Duration.minutes(AUTHN_REQUEST_VALIDITY_MINS);
 
         authnRequestIssueInstantValidator = new AuthnRequestIssueInstantValidator(samlAuthnRequestValidityDurationConfiguration);
     }
-    @After
+    @AfterEach
     public void unfreezeTime() {
         DateTimeFreezer.unfreezeTime();
     }

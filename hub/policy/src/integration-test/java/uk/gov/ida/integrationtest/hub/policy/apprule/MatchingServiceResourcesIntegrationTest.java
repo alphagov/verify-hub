@@ -1,18 +1,20 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.util.Duration;
+import io.dropwizard.testing.ResourceHelpers;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import ru.vyarus.dropwizard.guice.test.ClientSupport;
+import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
+import uk.gov.ida.hub.policy.PolicyApplication;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
@@ -40,16 +42,16 @@ import uk.gov.ida.hub.policy.domain.state.UserAccountCreatedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationFailedState;
 import uk.gov.ida.hub.policy.domain.state.UserAccountCreationRequestSentState;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -58,7 +60,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.dropwizard.testing.ConfigOverride.config;
 import static java.text.MessageFormat.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,35 +67,38 @@ import static uk.gov.ida.hub.policy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.GET_SESSION_STATE_NAME;
 
 public class MatchingServiceResourcesIntegrationTest {
-
+    public static final int matchingServiceResponseWaitPeriodSeconds = 60;
     private static final String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
     private static final boolean REGISTERING = true;
     private static final String abTestVariant = null;
+    private static ClientSupport client;
 
-    private static Client client;
-
-    @ClassRule
-    public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
-
-    @ClassRule
-    public static ConfigStubRule configStub = new ConfigStubRule();
-
-    @ClassRule
-    public static EventSinkStubRule eventSinkStub = new EventSinkStubRule();
-
-    @ClassRule
-    public static SamlSoapProxyProxyStubRule samlSoapProxyProxyStubRule = new SamlSoapProxyProxyStubRule();
-
-    public static final int matchingServiceResponseWaitPeriodSeconds = 60;
-
-    @ClassRule
-    public static PolicyAppRule policy = new PolicyAppRule(
-            config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
-            config("configUri", configStub.baseUri().build().toASCIIString()),
-            config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()),
-            config("samlSoapProxyUri", samlSoapProxyProxyStubRule.baseUri().build().toASCIIString()),
-            config("matchingServiceResponseWaitPeriod", format("{0}s", matchingServiceResponseWaitPeriodSeconds))
-    );
+    @Order(0)
+    @RegisterExtension
+    public static SamlEngineStubExtension samlEngineStub = new SamlEngineStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static ConfigStubExtension configStub = new ConfigStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static EventSinkStubExtension eventSinkStub = new EventSinkStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static SamlSoapProxyProxyStubExtension samlSoapProxyStub = new SamlSoapProxyProxyStubExtension();
+    @Order(1)
+    @RegisterExtension
+    public static TestDropwizardAppExtension policyApp = PolicyAppExtension.forApp(PolicyApplication.class)
+            .withDefaultConfigOverridesAnd(
+                    "matchingServiceResponseWaitPeriod: " + format("{0}s", matchingServiceResponseWaitPeriodSeconds)
+            )
+            .configOverride("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
+            .configOverride("samlSoapProxyUri", () -> samlSoapProxyStub.baseUri().build().toASCIIString())
+            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
+            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
+            .config(ResourceHelpers.resourceFilePath("policy.yml"))
+            .hooks(builder -> builder.extensions(TestSessionResource.class))
+            .randomPorts()
+            .create();
 
     private String idpEntityId;
     private String rpEntityId;
@@ -103,13 +107,12 @@ public class MatchingServiceResourcesIntegrationTest {
     private SamlResponseWithAuthnRequestInformationDto translatedAuthnRequest;
     private SamlAuthnRequestContainerDto rpSamlRequest;
 
-    @BeforeClass
-    public static void beforeClass() {
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(policy.getEnvironment()).using(jerseyClientConfiguration).build(MatchingServiceResourcesIntegrationTest.class.getSimpleName());
+    @BeforeAll
+    public static void beforeClass(ClientSupport clientSupport) {
+        client = clientSupport;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         idpEntityId = "idpEntityId";
         rpEntityId = "rpEntityId";
@@ -117,7 +120,7 @@ public class MatchingServiceResourcesIntegrationTest {
         translatedAuthnRequest = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(rpEntityId).build();
         rpSamlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
         idpSsoUri = UriBuilder.fromPath("idpSsoUri").build();
-        
+
         configStub.reset();
         configStub.setupStubForEnabledIdps(rpEntityId, REGISTERING, LEVEL_2, singletonList(idpEntityId));
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
@@ -125,9 +128,14 @@ public class MatchingServiceResourcesIntegrationTest {
         eventSinkStub.setupStubForLogging();
     }
 
-    @After
+    @AfterEach
     public void after() {
         DateTimeFreezer.unfreezeTime();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        PolicyAppExtension.tearDown();
     }
 
     @Test
@@ -147,7 +155,7 @@ public class MatchingServiceResourcesIntegrationTest {
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
-        Response response = postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
+        Response response = postResponse(uri, msaSamlResponseDto);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(getSessionStateName(sessionId)).isEqualTo(SuccessfulMatchState.class.getName());
@@ -161,14 +169,14 @@ public class MatchingServiceResourcesIntegrationTest {
         anAuthnResponseFromIdpWasReceivedAndMatchingRequestSent(sessionId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.MATCHING_SERVICE_REQUEST_FAILURE_RESOURCE).build(sessionId);
-        Response response = postResponse(policy.uri(uri.toASCIIString()), null);
+        Response response = postResponse(uri, null);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(getSessionStateName(sessionId)).isEqualTo(MatchingServiceRequestErrorState.class.getName());
 
         // check that the state has been updated
         uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        response = getResponse(policy.uri(uri.toASCIIString()));
+        response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -193,7 +201,7 @@ public class MatchingServiceResourcesIntegrationTest {
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
-        Response response = postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
+        Response response = postResponse(uri, msaSamlResponseDto);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         // Note that the state does not get updated if there is a StateProcessingValidationException
@@ -220,7 +228,7 @@ public class MatchingServiceResourcesIntegrationTest {
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
-        Response response = postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
+        Response response = postResponse(uri, msaSamlResponseDto);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         // Note that the state does not get updated if there is a StateProcessingValidationException
@@ -238,7 +246,7 @@ public class MatchingServiceResourcesIntegrationTest {
         aNoMatchResponseHasBeenReceivedAndUserAccountCreationIsEnabled(sessionId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -256,7 +264,7 @@ public class MatchingServiceResourcesIntegrationTest {
         aNoMatchResponseWasReceivedFromTheMSAForCycle01_withCycle3Disabled(sessionId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -277,7 +285,7 @@ public class MatchingServiceResourcesIntegrationTest {
         aUserAccountCreationResponseIsReceived(sessionId, MatchingServiceIdaStatus.UserAccountCreated);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -299,7 +307,7 @@ public class MatchingServiceResourcesIntegrationTest {
         aUserAccountCreationResponseIsReceived(sessionId, MatchingServiceIdaStatus.UserAccountCreationFailed);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -317,7 +325,7 @@ public class MatchingServiceResourcesIntegrationTest {
         aNoMatchResponseWasReceivedFromTheMSAForCycle01_withCycle3Enabled(sessionId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -337,7 +345,7 @@ public class MatchingServiceResourcesIntegrationTest {
         aMatchingServiceFailureResponseHasBeenReceived(sessionId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -355,7 +363,7 @@ public class MatchingServiceResourcesIntegrationTest {
         aMatchingServiceFailureResponseHasBeenReceived(sessionId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -373,7 +381,7 @@ public class MatchingServiceResourcesIntegrationTest {
         final String cycle3Attribute = aNoMatchResponseWasReceivedFromTheMSAForCycle01_withCycle3Enabled(sessionId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.CYCLE_3_REQUEST_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -394,7 +402,7 @@ public class MatchingServiceResourcesIntegrationTest {
         theMatchingServiceResponseTimeoutHasBeenExceeded();
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -412,7 +420,7 @@ public class MatchingServiceResourcesIntegrationTest {
         theMatchingServiceResponseTimeoutHasBeenExceeded();
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -430,7 +438,7 @@ public class MatchingServiceResourcesIntegrationTest {
         samlEngineRespondsToATranslateAttributeQueryWithAnErrorStatusDto(sessionId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.RESPONSE_PROCESSING_DETAILS_RESOURCE).build(sessionId);
-        Response response = getResponse(policy.uri(uri.toASCIIString()));
+        Response response = getResponse(uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ResponseProcessingDetails responseProcessingDetails = response.readEntity(ResponseProcessingDetails.class);
@@ -441,14 +449,14 @@ public class MatchingServiceResourcesIntegrationTest {
 
     private Response getResponse(URI uri) {
         return client
-                .target(uri)
+                .targetMain(uri.toString())
                 .request()
                 .get();
     }
 
     private Response postResponse(URI uri, Object msaSamlResponseDto) {
         return client
-                .target(uri.toASCIIString())
+                .targetMain(uri.toASCIIString())
                 .request()
                 .post(Entity.json(msaSamlResponseDto));
     }
@@ -456,7 +464,7 @@ public class MatchingServiceResourcesIntegrationTest {
     private String getSessionStateName(SessionId sessionId) {
         URI uri = UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + GET_SESSION_STATE_NAME).build(sessionId);
 
-        final Response response = getResponse(policy.uri(uri.toASCIIString()));
+        final Response response = getResponse(uri);
         return response.readEntity(String.class);
 
     }
@@ -465,7 +473,7 @@ public class MatchingServiceResourcesIntegrationTest {
         final SamlResponseDto msaSamlResponseDto = new SamlResponseDto("a-saml-response");
         samlEngineStub.setupStubForAttributeResponseTranslateReturningError(ErrorStatusDto.createUnauditedErrorStatus(UUID.randomUUID(), ExceptionType.INVALID_SAML));
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
-        Response response = postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
+        Response response = postResponse(uri, msaSamlResponseDto);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -480,7 +488,7 @@ public class MatchingServiceResourcesIntegrationTest {
         samlEngineStub.setupStubForAttributeResponseTranslate(inboundResponseFromMatchingServiceDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
-        postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
+        postResponse(uri, msaSamlResponseDto);
     }
 
     private void theMatchingServiceResponseTimeoutHasBeenExceeded() {
@@ -489,7 +497,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
     private void aMatchingServiceFailureResponseHasBeenReceived(SessionId sessionId) {
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.MATCHING_SERVICE_REQUEST_FAILURE_RESOURCE).build(sessionId);
-        postResponse(policy.uri(uri.toASCIIString()), null);
+        postResponse(uri, null);
     }
 
     private void aNoMatchResponseHasBeenReceivedAndUserAccountCreationIsEnabled(SessionId sessionId) throws JsonProcessingException {
@@ -505,13 +513,13 @@ public class MatchingServiceResourcesIntegrationTest {
         configStub.setUpStubForUserAccountCreation(rpEntityId, userAccountCreationAttributes);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
-        postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
+        postResponse(uri, msaSamlResponseDto);
     }
 
     private void aCycle3AttributeHasBeenSentToPolicyFromTheUser(SessionId sessionId, String cycle3Attribute) {
         Cycle3UserInput cycle3UserInput = new Cycle3UserInput(cycle3Attribute, "principalIpAsSeenByHub");
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.CYCLE_3_SUBMIT_RESOURCE).build(sessionId);
-        postResponse(policy.uri(uri.toASCIIString()), cycle3UserInput);
+        postResponse(uri, cycle3UserInput);
     }
 
     private String aNoMatchResponseWasReceivedFromTheMSAForCycle01_withCycle3Enabled(SessionId sessionId) throws JsonProcessingException {
@@ -526,7 +534,7 @@ public class MatchingServiceResourcesIntegrationTest {
         final String cycle3Attribute = configStub.setUpStubForEnteringAwaitingCycle3DataState(rpEntityId);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
-        postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
+        postResponse(uri, msaSamlResponseDto);
 
         return cycle3Attribute;
     }
@@ -547,7 +555,7 @@ public class MatchingServiceResourcesIntegrationTest {
         configStub.setUpStubForUserAccountCreation(rpEntityId, userAccountCreationAttributes);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId);
-        postResponse(policy.uri(uri.toASCIIString()), msaSamlResponseDto);
+        postResponse(uri, msaSamlResponseDto);
     }
 
     private void anIdpAuthnRequestWasGenerated(SessionId sessionId) throws JsonProcessingException {
@@ -556,11 +564,11 @@ public class MatchingServiceResourcesIntegrationTest {
         samlEngineStub.setupStubForIdpAuthnRequestGenerate(samlRequestDto);
 
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_REQUEST_RESOURCE).build(sessionId);
-        getResponse(policy.uri(uri.toASCIIString()));
+        getResponse(uri);
     }
 
     private void anAuthnResponseFromIdpWasReceivedAndMatchingRequestSent(SessionId sessionId) throws JsonProcessingException {
-        final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId).getPath());
+        final URI policyUri = UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId);
 
         SamlAuthnResponseContainerDto samlAuthnResponseContainerDto = SamlAuthnResponseContainerDtoBuilder.aSamlAuthnResponseContainerDto()
                                                                                                         .withSamlResponse("saml-response")
@@ -574,13 +582,13 @@ public class MatchingServiceResourcesIntegrationTest {
         configStub.setUpStubForMatchingServiceRequest(rpEntityId, msaEntityId);
         samlEngineStub.setupStubForAttributeQueryRequest(AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto().build());
         samlEngineStub.setupStubForIdpAuthnResponseTranslate(inboundResponseFromIdpDto);
-        samlSoapProxyProxyStubRule.setUpStubForSendHubMatchingServiceRequest(sessionId);
+        samlSoapProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
 
         postResponse(policyUri, samlAuthnResponseContainerDto);
     }
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
-        final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
+        final URI policyUri = UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId);
         postResponse(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, LEVEL_2, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant));
     }
 
@@ -591,6 +599,6 @@ public class MatchingServiceResourcesIntegrationTest {
     }
 
     private Response createASession(SamlAuthnRequestContainerDto samlRequest) {
-        return postResponse(policy.uri(Urls.PolicyUrls.NEW_SESSION_RESOURCE), samlRequest);
+        return postResponse(UriBuilder.fromPath(Urls.PolicyUrls.NEW_SESSION_RESOURCE).build(), samlRequest);
     }
 }

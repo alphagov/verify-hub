@@ -4,12 +4,12 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import org.assertj.core.data.MapEntry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
@@ -24,7 +24,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ProtectiveMonitoringLoggerTest {
 
     @Mock
@@ -36,14 +36,14 @@ public class ProtectiveMonitoringLoggerTest {
 
     private static TestAppender testAppender = new TestAppender();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         testAppender.start();
         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.addAppender(testAppender);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         testAppender.stop();
         TestAppender.events.clear();
