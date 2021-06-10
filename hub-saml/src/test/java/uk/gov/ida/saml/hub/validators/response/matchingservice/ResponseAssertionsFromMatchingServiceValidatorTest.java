@@ -1,15 +1,14 @@
 package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
@@ -19,15 +18,13 @@ import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder.anAuthnStatement;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 import static uk.gov.ida.saml.core.test.builders.StatusBuilder.aStatus;
 import static uk.gov.ida.saml.core.test.builders.StatusCodeBuilder.aStatusCode;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class ResponseAssertionsFromMatchingServiceValidatorTest {
 
     @Mock
@@ -35,12 +32,12 @@ public class ResponseAssertionsFromMatchingServiceValidatorTest {
 
     private ResponseAssertionsFromMatchingServiceValidator validator;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         validator = new ResponseAssertionsFromMatchingServiceValidator(assertionValidator, TestEntityIds.HUB_ENTITY_ID);
     }
 
-    @Test
+    @Test(expected = SamlTransformationErrorException.class)
     public void validate_shouldThrowExceptionIfAssertionDoesNotContainAnAuthnContext() throws Exception {
         String requestId = "some-request-id";
         final Response response = aResponse()
@@ -48,23 +45,16 @@ public class ResponseAssertionsFromMatchingServiceValidatorTest {
                 .build();
         final Assertion assertion = anAssertion().addAuthnStatement(anAuthnStatement().withAuthnContext(null).build()).buildUnencrypted();
 
-        validateException(
-                assertThrows(SamlTransformationErrorException.class, () -> validator.validate(new ValidatedResponse(response), new ValidatedAssertions(singletonList(assertion)))),
-                SamlTransformationErrorFactory.authnContextMissingError()
-        );
+        validateThrows(response, assertion, SamlTransformationErrorFactory.authnContextMissingError());
     }
 
-    @Test
+    @Test(expected = SamlTransformationErrorException.class)
     public void validate_shouldThrowExceptionIfAssertionDoesNotContainAnAuthnStatement() throws Exception {
         String requestId = "some-request-id";
         final Response response = aResponse()
                 .withInResponseTo(requestId)
                 .build();
-
-        validateException(
-                assertThrows(SamlTransformationErrorException.class, () -> validator.validate(new ValidatedResponse(response), new ValidatedAssertions(singletonList(anAssertion().buildUnencrypted())))),
-                SamlTransformationErrorFactory.missingAuthnStatement()
-        );
+        validateThrows(response, anAssertion().buildUnencrypted(), SamlTransformationErrorFactory.missingAuthnStatement());
     }
 
     @Test
@@ -78,8 +68,13 @@ public class ResponseAssertionsFromMatchingServiceValidatorTest {
         validator.validate(new ValidatedResponse(response), new ValidatedAssertions(singletonList(anAssertion().buildUnencrypted())));
     }
 
-    private void validateException(SamlTransformationErrorException e, SamlValidationSpecificationFailure samlValidationSpecificationFailure) {
-        assertThat(e.getMessage()).isEqualTo(samlValidationSpecificationFailure.getErrorMessage());
-        assertThat(e.getLogLevel()).isEqualTo(samlValidationSpecificationFailure.getLogLevel());
+    private void validateThrows(Response response, Assertion assertion, SamlValidationSpecificationFailure samlValidationSpecificationFailure) {
+        try {
+            validator.validate(new ValidatedResponse(response), new ValidatedAssertions(singletonList(assertion)));
+        } catch (SamlTransformationErrorException e) {
+            assertThat(e.getMessage()).isEqualTo(samlValidationSpecificationFailure.getErrorMessage());
+            assertThat(e.getLogLevel()).isEqualTo(samlValidationSpecificationFailure.getLogLevel());
+            throw e;
+        }
     }
 }

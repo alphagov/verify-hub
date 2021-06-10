@@ -1,13 +1,11 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.domain.IdpConfigDto;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.ResponseFromHubFactory;
@@ -32,8 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.state.SessionStartedStateBuilder.aSessionStartedState;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class SessionStartedStateControllerTest {
 
     private static final String IDP_ENTITY_ID = "anIdp";
@@ -55,7 +52,7 @@ public class SessionStartedStateControllerTest {
 
     private SessionStartedState sessionStartedState;
 
-    @BeforeEach
+    @Before
     public void setup() {
         sessionStartedState = aSessionStartedState()
                 .withForceAuthentication(false)

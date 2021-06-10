@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
-@javax.ws.rs.ext.Provider
 public class SamlProxyApplicationExceptionMapper extends AbstractContextExceptionMapper<ApplicationException> {
     private final LevelLogger levelLogger;
     private final ExceptionAuditor exceptionAuditor;

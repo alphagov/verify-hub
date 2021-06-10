@@ -1,12 +1,12 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
 import com.codahale.metrics.Counter;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.glassfish.jersey.internal.util.Base64;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -22,14 +22,13 @@ import uk.gov.ida.hub.samlsoapproxy.domain.TimeoutEvaluator;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.AttributeQueryTimeoutException;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.InvalidSamlRequestInAttributeQueryException;
 import uk.gov.ida.hub.samlsoapproxy.proxy.HubMatchingServiceResponseReceiverProxy;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,8 +44,7 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.message;
 import static uk.gov.ida.hub.samlsoapproxy.builders.AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto;
 import static uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder.anAttributeQuery;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class AttributeQueryRequestRunnableTest {
 
     private final ServiceInfoConfiguration serviceInfoConfiguration = new ServiceInfoConfiguration("a service name");
@@ -68,7 +66,7 @@ public class AttributeQueryRequestRunnableTest {
     private URI matchingServiceUri = URI.create("/another-uri");
     private SessionId sessionId = SessionId.createNewSessionId();
 
-    @BeforeEach
+    @Before
     public void setup() {
         attributeQueryContainerDto = anAttributeQueryContainerDto(anAttributeQuery().build())
                 .withMatchingServiceUri(matchingServiceUri)
@@ -148,7 +146,7 @@ public class AttributeQueryRequestRunnableTest {
         String stringifiedResponse = XmlUtils.writeToString(matchingServiceResponse);
         verify(hubMatchingServiceResponseReceiverProxy).notifyHubOfAResponseFromMatchingService(
                 eq(sessionId),
-                eq(Base64.getEncoder().encodeToString(stringifiedResponse.getBytes()))
+                eq(Base64.encodeAsString(stringifiedResponse))
         );
         verify(timeoutEvaluator, times(2)).hasAttributeQueryTimedOut(attributeQueryContainerDto);
     }

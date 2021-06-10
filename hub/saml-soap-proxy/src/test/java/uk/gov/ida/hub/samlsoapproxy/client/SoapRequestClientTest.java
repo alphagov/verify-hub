@@ -1,13 +1,11 @@
 package uk.gov.ida.hub.samlsoapproxy.client;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -33,8 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class SoapRequestClientTest {
 
     @Mock
@@ -58,7 +55,7 @@ public class SoapRequestClientTest {
         soapElement = XmlUtils.convertToElement("<someElement/>");
     }
 
-    @BeforeEach
+    @Before
     public void setUp() {
         when(soapMessageManager.wrapWithSoapEnvelope(any(Element.class))).thenReturn(document);
         when(soapMessageManager.unwrapSoapMessage(ArgumentMatchers.<Document>any())).thenReturn(soapElement);

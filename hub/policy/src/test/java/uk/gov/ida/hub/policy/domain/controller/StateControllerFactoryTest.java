@@ -2,14 +2,13 @@ package uk.gov.ida.hub.policy.domain.controller;
 
 import com.google.inject.Injector;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AbstractState;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
@@ -46,9 +45,11 @@ import static uk.gov.ida.hub.policy.builder.state.UserAccountCreatedStateBuilder
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationFailedStateBuilder.aUserAccountCreationFailedState;
 import static uk.gov.ida.hub.policy.builder.state.UserAccountCreationRequestSentStateBuilder.aUserAccountCreationRequestSentState;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class StateControllerFactoryTest {
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     @Mock
     private Injector injector;
 
@@ -57,7 +58,7 @@ public class StateControllerFactoryTest {
 
     private StateControllerFactory stateControllerFactory;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         stateControllerFactory = new StateControllerFactory(injector);
         when(injector.getInstance(AssertionRestrictionsFactory.class)).thenReturn(null);
@@ -184,16 +185,16 @@ public class StateControllerFactoryTest {
 
     @Test
     public void shouldThrowIllegalStateExceptionIfControllerIsNotFound() {
-        Exception exception = Assertions.assertThrows(IllegalStateException.class, () -> {
-            UnknownState unknownState = new UnknownState(
-                    "requestId",
-                    "requestIssuerId",
-                    DateTime.now(),
-                    URI.create("/some-ac-service-uri"),
-                    aSessionId().build());
-            stateControllerFactory.build(unknownState, stateTransitionAction);
-        });
-        assertThat("Unable to locate state for UnknownState").isEqualTo(exception.getMessage());
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Unable to locate state for UnknownState");
+
+        UnknownState unknownState = new UnknownState(
+                "requestId",
+                "requestIssuerId",
+                DateTime.now(),
+                URI.create("/some-ac-service-uri"),
+                aSessionId().build());
+        stateControllerFactory.build(unknownState, stateTransitionAction);
     }
 
     private static class UnknownState extends AbstractState {

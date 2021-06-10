@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.config.exceptions;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import uk.gov.ida.hub.config.domain.CertificateUse;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -18,31 +18,31 @@ import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTr
 
 public class ConfigValidationExceptionTest {
     @Test
-    public void createFileReadError() {
+    public void createFileReadError() throws Exception {
         ConfigValidationException exception = ConfigValidationException.createFileReadError("/tmp/foo");
         assertThat(exception.getMessage()).isEqualTo("Error reading config service data from file '/tmp/foo'.");
     }
 
     @Test
-    public void createDuplicateEntityIdException() {
+    public void createDuplicateEntityIdException() throws Exception {
         ConfigValidationException exception = ConfigValidationException.createDuplicateEntityIdException("entity-id");
         assertThat(exception.getMessage()).isEqualTo("Duplicate entity id found: entity-id");
     }
 
     @Test
-    public void createAbsentMatchingServiceConfigException() {
+    public void createAbsentMatchingServiceConfigException() throws Exception {
         ConfigValidationException exception = ConfigValidationException.createAbsentMatchingServiceConfigException("msa-entity-id", "transaction-entity-id");
         assertThat(exception.getMessage()).isEqualTo("Matching service configuration for msa-entity-id not found, used by transaction transaction-entity-id");
     }
 
     @Test
-    public void createAbsentOnboardingTransactionConfigException() {
+    public void createAbsentOnboardingTransactionConfigException() throws Exception {
         ConfigValidationException exception = ConfigValidationException.createAbsentOnboardingTransactionConfigException("transaction-entity-id", "idp-entity-id");
         assertThat(exception.getMessage()).isEqualTo("IDP idp-entity-id has onboardingTransactionEntityId transaction-entity-id. No transaction with entityId transaction-entity-id exists.");
     }
 
     @Test
-    public void createInvalidCertificatesException() {
+    public void createInvalidCertificatesException() throws Exception {
         InvalidCertificateDto invalidCertificateDto = new InvalidCertificateDto("entity-id", CertPathValidatorException.BasicReason.EXPIRED, CertificateUse.ENCRYPTION, FederationEntityType.IDP, "description");
         ConfigValidationException exception = ConfigValidationException.createInvalidCertificatesException(singletonList(invalidCertificateDto));
         assertThat(exception.getMessage()).isEqualTo("Invalid certificate found.\n" +
@@ -54,13 +54,13 @@ public class ConfigValidationExceptionTest {
     }
 
     @Test
-    public void createIDPLevelsOfAssuranceUnsupportedException() {
+    public void createIDPLevelsOfAssuranceUnsupportedException() throws Exception {
         ConfigValidationException exception = ConfigValidationException.createIDPLevelsOfAssuranceUnsupportedException(singletonList(anIdentityProviderConfigData().build()));
         assertThat(exception.getMessage()).isEqualTo("Unsupported level of assurance in IDP config.\nEntity Id: default-idp-entity-id\nLevels: [LEVEL_2]\n");
     }
 
     @Test
-    public void createTransactionsRequireUnsupportedLevelOfAssurance() {
+    public void createTransactionsRequireUnsupportedLevelOfAssurance() throws Exception {
         ConfigValidationException exception = ConfigValidationException.createTransactionsRequireUnsupportedLevelOfAssurance(singletonList(aTransactionConfigData().build()));
         assertThat(exception.getMessage()).isEqualTo("Unsupported level of assurance in transaction config.\n" +
                 "Entity Id: default-transaction-entity-id\n" +
@@ -68,7 +68,7 @@ public class ConfigValidationExceptionTest {
     }
 
     @Test
-    public void createIncompatiblePairsOfTransactionsAndIDPs() {
+    public void createIncompatiblePairsOfTransactionsAndIDPs() throws Exception {
         Map<TransactionConfig, List<IdentityProviderConfig>> incompatiblePairs = Map.of(aTransactionConfigData().build(), singletonList(anIdentityProviderConfigData().build()));
         ConfigValidationException exception = ConfigValidationException.createIncompatiblePairsOfTransactionsAndIDPs(incompatiblePairs);
         assertThat(exception.getMessage()).isEqualTo("Transaction unsupported by IDP(s).\n" +

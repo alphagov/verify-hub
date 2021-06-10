@@ -1,32 +1,31 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule;
 
-import httpstub.HttpStubExtension;
-import io.dropwizard.testing.ResourceHelpers;
+import helpers.JerseyClientConfigurationBuilder;
+import httpstub.HttpStubRule;
+import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.client.JerseyClientConfiguration;
+import io.dropwizard.testing.ConfigOverride;
+import io.dropwizard.util.Duration;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.HttpStatus;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
 import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.samlproxy.domain.LevelOfAssurance;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.ConfigStubExtension;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubExtension;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.ConfigStubRule;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubRule;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
 import uk.gov.ida.integrationtest.hub.samlproxy.support.TestSamlRequestFactory;
 import uk.gov.ida.saml.core.test.AuthnRequestFactory;
 import uk.gov.ida.saml.core.test.AuthnRequestIdGenerator;
@@ -34,6 +33,7 @@ import uk.gov.ida.saml.core.test.AuthnResponseFactory;
 import uk.gov.ida.saml.hub.domain.Endpoints;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -62,62 +62,52 @@ public class SamlMessageReceiverApiResourceTest {
     private static final DigestAlgorithm DIGEST_ALGORITHM = new DigestSHA256();
     private static final String ANALYTICS_SESSION_ID = UUID.randomUUID().toString();
     private static final String JOURNEY_TYPE = "some-journey-type";
+    private static Client client;
 
-    private static ClientSupport client;
+    @ClassRule
+    public static PolicyStubRule policyStubRule = new PolicyStubRule();
 
-    @Order(0)
-    @RegisterExtension
-    public static final PolicyStubExtension policyStub = new PolicyStubExtension();
+    @ClassRule
+    public static ConfigStubRule configStubRule = new ConfigStubRule();
 
-    @Order(0)
-    @RegisterExtension
-    public static ConfigStubExtension configStub = new ConfigStubExtension();
+    @ClassRule
+    public static HttpStubRule eventSinkStubRule = new HttpStubRule();
 
-    @Order(0)
-    @RegisterExtension
-    public static HttpStubExtension eventSinkStub = new HttpStubExtension();
+    @Before
+    public void resetStubRules() {
+        configStubRule.reset();
+        policyStubRule.reset();
+        eventSinkStubRule.reset();
+    }
 
-    @Order(1)
-    @RegisterExtension
-    public static TestDropwizardAppExtension samlProxyApp = SamlProxyAppExtension.forApp(SamlProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .configOverride("policyUri", () -> policyStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-proxy.yml"))
-            .randomPorts()
-            .create();
-
-    private final AuthnResponseFactory authnResponseFactory = anAuthnResponseFactory();
+    @ClassRule
+    public static SamlProxyAppRule samlProxyAppRule = new SamlProxyAppRule(
+            ConfigOverride.config("configUri", configStubRule.baseUri().build().toASCIIString()),
+            ConfigOverride.config("policyUri", policyStubRule.baseUri().build().toASCIIString()),
+            ConfigOverride.config("eventSinkUri", eventSinkStubRule.baseUri().build().toASCIIString()));
 
     private AuthnRequestFactory authnRequestFactory;
+    private final AuthnResponseFactory authnResponseFactory = anAuthnResponseFactory();
     private XmlObjectToBase64EncodedStringTransformer<AuthnRequest> authnRequestToStringTransformer;
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-        eventSinkStub.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
-
-    }
-    
-    @BeforeEach
+    @Before
     public void setUp() {
-        configStub.reset();
-        policyStub.reset();
-        eventSinkStub.reset();
         authnRequestToStringTransformer = new XmlObjectToBase64EncodedStringTransformer<>();
         authnRequestFactory = new AuthnRequestFactory(authnRequestToStringTransformer);
     }
 
-    @AfterAll
-    public static void tearDown() {
-        SamlProxyAppExtension.tearDown();
+    @BeforeClass
+    public static void setUpClient() {
+        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
+        client =  new JerseyClientBuilder(samlProxyAppRule.getEnvironment()).using(jerseyClientConfiguration).build
+                (SamlMessageReceiverApiResourceTest.class.getSimpleName());
+        eventSinkStubRule.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
     }
-    
+
     @Test
     public void responsePost_shouldRespondWithSuccessWhenPolicyRespondsWithSuccess() throws Exception {
         String sessionId = UUID.randomUUID().toString();
-        policyStub.receiveAuthnResponseFromIdp(sessionId, LevelOfAssurance.LEVEL_2);
+        policyStubRule.receiveAuthnResponseFromIdp(sessionId, LevelOfAssurance.LEVEL_2);
 
         org.opensaml.saml.saml2.core.Response samlResponse = authnResponseFactory.aResponseFromIdp(
                 STUB_IDP_ONE, STUB_IDP_PUBLIC_PRIMARY_CERT,
@@ -152,7 +142,7 @@ public class SamlMessageReceiverApiResourceTest {
     @Test
     public void shouldReturn400IfAuthnRequestIsSignedByAnIdp() {
         SamlRequestDto authnRequest = createAuthnRequest(STUB_IDP_ONE, "relayState", STUB_IDP_PUBLIC_PRIMARY_CERT, STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY);
-        configStub.setupStubForNonExistentSigningCertificates(STUB_IDP_ONE);
+        configStubRule.setupStubForNonExistentSigningCertificates(STUB_IDP_ONE);
 
         Response clientResponse = postSAML(authnRequest, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
@@ -162,9 +152,9 @@ public class SamlMessageReceiverApiResourceTest {
     @Test
     public void shouldCreateSessionForAuthnRequest() throws Exception {
         SamlRequestDto authnRequestWrapper = createAuthnRequest(TEST_RP, "relayState", TEST_RP_PUBLIC_SIGNING_CERT, TEST_RP_PRIVATE_SIGNING_KEY);
-        configStub.setupStubForCertificates(TEST_RP);
+        configStubRule.setupStubForCertificates(TEST_RP);
         SessionId sessionId = SessionId.createNewSessionId();
-        policyStub.stubCreateSession(sessionId);
+        policyStubRule.stubCreateSession(sessionId);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
@@ -175,15 +165,15 @@ public class SamlMessageReceiverApiResourceTest {
     @Test
     public void shouldReturnBadRequestAndShouldAuditWhenSendingAnAuthnRequestFromAnIncorectIssuer() {
         SamlRequestDto authnRequest = createAuthnRequest(STUB_IDP_ONE, "relayState", TEST_PUBLIC_CERT, TEST_PRIVATE_KEY);
-        configStub.setupStubForNonExistentSigningCertificates(STUB_IDP_ONE);
-        eventSinkStub.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
+        configStubRule.setupStubForNonExistentSigningCertificates(STUB_IDP_ONE);
+        eventSinkStubRule.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
 
-        assertThat(eventSinkStub.getCountOfRequestsTo(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE)).isEqualTo(0);
+        assertThat(eventSinkStubRule.getCountOfRequestsTo(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE)).isEqualTo(0);
 
         Response clientResponse = postSAML(authnRequest, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        assertThat(eventSinkStub.getCountOfRequestsTo(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE)).isEqualTo(1);
+        assertThat(eventSinkStubRule.getCountOfRequestsTo(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE)).isEqualTo(1);
     }
 
     @Test
@@ -267,9 +257,9 @@ public class SamlMessageReceiverApiResourceTest {
     public void shouldErrorWhenAProblemOccursWithinSessionProxy() throws Exception {
         SamlRequestDto authnRequestWrapper = createAuthnRequest(TEST_RP, RELAY_STATE, TEST_RP_PUBLIC_SIGNING_CERT,
                 TEST_RP_PRIVATE_SIGNING_KEY);
-        configStub.setupStubForCertificates(TEST_RP);
+        configStubRule.setupStubForCertificates(TEST_RP);
 
-        policyStub.returnErrorForCreateSession();
+        policyStubRule.returnErrorForCreateSession();
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
@@ -294,7 +284,7 @@ public class SamlMessageReceiverApiResourceTest {
                 Endpoints.SSO_REQUEST_ENDPOINT,
                 Optional.empty());
         SamlRequestDto authnRequestWrapper = new SamlRequestDto(anAuthnRequest, "relayState", "ipAddress", ANALYTICS_SESSION_ID, JOURNEY_TYPE);
-        configStub.setupStubForCertificates(issuer);
+        configStubRule.setupStubForCertificates(issuer);
 
         Response clientResponse = postSAML(authnRequestWrapper, Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
 
@@ -302,7 +292,7 @@ public class SamlMessageReceiverApiResourceTest {
     }
 
     private Response postSAML(SamlRequestDto requestDTO, String path) {
-        return client.targetMain(path).request().post(Entity
+        return client.target(samlProxyAppRule.getUri(path)).request().post(Entity
                 .entity(requestDTO, MediaType
                 .APPLICATION_JSON_TYPE));
     }

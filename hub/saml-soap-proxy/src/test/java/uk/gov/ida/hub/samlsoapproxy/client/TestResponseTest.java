@@ -1,9 +1,7 @@
 package uk.gov.ida.hub.samlsoapproxy.client;
 
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +10,7 @@ public class TestResponseTest {
     private TestResponse response;
     private String errorMessage = "something bad happened";
 
-    @BeforeEach
+    @Before
     public void setup() {
         response = new TestResponse(500, errorMessage);
     }
@@ -22,12 +20,10 @@ public class TestResponseTest {
         assertThat(response.getStatus()).isEqualTo(500);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void assertHasEntityThrowsExceptionAfterStreamHasBeenClosed() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            response.close();
-            response.hasEntity();
-        });
+        response.close();
+        response.hasEntity();
     }
 
     @Test

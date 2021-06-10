@@ -2,11 +2,11 @@ package uk.gov.ida.hub.policy.contracts;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.domain.Cycle3Dataset;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.PersistentId;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AttributeQueryRequestDtoTest {
 
     private static final AttributeQueryContainerDto ATTRIBUTE_QUERY_CONTAINER_DTO = anAttributeQueryContainerDto().build();
@@ -44,7 +44,7 @@ public class AttributeQueryRequestDtoTest {
     private static final DateTime ASSERTION_EXPIRY = DateTime.now();
     private AttributeQueryRequestDto attributeQueryRequestDto;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         attributeQueryRequestDto = new AttributeQueryRequestDto(
             REQUEST_ID,
@@ -70,17 +70,17 @@ public class AttributeQueryRequestDtoTest {
     }
 
     @Test
-    public void getPersistentId() {
+    public void getPersistentId() throws Exception {
         assertThat(attributeQueryRequestDto.getPersistentId()).isEqualTo(PERSISTENT_ID);
     }
 
     @Test
-    public void getEncryptedMatchingDataSetAssertion() {
+    public void getEncryptedMatchingDataSetAssertion() throws Exception {
         assertThat(attributeQueryRequestDto.getEncryptedMatchingDatasetAssertion()).isEqualTo(ENCRYPTED_MATCHING_DATASET_ASSERTION);
     }
 
     @Test
-    public void getAuthnStatementAssertion() {
+    public void getAuthnStatementAssertion() throws Exception {
         assertThat(attributeQueryRequestDto.getEncryptedAuthnAssertion()).isEqualTo(AUTHN_STATEMENT_ASSERTION);
     }
 
@@ -90,17 +90,17 @@ public class AttributeQueryRequestDtoTest {
     }
 
     @Test
-    public void getAuthnRequestIssuerEntityId() {
+    public void getAuthnRequestIssuerEntityId() throws Exception {
         assertThat(attributeQueryRequestDto.getAuthnRequestIssuerEntityId()).isEqualTo(AUTHN_REQUEST_ISSUER_ENTITY_ID);
     }
 
     @Test
-    public void getLevelOfAssurance() {
+    public void getLevelOfAssurance() throws Exception {
         assertThat(attributeQueryRequestDto.getLevelOfAssurance()).isEqualTo(LevelOfAssurance.LEVEL_2);
     }
 
     @Test
-    public void getAttributeQueryUri() {
+    public void getAttributeQueryUri() throws Exception {
         assertThat(attributeQueryRequestDto.getAttributeQueryUri()).isEqualTo(MATCHING_SERVICE_ADAPTER_URI);
     }
 
@@ -110,32 +110,32 @@ public class AttributeQueryRequestDtoTest {
     }
 
     @Test
-    public void getMatchingServiceRequestTimeOut() {
+    public void getMatchingServiceRequestTimeOut() throws Exception {
         assertThat(attributeQueryRequestDto.getMatchingServiceRequestTimeOut()).isEqualTo(MATCHING_SERVICE_REQUEST_TIME_OUT);
     }
 
     @Test
-    public void isOnboarding() {
+    public void isOnboarding() throws Exception {
         assertThat(attributeQueryRequestDto.isOnboarding()).isTrue();
     }
 
     @Test
-    public void getCycle3Dataset() {
+    public void getCycle3Dataset() throws Exception {
         assertThat(attributeQueryRequestDto.getCycle3Dataset()).isEqualTo(CYCLE_3_DATASET);
     }
 
     @Test
-    public void getUserAccountCreationAttributes() {
+    public void getUserAccountCreationAttributes() throws Exception {
         assertThat(attributeQueryRequestDto.getUserAccountCreationAttributes()).isEqualTo(USER_ACCOUNT_CREATION_ATTRIBUTES);
     }
 
     @Test
-    public void getAssertionExpiry() {
+    public void getAssertionExpiry() throws Exception {
         assertThat(attributeQueryRequestDto.getAssertionExpiry()).isEqualTo(ASSERTION_EXPIRY);
     }
 
     @Test
-    public void sendToSamlEngine() {
+    public void sendToSamlEngine() throws Exception {
         when(samlEngineProxy.generateAttributeQuery(attributeQueryRequestDto)).thenReturn(ATTRIBUTE_QUERY_CONTAINER_DTO);
 
         AttributeQueryContainerDto actual = attributeQueryRequestDto.sendToSamlEngine(samlEngineProxy);

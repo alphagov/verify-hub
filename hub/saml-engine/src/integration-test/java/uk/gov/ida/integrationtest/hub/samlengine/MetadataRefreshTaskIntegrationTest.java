@@ -1,45 +1,42 @@
 package uk.gov.ida.integrationtest.hub.samlengine;
 
-import io.dropwizard.testing.ResourceHelpers;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import helpers.JerseyClientConfigurationBuilder;
+import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.client.JerseyClientConfiguration;
+import io.dropwizard.util.Duration;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetadataRefreshTaskIntegrationTest {
+    
+    private static Client client;
 
-    private static ClientSupport client;
+    @ClassRule
+    public static SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule();
 
-    @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
-
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
-
-    @AfterAll
-    public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
+    @BeforeClass
+    public static void setUpClass() {
+        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
+        client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build(MetadataRefreshTaskIntegrationTest.class.getSimpleName());
     }
 
     @Test
     public void verifyFederationMetadataRefreshTaskWorks() {
-        final Response response = client.targetAdmin("/tasks/metadata-refresh")
-                .request().post(Entity.text("refresh!"));
+        final Response response = client.target(UriBuilder.fromUri("http://localhost")
+                .path("/tasks/metadata-refresh")
+                .port(samlEngineAppRule.getAdminPort())
+                .build())
+                .request()
+                .post(Entity.text("refresh!"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

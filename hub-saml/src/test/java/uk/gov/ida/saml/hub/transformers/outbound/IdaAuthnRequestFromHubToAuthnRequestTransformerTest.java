@@ -1,10 +1,9 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
@@ -15,7 +14,7 @@ import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.extensions.IdaAuthnContext;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 
 import java.util.Arrays;
@@ -28,13 +27,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.jodatime.api.Assertions.assertThat;
 import static uk.gov.ida.saml.hub.test.builders.IdaAuthnRequestBuilder.anIdaAuthnRequest;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class IdaAuthnRequestFromHubToAuthnRequestTransformerTest {
-    private static IdaAuthnRequestFromHubToAuthnRequestTransformer transformer;
+    private IdaAuthnRequestFromHubToAuthnRequestTransformer transformer;
 
-    @BeforeAll
-    public static void setup() {
+    @Before
+    public void setup() {
         transformer = new IdaAuthnRequestFromHubToAuthnRequestTransformer(new OpenSamlXmlObjectFactory());
     }
 

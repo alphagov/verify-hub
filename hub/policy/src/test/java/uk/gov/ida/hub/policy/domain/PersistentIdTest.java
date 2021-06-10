@@ -1,18 +1,18 @@
 package uk.gov.ida.hub.policy.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.builder.domain.PersistentIdBuilder.aPersistentId;
 
 public class PersistentIdTest {
     private static final String NAME_ID = "nameId";
-    private static PersistentId persistentId;
+    private PersistentId persistentId;
 
-    @BeforeAll
-    public static void setUp() {
+    @Before
+    public void setUp() {
         persistentId = aPersistentId().withNameId(NAME_ID).build();
     }
 

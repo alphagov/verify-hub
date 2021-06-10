@@ -1,18 +1,18 @@
 package uk.gov.ida.hub.policy.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponseProcessingDetailsTest {
     private static final SessionId SESSION_ID = new SessionId("sessionId");
     private static final String TRANSACTION_ENTITY_ID = "transactionEntityId";
-    private static ResponseProcessingDetails responseProcessingDetails;
+    private ResponseProcessingDetails responseProcessingDetails;
 
-    @BeforeAll
-    public static void setUp() {
+    @Before
+    public void setUp() {
         responseProcessingDetails = new ResponseProcessingDetails(
             SESSION_ID,
             ResponseProcessingStatus.GET_C3_DATA,

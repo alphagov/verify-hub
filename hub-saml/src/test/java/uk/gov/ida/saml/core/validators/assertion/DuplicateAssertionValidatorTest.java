@@ -1,15 +1,15 @@
 package uk.gov.ida.saml.core.validators.assertion;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import uk.gov.ida.saml.core.DateTimeFreezer;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLRunner;
 import uk.gov.ida.saml.hub.validators.authnrequest.ConcurrentMapIdExpirationCache;
 import uk.gov.ida.saml.hub.validators.authnrequest.IdExpirationCache;
 
@@ -26,13 +26,13 @@ import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
 import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder.aSubjectConfirmation;
 import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationDataBuilder.aSubjectConfirmationData;
 
-@ExtendWith(OpenSAMLExtension.class)
+@RunWith(OpenSAMLRunner.class)
 public class DuplicateAssertionValidatorTest {
 
     private ConcurrentMap<String, DateTime> duplicateIds;
     private DuplicateAssertionValidator duplicateAssertionValidator;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         DateTimeFreezer.freezeTime();
 

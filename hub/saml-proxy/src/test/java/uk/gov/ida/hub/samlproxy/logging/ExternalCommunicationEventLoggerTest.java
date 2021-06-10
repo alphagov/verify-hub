@@ -1,14 +1,12 @@
 package uk.gov.ida.hub.samlproxy.logging;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.eventemitter.EventEmitter;
@@ -35,8 +33,7 @@ import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.Externa
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.ExternalCommunicationsTypes.MATCHING_SERVICE_REQUEST;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.ExternalCommunicationsTypes.RESPONSE_FROM_HUB;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class ExternalCommunicationEventLoggerTest {
     private static final String SERVICE_NAME = "some-service-name";
     private static final ServiceInfoConfiguration SERVICE_INFO = aServiceInfo().withName(SERVICE_NAME).build();
@@ -57,7 +54,7 @@ public class ExternalCommunicationEventLoggerTest {
 
     private ExternalCommunicationEventLogger externalCommunicationEventLogger;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         DateTimeFreezer.freezeTime();
 
@@ -66,7 +63,7 @@ public class ExternalCommunicationEventLoggerTest {
 
     }
 
-    @AfterEach
+    @After
     public void tearDown() throws Exception {
         DateTimeFreezer.unfreezeTime();
     }

@@ -1,5 +1,6 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
+import com.google.inject.Provider;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.SessionId;
@@ -15,7 +16,6 @@ import java.util.UUID;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static uk.gov.ida.common.ExceptionType.INVALID_SAML_DUPLICATE_REQUEST_ID;
 
-@javax.ws.rs.ext.Provider
 public class SamlProxyDuplicateRequestExceptionMapper extends AbstractContextExceptionMapper<SamlDuplicateRequestIdException> {
 
     private EventSinkMessageSender eventSinkMessageSender;
@@ -23,10 +23,10 @@ public class SamlProxyDuplicateRequestExceptionMapper extends AbstractContextExc
 
     @Inject
     public SamlProxyDuplicateRequestExceptionMapper(
-            final com.google.inject.Provider<HttpServletRequest> servletRequestProvider,
+            Provider<HttpServletRequest> contextProvider,
             EventSinkMessageSender eventSinkMessageSender,
             LevelLoggerFactory<SamlProxyDuplicateRequestExceptionMapper> levelLoggerFactory) {
-        super(servletRequestProvider);
+        super(contextProvider);
         this.eventSinkMessageSender = eventSinkMessageSender;
         this.levelLogger = levelLoggerFactory.createLevelLogger(SamlProxyDuplicateRequestExceptionMapper.class);
     }
