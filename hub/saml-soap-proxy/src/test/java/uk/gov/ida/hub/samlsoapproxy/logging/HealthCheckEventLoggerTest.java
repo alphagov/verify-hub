@@ -1,11 +1,11 @@
 package uk.gov.ida.hub.samlsoapproxy.logging;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.eventemitter.EventEmitter;
@@ -27,7 +27,7 @@ import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 import static uk.gov.ida.eventemitter.EventDetailsKey.message;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.EventTypes.ERROR_EVENT;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class HealthCheckEventLoggerTest {
 
     @Mock
@@ -39,7 +39,7 @@ public class HealthCheckEventLoggerTest {
     private ServiceInfoConfiguration serviceInfo = new ServiceInfoConfiguration("test");
     private HealthCheckEventLogger eventLogger;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         eventLogger = new HealthCheckEventLogger(eventSinkProxy, eventEmitter, serviceInfo);
     }

@@ -1,8 +1,7 @@
 package uk.gov.ida.hub.config.data;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -50,7 +49,7 @@ public class LevelsOfAssuranceConfigValidatorTest {
             .withLevelsOfAssurance(singletonList(LevelOfAssurance.LEVEL_2))
             .build();
 
-    @BeforeEach
+    @Before
     public void setUp() {
         levelsOfAssuranceConfigValidator = new LevelsOfAssuranceConfigValidator();
     }
@@ -67,12 +66,10 @@ public class LevelsOfAssuranceConfigValidatorTest {
         levelsOfAssuranceConfigValidator.validateAllIDPsSupportLOA1orLOA2(identityProviderConfig);
     }
 
-    @Test
+    @Test(expected = ConfigValidationException.class)
     public void checkValidationThrowsExceptionWhenIDPSupportsAnLOAThatIsOutsideVerifyPolicyLevelsOfAssurance() {
-        Assertions.assertThrows(ConfigValidationException.class, () -> {
-            Set<IdentityProviderConfig> identityProviderConfig = Set.of(loa1To3Idp);
-            levelsOfAssuranceConfigValidator.validateAllIDPsSupportLOA1orLOA2(identityProviderConfig);
-        });
+        Set<IdentityProviderConfig> identityProviderConfig = Set.of(loa1To3Idp);
+        levelsOfAssuranceConfigValidator.validateAllIDPsSupportLOA1orLOA2(identityProviderConfig);
     }
 
     @Test
@@ -105,27 +102,22 @@ public class LevelsOfAssuranceConfigValidatorTest {
         }
     }
 
-    @Test
+    @Test(expected = ConfigValidationException.class)
     public void shouldThrowWhenTransactionIsLoa1Only() {
-        Assertions.assertThrows(ConfigValidationException.class, () -> {
-            levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa1OnlyTransaction));
-        });
+        levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa1OnlyTransaction));
     }
 
-    @Test
+    @Test(expected = ConfigValidationException.class)
     public void shouldThrowWhenTransactionIsNotLoa1OrLoa2() {
-        Assertions.assertThrows(ConfigValidationException.class, () -> {
-            levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa3OnlyTransaction));
-        });
+        levelsOfAssuranceConfigValidator.validateAllTransactionsAreLOA1OrLOA2(Set.of(loa3OnlyTransaction));
     }
 
-    @Test
+    @Test(expected = ConfigValidationException.class)
     public void shouldThrowWhenOneIdpDoesNotSupportATransaction() {
-        Assertions.assertThrows(ConfigValidationException.class, () -> {
-            Set<IdentityProviderConfig> identityProviderConfig = Set.of(loa1Idp, loa2Idp);
-            Set<TransactionConfig> transactionsConfig = Set.of(loa2Transaction);
-            levelsOfAssuranceConfigValidator.validateAllTransactionsAreSupportedByIDPs(identityProviderConfig, transactionsConfig);
-        });
+        Set<IdentityProviderConfig> identityProviderConfig = Set.of(loa1Idp, loa2Idp);
+        Set<TransactionConfig> transactionsConfig = Set.of(loa2Transaction);
+
+        levelsOfAssuranceConfigValidator.validateAllTransactionsAreSupportedByIDPs(identityProviderConfig, transactionsConfig);
     }
 
     @Test

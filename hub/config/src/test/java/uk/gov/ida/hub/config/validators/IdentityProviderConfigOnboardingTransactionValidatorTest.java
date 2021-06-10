@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.config.validators;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -20,7 +20,7 @@ import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBu
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createAbsentOnboardingTransactionConfigException;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class IdentityProviderConfigOnboardingTransactionValidatorTest {
 
     IdentityProviderConfigOnboardingTransactionValidator identityProviderConfigOnboardingTransactionValidator;
@@ -28,7 +28,7 @@ public class IdentityProviderConfigOnboardingTransactionValidatorTest {
     @Mock
     private LocalConfigRepository<TransactionConfig> transactionConfigRepository;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         identityProviderConfigOnboardingTransactionValidator = new IdentityProviderConfigOnboardingTransactionValidator(
                 transactionConfigRepository

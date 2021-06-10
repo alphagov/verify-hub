@@ -1,31 +1,31 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule;
 
-import httpstub.HttpStubExtension;
-import io.dropwizard.testing.ResourceHelpers;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import helpers.JerseyClientConfigurationBuilder;
+import httpstub.HttpStubRule;
+import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.client.JerseyClientConfiguration;
+import io.dropwizard.testing.ConfigOverride;
+import io.dropwizard.util.Duration;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.common.shared.security.PrivateKeyFactory;
 import uk.gov.ida.common.shared.security.PublicKeyFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
-import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
 import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.samlproxy.controllogic.SamlMessageSenderHandler;
 import uk.gov.ida.hub.samlproxy.domain.AuthnRequestFromHubContainerDto;
 import uk.gov.ida.hub.samlproxy.domain.LevelOfAssurance;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubExtension;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubRule;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 import uk.gov.ida.saml.core.test.HardCodedKeyStore;
@@ -36,6 +36,7 @@ import uk.gov.ida.saml.security.IdaKeyStore;
 import uk.gov.ida.saml.security.IdaKeyStoreCredentialRetriever;
 import uk.gov.ida.saml.security.SignatureFactory;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.security.KeyPair;
@@ -61,41 +62,36 @@ public class SamlMessageSenderApiResourceTest {
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = new SignatureRSASHA1();
     private static final DigestAlgorithm DIGEST_ALGORITHM = new DigestSHA256();
 
-    private static ClientSupport client;
+    private static Client client;
 
-    @Order(0)
-    @RegisterExtension
-    public static final PolicyStubExtension policyStub = new PolicyStubExtension();
+    @ClassRule
+    public static PolicyStubRule policyStubRule = new PolicyStubRule();
 
-    @Order(0)
-    @RegisterExtension
-    public static HttpStubExtension eventSinkStub = new HttpStubExtension();
+    @ClassRule
+    public static HttpStubRule eventSinkStubRule = new HttpStubRule();
 
-    @Order(1)
-    @RegisterExtension
-    public static TestDropwizardAppExtension samlProxyApp = SamlProxyAppExtension.forApp(SamlProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("policyUri", () -> policyStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-proxy.yml"))
-            .randomPorts()
-            .create();
-    
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-        eventSinkStub.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
+    @ClassRule
+    public static SamlProxyAppRule samlProxyAppRule = new SamlProxyAppRule(
+            ConfigOverride.config("policyUri", policyStubRule.baseUri().build().toASCIIString()),
+            ConfigOverride.config("eventSinkUri", eventSinkStubRule.baseUri().build().toASCIIString()));
+
+
+    @Before
+    public void setUp() throws Exception {
+        eventSinkStubRule.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
     }
 
-    @AfterEach
+    @BeforeClass
+    public static void setUpClient() throws Exception {
+        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
+        client =  new JerseyClientBuilder(samlProxyAppRule.getEnvironment()).using(jerseyClientConfiguration).build
+                (SamlMessageSenderApiResourceTest.class.getSimpleName());
+    }
+
+    @After
     public void resetStubRules() {
-        policyStub.reset();
-        eventSinkStub.reset();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        SamlProxyAppExtension.tearDown();
+        policyStubRule.reset();
+        eventSinkStubRule.reset();
     }
 
     @Test
@@ -112,7 +108,7 @@ public class SamlMessageSenderApiResourceTest {
                         SIGNATURE_ALGORITHM,
                         DIGEST_ALGORITHM);
         String samlString = idaAuthnRequestFromHubToStringTransformer.apply(authnRequestFromHub);
-        policyStub.aValidAuthnRequestFromHubToIdp(sessionId, new AuthnRequestFromHubContainerDto(samlString, nextLocationUri, false));
+        policyStubRule.aValidAuthnRequestFromHubToIdp(sessionId, new AuthnRequestFromHubContainerDto(samlString, nextLocationUri, false));
         Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_AUTHN_REQUEST_API_RESOURCE, sessionId);
         assertThat(response.readEntity(SamlMessageSenderHandler.SamlMessage.class).getPostEndpoint()).isEqualTo(nextLocationUri.toASCIIString());
     }
@@ -120,8 +116,8 @@ public class SamlMessageSenderApiResourceTest {
     @Test
     public void getSendJsonAuthnRequestFromHub_shouldErrorWhenAValidationFailureOccurs() throws Exception {
         SessionId sessionId = SessionId.createNewSessionId();
-        policyStub.receiveAuthnResponseFromIdp(sessionId.toString(), LevelOfAssurance.LEVEL_2);
-        policyStub.receiveAuthnResponseFromIdpError(sessionId.toString());
+        policyStubRule.receiveAuthnResponseFromIdp(sessionId.toString(), LevelOfAssurance.LEVEL_2);
+        policyStubRule.receiveAuthnResponseFromIdpError(sessionId.toString());
 
         Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_AUTHN_REQUEST_API_RESOURCE, sessionId);
 
@@ -154,7 +150,7 @@ public class SamlMessageSenderApiResourceTest {
                 java.util.Optional.empty(),
                 authnResponseFromHub.getId());
 
-        policyStub.anAuthnResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
+        policyStubRule.anAuthnResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
 
         javax.ws.rs.core.Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_RESPONSE_FROM_HUB_API_RESOURCE, sessionId);
         assertThat(response.readEntity(SamlMessageSenderHandler.SamlMessage.class).getPostEndpoint()).isEqualTo(nextLocationUri.toASCIIString());
@@ -192,7 +188,7 @@ public class SamlMessageSenderApiResourceTest {
                 java.util.Optional.empty(),
                 authnResponseFromHub.getId());
 
-        policyStub.anAuthnResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
+        policyStubRule.anAuthnResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
 
         javax.ws.rs.core.Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_RESPONSE_FROM_HUB_API_RESOURCE, sessionId);
         assertThat(response.readEntity(SamlMessageSenderHandler.SamlMessage.class).getPostEndpoint()).isEqualTo(nextLocationUri.toASCIIString());
@@ -216,7 +212,7 @@ public class SamlMessageSenderApiResourceTest {
                 java.util.Optional.empty(),
                 authnResponseFromHub.getId());
 
-        policyStub.anAuthnResponseFromHubToRp(sessionId, invalidAuthnResponseFromHubContainerDto);
+        policyStubRule.anAuthnResponseFromHubToRp(sessionId, invalidAuthnResponseFromHubContainerDto);
         javax.ws.rs.core.Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_RESPONSE_FROM_HUB_API_RESOURCE, sessionId);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -248,7 +244,7 @@ public class SamlMessageSenderApiResourceTest {
                 uri,
                 java.util.Optional.empty(),
                 authnResponseFromHub.getId());
-        policyStub.anErrorResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
+        policyStubRule.anErrorResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
 
         javax.ws.rs.core.Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_ERROR_RESPONSE_FROM_HUB_API_RESOURCE, sessionId);
 
@@ -273,7 +269,7 @@ public class SamlMessageSenderApiResourceTest {
                 uri,
                 java.util.Optional.empty(),
                 authnResponseFromHub.getId());
-        policyStub.anErrorResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
+        policyStubRule.anErrorResponseFromHubToRp(sessionId, authnResponseFromHubContainerDto);
 
         javax.ws.rs.core.Response response = getResponseFromSamlProxy(Urls.SamlProxyUrls.SEND_ERROR_RESPONSE_FROM_HUB_API_RESOURCE, sessionId);
 
@@ -281,7 +277,7 @@ public class SamlMessageSenderApiResourceTest {
     }
 
     private Response getResponseFromSamlProxy(String url, SessionId sessionId) {
-        return client.targetMain(url).queryParam(Urls.SharedUrls.SESSION_ID_PARAM, sessionId.toString()).request().get();
+        return client.target(samlProxyAppRule.getUri(url)).queryParam(Urls.SharedUrls.SESSION_ID_PARAM, sessionId.toString()).request().get();
     }
 
     private static IdaKeyStore getKeyStore() {

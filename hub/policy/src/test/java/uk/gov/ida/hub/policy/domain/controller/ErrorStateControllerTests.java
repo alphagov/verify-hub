@@ -1,12 +1,10 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.builder.state.AuthnFailedErrorStateBuilder;
@@ -61,7 +59,7 @@ import uk.gov.ida.hub.policy.validators.LevelOfAssuranceValidator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ErrorStateControllerTests {
 
     @Mock
@@ -93,7 +91,7 @@ public class ErrorStateControllerTests {
 
     private IdGenerator idGenerator = new IdGenerator();
 
-    @BeforeEach
+    @Before
     public void setUp() {
         sessionId = SessionId.createNewSessionId();
         authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, hubEventLogger, policyConfiguration, transactionsConfigProxy, idGenerator);

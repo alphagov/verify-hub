@@ -2,8 +2,7 @@ package uk.gov.ida.hub.config.domain;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder;
 
 import java.util.Arrays;
@@ -66,13 +65,11 @@ public class IdentityProviderConfigTest {
         assertThat(data.canSendRegistrationResponses(sessionDuration)).isEqualTo(true);
     }
 
-    @Test
+    @Test(expected = java.lang.IllegalArgumentException.class)
     public void shouldThrowInvalidFormatException_whenProvideRegistrationUntilHasBeenSpecifiedButIsInvalid() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            IdentityProviderConfig data = dataBuilder.build();
-            data.provideRegistrationUntil = "2020-09-09";
-            data.canReceiveRegistrationRequests();
-        });
+        IdentityProviderConfig data = dataBuilder.build();
+        data.provideRegistrationUntil = "2020-09-09";
+        data.canReceiveRegistrationRequests();
     }
 
     @Test
@@ -101,13 +98,11 @@ public class IdentityProviderConfigTest {
         assertThat(data.isAuthenticationEnabled()).isEqualTo(false);
     }
 
-    @Test
+    @Test(expected = java.lang.IllegalArgumentException.class)
     public void shouldThrowInvalidFormatException_whenProvideAuthenticationUntilHasBeenSpecifiedButIsInvalid() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            IdentityProviderConfig data = dataBuilder.build();
-            data.provideAuthenticationUntil = "2020-09-09";
-            data.isAuthenticationEnabled();
-        });
+        IdentityProviderConfig data = dataBuilder.build();
+        data.provideAuthenticationUntil = "2020-09-09";
+        data.isAuthenticationEnabled();
     }
 
     @Test

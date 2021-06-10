@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
-@javax.ws.rs.ext.Provider
 public class NoKeyConfiguredForEntityExceptionMapper extends AbstractContextExceptionMapper<NoKeyConfiguredForEntityException> {
 
     private final LevelLogger levelLogger;
@@ -24,10 +23,10 @@ public class NoKeyConfiguredForEntityExceptionMapper extends AbstractContextExce
 
     @Inject
     public NoKeyConfiguredForEntityExceptionMapper(
-            final Provider<HttpServletRequest> servletRequestProvider,
+            final Provider<HttpServletRequest> context,
             final LevelLoggerFactory<NoKeyConfiguredForEntityExceptionMapper> levelLoggerFactory,
             final EventSinkMessageSender eventSinkMessageSender) {
-        super(servletRequestProvider);
+        super(context);
         this.eventSinkMessageSender = eventSinkMessageSender;
         this.levelLogger = levelLoggerFactory.createLevelLogger(NoKeyConfiguredForEntityExceptionMapper.class);
     }

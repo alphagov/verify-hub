@@ -1,12 +1,13 @@
 package uk.gov.ida.hub.policy.controllogic;
 
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.shared.security.IdGenerator;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
@@ -19,6 +20,7 @@ import uk.gov.ida.hub.policy.domain.StateController;
 import uk.gov.ida.hub.policy.domain.controller.IdpSelectingStateController;
 import uk.gov.ida.hub.policy.domain.controller.RestartJourneyStateController;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectingState;
+import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.RestartJourneyState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
@@ -26,23 +28,31 @@ import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AuthnRequestFromTransactionHandlerTest {
     private static final String ANALYTICS_SESSION_ID = "anAnalyticsSessionId";
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("https://assertionConsumerServiceUri");
+    private static final String ENCRYPTED_KEY = "base64EncryptedKey";
+    private static final String GENERATED_ID = "generatedId";
     private static final String IDP_ENTITY_ID = "anIdpEntityId";
     private static final String JOURNEY_TYPE = "aJourneyType";
     private static final String PRINCIPAL_IP_ADDRESS = "aPrincipalIpAddress";
     private static final boolean REGISTERING = true;
     private static final String RELAY_STATE = "relayState";
+    private static final String REQUEST_ID = "requestId";
+    private static final String REQUEST_ISSUER_ENTITY_ID = "requestIssuerEntityId";
     private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
+    private static final String SAML_RESPONSE = "base64SamlResponse";
     private static final SessionId SESSION_ID = new SessionId("aSessionId");
 
     @Mock
@@ -60,7 +70,7 @@ public class AuthnRequestFromTransactionHandlerTest {
 
     private AuthnRequestFromTransactionHandler authnRequestFromTransactionHandler;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         authnRequestFromTransactionHandler = new AuthnRequestFromTransactionHandler(sessionRepository, hubEventLogger, policyConfiguration, transactionsConfigProxy, idGenerator);
     }

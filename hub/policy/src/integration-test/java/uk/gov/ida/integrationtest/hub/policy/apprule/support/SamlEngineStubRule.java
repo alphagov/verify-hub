@@ -2,7 +2,7 @@ package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import httpstub.HttpStubExtension;
+import httpstub.HttpStubRule;
 import httpstub.RecordedRequest;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
@@ -19,7 +19,7 @@ import uk.gov.ida.hub.policy.domain.InboundResponseFromIdpDto;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
-public class SamlEngineStubExtension extends HttpStubExtension {
+public class SamlEngineStubRule extends HttpStubRule {
     public void setUpStubForAuthnResponseGenerate(AuthnResponseFromHubContainerDto translatedMessage) throws JsonProcessingException {
         register(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE, Response.Status.OK.getStatusCode(), translatedMessage);
     }

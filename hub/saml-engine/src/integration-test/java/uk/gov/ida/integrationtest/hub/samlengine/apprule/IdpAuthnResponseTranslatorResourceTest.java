@@ -1,29 +1,28 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
-import io.dropwizard.testing.ResourceHelpers;
+import helpers.JerseyClientConfigurationBuilder;
+import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.client.JerseyClientConfiguration;
+import io.dropwizard.testing.ConfigOverride;
+import io.dropwizard.util.Duration;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.security.credential.BasicCredential;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubExtension;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
 import uk.gov.ida.integrationtest.hub.samlengine.builders.AuthnResponseFactory;
 import uk.gov.ida.integrationtest.hub.samlengine.builders.SamlAuthnResponseTranslatorDtoBuilder;
 import uk.gov.ida.saml.core.test.HardCodedKeyStore;
@@ -33,9 +32,11 @@ import uk.gov.ida.saml.core.test.builders.StatusMessageBuilder;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +50,7 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
 
 public class IdpAuthnResponseTranslatorResourceTest {
 
-    private static ClientSupport client;
+    private static Client client;
 
     private final Status AUTHN_FAILED_STATUS = buildStatus(StatusCode.RESPONDER, StatusCode.AUTHN_FAILED);
     private final Status NO_AUTHN_CONTEXT_STATUS = buildStatus(StatusCode.RESPONDER, StatusCode.NO_AUTHN_CONTEXT);
@@ -58,39 +59,29 @@ public class IdpAuthnResponseTranslatorResourceTest {
     private final String IDP_RESPONSE_ENDPOINT = "http://localhost" + Urls.FrontendUrls.SAML2_SSO_RESPONSE_ENDPOINT;
     private final AuthnResponseFactory authnResponseFactory = new AuthnResponseFactory();
 
-    @Order(0)
-    @RegisterExtension
-    public static ConfigStubExtension configStub = new ConfigStubExtension();
+    @ClassRule
+    public static ConfigStubRule configStubRule = new ConfigStubRule();
 
-    @Order(1)
-    @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
+    @ClassRule
+    public static SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule(
+            ConfigOverride.config("configUri", configStubRule.baseUri().build().toASCIIString()));
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
+    @BeforeClass
+    public static void setUp() throws Exception {
+        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
+        client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build
+                (IdpAuthnRequestGeneratorResourceTest.class.getSimpleName());
     }
 
-
-    @BeforeEach
+    @Before
     public void beforeEach() throws Exception {
-        configStub.setupCertificatesForEntity(TEST_RP_MS);
+        configStubRule.setupCertificatesForEntity(TEST_RP_MS);
     }
 
-    @AfterEach
+    @After
     public void after() {
-        configStub.reset();
+        configStubRule.reset();
         DateTimeFreezer.unfreezeTime();
-    }
-
-    @AfterAll
-    public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
     }
 
     @Test
@@ -102,14 +93,14 @@ public class IdpAuthnResponseTranslatorResourceTest {
         final String saml = authnResponseFactory.transformResponseToSaml(samlResponse);
 
         SamlAuthnResponseTranslatorDto dto = new SamlAuthnResponseTranslatorDto(saml, SessionId.createNewSessionId(), "127.0.0.1", TEST_RP_MS);
-        Response response = postToSamlEngine(dto, Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE);
+        Response response = postToSamlEngine(dto, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
-    private Response postToSamlEngine(SamlAuthnResponseTranslatorDto dto, String uri) {
+    private Response postToSamlEngine(SamlAuthnResponseTranslatorDto dto, URI uri) {
         return client
-                .targetMain(uri)
+                .target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(dto));
     }
@@ -125,7 +116,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
         final SessionId sessionId = SessionId.createNewSessionId();
 
         SamlAuthnResponseTranslatorDto dto = new SamlAuthnResponseTranslatorDto(saml, sessionId, "127.0.0.1", TEST_RP_MS);
-        Response response = postToSamlEngine(dto, Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE);
+        Response response = postToSamlEngine(dto, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -595,7 +586,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
     }
 
     private Response postToSamlEngine(SamlAuthnResponseTranslatorDto samlResponseDto) {
-        return client.targetMain(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE)
+        return client.target(samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE))
                 .request().post(Entity.entity(samlResponseDto, MediaType.APPLICATION_JSON_TYPE));
     }
 

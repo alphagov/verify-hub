@@ -2,12 +2,8 @@ package uk.gov.ida.integrationtest.hub.samlengine.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import io.dropwizard.jackson.Jackson;
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.builders.CertificateDtoBuilder;
 import uk.gov.ida.hub.samlengine.domain.CertificateDto;
@@ -24,10 +20,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.OK;
 
-public class ConfigStubExtension implements BeforeAllCallback, AfterAllCallback {
+public class ConfigStubRule extends WireMockClassRule {
 
-    private ObjectMapper objectMapper = Jackson.newObjectMapper();
-    private WireMockServer wireMockServer;
+    private ObjectMapper objectMapper;
+
+    public ConfigStubRule() {
+        super(0);
+        this.objectMapper = Jackson.newObjectMapper();
+        this.start();
+    }
 
     public void setupCertificatesForEntity(String issuer) throws JsonProcessingException {
         CertificateDto signingCertificate = CertificateDtoBuilder.aCertificateDto().withIssuerId(issuer).withKeyUse(CertificateDto.KeyUse.Signing).build();
@@ -44,7 +45,7 @@ public class ConfigStubExtension implements BeforeAllCallback, AfterAllCallback 
     private void setupCertificatesForEntity(String issuer, CertificateDto signingCertificate, CertificateDto encryptionCertificate) throws JsonProcessingException {
         Collection<CertificateDto> signingCertificates = new ArrayList<>();
         signingCertificates.add(signingCertificate);
-        wireMockServer.stubFor(get(urlPathEqualTo(getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer)))
+        stubFor(get(urlPathEqualTo(getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer)))
                 .willReturn(
                         aResponse()
                         .withStatus(200)
@@ -55,7 +56,7 @@ public class ConfigStubExtension implements BeforeAllCallback, AfterAllCallback 
         );
 
         String encryptionCertificateUri = getPath(Urls.ConfigUrls.ENCRYPTION_CERTIFICATES_RESOURCE, issuer);
-        wireMockServer.stubFor(get(urlPathEqualTo(encryptionCertificateUri))
+        stubFor(get(urlPathEqualTo(encryptionCertificateUri))
                 .willReturn(
                         aResponse()
                                 .withStatus(200)
@@ -87,7 +88,7 @@ public class ConfigStubExtension implements BeforeAllCallback, AfterAllCallback 
 
     private void shouldHubSignResponseMessages(String issuerEntityId, Boolean shouldHubSignResponseMessages, Boolean shouldHubUseLegacySamlStandard) throws JsonProcessingException {
         String hubSignUri = getPath(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE, issuerEntityId);
-        wireMockServer.stubFor(get(hubSignUri)
+        stubFor(get(hubSignUri)
                 .willReturn(aResponse()
                         .withStatus(OK.getStatusCode())
                         .withHeader("Content-Type", APPLICATION_JSON)
@@ -96,7 +97,7 @@ public class ConfigStubExtension implements BeforeAllCallback, AfterAllCallback 
         );
 
         String hubSamlStandardUri = getPath(Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE, issuerEntityId);
-        wireMockServer.stubFor(get(hubSamlStandardUri)
+        stubFor(get(hubSamlStandardUri)
                 .willReturn(aResponse()
                         .withStatus(OK.getStatusCode())
                         .withHeader("Content-Type", APPLICATION_JSON)
@@ -107,25 +108,14 @@ public class ConfigStubExtension implements BeforeAllCallback, AfterAllCallback 
 
     public void setupStubForNonExistentSigningCertificates(String issuer) {
         String signingUri = getPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE, issuer);
-        wireMockServer.stubFor(get(signingUri).willReturn(aResponse().withStatus(Response.Status.NOT_FOUND.getStatusCode())));
+        stubFor(get(signingUri).willReturn(aResponse().withStatus(Response.Status.NOT_FOUND.getStatusCode())));
     }
 
     public UriBuilder baseUri() {
-        return UriBuilder.fromUri("http://localhost").port(wireMockServer.port());
+        return UriBuilder.fromUri("http://localhost").port(port());
     }
 
     public void reset() {
-        wireMockServer.resetAll();
-    }
-
-    @Override
-    public void afterAll(ExtensionContext context) throws Exception {
-        wireMockServer.stop();
-    }
-
-    @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
-        wireMockServer = new WireMockServer(0);
-        wireMockServer.start();
+        super.resetAll();
     }
 }

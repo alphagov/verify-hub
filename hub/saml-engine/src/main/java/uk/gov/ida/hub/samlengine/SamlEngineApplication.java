@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
+import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -13,11 +14,12 @@ import io.dropwizard.setup.Environment;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.MDC;
-import ru.vyarus.dropwizard.guice.GuiceBundle;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
 import uk.gov.ida.common.shared.security.TrustStoreMetrics;
+import uk.gov.ida.hub.samlengine.exceptions.IdaJsonProcessingExceptionMapperBundle;
+import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
 import uk.gov.ida.hub.samlengine.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlengine.resources.translators.IdpAuthnRequestGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.IdpAuthnResponseTranslatorResource;
@@ -39,9 +41,12 @@ import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
 
+import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
+
 public class SamlEngineApplication extends Application<SamlEngineConfiguration> {
 
     private final MetadataResolverBundle<SamlEngineConfiguration> verifyMetadataBundle;
+    private GuiceBundle<SamlEngineConfiguration> guiceBundle;
 
     public SamlEngineApplication() {
         verifyMetadataBundle = new MetadataResolverBundle<>(SamlEngineConfiguration::getMetadataConfiguration);
@@ -65,17 +70,14 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());
+        bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
         bootstrap.addBundle(verifyMetadataBundle);
-        bootstrap.addBundle(
-                GuiceBundle.builder().enableAutoConfig(getClass().getPackage().getName())
-                .modules(
-                        new SamlEngineModule(),
+        guiceBundle = defaultBuilder(SamlEngineConfiguration.class)
+                .modules(new SamlEngineModule(),
                         new CryptoModule(),
-                        bindMetadata()
-                )
-                .build()
-        );
-
+                        bindMetadata())
+                .build();
+        bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new PrometheusBundle());
     }
 
@@ -116,6 +118,9 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
 
         // register resources
         registerResources(environment, configuration);
+        
+        // register exception mappers
+        environment.jersey().register(SamlEngineExceptionMapper.class);
 
         // calling .get() here is safe because the Optional is never empty
         MetadataResolverConfiguration metadataConfiguration = configuration.getMetadataConfiguration().get();

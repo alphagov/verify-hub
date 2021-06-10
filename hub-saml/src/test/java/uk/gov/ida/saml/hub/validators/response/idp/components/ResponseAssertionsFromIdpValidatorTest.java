@@ -1,14 +1,13 @@
 package uk.gov.ida.saml.hub.validators.response.idp.components;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
@@ -23,15 +22,13 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder.anAuthnStatement;
 import static uk.gov.ida.saml.core.test.builders.MatchingDatasetAttributeStatementBuilder_1_1.aMatchingDatasetAttributeStatement_1_1;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class ResponseAssertionsFromIdpValidatorTest {
 
     @Mock
@@ -45,7 +42,7 @@ public class ResponseAssertionsFromIdpValidatorTest {
 
     private ResponseAssertionsFromIdpValidator validator;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         validator = new ResponseAssertionsFromIdpValidator(
                 assertionValidator,
@@ -86,20 +83,17 @@ public class ResponseAssertionsFromIdpValidatorTest {
         verify(matchingDatasetAssertionValidator).validate(mdsAssertion, response.getIssuer().getValue());
     }
 
-    @Test
+    @Test(expected = SamlTransformationErrorException.class)
     public void validate_shouldThrowExceptionIfMatchingDatasetStatementElementIsMissing() throws Exception {
         final Response response = aResponse()
                 .addEncryptedAssertion(anAssertion().addAuthnStatement(anAuthnStatement().build()).build())
                 .addEncryptedAssertion(anAssertion().build()).build();
         List<Assertion> assertions = asList(anAssertion().addAuthnStatement(anAuthnStatement().build()).buildUnencrypted(), anAssertion().buildUnencrypted());
 
-        validateException(
-                assertThrows(SamlTransformationErrorException.class, () -> validator.validate(new ValidatedResponse(response), new ValidatedAssertions(assertions))),
-                SamlTransformationErrorFactory.missingMatchingMds()
-        );
+        validateThrows(response, assertions, SamlTransformationErrorFactory.missingMatchingMds());
     }
 
-    @Test
+    @Test(expected = SamlTransformationErrorException.class)
     public void validate_shouldThrowExceptionIfAuthnStatementAssertionIsMissing() throws Exception {
         Response response = aResponse()
                 .addEncryptedAssertion(anAssertion().addAttributeStatement(aMatchingDatasetAttributeStatement_1_1().build()).build())
@@ -109,14 +103,10 @@ public class ResponseAssertionsFromIdpValidatorTest {
                 anAssertion().addAttributeStatement(aMatchingDatasetAttributeStatement_1_1().build()).buildUnencrypted(),
                 anAssertion().addAttributeStatement(aMatchingDatasetAttributeStatement_1_1().build()).buildUnencrypted()
         );
-
-        validateException(
-                assertThrows(SamlTransformationErrorException.class, () -> validator.validate(new ValidatedResponse(response), new ValidatedAssertions(assertions))),
-                SamlTransformationErrorFactory.missingAuthnStatement()
-        );
+        validateThrows(response, assertions, SamlTransformationErrorFactory.missingAuthnStatement());
     }
 
-    @Test
+    @Test(expected = SamlTransformationErrorException.class)
     public void validate_shouldThrowExceptionIfThereAreMultipleAuthnStatementsWithinTheAuthnStatementAssertionPresent() throws Exception {
         Response response = aResponse()
                 .addEncryptedAssertion(anAssertion().addAttributeStatement(aMatchingDatasetAttributeStatement_1_1().build()).build())
@@ -126,11 +116,7 @@ public class ResponseAssertionsFromIdpValidatorTest {
                 anAssertion().addAttributeStatement(aMatchingDatasetAttributeStatement_1_1().build()).buildUnencrypted(),
                 anAssertion().addAuthnStatement(anAuthnStatement().build()).addAuthnStatement(anAuthnStatement().build()).buildUnencrypted()
         );
-
-        validateException(
-                assertThrows(SamlTransformationErrorException.class, () -> validator.validate(new ValidatedResponse(response), new ValidatedAssertions(assertions))),
-                SamlTransformationErrorFactory.multipleAuthnStatements()
-        );
+        validateThrows(response, assertions, SamlTransformationErrorFactory.multipleAuthnStatements());
     }
 
     @Test
@@ -145,8 +131,13 @@ public class ResponseAssertionsFromIdpValidatorTest {
         verify(ipAddressValidator).validate(authnStatementAssertion);
     }
 
-    private void validateException(SamlTransformationErrorException e, SamlValidationSpecificationFailure samlValidationSpecificationFailure) {
-        assertThat(e.getMessage()).isEqualTo(samlValidationSpecificationFailure.getErrorMessage());
-        assertThat(e.getLogLevel()).isEqualTo(samlValidationSpecificationFailure.getLogLevel());
+    private void validateThrows(Response response, List<Assertion> assertions, SamlValidationSpecificationFailure samlValidationSpecificationFailure) {
+        try {
+            validator.validate(new ValidatedResponse(response), new ValidatedAssertions(assertions));
+        } catch (SamlTransformationErrorException e) {
+            assertThat(e.getMessage()).isEqualTo(samlValidationSpecificationFailure.getErrorMessage());
+            assertThat(e.getLogLevel()).isEqualTo(samlValidationSpecificationFailure.getLogLevel());
+            throw e;
+        }
     }
 }

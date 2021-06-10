@@ -2,12 +2,11 @@ package uk.gov.ida.saml.hub.validators.authnrequest;
 
 import io.dropwizard.util.Duration;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.hub.configuration.SamlDuplicateRequestValidationConfiguration;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
@@ -16,32 +15,32 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(OpenSAMLExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class DuplicateAuthnRequestValidatorTest {
 
-    private static DuplicateAuthnRequestValidator duplicateAuthnRequestValidator;
-    private static final int EXPIRATION_HOURS = 2;
+    private DuplicateAuthnRequestValidator duplicateAuthnRequestValidator;
+    private final int EXPIRATION_HOURS = 2;
 
-    @BeforeAll
-    public static void initialiseTestSubject() {
+    @Before
+    public void initialiseTestSubject() {
         SamlDuplicateRequestValidationConfiguration samlEngineConfiguration = () -> Duration.hours(EXPIRATION_HOURS);
         ConcurrentMap<AuthnRequestIdKey, DateTime> duplicateIds = new ConcurrentHashMap<>();
         IdExpirationCache idExpirationCache = new ConcurrentMapIdExpirationCache(duplicateIds);
         duplicateAuthnRequestValidator = new DuplicateAuthnRequestValidator(idExpirationCache, samlEngineConfiguration);
     }
 
-    @BeforeEach
+    @Before
     public void freezeTime() {
         DateTimeFreezer.freezeTime();
     }
 
-    @AfterEach
+    @After
     public void unfreezeTime() {
         DateTimeFreezer.unfreezeTime();
     }
 
     @Test
-    public void valid_shouldThrowAnExceptionIfTheAuthnRequestIsADuplicateOfAPreviousOne() {
+    public void valid_shouldThrowAnExceptionIfTheAuthnRequestIsADuplicateOfAPreviousOne() throws Exception {
         final String duplicateRequestId = "duplicate-id";
         duplicateAuthnRequestValidator.valid(duplicateRequestId);
 
@@ -50,7 +49,7 @@ public class DuplicateAuthnRequestValidatorTest {
     }
 
     @Test
-    public void valid_shouldPassIfTheAuthnRequestIsNotADuplicateOfAPreviousOne() {
+    public void valid_shouldPassIfTheAuthnRequestIsNotADuplicateOfAPreviousOne() throws Exception {
         duplicateAuthnRequestValidator.valid("some-request-id");
 
         boolean isValid = duplicateAuthnRequestValidator.valid("another-request-id");
@@ -59,7 +58,7 @@ public class DuplicateAuthnRequestValidatorTest {
 
 
     @Test
-    public void valid_shouldPassIfTwoAuthnRequestsHaveTheSameIdButTheFirstAssertionHasExpired() {
+    public void valid_shouldPassIfTwoAuthnRequestsHaveTheSameIdButTheFirstAssertionHasExpired() throws Exception {
         final String duplicateRequestId = "duplicate-id";
         duplicateAuthnRequestValidator.valid(duplicateRequestId);
 
@@ -70,7 +69,7 @@ public class DuplicateAuthnRequestValidatorTest {
     }
 
     @Test
-    public void valid_shouldFailIfAuthnRequestsReceivedWithSameIdAndFirstIdHasNotExpired() {
+    public void valid_shouldFailIfAuthnRequestsReceivedWithSameIdAndFirstIdHasNotExpired() throws Exception {
         final String duplicateRequestId = "duplicate-id";
         duplicateAuthnRequestValidator.valid(duplicateRequestId);
 
