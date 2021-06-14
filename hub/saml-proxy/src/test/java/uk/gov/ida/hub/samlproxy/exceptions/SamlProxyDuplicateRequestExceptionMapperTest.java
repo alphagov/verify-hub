@@ -1,10 +1,11 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import com.google.inject.Provider;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
@@ -25,12 +26,14 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SamlProxyDuplicateRequestExceptionMapperTest {
     @Mock
     private LevelLogger levelLogger;
     @Mock
-    private HttpServletRequest httpServletRequest;
+    private Provider<HttpServletRequest> contextProvider;
+    @Mock
+    private javax.servlet.http.HttpServletRequest httpServletRequest;
     @Mock
     private EventSinkMessageSender eventSinkMessageSender;
     @Mock
@@ -38,14 +41,15 @@ public class SamlProxyDuplicateRequestExceptionMapperTest {
 
     private SamlProxyDuplicateRequestExceptionMapper exceptionMapper;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         when(levelLoggerFactory.createLevelLogger(SamlProxyDuplicateRequestExceptionMapper.class)).thenReturn(levelLogger);
-        exceptionMapper = new SamlProxyDuplicateRequestExceptionMapper(() -> httpServletRequest, eventSinkMessageSender, levelLoggerFactory);
+        exceptionMapper = new SamlProxyDuplicateRequestExceptionMapper(contextProvider, eventSinkMessageSender, levelLoggerFactory);
+        when(contextProvider.get()).thenReturn(httpServletRequest);
     }
 
     @Test
-    public void shouldCreateAuditedErrorResponseForDuplicateRequestIdError() {
+    public void shouldCreateAuditedErrorResponseForDuplicateRequestIdError() throws Exception {
         SamlDuplicateRequestIdException exception = new SamlDuplicateRequestIdException("error", new RuntimeException(), Level.DEBUG);
         SessionId sessionId = SessionId.createNewSessionId();
         when(httpServletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(sessionId.getSessionId());

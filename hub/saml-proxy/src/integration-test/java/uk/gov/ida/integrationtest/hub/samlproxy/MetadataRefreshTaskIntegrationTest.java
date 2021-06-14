@@ -1,39 +1,42 @@
 package uk.gov.ida.integrationtest.hub.samlproxy;
 
-import io.dropwizard.testing.ResourceHelpers;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
-import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension;
+import helpers.JerseyClientConfigurationBuilder;
+import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.client.JerseyClientConfiguration;
+import io.dropwizard.util.Duration;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetadataRefreshTaskIntegrationTest {
+    
+    private static Client client;
 
-    private static ClientSupport client;
+    @ClassRule
+    public static SamlProxyAppRule samlProxyAppRule = new SamlProxyAppRule();
 
-    @RegisterExtension
-    public static TestDropwizardAppExtension samlProxyApp = SamlProxyAppExtension.forApp(SamlProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .config(ResourceHelpers.resourceFilePath("saml-proxy.yml"))
-            .randomPorts()
-            .create();
-
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
+    @BeforeClass
+    public static void setUpClass() {
+        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
+        client = new JerseyClientBuilder(samlProxyAppRule.getEnvironment()).using(jerseyClientConfiguration).build(MetadataRefreshTaskIntegrationTest.class.getSimpleName());
     }
 
     @Test
     public void verifyFederationMetadataRefreshTaskWorks() {
-        final Response response = client.targetAdmin("/tasks/metadata-refresh")
-                .request().post(Entity.text("refresh!"));
+        final Response response = client.target(UriBuilder.fromUri("http://localhost")
+                .path("/tasks/metadata-refresh")
+                .port(samlProxyAppRule.getAdminPort())
+                .build())
+                .request()
+                .post(Entity.text("refresh!"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

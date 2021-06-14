@@ -1,10 +1,9 @@
 package uk.gov.ida.hub.samlengine.services;
 
 import io.prometheus.client.Gauge;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
@@ -15,7 +14,7 @@ import uk.gov.ida.hub.samlengine.builders.SamlAuthnRequestDtoBuilder;
 import uk.gov.ida.hub.samlengine.builders.TranslatedAuthnRequestDtoBuilder;
 import uk.gov.ida.hub.samlengine.contracts.SamlRequestWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.samlengine.contracts.TranslatedAuthnRequestDto;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.builders.AuthnRequestBuilder;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
@@ -33,8 +32,7 @@ import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PRIVATE_S
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_PUBLIC_SIGNING_CERT;
 import static uk.gov.ida.saml.core.test.builders.SignatureBuilder.aSignature;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class RpAuthnRequestTranslatorServiceTest {
 
     private static final SignatureRSASHA1 SIGNATURE_ALGORITHM = new SignatureRSASHA1();

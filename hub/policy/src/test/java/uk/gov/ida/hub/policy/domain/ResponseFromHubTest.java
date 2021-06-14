@@ -1,8 +1,8 @@
 package uk.gov.ida.hub.policy.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.net.URI;
 import java.util.Optional;
@@ -17,10 +17,10 @@ public class ResponseFromHubTest {
     private static final String MATCHING_SERVICE_ASSERTION = "matchingServiceAssertion";
     private static final Optional<String> RELAY_STATE = Optional.of("relayState");
     private static final URI ASSERTION_CONSUMER_SERVICE_URI = URI.create("assertionConsumerServiceUri");
-    private static ResponseFromHub responseFromHub;
+    private ResponseFromHub responseFromHub;
 
-    @BeforeAll
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         responseFromHub = new ResponseFromHub(
             RESPONSE_ID,
             IN_RESPONSE_TO,
@@ -70,13 +70,13 @@ public class ResponseFromHubTest {
     @Test
     public void testToString() {
         final StringBuilder sb = new StringBuilder("uk.gov.ida.hub.policy.domain.ResponseFromHub[");
-        sb.append("assertionConsumerServiceUri=").append(responseFromHub.getAssertionConsumerServiceUri());
-        sb.append(",authnRequestIssuerEntityId=").append(responseFromHub.getAuthnRequestIssuerEntityId());
-        sb.append(",encryptedAssertions=").append(responseFromHub.getEncryptedAssertions());
-        sb.append(",inResponseTo=").append(responseFromHub.getInResponseTo());
-        sb.append(",relayState=").append(responseFromHub.getRelayState());
+        sb.append("authnRequestIssuerEntityId=").append(responseFromHub.getAuthnRequestIssuerEntityId());
         sb.append(",responseId=").append(responseFromHub.getResponseId());
+        sb.append(",inResponseTo=").append(responseFromHub.getInResponseTo());
         sb.append(",status=").append(responseFromHub.getStatus());
+        sb.append(",encryptedAssertions=").append(responseFromHub.getEncryptedAssertions());
+        sb.append(",relayState=").append(responseFromHub.getRelayState());
+        sb.append(",assertionConsumerServiceUri=").append(responseFromHub.getAssertionConsumerServiceUri());
         sb.append(']');
 
         assertThat(responseFromHub.toString()).isEqualTo(sb.toString());

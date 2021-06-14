@@ -1,13 +1,13 @@
 package uk.gov.ida.hub.policy.logging;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.eventemitter.EventDetailsKey;
@@ -75,7 +75,7 @@ import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.Session
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.SESSION_TIMEOUT;
 import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.USER_ACCOUNT_CREATION_REQUEST_SENT;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class HubEventLoggerTest {
 
     private static final PersistentId PERSISTENT_ID = aPersistentId().withNameId("nameId").build();
@@ -106,13 +106,13 @@ public class HubEventLoggerTest {
 
     private HubEventLogger eventLogger;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         DateTimeFreezer.freezeTime();
         eventLogger = new HubEventLogger(SERVICE_INFO, eventSinkProxy, eventEmitter);
     }
 
-    @AfterEach
+    @After
     public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }

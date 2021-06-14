@@ -1,10 +1,12 @@
 package uk.gov.ida.hub.policy.services;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.builder.AttributeQueryRequestBuilder;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
 import uk.gov.ida.hub.policy.contracts.AttributeQueryRequestDto;
@@ -21,8 +23,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class Cycle3ServiceTest {
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Mock
     private AwaitingCycle3DataStateController awaitingCycle3DataStateController;
@@ -38,7 +43,7 @@ public class Cycle3ServiceTest {
     private Cycle3UserInput cycle3UserInput;
     private SessionId sessionId;
 
-    @BeforeEach
+    @Before
     public void setup() {
         sessionId = SessionIdBuilder.aSessionId().build();
         cycle3UserInput = new Cycle3UserInput("test-value", "principal-ip-address-as-seen-by-hub");

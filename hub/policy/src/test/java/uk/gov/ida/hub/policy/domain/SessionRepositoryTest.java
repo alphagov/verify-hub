@@ -1,14 +1,13 @@
 package uk.gov.ida.hub.policy.domain;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.policy.domain.controller.StateControllerFactory;
 import uk.gov.ida.hub.policy.domain.state.ErrorResponsePreparedState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.SessionStartedStateBuilder.aSessionStartedState;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SessionRepositoryTest {
 
     private SessionRepository sessionRepository;
@@ -48,21 +47,19 @@ public class SessionRepositoryTest {
     @Captor
     private ArgumentCaptor<TimeoutState> timeoutStateArgumentCaptor = null;
 
-    @BeforeEach
+    @Before
     public void setup() {
         dataStore = new ConcurrentHashMap<>();
         sessionRepository = new SessionRepository(new ConcurrentMapSessionStore(dataStore), controllerFactory);
     }
 
-    @Test
+    @Test(expected = InvalidSessionStateException.class)
     public void shouldThrowExceptionIfStateIsNotWhatIsExpected() {
-        Assertions.assertThrows(InvalidSessionStateException.class, () -> {
-            SessionId expectedSessionId = aSessionId().build();
-            SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
-            SessionId sessionId = sessionRepository.createSession(sessionStartedState);
+        SessionId expectedSessionId = aSessionId().build();
+        SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(defaultSessionExpiry).withSessionId(expectedSessionId).build();
+        SessionId sessionId = sessionRepository.createSession(sessionStartedState);
 
-            sessionRepository.getStateController(sessionId, IdpSelectedState.class);
-        });
+        sessionRepository.getStateController(sessionId, IdpSelectedState.class);
     }
 
     @Test
@@ -104,39 +101,37 @@ public class SessionRepositoryTest {
         verify(controllerFactory).build(eq(state), any(StateTransitionAction.class));
     }
 
-    @Test
+    @Test(expected = SessionTimeoutException.class)
     public void getState_shouldThrowTimeoutStateException_whenStateRequestedIsNotTimeoutStateAndTimeout() {
-        Assertions.assertThrows(SessionTimeoutException.class, () -> {
-            DateTime now = DateTime.now();
-            DateTimeFreezer.freezeTime(now);
 
-            SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(now).build();
-            SessionId sessionId = sessionRepository.createSession(sessionStartedState);
+        DateTime now = DateTime.now();
+        DateTimeFreezer.freezeTime(now);
 
-            DateTimeFreezer.freezeTime(now.plusMinutes(3));
-            sessionRepository.getStateController(sessionId, SessionStartedState.class);
-        });
+        SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(now).build();
+        SessionId sessionId = sessionRepository.createSession(sessionStartedState);
+
+        DateTimeFreezer.freezeTime(now.plusMinutes(3));
+        sessionRepository.getStateController(sessionId, SessionStartedState.class);
     }
 
-    @Test
+    @Test(expected = SessionTimeoutException.class)
     public void getState_shouldThrowTimeoutStateException_whenStateRequestedIsNotTimeoutStateAndAlreadyTimeout() {
-        Assertions.assertThrows(SessionTimeoutException.class, () -> {
-            DateTime now = DateTime.now();
-            DateTimeFreezer.freezeTime(now);
 
-            SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(now).build();
-            SessionId sessionId = sessionRepository.createSession(sessionStartedState);
+        DateTime now = DateTime.now();
+        DateTimeFreezer.freezeTime(now);
 
-            DateTimeFreezer.freezeTime(now.plusMinutes(3));
-            try {
-                sessionRepository.getStateController(sessionId, SessionStartedState.class);
+        SessionStartedState sessionStartedState = aSessionStartedState().withSessionExpiryTimestamp(now).build();
+        SessionId sessionId = sessionRepository.createSession(sessionStartedState);
 
-            } catch (Exception e) {
+        DateTimeFreezer.freezeTime(now.plusMinutes(3));
+        try {
+            sessionRepository.getStateController(sessionId, SessionStartedState.class);
 
-            }
+        } catch (Exception e) {
 
-            sessionRepository.getStateController(sessionId, SessionStartedState.class); // it is set to timed out now
-        });
+        }
+
+        sessionRepository.getStateController(sessionId, SessionStartedState.class); // it is set to timed out now
     }
 
     @Test

@@ -2,13 +2,13 @@ package uk.gov.ida.hub.samlproxy.exceptions;
 
 import java.util.Optional;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.common.SessionId;
@@ -28,7 +28,7 @@ import static uk.gov.ida.exceptions.ApplicationException.createAuditedException;
 import static uk.gov.ida.exceptions.ApplicationException.createUnauditedException;
 import static uk.gov.ida.eventemitter.EventDetailsKey.downstream_uri;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ExceptionAuditorTest {
     private static final SessionId SESSION_ID = SessionId.createNewSessionId();
 
@@ -37,18 +37,18 @@ public class ExceptionAuditorTest {
 
     public ExceptionAuditor exceptionAuditor;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         exceptionAuditor = new ExceptionAuditor(eventSinkMessageSender);
     }
 
-    @AfterEach
+    @After
     public void tearDown() throws Exception {
         DateTimeFreezer.unfreezeTime();
     }
 
     @Test
-    public void shouldAuditUnauditedException() {
+    public void shouldAuditUnauditedException() throws Exception {
         DateTime expectedTimestamp = DateTime.now();
         DateTimeFreezer.freezeTime(expectedTimestamp);
         final UUID errorId = UUID.randomUUID();
@@ -69,7 +69,7 @@ public class ExceptionAuditorTest {
     }
 
     @Test
-    public void shouldNotAuditAlreadyAuditedException() {
+    public void shouldNotAuditAlreadyAuditedException() throws Exception {
         final UUID errorId = UUID.randomUUID();
         ApplicationException exception =
                 createAuditedException(ExceptionType.DUPLICATE_SESSION, errorId);

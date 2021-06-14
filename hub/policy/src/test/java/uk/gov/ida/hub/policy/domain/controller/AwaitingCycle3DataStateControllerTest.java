@@ -3,15 +3,16 @@ package uk.gov.ida.hub.policy.domain.controller;
 import org.assertj.core.api.Condition;
 import org.assertj.core.condition.AllOf;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ServiceInfoConfiguration;
-import uk.gov.ida.eventemitter.EventDetailsKey;
 import uk.gov.ida.eventemitter.EventEmitter;
+import uk.gov.ida.eventemitter.EventDetailsKey;
+import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.EventSinkHubEvent;
@@ -23,18 +24,19 @@ import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.MatchingServiceConfigProxy;
 import uk.gov.ida.hub.policy.proxy.TransactionsConfigProxy;
-import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_CANCEL;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_DATA_OBTAINED;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.state.AwaitingCycle3DataStateBuilder.anAwaitingCycle3DataState;
 import static uk.gov.ida.hub.policy.matchers.HasDetail.hasDetail;
 import static uk.gov.ida.hub.policy.matchers.HasSessionId.hasSessionId;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_CANCEL;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_DATA_OBTAINED;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AwaitingCycle3DataStateControllerTest {
 
     @Mock
@@ -57,7 +59,7 @@ public class AwaitingCycle3DataStateControllerTest {
     private ServiceInfoConfiguration serviceInfo = new ServiceInfoConfiguration("service-name");
     private HubEventLogger hubEventLogger;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         hubEventLogger = new HubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
     }

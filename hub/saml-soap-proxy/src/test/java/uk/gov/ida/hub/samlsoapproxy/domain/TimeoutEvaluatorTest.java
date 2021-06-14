@@ -1,35 +1,30 @@
 package uk.gov.ida.hub.samlsoapproxy.domain;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.AttributeQueryTimeoutException;
-import uk.gov.ida.saml.core.IdaSamlBootstrap;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import static uk.gov.ida.hub.samlsoapproxy.builders.AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto;
 import static uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder.anAttributeQuery;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class TimeoutEvaluatorTest {
-    @Test
+
+    @Test(expected = AttributeQueryTimeoutException.class)
     public void hasAttributeQueryTimedOut_shouldThrowExceptionIfRequestIsTimedOut() {
-        Assertions.assertThrows(AttributeQueryTimeoutException.class, () -> {
-            DateTimeFreezer.freezeTime();
-            AttributeQueryContainerDto queryWithTimeoutInPast =
-                    anAttributeQueryContainerDto(anAttributeQuery().build())
-                            .withAttributeQueryClientTimeout(DateTime.now().minusSeconds(20))
-                            .build();
 
-            TimeoutEvaluator timeoutEvaluator = new TimeoutEvaluator();
+        DateTimeFreezer.freezeTime();
+        AttributeQueryContainerDto queryWithTimeoutInPast =
+                anAttributeQueryContainerDto(anAttributeQuery().build())
+                    .withAttributeQueryClientTimeout(DateTime.now().minusSeconds(20))
+                    .build();
 
-            timeoutEvaluator.hasAttributeQueryTimedOut(queryWithTimeoutInPast);
-        });
+        TimeoutEvaluator timeoutEvaluator = new TimeoutEvaluator();
+
+        timeoutEvaluator.hasAttributeQueryTimedOut(queryWithTimeoutInPast);
     }
 
     @Test

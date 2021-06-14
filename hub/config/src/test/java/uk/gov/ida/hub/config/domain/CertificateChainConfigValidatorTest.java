@@ -4,11 +4,11 @@ package uk.gov.ida.hub.config.domain;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CertificateChainConfigValidatorTest {
 
     @Mock
@@ -39,7 +39,7 @@ public class CertificateChainConfigValidatorTest {
 
     private CertificateChainConfigValidator validator;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         when(trustStoreForCertificateProvider.getTrustStoreFor(FederationEntityType.RP)).thenReturn(trustStore);
 

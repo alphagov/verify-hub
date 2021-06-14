@@ -2,9 +2,8 @@ package uk.gov.ida.saml.hub.transformers.inbound;
 
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Extensions;
@@ -20,10 +19,10 @@ import org.opensaml.xmlsec.signature.impl.SignatureImpl;
 import uk.gov.ida.common.shared.security.PrivateKeyFactory;
 import uk.gov.ida.common.shared.security.PublicKeyFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
+import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.extensions.versioning.Version;
 import uk.gov.ida.saml.core.extensions.versioning.VersionImpl;
 import uk.gov.ida.saml.core.extensions.versioning.application.ApplicationVersionImpl;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
 import uk.gov.ida.saml.security.DecrypterFactory;
 import uk.gov.ida.saml.security.EncrypterFactory;
@@ -38,15 +37,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT;
 
-@ExtendWith(OpenSAMLExtension.class)
 public class AuthnRequestFromRelyingPartyUnmarshallerTest {
 
     private static Encrypter encrypter;
 
-    private static AuthnRequestFromRelyingPartyUnmarshaller unmarshaller;
+    private AuthnRequestFromRelyingPartyUnmarshaller unmarshaller;
 
-    @BeforeAll
-    public static void setUp() {
+    @Before
+    public void setUp() {
+        IdaSamlBootstrap.bootstrap();
+
         final BasicCredential basicCredential = createBasicCredential();
         encrypter = new EncrypterFactory().createEncrypter(basicCredential);
 
@@ -127,7 +127,7 @@ public class AuthnRequestFromRelyingPartyUnmarshallerTest {
         }};
     }
 
-    private static BasicCredential createBasicCredential() {
+    private BasicCredential createBasicCredential() {
         final PublicKey publicKey = new PublicKeyFactory(new X509CertificateFactory()).createPublicKey(HUB_TEST_PUBLIC_ENCRYPTION_CERT);
         PrivateKey privateKey = new PrivateKeyFactory().createPrivateKey(Base64.decodeBase64(HUB_TEST_PRIVATE_ENCRYPTION_KEY));
         return new BasicCredential(publicKey, privateKey);

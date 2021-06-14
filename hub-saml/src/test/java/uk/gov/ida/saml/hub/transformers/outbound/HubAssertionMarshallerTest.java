@@ -1,17 +1,16 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.HubAssertion;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.transformers.outbound.OutboundAssertionToSubjectTransformer;
 import uk.gov.ida.saml.hub.factories.AttributeFactory_1_1;
 
@@ -24,8 +23,7 @@ import static uk.gov.ida.saml.core.test.builders.Cycle3DatasetBuilder.aCycle3Dat
 import static uk.gov.ida.saml.core.test.builders.HubAssertionBuilder.aHubAssertion;
 import static uk.gov.ida.saml.core.test.builders.SimpleStringAttributeBuilder.aSimpleStringAttribute;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class HubAssertionMarshallerTest {
 
     private HubAssertionMarshaller marshaller;
@@ -34,14 +32,14 @@ public class HubAssertionMarshallerTest {
     @Mock
     private OutboundAssertionToSubjectTransformer outboundAssertionToSubjectTransformer;
 
-    @BeforeEach
+    @Before
     public void setup() {
         OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
         marshaller = new HubAssertionMarshaller(openSamlXmlObjectFactory, attributeFactory, outboundAssertionToSubjectTransformer);
     }
 
     @Test
-    public void transform_shouldTransformAssertionSubjects() {
+    public void transform_shouldTransformAssertionSubjects() throws Exception {
         HubAssertion assertion = aHubAssertion().build();
 
         marshaller.toSaml(assertion);
@@ -50,7 +48,7 @@ public class HubAssertionMarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformAssertionId() {
+    public void transform_shouldTransformAssertionId() throws Exception {
         String assertionId = "assertion-id";
         HubAssertion assertion = aHubAssertion().withId(assertionId).build();
 
@@ -60,7 +58,7 @@ public class HubAssertionMarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformAssertionIssuer() {
+    public void transform_shouldTransformAssertionIssuer() throws Exception {
         String assertionIssuerId = "assertion issuer";
         HubAssertion assertion = aHubAssertion().withIssuerId(assertionIssuerId).build();
 
@@ -70,7 +68,7 @@ public class HubAssertionMarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformAssertionIssuerInstance() {
+    public void transform_shouldTransformAssertionIssuerInstance() throws Exception {
         DateTime issueInstant = DateTime.parse("2012-12-31T12:34:56Z");
         HubAssertion assertion = aHubAssertion().withIssueInstant(issueInstant).build();
 
@@ -80,7 +78,7 @@ public class HubAssertionMarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformCycle3DataAssertion() {
+    public void transform_shouldTransformCycle3DataAssertion() throws Exception {
         String attributeName = "someName";
         String value = "some value";
         HubAssertion assertion = aHubAssertion().withCycle3Data(aCycle3Dataset().addCycle3Data(attributeName, value).build()).build();
@@ -96,7 +94,7 @@ public class HubAssertionMarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformLevelOfCycle3DataAssertion() {
+    public void transform_shouldTransformLevelOfCycle3DataAssertion() throws Exception {
         String attributeName = "someName";
         String value = "some value";
         HubAssertion assertion = aHubAssertion().withCycle3Data(aCycle3Dataset().addCycle3Data(attributeName, value).build()).build();

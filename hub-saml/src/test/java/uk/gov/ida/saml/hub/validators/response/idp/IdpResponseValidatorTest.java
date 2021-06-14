@@ -7,14 +7,16 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.google.common.collect.ImmutableList;
 import io.prometheus.client.Counter;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
@@ -45,7 +47,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class IdpResponseValidatorTest {
     @Mock
     private SamlResponseSignatureValidator samlResponseSignatureValidator;
@@ -69,9 +71,13 @@ public class IdpResponseValidatorTest {
     @Captor
     private ArgumentCaptor<LoggingEvent> captorLoggingEvent;
 
+    @Rule
+    public final ExpectedException samlValidationException = ExpectedException.none();
+
     private IdpResponseValidator validator;
 
-    @BeforeEach
+
+    @Before
     public void setUp() {
         validator = new IdpResponseValidator(
             samlResponseSignatureValidator, 
@@ -91,12 +97,11 @@ public class IdpResponseValidatorTest {
         logger.setLevel(Level.WARN);
     }
     
-    @AfterEach
+    @After
     public void tearDown() {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.detachAppender(mockAppender);
     }
-
     @Test
     public void shouldValidateResponseIsEncrypted() {
         validator.validate(response);

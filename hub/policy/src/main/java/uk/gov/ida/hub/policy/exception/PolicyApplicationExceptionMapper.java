@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.exception;
 
-import com.google.inject.Provider;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
@@ -8,9 +7,7 @@ import uk.gov.ida.shared.utils.logging.LevelLogger;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -18,17 +15,13 @@ import static uk.gov.ida.common.ErrorStatusDto.createAuditedErrorStatus;
 import static uk.gov.ida.common.ErrorStatusDto.createUnauditedErrorStatus;
 import static uk.gov.ida.hub.policy.domain.SessionId.NO_SESSION_CONTEXT_IN_ERROR;
 
-@javax.ws.rs.ext.Provider
 public class PolicyApplicationExceptionMapper extends PolicyExceptionMapper<ApplicationException> {
     private final HubEventLogger eventLogger;
     private final LevelLogger levelLogger;
 
     @Inject
-    public PolicyApplicationExceptionMapper(
-            Provider<UriInfo> uriInfoProvider,
-            Provider<HttpServletRequest> servletRequestProvider,
-            final HubEventLogger eventLogger) {
-        super(uriInfoProvider, servletRequestProvider);
+    public PolicyApplicationExceptionMapper(final HubEventLogger eventLogger) {
+        super();
         this.eventLogger = eventLogger;
         this.levelLogger = new LevelLoggerFactory<PolicyApplicationExceptionMapper>().createLevelLogger(PolicyApplicationExceptionMapper.class);
     }

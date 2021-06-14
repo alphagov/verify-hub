@@ -1,20 +1,20 @@
 package uk.gov.ida.saml.core.security;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
 import static java.util.Arrays.asList;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class RelayStateValidatorTest {
 
-    private static RelayStateValidator relayStateValidator;
+    private RelayStateValidator relayStateValidator;
 
-    @BeforeAll
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         relayStateValidator = new RelayStateValidator();
     }
 

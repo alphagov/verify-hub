@@ -1,45 +1,39 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import httpstub.ExpectedRequest;
 import httpstub.RecordedRequest;
 import httpstub.RequestAndResponse;
 import httpstub.builders.ExpectedRequestBuilder;
-import io.dropwizard.setup.Environment;
-import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.util.Duration;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.configuration.JerseyClientWithRetryBackoffConfiguration;
-import uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyApplication;
 import uk.gov.ida.hub.samlsoapproxy.Urls;
 import uk.gov.ida.hub.samlsoapproxy.builders.AttributeQueryContainerDtoBuilder;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlsoapproxy.exceptions.InvalidSamlRequestInAttributeQueryException;
 import uk.gov.ida.hub.samlsoapproxy.soap.SoapMessageManager;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.ConfigStubExtension;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.EventSinkStubExtension;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubExtension;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.PolicyStubExtension;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.ConfigStubRule;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.EventSinkStubRule;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.PolicyStubRule;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppRule;
 import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.saml.core.test.TestCredentialFactory;
 import uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder;
@@ -47,6 +41,7 @@ import uk.gov.ida.saml.core.test.builders.IssuerBuilder;
 import uk.gov.ida.saml.core.test.builders.SignatureBuilder;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.serializers.XmlObjectToElementTransformer;
+import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
 import javax.ws.rs.ProcessingException;
@@ -63,102 +58,85 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.getAllScenarios;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.jayway.awaitility.Awaitility.await;
+import static io.dropwizard.testing.ConfigOverride.config;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlsoapproxy.Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE;
-import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubExtension.msaStubExtension;
+import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule.msaStubRule;
 import static uk.gov.ida.jerseyclient.JerseyClientWithRetryBackoffHandlerConfigurationBuilder.aJerseyClientWithRetryBackoffHandlerConfiguration;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.*;
+import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY;
+import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
+import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PRIVATE_SIGNING_KEY;
+import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC_SIGNING_CERT;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
-
 public class MatchingServiceRequestSenderTest {
-
+    
     public static final Credential msaSigningCredential =  new TestCredentialFactory(TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PRIVATE_SIGNING_KEY).getSigningCredential();
-
+    
     public static final Credential hubSigningCredential = new TestCredentialFactory(HUB_TEST_PUBLIC_SIGNING_CERT, HUB_TEST_PRIVATE_SIGNING_KEY).getSigningCredential();
 
     private static final String attibute_query_resource = "/attribute-query-request";
-
-    public static WireMockServer errorSimulationServer = new WireMockServer(0);
     
-    private static ClientSupport client;
-
-    private static Client backOffClient;
+    private static Client client;
 
     private static String soapResponse;
 
-    @Order(0)
-    @RegisterExtension
-    public static ConfigStubExtension configStub = new ConfigStubExtension();
+    /*
+     * Don't make these into @ClassRules - if they're static then they probably cause pseudo-random failures in the pipeline.
+     */
+    @Rule
+    public ConfigStubRule configStub = new ConfigStubRule();
 
-    @Order(0)
-    @RegisterExtension
-    public static EventSinkStubExtension eventSinkStub = new EventSinkStubExtension();
+    @Rule
+    public EventSinkStubRule eventSinkStubRule = new EventSinkStubRule();
 
-    @Order(0)
-    @RegisterExtension
-    public static MsaStubExtension msaStub = msaStubExtension();
+    @Rule
+    public MsaStubRule msaStubRule = msaStubRule();
 
-    @Order(0)
-    @RegisterExtension
-    public static PolicyStubExtension policyStub = new PolicyStubExtension();
+    @Rule
+    public PolicyStubRule policyStubRule = new PolicyStubRule();
 
-    @Order(1)
-    @RegisterExtension
-    public static TestDropwizardAppExtension samlSoapProxyAppExtension = SamlSoapProxyAppExtension.forApp(SamlSoapProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .configOverride("policyUri", () -> policyStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-soap-proxy.yml"))
-            .randomPorts()
-            .create();
+    @Rule
+    public SamlSoapProxyAppRule samlSoapProxyAppRule = new SamlSoapProxyAppRule(
+            config("configUri", configStub.baseUri().build().toASCIIString()),
+            config("eventSinkUri", eventSinkStubRule.baseUri().build().toASCIIString()),
+            config("policyUri", policyStubRule.baseUri().build().toASCIIString())
+    );
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport, Environment environment) throws JsonProcessingException, MarshallingException, SignatureException {
-        client = clientSupport;
-        setBackOffClient(environment);
-        eventSinkStub.setupStubForLogging();
+    @Rule
+    public WireMockRule errorSimulationRule = new WireMockRule(0);
+
+    @Before
+    public void setUp() throws Exception {
+        policyStubRule.reset();
+    }
+
+    @Before
+    public void setUpClass() throws Exception {
+        final List<String> exceptionsToCatch = List.of(ConnectTimeoutException.class.getName(), SocketException.class.getName(), SocketTimeoutException.class.getName(), NoHttpResponseException.class.getName());
+        JerseyClientWithRetryBackoffConfiguration jerseyClientConfiguration = aJerseyClientWithRetryBackoffHandlerConfiguration()
+            .withTimeout(Duration.seconds(1))
+            .withRetryBackoffPeriod(Duration.seconds(1))
+            .withRetryExceptionList(exceptionsToCatch)
+            .withChunkedEncodingEnabled(false)
+            .withNumRetries(2)
+            .build();
+
+        ClientProvider provider = new ClientProvider(samlSoapProxyAppRule.getEnvironment(), jerseyClientConfiguration, true, MatchingServiceRequestSenderTest.class.getSimpleName());
+
+        client = provider.get();
+        eventSinkStubRule.setupStubForLogging();
         configStub.setupStubForCertificates(TEST_RP_MS);
         soapResponse = createMsaResponse();
         RequestAndResponse requestAndResponse = ExpectedRequestBuilder.expectRequest().withPath(attibute_query_resource).andWillRespondWith().withStatus(200).withBody(soapResponse).withContentType(MediaType.TEXT_XML_TYPE.toString()).build();
-        msaStub.register(requestAndResponse);
-        errorSimulationServer.start();
-    }
-
-    
-    @BeforeEach
-    public void setUp() throws Exception {
-        policyStub.reset();
-        errorSimulationServer.resetAll();
-
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        errorSimulationServer.stop();
-        SamlSoapProxyAppExtension.tearDown();
-    }
-
-    private static void setBackOffClient(Environment environment) {
-        final List<String> exceptionsToCatch = List.of(ConnectTimeoutException.class.getName(), SocketException.class.getName(), SocketTimeoutException.class.getName(), NoHttpResponseException.class.getName());
-        JerseyClientWithRetryBackoffConfiguration jerseyClientConfiguration = aJerseyClientWithRetryBackoffHandlerConfiguration()
-                .withTimeout(Duration.seconds(1))
-                .withRetryBackoffPeriod(Duration.seconds(1))
-                .withRetryExceptionList(exceptionsToCatch)
-                .withChunkedEncodingEnabled(false)
-                .withNumRetries(2)
-                .build();
-
-        ClientProvider provider = new ClientProvider(environment, jerseyClientConfiguration, true, MatchingServiceRequestSenderTest.class.getSimpleName());
-
-        backOffClient = provider.get();
+        msaStubRule.register(requestAndResponse);
     }
 
     private static String createMsaResponse() throws MarshallingException, SignatureException {
@@ -168,22 +146,27 @@ public class MatchingServiceRequestSenderTest {
         return XmlUtils.writeToString(soapEnvelope);
     }
 
+    @After
+    public void tearDown() {
+        DateTimeFreezer.unfreezeTime();
+    }
+
     @Test
     public void sendHubMatchingServiceRequest_shouldAcceptAValidRequest() {
         Credential signingCredential = hubSigningCredential;
         AttributeQueryContainerDto attributeQueryContainerDto = AttributeQueryContainerDtoBuilder
                 .anAttributeQueryContainerDto(AttributeQueryBuilder.anAttributeQuery().withSignature(SignatureBuilder.aSignature().withSigningCredential(signingCredential).build()).withIssuer(IssuerBuilder.anIssuer().withIssuerId(HUB_ENTITY_ID).build()).build())
                 .withIssuerId(HUB_ENTITY_ID)
-                .withMatchingServiceUri(msaStub.getAttributeQueryRequestUri())
+                .withMatchingServiceUri(msaStubRule.getAttributeQueryRequestUri())
                 .build();
 
         SessionId sessionId = SessionId.createNewSessionId();
-        final URI uri = UriBuilder.fromPath(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_REQUEST_SENDER_RESOURCE)
+        final URI uri = UriBuilder.fromUri(samlSoapProxyAppRule.getUri(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_REQUEST_SENDER_RESOURCE))
                 .queryParam(Urls.SharedUrls.SESSION_ID_PARAM, sessionId)
                 .build();
 
         String path = UriBuilder.fromPath(ATTRIBUTE_QUERY_RESPONSE_RESOURCE).build(sessionId).getPath();
-        policyStub.register(path, 200);
+        policyStubRule.register(path, 200);
         Response response = makepost(attributeQueryContainerDto, uri);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
@@ -199,11 +182,11 @@ public class MatchingServiceRequestSenderTest {
         AttributeQueryContainerDto attributeQueryContainerDto = AttributeQueryContainerDtoBuilder
                 .anAttributeQueryContainerDto(AttributeQueryBuilder.anAttributeQuery().withIssuer(IssuerBuilder.anIssuer().withIssuerId(HUB_ENTITY_ID).build()).build())
                 .withIssuerId(TEST_RP)
-                .withMatchingServiceUri(msaStub.getAttributeQueryRequestUri())
+                .withMatchingServiceUri(msaStubRule.getAttributeQueryRequestUri())
                 .build();
 
         SessionId sessionId = SessionId.createNewSessionId();
-        final URI uri = UriBuilder.fromPath(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_REQUEST_SENDER_RESOURCE)
+        final URI uri = UriBuilder.fromUri(samlSoapProxyAppRule.getUri(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_REQUEST_SENDER_RESOURCE))
                 .queryParam(Urls.SharedUrls.SESSION_ID_PARAM, sessionId)
                 .build();
         Response response = makepost(attributeQueryContainerDto, uri);
@@ -219,7 +202,7 @@ public class MatchingServiceRequestSenderTest {
         final String thirdCallState = "Call 3 Complete";
         final String scenarioName = "socket timeout scenario";
 
-        errorSimulationServer.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
+        errorSimulationRule.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
                 .whenScenarioStateIs(Scenario.STARTED)
                 .willReturn(WireMock.aResponse()
                         .withFixedDelay(2000)
@@ -229,7 +212,7 @@ public class MatchingServiceRequestSenderTest {
                 .willSetStateTo(firstCallState)
         );
 
-        errorSimulationServer.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
+        errorSimulationRule.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
                 .whenScenarioStateIs(firstCallState)
                 .willReturn(WireMock.aResponse()
                         .withFixedDelay(2000)
@@ -239,7 +222,7 @@ public class MatchingServiceRequestSenderTest {
                 .willSetStateTo(secondCallState)
         );
 
-        errorSimulationServer.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
+        errorSimulationRule.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
                 .whenScenarioStateIs(secondCallState)
                 .willReturn(WireMock.aResponse()
                         .withStatus(Response.Status.OK.getStatusCode())
@@ -252,7 +235,7 @@ public class MatchingServiceRequestSenderTest {
         AttributeQueryContainerDto attributeQueryContainerDto = AttributeQueryContainerDtoBuilder
                 .anAttributeQueryContainerDto(AttributeQueryBuilder.anAttributeQuery().withSignature(SignatureBuilder.aSignature().withSigningCredential(signingCredential).build()).withIssuer(IssuerBuilder.anIssuer().withIssuerId(HUB_ENTITY_ID).build()).build())
                 .withIssuerId(HUB_ENTITY_ID)
-                .withMatchingServiceUri(msaStub.getAttributeQueryRequestUri())
+                .withMatchingServiceUri(msaStubRule.getAttributeQueryRequestUri())
                 .build();
 
         long start = System.currentTimeMillis();
@@ -261,7 +244,7 @@ public class MatchingServiceRequestSenderTest {
         Document requestDocument = soapMessageManager.wrapWithSoapEnvelope(convertToElementAndValidate(attributeQueryContainerDto));
         Entity entity = Entity.xml(requestDocument);
 
-        Response response = backOffClient.target(URI.create(format("http://localhost:%d%s", errorSimulationServer.port(), attibute_query_resource)))
+        Response response = client.target(URI.create(format("http://localhost:%d%s", errorSimulationRule.port(), attibute_query_resource)))
                 .request(MediaType.TEXT_XML_TYPE).post(entity);
         long end = System.currentTimeMillis();
 
@@ -277,7 +260,7 @@ public class MatchingServiceRequestSenderTest {
         final String thirdCallState = "Call 3 Complete";
         final String scenarioName = "socket timeout scenario";
 
-        errorSimulationServer.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
+        errorSimulationRule.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
                 .whenScenarioStateIs(Scenario.STARTED)
                 .willReturn(WireMock.aResponse()
                         .withFixedDelay(2000)
@@ -287,7 +270,7 @@ public class MatchingServiceRequestSenderTest {
                 .willSetStateTo(firstCallState)
         );
 
-        errorSimulationServer.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
+        errorSimulationRule.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
                 .whenScenarioStateIs(firstCallState)
                 .willReturn(WireMock.aResponse()
                         .withFixedDelay(2000)
@@ -297,7 +280,7 @@ public class MatchingServiceRequestSenderTest {
                 .willSetStateTo(secondCallState)
         );
 
-        errorSimulationServer.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
+        errorSimulationRule.stubFor(post(urlEqualTo(attibute_query_resource)).inScenario(scenarioName)
                 .whenScenarioStateIs(secondCallState)
                 .willReturn(WireMock.aResponse()
                         .withStatus(Response.Status.OK.getStatusCode())
@@ -311,7 +294,7 @@ public class MatchingServiceRequestSenderTest {
         AttributeQueryContainerDto attributeQueryContainerDto = AttributeQueryContainerDtoBuilder
                 .anAttributeQueryContainerDto(AttributeQueryBuilder.anAttributeQuery().withSignature(SignatureBuilder.aSignature().withSigningCredential(signingCredential).build()).withIssuer(IssuerBuilder.anIssuer().withIssuerId(HUB_ENTITY_ID).build()).build())
                 .withIssuerId(HUB_ENTITY_ID)
-                .withMatchingServiceUri(msaStub.getAttributeQueryRequestUri())
+                .withMatchingServiceUri(msaStubRule.getAttributeQueryRequestUri())
                 .build();
 
         long start = System.currentTimeMillis();
@@ -320,7 +303,7 @@ public class MatchingServiceRequestSenderTest {
         Document requestDocument = soapMessageManager.wrapWithSoapEnvelope(convertToElementAndValidate(attributeQueryContainerDto));
         Entity entity = Entity.xml(requestDocument);
         try {
-            backOffClient.target(URI.create(format("http://localhost:%d%s", errorSimulationServer.port(), attibute_query_resource)))
+            client.target(URI.create(format("http://localhost:%d%s", errorSimulationRule.port(), attibute_query_resource)))
                     .request(MediaType.TEXT_XML_TYPE).post(entity);
         } catch (Exception ex) {
             assertThat(ex).isInstanceOf(ProcessingException.class);
@@ -340,15 +323,15 @@ public class MatchingServiceRequestSenderTest {
     }
 
     private void andPolicyShouldReceiveTheResult(SessionId sessionId, String resultPath) {
-        await().atMost(30, TimeUnit.SECONDS).until(() -> !policyStub.getRecordedRequest().isEmpty());
-        RecordedRequest recordedRequest = policyStub.getLastRequest();
+        await().atMost(30, TimeUnit.SECONDS).until(() -> !policyStubRule.getRecordedRequest().isEmpty());
+        RecordedRequest recordedRequest = policyStubRule.getLastRequest();
         String path = UriBuilder.fromPath(resultPath).build(sessionId).getPath();
         ExpectedRequest expectedRequest = ExpectedRequestBuilder.expectRequest().withPath(path).build();
         assertThat(expectedRequest.applies(recordedRequest)).describedAs("The response was not sent to the correct path: expected '%s', but got '%s'", path, recordedRequest.getPath()).isTrue();
     }
 
     private Response makepost(AttributeQueryContainerDto attributeQueryContainerDto, URI uri) {
-        return client.targetMain(uri.toASCIIString())
+        return client.target(uri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(attributeQueryContainerDto));
     }
@@ -358,7 +341,7 @@ public class MatchingServiceRequestSenderTest {
     }
 
     private Scenario getScenario(String scenarioName) {
-        for( Scenario s: errorSimulationServer.getAllScenarios().getScenarios()) {
+        for( Scenario s: getAllScenarios()) {
             if (s.getName().equals(scenarioName)) return s;
         }
         throw new RuntimeException(format("Scenario not found: %s ", scenarioName));

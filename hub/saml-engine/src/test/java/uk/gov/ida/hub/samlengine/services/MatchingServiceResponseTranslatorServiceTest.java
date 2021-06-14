@@ -1,13 +1,10 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
 import org.slf4j.event.Level;
@@ -34,8 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class MatchingServiceResponseTranslatorServiceTest {
 
     @Mock
@@ -47,20 +43,17 @@ public class MatchingServiceResponseTranslatorServiceTest {
 
     private MatchingServiceResponseTranslatorService matchingServiceResponseTranslatorService;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         matchingServiceResponseTranslatorService = new MatchingServiceResponseTranslatorService(responseUnmarshaller, responseToInboundResponseFromMatchingServiceTransformer, assertionBlobEncrypter);
     }
 
-    @Test
-    public void handle_shouldNotifyPolicyWhenSamlStringCannotBeConvertedToAnElement() {
-        Assertions.assertThrows(SamlTransformationErrorException.class, () -> {
-            final SamlResponseContainerDto samlResponse = new SamlResponseContainerDto("Woooo!", TEST_RP);
-            when(responseUnmarshaller.apply(samlResponse.getSamlResponse())).thenThrow(new SamlTransformationErrorException("not xml", Level.ERROR));
-            matchingServiceResponseTranslatorService.translate(samlResponse);
-            // event sink logging is tested in SamlTransformationErrorExceptionMapperTest
-
-        });
+    @Test(expected=SamlTransformationErrorException.class)
+    public void handle_shouldNotifyPolicyWhenSamlStringCannotBeConvertedToAnElement() throws Exception {
+        final SamlResponseContainerDto samlResponse = new SamlResponseContainerDto("Woooo!", TEST_RP);
+        when(responseUnmarshaller.apply(samlResponse.getSamlResponse())).thenThrow(new SamlTransformationErrorException("not xml", Level.ERROR));
+        matchingServiceResponseTranslatorService.translate(samlResponse);
+        // event sink logging is tested in SamlTransformationErrorExceptionMapperTest
     }
 
     @Test

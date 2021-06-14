@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.samlsoapproxy.soap;
 
 import org.apache.ws.commons.util.NamespaceContextImpl;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

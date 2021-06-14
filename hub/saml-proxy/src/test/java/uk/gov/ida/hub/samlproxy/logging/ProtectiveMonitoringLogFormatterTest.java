@@ -1,9 +1,8 @@
 package uk.gov.ida.hub.samlproxy.logging;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
@@ -11,7 +10,7 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
 import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLRunner;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 
 import java.io.IOException;
@@ -27,13 +26,12 @@ import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.DEFAULT_REQUEST
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.DEFAULT_RESPONSE_ID;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLRunner.class)
 public class ProtectiveMonitoringLogFormatterTest {
-    private static StringToOpenSamlObjectTransformer<Response> stringtoOpenSamlObjectTransformer;
+    private StringToOpenSamlObjectTransformer<Response> stringtoOpenSamlObjectTransformer;
 
-    @BeforeAll
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         CoreTransformersFactory coreTransformersFactory = new CoreTransformersFactory();
         stringtoOpenSamlObjectTransformer = coreTransformersFactory.
                 getStringtoOpenSamlObjectTransformer(input -> {});
