@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.samlengine.services;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import uk.gov.ida.hub.samlengine.contracts.IdaAuthnRequestFromHubDto;
 import uk.gov.ida.saml.core.domain.AuthnContext;

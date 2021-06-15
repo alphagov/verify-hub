@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.samlengine.factories;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
 import uk.gov.ida.saml.core.domain.OutboundResponseFromHub;
 import uk.gov.ida.saml.hub.transformers.outbound.OutboundLegacyResponseFromHubToStringFunctionSHA256;
@@ -16,7 +16,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OutboundResponseFromHubToResponseTransformerFactoryTest {
 
     private OutboundResponseFromHubToResponseTransformerFactory outboundResponseFromHubToResponseTransformerFactory;
@@ -38,7 +38,7 @@ public class OutboundResponseFromHubToResponseTransformerFactoryTest {
 
     public static final String ENTITY_ID = "entity-id";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         outboundResponseFromHubToResponseTransformerFactory = new OutboundResponseFromHubToResponseTransformerFactory(
                 simpleProfileOutboundResponseFromHubToResponseTransformerProvider,

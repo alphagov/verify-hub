@@ -1,9 +1,10 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -15,7 +16,7 @@ import org.opensaml.saml.saml2.core.impl.EncryptedAssertionBuilder;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.HubAssertion;
 import uk.gov.ida.saml.core.domain.PersistentId;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.transformers.outbound.OutboundAssertionToSubjectTransformer;
 import uk.gov.ida.saml.hub.domain.HubAttributeQueryRequest;
 import uk.gov.ida.saml.hub.factories.AttributeFactory_1_1;
@@ -32,12 +33,12 @@ import static uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute.CURRENT_AD
 import static uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute.DATE_OF_BIRTH;
 import static uk.gov.ida.saml.hub.test.builders.HubAttributeQueryRequestBuilder.aHubAttributeQueryRequest;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class HubAttributeQueryRequestToSamlAttributeQueryTransformerTest {
 
     public static final String ENCRYPTED_MDS_ASSERTION = "encrypted-mds-assertion!";
     public static final String ENCRYPTED_AUTHN_ASSERTION = "encrypted-authn-statement-assertion!";
-    public static final String AUTHN_STATEMENT_ID = "AUTHEN_STATEMENT_ID";
 
     private HubAttributeQueryRequestToSamlAttributeQueryTransformer transformer;
 
@@ -52,8 +53,8 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     @Mock
     private EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    public void setup() {
         openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
         HubAssertionMarshaller assertionTransformer = new HubAssertionMarshaller(openSamlXmlObjectFactory, attributeFactory, outboundAssertionToSubjectTransformer);
 
@@ -65,7 +66,7 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void transform_shouldProperlyTransform() throws Exception {
+    public void transform_shouldProperlyTransform() {
         PersistentId persistentId = new PersistentId("default-name-id");
         HubAttributeQueryRequest originalQuery = aHubAttributeQueryRequest()
                 .withId("originalId")
@@ -81,7 +82,7 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void transform_shouldOnlyIncludeCycle3Unencrypted() throws Exception {
+    public void transform_shouldOnlyIncludeCycle3Unencrypted() {
         final HubAssertion cycle3DataAssertion = aHubAssertion().build();
 
         HubAttributeQueryRequest originalQuery = aHubAttributeQueryRequest()
@@ -96,7 +97,7 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void transform_shouldContainBothMdsAndAuthnAssertionsEncrypted() throws Exception {
+    public void transform_shouldContainBothMdsAndAuthnAssertionsEncrypted() {
         HubAttributeQueryRequest originalQuery = aHubAttributeQueryRequest()
                 .withEncryptedMatchingDatasetAssertion(ENCRYPTED_MDS_ASSERTION)
                 .withEncryptedAuthnAssertion(ENCRYPTED_AUTHN_ASSERTION)
@@ -115,7 +116,7 @@ public class HubAttributeQueryRequestToSamlAttributeQueryTransformerTest {
     }
 
     @Test
-    public void transform_shouldSetTheSPNameQualifierAndNameQualifierToValuesThatShouldntBeThereButCurrentlyHaveNoWhereBetterToBe() throws Exception {
+    public void transform_shouldSetTheSPNameQualifierAndNameQualifierToValuesThatShouldntBeThereButCurrentlyHaveNoWhereBetterToBe() {
         final String authnStatementAssertion = aPassthroughAssertion().withUnderlyingAssertion(ENCRYPTED_AUTHN_ASSERTION).buildAuthnStatementAssertionAsString();
         final HubAssertion cycle3DataAssertion = aHubAssertion().build();
 

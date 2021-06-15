@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.config.domain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
 import java.net.URI;
@@ -13,7 +13,7 @@ import static uk.gov.ida.hub.shared.ValidationTestHelper.runValidations;
 public class MatchingServiceConfigDataTest {
 
     @Test
-    public void isOrganisationUrlValid_shouldReturnViolationIfUrlIsRelative() throws Exception {
+    public void isOrganisationUrlValid_shouldReturnViolationIfUrlIsRelative() {
         MatchingServiceConfig data = aMatchingServiceConfig().withUri(URI.create("/relative")).build();
 
         Set<ConstraintViolation<MatchingServiceConfig>> constraintViolations = runValidations(data);
@@ -23,7 +23,7 @@ public class MatchingServiceConfigDataTest {
     }
 
     @Test
-    public void isOrganisationUrlValid_shouldReturnNoViolationsIfUrlIsAbsolute() throws Exception {
+    public void isOrganisationUrlValid_shouldReturnNoViolationsIfUrlIsAbsolute() {
 
         MatchingServiceConfig data = aMatchingServiceConfig().withUri(URI.create("http://absolute.com")).build();
 

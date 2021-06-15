@@ -1,12 +1,15 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.domain.AssertionRestrictionsFactory;
 import uk.gov.ida.hub.policy.domain.AuthenticationErrorResponse;
@@ -64,7 +67,8 @@ import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 import static uk.gov.ida.hub.policy.builder.domain.SuccessFromIdpBuilder.aSuccessFromIdp;
 import static uk.gov.ida.hub.policy.builder.state.IdpSelectedStateBuilder.anIdpSelectedState;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class IdpSelectedStateControllerTest {
 
     private static final String IDP_ENTITY_ID = "some-idp-issuer-id";
@@ -100,7 +104,7 @@ public class IdpSelectedStateControllerTest {
     private IdpSelectedStateController controller;
     private IdpSelectedState idpSelectedState;
 
-    @Before
+    @BeforeEach
     public void setup() {
         controller = idpSelectedStateBuilder(false);
     }
@@ -226,36 +230,42 @@ public class IdpSelectedStateControllerTest {
         assertThat(capturedState.getValue().getForceAuthentication()).isEqualTo(idpSelectedState.getForceAuthentication());
     }
 
-    @Test(expected = IdpDisabledException.class)
+    @Test
     public void handleSuccessResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() {
-        SuccessFromIdp successFromIdp = aSuccessFromIdp().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
-                .thenReturn(emptyList());
-        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
+        Assertions.assertThrows(IdpDisabledException.class, () -> {
+            SuccessFromIdp successFromIdp = aSuccessFromIdp().build();
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+                    .thenReturn(emptyList());
+            controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
+        });
     }
 
-    @Test(expected = StateProcessingValidationException.class)
+    @Test
     public void handleSuccessResponseFromIdp_shouldThrowExceptionWhenReturnedLOAIsUnsupportedByIdpConfig() {
-        PersistentId persistentId = aPersistentId().withNameId("idname").build();
-        SuccessFromIdp successFromIdp = aSuccessFromIdp()
-                .withIssuerId(IDP_ENTITY_ID)
-                .withPersistentId(persistentId)
-                .withPrincipalIpAddressSeenByIdp(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP)
-                .withPrincipalIpAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB)
-                .withLevelOfAssurance(LevelOfAssurance.LEVEL_3)
-                .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
-                .thenReturn(singletonList(IDP_ENTITY_ID));
+        Assertions.assertThrows(StateProcessingValidationException.class, () -> {
+            PersistentId persistentId = aPersistentId().withNameId("idname").build();
+            SuccessFromIdp successFromIdp = aSuccessFromIdp()
+                    .withIssuerId(IDP_ENTITY_ID)
+                    .withPersistentId(persistentId)
+                    .withPrincipalIpAddressSeenByIdp(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP)
+                    .withPrincipalIpAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB)
+                    .withLevelOfAssurance(LevelOfAssurance.LEVEL_3)
+                    .build();
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+                    .thenReturn(singletonList(IDP_ENTITY_ID));
 
-        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
+            controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
+        });
     }
 
-    @Test(expected = IdpDisabledException.class)
+    @Test
     public void handleAuthenticationFailedResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() {
-        AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
-                .thenReturn(emptyList());
-        controller.handleAuthenticationFailedResponseFromIdp(authenticationErrorResponse);
+        Assertions.assertThrows(IdpDisabledException.class, () -> {
+            AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse().build();
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+                    .thenReturn(emptyList());
+            controller.handleAuthenticationFailedResponseFromIdp(authenticationErrorResponse);
+        });
     }
 
     @Test
@@ -278,35 +288,43 @@ public class IdpSelectedStateControllerTest {
         verify(stateTransitionAction).transitionTo(isA(SessionStartedState.class));
     }
 
-    @Test(expected = IdpDisabledException.class)
+    @Test
     public void handleNoAuthenticationContextResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() {
-        AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
-                .thenReturn(emptyList());
-        controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
+        Assertions.assertThrows(IdpDisabledException.class, () -> {
+            AuthenticationErrorResponse authenticationErrorResponse = anAuthenticationErrorResponse().build();
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+                    .thenReturn(emptyList());
+            controller.handleNoAuthenticationContextResponseFromIdp(authenticationErrorResponse);
+        });
     }
 
-    @Test(expected = IdpDisabledException.class)
+    @Test
     public void handleFraudResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() {
-        FraudFromIdp fraudFromIdp = aFraudFromIdp().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
-                .thenReturn(emptyList());
-        controller.handleFraudResponseFromIdp(fraudFromIdp);
+        Assertions.assertThrows(IdpDisabledException.class, () -> {
+            FraudFromIdp fraudFromIdp = aFraudFromIdp().build();
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+                    .thenReturn(emptyList());
+            controller.handleFraudResponseFromIdp(fraudFromIdp);
+        });
     }
 
-    @Test(expected = IdpDisabledException.class)
+    @Test
     public void handleRequesterErrorResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() {
-        RequesterErrorResponse requesterErrorResponse = aRequesterErrorResponse().build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
-                .thenReturn(emptyList());
-        controller.handleRequesterErrorResponseFromIdp(requesterErrorResponse);
+        Assertions.assertThrows(IdpDisabledException.class, () -> {
+            RequesterErrorResponse requesterErrorResponse = aRequesterErrorResponse().build();
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+                    .thenReturn(emptyList());
+            controller.handleRequesterErrorResponseFromIdp(requesterErrorResponse);
+        });
     }
 
-    @Test(expected = IdpDisabledException.class)
+    @Test
     public void handleRequesterPendingResponseFromIdp_shouldThrowExceptionWhenIdpIsDisabled() {
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
-                .thenReturn(emptyList());
-        controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        Assertions.assertThrows(IdpDisabledException.class, () -> {
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+                    .thenReturn(emptyList());
+            controller.handlePausedRegistrationResponseFromIdp(IDP_ENTITY_ID, PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB, java.util.Optional.of(PROVIDED_LOA), ANALYTICS_SESSION_ID, JOURNEY_TYPE);
+        });
     }
 
     @Test
@@ -486,19 +504,21 @@ public class IdpSelectedStateControllerTest {
         verify(transactionsConfigProxy).getMatchingServiceEntityId(idpSelectedState.getRequestIssuerEntityId());
     }
 
-    @Test(expected = StateProcessingValidationException.class)
+    @Test
     public void shouldThrowUnauditedErrorExceptionIfTheResponseIsFromADifferentIssuer(){
-        PersistentId persistentId = aPersistentId().withNameId("idname").build();
-        SuccessFromIdp successFromIdp = aSuccessFromIdp()
-                .withIssuerId("differentIDP")
-                .withPersistentId(persistentId)
-                .withPrincipalIpAddressSeenByIdp(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP)
-                .withPrincipalIpAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB)
-                .withLevelOfAssurance(PROVIDED_LOA)
-                .build();
-        when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
-                .thenReturn(asList(IDP_ENTITY_ID, "differentIDP"));
+        Assertions.assertThrows(StateProcessingValidationException.class, () -> {
+            PersistentId persistentId = aPersistentId().withNameId("idname").build();
+            SuccessFromIdp successFromIdp = aSuccessFromIdp()
+                    .withIssuerId("differentIDP")
+                    .withPersistentId(persistentId)
+                    .withPrincipalIpAddressSeenByIdp(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_IDP)
+                    .withPrincipalIpAddressAsSeenByHub(PRINCIPAL_IP_ADDRESS_AS_SEEN_BY_HUB)
+                    .withLevelOfAssurance(PROVIDED_LOA)
+                    .build();
+            when(identityProvidersConfigProxy.getEnabledIdentityProvidersForAuthenticationResponseProcessing(TRANSACTION_ENTITY_ID, controller.isRegistrationContext(), PROVIDED_LOA))
+                    .thenReturn(asList(IDP_ENTITY_ID, "differentIDP"));
 
-        controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
+            controller.handleMatchingJourneySuccessResponseFromIdp(successFromIdp);
+        });
     }
 }

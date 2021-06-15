@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.policy.validators;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.exception.StateProcessingValidationException;
 
@@ -13,10 +13,10 @@ import static org.assertj.core.api.Assertions.fail;
 
 public class LevelOfAssuranceValidatorTest {
 
-    private LevelOfAssuranceValidator levelOfAssuranceValidator;
+    private static LevelOfAssuranceValidator levelOfAssuranceValidator;
 
-    @Before
-    public void setup() {
+    @BeforeAll
+    public static void setup() {
         levelOfAssuranceValidator = new LevelOfAssuranceValidator();
     }
 

@@ -1,31 +1,31 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
-import uk.gov.ida.saml.core.test.OpenSAMLRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.saml.core.test.builders.StatusBuilder.aStatus;
 import static uk.gov.ida.saml.core.test.builders.StatusCodeBuilder.aStatusCode;
 
-@RunWith(OpenSAMLRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class TransactionIdaStatusUnmarshallerTest {
 
-    private TransactionIdaStatusUnmarshaller unmarshaller;
+    private static TransactionIdaStatusUnmarshaller unmarshaller;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() {
         unmarshaller = new TransactionIdaStatusUnmarshaller();
     }
 
     @Test
-    public void transform_shouldTransformSuccessWithNoSubCode() throws Exception {
+    public void transform_shouldTransformSuccessWithNoSubCode() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status originalStatus = samlObjectFactory.createStatus();
         StatusCode successStatusCode = samlObjectFactory.createStatusCode();
@@ -38,7 +38,7 @@ public class TransactionIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformNoAuthenticationContext() throws Exception {
+    public void transform_shouldTransformNoAuthenticationContext() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status originalStatus = samlObjectFactory.createStatus();
         StatusCode topLevelStatusCode = samlObjectFactory.createStatusCode();
@@ -54,7 +54,7 @@ public class TransactionIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformNoMatchFromHub() throws Exception {
+    public void transform_shouldTransformNoMatchFromHub() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status originalStatus = samlObjectFactory.createStatus();
         StatusCode topLevelStatusCode = samlObjectFactory.createStatusCode();
@@ -70,7 +70,7 @@ public class TransactionIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformAuthnFailed() throws Exception {
+    public void transform_shouldTransformAuthnFailed() {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status status = samlObjectFactory.createStatus();
         StatusCode topLevelStatusCode = samlObjectFactory.createStatusCode();
@@ -85,7 +85,7 @@ public class TransactionIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformRequesterErrorFromIdpAsSentByHub() throws Exception {
+    public void transform_shouldTransformRequesterErrorFromIdpAsSentByHub() {
         Status status =
             aStatus()
                 .withStatusCode(

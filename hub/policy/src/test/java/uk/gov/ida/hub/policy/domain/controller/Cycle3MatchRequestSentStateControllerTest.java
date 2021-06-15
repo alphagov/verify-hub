@@ -1,13 +1,14 @@
 package uk.gov.ida.hub.policy.domain.controller;
 
 import org.joda.time.Duration;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.common.ServiceInfoConfiguration;
 import uk.gov.ida.common.ServiceInfoConfigurationBuilder;
 import uk.gov.ida.common.shared.security.IdGenerator;
@@ -50,18 +51,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static uk.gov.ida.hub.policy.builder.MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto;
 import static uk.gov.ida.hub.policy.builder.domain.MatchFromMatchingServiceBuilder.aMatchFromMatchingService;
 import static uk.gov.ida.hub.policy.builder.state.Cycle3MatchRequestSentStateBuilder.aCycle3MatchRequestSentState;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_MATCH;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.CYCLE3_NO_MATCH;
-import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.USER_ACCOUNT_CREATION_REQUEST_SENT;
+import static uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants.SessionEvents.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class Cycle3MatchRequestSentStateControllerTest {
     @Mock
     private StateTransitionAction stateTransitionAction;
@@ -96,7 +92,7 @@ public class Cycle3MatchRequestSentStateControllerTest {
     @Captor
     ArgumentCaptor<AttributeQueryRequestDto> attributeQueryRequestCaptor = null;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         hubEventLogger = new HubEventLogger(serviceInfo, eventSinkProxy, eventEmitter);
     }
@@ -245,19 +241,20 @@ public class Cycle3MatchRequestSentStateControllerTest {
         assertThat(responseFromHub.getStatus()).isEqualTo(TransactionIdaStatus.NoAuthenticationContext);
     }
 
-    @Test(expected=StateProcessingValidationException.class)
+    @Test
     public void shouldThrowExceptionWhenInResponseToDoesNotMatchFromCycle3MatchRequestForMatchResponse() {
-        final String requestId = "requestId";
-        final SessionId sessionId = SessionId.createNewSessionId();
-        Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
-        Cycle3MatchRequestSentStateController controller =
-                new Cycle3MatchRequestSentStateController(state, hubEventLogger, null, policyConfiguration,
-                        mock(LevelOfAssuranceValidator.class), null, transactionsConfigProxy, matchingServiceConfigProxy,
-                        assertionRestrictionFactory, attributeQueryService);
+        Assertions.assertThrows(StateProcessingValidationException.class, () -> {
+            final String requestId = "requestId";
+            final SessionId sessionId = SessionId.createNewSessionId();
+            Cycle3MatchRequestSentState state = aCycle3MatchRequestSentState().withSessionId(sessionId).withRequestId(requestId).build();
+            Cycle3MatchRequestSentStateController controller =
+                    new Cycle3MatchRequestSentStateController(state, hubEventLogger, null, policyConfiguration,
+                            mock(LevelOfAssuranceValidator.class), null, transactionsConfigProxy, matchingServiceConfigProxy,
+                            assertionRestrictionFactory, attributeQueryService);
 
-        MatchFromMatchingService matchFromMatchingService = new MatchFromMatchingService(matchingServiceEntityId, "definitelyNotTheSameRequestId", "assertionBlob", Optional.of(LevelOfAssurance.LEVEL_1));
-        controller.handleMatchResponseFromMatchingService(matchFromMatchingService);
-
+            MatchFromMatchingService matchFromMatchingService = new MatchFromMatchingService(matchingServiceEntityId, "definitelyNotTheSameRequestId", "assertionBlob", Optional.of(LevelOfAssurance.LEVEL_1));
+            controller.handleMatchResponseFromMatchingService(matchFromMatchingService);
+        });
     }
 
     @Test

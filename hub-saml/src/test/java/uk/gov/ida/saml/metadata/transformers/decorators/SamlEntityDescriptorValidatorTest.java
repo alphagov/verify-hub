@@ -1,10 +1,10 @@
 package uk.gov.ida.saml.metadata.transformers.decorators;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.core.test.builders.metadata.IdpSsoDescriptorBuilder;
 import uk.gov.ida.saml.core.test.builders.metadata.KeyDescriptorBuilder;
@@ -16,13 +16,13 @@ import static uk.gov.ida.saml.core.test.builders.metadata.EndpointBuilder.anEndp
 import static uk.gov.ida.saml.core.test.builders.metadata.EntityDescriptorBuilder.anEntityDescriptor;
 import static uk.gov.ida.saml.core.test.builders.metadata.X509DataBuilder.aX509Data;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class SamlEntityDescriptorValidatorTest {
 
-    private SamlEntityDescriptorValidator validator;
+    private static SamlEntityDescriptorValidator validator;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
         validator = new SamlEntityDescriptorValidator();
     }
 

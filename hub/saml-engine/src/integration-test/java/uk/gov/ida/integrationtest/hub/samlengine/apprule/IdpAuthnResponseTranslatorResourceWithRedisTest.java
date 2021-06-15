@@ -1,27 +1,25 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.util.Duration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
+import io.dropwizard.testing.ResourceHelpers;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import ru.vyarus.dropwizard.guice.test.ClientSupport;
+import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
+import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.RedisTestRule;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
 import uk.gov.ida.integrationtest.hub.samlengine.builders.AuthnResponseFactory;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -36,41 +34,43 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
 
 public class IdpAuthnResponseTranslatorResourceWithRedisTest {
 
-    private static final int REDIS_PORT = 6380;
-    private static Client client;
+    private static ClientSupport client;
 
     private final String IDP_RESPONSE_ENDPOINT = "http://localhost" + Urls.FrontendUrls.SAML2_SSO_RESPONSE_ENDPOINT;
     private final AuthnResponseFactory authnResponseFactory = new AuthnResponseFactory();
 
-    private static RedisTestRule redis = new RedisTestRule(REDIS_PORT);
+    @Order(0)
+    @RegisterExtension
+    public static ConfigStubExtension configStub = new ConfigStubExtension();
 
-    private static ConfigStubRule configStubRule = new ConfigStubRule();
+    @Order(1)
+    @RegisterExtension
+    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
+            .withDefaultConfigOverridesAnd("redis.recordTTL: PT150m")
+            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
+            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
+            .randomPorts()
+            .create();
 
-    public static SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule(
-            ConfigOverride.config("configUri", configStubRule.baseUri().build().toASCIIString()),
-            ConfigOverride.config("redis.uri", "redis://localhost:" + REDIS_PORT),
-            ConfigOverride.config("redis.recordTTL", "PT150m")
-    );
-
-    @ClassRule
-    public static RuleChain ruleChain = RuleChain.outerRule(redis).around(configStubRule).around(samlEngineAppRule);
-
-    @BeforeClass
-    public static void setUp() throws Exception {
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build
-                (IdpAuthnRequestGeneratorResourceTest.class.getSimpleName());
+    @BeforeAll
+    public static void beforeClass(ClientSupport clientSupport) {
+        client = clientSupport;
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() throws Exception {
-        configStubRule.setupCertificatesForEntity(TEST_RP_MS);
+        configStub.setupCertificatesForEntity(TEST_RP_MS);
     }
 
-    @After
+    @AfterEach
     public void after() {
-        configStubRule.reset();
+        configStub.reset();
         DateTimeFreezer.unfreezeTime();
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        SamlEngineAppExtension.tearDown();
     }
 
     @Test
@@ -141,7 +141,7 @@ public class IdpAuthnResponseTranslatorResourceWithRedisTest {
     }
 
     private Response postToSamlEngine(SamlAuthnResponseTranslatorDto samlResponseDto) {
-        return client.target(samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE))
+        return client.targetMain(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE)
                 .request().post(Entity.entity(samlResponseDto, MediaType.APPLICATION_JSON_TYPE));
     }
 

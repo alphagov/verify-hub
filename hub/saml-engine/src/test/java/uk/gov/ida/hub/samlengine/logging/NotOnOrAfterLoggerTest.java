@@ -9,17 +9,17 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.slf4j.LoggerFactory;
-import uk.gov.ida.saml.core.IdaSamlBootstrap;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,12 +31,9 @@ import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
 import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder.aSubjectConfirmation;
 import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationDataBuilder.aSubjectConfirmationData;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class NotOnOrAfterLoggerTest {
-
-    static {
-        IdaSamlBootstrap.bootstrap();
-    }
 
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/YYYY HH:mm:ss z");
     private static final String ISSUER_IDP = TestEntityIds.STUB_IDP_ONE;
@@ -47,14 +44,14 @@ public class NotOnOrAfterLoggerTest {
     @Captor
     private ArgumentCaptor<LoggingEvent> captorLoggingEvent;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.addAppender(mockAppender);
         logger.setLevel(Level.INFO);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.detachAppender(mockAppender);

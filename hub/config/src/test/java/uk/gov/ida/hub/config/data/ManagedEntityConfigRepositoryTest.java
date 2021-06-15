@@ -1,27 +1,32 @@
 package uk.gov.ida.hub.config.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.hub.config.domain.remoteconfig.RemoteConfigCollection;
 import uk.gov.ida.hub.config.domain.remoteconfig.SelfServiceMetadata;
 import uk.gov.ida.hub.config.exceptions.NoCertificateFoundException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ManagedEntityConfigRepositoryTest {
 
     private static final String REMOTE_ONLY_ENTITY_ID = "https://bananaregistry.test.com";
@@ -54,7 +59,7 @@ public class ManagedEntityConfigRepositoryTest {
             .withSelfService(false)
             .build();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception{
         URL url = this.getClass().getResource("/remote-test-config.json");
         File initialFile = new File(url.getFile());

@@ -1,11 +1,13 @@
 package uk.gov.ida.hub.policy.services;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.AttributeQueryRequestBuilder;
 import uk.gov.ida.hub.policy.builder.SamlAuthnResponseTranslatorDtoBuilder;
@@ -45,7 +47,8 @@ import static uk.gov.ida.hub.policy.builder.SamlAuthnResponseContainerDtoBuilder
 import static uk.gov.ida.hub.policy.builder.domain.AuthenticationErrorResponseBuilder.anAuthenticationErrorResponse;
 import static uk.gov.ida.hub.policy.builder.domain.RequesterErrorResponseBuilder.aRequesterErrorResponse;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class AuthnResponseFromIdpServiceTest {
 
     @Mock
@@ -69,7 +72,7 @@ public class AuthnResponseFromIdpServiceTest {
     private static final String MSA_ENTITY_ID = "a-msa-entity-id";
     private static final String REQUEST_ISSUER_ID = "request-issuer-id";
 
-    @Before
+    @BeforeEach
     public void setup() {
         sessionId = SessionIdBuilder.aSessionId().build();
         samlAuthnResponseContainerDto = aSamlAuthnResponseContainerDto().withSessionId(sessionId).withPrincipalIPAddressAsSeenByHub(

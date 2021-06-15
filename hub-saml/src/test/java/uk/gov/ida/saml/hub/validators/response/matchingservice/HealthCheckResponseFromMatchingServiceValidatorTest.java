@@ -1,14 +1,14 @@
 package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 
@@ -17,13 +17,13 @@ import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 import static uk.gov.ida.saml.core.test.builders.StatusBuilder.aStatus;
 import static uk.gov.ida.saml.core.test.builders.StatusCodeBuilder.aStatusCode;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class HealthCheckResponseFromMatchingServiceValidatorTest {
 
-    private HealthCheckResponseFromMatchingServiceValidator validator;
+    private static HealthCheckResponseFromMatchingServiceValidator validator;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
         validator = new HealthCheckResponseFromMatchingServiceValidator();
     }
 

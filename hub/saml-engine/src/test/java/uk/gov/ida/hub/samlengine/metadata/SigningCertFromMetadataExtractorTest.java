@@ -2,11 +2,12 @@ package uk.gov.ida.hub.samlengine.metadata;
 
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -35,14 +36,14 @@ import static uk.gov.ida.saml.core.test.builders.metadata.KeyInfoBuilder.aKeyInf
 import static uk.gov.ida.saml.core.test.builders.metadata.X509CertificateBuilder.aX509Certificate;
 import static uk.gov.ida.saml.core.test.builders.metadata.X509DataBuilder.aX509Data;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SigningCertFromMetadataExtractorTest {
 
     private SigningCertFromMetadataExtractor signingCertFromMetadataExtractor;
 
     private static EntityDescriptor hubEntityDescriptor;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws MarshallingException, SignatureException {
         KeyDescriptor secondKeyDescriptor = aKeyDescriptor().withKeyInfo(aKeyInfo().withKeyName(TestEntityIds.HUB_ENTITY_ID).withX509Data(aX509Data().withX509Certificate(aX509Certificate().withCert(TestCertificateStrings.HUB_TEST_SECONDARY_PUBLIC_SIGNING_CERT).build()).build()).build()).withUse(UsageType.SIGNING.toString()).build();
         hubEntityDescriptor = EntityDescriptorBuilder.anEntityDescriptor()
@@ -79,25 +80,31 @@ public class SigningCertFromMetadataExtractorTest {
         assertThat(signingCertFromMetadataExtractor.getSigningCertForCurrentSigningKey(hubSecondarySigningPublicKey)).isEqualTo(hubSecondarySigningCert);
     }
 
-    @Test(expected = SigningKeyExtractionException.class)
-    public void certIsNotFoundWhenResolvedMetadataDoesNotContainRelevantCert() throws ComponentInitializationException, ResolverException {
-        signingCertFromMetadataExtractor = new SigningCertFromMetadataExtractor(metadataResolver, HUB_ENTITY_ID);
-        when(metadataResolver.resolve(any())).thenReturn(List.of(hubEntityDescriptor));
-        signingCertFromMetadataExtractor.getSigningCertForCurrentSigningKey(notHubSigningPublicKey);
+    @Test
+    public void certIsNotFoundWhenResolvedMetadataDoesNotContainRelevantCert() {
+        Assertions.assertThrows(SigningKeyExtractionException.class, () -> {
+            signingCertFromMetadataExtractor = new SigningCertFromMetadataExtractor(metadataResolver, HUB_ENTITY_ID);
+            when(metadataResolver.resolve(any())).thenReturn(List.of(hubEntityDescriptor));
+            signingCertFromMetadataExtractor.getSigningCertForCurrentSigningKey(notHubSigningPublicKey);
+        });
     }
 
-    @Test(expected = SigningKeyExtractionException.class)
-    public void certIsNotFoundWhenEmptyMetadataReturned() throws ComponentInitializationException, ResolverException {
-        signingCertFromMetadataExtractor = new SigningCertFromMetadataExtractor(metadataResolver, HUB_ENTITY_ID);
-        when(metadataResolver.resolve(any())).thenReturn(emptyList());
-        signingCertFromMetadataExtractor.getSigningCertForCurrentSigningKey(notHubSigningPublicKey);
+    @Test
+    public void certIsNotFoundWhenEmptyMetadataReturned() {
+        Assertions.assertThrows(SigningKeyExtractionException.class, () -> {
+            signingCertFromMetadataExtractor = new SigningCertFromMetadataExtractor(metadataResolver, HUB_ENTITY_ID);
+            when(metadataResolver.resolve(any())).thenReturn(emptyList());
+            signingCertFromMetadataExtractor.getSigningCertForCurrentSigningKey(notHubSigningPublicKey);
+        });
     }
 
-    @Test(expected = SigningKeyExtractionException.class)
-    public void unableToResolveMetadata() throws ComponentInitializationException, ResolverException {
-        signingCertFromMetadataExtractor = new SigningCertFromMetadataExtractor(metadataResolver, HUB_ENTITY_ID);
-        when(metadataResolver.resolve(any())).thenThrow(new ResolverException());
-        signingCertFromMetadataExtractor.getSigningCertForCurrentSigningKey(hubPrimarySigningCert.getPublicKey());
-    }
+    @Test
+    public void unableToResolveMetadata() {
+        Assertions.assertThrows(SigningKeyExtractionException.class, () -> {
+            signingCertFromMetadataExtractor = new SigningCertFromMetadataExtractor(metadataResolver, HUB_ENTITY_ID);
+            when(metadataResolver.resolve(any())).thenThrow(new ResolverException());
+            signingCertFromMetadataExtractor.getSigningCertForCurrentSigningKey(hubPrimarySigningCert.getPublicKey());
 
+        });
+    }
 }
