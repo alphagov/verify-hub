@@ -4,11 +4,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.config.data.ManagedEntityConfigRepository;
 import uk.gov.ida.hub.config.domain.Certificate;
@@ -35,7 +36,7 @@ import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CertificateServiceTest {
 
     private static final String RP_ONE_ENTITY_ID = "rp_one_entity_id";
@@ -55,7 +56,7 @@ public class CertificateServiceTest {
     private CertificateService certificateService;
     private ListAppender<ILoggingEvent> logsListAppender = null;
 
-    @Before
+    @BeforeEach
     public void createService() {
         certificateService = new CertificateService(connectedServiceConfigRepository, matchingServiceConfigRepository, certificateValidityChecker);
 
@@ -83,24 +84,26 @@ public class CertificateServiceTest {
                 CERT_ONE_X509, CertificateUse.ENCRYPTION, CertificateOrigin.FEDERATION, true));
     }
 
-    @Test(expected = NoCertificateFoundException.class)
+    @Test
     public void encryptionCertificateForEntityIdWarnsAndThrowsWhenTransactionCertificateExistsButIsInvalid() {
-        TransactionConfig transactionConfig = aTransactionConfigData()
-                .withEntityId(RP_ONE_ENTITY_ID)
-                .withEnabled(true)
-                .build();
+        Assertions.assertThrows(NoCertificateFoundException.class, () -> {
+            TransactionConfig transactionConfig = aTransactionConfigData()
+                    .withEntityId(RP_ONE_ENTITY_ID)
+                    .withEnabled(true)
+                    .build();
 
-        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
-        when(certificateValidityChecker.isValid(any(Certificate.class))).thenReturn(false);
+            when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+            when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
+            when(certificateValidityChecker.isValid(any(Certificate.class))).thenReturn(false);
 
-        try {
-            certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
-        }
-        finally {
-            String expectedLogMessage = "Encryption certificate for entityId '" + RP_ONE_ENTITY_ID + "' was requested but is invalid";
-            checkForExpectedLogWarnings(List.of(expectedLogMessage));
-        }
+            try {
+                certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+            }
+            finally {
+                String expectedLogMessage = "Encryption certificate for entityId '" + RP_ONE_ENTITY_ID + "' was requested but is invalid";
+                checkForExpectedLogWarnings(List.of(expectedLogMessage));
+            }
+        });
     }
 
     @Test
@@ -121,46 +124,53 @@ public class CertificateServiceTest {
                 CERT_ONE_X509, CertificateUse.ENCRYPTION, CertificateOrigin.FEDERATION, true));
     }
 
-    @Test(expected = NoCertificateFoundException.class)
+    @Test
     public void encryptionCertificateForEntityIdWarnsAndThrowsWhenMatchCertificateExistsButIsInvalid() {
-        MatchingServiceConfig matchingServiceConfig = aMatchingServiceConfig()
-                .withEntityId(RP_ONE_ENTITY_ID)
-                .build();
+        Assertions.assertThrows(NoCertificateFoundException.class, () -> {
+            MatchingServiceConfig matchingServiceConfig = aMatchingServiceConfig()
+                    .withEntityId(RP_ONE_ENTITY_ID)
+                    .build();
 
-        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
-        when(certificateValidityChecker.isValid(any(Certificate.class))).thenReturn(false);
+            when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+            when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
+            when(certificateValidityChecker.isValid(any(Certificate.class))).thenReturn(false);
 
-        try {
-            certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
-        }
-        finally {
-            String expectedLogMessage = "Encryption certificate for entityId '" + RP_ONE_ENTITY_ID + "' was requested but is invalid";
-            checkForExpectedLogWarnings(List.of(expectedLogMessage));
-        }
+            try {
+                certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+            }
+            finally {
+                String expectedLogMessage = "Encryption certificate for entityId '" + RP_ONE_ENTITY_ID + "' was requested but is invalid";
+                checkForExpectedLogWarnings(List.of(expectedLogMessage));
+            }
+        });
     }
 
 
-    @Test(expected = NoCertificateFoundException.class)
+    @Test
     public void encryptionCertificateForEntityIdThrowsWhenNoEncryptionCertificateExists() {
-        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+        Assertions.assertThrows(NoCertificateFoundException.class, () -> {
+            when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+            when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
 
-        certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+            certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+        });
     }
 
-    @Test(expected = CertificateDisabledException.class)
+    @Test
     public void encryptionCertificateForEntityIdThrowsWhenEncryptionCertificateExistsButIsNotEnabled() {
-        TransactionConfig transactionConfig = aTransactionConfigData()
-                .withEntityId(RP_ONE_ENTITY_ID)
-                .withEnabled(false)
-                .build();
+        Assertions.assertThrows(CertificateDisabledException.class, () -> {
+            TransactionConfig transactionConfig = aTransactionConfigData()
+                    .withEntityId(RP_ONE_ENTITY_ID)
+                    .withEnabled(false)
+                    .build();
 
-        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
-        when(certificateValidityChecker.isValid(any(Certificate.class))).thenReturn(true);
+            when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+            when(connectedServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(transactionConfig));
+            when(certificateValidityChecker.isValid(any(Certificate.class))).thenReturn(true);
 
-        certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+            certificateService.encryptionCertificateFor(RP_ONE_ENTITY_ID);
+        });
+
     }
 
     @Test
@@ -257,39 +267,42 @@ public class CertificateServiceTest {
         checkForExpectedLogWarnings(List.of(expectedLogMessage));
     }
 
-    @Test(expected = NoCertificateFoundException.class)
+    @Test
     public void signatureVerificationCertificatesForEntityIdWarnsAndThrowsWhenMatchingSignatureCertificatesExistButAreInvalid() {
+        Assertions.assertThrows(NoCertificateFoundException.class, () -> {
+            MatchingServiceConfig matchingServiceConfig = aMatchingServiceConfig()
+                    .withEntityId(RP_ONE_ENTITY_ID)
+                    .addSignatureVerificationCertificate(CERT_ONE_X509)
+                    .addSignatureVerificationCertificate(CERT_TWO_X509)
+                    .build();
 
-        MatchingServiceConfig matchingServiceConfig = aMatchingServiceConfig()
-                .withEntityId(RP_ONE_ENTITY_ID)
-                .addSignatureVerificationCertificate(CERT_ONE_X509)
-                .addSignatureVerificationCertificate(CERT_TWO_X509)
-                .build();
+            Certificate invalidCertificate1 = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_ONE_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
+            Certificate invalidCertificate2 = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
 
-        Certificate invalidCertificate1 = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_ONE_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
-        Certificate invalidCertificate2 = new Certificate(RP_ONE_ENTITY_ID, FederationEntityType.MS, CERT_TWO_X509, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
+            when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+            when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
+            when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
+            when(certificateValidityChecker.isValid(invalidCertificate1)).thenReturn(false);
+            when(certificateValidityChecker.isValid(invalidCertificate2)).thenReturn(false);
 
-        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(true);
-        when(matchingServiceConfigRepository.get(RP_ONE_ENTITY_ID)).thenReturn(Optional.of(matchingServiceConfig));
-        when(certificateValidityChecker.isValid(invalidCertificate1)).thenReturn(false);
-        when(certificateValidityChecker.isValid(invalidCertificate2)).thenReturn(false);
-
-        try {
-            certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
-        }
-        finally {
-            String expectedLogMessage = String.format("Signature verification certificates were requested for entityId '%s'; 2 of them are invalid", RP_ONE_ENTITY_ID);
-            checkForExpectedLogWarnings(List.of(expectedLogMessage));
-        }
+            try {
+                certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
+            }
+            finally {
+                String expectedLogMessage = String.format("Signature verification certificates were requested for entityId '%s'; 2 of them are invalid", RP_ONE_ENTITY_ID);
+                checkForExpectedLogWarnings(List.of(expectedLogMessage));
+            }
+        });
     }
 
-    @Test(expected = NoCertificateFoundException.class)
+    @Test
     public void signatureVerificationCertificatesForEntityIdThrowsWhenMatchingSignatureCertificatesDoNotExist() {
-        when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
-        when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+        Assertions.assertThrows(NoCertificateFoundException.class, () -> {
+            when(connectedServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
+            when(matchingServiceConfigRepository.has(RP_ONE_ENTITY_ID)).thenReturn(false);
 
-        certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
+            certificateService.signatureVerificationCertificatesFor(RP_ONE_ENTITY_ID);
+        });
     }
 
     @Test

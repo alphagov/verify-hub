@@ -1,12 +1,12 @@
 package uk.gov.ida.saml.metadata.transformers;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.security.credential.UsageType;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.core.test.builders.metadata.KeyDescriptorBuilder;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
@@ -16,18 +16,18 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static uk.gov.ida.saml.core.test.builders.metadata.KeyInfoBuilder.aKeyInfo;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class KeyDescriptorFinderTest {
 
-    private KeyDescriptorFinder finder;
+    private static KeyDescriptorFinder finder;
 
-    @Before
-    public void setup() {
+    @BeforeAll
+    public static void setup() {
         finder = new KeyDescriptorFinder();
     }
 
     @Test
-    public void find_shouldFindKeyDescriptorWithMatchingUsageAndEntityId() throws Exception {
+    public void find_shouldFindKeyDescriptorWithMatchingUsageAndEntityId() {
         final String entityId = UUID.randomUUID().toString();
         final KeyDescriptor desiredKeyDescriptor = KeyDescriptorBuilder.aKeyDescriptor().withKeyInfo(aKeyInfo().withKeyName(entityId).build()).withUse(UsageType.SIGNING.toString()).build();
 
@@ -38,7 +38,7 @@ public class KeyDescriptorFinderTest {
     }
 
     @Test
-    public void find_shouldFindKeyDescriptorWithMatchingUsageWhenItHasNoKeyName() throws Exception {
+    public void find_shouldFindKeyDescriptorWithMatchingUsageWhenItHasNoKeyName() {
         final String entityId = UUID.randomUUID().toString();
         final KeyDescriptor desiredKeyDescriptor = KeyDescriptorBuilder.aKeyDescriptor().withKeyInfo(aKeyInfo().withKeyName(null).build()).withUse(UsageType.SIGNING.toString()).build();
 
@@ -49,7 +49,7 @@ public class KeyDescriptorFinderTest {
     }
 
     @Test
-    public void find_shouldFindKeyDescriptorWithMatchingUsageWhenKeyNameIsPresentAndExpectedEntityIdIsNull() throws Exception {
+    public void find_shouldFindKeyDescriptorWithMatchingUsageWhenKeyNameIsPresentAndExpectedEntityIdIsNull() {
         final KeyDescriptor desiredKeyDescriptor = KeyDescriptorBuilder.aKeyDescriptor().withKeyInfo(aKeyInfo().withKeyName("foo").build()).withUse(UsageType.SIGNING.toString()).build();
 
         final KeyDescriptor result =
@@ -59,7 +59,7 @@ public class KeyDescriptorFinderTest {
     }
 
     @Test
-    public void find_shouldThrowExceptionWhenSigningCertificateIsNotPresent() throws Exception {
+    public void find_shouldThrowExceptionWhenSigningCertificateIsNotPresent() {
         final KeyDescriptor keyDescriptor = KeyDescriptorBuilder.aKeyDescriptor().withUse(UsageType.ENCRYPTION.toString()).build();
 
         SamlTransformationErrorManagerTestHelper.validateFail(
@@ -68,7 +68,7 @@ public class KeyDescriptorFinderTest {
     }
 
     @Test
-    public void find_shouldThrowExceptionWhenEncryptionCertificateIsNotPresent() throws Exception {
+    public void find_shouldThrowExceptionWhenEncryptionCertificateIsNotPresent() {
         final KeyDescriptor keyDescriptor = KeyDescriptorBuilder.aKeyDescriptor().withUse(UsageType.SIGNING.toString()).build();
 
         SamlTransformationErrorManagerTestHelper.validateFail(
@@ -78,7 +78,7 @@ public class KeyDescriptorFinderTest {
     }
 
     @Test
-    public void find_shouldThrowExceptionWhenKeyNameIsPresentButDoesNotMatchExpectedEntityId() throws Exception {
+    public void find_shouldThrowExceptionWhenKeyNameIsPresentButDoesNotMatchExpectedEntityId() {
         final KeyDescriptor keyDescriptor = KeyDescriptorBuilder.aKeyDescriptor().withUse(UsageType.SIGNING.toString()).build();
 
         SamlTransformationErrorManagerTestHelper.validateFail(

@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.config.domain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
 import java.net.URI;

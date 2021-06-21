@@ -3,8 +3,8 @@ package uk.gov.ida.hub.policy.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Environment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.ida.hub.policy.PolicyApplication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +19,7 @@ public class PolicyApplicationTest {
     private final PolicyConfiguration config = new PolicyConfiguration();
     private final ObjectMapper objectMapper = mock(ObjectMapper.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(environment.jersey()).thenReturn(jersey);
         when(environment.getObjectMapper()).thenReturn(objectMapper);

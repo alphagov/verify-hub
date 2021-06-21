@@ -1,8 +1,8 @@
 package uk.gov.ida.saml.hub.validators.response.idp.components;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDType;
@@ -10,7 +10,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.hub.transformers.inbound.SamlStatusToIdaStatusCodeMapper;
@@ -36,13 +36,13 @@ import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorT
 import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.createSubStatusCode;
 import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.getResponseBuilderWithTwoAssertions;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class EncryptedResponseFromIdpValidatorTest {
 
-    private EncryptedResponseFromIdpValidator<IdpIdaStatus.Status> validator;
+    private static EncryptedResponseFromIdpValidator<IdpIdaStatus.Status> validator;
 
-    @Before
-    public void setup() {
+    @BeforeAll
+    public static void setup() {
         validator = new EncryptedResponseFromIdpValidator<>(new SamlStatusToIdaStatusCodeMapper());
     }
 

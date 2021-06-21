@@ -2,11 +2,11 @@ package uk.gov.ida.hub.policy.session;
 
 import io.lettuce.core.api.sync.RedisCommands;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.State;
 import uk.gov.ida.hub.policy.domain.state.SessionStartedState;
@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RedisSessionStoreTest {
 
     private static final Long EXPIRY_TIME = 1L;
@@ -28,7 +28,7 @@ public class RedisSessionStoreTest {
     @Mock
     private RedisCommands<SessionId, State> redis;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         redisSessionStore = new RedisSessionStore(redis, EXPIRY_TIME);
     }

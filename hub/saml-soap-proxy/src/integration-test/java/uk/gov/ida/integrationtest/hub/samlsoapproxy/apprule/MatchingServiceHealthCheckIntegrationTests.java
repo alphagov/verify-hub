@@ -1,40 +1,40 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.util.Duration;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.dropwizard.testing.ResourceHelpers;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
 import org.w3c.dom.Element;
+import ru.vyarus.dropwizard.guice.test.ClientSupport;
+import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.shared.security.PrivateKeyFactory;
 import uk.gov.ida.common.shared.security.PublicKeyFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
+import uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyApplication;
 import uk.gov.ida.hub.samlsoapproxy.Urls;
 import uk.gov.ida.hub.samlsoapproxy.soap.SoapMessageManager;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.dto.AggregatedMatchingServicesHealthCheckResultDto;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.dto.MatchingServiceHealthCheckResultDto;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubRule;
-import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppRule;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.ConfigStubExtension;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.EventSinkStubExtension;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubExtension;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubExtension;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppExtension;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus;
 import uk.gov.ida.saml.msa.test.api.MsaTransformersFactory;
 import uk.gov.ida.saml.msa.test.outbound.HealthCheckResponseFromMatchingService;
 import uk.gov.ida.saml.security.IdaKeyStore;
-import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -45,11 +45,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
-import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthCheckerResponseDtoBuilder.anInboundResponseFromMatchingServiceDto;
-import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubRule.msaStubRule;
-import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubRule.stackedSamlEngineStubRule;
+import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubExtension.msaStubExtension;
+import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubExtension.stackedSamlEngineStubRule;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PUBLIC_ENCRYPTION_CERT;
@@ -60,7 +59,7 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 
 public class MatchingServiceHealthCheckIntegrationTests {
 
-    private static Client client;
+    private static ClientSupport client;
 
     private static final String msaEntityId = "http://dev-rp-ms.local/SAML2/MD";
     private static final String msaEntityId2 = "http://another-rp-ms.local/SAML2/MD";
@@ -71,49 +70,55 @@ public class MatchingServiceHealthCheckIntegrationTests {
 
     private static final SoapMessageManager soapMessageManager = new SoapMessageManager();
 
-    @ClassRule
-    public static ConfigStubRule configStub = new ConfigStubRule();
+    @Order(0)
+    @RegisterExtension
+    public static ConfigStubExtension configStub = new ConfigStubExtension();
 
-    @ClassRule
-    public static EventSinkStubRule eventSinkStub = new EventSinkStubRule();
+    @Order(0)
+    @RegisterExtension
+    public static EventSinkStubExtension eventSinkStub = new EventSinkStubExtension();
 
-    @ClassRule
-    public static SamlEngineStubRule samlEngineStub = stackedSamlEngineStubRule();
+    @Order(0)
+    @RegisterExtension
+    public static SamlEngineStubExtension samlEngineStub = stackedSamlEngineStubRule();
 
-    @ClassRule
-    public static MsaStubRule msaStubRule1 = msaStubRule();
+    @Order(0)
+    @RegisterExtension
+    public static MsaStubExtension msaStub1 = msaStubExtension();
 
-    @ClassRule
-    public static MsaStubRule msaStubRule2 = msaStubRule();
+    @Order(0)
+    @RegisterExtension
+    public static MsaStubExtension msaStub2 = msaStubExtension();
 
-    @ClassRule
-    public static SamlSoapProxyAppRule samlSoapProxyAppRule = new SamlSoapProxyAppRule(
-            config("configUri", configStub.baseUri().build().toASCIIString()),
-            config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()),
-            config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString())
-    );
+    @Order(1)
+    @RegisterExtension
+    public static TestDropwizardAppExtension samlSoapProxyAppExtension = SamlSoapProxyAppExtension.forApp(SamlSoapProxyApplication.class)
+            .withDefaultConfigOverridesAnd()
+            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
+            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
+            .configOverride("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
+            .config(ResourceHelpers.resourceFilePath("saml-soap-proxy.yml"))
+            .randomPorts()
+            .create();
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration()
-                .withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(samlSoapProxyAppRule.getEnvironment()).using(jerseyClientConfiguration)
-                .build(MatchingServiceHealthCheckIntegrationTests.class.getSimpleName());
+    @BeforeAll
+    public static void beforeClass(ClientSupport clientSupport) throws JsonProcessingException {
+        client = clientSupport;
         eventSinkStub.setupStubForLogging();
         configStub.setupStubForCertificates(msaEntityId, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
         configStub.setupStubForCertificates(msaEntityId2, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
     }
 
-    @After
-    public void tearDown() {
-        DateTimeFreezer.unfreezeTime();
+    @AfterAll
+    public static void tearDown() {
+        SamlSoapProxyAppExtension.tearDown();
     }
-
+    
     @Test
     public void healthCheck_shouldRespondWith200WhenAllMatchingServicesHealthy() throws Exception {
-        configStub.setUpStubForMatchingServiceHealthCheckRequest(msaStubRule1.getAttributeQueryRequestUri(), msaEntityId2);
+        configStub.setUpStubForMatchingServiceHealthCheckRequest(msaStub1.getAttributeQueryRequestUri(), msaEntityId2);
         String healthCheckResponse = aHealthyHealthCheckResponse(msaEntityId2, msaVersion2);
-        msaStubRule1.prepareForHealthCheckRequest(healthCheckResponse);
+        msaStub1.prepareForHealthCheckRequest(healthCheckResponse);
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslate(anInboundResponseFromMatchingServiceDto()
                 .withIssuer(msaEntityId2)
@@ -133,15 +138,15 @@ public class MatchingServiceHealthCheckIntegrationTests {
 
     @Test
     public void healthCheck_shouldRespondWith500WhenAllMatchingServicesAreNotHealthy() throws Exception {
-        configStub.setUpStubForTwoMatchingServiceHealthCheckRequests(msaStubRule1.getAttributeQueryRequestUri(), msaEntityId,
-                msaStubRule2.getAttributeQueryRequestUri(), msaEntityId2);
+        configStub.setUpStubForTwoMatchingServiceHealthCheckRequests(msaStub1.getAttributeQueryRequestUri(), msaEntityId,
+                msaStub2.getAttributeQueryRequestUri(), msaEntityId2);
         
-        msaStubRule1.prepareForHealthCheckRequest(anUnhealthyHealthCheckResponse(msaEntityId, msaVersion));
+        msaStub1.prepareForHealthCheckRequest(anUnhealthyHealthCheckResponse(msaEntityId, msaVersion));
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslateReturningError(ErrorStatusDto.createAuditedErrorStatus(UUID.randomUUID(),
                 ExceptionType.INVALID_SAML));
 
-        msaStubRule2.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2, msaVersion2));
+        msaStub2.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2, msaVersion2));
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslateReturningError(ErrorStatusDto.createAuditedErrorStatus(UUID.randomUUID(),
                 ExceptionType.INVALID_SAML));
@@ -163,15 +168,15 @@ public class MatchingServiceHealthCheckIntegrationTests {
 
     @Test
     public void healthCheck_shouldRespondWith200WhenAnyMatchingServicesHealthy() throws Exception {
-        configStub.setUpStubForTwoMatchingServiceHealthCheckRequests(msaStubRule1.getAttributeQueryRequestUri(), msaEntityId,
-                msaStubRule2.getAttributeQueryRequestUri(), msaEntityId2);
+        configStub.setUpStubForTwoMatchingServiceHealthCheckRequests(msaStub1.getAttributeQueryRequestUri(), msaEntityId,
+                msaStub2.getAttributeQueryRequestUri(), msaEntityId2);
 
-        msaStubRule1.prepareForHealthCheckRequest(anUnhealthyHealthCheckResponse(msaEntityId, msaVersion));
+        msaStub1.prepareForHealthCheckRequest(anUnhealthyHealthCheckResponse(msaEntityId, msaVersion));
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslateReturningError(ErrorStatusDto.createAuditedErrorStatus(UUID.randomUUID(),
                 ExceptionType.INVALID_SAML));
 
-        msaStubRule2.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2, msaVersion2));
+        msaStub2.prepareForHealthCheckRequest(aHealthyHealthCheckResponse(msaEntityId2, msaVersion2));
         samlEngineStub.prepareForHealthCheckSamlGeneration();
         samlEngineStub.setupStubForAttributeResponseTranslate(anInboundResponseFromMatchingServiceDto()
                 .withIssuer(msaEntityId2)
@@ -227,9 +232,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
     }
 
     private Response makeMatchingServiceHealthCheckRequest() {
-        return client.target(samlSoapProxyAppRule.getUri(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_HEALTH_CHECK_RESOURCE))
-                .request()
-                .get();
+        return client.targetMain(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_HEALTH_CHECK_RESOURCE).request().get();
     }
 
     private IdaKeyStore getKeyStore() {

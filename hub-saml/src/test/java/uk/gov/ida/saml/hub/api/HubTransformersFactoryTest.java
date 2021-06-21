@@ -2,10 +2,9 @@ package uk.gov.ida.saml.hub.api;
 
 import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.apache.xml.security.utils.Base64;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
@@ -14,9 +13,9 @@ import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
 import uk.gov.ida.common.shared.security.PrivateKeyFactory;
 import uk.gov.ida.common.shared.security.PublicKeyFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
-import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.api.CoreTransformersFactory;
 import uk.gov.ida.saml.core.domain.AuthnContext;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.TestCertificateStrings;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
@@ -34,19 +33,16 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(OpenSAMLExtension.class)
 public class HubTransformersFactoryTest {
-    private StringToOpenSamlObjectTransformer<AuthnRequest> stringToOpenSamlObjectTransformer;
+    private static StringToOpenSamlObjectTransformer<AuthnRequest> stringToOpenSamlObjectTransformer;
 
     private final SignatureAlgorithm signatureAlgorithm = new SignatureRSASHA256();
     private final DigestAlgorithm digestAlgorithm = new DigestSHA256();
     private final X509Certificate hubSigningCert = new X509CertificateFactory().createCertificate(TestCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT);
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Before
-    public void setUp() {
-        IdaSamlBootstrap.bootstrap();
+    @BeforeAll
+    public static void setUp() {
         CoreTransformersFactory coreTransformersFactory = new CoreTransformersFactory();
         stringToOpenSamlObjectTransformer = coreTransformersFactory.
                 getStringtoOpenSamlObjectTransformer(input -> {});

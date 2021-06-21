@@ -1,22 +1,22 @@
 package uk.gov.ida.saml.hub.factories;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.Attribute;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.hub.domain.UserAccountCreationAttribute;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(OpenSAMLRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class AttributeQueryAttributeFactoryTest {
 
-    private AttributeQueryAttributeFactory attributeQueryAttributeFactory;
+    private static AttributeQueryAttributeFactory attributeQueryAttributeFactory;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() throws Exception {
         attributeQueryAttributeFactory = new AttributeQueryAttributeFactory(new OpenSamlXmlObjectFactory());
     }
 

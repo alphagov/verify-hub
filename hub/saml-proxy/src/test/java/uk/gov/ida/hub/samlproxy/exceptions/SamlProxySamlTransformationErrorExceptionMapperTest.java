@@ -1,11 +1,10 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import com.google.inject.Provider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
@@ -27,14 +26,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SamlProxySamlTransformationErrorExceptionMapperTest {
     @Mock
     private LevelLogger levelLogger;
     @Mock
-    private Provider<HttpServletRequest> contextProvider;
-    @Mock
-    private javax.servlet.http.HttpServletRequest httpServletRequest;
+    private HttpServletRequest httpServletRequest;
     @Mock
     private EventSinkMessageSender eventSinkMessageSender;
     @Mock
@@ -42,15 +39,14 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
 
     private SamlProxySamlTransformationErrorExceptionMapper exceptionMapper;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(levelLoggerFactory.createLevelLogger(SamlProxySamlTransformationErrorExceptionMapper.class)).thenReturn(levelLogger);
-        exceptionMapper = new SamlProxySamlTransformationErrorExceptionMapper(contextProvider, eventSinkMessageSender, levelLoggerFactory);
-        when(contextProvider.get()).thenReturn(httpServletRequest);
+        exceptionMapper = new SamlProxySamlTransformationErrorExceptionMapper(() -> httpServletRequest, eventSinkMessageSender, levelLoggerFactory);
     }
 
     @Test
-    public void shouldLogToEventSinkWhenExceptionHasContextAndSessionId() throws Exception {
+    public void shouldLogToEventSinkWhenExceptionHasContextAndSessionId() {
         TestSamlTransformationErrorException exception = new TestSamlTransformationErrorException("error", new RuntimeException(), Level.DEBUG);
         SessionId sessionId = SessionId.createNewSessionId();
         when(httpServletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(sessionId.getSessionId());
@@ -60,7 +56,7 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
     }
 
     @Test
-    public void shouldLogToEventSinkWhenExceptionHasContextAndNoSessionId() throws Exception {
+    public void shouldLogToEventSinkWhenExceptionHasContextAndNoSessionId() {
         TestSamlTransformationErrorException exception = new TestSamlTransformationErrorException("error", new RuntimeException(), Level.DEBUG);
         exceptionMapper.handleException(exception);
 
@@ -68,7 +64,7 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
     }
 
     @Test
-    public void shouldCreateAuditedErrorResponseForInvalidSaml() throws Exception {
+    public void shouldCreateAuditedErrorResponseForInvalidSaml() {
         Response response = exceptionMapper.handleException(new TestSamlTransformationErrorException("error", new RuntimeException(), Level.DEBUG));
 
         ErrorStatusDto responseEntity = (ErrorStatusDto) response.getEntity();
@@ -78,7 +74,7 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
     }
 
     @Test
-    public void shouldCreateAuditedErrorResponseForRequestTooOldError() throws Exception {
+    public void shouldCreateAuditedErrorResponseForRequestTooOldError() {
         Response response = exceptionMapper.handleException(new SamlRequestTooOldException("error", new RuntimeException(), Level.DEBUG));
 
         ErrorStatusDto responseEntity = (ErrorStatusDto) response.getEntity();
@@ -88,7 +84,7 @@ public class SamlProxySamlTransformationErrorExceptionMapperTest {
     }
 
     @Test
-    public void shouldLogExceptionAtCorrectLevel() throws Exception {
+    public void shouldLogExceptionAtCorrectLevel() {
         Level logLevel = Level.DEBUG;
         TestSamlTransformationErrorException exception = new TestSamlTransformationErrorException("error", new RuntimeException(), logLevel);
         exceptionMapper.handleException(exception);

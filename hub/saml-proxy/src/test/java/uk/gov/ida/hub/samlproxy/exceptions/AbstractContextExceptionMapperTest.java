@@ -1,11 +1,11 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
 import com.google.inject.Provider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.hub.samlproxy.Urls;
@@ -18,7 +18,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbstractContextExceptionMapperTest {
 
     @Mock
@@ -26,7 +26,7 @@ public class AbstractContextExceptionMapperTest {
 
     private TestExceptionMapper mapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Provider<HttpServletRequest> provider = () -> servletRequest;
         mapper = new TestExceptionMapper(provider);

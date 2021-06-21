@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.config.validators;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.ida.hub.config.domain.EntityIdentifiable;
 import uk.gov.ida.hub.config.exceptions.ConfigValidationException;
 
@@ -17,7 +17,7 @@ public class DuplicateEntityIdConfigValidatorTest {
     private DuplicateEntityIdConfigValidator validator = new DuplicateEntityIdConfigValidator();
 
     @Test
-    public void validate_shouldThrowExceptionIfTwoEntitiesHaveSameEntityId() throws Exception {
+    public void validate_shouldThrowExceptionIfTwoEntitiesHaveSameEntityId() {
         String entityId = "transaction-entity-id";
         Collection<EntityIdentifiable> configs = new ArrayList<>();
         configs.add(aTransactionConfigData().withEntityId(entityId).build());

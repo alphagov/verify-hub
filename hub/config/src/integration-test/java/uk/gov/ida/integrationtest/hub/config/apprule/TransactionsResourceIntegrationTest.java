@@ -1,12 +1,13 @@
 package uk.gov.ida.integrationtest.hub.config.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.util.Duration;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import io.dropwizard.testing.ResourceHelpers;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import ru.vyarus.dropwizard.guice.test.ClientSupport;
+import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
+import uk.gov.ida.hub.config.ConfigApplication;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.domain.UserAccountCreationAttribute;
@@ -14,12 +15,12 @@ import uk.gov.ida.hub.config.dto.MatchingProcessDto;
 import uk.gov.ida.hub.config.dto.ResourceLocationDto;
 import uk.gov.ida.hub.config.dto.TransactionDisplayData;
 import uk.gov.ida.hub.config.dto.TransactionSingleIdpData;
-import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +34,7 @@ import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
 public class TransactionsResourceIntegrationTest {
-    public static Client client;
+    public static ClientSupport client;
     private static final String ENTITY_ID = "test-entity-id";
     private static final String SIMPLE_ID = "test-simple-id";
     private static final String MS_ENTITY_ID = "ms-entity-id";
@@ -44,8 +45,8 @@ public class TransactionsResourceIntegrationTest {
     private static final String ANOTHER_ENTITY_ID = "another-test-entity-id";
     private static final String ANOTHER_SIMPLE_ID = "another-test-simple-id";
 
-    @ClassRule
-    public static ConfigAppRule configAppRule = new ConfigAppRule()
+    @RegisterExtension
+    static TestDropwizardAppExtension app = ConfigAppExtension.forApp(ConfigApplication.class)
             .addTransaction(aTransactionConfigData()
                     .withEntityId(ENTITY_ID)
                     .withSimpleId(SIMPLE_ID)
@@ -81,38 +82,47 @@ public class TransactionsResourceIntegrationTest {
             .addIdp(anIdentityProviderConfigData()
                     .withEntityId("idp-entity-id")
                     .withOnboarding(asList(ENTITY_ID))
-                    .build());
+                    .build())
+            .writeFederationConfig()
+            .withDefaultConfigOverridesAnd()
+            .withClearedCollectorRegistry()
+            .config(ResourceHelpers.resourceFilePath("config.yml"))
+            .randomPorts()
+            .create();
 
-    @BeforeClass
-    public static void setUp() {
-        configAppRule.newApplication();
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(configAppRule.getEnvironment()).using(jerseyClientConfiguration).build(TransactionsResourceIntegrationTest.class.getSimpleName());
+    @BeforeAll
+    public static void setUp(ClientSupport clientSupport) {
+        client = clientSupport;
     }
 
     @Test
     public void getAssertionConsumerServiceUri_returnsOkAndUri() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.TRANSACTIONS_ASSERTION_CONSUMER_SERVICE_URI_RESOURCE)
-                .queryParam(Urls.ConfigUrls.ASSERTION_CONSUMER_SERVICE_INDEX_PARAM, 0).buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPathAndQueryParam(
+                ENTITY_ID,
+                Urls.ConfigUrls.TRANSACTIONS_ASSERTION_CONSUMER_SERVICE_URI_RESOURCE,
+                Urls.ConfigUrls.ASSERTION_CONSUMER_SERVICE_INDEX_PARAM,
+                0
+        );
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(ResourceLocationDto.class).getTarget()).isEqualTo(URI.create(TEST_URI));
     }
 
     @Test
     public void getAssertionConsumerServiceUri_returnsNotFoundWhenIndexIsNotFound() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.TRANSACTIONS_ASSERTION_CONSUMER_SERVICE_URI_RESOURCE)
-                .queryParam(Urls.ConfigUrls.ASSERTION_CONSUMER_SERVICE_INDEX_PARAM, 3).buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPathAndQueryParam(
+                ENTITY_ID,
+                Urls.ConfigUrls.TRANSACTIONS_ASSERTION_CONSUMER_SERVICE_URI_RESOURCE,
+                Urls.ConfigUrls.ASSERTION_CONSUMER_SERVICE_INDEX_PARAM,
+                3
+        );
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void getDisplayData_returnsOkAndDisplayData() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.TRANSACTION_DISPLAY_DATA_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath(ENTITY_ID, Urls.ConfigUrls.TRANSACTION_DISPLAY_DATA_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
         TransactionDisplayData expected = new TransactionDisplayData(
                 SIMPLE_ID,
                 URI.create(SERVICE_HOMEPAGE),
@@ -124,29 +134,26 @@ public class TransactionsResourceIntegrationTest {
 
     @Test
     public void getMatchingProcess_returnsOKAndMatchingProcess() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.MATCHING_PROCESS_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath(ENTITY_ID, Urls.ConfigUrls.MATCHING_PROCESS_RESOURCE);
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(MatchingProcessDto.class)).isEqualToComparingFieldByField(new MatchingProcessDto("NationalInsuranceNumber"));
     }
 
     @Test
     public void getMatchingProcess_returnsNotFoundForEntityThatDoesNotExist() {
-        String entityId = "not-found";
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.MATCHING_PROCESS_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath("not-found", Urls.ConfigUrls.MATCHING_PROCESS_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void getEnabledTransactions_returnsOkAndEnabledTransactions() {
-        URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.ENABLED_TRANSACTIONS_PATH).build();
-        Response response = client.target(uri).request().get();
+        Response response = client.targetMain("/config/transactions" + Urls.ConfigUrls.ENABLED_TRANSACTIONS_PATH).request().buildGet().invoke();
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<TransactionDisplayData> transactionDisplayItems =
-                response.readEntity(new GenericType<List<TransactionDisplayData>>() {});
+                response.readEntity(new GenericType<>() {
+                });
         for (TransactionDisplayData transactionDisplayItem : transactionDisplayItems) {
             List<LevelOfAssurance> loas = transactionDisplayItem.getLoaList();
             assertThat(loas != null);
@@ -155,119 +162,85 @@ public class TransactionsResourceIntegrationTest {
 
     @Test
     public void getLevelsOfAssurance_returnsNotFoundForEntityThatDoesNotExist() {
-        String entityId = "not-found";
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.LEVELS_OF_ASSURANCE_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath("not-found", Urls.ConfigUrls.LEVELS_OF_ASSURANCE_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void getMatchingServiceEntityId_returnsOkAndMatchServiceEntityId() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.MATCHING_SERVICE_ENTITY_ID_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath(ENTITY_ID, Urls.ConfigUrls.MATCHING_SERVICE_ENTITY_ID_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(String.class)).isEqualTo(MS_ENTITY_ID);
     }
 
     @Test
     public void getMatchingServiceEntityId_returnsNotFoundForEntityIdThatDoesNotExist() {
-        String entityId = "not-found";
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.MATCHING_SERVICE_ENTITY_ID_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath("not-found", Urls.ConfigUrls.MATCHING_SERVICE_ENTITY_ID_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void getUserAccountCreationAttributes_returnsOkAndUserAccountCreationAtttributes() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath(ENTITY_ID, Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(List.class)).isNotEmpty();
     }
 
     @Test
     public void getUserAccountCreationAttributes_returnsNotFoundForEntityThatDoesNotExist() {
-        String entityId = "not-found";
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath("not-found", Urls.ConfigUrls.USER_ACCOUNT_CREATION_ATTRIBUTES_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void getShouldHubSignResponseMessages_returnsOkAndMessages() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath(ENTITY_ID, Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(boolean.class)).isTrue();
     }
 
     @Test
     public void getShouldHubSignResponseMessages_returnsNotFound() {
-        String entityId = "not-found";
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath("not-found", Urls.ConfigUrls.SHOULD_HUB_SIGN_RESPONSE_MESSAGES_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void getShouldHubUseLegacySamlStandard_returnsOkAndMessages() {
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath(ENTITY_ID, Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(boolean.class)).isFalse();
     }
 
     @Test
     public void getShouldHubUseLegacySamlStandard_returnsNotFound() {
-        String entityId = "not-found";
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath("not-found", Urls.ConfigUrls.SHOULD_HUB_USE_LEGACY_SAML_STANDARD_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void getShouldReturnOkWhenUsingMatchingIsTrue() {
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath(ENTITY_ID, Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(boolean.class)).isTrue();
     }
 
     @Test
     public void getShouldReturnOkWhenUsingMatchingIsFalse() {
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(ANOTHER_ENTITY_ID).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath(ANOTHER_ENTITY_ID, Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(boolean.class)).isFalse();
     }
 
     @Test
     public void getShouldReturnNotFoundUsingMatchingWhenEntityIdDoesNotExist() {
-        String entityId = "not-found";
-        URI uri = configAppRule
-                .getUri(Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE)
-                .buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        Response response = client.target(uri).request().get();
+        Response response = getForEntityIdAndPath("not-found", Urls.ConfigUrls.MATCHING_ENABLED_FOR_TRANSACTION_RESOURCE);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void getSingleIDPEnabledServiceListTransactions_returnsOkAndEnabledAndSingleIdpEnabledTransactions() {
-        URI uri = configAppRule.getUri("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH).build();
-        Response response = client.target(uri).request().get();
+        Response response = client.targetMain("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<TransactionSingleIdpData> transactionDisplayItems =
                 response.readEntity(new GenericType<List<TransactionSingleIdpData>>() {});
@@ -282,5 +255,15 @@ public class TransactionsResourceIntegrationTest {
                 assertThat(transactionDisplayItem.getRedirectUrl()).isEqualTo(URI.create(SERVICE_HOMEPAGE));
             }
         }
+    }
+
+    private Response getForEntityIdAndPath(String entityId, String path) {
+        URI uri = UriBuilder.fromPath(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        return client.targetMain(uri.toString()).request().buildGet().invoke();
+    }
+
+    private Response getForEntityIdAndPathAndQueryParam(String entityId, String path, String queryParamName, Object queryParamValue) {
+        URI uri = UriBuilder.fromPath(path).queryParam(queryParamName, queryParamValue).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        return client.targetMain(uri.toString()).request().buildGet().invoke();
     }
 }
