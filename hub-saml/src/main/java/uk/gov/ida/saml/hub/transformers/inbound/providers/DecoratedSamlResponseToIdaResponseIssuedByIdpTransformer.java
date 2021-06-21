@@ -4,6 +4,7 @@ import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.saml.hub.domain.InboundResponseFromIdp;
 import uk.gov.ida.saml.hub.transformers.inbound.IdaResponseFromIdpUnmarshaller;
 import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidator;
+import uk.gov.ida.saml.hub.validators.response.idp.IdpResponseValidatorResultContainer;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 
@@ -25,9 +26,10 @@ public class DecoratedSamlResponseToIdaResponseIssuedByIdpTransformer implements
 
     @Override
     public InboundResponseFromIdp apply(Response response) {
-        this.idpResponseValidator.validate(response);
-        ValidatedResponse validatedResponse = this.idpResponseValidator.getValidatedResponse();
-        ValidatedAssertions validatedAssertions = this.idpResponseValidator.getValidatedAssertions();
-        return idaResponseUnmarshaller.fromSaml(validatedResponse, validatedAssertions);
+        IdpResponseValidatorResultContainer validatedContainer = this.idpResponseValidator.validate(response);
+        return idaResponseUnmarshaller.fromSaml(
+                validatedContainer.getValidatedResponse(),
+                validatedContainer.getValidatedAssertions()
+        );
     }
 }

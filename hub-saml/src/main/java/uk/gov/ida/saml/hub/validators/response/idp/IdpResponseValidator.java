@@ -8,6 +8,8 @@ import uk.gov.ida.saml.core.validators.DestinationValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.components.EncryptedResponseFromIdpValidator;
 import uk.gov.ida.saml.hub.validators.response.idp.components.ResponseAssertionsFromIdpValidator;
 import uk.gov.ida.saml.security.SamlAssertionsSignatureValidator;
+import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
+import uk.gov.ida.saml.security.SignatureValidator;
 import uk.gov.ida.saml.security.validators.ValidatedAssertions;
 import uk.gov.ida.saml.security.validators.ValidatedResponse;
 import uk.gov.ida.saml.security.validators.signature.SamlResponseSignatureValidator;
@@ -19,8 +21,6 @@ public class IdpResponseValidator {
     private final DestinationValidator responseDestinationValidator;
     private final ResponseAssertionsFromIdpValidator responseAssertionsFromIdpValidator;
     private final AssertionsDecrypters assertionsDecrypters;
-    private ValidatedResponse validatedResponse;
-    private ValidatedAssertions validatedAssertions;
     
     private static final Counter idpDecryptionErrorCounter = Counter.build(
             "verify_saml_hub_idp_validator_decryption_error_counter",
@@ -41,29 +41,27 @@ public class IdpResponseValidator {
         this.responseDestinationValidator = responseDestinationValidator;
         this.responseAssertionsFromIdpValidator = responseAssertionsFromIdpValidator;
     }
-    
-    public ValidatedResponse getValidatedResponse() {
-        return validatedResponse;
-    }
-    
-    public ValidatedAssertions getValidatedAssertions() {
-        return validatedAssertions;
-    }
-    
-    public void validate(Response response) {
+
+    public IdpResponseValidatorResultContainer validate(Response response) {
         responseFromIdpValidator.validate(response);
         responseDestinationValidator.validate(response.getDestination());
 
-        validatedResponse = samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+
+        ValidatedResponse validatedResponse = samlResponseSignatureValidator.validate(response, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+        if (!validatedResponse.getID().equals(response.getID())) {
+            System.out.println("Ooops");
+        }
 
         var decryptedAssertions = assertionsDecrypters.decryptedAssertions(
                 validatedResponse,
                 idpDecryptionErrorCounter,
                 IdpResponseValidator.class
         );
-        
-        validatedAssertions = samlAssertionsSignatureValidator.validate(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+
+        ValidatedAssertions validatedAssertions = samlAssertionsSignatureValidator.validate(decryptedAssertions, IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
 
         responseAssertionsFromIdpValidator.validate(validatedResponse, validatedAssertions);
+
+        return new IdpResponseValidatorResultContainer(validatedResponse, validatedAssertions);
     }
 }

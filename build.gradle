@@ -46,7 +46,7 @@ def dependencyVersions = [
         ida_test_utils:"2.0.0-66",
         opensaml:"$opensaml_version",
         dev_pki: '2.0.0-46',
-        saml_lib:"3.4.6-256"
+        saml_lib:"3.4.6-SNAPSHOT"
 ]
 
 subprojects {
@@ -55,6 +55,7 @@ subprojects {
             logger.warn('Production builds MUST NOT be built with public binaries.\nUse artifactory/allowed-repos for production builds.\n\n')
             mavenCentral()
         } else {
+            mavenLocal()
             maven { url 'https://gds.jfrog.io/artifactory/allowed-repos' }
         }
     }
