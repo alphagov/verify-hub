@@ -1,11 +1,10 @@
 package uk.gov.ida.hub.samlengine.security;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.samlengine.config.ConfigServiceKeyStore;
@@ -17,7 +16,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class HubEncryptionKeyStoreTest {
 
     HubEncryptionKeyStore keyStore;
@@ -27,13 +26,13 @@ public class HubEncryptionKeyStoreTest {
     @Mock
     private PublicKey publicKey;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         keyStore = new HubEncryptionKeyStore(configServiceKeyStore);
     }
 
     @Test
-    public void shouldGetPublicKeyForAnEntityThatExists() {
+    public void shouldGetPublicKeyForAnEntityThatExists() throws Exception {
         String entityId = "entityId";
         when(configServiceKeyStore.getEncryptionKeyForEntity(entityId)).thenReturn(publicKey);
 
@@ -41,13 +40,11 @@ public class HubEncryptionKeyStoreTest {
         assertThat(key).isEqualTo(publicKey);
     }
 
-    @Test
-    public void shouldThrowExceptionIfNoPublicKeyForEntityId() {
-        Assertions.assertThrows(NoKeyConfiguredForEntityException.class, () -> {
-            String entityId = "non-existent-entity";
-            when(configServiceKeyStore.getEncryptionKeyForEntity(entityId)).thenThrow(ApplicationException.createUnauditedException(ExceptionType.CLIENT_ERROR, UUID.randomUUID()));
+    @Test(expected = NoKeyConfiguredForEntityException.class)
+    public void shouldThrowExceptionIfNoPublicKeyForEntityId() throws Exception {
+        String entityId = "non-existent-entity";
+        when(configServiceKeyStore.getEncryptionKeyForEntity(entityId)).thenThrow(ApplicationException.createUnauditedException(ExceptionType.CLIENT_ERROR, UUID.randomUUID()));
 
-            keyStore.getEncryptionKeyForEntity(entityId);
-        });
+        keyStore.getEncryptionKeyForEntity(entityId);
     }
 }

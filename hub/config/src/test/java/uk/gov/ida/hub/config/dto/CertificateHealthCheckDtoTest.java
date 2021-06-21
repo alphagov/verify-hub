@@ -2,8 +2,8 @@ package uk.gov.ida.hub.config.dto;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Test;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateOrigin;
 import uk.gov.ida.hub.config.domain.CertificateUse;
@@ -14,7 +14,7 @@ import static uk.gov.ida.saml.core.test.PemCertificateStrings.HUB_TEST_PUBLIC_SI
 
 public class CertificateHealthCheckDtoTest {
 
-    @AfterEach
+    @After
     public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }

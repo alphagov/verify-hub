@@ -1,18 +1,16 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.FraudDetectedDetails;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.extensions.IdaAuthnContext;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.transformers.AuthnContextFactory;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
@@ -27,8 +25,7 @@ import static uk.gov.ida.saml.core.test.builders.IdpFraudEventIdAttributeBuilder
 import static uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder.anAuthnStatement;
 import static uk.gov.ida.saml.core.test.builders.Gpg45StatusAttributeBuilder.aGpg45StatusAttribute;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class PassthroughAssertionUnmarshallerTest {
 
     @Mock
@@ -38,13 +35,13 @@ public class PassthroughAssertionUnmarshallerTest {
 
     private PassthroughAssertionUnmarshaller unmarshaller;
 
-    @BeforeEach
+    @Before
     public void setup() {
         unmarshaller = new PassthroughAssertionUnmarshaller(assertionStringTransformer, authnContextFactory);
     }
 
     @Test
-    public void transform_shouldHandleFraudAuthnStatementAndSetThatAssertionIsForFraudulentEventAndSetFraudDetails() {
+    public void transform_shouldHandleFraudAuthnStatementAndSetThatAssertionIsForFraudulentEventAndSetFraudDetails() throws Exception {
         final AuthnContextClassRef authnContextClassRef = anAuthnContextClassRef().withAuthnContextClasRefValue(IdaAuthnContext.LEVEL_X_AUTHN_CTX).build();
         Assertion theAssertion = anAssertion()
                 .addAuthnStatement(anAuthnStatement().withAuthnContext(anAuthnContext().withAuthnContextClassRef(authnContextClassRef).build()).build())
@@ -59,30 +56,28 @@ public class PassthroughAssertionUnmarshallerTest {
         assertThat(authnStatementAssertion.getFraudDetectedDetails().isPresent()).isEqualTo(true);
     }
 
-    @Test
-    public void transform_shouldThrowExceptionWhenFraudIndicatorAuthnStatementDoesNotContainUniqueId() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            Assertion theAssertion = anAssertion()
-                    .addAuthnStatement(anAuthnStatement()
-                            .withAuthnContext(anAuthnContext()
-                                    .withAuthnContextClassRef(
-                                            anAuthnContextClassRef()
-                                                    .withAuthnContextClasRefValue(IdaAuthnContext.LEVEL_X_AUTHN_CTX)
-                                                    .build())
-                                    .build())
-                            .build())
-                    .buildUnencrypted();
+    @Test(expected = IllegalStateException.class)
+    public void transform_shouldThrowExceptionWhenFraudIndicatorAuthnStatementDoesNotContainUniqueId() throws Exception {
+        Assertion theAssertion = anAssertion()
+                .addAuthnStatement(anAuthnStatement()
+                        .withAuthnContext(anAuthnContext()
+                                .withAuthnContextClassRef(
+                                        anAuthnContextClassRef()
+                                                .withAuthnContextClasRefValue(IdaAuthnContext.LEVEL_X_AUTHN_CTX)
+                                                .build())
+                                .build())
+                        .build())
+                .buildUnencrypted();
 
-            when(authnContextFactory.authnContextForLevelOfAssurance(IdaAuthnContext.LEVEL_X_AUTHN_CTX)).thenReturn(AuthnContext.LEVEL_X);
+        when(authnContextFactory.authnContextForLevelOfAssurance(IdaAuthnContext.LEVEL_X_AUTHN_CTX)).thenReturn(AuthnContext.LEVEL_X);
 
-            when(assertionStringTransformer.apply(theAssertion)).thenReturn("AUTHN_ASSERTION");
+        when(assertionStringTransformer.apply(theAssertion)).thenReturn("AUTHN_ASSERTION");
 
-            unmarshaller.fromAssertion(theAssertion);
-        });
+        unmarshaller.fromAssertion(theAssertion);
     }
 
     @Test
-    public void transform_shouldTransformTheIdpFraudEventIdForAFraudAssertion() {
+    public void transform_shouldTransformTheIdpFraudEventIdForAFraudAssertion() throws Exception {
         String fraudEventId = "Fraud Id";
         Assertion theAssertion = anAssertion()
                 .addAuthnStatement(anAuthnStatement()
@@ -109,7 +104,7 @@ public class PassthroughAssertionUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformTheGpg45StatusIt01ForAFraudAssertion() {
+    public void transform_shouldTransformTheGpg45StatusIt01ForAFraudAssertion() throws Exception {
         String gpg45Status = "IT01";
         Assertion theAssertion = givenAFraudEventAssertion(gpg45Status);
 
@@ -120,7 +115,7 @@ public class PassthroughAssertionUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformTheGpg45StatusFi01ForAFraudAssertion() {
+    public void transform_shouldTransformTheGpg45StatusFi01ForAFraudAssertion() throws Exception {
         String gpg45Status = "FI01";
         Assertion theAssertion = givenAFraudEventAssertion(gpg45Status);
 
@@ -131,7 +126,7 @@ public class PassthroughAssertionUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformTheGpg45StatusDF01ForAFraudAssertion() {
+    public void transform_shouldTransformTheGpg45StatusDF01ForAFraudAssertion() throws Exception {
         String gpg45Status = "DF01";
         Assertion theAssertion = givenAFraudEventAssertion(gpg45Status);
 
@@ -141,18 +136,16 @@ public class PassthroughAssertionUnmarshallerTest {
         assertThat(fraudDetectedDetails.getFraudIndicator()).isEqualTo(gpg45Status);
     }
 
-    @Test
-    public void transform_shouldThrowExceptionIfGpg45StatusIsNotRecognised() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            String gpg45Status = "status not known";
-            Assertion theAssertion = givenAFraudEventAssertion(gpg45Status);
+    @Test(expected = IllegalStateException.class)
+    public void transform_shouldThrowExceptionIfGpg45StatusIsNotRecognised() throws Exception {
+        String gpg45Status = "status not known";
+        Assertion theAssertion = givenAFraudEventAssertion(gpg45Status);
 
-            unmarshaller.fromAssertion(theAssertion);
-        });
+        unmarshaller.fromAssertion(theAssertion);
     }
 
     @Test
-    public void transform_shouldNotSetFraudlentFlagForNotFraudulentEvent() {
+    public void transform_shouldNotSetFraudlentFlagForNotFraudulentEvent() throws Exception {
         final AuthnContextClassRef authnContextClassRef = anAuthnContextClassRef().withAuthnContextClasRefValue(IdaAuthnContext.LEVEL_3_AUTHN_CTX).build();
         Assertion theAssertion = anAssertion()
                 .addAuthnStatement(anAuthnStatement().withAuthnContext(anAuthnContext().withAuthnContextClassRef(authnContextClassRef).build()).build())
@@ -168,7 +161,7 @@ public class PassthroughAssertionUnmarshallerTest {
 
 
     @Test
-    public void transform_shouldTransformIpAddress() {
+    public void transform_shouldTransformIpAddress() throws Exception {
         String ipAddy = "1.2.3.4";
         Assertion theAssertion = anAssertion()
                 .addAttributeStatement(anAttributeStatement().addAttribute(anIPAddress().withValue(ipAddy).build()).build())

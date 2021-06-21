@@ -2,12 +2,12 @@ package uk.gov.ida.hub.config;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.google.inject.Module;
+import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import ru.vyarus.dropwizard.guice.GuiceBundle;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
@@ -27,6 +27,8 @@ import java.util.EnumSet;
 
 public class ConfigApplication extends Application<ConfigConfiguration> {
 
+    private GuiceBundle<ConfigConfiguration> guiceBundle;
+
     public static void main(String[] args) throws Exception {
         new ConfigApplication().run(args);
     }
@@ -45,15 +47,11 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
                 )
         );
 
-        bootstrap.addBundle(
-                GuiceBundle.builder().enableAutoConfig(getClass().getPackage().getName())
-                        .modules(
-                                new ConfigModule(),
-                                bindS3ConfigSource()
-                        )
-                        .build()
-        );
-
+        guiceBundle = GuiceBundle.defaultBuilder(ConfigConfiguration.class)
+                .modules(new ConfigModule())
+                .modules(bindS3ConfigSource())
+                .build();
+        bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());

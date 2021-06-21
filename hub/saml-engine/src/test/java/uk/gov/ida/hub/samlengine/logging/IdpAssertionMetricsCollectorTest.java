@@ -3,11 +3,11 @@ package uk.gov.ida.hub.samlengine.logging;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.opensaml.saml.saml2.core.Assertion;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import java.util.SortedMap;
@@ -24,10 +24,14 @@ import static uk.gov.ida.saml.core.test.builders.SubjectBuilder.aSubject;
 import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder.aSubjectConfirmation;
 import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationDataBuilder.aSubjectConfirmationData;
 
-@ExtendWith(OpenSAMLExtension.class)
 public class IdpAssertionMetricsCollectorTest {
 
-    @AfterEach
+    @BeforeClass
+    public static void setUp() {
+        IdaSamlBootstrap.bootstrap();
+    }
+
+    @After
     public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }

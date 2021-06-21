@@ -1,11 +1,10 @@
 package uk.gov.ida.saml.core.validators.assertion;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opensaml.saml.saml2.core.Assertion;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper;
 import uk.gov.ida.saml.core.test.builders.IPAddressAttributeBuilder;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
@@ -14,14 +13,13 @@ import static uk.gov.ida.saml.core.test.builders.AssertionBuilder.anAssertion;
 import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.anAttributeStatement;
 import static uk.gov.ida.saml.core.test.builders.PersonNameAttributeBuilder_1_1.aPersonName_1_1;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class IPAddressValidatorTest {
 
-    private static IPAddressValidator validator;
+    private IPAddressValidator validator;
 
-    @BeforeAll
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         validator = new IPAddressValidator();
     }
 

@@ -1,14 +1,11 @@
 package uk.gov.ida.hub.samlsoapproxy.healthcheck;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.glassfish.jersey.internal.util.Base64;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
@@ -22,7 +19,7 @@ import uk.gov.ida.hub.samlsoapproxy.contract.SamlMessageDto;
 import uk.gov.ida.hub.samlsoapproxy.domain.MatchingServiceHealthCheckResponseDto;
 import uk.gov.ida.hub.samlsoapproxy.logging.HealthCheckEventLogger;
 import uk.gov.ida.hub.samlsoapproxy.proxy.SamlEngineProxy;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
@@ -32,7 +29,6 @@ import uk.gov.ida.saml.security.SamlMessageSignatureValidator;
 import javax.xml.namespace.QName;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,11 +47,10 @@ import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthChecker
 import static uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus.Healthy;
 import static uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus.RequesterError;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class MatchingServiceHealthCheckerTest {
     private static final String SUPPORTED_MSA_VERSION_NUMBER = "supported-version";
+    private static final String UNSUPPORTED_MSA_VERSION_NUMBER = "unsupported-version";
     private static final QName HUB_ROLE = SPSSODescriptor.DEFAULT_ELEMENT_NAME;
 
     private static final String DEFAULT_VERSION_VALUE = "0";
@@ -77,7 +72,7 @@ public class MatchingServiceHealthCheckerTest {
     @Mock
     private Function<Element, Response> elementToResponseTransformer;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         List<String> supportedVersions = new ArrayList<>();
         supportedVersions.add(SUPPORTED_MSA_VERSION_NUMBER);
@@ -100,17 +95,16 @@ public class MatchingServiceHealthCheckerTest {
                 eventLogger);
     }
 
-    @Test
+    @Test(expected = SamlTransformationErrorException.class)
     public void shouldNotSendHealthCheckIfSignatureFailsToValidate() {
-        Assertions.assertThrows(SamlTransformationErrorException.class, () -> {
-            SamlValidationSpecificationFailure mockFailure = mock(SamlValidationSpecificationFailure.class);
-            when(matchingRequestSignatureValidator.validate(any(AttributeQuery.class), eq(HUB_ROLE))).thenReturn(SamlValidationResponse.anInvalidResponse(mockFailure));
-            MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
-                    aMatchingServiceConfigEntityDataDto().build();
-            prepareForHealthyResponse(matchingServiceConfigEntityDataDto);
+        SamlValidationSpecificationFailure mockFailure = mock(SamlValidationSpecificationFailure.class);
+        when(matchingRequestSignatureValidator.validate(any(AttributeQuery.class), eq(HUB_ROLE))).thenReturn(SamlValidationResponse.anInvalidResponse(mockFailure));
+        MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto =
+                aMatchingServiceConfigEntityDataDto().build();
+        prepareForHealthyResponse(matchingServiceConfigEntityDataDto);
 
-            matchingServiceHealthChecker.performHealthCheck(aMatchingServiceConfigEntityDataDto().build());
-        });
+
+        matchingServiceHealthChecker.performHealthCheck(aMatchingServiceConfigEntityDataDto().build());
     }
 
     @Test
@@ -463,7 +457,7 @@ public class MatchingServiceHealthCheckerTest {
 
         ArgumentCaptor<SamlMessageDto> argumentCaptor = ArgumentCaptor.forClass(SamlMessageDto.class);
         verify(samlEngineProxy, times(1)).translateHealthcheckMatchingServiceResponse(argumentCaptor.capture());
-        assertThat(Base64.getEncoder().encodeToString(saml.getBytes())).isEqualTo(argumentCaptor.getValue().getSamlMessage());
+        assertThat(Base64.encodeAsString(saml)).isEqualTo(argumentCaptor.getValue().getSamlMessage());
     }
 
     private void prepareForHealthyResponse(MatchingServiceConfigEntityDataDto matchingServiceConfigEntityDataDto) {

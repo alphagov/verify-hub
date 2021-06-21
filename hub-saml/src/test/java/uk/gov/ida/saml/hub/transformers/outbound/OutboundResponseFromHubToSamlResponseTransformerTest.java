@@ -1,15 +1,14 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.Response;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 
 import java.util.Collections;
 
@@ -20,8 +19,7 @@ import static uk.gov.ida.saml.core.test.builders.PassthroughAssertionBuilder.aPa
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 import static uk.gov.ida.saml.core.test.builders.ResponseForHubBuilder.anAuthnResponse;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class OutboundResponseFromHubToSamlResponseTransformerTest {
     @Mock
     private TransactionIdaStatusMarshaller statusMarshaller = null;
@@ -29,7 +27,7 @@ public class OutboundResponseFromHubToSamlResponseTransformerTest {
     private EncryptedAssertionUnmarshaller encryptedAssertionUnmarshaller;
     private OutboundResponseFromHubToSamlResponseTransformer transformer;
 
-    @BeforeEach
+    @Before
     public void setup() {
         OpenSamlXmlObjectFactory openSamlXmlObjectFactory = new OpenSamlXmlObjectFactory();
         transformer = new OutboundResponseFromHubToSamlResponseTransformer(statusMarshaller, openSamlXmlObjectFactory, encryptedAssertionUnmarshaller);

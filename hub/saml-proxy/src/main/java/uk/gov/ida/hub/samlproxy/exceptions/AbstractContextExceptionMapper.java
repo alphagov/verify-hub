@@ -23,13 +23,13 @@ public abstract class AbstractContextExceptionMapper<TException extends Exceptio
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractContextExceptionMapper.class);
 
-    private final Provider<HttpServletRequest> requestProvider;
+    private final Provider<HttpServletRequest> context;
 
     private final Collection<String> noContextPaths;
 
 
-    public AbstractContextExceptionMapper(Provider<HttpServletRequest> requestProvider) {
-        this.requestProvider = requestProvider;
+    public AbstractContextExceptionMapper(Provider<HttpServletRequest> context) {
+        this.context = context;
         noContextPaths = new ArrayList<>();
         noContextPaths.add(Urls.SharedUrls.SERVICE_NAME_ROOT);
         noContextPaths.add(Urls.SamlProxyUrls.SAML2_SSO_SENDER_API_ROOT);
@@ -42,7 +42,7 @@ public abstract class AbstractContextExceptionMapper<TException extends Exceptio
         if (exception instanceof NotFoundException) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } else if (noSessionIdInQueryString() && inARequestWhereWeExpectContext()) {
-            LOG.error(MessageFormat.format("No Session Id found for request to: {0}", requestProvider.get().getRequestURI()), exception);
+            LOG.error(MessageFormat.format("No Session Id found for request to: {0}", context.get().getRequestURI()), exception);
             return Response
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(ErrorStatusDto.createUnauditedErrorStatus(UUID.randomUUID(), ExceptionType.UNKNOWN, exception.getMessage()))
@@ -57,11 +57,11 @@ public abstract class AbstractContextExceptionMapper<TException extends Exceptio
     protected Optional<SessionId> getSessionId() {
         final String parameter;
 
-        final String sessionIdParam = requestProvider.get().getParameter(Urls.SharedUrls.SESSION_ID_PARAM);
+        final String sessionIdParam = context.get().getParameter(Urls.SharedUrls.SESSION_ID_PARAM);
         if (!Strings.isNullOrEmpty(sessionIdParam)) {
             parameter = sessionIdParam;
         } else {
-            parameter = requestProvider.get().getParameter(Urls.SharedUrls.RELAY_STATE_PARAM);
+            parameter = context.get().getParameter(Urls.SharedUrls.RELAY_STATE_PARAM);
         }
 
         if (Strings.isNullOrEmpty(parameter)) {
@@ -72,7 +72,7 @@ public abstract class AbstractContextExceptionMapper<TException extends Exceptio
     }
 
     private boolean inARequestWhereWeExpectContext() {
-        return !noContextPaths.contains(requestProvider.get().getRequestURI());
+        return !noContextPaths.contains(context.get().getRequestURI());
     }
 
     private boolean noSessionIdInQueryString() {

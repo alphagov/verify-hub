@@ -1,7 +1,7 @@
 package uk.gov.ida.hub.samlengine;
 
 import org.assertj.core.description.TextDescription;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import javax.crypto.Cipher;
 import java.security.NoSuchAlgorithmException;

@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.config.validators;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.config.data.LocalConfigRepository;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
@@ -20,7 +20,7 @@ import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTr
 import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createAbsentMatchingServiceConfigException;
 import static uk.gov.ida.hub.config.exceptions.ConfigValidationException.createMissingMatchingEntityIdException;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class TransactionConfigMatchingServiceValidatorTest {
 
     @Mock
@@ -28,7 +28,7 @@ public class TransactionConfigMatchingServiceValidatorTest {
 
     private TransactionConfigMatchingServiceValidator validator;
 
-    @BeforeEach
+    @Before
     public void setUp(){
         validator = new TransactionConfigMatchingServiceValidator(matchingServiceConfigRepository);
     }
@@ -60,7 +60,7 @@ public class TransactionConfigMatchingServiceValidatorTest {
     }
 
     @Test
-    public void validator_shouldThrowExceptionWhenMatchingEntityIdIsAbsentIfUsingMatching() {
+    public void validator_shouldThrowExceptionWhenMatchingEntityIdIsAbsentIfUsingMatching() throws Exception {
         TransactionConfig transactionConfig = aTransactionConfigData()
                 .withMatchingServiceEntityId(null)
                 .build();
@@ -75,7 +75,7 @@ public class TransactionConfigMatchingServiceValidatorTest {
     }
 
     @Test
-    public void validator_shouldThrowExceptionWhenCorrespondingMatchingServiceConfigurationIsAbsent() {
+    public void validator_shouldThrowExceptionWhenCorrespondingMatchingServiceConfigurationIsAbsent() throws Exception {
         final String matchingServiceEntityId = "matching-service-entity-id";
         TransactionConfig transactionConfig = aTransactionConfigData()
                 .withMatchingServiceEntityId(matchingServiceEntityId)

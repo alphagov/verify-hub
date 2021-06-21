@@ -1,14 +1,14 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.hub.samlengine.contracts.IdaAuthnRequestFromHubDto;
 import uk.gov.ida.hub.samlengine.domain.SamlRequestDto;
 import uk.gov.ida.hub.samlengine.proxy.IdpSingleSignOnServiceHelper;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.hub.domain.IdaAuthnRequestFromHub;
 
 import javax.ws.rs.core.UriBuilder;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class IdpAuthnRequestGeneratorServiceTest {
 
     private  static final String HUB_ENTITY_ID = "HUB_ENTITY_ID";
@@ -36,7 +36,7 @@ public class IdpAuthnRequestGeneratorServiceTest {
     @Mock
     private IdaAuthnRequestTranslator idaAuthnRequestTranslator;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         idpAuthnRequestGeneratorService = new IdpAuthnRequestGeneratorService(idpSingleSignOnServiceHelper, idaAuthnRequestFromHubStringTransformer, idaAuthnRequestTranslator, HUB_ENTITY_ID);
     }

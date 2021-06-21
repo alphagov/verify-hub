@@ -1,12 +1,11 @@
 package uk.gov.ida.hub.samlproxy.resources;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.xmlsec.signature.support.SignatureException;
@@ -21,7 +20,7 @@ import uk.gov.ida.hub.samlproxy.proxy.SessionProxy;
 import uk.gov.ida.hub.samlproxy.repositories.Direction;
 import uk.gov.ida.hub.samlproxy.repositories.SignatureStatus;
 import uk.gov.ida.saml.core.security.RelayStateValidator;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.validation.SamlTransformationErrorException;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
 import uk.gov.ida.saml.deserializers.StringToOpenSamlObjectTransformer;
@@ -43,8 +42,7 @@ import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aValidIdpResponse;
 import static uk.gov.ida.saml.security.errors.SamlTransformationErrorFactory.invalidMessageSignature;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class SamlMessageReceiverApiTest {
 
     @Mock
@@ -74,7 +72,7 @@ public class SamlMessageReceiverApiTest {
     private org.opensaml.saml.saml2.core.Response validSamlResponse;
     private SamlRequestDto SAML_REQUEST_DTO = new SamlRequestDto(SAML_REQUEST, SESSION_ID.getSessionId(), IP, null, null);
 
-    @BeforeEach
+    @Before
     public void setUp() throws MarshallingException, SignatureException {
         samlMessageReceiverApi = new SamlMessageReceiverApi(
                 relayStateValidator,

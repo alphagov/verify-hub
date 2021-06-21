@@ -1,53 +1,50 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule;
 
-import httpstub.HttpStubExtension;
-import io.dropwizard.testing.ResourceHelpers;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
-import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
+import helpers.JerseyClientConfigurationBuilder;
+import httpstub.HttpStubRule;
+import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.client.JerseyClientConfiguration;
+import io.dropwizard.testing.ConfigOverride;
+import io.dropwizard.util.Duration;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DenialOfServiceAttacksIntegrationTests {
 
-    private static ClientSupport client;
+    private static Client client;
 
-    @Order(0)
-    @RegisterExtension
-    public static HttpStubExtension eventSinkStub = new HttpStubExtension();
+    @ClassRule
+    public static HttpStubRule eventSinkStubRule = new HttpStubRule();
 
-    @Order(1)
-    @RegisterExtension
-    public static TestDropwizardAppExtension samlProxyApp = SamlProxyAppExtension.forApp(SamlProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-proxy.yml"))
-            .randomPorts()
-            .create();
+    @ClassRule
+    public static SamlProxyAppRule samlProxyAppRule = new SamlProxyAppRule(
+            ConfigOverride.config("eventSinkUri", eventSinkStubRule.baseUri().build().toASCIIString())
+            );
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-        eventSinkStub.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
+        client = new JerseyClientBuilder(samlProxyAppRule.getEnvironment()).using(jerseyClientConfiguration).build(SamlMessageReceiverApiResourceTest.class.getSimpleName());
     }
 
-    @AfterAll
-    public static void tearDown() {
-        SamlProxyAppExtension.tearDown();
+    @Before
+    public void setUp() {
+        eventSinkStubRule.register(Urls.HubSupportUrls.HUB_SUPPORT_EVENT_SINK_RESOURCE, Response.Status.OK.getStatusCode());
     }
 
     @Test
@@ -73,7 +70,8 @@ public class DenialOfServiceAttacksIntegrationTests {
         String analyticsSessionId = UUID.randomUUID().toString();
         String journeyType = "some-journey-type";
 
-        Response response = client.targetMain(Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT)
+        final URI ssoUri = samlProxyAppRule.getUri(Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_ROOT);
+        Response response = client.target(ssoUri)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(new SamlRequestDto(samlAuthnRequest, relayState, "12.23.34.45", analyticsSessionId, journeyType)));
 

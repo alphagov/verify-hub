@@ -2,11 +2,10 @@ package uk.gov.ida.hub.samlengine.proxy;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
@@ -14,7 +13,7 @@ import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.IdaSamlBootstrap;
 
 import java.net.URI;
 
@@ -30,8 +29,7 @@ import static uk.gov.ida.saml.core.test.builders.metadata.EndpointBuilder.anEndp
 import static uk.gov.ida.saml.core.test.builders.metadata.EntityDescriptorBuilder.anEntityDescriptor;
 import static uk.gov.ida.saml.core.test.builders.metadata.IdpSsoDescriptorBuilder.anIdpSsoDescriptor;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class IdpSingleSignOnServiceHelperTest {
 
     private IdpSingleSignOnServiceHelper idpSingleSignOnServiceHelper;
@@ -41,8 +39,9 @@ public class IdpSingleSignOnServiceHelperTest {
 
     private final MetadataResolver metadataProvider = mock(MetadataResolver.class);
 
-    @BeforeEach
+    @Before
     public void setUp() throws ResolverException, MarshallingException, SignatureException {
+        IdaSamlBootstrap.bootstrap();
         CriteriaSet criteria = new CriteriaSet(new EntityIdCriterion(idpEntityId));
         EntityDescriptor idpEntityDescriptor = anEntityDescriptor().withIdpSsoDescriptor(anIdpSsoDescriptor().withSingleSignOnService(anEndpoint().withLocation(idpSSOUri.toASCIIString()).buildSingleSignOnService()).build()).build();
         when(metadataProvider.resolveSingle(eq(criteria))).thenReturn(idpEntityDescriptor);
@@ -67,13 +66,11 @@ public class IdpSingleSignOnServiceHelperTest {
         }
     }
 
-    @Test
-    public void shouldThrowExceptionWhenMetadataProviderThrowsOne() {
-        Assertions.assertThrows(RuntimeException.class, () -> {
-            MetadataResolver metadataResolver = mock(MetadataResolver.class);
-            when(metadataResolver.resolveSingle(any(CriteriaSet.class))).thenThrow(new ResolverException());
-            idpSingleSignOnServiceHelper = new IdpSingleSignOnServiceHelper(metadataResolver);
-            idpSingleSignOnServiceHelper.getSingleSignOn(idpEntityId);
-        });
+    @Test(expected = RuntimeException.class)
+    public void shouldThrowExceptionWhenMetadataProviderThrowsOne() throws ResolverException {
+        MetadataResolver metadataResolver = mock(MetadataResolver.class);
+        when(metadataResolver.resolveSingle(any(CriteriaSet.class))).thenThrow(new ResolverException());
+        idpSingleSignOnServiceHelper = new IdpSingleSignOnServiceHelper(metadataResolver);
+        idpSingleSignOnServiceHelper.getSingleSignOn(idpEntityId);
     }
 }

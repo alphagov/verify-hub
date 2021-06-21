@@ -1,7 +1,7 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import httpstub.HttpStubExtension;
+import httpstub.HttpStubRule;
 import httpstub.RegisteredResponse;
 import httpstub.builders.RegisteredResponseBuilder;
 import uk.gov.ida.common.ErrorStatusDto;
@@ -25,7 +25,7 @@ import static uk.gov.ida.hub.samlproxy.Urls.PolicyUrls.NEW_SESSION_RESOURCE;
 import static uk.gov.ida.hub.samlproxy.Urls.PolicyUrls.SESSION_RESOURCE_ROOT;
 import static uk.gov.ida.hub.samlproxy.Urls.SharedUrls.SESSION_ID_PARAM_PATH;
 
-public class PolicyStubExtension extends HttpStubExtension {
+public class PolicyStubRule extends HttpStubRule {
 
     public void stubCreateSession(SessionId sessionId) throws JsonProcessingException {
         URI locationUri = baseUri().path(SESSION_RESOURCE_ROOT + SESSION_ID_PARAM_PATH).build(sessionId.getSessionId());

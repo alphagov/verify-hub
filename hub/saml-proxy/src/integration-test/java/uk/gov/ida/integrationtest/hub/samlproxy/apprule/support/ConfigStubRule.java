@@ -1,7 +1,7 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import httpstub.HttpStubExtension;
+import httpstub.HttpStubRule;
 import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.builders.CertificateDtoBuilder;
 import uk.gov.ida.hub.samlproxy.domain.CertificateDto;
@@ -12,7 +12,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ConfigStubExtension extends HttpStubExtension {
+public class ConfigStubRule extends HttpStubRule {
 
     public void setupStubForCertificates(String issuer) throws JsonProcessingException {
         String signingCertificateUri = UriBuilder.fromPath(Urls.ConfigUrls.SIGNATURE_VERIFICATION_CERTIFICATES_RESOURCE).buildFromEncoded(StringEncoding.urlEncode(issuer)).toASCIIString();
