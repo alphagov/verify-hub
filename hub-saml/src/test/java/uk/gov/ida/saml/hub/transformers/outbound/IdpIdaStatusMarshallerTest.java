@@ -1,32 +1,40 @@
 package uk.gov.ida.saml.hub.transformers.outbound;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
+import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.saml.core.extensions.StatusValue;
+import uk.gov.ida.saml.core.test.OpenSAMLRunner;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(OpenSAMLExtension.class)
+@RunWith(OpenSAMLRunner.class)
 public class IdpIdaStatusMarshallerTest {
 
     private final IdpIdaStatusMarshaller marshaller = new IdpIdaStatusMarshaller(new OpenSamlXmlObjectFactory());
 
+
+    @Before
+    public void setUp() throws Exception {
+        IdaSamlBootstrap.bootstrap();
+    }
+
     @Test
-    public void transform_shouldTransformSuccess() {
+    public void transform_shouldTransformSuccess() throws Exception {
         Status transformedStatus = marshaller.toSamlStatus(IdpIdaStatus.success());
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
     }
 
     @Test
-    public void transform_shouldTransformNoAuthenticationContext() {
+    public void transform_shouldTransformNoAuthenticationContext() throws Exception {
         Status transformedStatus = marshaller.toSamlStatus(IdpIdaStatus.noAuthenticationContext());
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.RESPONDER);
@@ -34,7 +42,7 @@ public class IdpIdaStatusMarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformAuthenticationPending() {
+    public void transform_shouldTransformAuthenticationPending() throws Exception {
         Status transformedStatus = marshaller.toSamlStatus(IdpIdaStatus.authenticationPending());
         StatusValue actual = (StatusValue) transformedStatus.getStatusDetail().getOrderedChildren().get(0);
 
@@ -44,7 +52,7 @@ public class IdpIdaStatusMarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformAuthnFailedWithNoSubStatus() {
+    public void transform_shouldTransformAuthnFailedWithNoSubStatus() throws Exception {
         Status transformedStatus = marshaller.toSamlStatus(IdpIdaStatus.authenticationFailed());
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.RESPONDER);
@@ -53,14 +61,14 @@ public class IdpIdaStatusMarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformRequesterError() {
+    public void transform_shouldTransformRequesterError() throws Exception {
         Status transformedStatus = marshaller.toSamlStatus(IdpIdaStatus.requesterError());
 
         assertThat(transformedStatus.getStatusCode().getValue()).isEqualTo(StatusCode.REQUESTER);
     }
 
     @Test
-    public void transform_shouldTransformRequesterErrorWithMessage() {
+    public void transform_shouldTransformRequesterErrorWithMessage() throws Exception {
         String message = "Oh dear";
         Status transformedStatus = marshaller.toSamlStatus(IdpIdaStatus.requesterError(Optional.of(message)));
 

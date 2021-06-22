@@ -1,28 +1,28 @@
 package uk.gov.ida.saml.hub.transformers.inbound;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.OpenSamlXmlObjectFactory;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(OpenSAMLExtension.class)
+@RunWith(OpenSAMLRunner.class)
 public class MatchingServiceIdaStatusUnmarshallerTest {
 
-    private static MatchingServiceIdaStatusUnmarshaller unmarshaller;
+    private MatchingServiceIdaStatusUnmarshaller unmarshaller;
 
-    @BeforeAll
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         unmarshaller = new MatchingServiceIdaStatusUnmarshaller();
     }
 
     @Test
-    public void transform_shouldTransformMatchingServiceSuccessfulMatch() {
+    public void transform_shouldTransformMatchingServiceSuccessfulMatch() throws Exception {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status originalStatus = samlObjectFactory.createStatus();
         StatusCode successStatusCode = samlObjectFactory.createStatusCode();
@@ -38,7 +38,7 @@ public class MatchingServiceIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformNoMatchFromMatchingService() {
+    public void transform_shouldTransformNoMatchFromMatchingService() throws Exception {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status originalStatus = samlObjectFactory.createStatus();
         StatusCode topLevelStatusCode = samlObjectFactory.createStatusCode();
@@ -54,7 +54,7 @@ public class MatchingServiceIdaStatusUnmarshallerTest {
     }
 
     @Test
-    public void transform_shouldTransformRequesterErrorFromMatchingService() {
+    public void transform_shouldTransformRequesterErrorFromMatchingService() throws Exception {
         OpenSamlXmlObjectFactory samlObjectFactory = new OpenSamlXmlObjectFactory();
         Status originalStatus = samlObjectFactory.createStatus();
         StatusCode topLevelStatusCode = samlObjectFactory.createStatusCode();

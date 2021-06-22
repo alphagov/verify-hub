@@ -1,13 +1,10 @@
 package uk.gov.ida.hub.policy.services;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
@@ -46,8 +43,7 @@ import static uk.gov.ida.hub.policy.builder.domain.ResponseFromHubBuilder.aRespo
 import static uk.gov.ida.hub.policy.domain.SessionId.createNewSessionId;
 import static uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class SessionServiceTest {
 
     @Mock
@@ -63,7 +59,7 @@ public class SessionServiceTest {
 
     private final SamlAuthnRequestContainerDto requestDto = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
-    @BeforeEach
+    @Before
     public void setUp() {
         service = new SessionService(samlEngineProxy, configProxy, authnRequestHandler, sessionRepository);
     }
@@ -87,36 +83,31 @@ public class SessionServiceTest {
         assertThat(result).isEqualTo(sessionId);
     }
 
-    @Test
+    @Test(expected = SessionCreationFailureException.class)
     public void shouldThrowSessionCreationFailureExceptionIfCallToConfigServiceThrowsExceptionBecauseAssertionConsumerServiceUriIsInvalid() {
-        Assertions.assertThrows(SessionCreationFailureException.class, () -> {
-            SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto().build();
+        SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto().build();
 
-            givenSamlEngineTranslatesRequest(samlResponse);
-            when(configProxy.getAssertionConsumerServiceUri(samlResponse.getIssuer(), samlResponse.getAssertionConsumerServiceIndex()))
-                    .thenThrow(new WebApplicationException());
+        givenSamlEngineTranslatesRequest(samlResponse);
+        when(configProxy.getAssertionConsumerServiceUri(samlResponse.getIssuer(), samlResponse.getAssertionConsumerServiceIndex()))
+                .thenThrow(new WebApplicationException());
 
-            service.create(requestDto);
-
-        });
+        service.create(requestDto);
     }
 
-    @Test
+    @Test(expected = SessionCreationFailureException.class)
     public void shouldThrowSessionCreationFailureExceptionIfProvidedAssertionConsumerServiceUrlDoesntMatch() {
-        Assertions.assertThrows(SessionCreationFailureException.class, () -> {
-            SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto()
-                    .withAssertionConsumerServiceUrl(URI.create("http://wrongurl"))
-                    .build();
-            URI assertionConsumerServiceUri = UriBuilder.fromUri(UUID.randomUUID().toString()).build();
+        SamlResponseWithAuthnRequestInformationDto samlResponse = aSamlResponseWithAuthnRequestInformationDto()
+                .withAssertionConsumerServiceUrl(URI.create("http://wrongurl"))
+                .build();
+        URI assertionConsumerServiceUri = UriBuilder.fromUri(UUID.randomUUID().toString()).build();
 
-            final SessionId sessionId = SessionIdBuilder.aSessionId().with("coffee-pasta").build();
+        final SessionId sessionId = SessionIdBuilder.aSessionId().with("coffee-pasta").build();
 
-            givenSamlEngineTranslatesRequest(samlResponse);
-            givenConfigReturnsAssertionConsumerServiceURLFor(samlResponse, assertionConsumerServiceUri);
-            givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId);
+        givenSamlEngineTranslatesRequest(samlResponse);
+        givenConfigReturnsAssertionConsumerServiceURLFor(samlResponse, assertionConsumerServiceUri);
+        givenSessionIsCreated(samlResponse, assertionConsumerServiceUri, sessionId);
 
-            service.create(requestDto);
-        });
+        service.create(requestDto);
     }
 
     @Test
@@ -144,22 +135,18 @@ public class SessionServiceTest {
         assertThat(service.getSessionIfItExists(sessionId)).isEqualTo(sessionId);
     }
 
-    @Test
+    @Test(expected = SessionNotFoundException.class)
     public void getSession_ThrowsExceptionWhenSessionDoesNotExists() {
-        Assertions.assertThrows(SessionNotFoundException.class, () -> {
-            SessionId sessionId = createNewSessionId();
-            when(sessionRepository.sessionExists(sessionId)).thenReturn(false);
-            assertThat(service.getSessionIfItExists(sessionId)).isEqualTo(sessionId);
-        });
+        SessionId sessionId = createNewSessionId();
+        when(sessionRepository.sessionExists(sessionId)).thenReturn(false);
+        assertThat(service.getSessionIfItExists(sessionId)).isEqualTo(sessionId);
     }
 
-    @Test
+    @Test(expected = SessionNotFoundException.class)
     public void shouldThrowSessionNotFoundWhenSessionDoesNotExistAndAResponseFromHubIsRequested() {
-        Assertions.assertThrows(SessionNotFoundException.class, () -> {
-            SessionId sessionId = createNewSessionId();
-            when(sessionRepository.sessionExists(sessionId)).thenReturn(false);
-            service.getRpAuthnResponse(sessionId);
-        });
+        SessionId sessionId = createNewSessionId();
+        when(sessionRepository.sessionExists(sessionId)).thenReturn(false);
+        service.getRpAuthnResponse(sessionId);
     }
 
     @Test
@@ -221,17 +208,15 @@ public class SessionServiceTest {
         assertThat(dto.getResponseId()).isEqualTo(responseFromHub.getResponseId());
     }
 
-    @Test
+    @Test(expected = ApplicationException.class)
     public void sendErrorResponseFromHub_shouldErrorWhenSamlEngineProxyReturnsAnError() {
-        Assertions.assertThrows(ApplicationException.class, () -> {
-            SessionId sessionId = createNewSessionId();
-            when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
-            ResponseFromHub responseFromHub = aResponseFromHubDto().withRelayState("relayState").build();
-            when(authnRequestHandler.getErrorResponseFromHub(sessionId)).thenReturn(responseFromHub);
-            when(samlEngineProxy.generateErrorResponseFromHub(any())).thenThrow(ApplicationException.createAuditedException(ExceptionType.NETWORK_ERROR, UUID.randomUUID()));
+        SessionId sessionId = createNewSessionId();
+        when(sessionRepository.sessionExists(sessionId)).thenReturn(true);
+        ResponseFromHub responseFromHub = aResponseFromHubDto().withRelayState("relayState").build();
+        when(authnRequestHandler.getErrorResponseFromHub(sessionId)).thenReturn(responseFromHub);
+        when(samlEngineProxy.generateErrorResponseFromHub(any())).thenThrow(ApplicationException.createAuditedException(ExceptionType.NETWORK_ERROR, UUID.randomUUID()));
 
-            service.getRpErrorResponse(sessionId);
-        });
+        service.getRpErrorResponse(sessionId);
     }
 
 

@@ -2,11 +2,11 @@ package uk.gov.ida.hub.samlproxy.exceptions;
 
 import java.util.Optional;
 import com.google.inject.Provider;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.SessionId;
@@ -29,8 +29,10 @@ import static uk.gov.ida.exceptions.ApplicationException.createAuditedException;
 import static uk.gov.ida.exceptions.ApplicationException.createUnauditedException;
 import static uk.gov.ida.hub.samlproxy.Urls.SharedUrls.SESSION_ID_PARAM;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SamlProxyApplicationExceptionMapperTest {
+    @Mock
+    private Provider<HttpServletRequest> servletRequestProvider;
     @Mock
     private LevelLogger levelLogger;
     @Mock
@@ -38,19 +40,21 @@ public class SamlProxyApplicationExceptionMapperTest {
     @Mock
     private LevelLoggerFactory<SamlProxyApplicationExceptionMapper> levelLoggerFactory;
 
+
     private ExceptionType exceptionType = ExceptionType.INVALID_SAML;
     private SessionId sessionId = SessionId.createNewSessionId();
     private UUID errorId = UUID.randomUUID();
     private SamlProxyApplicationExceptionMapper mapper;
     public HttpServletRequest servletRequest;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         servletRequest = mock(HttpServletRequest.class);
         when(servletRequest.getParameter(SESSION_ID_PARAM)).thenReturn(sessionId.toString());
+        when(servletRequestProvider.get()).thenReturn(servletRequest);
         when(levelLoggerFactory.createLevelLogger(SamlProxyApplicationExceptionMapper.class)).thenReturn(levelLogger);
         mapper = new SamlProxyApplicationExceptionMapper(
-                () -> servletRequest,
+                servletRequestProvider,
                 exceptionAuditor,
                 levelLoggerFactory);
     }

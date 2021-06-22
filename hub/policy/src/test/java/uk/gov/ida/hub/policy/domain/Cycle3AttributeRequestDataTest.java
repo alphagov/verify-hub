@@ -1,18 +1,18 @@
 package uk.gov.ida.hub.policy.domain;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class Cycle3AttributeRequestDataTest {
     private static final String CYCLE_3_ATTRIBUTE_NAME = "cycle3AttributeName";
     private static final String REQUEST_ISSUER_ENTITY_ID = "requestIssuerEntityId";
-    private static Cycle3AttributeRequestData cycle3AttributeRequestData;
+    private Cycle3AttributeRequestData cycle3AttributeRequestData;
 
-    @BeforeAll
-    public static void setUp() {
+    @Before
+    public void setUp() {
         cycle3AttributeRequestData = new Cycle3AttributeRequestData(CYCLE_3_ATTRIBUTE_NAME, REQUEST_ISSUER_ENTITY_ID);
     }
 

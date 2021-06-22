@@ -1,11 +1,11 @@
 package uk.gov.ida.hub.samlengine.exceptions;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
@@ -31,7 +31,7 @@ import static uk.gov.ida.exceptions.ApplicationException.createAuditedException;
 import static uk.gov.ida.exceptions.ApplicationException.createUnauditedException;
 import static uk.gov.ida.hub.samlengine.builders.SamlTransformationFailureExceptionBuilder.aSamlTransformationFailureException;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SamlEngineExceptionMapperTest {
 
     SamlEngineExceptionMapper samlEngineExceptionMapper;
@@ -41,7 +41,7 @@ public class SamlEngineExceptionMapperTest {
     @Mock
     private LevelLogger levelLogger;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         when(levelLoggerFactory.createLevelLogger(SamlEngineExceptionMapper.class)).thenReturn(levelLogger);
         samlEngineExceptionMapper = new SamlEngineExceptionMapper(levelLoggerFactory);

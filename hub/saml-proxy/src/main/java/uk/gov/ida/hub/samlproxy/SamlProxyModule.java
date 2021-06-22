@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.samlproxy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
@@ -85,8 +86,6 @@ import javax.ws.rs.client.Client;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.security.cert.CertificateException;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 public class SamlProxyModule extends AbstractModule {
@@ -355,7 +354,7 @@ public class SamlProxyModule extends AbstractModule {
     private void registerMetadataRefreshTask(Environment environment, MetadataResolver metadataResolver, MetadataResolverConfiguration metadataResolverConfiguration, String name) {
         environment.admin().addTask(new Task(name + "-refresh") {
             @Override
-            public void execute(Map<String, List<String>> parameters, PrintWriter output) throws Exception {
+            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
                 ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
             }
         });

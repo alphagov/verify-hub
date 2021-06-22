@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.shared.utils.logging.LevelLogger;
@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SamlProxyExceptionMapperTest {
     @Mock
     private LevelLogger levelLogger;
@@ -29,14 +29,14 @@ public class SamlProxyExceptionMapperTest {
     @Mock
     private LevelLoggerFactory<SamlProxyExceptionMapper> levelLoggerFactory;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         when(levelLoggerFactory.createLevelLogger(SamlProxyExceptionMapper.class)).thenReturn(levelLogger);
         exceptionMapper = new SamlProxyExceptionMapper(null, levelLoggerFactory);
     }
 
     @Test
-    public void shouldCreateAuditedErrorResponse() {
+    public void shouldCreateAuditedErrorResponse() throws Exception {
         Response response = exceptionMapper.handleException(new RuntimeException());
 
         ErrorStatusDto responseEntity = (ErrorStatusDto) response.getEntity();
@@ -45,7 +45,7 @@ public class SamlProxyExceptionMapperTest {
     }
 
     @Test
-    public void shouldLogExceptionAtErrorLevel() {
+    public void shouldLogExceptionAtErrorLevel() throws Exception {
         RuntimeException exception = new RuntimeException();
         exceptionMapper.handleException(exception);
 

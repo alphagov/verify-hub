@@ -7,10 +7,10 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Modules;
 import io.dropwizard.setup.Environment;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.rules.ExternalResource;
 import org.mockito.Mock;
 import uk.gov.ida.hub.policy.PolicyModule;
 import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
@@ -37,11 +37,10 @@ import uk.gov.ida.hub.policy.domain.controller.UserAccountCreationRequestSentSta
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.IdentityProvidersConfigProxy;
 import uk.gov.ida.hub.shared.eventsink.EventSinkProxy;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.RedisTestExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.RedisTestRule;
 import uk.gov.ida.jerseyclient.JsonClient;
 
 import javax.ws.rs.client.Client;
-
 import java.net.URI;
 import java.util.Optional;
 
@@ -73,13 +72,13 @@ public class StateControllerFactoryTest {
     @Mock
     private StateTransitionAction stateTransitionAction;
 
-    @RegisterExtension
-    public static RedisTestExtension redis = new RedisTestExtension(REDIS_PORT);
+    @ClassRule
+    public static ExternalResource redis = new RedisTestRule(REDIS_PORT);
 
-    private static StateControllerFactory factory;
+    private StateControllerFactory factory;
 
-    @BeforeAll
-    public static void setup() {
+    @Before
+    public void setup() {
         Injector injector = Guice.createInjector(
             Modules.override(new PolicyModule()
             ).with(new AbstractModule() {
@@ -213,25 +212,23 @@ public class StateControllerFactoryTest {
         assertThat(controller).isInstanceOf(UserAccountCreationFailedStateController.class);
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void build_shouldThrowRuntimeExceptionIfControllerNotFound() {
-        Assertions.assertThrows(RuntimeException.class, () -> {
-            factory.build(
-                    new AbstractState(
-                            "requestId",
-                            "requestIssuerId",
-                            DateTime.now(),
-                            URI.create("/some-ac-service-uri"),
-                            aSessionId().build(),
-                            null
-                    ) {
-                        @Override
-                        public Optional<String> getRelayState() {
-                            return Optional.empty();
-                        }
-                    },
-                    mock(StateTransitionAction.class)
-            );
-        });
+        factory.build(
+            new AbstractState(
+                "requestId",
+                "requestIssuerId",
+                DateTime.now(),
+                URI.create("/some-ac-service-uri"),
+                aSessionId().build(),
+                null
+            ) {
+                @Override
+                public Optional<String> getRelayState() {
+                    return Optional.empty();
+                }
+            },
+            mock(StateTransitionAction.class)
+        );
     }
 }

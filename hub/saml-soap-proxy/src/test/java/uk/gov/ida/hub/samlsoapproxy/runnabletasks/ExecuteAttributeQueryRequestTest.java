@@ -1,12 +1,12 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.glassfish.jersey.internal.util.Base64;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
@@ -22,7 +22,7 @@ import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.hub.samlsoapproxy.client.AttributeQueryRequestClient;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlsoapproxy.logging.ProtectiveMonitoringLogger;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
+import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
 import uk.gov.ida.saml.core.test.builders.StatusBuilder;
 import uk.gov.ida.saml.core.test.builders.StatusMessageBuilder;
 import uk.gov.ida.saml.core.validation.SamlValidationResponse;
@@ -31,7 +31,6 @@ import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
 import javax.xml.namespace.QName;
 import java.net.URI;
-import java.util.Base64;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,8 +47,7 @@ import static uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder.anAttribu
 import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
 import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(OpenSAMLMockitoRunner.class)
 public class ExecuteAttributeQueryRequestTest {
 
     private static final QName HUB_ROLE = SPSSODescriptor.DEFAULT_ELEMENT_NAME;
@@ -74,7 +72,7 @@ public class ExecuteAttributeQueryRequestTest {
     private SessionId sessionId = SessionId.createNewSessionId();
     private final AttributeQuery attributeQuery = anAttributeQuery().build();
 
-    @BeforeEach
+    @Before
     public void setUp() {
         attributeQueryContainerDto = anAttributeQueryContainerDto(anAttributeQuery().build())
                 .withMatchingServiceUri(matchingServiceUri)
@@ -95,7 +93,7 @@ public class ExecuteAttributeQueryRequestTest {
         when(elementToAttributeQueryTransformer.apply(any(Element.class))).thenReturn(attributeQuery);
     }
 
-    @AfterEach
+    @After
     public void tearDown() {
         DateTimeFreezer.unfreezeTime();
     }
@@ -199,7 +197,7 @@ public class ExecuteAttributeQueryRequestTest {
         when(attributeQueryRequestClient.sendQuery(any(Element.class), anyString(), any(SessionId.class), any(URI.class))).thenReturn(matchingServiceResponse);
         final BasicX509Credential x509Credential = new BasicX509Credential(
                 new X509CertificateFactory().createCertificate(UNCHAINED_PUBLIC_CERT),
-                new PrivateKeyFactory().createPrivateKey(Base64.getDecoder().decode(UNCHAINED_PRIVATE_KEY.getBytes())));
+                new PrivateKeyFactory().createPrivateKey(Base64.decode(UNCHAINED_PRIVATE_KEY.getBytes())));
         Response response = aResponse().withSigningCredential(x509Credential).withIssuer(anIssuer().withIssuerId("issuer-id").build()).build();
         when(elementToResponseTransformer.apply(matchingServiceResponse)).thenReturn(response);
         executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);

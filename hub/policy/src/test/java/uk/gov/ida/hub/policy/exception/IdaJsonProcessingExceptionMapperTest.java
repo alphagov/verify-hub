@@ -2,8 +2,8 @@ package uk.gov.ida.hub.policy.exception;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 
@@ -14,10 +14,10 @@ import static org.mockito.Mockito.mock;
 
 public class IdaJsonProcessingExceptionMapperTest {
 
-    private static IdaJsonProcessingExceptionMapper mapper;
+    private IdaJsonProcessingExceptionMapper mapper;
 
-    @BeforeAll
-    public static void setUp() {
+    @Before
+    public void setUp() {
         mapper = new IdaJsonProcessingExceptionMapper();
     }
 

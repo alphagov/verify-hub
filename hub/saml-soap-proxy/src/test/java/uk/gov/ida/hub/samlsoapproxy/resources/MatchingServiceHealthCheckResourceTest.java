@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.samlsoapproxy.resources;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.AggregatedMatchingServicesHealthCheckResult;
 import uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthCheckHandler;
 
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthCheckDetailsBuilder.aMatchingServiceHealthCheckDetails;
 import static uk.gov.ida.hub.samlsoapproxy.healthcheck.MatchingServiceHealthCheckResult.unhealthy;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class MatchingServiceHealthCheckResourceTest {
 
     @Mock
@@ -23,7 +23,7 @@ public class MatchingServiceHealthCheckResourceTest {
 
     private MatchingServiceHealthCheckResource matchingServiceHealthCheckResource;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         matchingServiceHealthCheckResource = new MatchingServiceHealthCheckResource(handler);
     }

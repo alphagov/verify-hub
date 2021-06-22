@@ -1,13 +1,15 @@
 package uk.gov.ida.hub.samlengine.services;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.Issuer;
@@ -23,11 +25,11 @@ import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.samlengine.logging.IdpAssertionMetricsCollector;
 import uk.gov.ida.hub.samlengine.proxy.TransactionsConfigProxy;
+import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 import uk.gov.ida.saml.core.domain.FraudDetectedDetails;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
 import uk.gov.ida.saml.core.domain.PersistentId;
-import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.core.test.builders.AssertionBuilder;
 import uk.gov.ida.saml.core.test.builders.AuthnStatementBuilder;
@@ -55,11 +57,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.builders.AttributeStatementBuilder.anAttributeStatement;
 
-@ExtendWith(OpenSAMLExtension.class)
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class IdpAuthnResponseTranslatorServiceTest {
 
+    @Captor
+    private ArgumentCaptor<ILoggingEvent> loggingEventCaptor;
+    @Mock
+    private Appender<ILoggingEvent> appender;
     @Mock
     private StringToOpenSamlObjectTransformer<Response> stringToOpenSamlResponseTransformer;
     @Mock
@@ -104,8 +108,9 @@ public class IdpAuthnResponseTranslatorServiceTest {
     private final String encryptedAuthnAssertion = "some encrypted saml";
     private final String matchingDatasetUnderlyingAssertionBlob = "blob";
 
-    @BeforeEach
+    @Before
     public void setup() {
+        IdaSamlBootstrap.bootstrap();
         final String idpEntityId = TestEntityIds.STUB_IDP_ONE;
         final String assertionId1 = randomUUID().toString();
         final String assertionId2 = randomUUID().toString();
