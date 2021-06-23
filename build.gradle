@@ -46,7 +46,9 @@ def dependencyVersions = [
         ida_test_utils:"2.0.0-66",
         opensaml:"$opensaml_version",
         dev_pki: '2.0.0-46',
-        saml_lib:"3.4.6-256"
+        saml_lib:"3.4.6-256",
+        glassfish_version:'2.6.1',
+        glassfish_jersey_version:'2.34'
 ]
 
 subprojects {
@@ -95,9 +97,14 @@ subprojects {
                 "io.dropwizard:dropwizard-auth:$dependencyVersions.dropwizard",
                 "io.dropwizard:dropwizard-configuration:$dependencyVersions.dropwizard",
                 "io.dropwizard:dropwizard-metrics-graphite:$dependencyVersions.dropwizard",
-                'ru.vyarus:dropwizard-guicey:5.3.0',
-                'org.reflections:reflections:0.9.10',
-                'org.dhatim:dropwizard-sentry:2.0.20'
+                'org.dhatim:dropwizard-sentry:2.0.20',
+                'com.google.inject.extensions:guice-servlet:5.0.1',
+                "org.glassfish.hk2:guice-bridge:$dependencyVersions.glassfish_version",
+                "org.glassfish.jersey.inject:jersey-hk2:$dependencyVersions.glassfish_jersey_version",
+                "org.glassfish.jersey.core:jersey-client:$dependencyVersions.glassfish_jersey_version",
+                "org.glassfish.jersey.core:jersey-server:$dependencyVersions.glassfish_jersey_version",
+                'org.reflections:reflections:0.9.12'
+
 
         config 'commons-io:commons-io:2.1'
 
