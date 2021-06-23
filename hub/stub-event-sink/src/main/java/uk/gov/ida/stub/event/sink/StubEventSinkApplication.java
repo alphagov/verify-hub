@@ -6,13 +6,15 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import ru.vyarus.dropwizard.guice.GuiceBundle;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.stub.event.sink.healthcheck.StubEventSinkHealthCheck;
 import uk.gov.ida.stub.event.sink.resources.EventSinkHubEventResource;
 import uk.gov.ida.stub.event.sink.resources.EventSinkHubEventTestResource;
+
+import static java.util.Arrays.asList;
 
 public class StubEventSinkApplication extends Application<StubEventSinkConfiguration> {
 
@@ -33,8 +35,12 @@ public class StubEventSinkApplication extends Application<StubEventSinkConfigura
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
-        
-        bootstrap.addBundle(GuiceBundle.builder().enableAutoConfig(getClass().getPackage().getName()).build());
+
+        GuiceBundle<StubEventSinkConfiguration> guiceBundle = new GuiceBundle<>(
+                () -> asList(),
+                StubEventSinkConfiguration.class
+        );
+        bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());

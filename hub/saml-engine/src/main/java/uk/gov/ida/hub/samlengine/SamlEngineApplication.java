@@ -13,7 +13,6 @@ import io.dropwizard.setup.Environment;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
 import org.slf4j.MDC;
-import ru.vyarus.dropwizard.guice.GuiceBundle;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
@@ -28,6 +27,7 @@ import uk.gov.ida.hub.samlengine.resources.translators.MatchingServiceResponseTr
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnRequestTranslatorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpAuthnResponseGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.RpErrorResponseGeneratorResource;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.metrics.bundle.PrometheusBundle;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
@@ -38,6 +38,8 @@ import uk.gov.ida.truststore.KeyStoreLoader;
 import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
+
+import static java.util.Arrays.asList;
 
 public class SamlEngineApplication extends Application<SamlEngineConfiguration> {
 
@@ -66,16 +68,11 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());
         bootstrap.addBundle(verifyMetadataBundle);
-        bootstrap.addBundle(
-                GuiceBundle.builder().enableAutoConfig(getClass().getPackage().getName())
-                .modules(
-                        new SamlEngineModule(),
-                        new CryptoModule(),
-                        bindMetadata()
-                )
-                .build()
+        GuiceBundle<SamlEngineConfiguration> guiceBundle = new GuiceBundle<>(
+                () -> asList(new SamlEngineModule(), new CryptoModule(), bindMetadata()),
+                SamlEngineConfiguration.class
         );
-
+        bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new PrometheusBundle());
     }
 

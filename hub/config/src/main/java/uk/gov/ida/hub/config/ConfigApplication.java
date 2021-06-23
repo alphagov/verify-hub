@@ -7,7 +7,6 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import ru.vyarus.dropwizard.guice.GuiceBundle;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
@@ -17,6 +16,7 @@ import uk.gov.ida.hub.config.resources.CertificatesResource;
 import uk.gov.ida.hub.config.resources.IdentityProviderResource;
 import uk.gov.ida.hub.config.resources.MatchingServiceResource;
 import uk.gov.ida.hub.config.resources.TransactionsResource;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.metrics.bundle.PrometheusBundle;
 import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
@@ -24,6 +24,8 @@ import uk.gov.ida.truststore.KeyStoreLoader;
 import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
+
+import static java.util.Arrays.asList;
 
 public class ConfigApplication extends Application<ConfigConfiguration> {
 
@@ -45,15 +47,11 @@ public class ConfigApplication extends Application<ConfigConfiguration> {
                 )
         );
 
-        bootstrap.addBundle(
-                GuiceBundle.builder().enableAutoConfig(getClass().getPackage().getName())
-                        .modules(
-                                new ConfigModule(),
-                                bindS3ConfigSource()
-                        )
-                        .build()
+        GuiceBundle<ConfigConfiguration> guiceBundle = new GuiceBundle<>(
+                () -> asList(new ConfigModule(), bindS3ConfigSource()),
+                ConfigConfiguration.class
         );
-
+        bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());

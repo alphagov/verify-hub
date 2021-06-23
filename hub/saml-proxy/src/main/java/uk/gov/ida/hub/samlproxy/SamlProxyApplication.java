@@ -6,7 +6,6 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import ru.vyarus.dropwizard.guice.GuiceBundle;
 import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
@@ -16,6 +15,7 @@ import uk.gov.ida.hub.samlproxy.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlproxy.resources.HubMetadataResourceApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageReceiverApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageSenderApi;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.metrics.bundle.PrometheusBundle;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
@@ -27,6 +27,8 @@ import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
 
@@ -47,15 +49,11 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
-
-        bootstrap.addBundle(
-                GuiceBundle.builder().enableAutoConfig(getClass().getPackage().getName())
-                        .modules(
-                                new SamlProxyModule(),
-                                new EventEmitterModule()
-                        )
-                        .build()
+        GuiceBundle<SamlProxyConfiguration> guiceBundle = new GuiceBundle<>(
+                () -> asList(new SamlProxyModule(), new EventEmitterModule()),
+                SamlProxyConfiguration.class
         );
+        bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());

@@ -10,7 +10,8 @@ dependencies {
             configurations.common,
             configurations.ida_utils,
             configurations.redis,
-            configurations.prometheus
+            configurations.prometheus,
+            project(':hub:shared')
 }
 
 apply plugin: 'application'
