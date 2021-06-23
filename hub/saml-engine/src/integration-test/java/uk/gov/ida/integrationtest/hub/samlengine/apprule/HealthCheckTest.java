@@ -1,32 +1,28 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
-import io.dropwizard.setup.Environment;
-import io.dropwizard.testing.ResourceHelpers;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineDropwizardAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineDropwizardAppExtension.SamlEngineAppExtensionBuilder;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.VERIFY_METADATA_PATH;
+import static uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineDropwizardAppExtension.VERIFY_METADATA_PATH;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class HealthCheckTest {
-    @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
+
+    public static SamlEngineDropwizardAppExtension samlEngineApp = new SamlEngineAppExtensionBuilder().build();
 
     @AfterAll
     public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
+        samlEngineApp.tearDown();
     }
 
     @Test
-    public void shouldContainBothVerifyMetadataHealthChecks(Environment environment) {
-        assertThat(environment.healthChecks().getNames().stream().anyMatch(name -> name.contains(VERIFY_METADATA_PATH))).isTrue();
+    public void shouldContainBothVerifyMetadataHealthChecks() {
+        assertThat(samlEngineApp.getEnvironment().healthChecks().getNames().stream().anyMatch(name -> name.contains(VERIFY_METADATA_PATH))).isTrue();
     }
 }

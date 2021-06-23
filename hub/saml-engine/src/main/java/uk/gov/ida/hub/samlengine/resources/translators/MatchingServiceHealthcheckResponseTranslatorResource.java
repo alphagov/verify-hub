@@ -1,12 +1,12 @@
 package uk.gov.ida.hub.samlengine.resources.translators;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.inject.Inject;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.MatchingServiceHealthCheckerResponseDto;
 import uk.gov.ida.hub.samlengine.domain.SamlMessageDto;
 import uk.gov.ida.hub.samlengine.services.MatchingServiceHealthcheckResponseTranslatorService;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;

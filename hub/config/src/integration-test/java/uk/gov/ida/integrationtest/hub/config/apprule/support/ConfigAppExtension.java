@@ -111,7 +111,7 @@ public class ConfigAppExtension extends DropwizardAppExtension {
         public ConfigAppExtensionBuilder withConfigOverrides(ConfigOverride... overrides) {
             configOverrides = overrides;
             return this;
-    }
+        }
 
         public ConfigAppExtension build() {
             writeFederationConfig();
