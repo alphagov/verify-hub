@@ -1,12 +1,10 @@
 package uk.gov.ida.integrationtest.hub.config.apprule;
 
-import io.dropwizard.testing.ResourceHelpers;
-import org.junit.jupiter.api.BeforeAll;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.hub.config.ConfigApplication;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
@@ -16,6 +14,8 @@ import uk.gov.ida.hub.config.dto.ResourceLocationDto;
 import uk.gov.ida.hub.config.dto.TransactionDisplayData;
 import uk.gov.ida.hub.config.dto.TransactionSingleIdpData;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigClient;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigAppExtensionBuilder;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
 import javax.ws.rs.core.GenericType;
@@ -33,8 +33,8 @@ import static uk.gov.ida.hub.config.domain.builders.MatchingProcessBuilder.aMatc
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class TransactionsResourceIntegrationTest {
-    public static ClientSupport client;
     private static final String ENTITY_ID = "test-entity-id";
     private static final String SIMPLE_ID = "test-simple-id";
     private static final String MS_ENTITY_ID = "ms-entity-id";
@@ -45,8 +45,7 @@ public class TransactionsResourceIntegrationTest {
     private static final String ANOTHER_ENTITY_ID = "another-test-entity-id";
     private static final String ANOTHER_SIMPLE_ID = "another-test-simple-id";
 
-    @RegisterExtension
-    static TestDropwizardAppExtension app = ConfigAppExtension.forApp(ConfigApplication.class)
+    private static final ConfigAppExtension app = ConfigAppExtensionBuilder.forApp(ConfigApplication.class)
             .addTransaction(aTransactionConfigData()
                     .withEntityId(ENTITY_ID)
                     .withSimpleId(SIMPLE_ID)
@@ -83,17 +82,15 @@ public class TransactionsResourceIntegrationTest {
                     .withEntityId("idp-entity-id")
                     .withOnboarding(asList(ENTITY_ID))
                     .build())
-            .writeFederationConfig()
-            .withDefaultConfigOverridesAnd()
-            .withClearedCollectorRegistry()
-            .config(ResourceHelpers.resourceFilePath("config.yml"))
-            .randomPorts()
-            .create();
+            .build();
 
-    @BeforeAll
-    public static void setUp(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    private ConfigClient client;
+
+    @BeforeEach
+    void setup() { client = app.getClient(); }
+
+    @AfterAll
+    static void tearDown() { app.tearDown(); }
 
     @Test
     public void getAssertionConsumerServiceUri_returnsOkAndUri() {
@@ -148,7 +145,7 @@ public class TransactionsResourceIntegrationTest {
 
     @Test
     public void getEnabledTransactions_returnsOkAndEnabledTransactions() {
-        Response response = client.targetMain("/config/transactions" + Urls.ConfigUrls.ENABLED_TRANSACTIONS_PATH).request().buildGet().invoke();
+        Response response = client.targetMain("/config/transactions" + Urls.ConfigUrls.ENABLED_TRANSACTIONS_PATH);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<TransactionDisplayData> transactionDisplayItems =
@@ -240,7 +237,7 @@ public class TransactionsResourceIntegrationTest {
 
     @Test
     public void getSingleIDPEnabledServiceListTransactions_returnsOkAndEnabledAndSingleIdpEnabledTransactions() {
-        Response response = client.targetMain("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH).request().get();
+        Response response = client.targetMain("/config/transactions" + Urls.ConfigUrls.SINGLE_IDP_ENABLED_LIST_PATH);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         List<TransactionSingleIdpData> transactionDisplayItems =
                 response.readEntity(new GenericType<List<TransactionSingleIdpData>>() {});
@@ -259,11 +256,11 @@ public class TransactionsResourceIntegrationTest {
 
     private Response getForEntityIdAndPath(String entityId, String path) {
         URI uri = UriBuilder.fromPath(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        return client.targetMain(uri.toString()).request().buildGet().invoke();
+        return client.targetMain(uri.toString());
     }
 
     private Response getForEntityIdAndPathAndQueryParam(String entityId, String path, String queryParamName, Object queryParamValue) {
         URI uri = UriBuilder.fromPath(path).queryParam(queryParamName, queryParamValue).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        return client.targetMain(uri.toString()).request().buildGet().invoke();
+        return client.targetMain(uri);
     }
 }

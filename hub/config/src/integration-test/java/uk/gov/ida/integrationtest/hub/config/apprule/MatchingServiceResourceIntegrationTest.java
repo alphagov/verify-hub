@@ -1,17 +1,17 @@
 package uk.gov.ida.integrationtest.hub.config.apprule;
 
 import io.dropwizard.jersey.errors.ErrorMessage;
-import io.dropwizard.testing.ResourceHelpers;
-import org.junit.jupiter.api.BeforeAll;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.hub.config.ConfigApplication;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.dto.MatchingServiceConfigDto;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigClient;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigAppExtensionBuilder;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
 import javax.ws.rs.core.Response;
@@ -25,13 +25,12 @@ import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTr
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBuilder.anIdentityProviderConfigData;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class MatchingServiceResourceIntegrationTest {
-    public static ClientSupport client;
     private static final String ENTITY_ID = "test-ms-entity-id";
     private static final String MATCHING_URI = "http://foo.bar/matching-service-uri";
 
-    @RegisterExtension
-    static TestDropwizardAppExtension app = ConfigAppExtension.forApp(ConfigApplication.class)
+    private static final ConfigAppExtension app = ConfigAppExtensionBuilder.forApp(ConfigApplication.class)
             .addTransaction(aTransactionConfigData()
                     .withEntityId("rp-entity-id")
                     .withMatchingServiceEntityId(ENTITY_ID)
@@ -48,21 +47,19 @@ public class MatchingServiceResourceIntegrationTest {
                     .withEntityId("idp-entity-id")
                     .withOnboarding(singletonList("rp-entity-id"))
                     .build())
-            .writeFederationConfig()
-            .withDefaultConfigOverridesAnd()
-            .withClearedCollectorRegistry()
-            .config(ResourceHelpers.resourceFilePath("config.yml"))
-            .randomPorts()
-            .create();
+            .build();
 
-    @BeforeAll
-    static void setup(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    private ConfigClient client;
+
+    @BeforeEach
+    void setup() { client = app.getClient(); }
+
+    @AfterAll
+    static void tearDown() { app.tearDown(); }
 
     @Test
     public void getMatchingServices_returnsOkAndListOfMatchingServices(){
-        Response response = client.targetMain(Urls.ConfigUrls.MATCHING_SERVICE_ROOT).request().buildGet().invoke();
+        Response response = client.targetMain(Urls.ConfigUrls.MATCHING_SERVICE_ROOT);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(Collection.class).size()).isEqualTo(1);
     }
@@ -87,6 +84,6 @@ public class MatchingServiceResourceIntegrationTest {
 
     private Response getForEntityIdAndPath(String entityId, String path) {
         URI uri = UriBuilder.fromPath(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        return client.targetMain(uri.toString()).request().buildGet().invoke();
+        return client.targetMain(uri);
     }
 }

@@ -1,13 +1,12 @@
 package uk.gov.ida.integrationtest.hub.config.apprule;
 
-import io.dropwizard.testing.ResourceHelpers;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import uk.gov.ida.hub.config.ConfigApplication;
 import uk.gov.ida.hub.config.domain.Certificate;
 import uk.gov.ida.hub.config.domain.CertificateConfigurable;
@@ -15,6 +14,8 @@ import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.MatchingServiceConfig;
 import uk.gov.ida.hub.config.domain.TransactionConfig;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigClient;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigAppExtensionBuilder;
 import uk.gov.ida.integrationtest.hub.config.apprule.support.Message;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.config.application.OcspCertificateChainValidationService.INVALID;
@@ -42,8 +44,8 @@ import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTr
 import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.messageShouldBePresent;
 import static uk.gov.ida.integrationtest.hub.config.apprule.support.Message.messageShouldNotBePresent;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class PrometheusMetricsIntegrationTest {
-    private static ClientSupport client;
     private static final int WAIT_FOR_CERTIFICATE_METRICS_TO_BE_UPDATED = 3_000;
     private static final String GAUGE_HELP_TEMPLATE = "# HELP %s %s\n";
     private static final String GAUGE_TYPE_TEMPLATE = "# TYPE %s gauge\n";
@@ -66,8 +68,7 @@ public class PrometheusMetricsIntegrationTest {
     private static final String BAD_SIGNATURE_CERTIFICATE = BAD_CERTIFICATE_VALUE;
     private static final String BAD_ENCRYPTION_CERTIFICATE = BAD_CERTIFICATE_VALUE;
 
-    @RegisterExtension
-    static TestDropwizardAppExtension app = ConfigAppExtension.forApp(ConfigApplication.class)
+    private static final ConfigAppExtension app = ConfigAppExtensionBuilder.forApp(ConfigApplication.class)
             .addTransaction(TRANSACTION_CONFIG_ENTITY_DATA)
             .addTransaction(aTransactionConfigData().withEntityId(RP_ENTITY_ID_BAD_ENCRYPTION_CERT)
                     .withMatchingServiceEntityId(RP_MS_ENTITY_ID)
@@ -79,24 +80,23 @@ public class PrometheusMetricsIntegrationTest {
                     .build())
             .addMatchingService(MATCHING_SERVICE_CONFIG_ENTITY_DATA)
             .addIdp(IDENTITY_PROVIDER_CONFIG_ENTITY_DATA)
-            .writeFederationConfig()
-            .withClearedCollectorRegistry()
-            .withDefaultConfigOverridesAnd(
-                    "certificateExpiryDateCheckServiceConfiguration.enable: true",
-                    "certificateExpiryDateCheckServiceConfiguration.initialDelay: 1s",
-                    "certificateExpiryDateCheckServiceConfiguration.delay: 2s",
-                    "certificateOcspRevocationStatusCheckServiceConfiguration.enable: true",
-                    "certificateOcspRevocationStatusCheckServiceConfiguration.initialDelay: 1s",
-                    "certificateOcspRevocationStatusCheckServiceConfiguration.delay: 2s"
+            .withConfigOverrides(
+                    config("certificateExpiryDateCheckServiceConfiguration.enable", "true"),
+                    config("certificateExpiryDateCheckServiceConfiguration.initialDelay", "1s"),
+                    config("certificateExpiryDateCheckServiceConfiguration.delay", "2s"),
+                    config("certificateOcspRevocationStatusCheckServiceConfiguration.enable", "true"),
+                    config("certificateOcspRevocationStatusCheckServiceConfiguration.initialDelay", "1s"),
+                    config("certificateOcspRevocationStatusCheckServiceConfiguration.delay", "2s")
             )
-            .config(ResourceHelpers.resourceFilePath("config.yml"))
-            .randomPorts()
-            .create();
+            .build();
 
-    @BeforeAll
-    public static void setUpBeforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    private ConfigClient client;
+
+    @BeforeEach
+    void setup() { client = app.getClient(); }
+
+    @AfterAll
+    static void tearDown() { app.tearDown(); }
 
     @Test
     public void shouldHaveUpdatedCertificatesMetrics() throws InterruptedException {
@@ -141,7 +141,7 @@ public class PrometheusMetricsIntegrationTest {
     }
 
     private Response getPrometheusMetrics() {
-        return client.targetAdmin("/prometheus/metrics").request().buildGet().invoke();
+        return client.targetAdmin("/prometheus/metrics");
     }
 
     private List<Message> getExpectedCertificatesMetrics() {
