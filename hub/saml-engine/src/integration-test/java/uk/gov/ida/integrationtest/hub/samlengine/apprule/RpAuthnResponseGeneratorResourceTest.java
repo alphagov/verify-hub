@@ -1,44 +1,38 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.dropwizard.setup.Environment;
-import io.dropwizard.testing.ResourceHelpers;
 import net.shibboleth.utilities.java.support.codec.Base64Support;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.opensaml.saml.saml2.core.StatusCode;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.AuthnResponseFromHubContainerDto;
 import uk.gov.ida.hub.samlengine.contracts.ResponseFromHubDto;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubExtension;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineAppExtensionBuilder;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineClient;
 import uk.gov.ida.saml.core.domain.TransactionIdaStatus;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.core.test.builders.AssertionBuilder;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.samlengine.builders.ResponseFromHubDtoBuilder.aResponseFromHubDto;
 
 public class RpAuthnResponseGeneratorResourceTest {
-    private static ClientSupport client;
 
     @Order(0)
     @RegisterExtension
@@ -46,26 +40,23 @@ public class RpAuthnResponseGeneratorResourceTest {
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
+    public static SamlEngineAppExtension samlEngineApp = new SamlEngineAppExtensionBuilder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    private SamlEngineClient client;
 
     @BeforeEach
-    public void before(Environment app) throws InterruptedException {
+    public void beforeEach() {
+        client = samlEngineApp.getClient();
         configStub.reset();;
     }
 
     @AfterAll
     public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
+        samlEngineApp.tearDown();
     }
 
     @Test
@@ -80,8 +71,10 @@ public class RpAuthnResponseGeneratorResourceTest {
         configStub.signResponsesAndUseLegacyStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
-        Response rpAuthnResponse = client.targetMain(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE)
-                .request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+        Response rpAuthnResponse = client.postTargetMain(
+                Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE,
+                responseFromHubDto
+        );
 
         // Then
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -109,8 +102,10 @@ public class RpAuthnResponseGeneratorResourceTest {
         configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
-        Response rpAuthnResponse = client.targetMain(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE)
-                .request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+        Response rpAuthnResponse = client.postTargetMain(
+                Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE,
+                responseFromHubDto
+        );
 
         // Then
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -140,8 +135,10 @@ public class RpAuthnResponseGeneratorResourceTest {
         configStub.doNotSignResponseMessages(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
-        Response rpAuthnResponse = client.targetMain(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE)
-                .request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+        Response rpAuthnResponse = client.postTargetMain(
+                Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE,
+                responseFromHubDto
+        );
 
         // Then
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -171,8 +168,10 @@ public class RpAuthnResponseGeneratorResourceTest {
         ResponseFromHubDto responseFromHubDto = aResponseFromHubDto().withAssertionConsumerServiceUri(null).build();
         configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
-        Response rpAuthnResponse = client.targetMain(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE)
-                .request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+        Response rpAuthnResponse = client.postTargetMain(
+                Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE,
+                responseFromHubDto
+        );
 
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto errorStatusDto = rpAuthnResponse.readEntity(ErrorStatusDto.class);
@@ -190,8 +189,10 @@ public class RpAuthnResponseGeneratorResourceTest {
         configStub.signResponsesAndUseSamlStandard(responseFromHubDto.getAuthnRequestIssuerEntityId());
 
         // When
-        Response rpAuthnResponse = client.targetMain(Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE)
-                .request().post(Entity.entity(responseFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+        Response rpAuthnResponse = client.postTargetMain(
+                Urls.SamlEngineUrls.GENERATE_RP_AUTHN_RESPONSE_RESOURCE,
+                responseFromHubDto
+        );
 
         // Then
         assertThat(rpAuthnResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

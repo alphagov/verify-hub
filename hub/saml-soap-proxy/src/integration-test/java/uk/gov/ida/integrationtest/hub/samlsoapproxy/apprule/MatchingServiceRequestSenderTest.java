@@ -8,8 +8,6 @@ import httpstub.ExpectedRequest;
 import httpstub.RecordedRequest;
 import httpstub.RequestAndResponse;
 import httpstub.builders.ExpectedRequestBuilder;
-import io.dropwizard.setup.Environment;
-import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.util.Duration;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -25,11 +23,8 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.SessionId;
 import uk.gov.ida.configuration.JerseyClientWithRetryBackoffConfiguration;
-import uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyApplication;
 import uk.gov.ida.hub.samlsoapproxy.Urls;
 import uk.gov.ida.hub.samlsoapproxy.builders.AttributeQueryContainerDtoBuilder;
 import uk.gov.ida.hub.samlsoapproxy.domain.AttributeQueryContainerDto;
@@ -40,6 +35,7 @@ import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.EventSinkStu
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubExtension;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.PolicyStubExtension;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppExtension.SamlSoapProxyClient;
 import uk.gov.ida.restclient.ClientProvider;
 import uk.gov.ida.saml.core.test.TestCredentialFactory;
 import uk.gov.ida.saml.core.test.builders.AttributeQueryBuilder;
@@ -66,6 +62,7 @@ import java.util.concurrent.TimeUnit;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.jayway.awaitility.Awaitility.await;
+import static io.dropwizard.testing.ConfigOverride.config;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlsoapproxy.Urls.PolicyUrls.ATTRIBUTE_QUERY_RESPONSE_RESOURCE;
@@ -86,8 +83,6 @@ public class MatchingServiceRequestSenderTest {
     private static final String attibute_query_resource = "/attribute-query-request";
 
     public static WireMockServer errorSimulationServer = new WireMockServer(0);
-    
-    private static ClientSupport client;
 
     private static Client backOffClient;
 
@@ -111,19 +106,19 @@ public class MatchingServiceRequestSenderTest {
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlSoapProxyAppExtension = SamlSoapProxyAppExtension.forApp(SamlSoapProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .configOverride("policyUri", () -> policyStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-soap-proxy.yml"))
-            .randomPorts()
-            .create();
+    public static final SamlSoapProxyAppExtension samlSoapProxyApp = SamlSoapProxyAppExtension.builder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString()),
+                    config("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString()),
+                    config("policyUri", () -> policyStub.baseUri().build().toASCIIString())
+            )
+            .build();
+
+    public SamlSoapProxyClient client;
 
     @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport, Environment environment) throws JsonProcessingException, MarshallingException, SignatureException {
-        client = clientSupport;
-        setBackOffClient(environment);
+    public static void beforeClass() throws JsonProcessingException, MarshallingException, SignatureException {
+        setBackOffClient();
         eventSinkStub.setupStubForLogging();
         configStub.setupStubForCertificates(TEST_RP_MS);
         soapResponse = createMsaResponse();
@@ -132,21 +127,21 @@ public class MatchingServiceRequestSenderTest {
         errorSimulationServer.start();
     }
 
-    
+
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
+        client = samlSoapProxyApp.getClient();
         policyStub.reset();
         errorSimulationServer.resetAll();
-
     }
 
     @AfterAll
     public static void tearDown() {
         errorSimulationServer.stop();
-        SamlSoapProxyAppExtension.tearDown();
+        samlSoapProxyApp.tearDown();
     }
 
-    private static void setBackOffClient(Environment environment) {
+    private static void setBackOffClient() {
         final List<String> exceptionsToCatch = List.of(ConnectTimeoutException.class.getName(), SocketException.class.getName(), SocketTimeoutException.class.getName(), NoHttpResponseException.class.getName());
         JerseyClientWithRetryBackoffConfiguration jerseyClientConfiguration = aJerseyClientWithRetryBackoffHandlerConfiguration()
                 .withTimeout(Duration.seconds(1))
@@ -156,7 +151,7 @@ public class MatchingServiceRequestSenderTest {
                 .withNumRetries(2)
                 .build();
 
-        ClientProvider provider = new ClientProvider(environment, jerseyClientConfiguration, true, MatchingServiceRequestSenderTest.class.getSimpleName());
+        ClientProvider provider = new ClientProvider(samlSoapProxyApp.getEnvironment(), jerseyClientConfiguration, true, MatchingServiceRequestSenderTest.class.getSimpleName());
 
         backOffClient = provider.get();
     }
@@ -348,9 +343,7 @@ public class MatchingServiceRequestSenderTest {
     }
 
     private Response makepost(AttributeQueryContainerDto attributeQueryContainerDto, URI uri) {
-        return client.targetMain(uri.toASCIIString())
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(attributeQueryContainerDto));
+        return client.postTargetMain(uri, attributeQueryContainerDto);
     }
 
     private long getTotalBackoffPeriod(int retries, Duration duration){

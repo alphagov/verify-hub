@@ -1,35 +1,30 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
-import io.dropwizard.testing.ResourceHelpers;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.IdaAuthnRequestFromHubDto;
 import uk.gov.ida.hub.samlengine.domain.SamlRequestDto;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubExtension;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineAppExtensionBuilder;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineClient;
 import uk.gov.ida.saml.core.domain.AuthnContext;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Optional;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_ONE;
 
 public class IdpAuthnRequestGeneratorResourceTest {
-
-    private static ClientSupport client;
 
     @Order(0)
     @RegisterExtension
@@ -37,21 +32,21 @@ public class IdpAuthnRequestGeneratorResourceTest {
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
+    public static SamlEngineAppExtension samlEngineApp = new SamlEngineAppExtensionBuilder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+
+    private SamlEngineClient client;
+
+    @BeforeEach
+    void setup() { client = samlEngineApp.getClient(); }
 
     @AfterAll
     public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
+        samlEngineApp.tearDown();
     }
 
     @Test
@@ -61,9 +56,10 @@ public class IdpAuthnRequestGeneratorResourceTest {
 
         IdaAuthnRequestFromHubDto idaAuthnRequestFromHubDto = new IdaAuthnRequestFromHubDto("1", singletonList(AuthnContext.LEVEL_2), Optional.of(false), new DateTime(), idpEntityId, false);
 
-        Response clientResponse = client.targetMain(Urls.SamlEngineUrls.GENERATE_IDP_AUTHN_REQUEST_RESOURCE)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.entity(idaAuthnRequestFromHubDto, MediaType.APPLICATION_JSON_TYPE));
+        Response clientResponse = client.postTargetMain(
+                Urls.SamlEngineUrls.GENERATE_IDP_AUTHN_REQUEST_RESOURCE,
+                idaAuthnRequestFromHubDto
+        );
 
         assertThat(clientResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         SamlRequestDto samlRequestDto = clientResponse.readEntity(SamlRequestDto.class);

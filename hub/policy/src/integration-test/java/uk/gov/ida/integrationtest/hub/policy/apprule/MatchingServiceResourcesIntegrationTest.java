@@ -1,20 +1,15 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.dropwizard.testing.ResourceHelpers;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
-import uk.gov.ida.hub.policy.PolicyApplication;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
@@ -45,14 +40,13 @@ import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBui
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension.PolicyClient;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubExtension;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
 import uk.gov.ida.integrationtest.hub.policy.builders.SamlAuthnResponseContainerDtoBuilder;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -60,6 +54,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static java.text.MessageFormat.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +66,6 @@ public class MatchingServiceResourcesIntegrationTest {
     private static final String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
     private static final boolean REGISTERING = true;
     private static final String abTestVariant = null;
-    private static ClientSupport client;
 
     @Order(0)
     @RegisterExtension
@@ -87,18 +81,15 @@ public class MatchingServiceResourcesIntegrationTest {
     public static SamlSoapProxyProxyStubExtension samlSoapProxyStub = new SamlSoapProxyProxyStubExtension();
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension policyApp = PolicyAppExtension.forApp(PolicyApplication.class)
-            .withDefaultConfigOverridesAnd(
-                    "matchingServiceResponseWaitPeriod: " + format("{0}s", matchingServiceResponseWaitPeriodSeconds)
+    public static final PolicyAppExtension policyApp = PolicyAppExtension.builder()
+            .withConfigOverrides(
+                    config("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString()),
+                    config("samlSoapProxyUri", () -> samlSoapProxyStub.baseUri().build().toASCIIString()),
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString()),
+                    config("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString()),
+                    config("matchingServiceResponseWaitPeriod", format("{0}s", matchingServiceResponseWaitPeriodSeconds))
             )
-            .configOverride("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
-            .configOverride("samlSoapProxyUri", () -> samlSoapProxyStub.baseUri().build().toASCIIString())
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("policy.yml"))
-            .hooks(builder -> builder.extensions(TestSessionResource.class))
-            .randomPorts()
-            .create();
+            .build();
 
     private String idpEntityId;
     private String rpEntityId;
@@ -106,14 +97,11 @@ public class MatchingServiceResourcesIntegrationTest {
     private URI idpSsoUri;
     private SamlResponseWithAuthnRequestInformationDto translatedAuthnRequest;
     private SamlAuthnRequestContainerDto rpSamlRequest;
-
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    public PolicyClient client;
 
     @BeforeEach
     public void setUp() throws Exception {
+        client = policyApp.getClient();
         idpEntityId = "idpEntityId";
         rpEntityId = "rpEntityId";
         msaEntityId = "msaEntityId";
@@ -135,7 +123,7 @@ public class MatchingServiceResourcesIntegrationTest {
 
     @AfterAll
     public static void tearDown() {
-        PolicyAppExtension.tearDown();
+        policyApp.tearDown();
     }
 
     @Test
@@ -448,17 +436,11 @@ public class MatchingServiceResourcesIntegrationTest {
     }
 
     private Response getResponse(URI uri) {
-        return client
-                .targetMain(uri.toString())
-                .request()
-                .get();
+        return client.getTargetMain(uri);
     }
 
     private Response postResponse(URI uri, Object msaSamlResponseDto) {
-        return client
-                .targetMain(uri.toASCIIString())
-                .request()
-                .post(Entity.json(msaSamlResponseDto));
+        return client.postTargetMain(uri, msaSamlResponseDto);
     }
 
     private String getSessionStateName(SessionId sessionId) {

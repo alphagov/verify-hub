@@ -1,9 +1,9 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.dropwizard.testing.ResourceHelpers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -12,14 +12,11 @@ import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
 import org.w3c.dom.Element;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.shared.security.PrivateKeyFactory;
 import uk.gov.ida.common.shared.security.PublicKeyFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
-import uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyApplication;
 import uk.gov.ida.hub.samlsoapproxy.Urls;
 import uk.gov.ida.hub.samlsoapproxy.soap.SoapMessageManager;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.dto.AggregatedMatchingServicesHealthCheckResultDto;
@@ -29,6 +26,7 @@ import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.EventSinkStu
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubExtension;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubExtension;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppExtension.SamlSoapProxyClient;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus;
 import uk.gov.ida.saml.msa.test.api.MsaTransformersFactory;
 import uk.gov.ida.saml.msa.test.outbound.HealthCheckResponseFromMatchingService;
@@ -45,6 +43,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthCheckerResponseDtoBuilder.anInboundResponseFromMatchingServiceDto;
 import static uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubExtension.msaStubExtension;
@@ -58,8 +57,6 @@ import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_RP_MS_PUBLIC
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 
 public class MatchingServiceHealthCheckIntegrationTests {
-
-    private static ClientSupport client;
 
     private static final String msaEntityId = "http://dev-rp-ms.local/SAML2/MD";
     private static final String msaEntityId2 = "http://another-rp-ms.local/SAML2/MD";
@@ -92,26 +89,31 @@ public class MatchingServiceHealthCheckIntegrationTests {
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlSoapProxyAppExtension = SamlSoapProxyAppExtension.forApp(SamlSoapProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .configOverride("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-soap-proxy.yml"))
-            .randomPorts()
-            .create();
+    public static final SamlSoapProxyAppExtension samlSoapProxyApp = SamlSoapProxyAppExtension.builder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString()),
+                    config("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString()),
+                    config("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
+            )
+            .build();
+
+    public SamlSoapProxyClient client;
 
     @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) throws JsonProcessingException {
-        client = clientSupport;
+    public static void beforeClass() throws JsonProcessingException {
         eventSinkStub.setupStubForLogging();
         configStub.setupStubForCertificates(msaEntityId, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
         configStub.setupStubForCertificates(msaEntityId2, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
     }
 
+    @BeforeEach
+    public void beforeEach() {
+        client = samlSoapProxyApp.getClient();
+    }
+
     @AfterAll
     public static void tearDown() {
-        SamlSoapProxyAppExtension.tearDown();
+        samlSoapProxyApp.tearDown();
     }
     
     @Test
@@ -232,7 +234,7 @@ public class MatchingServiceHealthCheckIntegrationTests {
     }
 
     private Response makeMatchingServiceHealthCheckRequest() {
-        return client.targetMain(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_HEALTH_CHECK_RESOURCE).request().get();
+        return client.getTargetMain(Urls.SamlSoapProxyUrls.MATCHING_SERVICE_HEALTH_CHECK_RESOURCE);
     }
 
     private IdaKeyStore getKeyStore() {

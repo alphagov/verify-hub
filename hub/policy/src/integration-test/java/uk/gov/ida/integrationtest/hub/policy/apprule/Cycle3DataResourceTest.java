@@ -1,18 +1,11 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.dropwizard.testing.ResourceHelpers;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.hook.GuiceyConfigurationHook;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.EnableHook;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
-import uk.gov.ida.hub.policy.PolicyApplication;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
@@ -25,18 +18,17 @@ import uk.gov.ida.hub.policy.domain.state.Cycle3MatchRequestSentState;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension.PolicyClient;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubExtension;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource;
 import uk.gov.ida.integrationtest.hub.policy.rest.Cycle3DTO;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Optional;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.policy.builder.domain.Cycle3AttributeRequestDataBuilder.aCycle3AttributeRequestData;
 import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResource.AWAITING_CYCLE_3_DATA_STATE;
@@ -44,7 +36,6 @@ import static uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionR
 
 public class Cycle3DataResourceTest {
     private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
-    private static ClientSupport client;
 
     @Order(0)
     @RegisterExtension
@@ -60,32 +51,26 @@ public class Cycle3DataResourceTest {
     public static SamlSoapProxyProxyStubExtension samlSoapProxyStub = new SamlSoapProxyProxyStubExtension();
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension policyApp = PolicyAppExtension.forApp(PolicyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
-            .configOverride("samlSoapProxyUri", () -> samlSoapProxyStub.baseUri().build().toASCIIString())
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("policy.yml"))
-            .randomPorts()
-            .create();
+    public static final PolicyAppExtension policyApp = PolicyAppExtension.builder()
+            .withConfigOverrides(
+                    config("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString()),
+                    config("samlSoapProxyUri", () -> samlSoapProxyStub.baseUri().build().toASCIIString()),
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString()),
+                    config("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
-    @EnableHook
-    static GuiceyConfigurationHook HOOK = builder -> builder.extensions(TestSessionResource.class);
-
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    public PolicyClient client;
 
     @BeforeEach
     public void setUp() throws Exception {
+        client = policyApp.getClient();
         eventSinkStub.setupStubForLogging();
     }
 
     @AfterAll
     public static void tearDown() {
-        PolicyAppExtension.tearDown();
+        policyApp.tearDown();
     }
 
     @Test
@@ -150,39 +135,30 @@ public class Cycle3DataResourceTest {
 
     private Cycle3AttributeRequestData getCycle3Data(SessionId sessionId) {
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.CYCLE_3_REQUEST_RESOURCE).build(sessionId);
-        Response response = client.targetMain(uri.toASCIIString())
-                .request()
-                .get();
+        Response response = client.getTargetMain(uri);
         return response.readEntity(Cycle3AttributeRequestData.class);
     }
 
     private String getSessionStateName(SessionId sessionId) {
         URI uri = UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + GET_SESSION_STATE_NAME).build(sessionId);
 
-        Response response = client.targetMain(uri.toASCIIString())
-                .request(MediaType.APPLICATION_JSON_TYPE).get();
+        Response response = client.getTargetMain(uri);
         return response.readEntity(String.class);
-
     }
 
     private Response postCycle3Data(SessionId sessionId, Cycle3UserInput data) {
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.CYCLE_3_SUBMIT_RESOURCE).build(sessionId);
-        return client.targetMain(uri.toASCIIString())
-                .request()
-                .post(Entity.json(data));
+        return client.postTargetMain(uri.toASCIIString(), data);
     }
 
     private Response cancelCycle3Data(SessionId sessionId) {
         URI uri = UriBuilder.fromPath(Urls.PolicyUrls.CYCLE_3_CANCEL_RESOURCE).build(sessionId);
-        return client.targetMain(uri.toASCIIString())
-                .request().post(null);
+        return client.postTargetMain(uri, null);
     }
 
     private Response createSessionInAwaitingCycle3DataState(SessionId sessionId) {
         URI uri = UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + AWAITING_CYCLE_3_DATA_STATE).build();
         Cycle3DTO dto = new Cycle3DTO(sessionId);
-        return client.targetMain(uri.toASCIIString())
-                .request()
-                .post(Entity.json(dto));
+        return client.postTargetMain(uri, dto);
     }
 }

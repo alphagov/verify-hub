@@ -1,31 +1,27 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
-import io.dropwizard.testing.ResourceHelpers;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.SamlRequestWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.samlengine.contracts.TranslatedAuthnRequestDto;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubExtension;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineAppExtensionBuilder;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineClient;
 import uk.gov.ida.saml.core.test.AuthnRequestIdGenerator;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlengine.builders.SamlAuthnRequestDtoBuilder.aSamlAuthnRequest;
 import static uk.gov.ida.hub.samlengine.builders.TranslatedAuthnRequestDtoBuilder.aTranslatedAuthnRequest;
@@ -38,28 +34,23 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 
 public class RpAuthnRequestTranslatorResourceTest {
 
-    private static ClientSupport client;
-
     @Order(0)
     @RegisterExtension
     public static ConfigStubExtension configStub = new ConfigStubExtension();
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
+    public static SamlEngineAppExtension samlEngineApp = new SamlEngineAppExtensionBuilder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    private SamlEngineClient client;
 
     @BeforeEach
     public void beforeEach() throws Exception {
+        client = samlEngineApp.getClient();
         configStub.setupCertificatesForEntity(TEST_RP, TEST_RP_PUBLIC_SIGNING_CERT, TEST_RP_PUBLIC_ENCRYPTION_CERT);
     }
 
@@ -71,7 +62,7 @@ public class RpAuthnRequestTranslatorResourceTest {
 
     @AfterAll
     public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
+        samlEngineApp.tearDown();
     }
 
     @Test
@@ -129,8 +120,7 @@ public class RpAuthnRequestTranslatorResourceTest {
     }
 
     private Response post(SamlRequestWithAuthnRequestInformationDto requestDto, String uri) {
-        return client.targetMain(uri)
-                .request().post(Entity.entity(requestDto, MediaType.APPLICATION_JSON_TYPE));
+        return client.postTargetMain(uri, requestDto);
     }
 
     @Test

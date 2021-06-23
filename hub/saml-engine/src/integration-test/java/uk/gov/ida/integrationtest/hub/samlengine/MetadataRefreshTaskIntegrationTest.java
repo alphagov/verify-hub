@@ -1,45 +1,37 @@
 package uk.gov.ida.integrationtest.hub.samlengine;
 
-import io.dropwizard.testing.ResourceHelpers;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineAppExtensionBuilder;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineClient;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetadataRefreshTaskIntegrationTest {
 
-    private static ClientSupport client;
-
     @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
+    public static SamlEngineAppExtension samlEngineApp = new SamlEngineAppExtensionBuilder().build();
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
+    private SamlEngineClient client;
+
+    @BeforeEach
+    public void beforeEach() throws Exception {
+        client = samlEngineApp.getClient();
     }
 
     @AfterAll
     public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
+        samlEngineApp.tearDown();
     }
 
     @Test
     public void verifyFederationMetadataRefreshTaskWorks() {
-        final Response response = client.targetAdmin("/tasks/metadata-refresh")
-                .request().post(Entity.text("refresh!"));
+        final Response response = client.postTargetAdmin("/tasks/metadata-refresh", "refresh!");
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

@@ -1,8 +1,6 @@
 package uk.gov.ida.hub.policy.exception;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.servlet.RequestScoped;
 import org.glassfish.jersey.internal.util.collection.StringKeyIgnoreCaseMultivaluedMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +41,9 @@ public class PolicyExceptionMapperTest {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
         when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
         when(uriInfoProvider.get()).thenReturn(uriInfo);
-        mapper = new TestExceptionMapper(uriInfoProvider, () -> servletRequest);
+        mapper = new TestExceptionMapper();
+        mapper.setHttpServletRequest(servletRequest);
+        mapper.setUriInfo(uriInfo);
     }
 
     @Test
@@ -99,13 +99,7 @@ public class PolicyExceptionMapperTest {
         assertThat(response.getEntity()).isEqualTo(expectedMessage);
     }
 
-    @RequestScoped
     private static class TestExceptionMapper extends PolicyExceptionMapper<RuntimeException> {
-
-        @Inject
-        public TestExceptionMapper(Provider<UriInfo> uriInfoProvider, Provider<HttpServletRequest> servletRequestProvider) {
-            super(uriInfoProvider, servletRequestProvider);
-        }
         @Override
         protected Response handleException(RuntimeException e) {
             return Response.ok().entity(e.getMessage()).build();

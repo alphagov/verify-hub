@@ -9,6 +9,7 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -24,15 +25,21 @@ public abstract class PolicyExceptionMapper<TException extends Exception> implem
 
     private final Collection<String> noContextPaths;
 
-    private Provider<UriInfo> uriInfoProvider;
+    private UriInfo uriInfo;
 
-    private Provider<HttpServletRequest> servletRequestProvider;
+    private HttpServletRequest httpServletRequest;
 
-    public PolicyExceptionMapper(
-            Provider<UriInfo> uriInfoProvider,
-            Provider<HttpServletRequest> servletRequestProvider) {
-        this.uriInfoProvider = uriInfoProvider;
-        this.servletRequestProvider = servletRequestProvider;
+    @Context
+    public void setUriInfo(UriInfo uriInfo){
+        this.uriInfo = uriInfo;
+    }
+
+    @Context
+    public void setHttpServletRequest(HttpServletRequest httpServletRequest){
+        this.httpServletRequest = httpServletRequest;
+    }
+
+    public PolicyExceptionMapper() {
         noContextPaths = new ArrayList<>();
         noContextPaths.add(Urls.SharedUrls.SERVICE_NAME_ROOT);
         noContextPaths.add(Urls.PolicyUrls.NEW_SESSION_RESOURCE);
@@ -43,7 +50,7 @@ public abstract class PolicyExceptionMapper<TException extends Exception> implem
         if (exception instanceof NotFoundException) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } else if (noSessionIdInQueryStringOrPathParam() && inARequestWhereWeExpectContext()) {
-            LOG.error(MessageFormat.format("No Session Id found for request to: {0}", servletRequestProvider.get().getRequestURI()), exception);
+            LOG.error(MessageFormat.format("No Session Id found for request to: {0}", httpServletRequest.getRequestURI()), exception);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         return handleException(exception);
@@ -53,12 +60,12 @@ public abstract class PolicyExceptionMapper<TException extends Exception> implem
 
     protected Optional<SessionId> getSessionId() {
         // Are there any uris in Policy that contain the session id as a query string rather than as part of the path or is this just here coz it was copied from shared-rest   ?
-        String parameter = servletRequestProvider.get().getParameter(Urls.SharedUrls.SESSION_ID_PARAM);
+        String parameter = httpServletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM);
         if (Strings.isNullOrEmpty(parameter)) {
-            parameter = servletRequestProvider.get().getParameter(Urls.SharedUrls.RELAY_STATE_PARAM);
+            parameter = httpServletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM);
         }
         if (Strings.isNullOrEmpty(parameter)) {
-            MultivaluedMap<String, String> pathParameters = uriInfoProvider.get().getPathParameters();
+            MultivaluedMap<String, String> pathParameters = uriInfo.getPathParameters();
             parameter = pathParameters.getFirst(Urls.SharedUrls.SESSION_ID_PARAM);
         }
         if (Strings.isNullOrEmpty(parameter)) {
@@ -69,7 +76,7 @@ public abstract class PolicyExceptionMapper<TException extends Exception> implem
     }
 
     private boolean inARequestWhereWeExpectContext() {
-        return !noContextPaths.contains(servletRequestProvider.get().getRequestURI());
+        return !noContextPaths.contains(httpServletRequest.getRequestURI());
     }
 
     private boolean noSessionIdInQueryStringOrPathParam() {

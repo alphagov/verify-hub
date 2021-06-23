@@ -1,10 +1,8 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
-import io.dropwizard.testing.ResourceHelpers;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -12,18 +10,18 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.security.credential.BasicCredential;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.SamlAuthnResponseTranslatorDto;
 import uk.gov.ida.hub.samlengine.domain.InboundResponseFromIdpDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubExtension;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineAppExtensionBuilder;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineClient;
+
 import uk.gov.ida.integrationtest.hub.samlengine.builders.AuthnResponseFactory;
 import uk.gov.ida.integrationtest.hub.samlengine.builders.SamlAuthnResponseTranslatorDtoBuilder;
 import uk.gov.ida.saml.core.test.HardCodedKeyStore;
@@ -33,11 +31,10 @@ import uk.gov.ida.saml.core.test.builders.StatusMessageBuilder;
 import uk.gov.ida.saml.hub.domain.IdpIdaStatus;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.integrationtest.hub.samlengine.builders.SamlAuthnResponseTranslatorDtoBuilder.aSamlAuthnResponseTranslatorDto;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
@@ -48,8 +45,6 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP_MS;
 
 public class IdpAuthnResponseTranslatorResourceTest {
-
-    private static ClientSupport client;
 
     private final Status AUTHN_FAILED_STATUS = buildStatus(StatusCode.RESPONDER, StatusCode.AUTHN_FAILED);
     private final Status NO_AUTHN_CONTEXT_STATUS = buildStatus(StatusCode.RESPONDER, StatusCode.NO_AUTHN_CONTEXT);
@@ -64,21 +59,17 @@ public class IdpAuthnResponseTranslatorResourceTest {
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
+    public static SamlEngineAppExtension samlEngineApp = new SamlEngineAppExtensionBuilder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
-
+    private SamlEngineClient client;
 
     @BeforeEach
     public void beforeEach() throws Exception {
+        client = samlEngineApp.getClient();
         configStub.setupCertificatesForEntity(TEST_RP_MS);
     }
 
@@ -90,7 +81,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
 
     @AfterAll
     public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
+        samlEngineApp.tearDown();
     }
 
     @Test
@@ -108,10 +99,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
     }
 
     private Response postToSamlEngine(SamlAuthnResponseTranslatorDto dto, String uri) {
-        return client
-                .targetMain(uri)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(dto));
+        return client.postTargetMain(uri, dto);
     }
 
     @Test
@@ -595,8 +583,7 @@ public class IdpAuthnResponseTranslatorResourceTest {
     }
 
     private Response postToSamlEngine(SamlAuthnResponseTranslatorDto samlResponseDto) {
-        return client.targetMain(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE)
-                .request().post(Entity.entity(samlResponseDto, MediaType.APPLICATION_JSON_TYPE));
+        return client.postTargetMain(Urls.SamlEngineUrls.TRANSLATE_IDP_AUTHN_RESPONSE_RESOURCE, samlResponseDto);
     }
 
     private SamlAuthnResponseTranslatorDto getSuccessSamlAuthnResponseTranslatorDto() throws Exception {

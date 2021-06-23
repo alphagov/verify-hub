@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.domain.exception;
 
-import com.google.inject.Provider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +14,6 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 import static java.util.Collections.singletonList;
@@ -36,14 +34,12 @@ public class StateProcessingValidationExceptionMapperTest {
     @Mock
     private HttpServletRequest servletRequest;
 
-    @Mock
-    private Provider<UriInfo> uriInfoProvider;
-
     private StateProcessingValidationExceptionMapper mapper;
 
     @BeforeEach
     public void setUp() {
-        mapper = new StateProcessingValidationExceptionMapper(uriInfoProvider, () -> servletRequest, eventLogger);
+        mapper = new StateProcessingValidationExceptionMapper(eventLogger);
+        mapper.setHttpServletRequest(servletRequest);
     }
 
     @Test

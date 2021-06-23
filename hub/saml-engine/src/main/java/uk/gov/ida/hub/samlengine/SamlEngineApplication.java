@@ -17,6 +17,7 @@ import uk.gov.ida.bundles.LoggingBundle;
 import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
 import uk.gov.ida.common.shared.security.TrustStoreMetrics;
+import uk.gov.ida.hub.samlengine.exceptions.SamlEngineExceptionMapper;
 import uk.gov.ida.hub.samlengine.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlengine.resources.translators.IdpAuthnRequestGeneratorResource;
 import uk.gov.ida.hub.samlengine.resources.translators.IdpAuthnResponseTranslatorResource;
@@ -113,6 +114,9 @@ public class SamlEngineApplication extends Application<SamlEngineConfiguration> 
 
         // register resources
         registerResources(environment, configuration);
+
+        // register exception mappers
+        environment.jersey().register(SamlEngineExceptionMapper.class);
 
         // calling .get() here is safe because the Optional is never empty
         MetadataResolverConfiguration metadataConfiguration = configuration.getMetadataConfiguration().get();

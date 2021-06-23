@@ -1,13 +1,8 @@
 package uk.gov.ida.integrationtest.hub.samlproxy.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.testing.ResourceHelpers;
-import io.dropwizard.util.Duration;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -15,26 +10,23 @@ import org.opensaml.xmlsec.algorithm.DigestAlgorithm;
 import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA1;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.SessionId;
-import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
 import uk.gov.ida.hub.samlproxy.Urls;
 import uk.gov.ida.hub.samlproxy.contracts.SamlRequestDto;
 import uk.gov.ida.hub.samlproxy.domain.ResponseActionDto;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.PolicyStubExtension;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension.SamlProxyClient;
 import uk.gov.ida.saml.core.test.AuthnResponseFactory;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.serializers.XmlObjectToBase64EncodedStringTransformer;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import java.util.UUID;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlproxy.domain.LevelOfAssurance.LEVEL_2;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
@@ -47,7 +39,6 @@ public class MetadataConsumerTests {
     private static final String ANALYTICS_SESSION_ID = UUID.randomUUID().toString();
     private static final String JOURNEY_TYPE = "some-journey-type";
 
-    private static ClientSupport client;
     private static AuthnResponseFactory authnResponseFactory;
 
     @Order(0)
@@ -56,22 +47,27 @@ public class MetadataConsumerTests {
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlProxyApp = SamlProxyAppExtension.forApp(SamlProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("policyUri", () -> POLICY_STUB_EXTENSION.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-proxy.yml"))
-            .randomPorts()
-            .create();
+    public static final SamlProxyAppExtension samlProxyApp = SamlProxyAppExtension.builder()
+            .withConfigOverrides(
+                    config("policyUri", () -> POLICY_STUB_EXTENSION.baseUri().build().toASCIIString())
+            )
+            .build();
+
+    private SamlProxyClient client;
 
     @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
+    public static void beforeClass() {
         authnResponseFactory = AuthnResponseFactory.anAuthnResponseFactory();
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        client = samlProxyApp.getClient();
     }
 
     @AfterAll
     public static void tearDown() {
-        SamlProxyAppExtension.tearDown();
+        samlProxyApp.tearDown();
     }
 
     @Test
@@ -115,7 +111,6 @@ public class MetadataConsumerTests {
     }
 
     private Response postSAML(SamlRequestDto requestDto) {
-        return client.targetMain(Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE)
-                .request().post(Entity.entity(requestDto, MediaType.APPLICATION_JSON_TYPE));
+        return client.postTargetMain(Urls.SamlProxyUrls.SAML2_SSO_RECEIVER_API_RESOURCE, requestDto);
     }
 }

@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.policy.exception;
 
-import com.google.inject.Provider;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import uk.gov.ida.hub.policy.logging.HubEventLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -27,8 +25,7 @@ public class SessionTimeoutExceptionMapperTest {
 
     @Mock
     private HttpServletRequest servletRequest;
-    @Mock
-    private Provider<UriInfo> uriInfoProvider;
+
     @Mock
     private HubEventLogger hubEventLogger;
 
@@ -39,7 +36,9 @@ public class SessionTimeoutExceptionMapperTest {
 
     @Test
     public void toResponse_shouldReturnAuditedErrorStatus() {
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfoProvider, () -> servletRequest, hubEventLogger);
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(hubEventLogger);
+        mapper.setHttpServletRequest(servletRequest);
+
         SessionTimeoutException exception = new SessionTimeoutException("Timeout exception", aSessionId().build(), "some entity id", DateTime.now().minusMinutes(10), "some request id");
 
         final Response response = mapper.toResponse(exception);
@@ -53,7 +52,9 @@ public class SessionTimeoutExceptionMapperTest {
 
     @Test
     public void toResponse_shouldLogToEventSink() {
-        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(uriInfoProvider, () -> servletRequest, hubEventLogger);
+        SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(hubEventLogger);
+        mapper.setHttpServletRequest(servletRequest);
+
         SessionId sessionId = aSessionId().build();
         DateTime sessionExpiryTimestamp = DateTime.now().minusMinutes(10);
         String transactionEntityId = "some entity id";

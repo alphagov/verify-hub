@@ -1,19 +1,14 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
-import io.dropwizard.testing.ResourceHelpers;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
-import uk.gov.ida.hub.policy.PolicyApplication;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
@@ -25,11 +20,10 @@ import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBui
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension.PolicyClient;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubExtension;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.ByteArrayOutputStream;
@@ -38,6 +32,7 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static java.text.MessageFormat.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.common.ExceptionType.SESSION_TIMEOUT;
@@ -50,7 +45,6 @@ public class SessionTimeoutIntegrationTests {
     private static final String abTestVariant = null;
     private static final boolean REGISTERING = true;
     private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
-    private static ClientSupport client;
 
     @Order(0)
     @RegisterExtension
@@ -63,23 +57,21 @@ public class SessionTimeoutIntegrationTests {
     public static EventSinkStubExtension eventSinkStub = new EventSinkStubExtension();
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension policyApp = PolicyAppExtension.forApp(PolicyApplication.class)
-            .withDefaultConfigOverridesAnd("timeoutPeriod: " + format("{0}m", SOME_TIMEOUT))
-            .configOverride("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("policy.yml"))
-            .randomPorts()
-            .create();
+    public static final PolicyAppExtension policyApp = PolicyAppExtension.builder()
+            .withConfigOverrides(
+                    config("timeoutPeriod", format("{0}m", SOME_TIMEOUT)),
+                    config("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString()),
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString()),
+                    config("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
+            )
+            .build();
     private SamlAuthnRequestContainerDto samlRequest;
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    public PolicyClient client;
 
     @BeforeEach
     public void setUp() throws Exception {
+        client = policyApp.getClient();
         SamlResponseWithAuthnRequestInformationDto samlResponse = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(THE_TX_ID).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
@@ -96,15 +88,14 @@ public class SessionTimeoutIntegrationTests {
 
     @AfterAll
     public static void tearDownAll() {
-        PolicyAppExtension.tearDown();
+        policyApp.tearDown();
     }
 
     @Test
     public void selectIdpShouldReturnErrorWhenSessionHasTimedOut() {
         DateTimeFreezer.freezeTime(SOME_TIME);
         SessionId sessionId = client
-                .targetMain(Urls.PolicyUrls.NEW_SESSION_RESOURCE).request()
-                .post(Entity.entity(samlRequest, MediaType.APPLICATION_JSON_TYPE), SessionId.class);
+                .postTargetMain(Urls.PolicyUrls.NEW_SESSION_RESOURCE, samlRequest, SessionId.class);
 
         DateTimeFreezer.freezeTime(SOME_TIME.plusMinutes(SOME_TIMEOUT + 1));
         URI uri = UriBuilder
@@ -145,6 +136,6 @@ public class SessionTimeoutIntegrationTests {
     }
 
     private Response post(URI uri, Object entity) {
-        return client.targetMain(uri.toASCIIString()).request().post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
+        return client.postTargetMain(uri, entity);
     }
 }

@@ -1,10 +1,8 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.dropwizard.testing.ResourceHelpers;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -14,12 +12,9 @@ import org.opensaml.xmlsec.algorithm.SignatureAlgorithm;
 import org.opensaml.xmlsec.algorithm.descriptors.DigestSHA256;
 import org.opensaml.xmlsec.algorithm.descriptors.SignatureRSASHA256;
 import org.w3c.dom.Element;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.shared.security.PrivateKeyFactory;
 import uk.gov.ida.common.shared.security.PublicKeyFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
-import uk.gov.ida.hub.samlsoapproxy.SamlSoapProxyApplication;
 import uk.gov.ida.hub.samlsoapproxy.contract.MatchingServiceHealthCheckerRequestDto;
 import uk.gov.ida.hub.samlsoapproxy.contract.SamlMessageDto;
 import uk.gov.ida.hub.samlsoapproxy.soap.SoapMessageManager;
@@ -29,6 +24,7 @@ import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MatchingServ
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.MsaStubExtension;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlEngineStubExtension;
 import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support.SamlSoapProxyAppExtension.SamlSoapProxyClient;
 import uk.gov.ida.saml.msa.test.api.MsaTransformersFactory;
 import uk.gov.ida.saml.msa.test.outbound.HealthCheckResponseFromMatchingService;
 import uk.gov.ida.saml.security.IdaKeyStore;
@@ -46,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceHealthCheckerResponseDtoBuilder.anInboundResponseFromMatchingServiceDto;
 import static uk.gov.ida.hub.samlsoapproxy.client.PrometheusClient.VERIFY_SAML_SOAP_PROXY_MSA_HEALTH_STATUS;
@@ -69,7 +66,6 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 import static uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus.Healthy;
 
 public class PrometheusMetricsIntegrationTest {
-    private static ClientSupport client;
     private static final int WAIT_FOR_MSA_HEALTH_METRICS_TO_BE_UPDATED = 5_000;
     private static final String GAUGE_HELP_TEMPLATE = "# HELP %s %s\n";
     private static final String GAUGE_TYPE_TEMPLATE = "# TYPE %s gauge\n";
@@ -133,28 +129,24 @@ public class PrometheusMetricsIntegrationTest {
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlSoapProxyAppExtension = SamlSoapProxyAppExtension.forApp(SamlSoapProxyApplication.class)
-            .withDefaultConfigOverridesAnd(
-                    "logging.level: INFO",
-                    "httpClient.gzipEnabledForRequests: false",
-                    "matchingServiceHealthCheckServiceConfiguration.enable: true",
-                    "matchingServiceHealthCheckServiceConfiguration.initialDelay: 1s",
-                    "matchingServiceHealthCheckServiceConfiguration.delay: 3s"
+    public static final SamlSoapProxyAppExtension samlSoapProxyApp = SamlSoapProxyAppExtension.builder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString()),
+                    config("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString()),
+                    config("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString()),
+                    config("logging.level", "INFO"),
+                    config("httpClient.gzipEnabledForRequests", "false"),
+                    config("matchingServiceHealthCheckServiceConfiguration.enable", "true"),
+                    config("matchingServiceHealthCheckServiceConfiguration.initialDelay", "1s"),
+                    config("matchingServiceHealthCheckServiceConfiguration.delay", "3s")
             )
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
-            .configOverride("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-soap-proxy.yml"))
-            .randomPorts()
-            .create();
+            .build();
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    public SamlSoapProxyClient client;
 
     @BeforeEach
     public void setUp() throws JsonProcessingException {
+        client = samlSoapProxyApp.getClient();
         final MatchingServiceDetails msaOneDetails = new MatchingServiceDetails(
             msaStubOne.getAttributeQueryRequestUri(), MSA_ONE_ENTITY_ID, RP_ONE_ENTITY_ID);
         final MatchingServiceDetails msaTwoDetails = new MatchingServiceDetails(
@@ -284,7 +276,7 @@ public class PrometheusMetricsIntegrationTest {
     }
 
     private Response getPrometheusMetrics() {
-        return client.targetAdmin("/prometheus/metrics").request().get();
+        return client.getTargetAdmin("/prometheus/metrics");
     }
 
     private static Element aHealthyHealthCheckResponse(final String msaEntityId,

@@ -2,22 +2,32 @@ package uk.gov.ida.integrationtest.hub.samlengine.apprule.support;
 
 import certificates.values.CACertificates;
 import httpstub.HttpStubRule;
-import io.dropwizard.Application;
+import io.dropwizard.testing.ConfigOverride;
+import io.dropwizard.testing.ResourceHelpers;
+import io.dropwizard.testing.junit5.DropwizardAppExtension;
 import io.prometheus.client.CollectorRegistry;
 import keystore.KeyStoreResource;
 import keystore.builders.KeyStoreResourceBuilder;
 import org.apache.commons.lang3.ArrayUtils;
 import org.opensaml.core.config.InitializationService;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.Constants;
+import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.saml.metadata.test.factories.metadata.MetadataFactory;
 
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_ENCRYPTION_KEY;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.HUB_TEST_PRIVATE_SIGNING_KEY;
-import static uk.gov.ida.saml.core.test.TestCertificateStrings.TEST_PRIVATE_KEY;
+import javax.annotation.Nullable;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
+import java.net.URI;
+
+import static io.dropwizard.testing.ConfigOverride.config;
+import static uk.gov.ida.saml.core.test.TestCertificateStrings.*;
 import static uk.gov.ida.saml.core.test.TestEntityIds.HUB_ENTITY_ID;
 
-public class SamlEngineAppExtension extends TestDropwizardAppExtension {
+public class SamlEngineAppExtension extends DropwizardAppExtension  {
     public static final String VERIFY_METADATA_PATH = "/uk/gov/ida/saml/metadata/federation";
 
     private static final HttpStubRule verifyMetadataServer = new HttpStubRule();
@@ -29,13 +39,31 @@ public class SamlEngineAppExtension extends TestDropwizardAppExtension {
     public static final int REDIS_PORT = 6383;
     public static RedisTestRule redis = new RedisTestRule(REDIS_PORT);
 
-    public static SamlEngineBuilder forApp(final Class<? extends Application> app) {
-        return new SamlEngineBuilder(app);
+    public SamlEngineAppExtension(Class applicationClass, @Nullable String configPath, ConfigOverride... configOverrides) {
+        super(applicationClass, configPath, configOverrides);
     }
 
-    public static class SamlEngineBuilder extends TestDropwizardAppExtension.Builder {
-        public SamlEngineBuilder(Class<? extends Application> app) {
-            super(app);
+    public SamlEngineClient getClient() {
+        return new SamlEngineClient();
+    }
+
+    public void tearDown() {
+        redis.after();
+        metadataTrustStore.delete();
+        hubTrustStore.delete();
+        idpTrustStore.delete();
+        rpTrustStore.delete();
+    }
+
+    public static class SamlEngineAppExtensionBuilder {
+        private ConfigOverride[] configOverrides = new ConfigOverride[]{};
+
+        public SamlEngineAppExtensionBuilder withConfigOverrides(ConfigOverride... overrides) {
+            configOverrides = overrides;
+            return this;
+        }
+
+        public SamlEngineAppExtension build() {
             try {
                 redis.before();
             } catch (Throwable throwable) {
@@ -56,43 +84,62 @@ public class SamlEngineAppExtension extends TestDropwizardAppExtension {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+
+            return new SamlEngineAppExtension(
+                    SamlEngineApplication.class,
+                    ResourceHelpers.resourceFilePath("saml-engine.yml"),
+                    ArrayUtils.addAll(configOverrides, defaultConfigOverrides())
+            );
         }
 
-        public SamlEngineBuilder withDefaultConfigOverridesAnd(String... extraOverrides) {
-            String[] defaultOverrides = {
-                    "saml.entityId: " + HUB_ENTITY_ID,
-                    "saml.expectedDestination: http://localhost",
-                    "server.applicationConnectors[0].port: 0",
-                    "server.adminConnectors[0].portL: 0",
-                    "privateSigningKeyConfiguration.key: " + HUB_TEST_PRIVATE_SIGNING_KEY,
-                    "privateSigningKeyConfiguration.type: encoded",
-                    "primaryPrivateEncryptionKeyConfiguration.key: " + HUB_TEST_PRIVATE_ENCRYPTION_KEY,
-                    "primaryPrivateEncryptionKeyConfiguration.type: encoded",
-                    "secondaryPrivateEncryptionKeyConfiguration.key: " + TEST_PRIVATE_KEY,
-                    "secondaryPrivateEncryptionKeyConfiguration.type: encoded",
-                    "rpTrustStoreConfiguration.path: " + rpTrustStore.getAbsolutePath(),
-                    "rpTrustStoreConfiguration.password: " + rpTrustStore.getPassword(),
-                    "metadata.trustStore.path: " + metadataTrustStore.getAbsolutePath(),
-                    "metadata.trustStore.password: " + metadataTrustStore.getPassword(),
-                    "metadata.uri: " + "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH,
-                    "metadata.hubTrustStore.path: " + hubTrustStore.getAbsolutePath(),
-                    "metadata.hubTrustStore.password: " + hubTrustStore.getPassword(),
-                    "metadata.idpTrustStore.path: " + idpTrustStore.getAbsolutePath(),
-                    "metadata.idpTrustStore.password: " + idpTrustStore.getPassword(),
-                    "certificatesConfigCacheExpiry: " + "20s",
-                    "redis.uri: " + "redis://localhost:" + REDIS_PORT
+        private static ConfigOverride[] defaultConfigOverrides() {
+            return new ConfigOverride[]{
+                    config("saml.entityId", HUB_ENTITY_ID),
+                    config("saml.expectedDestination", "http://localhost"),
+                    config("server.applicationConnectors[0].port", "0"),
+                    config("server.adminConnectors[0].port", "0"),
+                    config("privateSigningKeyConfiguration.key", HUB_TEST_PRIVATE_SIGNING_KEY),
+                    config("privateSigningKeyConfiguration.type", "encoded"),
+                    config("primaryPrivateEncryptionKeyConfiguration.key", HUB_TEST_PRIVATE_ENCRYPTION_KEY),
+                    config("primaryPrivateEncryptionKeyConfiguration.type", "encoded"),
+                    config("secondaryPrivateEncryptionKeyConfiguration.key", TEST_PRIVATE_KEY),
+                    config("secondaryPrivateEncryptionKeyConfiguration.type", "encoded"),
+                    config("rpTrustStoreConfiguration.path", rpTrustStore.getAbsolutePath()),
+                    config("rpTrustStoreConfiguration.password", rpTrustStore.getPassword()),
+                    config("metadata.trustStore.path", metadataTrustStore.getAbsolutePath()),
+                    config("metadata.trustStore.password", metadataTrustStore.getPassword()),
+                    config("metadata.uri", "http://localhost:" + verifyMetadataServer.getPort() + VERIFY_METADATA_PATH),
+                    config("metadata.hubTrustStore.path", hubTrustStore.getAbsolutePath()),
+                    config("metadata.hubTrustStore.password", hubTrustStore.getPassword()),
+                    config("metadata.idpTrustStore.path", idpTrustStore.getAbsolutePath()),
+                    config("metadata.idpTrustStore.password", idpTrustStore.getPassword()),
+                    config("certificatesConfigCacheExpiry", "20s"),
+                    config("redis.uri", "redis://localhost:" + REDIS_PORT),
             };
-
-            this.configOverrides(ArrayUtils.addAll(defaultOverrides, extraOverrides));
-            return this;
         }
     }
 
-    public static void tearDown() {
-        redis.after();
-        metadataTrustStore.delete();
-        hubTrustStore.delete();
-        idpTrustStore.delete();
-        rpTrustStore.delete();
+    public class SamlEngineClient {
+        private Client client;
+
+        public SamlEngineClient() { client = client(); }
+
+        public Response postTargetMain(URI uri, Object entity) { return postTarget(uri, getLocalPort(), entity); };
+
+        public Response postTargetMain(String path, Object entity) { return postTargetMain(UriBuilder.fromPath(path).build(), entity); };
+
+        public Response postTargetAdmin(String path, Object entity) { return postTarget(UriBuilder.fromPath(path).build(), getAdminPort(), entity); };
+
+        public Response postTarget(URI uri, int port, Object entity) {
+            UriBuilder uriBuilder = UriBuilder.fromUri("http://localhost").port(port).path(uri.getRawPath());
+            if (uri.getQuery() != null) {
+                uriBuilder.replaceQuery(uri.getQuery());
+            }
+
+            return client
+                    .target(uriBuilder.build())
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
+        }
     }
 }

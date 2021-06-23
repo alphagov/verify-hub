@@ -1,6 +1,5 @@
 package uk.gov.ida.hub.samlproxy.exceptions;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
@@ -11,6 +10,7 @@ import uk.gov.ida.saml.hub.exception.SamlRequestTooOldException;
 import uk.gov.ida.shared.utils.logging.LevelLogger;
 import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.UUID;

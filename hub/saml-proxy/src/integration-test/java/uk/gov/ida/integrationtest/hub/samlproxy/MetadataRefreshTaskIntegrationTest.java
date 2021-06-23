@@ -1,39 +1,30 @@
 package uk.gov.ida.integrationtest.hub.samlproxy;
 
-import io.dropwizard.testing.ResourceHelpers;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
-import uk.gov.ida.hub.samlproxy.SamlProxyApplication;
 import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetadataRefreshTaskIntegrationTest {
 
-    private static ClientSupport client;
-
     @RegisterExtension
-    public static TestDropwizardAppExtension samlProxyApp = SamlProxyAppExtension.forApp(SamlProxyApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .config(ResourceHelpers.resourceFilePath("saml-proxy.yml"))
-            .randomPorts()
-            .create();
+    public static final SamlProxyAppExtension samlProxyApp = SamlProxyAppExtension.builder()
+            .build();
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
+    private SamlProxyAppExtension.SamlProxyClient client;
+
+    @BeforeEach
+    public void beforeEach() {
+        client = samlProxyApp.getClient();
     }
 
     @Test
     public void verifyFederationMetadataRefreshTaskWorks() {
-        final Response response = client.targetAdmin("/tasks/metadata-refresh")
-                .request().post(Entity.text("refresh!"));
+        final Response response = client.postTargetAdmin("/tasks/metadata-refresh", "refresh!");
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

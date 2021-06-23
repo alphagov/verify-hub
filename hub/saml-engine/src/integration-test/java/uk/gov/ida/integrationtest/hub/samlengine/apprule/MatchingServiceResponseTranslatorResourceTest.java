@@ -1,11 +1,9 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
-import io.dropwizard.testing.ResourceHelpers;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -15,19 +13,17 @@ import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.xmlsec.signature.support.SignatureException;
-import ru.vyarus.dropwizard.guice.test.ClientSupport;
-import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.common.shared.security.PublicKeyFactory;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
-import uk.gov.ida.hub.samlengine.SamlEngineApplication;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.samlengine.domain.LevelOfAssurance;
 import uk.gov.ida.hub.samlengine.domain.SamlResponseContainerDto;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubExtension;
 import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineClient;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.core.test.TestCredentialFactory;
 import uk.gov.ida.saml.hub.transformers.inbound.MatchingServiceIdaStatus;
@@ -35,11 +31,11 @@ import uk.gov.ida.saml.security.KeyStoreBackedEncryptionCredentialResolver;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
 import java.util.Base64;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.opensaml.saml.saml2.core.StatusCode.REQUESTER;
 import static org.opensaml.saml.saml2.core.StatusCode.RESPONDER;
@@ -66,7 +62,6 @@ import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationBuilder.aSub
 import static uk.gov.ida.saml.core.test.builders.SubjectConfirmationDataBuilder.aSubjectConfirmationData;
 
 public class MatchingServiceResponseTranslatorResourceTest {
-    private static ClientSupport client;
 
     private Credential msaSigningCredential = new TestCredentialFactory(TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PRIVATE_SIGNING_KEY).getSigningCredential();
 
@@ -81,20 +76,17 @@ public class MatchingServiceResponseTranslatorResourceTest {
 
     @Order(1)
     @RegisterExtension
-    public static TestDropwizardAppExtension samlEngineApp = SamlEngineAppExtension.forApp(SamlEngineApplication.class)
-            .withDefaultConfigOverridesAnd()
-            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
-            .config(ResourceHelpers.resourceFilePath("saml-engine.yml"))
-            .randomPorts()
-            .create();
+    public static SamlEngineAppExtension samlEngineApp = new SamlEngineAppExtension.SamlEngineAppExtensionBuilder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
-    @BeforeAll
-    public static void beforeClass(ClientSupport clientSupport) {
-        client = clientSupport;
-    }
+    private SamlEngineClient client;
 
     @BeforeEach
     public void beforeEach() throws Exception {
+        client = samlEngineApp.getClient();
         configStub.setupCertificatesForEntity(TEST_RP_MS, TEST_RP_MS_PUBLIC_SIGNING_CERT, TEST_RP_MS_PUBLIC_ENCRYPTION_CERT);
         configStub.setupCertificatesForEntity(TEST_RP, TEST_RP_PUBLIC_SIGNING_CERT, TEST_RP_PUBLIC_ENCRYPTION_CERT);
     }
@@ -107,7 +99,7 @@ public class MatchingServiceResponseTranslatorResourceTest {
 
     @AfterAll
     public static void afterAll() {
-        SamlEngineAppExtension.tearDown();
+        samlEngineApp.tearDown();
     }
 
     @Test
@@ -185,10 +177,10 @@ public class MatchingServiceResponseTranslatorResourceTest {
     }
 
     private Response postToSamlEngine(SamlResponseContainerDto samlResponseContainerDto) {
-        return client
-                    .targetMain(Urls.SamlEngineUrls.TRANSLATE_MATCHING_SERVICE_RESPONSE_RESOURCE)
-                    .request()
-                    .post(Entity.json(samlResponseContainerDto));
+        return client.postTargetMain(
+                Urls.SamlEngineUrls.TRANSLATE_MATCHING_SERVICE_RESPONSE_RESOURCE,
+                samlResponseContainerDto
+        );
     }
 
     @Test

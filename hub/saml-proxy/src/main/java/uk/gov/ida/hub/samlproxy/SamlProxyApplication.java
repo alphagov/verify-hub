@@ -11,6 +11,11 @@ import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
 import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.eventemitter.EventEmitterModule;
+import uk.gov.ida.hub.samlproxy.exceptions.NoKeyConfiguredForEntityExceptionMapper;
+import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyApplicationExceptionMapper;
+import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyDuplicateRequestExceptionMapper;
+import uk.gov.ida.hub.samlproxy.exceptions.SamlProxyExceptionMapper;
+import uk.gov.ida.hub.samlproxy.exceptions.SamlProxySamlTransformationErrorExceptionMapper;
 import uk.gov.ida.hub.samlproxy.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlproxy.resources.HubMetadataResourceApi;
 import uk.gov.ida.hub.samlproxy.resources.SamlMessageReceiverApi;
@@ -23,6 +28,7 @@ import uk.gov.ida.truststore.ClientTrustStoreConfiguration;
 import uk.gov.ida.truststore.KeyStoreLoader;
 
 import javax.servlet.DispatcherType;
+import javax.ws.rs.ext.ExceptionMapper;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -70,6 +76,10 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
             environment.jersey().register(klass);
         }
 
+        for (Class klass : getExceptionMappers()) {
+            environment.jersey().register(klass);
+        }
+
         MetadataResolverConfiguration metadataConfiguration = configuration.getMetadataConfiguration();
         ClientTrustStoreConfiguration rpTrustStoreConfiguration = configuration.getRpTrustStoreConfiguration();
         KeyStore rpTrustStore = new KeyStoreLoader().load(rpTrustStoreConfiguration.getPath(), rpTrustStoreConfiguration.getPassword());
@@ -86,6 +96,16 @@ public class SamlProxyApplication extends Application<SamlProxyConfiguration> {
         classes.add(SamlMessageReceiverApi.class);
         classes.add(SamlMessageSenderApi.class);
         classes.add(HubMetadataResourceApi.class);
+        return classes;
+    }
+
+    public List<Class<? extends ExceptionMapper<?>>> getExceptionMappers() {
+        List<Class<? extends ExceptionMapper<?>>> classes = new ArrayList<>();
+        classes.add(NoKeyConfiguredForEntityExceptionMapper.class);
+        classes.add(SamlProxySamlTransformationErrorExceptionMapper.class);
+        classes.add(SamlProxyApplicationExceptionMapper.class);
+        classes.add(SamlProxyDuplicateRequestExceptionMapper.class);
+        classes.add(SamlProxyExceptionMapper.class);
         return classes;
     }
 }
