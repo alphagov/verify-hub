@@ -15,11 +15,13 @@ import uk.gov.ida.shared.utils.logging.LevelLoggerFactory;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 import java.util.UUID;
 
 import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.WARN;
 
+@Provider
 public class SamlEngineExceptionMapper implements ExceptionMapper<Exception> {
 
     private static final boolean HAS_NOT_BEEN_AUDITED_YET = false;

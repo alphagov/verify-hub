@@ -1,6 +1,6 @@
 package uk.gov.ida.hub.config.domain.filters;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.ida.hub.config.domain.IdentityProviderConfig;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 

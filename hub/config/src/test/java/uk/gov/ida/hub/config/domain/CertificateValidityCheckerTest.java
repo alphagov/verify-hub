@@ -1,10 +1,13 @@
 package uk.gov.ida.hub.config.domain;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.CertificateValidity;
 import uk.gov.ida.hub.config.dto.FederationEntityType;
@@ -23,7 +26,8 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.config.domain.CertificateValidityChecker.createNonOCSPCheckingCertificateValidityChecker;
 import static uk.gov.ida.saml.core.test.PemCertificateStrings.HUB_TEST_PUBLIC_SIGNING_CERT;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class CertificateValidityCheckerTest {
     @Mock
     private TrustStoreForCertificateProvider trustStoreForCertProvider;
@@ -38,7 +42,7 @@ public class CertificateValidityCheckerTest {
     private Certificate localCertificate;
     private Certificate selfServiceCertificate;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         localCertificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, CertificateOrigin.FEDERATION, true);
         selfServiceCertificate = new Certificate("entityId", FederationEntityType.RP, HUB_TEST_PUBLIC_SIGNING_CERT, CertificateUse.SIGNING, CertificateOrigin.SELFSERVICE, true);

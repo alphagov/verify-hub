@@ -6,14 +6,14 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.ecp.Response;
@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.samlengine.builders.BuilderHelper;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.core.domain.PassthroughAssertion;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.TestEntityIds;
 import uk.gov.ida.saml.core.test.builders.SignatureBuilder;
 import uk.gov.ida.saml.hub.domain.AuthnRequestFromRelyingParty;
@@ -52,13 +53,9 @@ import static uk.gov.ida.saml.core.test.builders.IssuerBuilder.anIssuer;
  * UnknownMethodAlgorithmLoggerTest is used for testing UnknownMethodAlgorithmLogger
  * class and ensures that its methods perform properly.
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class UnknownMethodAlgorithmLoggerTest {
-
-    static {
-        IdaSamlBootstrap.bootstrap();
-    }
-
     private static final SignatureAlgorithm SIGNATURE_RSA_SHA256 = new SignatureRSASHA256();
     private static final SignatureAlgorithm SIGNATURE_RSA_SHA1 = new SignatureRSASHA1();
     private static final String SIGNATURE_RSA_SHA1_ID = SIGNATURE_RSA_SHA1.getURI();
@@ -100,7 +97,7 @@ public class UnknownMethodAlgorithmLoggerTest {
         assertThat(loggingEvent.getFormattedMessage()).isEqualTo(expectedLogMessage);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.addAppender(mockAppender);
@@ -123,7 +120,7 @@ public class UnknownMethodAlgorithmLoggerTest {
         signatureWithUnknownSignatureAndDigestAlgorithmsImpl.setXMLSignature(BuilderHelper.createXMLSignature(SIGNATURE_RSA_SHA1, DIGEST_SHA1));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logger.detachAppender(mockAppender);

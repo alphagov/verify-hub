@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy.services;
 
 import com.google.inject.Inject;
-import org.apache.log4j.Logger;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
 import uk.gov.ida.hub.policy.contracts.SamlResponseContainerDto;
@@ -17,11 +16,14 @@ import uk.gov.ida.hub.policy.domain.state.WaitingForMatchingServiceResponseState
 import uk.gov.ida.hub.policy.logging.HubEventLogger;
 import uk.gov.ida.hub.policy.proxy.SamlEngineProxy;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static java.text.MessageFormat.format;
 
 public class MatchingServiceResponseService {
 
-    private static final Logger LOG = Logger.getLogger(MatchingServiceResponseService.class);
+    private static final Logger LOG = Logger.getLogger(MatchingServiceResponseService.class.getName());
 
     private final SamlEngineProxy samlEngineProxy;
     private final SessionRepository sessionRepository;
@@ -83,12 +85,12 @@ public class MatchingServiceResponseService {
                 break;
 
             default:
-                LOG.error(format("Unknown status received from matching service: {0}", inboundResponseFromMatchingServiceDto.getStatus()));
+                LOG.log(Level.SEVERE, format("Unknown status received from matching service: {0}", inboundResponseFromMatchingServiceDto.getStatus()));
         }
     }
 
     private void logExceptionAndUpdateState(String message, SessionId sessionId, Exception e) {
-        LOG.info(message, e);
+        LOG.log(Level.INFO, message, e);
         logToEventSinkAndUpdateState(message, sessionId);
     }
 

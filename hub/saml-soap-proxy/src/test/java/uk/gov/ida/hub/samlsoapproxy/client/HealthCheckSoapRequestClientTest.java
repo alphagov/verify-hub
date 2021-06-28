@@ -1,10 +1,11 @@
 package uk.gov.ida.hub.samlsoapproxy.client;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.samlsoapproxy.soap.SoapMessageManager;
 
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HealthCheckSoapRequestClientTest {
 
     @Mock
@@ -38,7 +39,7 @@ public class HealthCheckSoapRequestClientTest {
 
     private HealthCheckSoapRequestClient healthCheckSoapRequestClient;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(client.target(any(URI.class))).thenReturn(webResource);
         when(webResource.request()).thenReturn(webResourceBuilder);
@@ -47,12 +48,14 @@ public class HealthCheckSoapRequestClientTest {
         healthCheckSoapRequestClient = new HealthCheckSoapRequestClient(soapMessageManager, client);
     }
 
-    @Test(expected = ApplicationException.class)
+    @Test
     public void makeSoapRequestForHealthCheck_shouldThrowWhenResponseNot200() throws URISyntaxException {
-        when(response.getStatus()).thenReturn(502);
-        URI matchingServiceUri = new URI("http://heyyeyaaeyaaaeyaeyaa.com/abc1");
+        Assertions.assertThrows(ApplicationException.class, () -> {
+            when(response.getStatus()).thenReturn(502);
+            URI matchingServiceUri = new URI("http://heyyeyaaeyaaaeyaeyaa.com/abc1");
 
-        healthCheckSoapRequestClient.makeSoapRequestForHealthCheck(null, matchingServiceUri);
+            healthCheckSoapRequestClient.makeSoapRequestForHealthCheck(null, matchingServiceUri);
+        });
     }
 
     @Test

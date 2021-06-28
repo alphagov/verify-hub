@@ -1,18 +1,19 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.util.Duration;
+import io.dropwizard.testing.ResourceHelpers;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import ru.vyarus.dropwizard.guice.test.ClientSupport;
+import ru.vyarus.dropwizard.guice.test.jupiter.ext.TestDropwizardAppExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
+import uk.gov.ida.hub.policy.PolicyApplication;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.builder.SamlAuthnRequestContainerDtoBuilder;
 import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDto;
@@ -21,13 +22,12 @@ import uk.gov.ida.hub.policy.domain.LevelOfAssurance;
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubExtension;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -48,35 +48,37 @@ public class SessionTimeoutIntegrationTests {
     private static final DateTime SOME_TIME = new DateTime(2013, 5, 30, 12, 0);
     private static final String THE_TX_ID = "the-tx-id";
     private static final String abTestVariant = null;
-    private static Client client;
     private static final boolean REGISTERING = true;
     private static final LevelOfAssurance REQUESTED_LOA = LevelOfAssurance.LEVEL_2;
+    private static ClientSupport client;
 
-    @ClassRule
-    public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
-
-    @ClassRule
-    public static ConfigStubRule configStub = new ConfigStubRule();
-
-    @ClassRule
-    public static EventSinkStubRule eventSinkStub = new EventSinkStubRule();
-
-    @ClassRule
-    public static PolicyAppRule policy = new PolicyAppRule(
-            ConfigOverride.config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("timeoutPeriod", format("{0}m", SOME_TIMEOUT)));
-
+    @Order(0)
+    @RegisterExtension
+    public static SamlEngineStubExtension samlEngineStub = new SamlEngineStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static ConfigStubExtension configStub = new ConfigStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static EventSinkStubExtension eventSinkStub = new EventSinkStubExtension();
+    @Order(1)
+    @RegisterExtension
+    public static TestDropwizardAppExtension policyApp = PolicyAppExtension.forApp(PolicyApplication.class)
+            .withDefaultConfigOverridesAnd("timeoutPeriod: " + format("{0}m", SOME_TIMEOUT))
+            .configOverride("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString())
+            .configOverride("configUri", () -> configStub.baseUri().build().toASCIIString())
+            .configOverride("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
+            .config(ResourceHelpers.resourceFilePath("policy.yml"))
+            .randomPorts()
+            .create();
     private SamlAuthnRequestContainerDto samlRequest;
 
-    @BeforeClass
-    public static void beforeClass() {
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(policy.getEnvironment()).using(jerseyClientConfiguration).build(SessionTimeoutIntegrationTests.class.getSimpleName());
+    @BeforeAll
+    public static void beforeClass(ClientSupport clientSupport) {
+        client = clientSupport;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         SamlResponseWithAuthnRequestInformationDto samlResponse = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(THE_TX_ID).build();
         samlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
@@ -87,16 +89,21 @@ public class SessionTimeoutIntegrationTests {
         configStub.setUpStubForAssertionConsumerServiceUri(samlResponse.getIssuer());
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         DateTimeFreezer.unfreezeTime();
+    }
+
+    @AfterAll
+    public static void tearDownAll() {
+        PolicyAppExtension.tearDown();
     }
 
     @Test
     public void selectIdpShouldReturnErrorWhenSessionHasTimedOut() {
         DateTimeFreezer.freezeTime(SOME_TIME);
         SessionId sessionId = client
-                .target(policy.uri(Urls.PolicyUrls.NEW_SESSION_RESOURCE)).request()
+                .targetMain(Urls.PolicyUrls.NEW_SESSION_RESOURCE).request()
                 .post(Entity.entity(samlRequest, MediaType.APPLICATION_JSON_TYPE), SessionId.class);
 
         DateTimeFreezer.freezeTime(SOME_TIME.plusMinutes(SOME_TIMEOUT + 1));
@@ -104,7 +111,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant),
+        confirmError(uri, new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant),
                 SESSION_TIMEOUT);
     }
 
@@ -118,7 +125,7 @@ public class SessionTimeoutIntegrationTests {
                 .fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE)
                 .buildFromEncoded(sessionId);
 
-        confirmError(policy.uri(uri.getPath()), new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant), ExceptionType
+        confirmError(uri, new IdpSelected(STUB_IDP_ONE, "some-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant), ExceptionType
                 .SESSION_NOT_FOUND);
 
         assertThatEventEmitterWritesToStandardOutput(outContent);
@@ -138,6 +145,6 @@ public class SessionTimeoutIntegrationTests {
     }
 
     private Response post(URI uri, Object entity) {
-        return client.target(uri).request().post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
+        return client.targetMain(uri.toASCIIString()).request().post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
     }
 }

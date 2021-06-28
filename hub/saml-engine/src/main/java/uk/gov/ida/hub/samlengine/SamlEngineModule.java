@@ -118,6 +118,8 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -189,7 +191,7 @@ public class SamlEngineModule extends AbstractModule {
     private Task registerMetadataRefreshTask(Environment environment, @Named(VERIFY_METADATA_RESOLVER) MetadataResolver metadataResolver) {
         Task task = new Task("metadata-refresh") {
             @Override
-            public void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
+            public void execute(Map<String, List<String>> parameters, PrintWriter output) throws Exception {
                 ((AbstractReloadingMetadataResolver) metadataResolver).refresh();
             }
         };

@@ -1,8 +1,8 @@
 package uk.gov.ida.saml.hub.validators.response.matchingservice;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDType;
@@ -11,7 +11,7 @@ import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import uk.gov.ida.saml.core.domain.SamlStatusCode;
 import uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.validation.SamlValidationSpecificationFailure;
 
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.*;
@@ -22,14 +22,14 @@ import static uk.gov.ida.saml.core.test.builders.ResponseBuilder.aResponse;
 import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.createStatus;
 import static uk.gov.ida.saml.hub.validators.response.helpers.ResponseValidatorTestHelper.createSubStatusCode;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
 public class EncryptedResponseFromMatchingServiceValidatorTest {
 
     private Status happyStatus;
 
     private EncryptedResponseFromMatchingServiceValidator validator;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         happyStatus = createStatus(StatusCode.SUCCESS, createSubStatusCode(SamlStatusCode.MATCH));
         validator = new EncryptedResponseFromMatchingServiceValidator();
