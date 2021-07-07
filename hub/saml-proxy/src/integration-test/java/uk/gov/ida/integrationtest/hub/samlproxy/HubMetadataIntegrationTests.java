@@ -1,25 +1,23 @@
 package uk.gov.ida.integrationtest.hub.samlproxy;
 
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.util.Duration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import uk.gov.ida.hub.samlproxy.domain.SamlDto;
-import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppRule;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension;
+import uk.gov.ida.integrationtest.hub.samlproxy.apprule.support.SamlProxyAppExtension.SamlProxyClient;
 import uk.gov.ida.saml.core.test.TestCertificateStrings;
 import uk.gov.ida.saml.deserializers.OpenSamlXMLObjectUnmarshaller;
 import uk.gov.ida.saml.deserializers.parser.SamlObjectParser;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.UriBuilder;
 import java.util.List;
 
@@ -33,34 +31,32 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.STUB_IDP_TWO;
 
 public class HubMetadataIntegrationTests {
 
-    @ClassRule
-    public static final SamlProxyAppRule samlProxyAppRule = new SamlProxyAppRule();
-
-    public static Client client;
+    @RegisterExtension
+    public static final SamlProxyAppExtension samlProxyApp = SamlProxyAppExtension.builder()
+            .build();
 
     private final SamlObjectParser samlObjectParser = new SamlObjectParser();
+    private SamlProxyClient client;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        JerseyClientConfiguration jerseyClientConfiguration = new JerseyClientConfiguration();
-        jerseyClientConfiguration.setConnectionTimeout(Duration.seconds(10));
-        jerseyClientConfiguration.setTimeout(Duration.seconds(10));
-        client = new JerseyClientBuilder(samlProxyAppRule.getEnvironment())
-                .using(jerseyClientConfiguration)
-                .build(HubMetadataIntegrationTests.class.getName());
+    @BeforeAll
+    public static void beforeClass() {
         DateTimeFreezer.freezeTime();
     }
 
-    @AfterClass
-    public static void tearDown() throws Exception {
+    @BeforeEach
+    public void beforeEach() {
+        client = samlProxyApp.getClient();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        samlProxyApp.tearDown();
         DateTimeFreezer.unfreezeTime();
     }
 
     @Test
-    public void getIdpMetadataFromApi_shouldWork() throws Exception {
-        final DateTime time = DateTime.now(DateTimeZone.UTC).plusHours(1);
-
-        SamlDto samlDto = client.target(UriBuilder.fromUri(samlProxyAppRule.getUri("/API/metadata/idp"))).request().get(SamlDto.class);
+    public void getIdpMetadataFromApi_shouldWork() {
+        SamlDto samlDto = client.getTargetMain(UriBuilder.fromPath("/API/metadata/idp").build(), SamlDto.class);
 
         EntityDescriptor entityDescriptor = getEntityDescriptor(samlDto);
         assertThat(entityDescriptor.getEntityID()).isEqualTo(HUB_ENTITY_ID);
@@ -110,8 +106,8 @@ public class HubMetadataIntegrationTests {
     }
 
     @Test
-    public void getSpMetadataFromApi_shouldReturnTheHubFromNewMetadataAsAnSp() throws Exception {
-        SamlDto samlDto = client.target(UriBuilder.fromUri(samlProxyAppRule.getUri("/API/metadata/sp"))).request().get(SamlDto.class);
+    public void getSpMetadataFromApi_shouldReturnTheHubFromNewMetadataAsAnSp() {
+        SamlDto samlDto = client.getTargetMain(UriBuilder.fromPath("/API/metadata/sp").build(), SamlDto.class);
         EntityDescriptor entityDescriptor = getEntityDescriptor(samlDto);
 
         assertThat(entityDescriptor.getEntityID()).isEqualTo(HUB_ENTITY_ID);

@@ -3,7 +3,6 @@ package uk.gov.ida.hub.samlsoapproxy;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -16,11 +15,11 @@ import uk.gov.ida.bundles.MonitoringBundle;
 import uk.gov.ida.bundles.ServiceStatusBundle;
 import uk.gov.ida.common.shared.security.TrustStoreMetrics;
 import uk.gov.ida.eventemitter.EventEmitterModule;
-import uk.gov.ida.hub.samlsoapproxy.exceptions.IdaJsonProcessingExceptionMapperBundle;
 import uk.gov.ida.hub.samlsoapproxy.filters.SessionIdQueryParamLoggingFilter;
 import uk.gov.ida.hub.samlsoapproxy.resources.AttributeQueryRequestSenderResource;
 import uk.gov.ida.hub.samlsoapproxy.resources.MatchingServiceHealthCheckResource;
 import uk.gov.ida.hub.samlsoapproxy.resources.MatchingServiceVersionCheckResource;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.metrics.bundle.PrometheusBundle;
 import uk.gov.ida.saml.core.IdaSamlBootstrap;
 import uk.gov.ida.saml.metadata.MetadataResolverConfiguration;
@@ -32,12 +31,11 @@ import javax.servlet.DispatcherType;
 import java.security.KeyStore;
 import java.util.EnumSet;
 
-import static com.hubspot.dropwizard.guicier.GuiceBundle.defaultBuilder;
+import static java.util.Arrays.asList;
 
 public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfiguration> {
 
     private final MetadataResolverBundle<SamlSoapProxyConfiguration> verifyMetadataBundle = new MetadataResolverBundle<>((SamlSoapProxyConfiguration::getMetadataConfiguration));
-    private GuiceBundle<SamlSoapProxyConfiguration> guiceBundle;
 
     public static void main(String[] args) throws Exception {
         new SamlSoapProxyApplication().run(args);
@@ -58,12 +56,12 @@ public class SamlSoapProxyApplication extends Application<SamlSoapProxyConfigura
                 )
         );
 
-        bootstrap.addBundle(verifyMetadataBundle);
 
-        bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
-        guiceBundle = defaultBuilder(SamlSoapProxyConfiguration.class)
-                .modules(new SamlSoapProxyModule(), new EventEmitterModule(), bindVerifyMetadata())
-                .build();
+        bootstrap.addBundle(verifyMetadataBundle);
+        GuiceBundle<SamlSoapProxyConfiguration> guiceBundle = new GuiceBundle<>(
+                () -> asList(new SamlSoapProxyModule(), new EventEmitterModule(), bindVerifyMetadata()),
+                SamlSoapProxyConfiguration.class
+        );
         bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());

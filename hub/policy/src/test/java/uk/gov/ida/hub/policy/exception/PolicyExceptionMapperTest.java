@@ -1,11 +1,14 @@
 package uk.gov.ida.hub.policy.exception;
 
+import com.google.inject.Provider;
 import org.glassfish.jersey.internal.util.collection.StringKeyIgnoreCaseMultivaluedMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.ida.hub.policy.Urls;
 import uk.gov.ida.hub.policy.domain.SessionId;
 
@@ -18,19 +21,26 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class PolicyExceptionMapperTest {
 
     @Mock
     private HttpServletRequest servletRequest;
 
     @Mock
+    private Provider<UriInfo> uriInfoProvider;
+
+    @Mock
     private UriInfo uriInfo;
 
     private TestExceptionMapper mapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
+        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
+        when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
+        when(uriInfoProvider.get()).thenReturn(uriInfo);
         mapper = new TestExceptionMapper();
         mapper.setHttpServletRequest(servletRequest);
         mapper.setUriInfo(uriInfo);
@@ -48,13 +58,10 @@ public class PolicyExceptionMapperTest {
 
     @Test
     public void shouldDelegateToExceptionMapperWhenSessionIdIsInPath() {
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
-        when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
-
         StringKeyIgnoreCaseMultivaluedMap<String> pathParams = new StringKeyIgnoreCaseMultivaluedMap<>();
 
         pathParams.add(Urls.SharedUrls.SESSION_ID_PARAM, SessionId.createNewSessionId().getSessionId());
-        when(uriInfo.getPathParameters()).thenReturn(pathParams);
+        when(uriInfoProvider.get().getPathParameters()).thenReturn(pathParams);
 
         String expectedMessage = "Expected message";
         Response response = mapper.toResponse(new RuntimeException(expectedMessage));
@@ -65,9 +72,7 @@ public class PolicyExceptionMapperTest {
 
     @Test
     public void shouldReturnInternalServerErrorWhenThereIsNoSessionIdAndTheRequestUriIsNotAKnownNoContextPath() {
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
-        when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
-        when(uriInfo.getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<>());
+        when(uriInfoProvider.get().getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<>());
         String unknownUri = UUID.randomUUID().toString();
         when(servletRequest.getRequestURI()).thenReturn(unknownUri);
 
@@ -84,9 +89,7 @@ public class PolicyExceptionMapperTest {
     }
 
     private void assertDelegateExceptionMapperIsUsedForNoContextUri(final String noContextUri) {
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("");
-        when(servletRequest.getParameter(Urls.SharedUrls.RELAY_STATE_PARAM)).thenReturn("");
-        when(uriInfo.getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<>());
+        when(uriInfoProvider.get().getPathParameters()).thenReturn(new StringKeyIgnoreCaseMultivaluedMap<>());
         when(servletRequest.getRequestURI()).thenReturn(noContextUri);
 
         String expectedMessage = "Expected message";

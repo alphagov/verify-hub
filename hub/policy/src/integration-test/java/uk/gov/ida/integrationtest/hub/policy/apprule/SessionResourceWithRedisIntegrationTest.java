@@ -1,16 +1,12 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.util.Duration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
@@ -27,21 +23,20 @@ import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.domain.state.Cycle0And1MatchRequestSentState;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
 import uk.gov.ida.hub.shared.eventsink.EventSinkHubEventConstants;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension.PolicyClient;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlSoapProxyProxyStubExtension;
 import uk.gov.ida.integrationtest.hub.policy.apprule.support.TestSessionResourceHelper;
 import uk.gov.ida.integrationtest.hub.policy.builders.InboundResponseFromIdpDtoBuilder;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,26 +55,29 @@ public class SessionResourceWithRedisIntegrationTest {
     private static final String abTestVariant = null;
 
     private static String TEST_SESSION_RESOURCE_PATH = Urls.PolicyUrls.POLICY_ROOT + "test";
-    private static Client client;
 
-    @ClassRule
-    public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
-
-    @ClassRule
-    public static ConfigStubRule configStub = new ConfigStubRule();
-
-    @ClassRule
-    public static EventSinkStubRule eventSinkStub = new EventSinkStubRule();
-
-    @ClassRule
-    public static SamlSoapProxyProxyStubRule samlSoapProxyProxyStub = new SamlSoapProxyProxyStubRule();
-
-    @ClassRule
-    public static PolicyAppRule policy = new PolicyAppRule(
-            ConfigOverride.config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("samlSoapProxyUri", samlSoapProxyProxyStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()));
+    @Order(0)
+    @RegisterExtension
+    public static SamlEngineStubExtension samlEngineStub = new SamlEngineStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static ConfigStubExtension configStub = new ConfigStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static EventSinkStubExtension eventSinkStub = new EventSinkStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static SamlSoapProxyProxyStubExtension samlSoapProxyStub = new SamlSoapProxyProxyStubExtension();
+    @Order(1)
+    @RegisterExtension
+    public static final PolicyAppExtension policyApp = PolicyAppExtension.builder()
+            .withConfigOverrides(
+                    config("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString()),
+                    config("samlSoapProxyUri", () -> samlSoapProxyStub.baseUri().build().toASCIIString()),
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString()),
+                    config("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
     private final String idpEntityId = "idpEntityId";
     private final String rpEntityId = "rpEntityId";
@@ -88,14 +86,11 @@ public class SessionResourceWithRedisIntegrationTest {
     private SamlAuthnRequestContainerDto rpSamlRequest;
     private String msEntityId = "Matching-service-entity-id";
 
-    @BeforeClass
-    public static void beforeClass() {
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(policy.getEnvironment()).using(jerseyClientConfiguration).build(SessionResourceWithRedisIntegrationTest.class.getSimpleName());
-    }
+    public PolicyClient client;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        client = policyApp.getClient();
         translatedAuthnRequest = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(rpEntityId).build();
         rpSamlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
@@ -106,11 +101,16 @@ public class SessionResourceWithRedisIntegrationTest {
         eventSinkStub.setupStubForLogging();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         configStub.reset();
         eventSinkStub.reset();
         samlEngineStub.reset();
+    }
+
+    @AfterAll
+    public static void tearDownAll() {
+        policyApp.tearDown();
     }
 
     @Test
@@ -227,8 +227,11 @@ public class SessionResourceWithRedisIntegrationTest {
     }
 
     private Response get(URI uri) {
-        final URI uri1 = policy.uri(uri.toASCIIString());
-        return client.target(uri1).request(MediaType.APPLICATION_JSON_TYPE).get();
+        return client.getTargetMain(uri);
+    }
+
+    private Response post(URI uri, Object entity) {
+        return client.postTargetMain(uri, entity);
     }
 
     @Test
@@ -236,7 +239,7 @@ public class SessionResourceWithRedisIntegrationTest {
         // Given
         SessionId sessionId = SessionId.createNewSessionId();
         configStub.setupStubForEnabledIdps(rpEntityId, SIGNING_IN, REQUESTED_LOA, singletonList(idpEntityId));
-        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, rpEntityId, idpEntityId, client, policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + SUCCESSFUL_MATCH_STATE).build().toASCIIString()));
+        Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInSuccessfulMatchState(sessionId, rpEntityId, idpEntityId, client, UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + SUCCESSFUL_MATCH_STATE).build());
         assertThat(sessionCreatedResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         AuthnResponseFromHubContainerDto expectedAuthnResponseFromHub = anAuthnResponseFromHubContainerDto().build();
@@ -244,8 +247,7 @@ public class SessionResourceWithRedisIntegrationTest {
 
         // When
         URI rpAuthResponseUri = UriBuilder.fromPath(Urls.PolicyUrls.RP_AUTHN_RESPONSE_RESOURCE).build(sessionId);
-        Response responseForRp = client
-                .target(policy.uri(rpAuthResponseUri.toASCIIString())).request().get();
+        Response responseForRp = get(rpAuthResponseUri);
 
         //Then
         assertThat(responseForRp.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -259,7 +261,7 @@ public class SessionResourceWithRedisIntegrationTest {
         // Given
         SessionId sessionId = SessionId.createNewSessionId();
         Response sessionCreatedResponse = TestSessionResourceHelper.createSessionInIdpSelectedState(sessionId, rpEntityId, idpEntityId, client,
-                policy.uri(UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + IDP_SELECTED_STATE).build().toASCIIString()));
+                UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + IDP_SELECTED_STATE).build());
         assertThat(sessionCreatedResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         LevelOfAssurance loaAchieved = LevelOfAssurance.LEVEL_2;
@@ -268,14 +270,11 @@ public class SessionResourceWithRedisIntegrationTest {
 
         configStub.setUpStubForMatchingServiceRequest(rpEntityId, msEntityId);
 
-        samlSoapProxyProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
+        samlSoapProxyStub.setUpStubForSendHubMatchingServiceRequest(sessionId);
 
         // When
         URI idpResponseUri = UriBuilder.fromPath(Urls.PolicyUrls.IDP_AUTHN_RESPONSE_RESOURCE).build(sessionId);
-        Response response = client
-                .target(policy.uri(idpResponseUri.toASCIIString()))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(aSamlAuthnResponseContainerDto().withSessionId(sessionId).build()));
+        Response response = post(idpResponseUri, aSamlAuthnResponseContainerDto().withSessionId(sessionId).build());
 
         //Then
         ResponseAction expectedResult = ResponseAction.success(sessionId, true, loaAchieved, null);
@@ -288,11 +287,7 @@ public class SessionResourceWithRedisIntegrationTest {
 
     private String getSessionStateName(SessionId sessionId) {
         URI uri = UriBuilder.fromPath(TEST_SESSION_RESOURCE_PATH + GET_SESSION_STATE_NAME).build(sessionId);
-
-        Response response = client.target(policy.uri(uri.toASCIIString()))
-                .request(MediaType.APPLICATION_JSON_TYPE).get();
-        return response.readEntity(String.class);
-
+        return get(uri).readEntity(String.class);
     }
 
     private AuthnRequestFromHubContainerDto anAuthnRequestFromHubContainerDtoWithRegistering(SamlRequestDto samlRequestDto, final boolean registering) {
@@ -304,16 +299,14 @@ public class SessionResourceWithRedisIntegrationTest {
     }
 
     private void anIdpIsSelectedForRegistration(SessionId sessionId, String idpEntityId) {
-        final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
+        final URI policyUri = UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId);
         post(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", REGISTERING, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant));
     }
 
     private void anIdpIsSelectedForSignIn(SessionId sessionId, String idpEntityId) {
-        final URI policyUri = policy.uri(UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId).getPath());
+        final URI policyUri = UriBuilder.fromPath(Urls.PolicyUrls.AUTHN_REQUEST_SELECT_IDP_RESOURCE).build(sessionId);
 
-        client.target(policyUri)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(new IdpSelected(idpEntityId, "this-is-an-ip-address", SIGNING_IN, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant)));
+        post(policyUri, new IdpSelected(idpEntityId, "this-is-an-ip-address", SIGNING_IN, REQUESTED_LOA, "this-is-an-analytics-session-id", "this-is-a-journey-type", abTestVariant));
     }
 
     private SessionId aSessionIsCreated() throws JsonProcessingException {
@@ -324,11 +317,6 @@ public class SessionResourceWithRedisIntegrationTest {
     }
 
     private Response createASession(SamlAuthnRequestContainerDto samlRequest) {
-        return post(policy.uri(Urls.PolicyUrls.NEW_SESSION_RESOURCE), samlRequest);
-    }
-
-    private Response post(URI uri, Object entity) {
-        return client.target(uri).request()
-                .post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
+        return post(UriBuilder.fromPath(Urls.PolicyUrls.NEW_SESSION_RESOURCE).build(), samlRequest);
     }
 }

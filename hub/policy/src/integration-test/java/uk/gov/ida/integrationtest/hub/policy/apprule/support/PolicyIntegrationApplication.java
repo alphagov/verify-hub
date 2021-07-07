@@ -2,8 +2,8 @@ package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import io.dropwizard.setup.Environment;
 import uk.gov.ida.hub.policy.PolicyApplication;
-import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 import uk.gov.ida.hub.policy.PolicyModule;
+import uk.gov.ida.hub.policy.configuration.PolicyConfiguration;
 
 public class PolicyIntegrationApplication extends PolicyApplication {
 

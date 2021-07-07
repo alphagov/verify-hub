@@ -1,6 +1,5 @@
 dependencies {
     testImplementation configurations.test_deps_compile,
-            configurations.pact_test,
             configurations.test_utils,
             configurations.redis_test,
             project(':hub-saml-test-utils')
@@ -11,7 +10,8 @@ dependencies {
             configurations.common,
             configurations.ida_utils,
             configurations.redis,
-            configurations.prometheus
+            configurations.prometheus,
+            project(':hub:shared')
 }
 
 apply plugin: 'application'

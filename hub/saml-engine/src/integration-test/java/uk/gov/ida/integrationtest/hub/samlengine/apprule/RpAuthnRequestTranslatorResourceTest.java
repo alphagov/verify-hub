@@ -1,32 +1,27 @@
 package uk.gov.ida.integrationtest.hub.samlengine.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.util.Duration;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.samlengine.Urls;
 import uk.gov.ida.hub.samlengine.contracts.SamlRequestWithAuthnRequestInformationDto;
 import uk.gov.ida.hub.samlengine.contracts.TranslatedAuthnRequestDto;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppRule;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.ConfigStubExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineAppExtensionBuilder;
+import uk.gov.ida.integrationtest.hub.samlengine.apprule.support.SamlEngineAppExtension.SamlEngineClient;
 import uk.gov.ida.saml.core.test.AuthnRequestIdGenerator;
 import uk.gov.ida.shared.utils.datetime.DateTimeFreezer;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.ida.hub.samlengine.builders.SamlAuthnRequestDtoBuilder.aSamlAuthnRequest;
 import static uk.gov.ida.hub.samlengine.builders.TranslatedAuthnRequestDtoBuilder.aTranslatedAuthnRequest;
@@ -39,35 +34,39 @@ import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 
 public class RpAuthnRequestTranslatorResourceTest {
 
-    private static Client client;
+    @Order(0)
+    @RegisterExtension
+    public static ConfigStubExtension configStub = new ConfigStubExtension();
 
-    @ClassRule
-    public static ConfigStubRule configStub = new ConfigStubRule();
+    @Order(1)
+    @RegisterExtension
+    public static SamlEngineAppExtension samlEngineApp = new SamlEngineAppExtensionBuilder()
+            .withConfigOverrides(
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
-    @ClassRule
-    public static SamlEngineAppRule samlEngineAppRule = new SamlEngineAppRule(
-            ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString())
-    );
+    private SamlEngineClient client;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(samlEngineAppRule.getEnvironment()).using(jerseyClientConfiguration).build(RpAuthnRequestTranslatorResourceTest.class.getSimpleName());
-    }
-
-    @Before
+    @BeforeEach
     public void beforeEach() throws Exception {
+        client = samlEngineApp.getClient();
         configStub.setupCertificatesForEntity(TEST_RP, TEST_RP_PUBLIC_SIGNING_CERT, TEST_RP_PUBLIC_ENCRYPTION_CERT);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         configStub.reset();
         DateTimeFreezer.unfreezeTime();
     }
 
+    @AfterAll
+    public static void afterAll() {
+        samlEngineApp.tearDown();
+    }
+
     @Test
-    public void shouldTranslateSamlAuthnRequestMessage() throws Exception {
+    public void shouldTranslateSamlAuthnRequestMessage() {
         String id = AuthnRequestIdGenerator.generateRequestId();
         int assertionConsumerServiceIndex = 1;
         SamlRequestWithAuthnRequestInformationDto requestDto = aSamlAuthnRequest()
@@ -86,14 +85,14 @@ public class RpAuthnRequestTranslatorResourceTest {
                 .withAssertionConsumerServiceIndex(assertionConsumerServiceIndex)
                 .build();
 
-        Response response = post(requestDto, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE));
+        Response response = post(requestDto, Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(TranslatedAuthnRequestDto.class)).isEqualToComparingFieldByField(expectedResult);
     }
 
     @Test
-    public void shouldThrowExceptionWhenAuthnRequestIsSignedByNonExistentRP() throws Exception {
+    public void shouldThrowExceptionWhenAuthnRequestIsSignedByNonExistentRP() {
         final SamlRequestWithAuthnRequestInformationDto requestDto = aSamlAuthnRequest()
                 .withPublicCert(STUB_IDP_PUBLIC_PRIMARY_CERT)
                 .withPrivateKey(STUB_IDP_PUBLIC_PRIMARY_PRIVATE_KEY)
@@ -101,32 +100,31 @@ public class RpAuthnRequestTranslatorResourceTest {
 
         configStub.setupStubForNonExistentSigningCertificates("nonexistent-rp");
 
-        Response response = post(requestDto, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE));
+        Response response = post(requestDto, Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    public void shouldThrowInvalidSamlExceptionWhenTheAuthnRequestIsInvalid() throws Exception {
+    public void shouldThrowInvalidSamlExceptionWhenTheAuthnRequestIsInvalid() {
         SamlRequestWithAuthnRequestInformationDto requestDto = aSamlAuthnRequest()
                 .withPublicCert(TEST_RP_PUBLIC_SIGNING_CERT)
                 .withPrivateKey(TEST_RP_PRIVATE_SIGNING_KEY)
                 .buildInvalid();
 
-        Response response = post(requestDto, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE));
+        Response response = post(requestDto, Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto entity = response.readEntity(ErrorStatusDto.class);
         assertThat(entity.getExceptionType()).isEqualTo(ExceptionType.INVALID_SAML);
     }
 
-    private Response post(SamlRequestWithAuthnRequestInformationDto requestDto, URI uri) {
-        return client.target(uri)
-                .request().post(Entity.entity(requestDto, MediaType.APPLICATION_JSON_TYPE));
+    private Response post(SamlRequestWithAuthnRequestInformationDto requestDto, String uri) {
+        return client.postTargetMain(uri, requestDto);
     }
 
     @Test
-    public void shouldThrowExceptionWhenTheRequestIdIsADuplicate() throws Exception {
+    public void shouldThrowExceptionWhenTheRequestIdIsADuplicate() {
         SamlRequestWithAuthnRequestInformationDto requestDto = aSamlAuthnRequest()
                 .withId("_iamtheoneandonlytheresnootherrequestididratherbe")
                 .withIssuer(TEST_RP)
@@ -134,8 +132,8 @@ public class RpAuthnRequestTranslatorResourceTest {
                 .withPrivateKey(TEST_RP_PRIVATE_SIGNING_KEY)
                 .build();
 
-        post(requestDto, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE));
-        Response response = post(requestDto, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE));
+        post(requestDto, Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE);
+        Response response = post(requestDto, Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto entity = response.readEntity(ErrorStatusDto.class);
@@ -143,7 +141,7 @@ public class RpAuthnRequestTranslatorResourceTest {
     }
 
     @Test
-    public void authenticationRequestPost_shouldThrowExceptionWhenIssueInstantTooOld() throws Exception {
+    public void authenticationRequestPost_shouldThrowExceptionWhenIssueInstantTooOld() {
         DateTimeFreezer.freezeTime();
 
         DateTime issueInstant = DateTime.now().minusMinutes(5).minusSeconds(1);
@@ -155,7 +153,7 @@ public class RpAuthnRequestTranslatorResourceTest {
                 .withPrivateKey(TEST_RP_PRIVATE_SIGNING_KEY)
                 .build();
 
-        Response response = post(requestDto, samlEngineAppRule.getUri(Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE));
+        Response response = post(requestDto, Urls.SamlEngineUrls.TRANSLATE_RP_AUTHN_REQUEST_RESOURCE);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         ErrorStatusDto entity = response.readEntity(ErrorStatusDto.class);

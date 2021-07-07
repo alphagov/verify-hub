@@ -9,7 +9,8 @@ dependencies {
             configurations.dropwizard,
             configurations.common,
             configurations.prometheus,
-            configurations.awssdk
+            configurations.awssdk,
+            project(':hub:shared')
 }
 
 apply plugin: 'application'

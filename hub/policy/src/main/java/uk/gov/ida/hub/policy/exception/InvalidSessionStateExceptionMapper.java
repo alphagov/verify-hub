@@ -19,7 +19,6 @@ public class InvalidSessionStateExceptionMapper extends PolicyExceptionMapper<In
     private static final Logger LOG = LoggerFactory.getLogger(InvalidSessionStateExceptionMapper.class);
     private final HubEventLogger eventLogger;
 
-
     @Inject
     public InvalidSessionStateExceptionMapper(HubEventLogger eventLogger) {
         super();
@@ -46,5 +45,4 @@ public class InvalidSessionStateExceptionMapper extends PolicyExceptionMapper<In
         }
         return ExceptionType.INVALID_STATE;
     }
-
 }

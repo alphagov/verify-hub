@@ -1,10 +1,11 @@
 package uk.gov.ida.hub.policy.services;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.builder.AttributeQueryRequestBuilder;
 import uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.ida.common.ExceptionType.INVALID_SAML;
 import static uk.gov.ida.hub.policy.builder.AttributeQueryContainerDtoBuilder.anAttributeQueryContainerDto;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AttributeQueryServiceTest {
     @Mock
     private SamlEngineProxy samlEngineProxy;
@@ -35,7 +36,7 @@ public class AttributeQueryServiceTest {
     private AttributeQueryService service;
     private SessionId sessionId;
 
-    @Before
+    @BeforeEach
     public void setup() {
         sessionId = SessionIdBuilder.aSessionId().build();
         service = new AttributeQueryService(samlEngineProxy, samlSoapProxyProxy);
@@ -56,19 +57,21 @@ public class AttributeQueryServiceTest {
         verify(samlSoapProxyProxy).sendHubMatchingServiceRequest(eq(sessionId), any());
     }
 
-    @Test(expected = ApplicationException.class)
+    @Test
     public void shouldPropagateExceptionThrownBySamlEngineAndNotSendAttributeQuery() {
-        // Given
-        AttributeQueryRequestDto attributeQueryRequestDto = AttributeQueryRequestBuilder.anAttributeQueryRequest().build();
-        when(samlEngineProxy.generateAttributeQuery(attributeQueryRequestDto))
-                .thenThrow(ApplicationException.createAuditedException(INVALID_SAML, UUID.randomUUID()));
+        Assertions.assertThrows(ApplicationException.class, () -> {
+            // Given
+            AttributeQueryRequestDto attributeQueryRequestDto = AttributeQueryRequestBuilder.anAttributeQueryRequest().build();
+            when(samlEngineProxy.generateAttributeQuery(attributeQueryRequestDto))
+                    .thenThrow(ApplicationException.createAuditedException(INVALID_SAML, UUID.randomUUID()));
 
-        // When
-        service.sendAttributeQueryRequest(sessionId, attributeQueryRequestDto);
+            // When
+            service.sendAttributeQueryRequest(sessionId, attributeQueryRequestDto);
 
-        // Then
-        verify(samlEngineProxy, times(1)).generateAttributeQuery(attributeQueryRequestDto);
-        verify(samlSoapProxyProxy, times(0)).sendHubMatchingServiceRequest(eq(sessionId), any());
+            // Then
+            verify(samlEngineProxy, times(1)).generateAttributeQuery(attributeQueryRequestDto);
+            verify(samlSoapProxyProxy, times(0)).sendHubMatchingServiceRequest(eq(sessionId), any());
+
+        });
     }
-
 }

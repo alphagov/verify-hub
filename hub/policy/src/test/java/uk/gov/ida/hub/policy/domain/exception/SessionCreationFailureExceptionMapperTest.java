@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.policy.domain.exception;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SessionCreationFailureExceptionMapperTest {
 
     private static final SessionId SESSION_ID = SessionIdBuilder.aSessionId().build();
@@ -37,10 +37,9 @@ public class SessionCreationFailureExceptionMapperTest {
 
     private SessionCreationFailureExceptionMapper mapper;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn(SESSION_ID.getSessionId());
-
         mapper = new SessionCreationFailureExceptionMapper(hubEventLogger);
         mapper.setHttpServletRequest(servletRequest);
     }

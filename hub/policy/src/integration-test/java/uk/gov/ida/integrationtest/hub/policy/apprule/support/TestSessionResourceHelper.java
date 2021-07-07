@@ -8,6 +8,7 @@ import uk.gov.ida.hub.policy.domain.state.AuthnFailedErrorState;
 import uk.gov.ida.hub.policy.domain.state.IdpSelectedState;
 import uk.gov.ida.hub.policy.domain.state.NonMatchingJourneySuccessState;
 import uk.gov.ida.hub.policy.domain.state.SuccessfulMatchState;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension.PolicyClient;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -26,7 +27,7 @@ public class TestSessionResourceHelper {
             SessionId sessionId,
             String issuerId,
             String idpEntityId,
-            Client client,
+            PolicyClient client,
             URI uri) {
 
         IdpSelectedState idpSelectedState = anIdpSelectedState()
@@ -55,13 +56,15 @@ public class TestSessionResourceHelper {
                 null
         );
 
-        return client
-                .target(uri)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(testSessionDto));
+        return client.postTargetMain(uri, testSessionDto);
     }
 
-    public static Response createSessionInSuccessfulMatchState(SessionId sessionId, String requestIssuerEntityId, String idpEntityId, Client client, URI uri) {
+    public static Response createSessionInSuccessfulMatchState(
+            SessionId sessionId,
+            String requestIssuerEntityId,
+            String idpEntityId,
+            PolicyClient client,
+            URI uri) {
         SuccessfulMatchState successfulMatchState = aSuccessfulMatchState()
                 .withSessionId(sessionId)
                 .withIdentityProviderEntityId(idpEntityId)
@@ -70,9 +73,7 @@ public class TestSessionResourceHelper {
 
         TestSessionDto testSessionDto = createASuccessfulMatchStateTestSessionDto(successfulMatchState, sessionId);
 
-        return client.target(uri)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(testSessionDto));
+        return client.postTargetMain(uri, testSessionDto);
     }
 
     private static TestSessionDto createASuccessfulMatchStateTestSessionDto(AbstractSuccessfulMatchState state, SessionId sessionId) {
@@ -92,7 +93,7 @@ public class TestSessionResourceHelper {
         );
     }
 
-    public static Response createSessionInAuthnFailedErrorState(SessionId sessionId, Client client, URI uri) {
+    public static Response createSessionInAuthnFailedErrorState(SessionId sessionId, PolicyClient client, URI uri) {
         AuthnFailedErrorState state = AuthnFailedErrorStateBuilder.anAuthnFailedErrorState().build();
         TestSessionDto testSessionDto = new TestSessionDto(
                 sessionId,
@@ -108,9 +109,7 @@ public class TestSessionResourceHelper {
                 null
         );
 
-        return client.target(uri)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.json(testSessionDto));
+        return client.postTargetMain(uri, testSessionDto);
     }
 
     public static Response createSessionInNonMatchingJourneySuccessState(SessionId sessionId, Client client, URI uri, String rpEntityId) {

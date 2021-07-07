@@ -1,23 +1,24 @@
 package uk.gov.ida.integrationtest.hub.config.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.util.Duration;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.joda.time.DateTime;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.gov.ida.hub.config.ConfigApplication;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.domain.LevelOfAssurance;
 import uk.gov.ida.hub.config.dto.IdpConfigDto;
 import uk.gov.ida.hub.config.dto.IdpDto;
-import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigClient;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigAppExtensionBuilder;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,8 +30,8 @@ import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBu
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class IdentityProviderResourceIntegrationTest {
-    private static Client client;
     private static final String ENABLED_ALL_RP_IDP = "enabled-all-rp-idp";
     private static final String ENABLED_FOR_ONBOARDING_RP_IDP = "enabled-for-onboarding-rp-idp";
     private static final String DISABLED_IDP = "disabled-idp";
@@ -49,8 +50,7 @@ public class IdentityProviderResourceIntegrationTest {
     private static final DateTime expiredDatetime = DateTime.now().minusDays(1);
     private static final DateTime futureDatetime = DateTime.now().plusDays(1);
 
-    @ClassRule
-    public static ConfigAppRule configAppRule = new ConfigAppRule()
+    public static ConfigAppExtension app = ConfigAppExtensionBuilder.forApp(ConfigApplication.class)
             .addTransaction(aTransactionConfigData()
                     .withEntityId(DEFAULT_RP)
                     .withMatchingServiceEntityId(DEFAULT_MS)
@@ -110,14 +110,16 @@ public class IdentityProviderResourceIntegrationTest {
                     .withEnabledForSingleIdp(true)
                     .withProvideRegistrationUntil(expiredDateTimeWithinSessionDuration)
                     .withSupportedLevelsOfAssurance(asList(LevelOfAssurance.LEVEL_1, LevelOfAssurance.LEVEL_2))
-                    .build());
+                    .build())
+            .build();
 
-    @BeforeClass
-    public static void setUp() {
-        configAppRule.newApplication();
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(configAppRule.getEnvironment()).using(jerseyClientConfiguration).build(IdentityProviderResourceIntegrationTest.class.getSimpleName());
-    }
+    private ConfigClient client;
+
+    @BeforeEach
+    void setup() { client = app.getClient(); }
+
+    @AfterAll
+    static void tearDown() { app.tearDown(); }
 
     @Test
     public void loa1TestRpAtLevel1_getIdpList_ReturnsDisconnectedIdpsForRegistration() {
@@ -308,12 +310,12 @@ public class IdentityProviderResourceIntegrationTest {
     }
 
     private Response getIdpList(String entityId, String path) {
-        URI uri = configAppRule.getUri(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        return client.target(uri).request().get();
+        URI uri = UriBuilder.fromPath(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        return client.targetMain(uri);
     }
 
     private Response getIdpList(String entityId, LevelOfAssurance levelOfAssurance, String path) {
-        URI uri = configAppRule.getUri(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"), levelOfAssurance.toString());
-        return client.target(uri).request().get();
+        URI uri = UriBuilder.fromPath(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"), levelOfAssurance.toString());
+        return client.targetMain(uri);
     }
 }

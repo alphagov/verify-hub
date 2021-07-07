@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.samlsoapproxy.runnabletasks;
 
 import com.codahale.metrics.Counter;
-import org.glassfish.jersey.internal.util.Base64;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,7 @@ import uk.gov.ida.hub.samlsoapproxy.proxy.HubMatchingServiceResponseReceiverProx
 import uk.gov.ida.shared.utils.logging.LogFormatter;
 import uk.gov.ida.shared.utils.xml.XmlUtils;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -83,7 +83,7 @@ public class AttributeQueryRequestRunnable implements Runnable {
         try {
             Element response = executeAttributeQueryRequest.execute(sessionId, attributeQueryContainerDto);
             timeoutEvaluator.hasAttributeQueryTimedOut(attributeQueryContainerDto);
-            final String base64EncodedSamlResponse = Base64.encodeAsString(XmlUtils.writeToString(response).getBytes());
+            final String base64EncodedSamlResponse = Base64.getEncoder().encodeToString(XmlUtils.writeToString(response).getBytes());
             hubMatchingServiceResponseReceiverProxy.notifyHubOfAResponseFromMatchingService(
                     sessionId,
                     base64EncodedSamlResponse);

@@ -1,6 +1,7 @@
 package uk.gov.ida.hub.policy.exception;
 
 import com.google.common.base.Strings;
+import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.ida.hub.policy.Urls;

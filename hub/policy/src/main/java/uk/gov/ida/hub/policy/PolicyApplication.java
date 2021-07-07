@@ -1,7 +1,6 @@
 package uk.gov.ida.hub.policy;
 
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.hubspot.dropwizard.guicier.GuiceBundle;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -28,11 +27,12 @@ import uk.gov.ida.hub.policy.resources.MatchingServiceFailureResponseResource;
 import uk.gov.ida.hub.policy.resources.MatchingServiceResponseResource;
 import uk.gov.ida.hub.policy.resources.ResponseFromIdpResource;
 import uk.gov.ida.hub.policy.resources.SessionResource;
+import uk.gov.ida.hub.shared.guice.GuiceBundle;
 import uk.gov.ida.metrics.bundle.PrometheusBundle;
 
-public class PolicyApplication extends Application<PolicyConfiguration> {
+import static java.util.Arrays.asList;
 
-    private GuiceBundle<PolicyConfiguration> guiceBundle;
+public class PolicyApplication extends Application<PolicyConfiguration> {
 
     public static void main(String[] args) throws Exception {
         new PolicyApplication().run(args);
@@ -52,15 +52,17 @@ public class PolicyApplication extends Application<PolicyConfiguration> {
                 )
         );
 
+
+        GuiceBundle<PolicyConfiguration> guiceBundle = new GuiceBundle<>(
+                () -> asList(getPolicyModule(), new EventEmitterModule()),
+                PolicyConfiguration.class
+        );
+        bootstrap.addBundle(guiceBundle);
         bootstrap.addBundle(new ServiceStatusBundle());
         bootstrap.addBundle(new MonitoringBundle());
         bootstrap.addBundle(new LoggingBundle());
         bootstrap.addBundle(new PrometheusBundle());
         bootstrap.addBundle(new IdaJsonProcessingExceptionMapperBundle());
-        guiceBundle = GuiceBundle.defaultBuilder(PolicyConfiguration.class)
-                .modules(getPolicyModule(), new EventEmitterModule())
-                .build();
-        bootstrap.addBundle(guiceBundle);
     }
 
     protected PolicyModule getPolicyModule() {

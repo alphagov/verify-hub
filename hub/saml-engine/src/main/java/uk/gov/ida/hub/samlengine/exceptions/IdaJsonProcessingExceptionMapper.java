@@ -9,11 +9,13 @@ import uk.gov.ida.common.ExceptionType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 import java.util.UUID;
 
 import static uk.gov.ida.common.ErrorStatusDto.createUnauditedErrorStatus;
 
 //TODO move to shared library
+@Provider
 public class IdaJsonProcessingExceptionMapper implements ExceptionMapper<JsonProcessingException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(IdaJsonProcessingExceptionMapper.class);

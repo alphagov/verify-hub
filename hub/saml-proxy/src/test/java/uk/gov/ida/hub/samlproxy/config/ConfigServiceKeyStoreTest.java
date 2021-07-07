@@ -1,10 +1,10 @@
 package uk.gov.ida.hub.samlproxy.config;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.common.shared.security.X509CertificateFactory;
 import uk.gov.ida.common.shared.security.verification.CertificateChainValidator;
 import uk.gov.ida.common.shared.security.verification.exceptions.CertificateChainValidationException;
@@ -32,7 +32,7 @@ import static uk.gov.ida.common.shared.security.verification.CertificateValidity
 import static uk.gov.ida.hub.samlproxy.builders.CertificateDtoBuilder.aCertificateDto;
 import static uk.gov.ida.saml.core.test.TestCertificateStrings.STUB_IDP_PUBLIC_PRIMARY_CERT;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConfigServiceKeyStoreTest {
 
     private static final String IDP_ENTITY_ID_1 = TestEntityIds.STUB_IDP_ONE;
@@ -55,7 +55,7 @@ public class ConfigServiceKeyStoreTest {
     private String issuerId;
     private ConfigServiceKeyStore configServiceKeyStore;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         issuerId = "issuer-id";
         configServiceKeyStore = new ConfigServiceKeyStore(

@@ -1,7 +1,7 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import httpstub.HttpStubRule;
+import httpstub.HttpStubExtension;
 import org.apache.http.entity.ContentType;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
-public class ConfigStubRule extends HttpStubRule {
+public class ConfigStubExtension extends HttpStubExtension {
 
     private final int OK = Response.Status.OK.getStatusCode();
 

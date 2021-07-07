@@ -1,14 +1,15 @@
 package uk.gov.ida.saml.core.validators.assertion;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnContext;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnStatement;
-import uk.gov.ida.saml.core.test.OpenSAMLMockitoRunner;
+import uk.gov.ida.saml.core.test.OpenSAMLExtension;
 import uk.gov.ida.saml.core.test.builders.AssertionBuilder;
 import uk.gov.ida.saml.core.test.builders.AuthnContextBuilder;
 import uk.gov.ida.saml.core.test.builders.AuthnContextClassRefBuilder;
@@ -22,7 +23,8 @@ import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnCo
 import static uk.gov.ida.saml.core.errors.SamlTransformationErrorFactory.authnInstantMissing;
 import static uk.gov.ida.saml.core.test.SamlTransformationErrorManagerTestHelper.validateFail;
 
-@RunWith(OpenSAMLMockitoRunner.class)
+@ExtendWith(OpenSAMLExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthnStatementAssertionValidatorTest {
 
     @Mock
@@ -30,7 +32,7 @@ public class AuthnStatementAssertionValidatorTest {
 
     private AuthnStatementAssertionValidator validator;
 
-    @Before
+    @BeforeEach
     public void setup() {
         validator = new AuthnStatementAssertionValidator(duplicateAssertionValidator);
     }
@@ -71,7 +73,7 @@ public class AuthnStatementAssertionValidatorTest {
     }
 
     @Test
-    public void validate_shouldValidateForDuplicateIds() throws Exception {
+    public void validate_shouldValidateForDuplicateIds() {
         String id = "duplicate-id";
         Assertion assertion = AssertionBuilder.anAssertion().withId(id).addAuthnStatement(AuthnStatementBuilder.anAuthnStatement().build()).buildUnencrypted();
 
@@ -81,7 +83,7 @@ public class AuthnStatementAssertionValidatorTest {
     }
 
     @Test
-    public void validate_shouldThrowExceptionIfAuthnInstantIsAbsent() throws Exception {
+    public void validate_shouldThrowExceptionIfAuthnInstantIsAbsent() {
         AuthnStatement authnStatement = AuthnStatementBuilder.anAuthnStatement().withAuthnInstant(null).build();
         Assertion assertion = AssertionBuilder.anAssertion().addAuthnStatement(authnStatement).buildUnencrypted();
 

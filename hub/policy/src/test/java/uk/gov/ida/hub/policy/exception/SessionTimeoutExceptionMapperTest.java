@@ -1,10 +1,11 @@
 package uk.gov.ida.hub.policy.exception;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
@@ -19,17 +20,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.hub.policy.builder.domain.SessionIdBuilder.aSessionId;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SessionTimeoutExceptionMapperTest {
 
     @Mock
     private HttpServletRequest servletRequest;
+
     @Mock
     private HubEventLogger hubEventLogger;
 
-    @Test
-    public void toResponse_shouldReturnAuditedErrorStatus() throws Exception {
+    @BeforeEach
+    public void beforeAll() {
         when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
+    }
+
+    @Test
+    public void toResponse_shouldReturnAuditedErrorStatus() {
         SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(hubEventLogger);
         mapper.setHttpServletRequest(servletRequest);
 
@@ -45,15 +51,13 @@ public class SessionTimeoutExceptionMapperTest {
     }
 
     @Test
-    public void toResponse_shouldLogToEventSink() throws Exception {
-        when(servletRequest.getParameter(Urls.SharedUrls.SESSION_ID_PARAM)).thenReturn("42");
+    public void toResponse_shouldLogToEventSink() {
         SessionTimeoutExceptionMapper mapper = new SessionTimeoutExceptionMapper(hubEventLogger);
         mapper.setHttpServletRequest(servletRequest);
 
         SessionId sessionId = aSessionId().build();
         DateTime sessionExpiryTimestamp = DateTime.now().minusMinutes(10);
         String transactionEntityId = "some entity id";
-
         String requestId = "some request id";
         SessionTimeoutException exception = new SessionTimeoutException("Timeout exception", sessionId, transactionEntityId, sessionExpiryTimestamp, requestId);
 

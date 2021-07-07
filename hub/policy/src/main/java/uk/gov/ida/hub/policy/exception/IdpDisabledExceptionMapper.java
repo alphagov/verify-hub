@@ -20,7 +20,6 @@ public class IdpDisabledExceptionMapper extends PolicyExceptionMapper<IdpDisable
 
     @Inject
     public IdpDisabledExceptionMapper(HubEventLogger eventLogger) {
-
         super();
         this.eventLogger = eventLogger;
     }

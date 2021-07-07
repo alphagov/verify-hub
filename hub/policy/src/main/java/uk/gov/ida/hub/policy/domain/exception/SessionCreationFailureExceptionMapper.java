@@ -20,6 +20,7 @@ public class SessionCreationFailureExceptionMapper extends PolicyExceptionMapper
 
     @Inject
     public SessionCreationFailureExceptionMapper(HubEventLogger eventLogger) {
+        super();
         levelLogger = new LevelLoggerFactory<SessionCreationFailureExceptionMapper>().createLevelLogger(SessionCreationFailureExceptionMapper.class);
         this.eventLogger = eventLogger;
     }

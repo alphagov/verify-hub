@@ -1,10 +1,15 @@
 package uk.gov.ida.hub.policy.services;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.exceptions.ApplicationException;
 import uk.gov.ida.hub.policy.contracts.InboundResponseFromMatchingServiceDto;
@@ -29,7 +34,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.ida.saml.core.test.TestEntityIds.TEST_RP;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class MatchingServiceResponseServiceTest {
 
     @Mock
@@ -47,7 +53,7 @@ public class MatchingServiceResponseServiceTest {
     private SessionId sessionId;
     private MatchingServiceResponseService matchingServiceResponseService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         matchingServiceResponseService = new MatchingServiceResponseService(samlEngineProxy, sessionRepository, eventLogger);
         sessionId = SessionId.createNewSessionId();
@@ -56,18 +62,22 @@ public class MatchingServiceResponseServiceTest {
         when(sessionRepository.getRequestIssuerEntityId(sessionId)).thenReturn(TEST_RP);
     }
 
-    @Test(expected = SessionNotFoundException.class)
+    @Test
     public void handle_shouldThrowExceptionIfSessionDoesNotExist() {
-        when(sessionRepository.sessionExists(sessionId)).thenReturn(false);
+        Assertions.assertThrows(SessionNotFoundException.class, () -> {
+            when(sessionRepository.sessionExists(sessionId)).thenReturn(false);
 
-        matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
+            matchingServiceResponseService.handleSuccessResponse(sessionId, samlResponseDto);
+        });
     }
 
-    @Test(expected = SessionNotFoundException.class)
+    @Test
     public void handle_shouldThrowExceptionIfSessionDoesNotExistInMSResponseFailureCase() {
-        when(sessionRepository.sessionExists(sessionId)).thenReturn(false);
+        Assertions.assertThrows(SessionNotFoundException.class, () -> {
+            when(sessionRepository.sessionExists(sessionId)).thenReturn(false);
 
-        matchingServiceResponseService.handleFailure(sessionId);
+            matchingServiceResponseService.handleFailure(sessionId);
+        });
     }
 
     @Test

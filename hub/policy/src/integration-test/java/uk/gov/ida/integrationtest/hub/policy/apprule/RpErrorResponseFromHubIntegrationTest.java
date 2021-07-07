@@ -1,15 +1,11 @@
 package uk.gov.ida.integrationtest.hub.policy.apprule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.testing.ConfigOverride;
-import io.dropwizard.util.Duration;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import uk.gov.ida.common.ErrorStatusDto;
 import uk.gov.ida.common.ExceptionType;
 import uk.gov.ida.hub.policy.Urls;
@@ -20,57 +16,60 @@ import uk.gov.ida.hub.policy.contracts.SamlResponseWithAuthnRequestInformationDt
 import uk.gov.ida.hub.policy.domain.SamlAuthnRequestContainerDto;
 import uk.gov.ida.hub.policy.domain.SessionId;
 import uk.gov.ida.hub.policy.proxy.SamlResponseWithAuthnRequestInformationDtoBuilder;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppRule;
-import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubRule;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.ConfigStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.EventSinkStubExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.PolicyAppExtension.PolicyClient;
+import uk.gov.ida.integrationtest.hub.policy.apprule.support.SamlEngineStubExtension;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
+import static io.dropwizard.testing.ConfigOverride.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RpErrorResponseFromHubIntegrationTest {
 
-    private static Client client;
-
-    @ClassRule
-    public static SamlEngineStubRule samlEngineStub = new SamlEngineStubRule();
-
-    @ClassRule
-    public static ConfigStubRule configStub = new ConfigStubRule();
-
-    @ClassRule
-    public static EventSinkStubRule eventSinkStub = new EventSinkStubRule();
-
-    @ClassRule
-    public static PolicyAppRule policy = new PolicyAppRule(
-            ConfigOverride.config("samlEngineUri", samlEngineStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("configUri", configStub.baseUri().build().toASCIIString()),
-            ConfigOverride.config("eventSinkUri", eventSinkStub.baseUri().build().toASCIIString()));
+    @Order(0)
+    @RegisterExtension
+    public static SamlEngineStubExtension samlEngineStub = new SamlEngineStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static ConfigStubExtension configStub = new ConfigStubExtension();
+    @Order(0)
+    @RegisterExtension
+    public static EventSinkStubExtension eventSinkStub = new EventSinkStubExtension();
+    @Order(1)
+    @RegisterExtension
+    public static final PolicyAppExtension policyApp = PolicyAppExtension.builder()
+            .withConfigOverrides(
+                    config("samlEngineUri", () -> samlEngineStub.baseUri().build().toASCIIString()),
+                    config("configUri", () -> configStub.baseUri().build().toASCIIString()),
+                    config("eventSinkUri", () -> eventSinkStub.baseUri().build().toASCIIString())
+            )
+            .build();
 
     private String rpEntityId;
     private SamlResponseWithAuthnRequestInformationDto translatedAuthnRequest;
     private SamlAuthnRequestContainerDto rpSamlRequest;
 
-    @BeforeClass
-    public static void beforeClass() {
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(policy.getEnvironment()).using(jerseyClientConfiguration).build(RpErrorResponseFromHubIntegrationTest.class.getSimpleName());
-    }
+    public PolicyClient client;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
+        client = policyApp.getClient();
         rpEntityId = "rpEntityId";
         translatedAuthnRequest = SamlResponseWithAuthnRequestInformationDtoBuilder.aSamlResponseWithAuthnRequestInformationDto().withIssuer(rpEntityId).build();
         rpSamlRequest = SamlAuthnRequestContainerDtoBuilder.aSamlAuthnRequestContainerDto().build();
 
         eventSinkStub.setupStubForLogging();
         configStub.setUpStubForLevelsOfAssurance(rpEntityId);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        policyApp.tearDown();
     }
 
     @Test
@@ -107,16 +106,14 @@ public class RpErrorResponseFromHubIntegrationTest {
     }
 
     private Response createASession(SamlAuthnRequestContainerDto samlRequest) {
-        return post(policy.uri(Urls.PolicyUrls.NEW_SESSION_RESOURCE), samlRequest);
+        return post(UriBuilder.fromPath(Urls.PolicyUrls.NEW_SESSION_RESOURCE).build(), samlRequest);
     }
 
     private Response post(URI uri, Object entity) {
-        return client.target(uri).request()
-                .post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
+        return client.postTargetMain(uri, entity);
     }
 
     private Response get(URI uri) {
-        final URI uri1 = policy.uri(uri.toASCIIString());
-        return client.target(uri1).request(MediaType.APPLICATION_JSON_TYPE).get();
+        return client.getTargetMain(uri);
     }
 }

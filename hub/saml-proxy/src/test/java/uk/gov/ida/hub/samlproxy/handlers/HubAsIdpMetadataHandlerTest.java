@@ -4,11 +4,11 @@ import java.util.Optional;
 import io.dropwizard.util.Duration;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.metadata.criteria.entity.impl.EntityDescriptorCriterionPredicateRegistry;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HubAsIdpMetadataHandlerTest {
 
     private final String hubFederationId = "VERIFY-FEDERATION";
@@ -66,7 +66,7 @@ public class HubAsIdpMetadataHandlerTest {
 
     private HubAsIdpMetadataHandler handler;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(samlProxyConfiguration.getFrontendExternalUri()).thenReturn(URI.create("http://localhost"));
         when(samlProxyConfiguration.getMetadataValidDuration()).thenReturn(Duration.parse("5h"));

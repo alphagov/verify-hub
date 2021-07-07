@@ -1,7 +1,7 @@
 package uk.gov.ida.integrationtest.hub.samlsoapproxy.apprule.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import httpstub.HttpStubRule;
+import httpstub.HttpStubExtension;
 import uk.gov.ida.hub.samlsoapproxy.Urls;
 import uk.gov.ida.hub.samlsoapproxy.builders.CertificateDtoBuilder;
 import uk.gov.ida.hub.samlsoapproxy.builders.MatchingServiceConfigEntityDataDtoBuilder;
@@ -22,7 +22,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.OK;
 
-public class ConfigStubRule extends HttpStubRule {
+public class ConfigStubExtension extends HttpStubExtension {
 
     public void setupStubForMatchingServiceHealthChecks(URI matchingServiceUri) throws JsonProcessingException {
         Collection<MatchingServiceConfigEntityDataDto> matchingServiceConfigEntityDataDtos = List.of(MatchingServiceConfigEntityDataDtoBuilder.aMatchingServiceConfigEntityDataDto().withUri(matchingServiceUri).build());

@@ -1,20 +1,21 @@
 package uk.gov.ida.integrationtest.hub.config.apprule;
 
-import helpers.JerseyClientConfigurationBuilder;
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.client.JerseyClientConfiguration;
-import io.dropwizard.util.Duration;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.gov.ida.hub.config.ConfigApplication;
 import uk.gov.ida.hub.config.Urls;
 import uk.gov.ida.hub.config.dto.CertificateDto;
-import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppRule;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigClient;
+import uk.gov.ida.integrationtest.hub.config.apprule.support.ConfigAppExtension.ConfigAppExtensionBuilder;
 import uk.gov.ida.shared.utils.string.StringEncoding;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Collection;
 
@@ -24,9 +25,8 @@ import static uk.gov.ida.hub.config.domain.builders.IdentityProviderConfigDataBu
 import static uk.gov.ida.hub.config.domain.builders.MatchingServiceConfigBuilder.aMatchingServiceConfig;
 import static uk.gov.ida.hub.config.domain.builders.TransactionConfigBuilder.aTransactionConfigData;
 
-
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class CertificatesResourceIntegrationTest {
-    public static Client client;
     private static final String RP_ENTITY_ID = "rp-entity-id";
     private static final String RP_ENTITY_ID_BAD_SIGNATURE_CERT = "rp-entity-id-bad-cert";
     private static final String RP_ENTITY_ID_BAD_ENCRYPTION_CERT = "rp-entity-id-bad-encryption-cert";
@@ -35,9 +35,7 @@ public class CertificatesResourceIntegrationTest {
     private static final String BAD_SIGNATURE_CERTIFICATE = BAD_CERTIFICATE_VALUE;
     private static final String BAD_ENCRYPTION_CERTIFICATE = BAD_CERTIFICATE_VALUE;
 
-
-    @ClassRule
-    public static ConfigAppRule configAppRule = new ConfigAppRule()
+    private static final ConfigAppExtension app = ConfigAppExtensionBuilder.forApp(ConfigApplication.class)
             .addTransaction(aTransactionConfigData()
                     .withEntityId(RP_ENTITY_ID)
                     .withMatchingServiceEntityId(RP_MS_ENTITY_ID)
@@ -58,13 +56,16 @@ public class CertificatesResourceIntegrationTest {
             .addIdp(anIdentityProviderConfigData()
                     .withEntityId("idp-entity-id")
                     .withOnboarding(singletonList(RP_ENTITY_ID))
-                    .build());
+                    .build())
+            .build();
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        JerseyClientConfiguration jerseyClientConfiguration = JerseyClientConfigurationBuilder.aJerseyClientConfiguration().withTimeout(Duration.seconds(10)).build();
-        client = new JerseyClientBuilder(configAppRule.getEnvironment()).using(jerseyClientConfiguration).build(CertificatesResourceIntegrationTest.class.getSimpleName());
-    }
+    private ConfigClient client;
+
+    @BeforeEach
+    void setup() { client = app.getClient(); }
+
+    @AfterAll
+    static void tearDown() { app.tearDown(); }
 
     @Test
     public void getEncryptionCertificate_returnsOkAndEncryptionCertificate(){
@@ -74,7 +75,7 @@ public class CertificatesResourceIntegrationTest {
     }
 
     @Test
-    public void getEncyptionCertificate_returnsOkAndEncryptionCertificateForMatchingService(){
+    public void getEncryptionCertificate_returnsOkAndEncryptionCertificateForMatchingService(){
         String entityId = RP_ENTITY_ID;
         Response response = getForEntityIdAndPath(entityId, Urls.ConfigUrls.ENCRYPTION_CERTIFICATES_RESOURCE);
         assertForEntityId(entityId, response);
@@ -126,17 +127,17 @@ public class CertificatesResourceIntegrationTest {
 
     @Test
     public void getHealthCheck_returnsOk(){
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.CERTIFICATES_HEALTH_CHECK_RESOURCE).build();
-        Response response =  client.target(uri).request().get();
+        URI uri = UriBuilder.fromPath(Urls.ConfigUrls.CERTIFICATES_HEALTH_CHECK_RESOURCE).build();
+        Response response = client.targetMain(uri);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(Collection.class)).isNotEmpty();
     }
 
-    @Ignore("This will be replaced by an acceptance test when certs and keys will be dynamically generated for testing")
+    @Disabled("This will be replaced by an acceptance test when certs and keys will be dynamically generated for testing")
     @Test
     public void invalidCertificatesCheck_returnsOk(){
-        URI uri = configAppRule.getUri(Urls.ConfigUrls.INVALID_CERTIFICATES_CHECK_RESOURCE).build();
-        Response response =  client.target(uri).request().get();
+        URI uri = UriBuilder.fromPath(Urls.ConfigUrls.INVALID_CERTIFICATES_CHECK_RESOURCE).build();
+        Response response = client.targetMain(uri);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.readEntity(Collection.class)).isEmpty();
     }
@@ -146,7 +147,7 @@ public class CertificatesResourceIntegrationTest {
         assertThat(response.readEntity(CertificateDto.class).getIssuerId()).isEqualTo(entityId);
     }
     private Response getForEntityIdAndPath(String entityId, String path) {
-        URI uri = configAppRule.getUri(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
-        return client.target(uri).request().get();
+        URI uri = UriBuilder.fromPath(path).buildFromEncoded(StringEncoding.urlEncode(entityId).replace("+", "%20"));
+        return client.targetMain(uri);
     }
 }

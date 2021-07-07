@@ -1,13 +1,14 @@
 package uk.gov.ida.hub.samlengine.attributequery;
 
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.w3c.dom.Element;
 import uk.gov.ida.hub.samlengine.domain.AttributeQueryContainerDto;
 import uk.gov.ida.hub.samlengine.exceptions.UnableToGenerateSamlException;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AttributeQueryGeneratorTest {
 
     @Mock
@@ -44,7 +45,7 @@ public class AttributeQueryGeneratorTest {
     private AttributeQueryGenerator<HubAttributeQueryRequest> attributeQueryGenerator;
     private static final String MATCHING_SERVICE_ENTITY_ID = "matching-service-entity-id";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         attributeQueryGenerator = new AttributeQueryGenerator<>(transformer, entityToEncryptForLocator);
     }
@@ -96,12 +97,14 @@ public class AttributeQueryGeneratorTest {
         assertThat(attributeQueryDto.getSamlRequest()).isEqualTo(XmlUtils.writeToString(transformedRequest));
     }
 
-    @Test(expected = UnableToGenerateSamlException.class)
+    @Test
     public void handle_shouldReturnErrorDtoWhenTransformFails() {
-        HubAttributeQueryRequest hubAttributeQueryRequest = aHubAttributeQueryRequest();
-        when(transformer.apply(hubAttributeQueryRequest)).thenThrow(new RuntimeException("failed to create attribute query request"));
+        Assertions.assertThrows(UnableToGenerateSamlException.class, () -> {
+            HubAttributeQueryRequest hubAttributeQueryRequest = aHubAttributeQueryRequest();
+            when(transformer.apply(hubAttributeQueryRequest)).thenThrow(new RuntimeException("failed to create attribute query request"));
 
-        attributeQueryGenerator.createAttributeQueryContainer(hubAttributeQueryRequest, MATCHING_SERVICE_ENTITY_ID);
+            attributeQueryGenerator.createAttributeQueryContainer(hubAttributeQueryRequest, MATCHING_SERVICE_ENTITY_ID);
+        });
     }
 
     @Test
