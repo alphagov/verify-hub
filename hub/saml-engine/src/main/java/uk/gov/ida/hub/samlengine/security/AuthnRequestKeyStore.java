@@ -28,7 +28,7 @@ public class AuthnRequestKeyStore implements SigningKeyStore {
         try {
             return configServiceKeyStore.getVerifyingKeysForEntity(entityId);
         } catch (ApplicationException e) {
-            if (e.getExceptionType().equals(ExceptionType.CLIENT_ERROR)) {
+            if (ExceptionType.CLIENT_ERROR.equals(e.getExceptionType())) {
                 throw new NoKeyConfiguredForEntityException(entityId);
             }
             throw new RuntimeException(e);
