@@ -1,6 +1,4 @@
 [![Build Status](https://travis-ci.com/alphagov/verify-hub.svg?branch=master)](https://travis-ci.com/alphagov/verify-hub)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7ff46099ef004f0db572fa9299305c75)](https://www.codacy.com/app/alphagov/verify-hub?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alphagov/verify-hub&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/7ff46099ef004f0db572fa9299305c75)](https://www.codacy.com/app/alphagov/verify-hub?utm_source=github.com&utm_medium=referral&utm_content=alphagov/verify-hub&utm_campaign=Badge_Coverage)
 
 # verify-hub
 
