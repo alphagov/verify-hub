@@ -20,10 +20,6 @@ before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
-before_install:
-  - sudo apt-get install jq
-  - curl -u ida-codacy-bot:$GITHUB_PAT -LSs $(curl -u ida-codacy-bot:$GITHUB_PAT -LSs https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({name, browser_download_url} | select(.name | contains("codacy-coverage-reporter-assembly"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
-
 cache:
   directories:
     - "$HOME/.gradle/caches/"
@@ -31,4 +27,3 @@ cache:
 
 after_success:
   - "./gradlew jacocoRootReport"
-  - java -jar codacy-coverage-reporter-assembly.jar report -l Java -r build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
