@@ -3,10 +3,6 @@ language: java
 env:
   global:
     - VERIFY_USE_PUBLIC_BINARIES=true
-    # GITHUB_PAT
-    - secure: "KA73QWGkT3zXXH4rOWANJXTIp6or2BnBKwPij0GKbG7x0WHQuX90bNR/zw8sEXgJimvq+HzXWYntGPZfow5YYJPNcaT80OuakK7fAovGFhLHxFRybLZp7jipavNNIGz5NbYONtW+znDM2oOjMsiHZaOtOh1kkVZ3KdzmTK/Hp2+3Ow8o5ByN7T5YjzDawdj/a8G2C8T6/31UQnPby4IiJC0j+aqE0xOyNhgUVIdPQU91ncpgXb6ABtSdS6ftsL6/64QPLjrsIQMidnZ79by6L7Nc0uwz1EeWCTAYRu8FC6WSXSHCHW2RIoFzY9W79LmcIq+e58KB54aLhIAcdQXQN8FHtDXMeTGtMdrYpSFn9XeQkyKp1e1uhlD3w8Y4IvhnuFPWkijVF7fEJ4374icx0JCSuQ78YwasinAqAmyD+b6DhUHETyRWRYQIjTa35bkYTNheHVvhkYlZi9PIn8KVM82MzHmKyRB/dr5cnj6i372sqKW2SutusTiPt+CvPlLB9d6Ocg+As2trgOBGilafGWSp1IrOou2/+BU29EchkSmqF6JdmiPcas6v99JtIz0ztJs6klRE9jZOYB4imAfSpBiJW2eTwz/oowA3/TkN3MWCSEogujzAGX3z0t85p9f53CnO2kBWIw+Mr2QLSw9TiQSGpw5TfhO25H8GRWMwjIE="
-    # CODACY_PROJECT_TOKEN
-    - secure: "ahtPwurUgJfdQv5Try4Tm0w3E+bCJTDCv7qTdUCiYJ4IEQ69qcIvi2e+CfwX1dQFLrDvGeRNkQl/U4HWJngir83eySY8G+1+4Ebb32iMtOOFQp/ISjNlayDEsswvO5HrIsEwCYNjB33kLSFhzMs897daSLCtcPYZ7ue9kZU68sDcsOZYVi48djHqc2oPn8/YmnqoCdafW560f+nGmpJ1JKKR09MZL1+VdHvZnf0PTxwQyer491/1LxeUxLlLiekAat3UR7rNok/Llr8LuO5f5N/HlaijfYF5Prpvqfe6jnOVk2GbWI9R3zRFt98CrNqVUb5yTIh8RM2U5hu5wagl7l2Ex0eJG9HRq5dPo2TZrrrkZPHZFOiv1FoeKVyz24e/Og49gDu9YQPNS0J5wR+S4RbVqRjGCyWd73lGNAh2srSUijx8Nf27wdH76u0XlS56axj4r3BWA086O1mz5A3deZt0NQ2qe3YcWrmpKUd9gMv2nTzm2oIM09FZdiqkR2pwkYB8+CUdSbeMo0AAAI9O9YFZlKhHYIycTc6nAvUe8+ivjThL78a5B95v4C3CZF/4tvW93Wv/kCSYssI/f3lAUaqCufwSERRxFEvjMvaN9YPGp8TGRDz5NA/YuN0mQyBxmDGwKipp6mtpVwXxbaIu1daE5TTKEZPWOV3ubpI38aQ="
 
 script:
   - wget -q https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.11_9.tar.gz
@@ -20,15 +16,7 @@ before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
-before_install:
-  - sudo apt-get install jq
-  - curl -u ida-codacy-bot:$GITHUB_PAT -LSs $(curl -u ida-codacy-bot:$GITHUB_PAT -LSs https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({name, browser_download_url} | select(.name | contains("codacy-coverage-reporter-assembly"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
-
 cache:
   directories:
     - "$HOME/.gradle/caches/"
     - "$HOME/.gradle/wrapper/"
-
-after_success:
-  - "./gradlew jacocoRootReport"
-  - java -jar codacy-coverage-reporter-assembly.jar report -l Java -r build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml

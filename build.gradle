@@ -28,7 +28,6 @@ ext {
 
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'jacoco'
     group = "uk.gov.ida"
     version = "$build_version"
 }
@@ -159,29 +158,6 @@ subprojects {
 
     tasks.withType(Test) {
         useJUnitPlatform()
-    }
-}
-
-task jacocoMerge(type: JacocoMerge) {
-    destinationFile = file("$buildDir/jacoco/allTestCoverage.exec")
-    executionData = project.fileTree(dir: '.', include: '**/build/jacoco/*est.exec')
-    jacocoClasspath = project.files(project.configurations.jacocoAnt)
-}
-
-task jacocoRootReport(type: JacocoReport) {
-    dependsOn jacocoMerge
-
-    additionalSourceDirs files(subprojects.sourceSets.main.allSource.srcDirs)
-    additionalClassDirs files(subprojects.sourceSets.main.output)
-    executionData jacocoMerge.destinationFile
-
-    reports {
-        html.enabled = true
-        xml.enabled = true
-    }
-
-    doFirst {
-        executionData files(executionData.findAll { it.exists() })
     }
 }
 
