@@ -83,6 +83,13 @@ subprojects {
         s3mock
     }
 
+    configurations.all {
+        resolutionStrategy {
+            force "ch.qos.logback:logback-classic:1.2.9"
+            force "ch.qos.logback:logback-access:1.2.9"
+        }
+    }
+
     dependencies {
         common 'joda-time:joda-time:2.3',
                 'com.google.inject:guice:5.0.1',
