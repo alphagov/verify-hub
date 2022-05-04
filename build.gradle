@@ -158,7 +158,7 @@ subprojects {
         redis('io.lettuce:lettuce-core:5.1.4.RELEASE')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
 
-        awssdk 'com.amazonaws:aws-java-sdk-s3:1.11.563'
+        awssdk 'com.amazonaws:aws-java-sdk-s3:1.12.212'
 
         s3mock 'com.adobe.testing:s3mock-junit5:2.1.29'
     }
