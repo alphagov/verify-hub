@@ -109,7 +109,7 @@ subprojects {
                 "org.glassfish.jersey.inject:jersey-hk2:$dependencyVersions.glassfish_jersey_version",
                 "org.glassfish.jersey.core:jersey-client:$dependencyVersions.glassfish_jersey_version",
                 "org.glassfish.jersey.core:jersey-server:$dependencyVersions.glassfish_jersey_version",
-                'org.reflections:reflections:0.9.12'
+                'org.reflections:reflections:0.10.2'
 
 
         config 'commons-io:commons-io:2.1'
