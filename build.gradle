@@ -103,7 +103,7 @@ subprojects {
                 "io.dropwizard:dropwizard-auth:$dependencyVersions.dropwizard",
                 "io.dropwizard:dropwizard-configuration:$dependencyVersions.dropwizard",
                 "io.dropwizard:dropwizard-metrics-graphite:$dependencyVersions.dropwizard",
-                'org.dhatim:dropwizard-sentry:2.0.20',
+                'org.dhatim:dropwizard-sentry:2.1.0-6',
                 'com.google.inject.extensions:guice-servlet:5.0.1',
                 "org.glassfish.hk2:guice-bridge:$dependencyVersions.glassfish_version",
                 "org.glassfish.jersey.inject:jersey-hk2:$dependencyVersions.glassfish_jersey_version",
