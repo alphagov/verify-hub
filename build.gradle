@@ -10,7 +10,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.spullara.mustache.java:compiler:0.8.10',
-                'org.yaml:snakeyaml:1.10',
+                'org.yaml:snakeyaml:1.31',
                 'uk.gov.ida:verify-gradle:2.0.0-36',
                 'com.google.guava:guava:23.0'
     }
