@@ -132,7 +132,7 @@ subprojects {
         saml_test "uk.gov.ida:saml-test:$dependencyVersions.saml_lib"
 
         test_utils "io.dropwizard:dropwizard-testing:$dependencyVersions.dropwizard",
-                "org.junit.jupiter:junit-jupiter-api:5.5.2",
+                "org.junit.jupiter:junit-jupiter-api:5.9.0",
                 "org.mockito:mockito-junit-jupiter:4.7.0",
                 'org.assertj:assertj-core:3.14.0',
                 'commons-io:commons-io:2.5'
