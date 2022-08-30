@@ -140,7 +140,7 @@ subprojects {
         def test_deps_deps = [
                 'org.json:json:20170516',
                 'com.jayway.awaitility:awaitility:1.6.0',
-                'com.github.tomakehurst:wiremock-standalone:2.23.2',
+                'com.github.tomakehurst:wiremock-standalone:2.27.2',
                 "uk.gov.ida:saml-test:$dependencyVersions.saml_lib",
                 "uk.gov.ida:common-test-utils:$dependencyVersions.ida_test_utils",
                 "org.glassfish.jersey.media:jersey-media-jaxb:2.33"
