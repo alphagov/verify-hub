@@ -94,7 +94,7 @@ subprojects {
         common 'joda-time:joda-time:2.11.1',
                 'com.google.inject:guice:5.1.0',
                 "javax.xml.bind:jaxb-api:2.3.1",
-                "com.sun.xml.bind:jaxb-core:2.3.0.1",
+                "com.sun.xml.bind:jaxb-core:4.0.0",
                 "com.sun.xml.bind:jaxb-impl:2.3.0.1",
                 "org.glassfish.jersey.media:jersey-media-jaxb:2.33"
 
