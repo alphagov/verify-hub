@@ -40,7 +40,7 @@ repositories {
 }
 
 def dependencyVersions = [
-        ida_utils:'397',
+        ida_utils:'405',
         dropwizard:"$dropwizard_version",
         ida_test_utils:"2.0.0-67",
         opensaml:"$opensaml_version",
