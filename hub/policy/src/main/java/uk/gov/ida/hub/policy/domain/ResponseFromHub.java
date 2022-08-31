@@ -73,6 +73,8 @@ public final class ResponseFromHub {
     public String toString() {
         final StandardToStringStyle style = new StandardToStringStyle();
         style.setUseIdentityHashCode(false);
+        style.setArrayStart("[");
+        style.setArrayEnd("]");
         return ReflectionToStringBuilder.toString(this, style);
     }
 
