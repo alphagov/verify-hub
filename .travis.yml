@@ -7,8 +7,8 @@ env:
 script:
   - wget -q https://github.com/AdoptOpenJDK/openjdk11-upstream-binaries/releases/download/jdk-11.0.16%2B8/OpenJDK11U-jdk-shenandoah_aarch64_linux_11.0.16_8.tar.gz
   - tar xzf OpenJDK11U-jdk-shenandoah_aarch64_linux_11.0.16_8.tar.gz
-  - export PATH=$PWD/jdk-11.0.16+8/bin:$PATH
-  - export JAVA_HOME=$PWD/jdk-11.0.16+8
+  - export PATH=$PWD/openjdk-11.0.16_8/bin:$PATH
+  - export JAVA_HOME=$PWD/openjdk-11.0.16_8
   - java -version
   - ./gradlew inttest --info
 
