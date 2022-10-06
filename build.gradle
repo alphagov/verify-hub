@@ -22,7 +22,7 @@ plugins {
 
 ext {
     opensaml_version = '3.4.6'
-    dropwizard_version = '2.0.21'
+    dropwizard_version = '2.1.2'
     build_version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
 }
 
@@ -40,12 +40,12 @@ repositories {
 }
 
 def dependencyVersions = [
-        ida_utils:'397',
+        ida_utils:'410',
         dropwizard:"$dropwizard_version",
         ida_test_utils:"2.0.0-67",
         opensaml:"$opensaml_version",
         dev_pki: '2.0.0-48',
-        saml_lib:"$opensaml_version-269",
+        saml_lib:"$opensaml_version-273",
         glassfish_version:'2.6.1',
         glassfish_jersey_version:'2.34'
 ]
@@ -114,7 +114,7 @@ subprojects {
 
         config 'commons-io:commons-io:2.11.0'
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:2.0.0-85"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:2.0.0-87"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils",
