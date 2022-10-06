@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/alphagov/verify-hub.svg?branch=master)](https://travis-ci.com/alphagov/verify-hub)
-
 # verify-hub
 
 Verify-hub contains the source code for some of the core  components of the 
