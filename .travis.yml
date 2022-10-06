@@ -10,7 +10,7 @@ script:
   - export PATH=$PWD/openjdk-11.0.16_8/bin:$PATH
   - export JAVA_HOME=$PWD/openjdk-11.0.16_8
   - java -version
-  - ./gradlew inttest --info
+  - ./gradlew
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
