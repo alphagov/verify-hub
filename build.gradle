@@ -21,7 +21,7 @@ plugins {
 }
 
 ext {
-    opensaml_version = '3.4.6'
+    opensaml_version = '4.0.1'
     dropwizard_version = '2.1.2'
     build_version = "$opensaml_version-${System.env.BUILD_NUMBER ?: 'SNAPSHOT'}"
 }
