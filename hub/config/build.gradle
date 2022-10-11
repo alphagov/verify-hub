@@ -2,6 +2,7 @@ dependencies {
     testImplementation configurations.test_deps_compile,
             configurations.test_utils,
             configurations.dev_pki,
+            configurations.snakeYaml,
             configurations.s3mock
 
     implementation configurations.ida_utils,

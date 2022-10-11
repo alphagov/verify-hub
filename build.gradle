@@ -45,7 +45,7 @@ def dependencyVersions = [
         ida_test_utils:"2.0.0-67",
         opensaml:"$opensaml_version",
         dev_pki: '2.0.0-48',
-        saml_lib:"$opensaml_version-274",
+        saml_lib:"$opensaml_version-275",
         glassfish_version:'2.6.1',
         glassfish_jersey_version:'2.34'
 ]
@@ -81,6 +81,7 @@ subprojects {
         redis_test
         awssdk
         s3mock
+        snakeYaml
     }
 
     configurations.all {
@@ -160,7 +161,9 @@ subprojects {
 
         awssdk 'com.amazonaws:aws-java-sdk-s3:1.12.293'
 
-        s3mock 'com.adobe.testing:s3mock-junit5:2.8.0'
+        s3mock ('com.adobe.testing:s3mock-junit5:2.8.0') {  exclude group: 'org.yaml', module: 'snakeyaml' }
+
+        snakeYaml 'org.yaml:snakeyaml:1.33'
     }
 
     tasks.withType(Test) {
