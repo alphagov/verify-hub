@@ -40,12 +40,12 @@ repositories {
 }
 
 def dependencyVersions = [
-        ida_utils:'410',
+        ida_utils:'412',
         dropwizard:"$dropwizard_version",
         ida_test_utils:"2.0.0-67",
         opensaml:"$opensaml_version",
         dev_pki: '2.0.0-48',
-        saml_lib:"$opensaml_version-273",
+        saml_lib:"$opensaml_version-274",
         glassfish_version:'2.6.1',
         glassfish_jersey_version:'2.34'
 ]
