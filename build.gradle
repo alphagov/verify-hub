@@ -60,6 +60,8 @@ subprojects {
         }
     }
 
+    task allDeps(type: DependencyReportTask) {}
+
     configurations {
         common
         dropwizard
