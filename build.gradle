@@ -116,7 +116,7 @@ subprojects {
 
         config 'commons-io:commons-io:2.11.0'
 
-        verify_event_emitter "uk.gov.ida:verify-event-emitter:2.0.0-87"
+        verify_event_emitter "uk.gov.ida:verify-event-emitter:2.0.0-88"
 
         ida_utils "uk.gov.ida:common-utils:2.0.0-$dependencyVersions.ida_utils",
                 "uk.gov.ida:security-utils:2.0.0-$dependencyVersions.ida_utils",
