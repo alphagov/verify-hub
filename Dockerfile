@@ -3,7 +3,7 @@ ARG registry_image_jdk=openjdk:11.0.16-jre@sha256:762d8d035c3b1c98d30c5385f394f4
 
 FROM ${registry_image_gradle} as base-image
 
-USER gradle
+USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
 
 WORKDIR /verify-hub
@@ -28,7 +28,7 @@ RUN gradle --console=plain \
 
 FROM ${registry_image_gradle} as build-app
 ARG hub_app
-USER gradle
+USER root
 ENV GRADLE_USER_HOME /usr/gradle/.gradle
 
 WORKDIR /verify-hub
