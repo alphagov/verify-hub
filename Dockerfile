@@ -3,21 +3,24 @@ ARG registry_image_jdk=openjdk:11.0.16-jre@sha256:762d8d035c3b1c98d30c5385f394f4
 
 FROM ${registry_image_gradle} as base-image
 
-USER root
-ENV GRADLE_USER_HOME /usr/gradle/.gradle
+USER gradle
+ENV GRADLE_USER_HOME /home/gradle
 
 WORKDIR /verify-hub
-COPY build.gradle build.gradle
-COPY settings.gradle settings.gradle
-COPY idea.gradle idea.gradle
-COPY inttest.gradle inttest.gradle
-COPY publish.gradle publish.gradle
+USER root 
+RUN chown -R gradle /verify-hub
+USER gradle
+COPY --chown=gradle build.gradle build.gradle
+COPY --chown=gradle settings.gradle settings.gradle
+COPY --chown=gradle idea.gradle idea.gradle
+COPY --chown=gradle inttest.gradle inttest.gradle
+COPY --chown=gradle publish.gradle publish.gradle
 
 RUN gradle downloadDependencies
 
-COPY hub/shared/ hub/shared/
-COPY hub-saml/ hub-saml/
-COPY hub-saml-test-utils/ hub-saml-test-utils/
+COPY --chown=gradle hub/shared/ hub/shared/
+COPY --chown=gradle hub-saml/ hub-saml/
+COPY --chown=gradle hub-saml-test-utils/ hub-saml-test-utils/
 RUN gradle --console=plain \
     :hub-saml:build \
     :hub-saml:test \
@@ -28,31 +31,35 @@ RUN gradle --console=plain \
 
 FROM ${registry_image_gradle} as build-app
 ARG hub_app
-USER root
-ENV GRADLE_USER_HOME /usr/gradle/.gradle
+
+USER gradle
+ENV GRADLE_USER_HOME /home/gradle
 
 WORKDIR /verify-hub
+USER root 
+RUN chown -R gradle /verify-hub
+USER gradle
 
 # Copy artifacts from previous image
-COPY --from=base-image /usr/gradle/.gradle /usr/gradle/.gradle
-COPY --from=base-image /verify-hub/hub/shared/build.gradle hub/shared/build.gradle
-COPY --from=base-image /verify-hub/hub/shared/src hub/shared/src
-COPY --from=base-image /verify-hub/hub/shared/build hub/shared/build
-COPY --from=base-image /verify-hub/hub-saml/build.gradle hub-saml/build.gradle
-COPY --from=base-image /verify-hub/hub-saml/src hub-saml/src
-COPY --from=base-image /verify-hub/hub-saml/build hub-saml/build
-COPY --from=base-image /verify-hub/hub-saml-test-utils/build.gradle hub-saml-test-utils/build.gradle
-COPY --from=base-image /verify-hub/hub-saml-test-utils/src hub-saml-test-utils/src
-COPY --from=base-image /verify-hub/hub-saml-test-utils/build hub-saml-test-utils/build
-COPY --from=base-image /verify-hub/build.gradle build.gradle
-COPY --from=base-image /verify-hub/settings.gradle settings.gradle
-COPY --from=base-image /verify-hub/idea.gradle idea.gradle
-COPY --from=base-image /verify-hub/inttest.gradle inttest.gradle
-COPY --from=base-image /verify-hub/publish.gradle publish.gradle
+COPY --chown=gradle --from=base-image /home/gradle /home/gradle
+COPY --chown=gradle --from=base-image /verify-hub/hub/shared/build.gradle hub/shared/build.gradle
+COPY --chown=gradle --from=base-image /verify-hub/hub/shared/src hub/shared/src
+COPY --chown=gradle --from=base-image /verify-hub/hub/shared/build hub/shared/build
+COPY --chown=gradle --from=base-image /verify-hub/hub-saml/build.gradle hub-saml/build.gradle
+COPY --chown=gradle --from=base-image /verify-hub/hub-saml/src hub-saml/src
+COPY --chown=gradle --from=base-image /verify-hub/hub-saml/build hub-saml/build
+COPY --chown=gradle --from=base-image /verify-hub/hub-saml-test-utils/build.gradle hub-saml-test-utils/build.gradle
+COPY --chown=gradle --from=base-image /verify-hub/hub-saml-test-utils/src hub-saml-test-utils/src
+COPY --chown=gradle --from=base-image /verify-hub/hub-saml-test-utils/build hub-saml-test-utils/build
+COPY --chown=gradle --from=base-image /verify-hub/build.gradle build.gradle
+COPY --chown=gradle --from=base-image /verify-hub/settings.gradle settings.gradle
+COPY --chown=gradle --from=base-image /verify-hub/idea.gradle idea.gradle
+COPY --chown=gradle --from=base-image /verify-hub/inttest.gradle inttest.gradle
+COPY --chown=gradle --from=base-image /verify-hub/publish.gradle publish.gradle
 
 
-COPY hub/$hub_app/build.gradle hub/$hub_app/build.gradle
-COPY hub/$hub_app/src hub/$hub_app/src
+COPY --chown=gradle hub/$hub_app/build.gradle hub/$hub_app/build.gradle
+COPY --chown=gradle hub/$hub_app/src hub/$hub_app/src
 
 RUN gradle --console=plain \
     :hub:$hub_app:installDist \
@@ -70,8 +77,8 @@ ARG conf_dir=configuration
 
 WORKDIR /verify-hub
 
-COPY $conf_dir/$hub_app.yml /tmp/$hub_app.yml
-COPY --from=build-app /verify-hub/hub/$hub_app/build/install/$hub_app .
+COPY --chown=gradle $conf_dir/$hub_app.yml /tmp/$hub_app.yml
+COPY --chown=gradle --from=build-app /verify-hub/hub/$hub_app/build/install/$hub_app .
 
 # set a sensible default for java's DNS cache
 # if left unset the default is to cache forever
