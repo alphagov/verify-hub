@@ -4,7 +4,7 @@ dependencies {
             configurations.saml,
             configurations.redis_test,
             configurations.dev_pki,
-            'nl.jqno.equalsverifier:equalsverifier:3.11'
+            'nl.jqno.equalsverifier:equalsverifier:3.12'
 
     implementation configurations.ida_utils,
             configurations.verify_event_emitter,
