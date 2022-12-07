@@ -162,7 +162,7 @@ subprojects {
         redis('io.lettuce:lettuce-core:6.2.1.RELEASE')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
 
-        awssdk 'com.amazonaws:aws-java-sdk-s3:1.12.338'
+        awssdk 'com.amazonaws:aws-java-sdk-s3:1.12.359'
 
         s3mock ('com.adobe.testing:s3mock-junit5:2.8.0') {  exclude group: 'org.yaml', module: 'snakeyaml' }
 
