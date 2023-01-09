@@ -1,4 +1,4 @@
-# verify-hub
+# Verify Hub
 
 Verify-hub contains the source code for some of the core  components of the 
 GOV.UK Verify Hub:
