@@ -131,6 +131,12 @@ subprojects {
         saml "org.opensaml:opensaml-core:$dependencyVersions.opensaml",
                 project(":hub-saml")
 
+        constraints {
+            saml("org.bouncycastle:bcprov-jdk15on:1.67") {
+                because "opensaml:3.4.6 has a dep on bcprov-jdk15on:1.59 which is vulnerable to CVE-2018-1000180"
+            }
+        }
+
         saml_lib "uk.gov.ida:saml-lib:$dependencyVersions.saml_lib"
 
         saml_test "uk.gov.ida:saml-test:$dependencyVersions.saml_lib"
