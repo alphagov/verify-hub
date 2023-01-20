@@ -132,7 +132,7 @@ subprojects {
                 project(":hub-saml")
 
         constraints {
-            saml("org.bouncycastle:bcprov-jdk15on:1.67") {
+            saml("org.bouncycastle:bcprov-jdk15on:1.70") {
                 because "opensaml:3.4.6 has a dep on bcprov-jdk15on:1.59 which is vulnerable to CVE-2018-1000180"
             }
         }
