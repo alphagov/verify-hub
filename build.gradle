@@ -165,7 +165,7 @@ subprojects {
 
         soap('org.apache.ws.commons:ws-commons-util:1.0.1') { transitive = false }
 
-        redis('io.lettuce:lettuce-core:6.2.1.RELEASE')
+        redis('io.lettuce:lettuce-core:6.2.3.RELEASE')
         redis_test('com.github.kstyrc:embedded-redis:0.6')
 
         awssdk 'com.amazonaws:aws-java-sdk-s3:1.12.338'
