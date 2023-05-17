@@ -116,7 +116,7 @@ subprojects {
                 'org.reflections:reflections:0.10.2'
 
 
-        config 'commons-io:commons-io:2.11.0'
+        config 'commons-io:commons-io:2.12.0'
 
         verify_event_emitter "uk.gov.ida:verify-event-emitter:2.0.0-88"
 
@@ -145,7 +145,7 @@ subprojects {
                 "org.junit.jupiter:junit-jupiter-api:5.9.1",
                 "org.mockito:mockito-junit-jupiter:4.8.1",
                 'org.assertj:assertj-core:3.23.1',
-                'commons-io:commons-io:2.11.0'
+                'commons-io:commons-io:2.12.0'
 
         def test_deps_deps = [
                 'org.json:json:20220924',
