@@ -1,5 +1,9 @@
 # verify-hub
 
+>**GOV.UK Verify has closed**
+>
+>This repository is out of date and has been archived
+
 Verify-hub contains the source code for some of the core  components of the 
 GOV.UK Verify Hub:
 * [policy](hub/policy/README.md)
