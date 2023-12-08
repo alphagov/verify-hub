@@ -161,7 +161,7 @@ subprojects {
             test_deps_compile(dep) { transitive = false }
         }
 
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
 
         soap('org.apache.ws.commons:ws-commons-util:1.0.1') { transitive = false }
 
