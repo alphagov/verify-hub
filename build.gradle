@@ -10,7 +10,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.spullara.mustache.java:compiler:0.9.10',
-                'org.yaml:snakeyaml:1.33',
+                'org.yaml:snakeyaml:2.2',
                 'uk.gov.ida:verify-gradle:2.0.0-37',
                 'com.google.guava:guava:23.0'
     }
@@ -172,7 +172,7 @@ subprojects {
 
         s3mock ('com.adobe.testing:s3mock-junit5:2.11.0') {  exclude group: 'org.yaml', module: 'snakeyaml' }
 
-        snakeYaml 'org.yaml:snakeyaml:1.33'
+        snakeYaml 'org.yaml:snakeyaml:2.2'
     }
 
     tasks.withType(Test) {
